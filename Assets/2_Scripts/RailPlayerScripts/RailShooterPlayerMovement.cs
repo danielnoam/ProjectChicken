@@ -4,36 +4,34 @@ using UnityEngine;
 
 [RequireComponent(typeof(RailShooterPlayerInput))]
 [RequireComponent(typeof(RailShooterPlayerAiming))]
-public class RailShooterPlayer : MonoBehaviour
+[RequireComponent(typeof(RailShooterPlayerWeaponSystem))]
+public class RailShooterPlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField, Min(0)] private float moveSpeed = 5f;
-    [SerializeField, Min(0)] private float boundaryX = 8f;
-    [SerializeField, Min(0)] private float boundaryY = 4f;
+    [SerializeField, Min(0)] private float moveSpeed = 15f;
+    [SerializeField, Min(0)] private float boundaryX = 10f;
+    [SerializeField, Min(0)] private float boundaryY = 6f;
     
-    [Header("Movement Tilting")]
-    [SerializeField, Min(0)] private float tiltAmount = 30f;
-    [SerializeField, Min(0)] private float tiltSpeed = 5f;
-    
-    [Header("Aiming Rotation")]
-    [SerializeField, Min(0)] private float aimRotationSpeed = 5f;
+    [Header("Rotation Settings")]
+    [SerializeField, Min(0)] private float rotationSpeed = 22f;
+    [SerializeField, Min(0)] private float movementTiltAmount = 30f;
     [SerializeField, Min(0)] private float maxPitchAngle = 30f;
     [SerializeField, Min(0)] private float maxYawAngle = 45f;
     
     [Header("References")] 
-    [SerializeField, Self] private RailShooterPlayerAiming aimingScript;
-    [SerializeField, Self] private RailShooterPlayerInput inputScript;
+    [SerializeField, Self] private RailShooterPlayerAiming playerAiming;
+    [SerializeField, Self] private RailShooterPlayerInput playerInput;
     [SerializeField] private Transform shipModel;
     
     private Vector3 targetMovePosition;
-    private float horizontalInput => inputScript.MovementInput.x;
-    private float verticalInput => inputScript.MovementInput.y;
+    private float horizontalInput => playerInput.MovementInput.x;
+    private float verticalInput => playerInput.MovementInput.y;
 
     private void Awake()
     {
         if (!shipModel)
         {
-            Debug.LogError("Ship model not set in RailShooterPlayer");
+            Debug.LogError("Ship model not set in RailShooterPlayerMovement");
             return;
         }
     }
@@ -60,7 +58,7 @@ public class RailShooterPlayer : MonoBehaviour
     
     private void HandleRotation()
     {
-        Vector3 aimDirection = aimingScript.GetAimDirection();
+        Vector3 aimDirection = playerAiming.GetAimDirection();
         
         float yawAngle = Mathf.Atan2(aimDirection.x, aimDirection.z) * Mathf.Rad2Deg;
         float pitchAngle = -Mathf.Asin(aimDirection.y) * Mathf.Rad2Deg;
@@ -68,11 +66,11 @@ public class RailShooterPlayer : MonoBehaviour
         yawAngle = Mathf.Clamp(yawAngle, -maxYawAngle, maxYawAngle);
         pitchAngle = Mathf.Clamp(pitchAngle, -maxPitchAngle, maxPitchAngle);
         
-        float bankAngle = -horizontalInput * tiltAmount * 0.5f;
+        float bankAngle = -horizontalInput * movementTiltAmount * 0.5f;
         
         Quaternion targetRotation = Quaternion.Euler(pitchAngle, yawAngle, bankAngle);
         
-        shipModel.localRotation = Quaternion.Slerp(shipModel.localRotation, targetRotation, aimRotationSpeed * Time.deltaTime);
+        shipModel.localRotation = Quaternion.Slerp(shipModel.localRotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 
     

@@ -22,8 +22,8 @@ public class RailShooterPlayerAiming : MonoBehaviour
     
     
     [Header("References")]
-    [SerializeField, Self] private RailShooterPlayerInput inputScript;
-    [SerializeField, Self] private RailShooterPlayer playerMovement;
+    [SerializeField, Self] private RailShooterPlayerInput playerInput;
+    [SerializeField, Self] private RailShooterPlayerMovement playerMovement;
     [SerializeField] private Transform crosshair; 
     
     
@@ -84,7 +84,7 @@ public class RailShooterPlayerAiming : MonoBehaviour
             return;
         }
         
-        Vector2 movementInput = inputScript.MovementInput;
+        Vector2 movementInput = playerInput.MovementInput;
         
         Vector3 targetOffset = new Vector3(
             movementInput.x * movementOffsetStrength,
@@ -105,7 +105,7 @@ public class RailShooterPlayerAiming : MonoBehaviour
         }
         
         Vector3 screenCenter = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0);
-        Vector3 currentMousePosition = inputScript.MousePosition;
+        Vector3 currentMousePosition = playerInput.MousePosition;
         
         Vector3 mouseFromCenter = currentMousePosition - screenCenter;
         
