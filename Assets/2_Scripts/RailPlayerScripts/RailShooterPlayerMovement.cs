@@ -18,12 +18,17 @@ public class RailShooterPlayerMovement : MonoBehaviour
     [SerializeField, Min(0)] private float maxPitchAngle = 30f;
     [SerializeField, Min(0)] private float maxYawAngle = 45f;
     
+    [Header("Path Settings")]
+    [SerializeField] private float pathFollowSpeed = 5f;
+    [SerializeField] private Vector3 pathOffset = Vector3.zero;
+    
     [Header("References")] 
     [SerializeField, Self] private RailShooterPlayerAiming playerAiming;
     [SerializeField, Self] private RailShooterPlayerInput playerInput;
     [SerializeField] private Transform shipModel;
     
     private Vector3 targetMovePosition;
+    private Vector3 targetPathPosition;
     private float horizontalInput => playerInput.MovementInput.x;
     private float verticalInput => playerInput.MovementInput.y;
 
@@ -35,20 +40,33 @@ public class RailShooterPlayerMovement : MonoBehaviour
             return;
         }
     }
+    
 
     private void Update()
     {
         HandleMovement();
-        HandleRotation();
+        HandleShipRotation();
     }
     
     
     private void HandleMovement()
     {
+        // Handle axis movement
         targetMovePosition = new Vector3(horizontalInput, verticalInput, 0) * (moveSpeed * Time.deltaTime);
+
+        // Handle the path following
+        if (!LevelManager.Instance || !LevelManager.Instance.LevelPath)
+        {
+            Vector3 targetPosition = LevelManager.Instance.CurrentPositionOnPath.position + pathOffset;
+            targetPathPosition = Vector3.Lerp(targetPathPosition, targetPosition, pathFollowSpeed * Time.deltaTime);
+        } else {
+            targetPathPosition = Vector3.zero;
+        }
+
         
-        transform.Translate(targetMovePosition, Space.World);
+        transform.Translate(targetMovePosition + targetPathPosition, Space.World);
         
+        // Clamp position within boundaries
         Vector3 clampedPosition = transform.position;
         clampedPosition.x = Mathf.Clamp(clampedPosition.x, -boundaryX, boundaryX);
         clampedPosition.y = Mathf.Clamp(clampedPosition.y, -boundaryY, boundaryY);
@@ -56,7 +74,7 @@ public class RailShooterPlayerMovement : MonoBehaviour
     }
     
     
-    private void HandleRotation()
+    private void HandleShipRotation()
     {
         Vector3 aimDirection = playerAiming.GetAimDirection();
         
@@ -72,6 +90,7 @@ public class RailShooterPlayerMovement : MonoBehaviour
         
         shipModel.localRotation = Quaternion.Slerp(shipModel.localRotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
+
 
     
     
