@@ -27,8 +27,8 @@ public class RailShooterPlayerMovement : MonoBehaviour
     [SerializeField, Self] private RailShooterPlayerInput playerInput;
     [SerializeField] private Transform shipModel;
     
-    private Vector3 targetMovePosition;
-    private Vector3 targetPathPosition;
+    private Vector3 _targetMovePosition;
+    private Vector3 _targetPathPosition;
     private float horizontalInput => playerInput.MovementInput.x;
     private float verticalInput => playerInput.MovementInput.y;
 
@@ -52,19 +52,19 @@ public class RailShooterPlayerMovement : MonoBehaviour
     private void HandleMovement()
     {
         // Handle axis movement
-        targetMovePosition = new Vector3(horizontalInput, verticalInput, 0) * (moveSpeed * Time.deltaTime);
+        _targetMovePosition = new Vector3(horizontalInput, verticalInput, 0) * (moveSpeed * Time.deltaTime);
 
         // Handle the path following
-        if (!LevelManager.Instance || !LevelManager.Instance.LevelPath)
+        if (LevelManager.Instance && LevelManager.Instance.LevelPath)
         {
             Vector3 targetPosition = LevelManager.Instance.CurrentPositionOnPath.position + pathOffset;
-            targetPathPosition = Vector3.Lerp(targetPathPosition, targetPosition, pathFollowSpeed * Time.deltaTime);
+            _targetPathPosition = Vector3.Lerp(_targetPathPosition, targetPosition, pathFollowSpeed * Time.deltaTime);
         } else {
-            targetPathPosition = Vector3.zero;
+            _targetPathPosition = Vector3.zero;
         }
 
         
-        transform.Translate(targetMovePosition + targetPathPosition, Space.World);
+        transform.Translate(_targetMovePosition + _targetPathPosition, Space.World);
         
         // Clamp position within boundaries
         Vector3 clampedPosition = transform.position;

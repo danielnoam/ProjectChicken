@@ -25,12 +25,6 @@ public class RailShooterPlayerWeaponSystem : MonoBehaviour
     private SOWeapon previousWeapon;
     private SOWeapon currentWeapon;
 
-
-    private void Awake()
-    {
-
-    }
-    
     
     
     private void SelectWeapon(SOWeapon selectedWeapon)
