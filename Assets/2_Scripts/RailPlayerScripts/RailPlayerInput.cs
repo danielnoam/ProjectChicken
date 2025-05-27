@@ -1,15 +1,16 @@
 using UnityEngine;
 
-public class RailShooterPlayerInput : MonoBehaviour
+public class RailPlayerInput : MonoBehaviour
 {
     [Header("Input Settings")] 
     [SerializeField] private float mouseSensitivity = 1f;
     [SerializeField] private float inputSmoothing = 0.1f;
-    [SerializeField] private KeyCode useWeaponKey = KeyCode.Space;
-    [SerializeField] private KeyCode nextWeaponKey = KeyCode.E;
-    [SerializeField] private KeyCode previousWeaponKey = KeyCode.Q;
+    [SerializeField] private KeyCode useBaseWeaponKey = KeyCode.Space;
+    [SerializeField] private KeyCode useSpecialWeaponKey = KeyCode.LeftShift;
+    [SerializeField] private KeyCode dodgeLeftKey = KeyCode.E;
+    [SerializeField] private KeyCode dodgeRightKey = KeyCode.Q;
 
-    private Vector3 lastMousePosition;
+    private Vector3 _lastMousePosition;
 
     public Vector2 MovementInput { get; private set; }
 
@@ -22,13 +23,14 @@ public class RailShooterPlayerInput : MonoBehaviour
     public Vector3 MousePosition { get; private set; }
 
     public Vector2 MouseDelta { get; private set; }
-    public bool UseWeaponInput { get; private set; }
-    public bool NextWeaponInput { get; private set; }
-    public bool PreviousWeaponInput { get; private set; }
+    public bool UseBaseWeaponInput { get; private set; }
+    public bool UseSpecialWeaponInput { get; private set; }
+    public bool DodgeLeftInput { get; private set; }
+    public bool DodgeRightInput { get; private set; }
     private void Start()
     {
         MousePosition = Input.mousePosition;
-        lastMousePosition = MousePosition;
+        _lastMousePosition = MousePosition;
     }
 
     private void Update()
@@ -52,23 +54,23 @@ public class RailShooterPlayerInput : MonoBehaviour
 
         RawMovementInput = Vector2.ClampMagnitude(input, 1f);
         MovementInput = Vector2.Lerp(MovementInput, RawMovementInput, inputSmoothing > 0 ? Time.deltaTime / inputSmoothing : 1f);
+        DodgeLeftInput = Input.GetKeyDown(dodgeLeftKey);
+        DodgeRightInput = Input.GetKeyDown(dodgeRightKey);
     }
 
     private void HandleAimInput()
     {
-
-        lastMousePosition = MousePosition;
+        _lastMousePosition = MousePosition;
         MousePosition = Input.mousePosition;
-        MouseDelta = (MousePosition - lastMousePosition) * mouseSensitivity;
+        MouseDelta = (MousePosition - _lastMousePosition) * mouseSensitivity;
         RawAimInput = MouseDelta;
         AimInput = Vector2.Lerp(AimInput, RawAimInput, inputSmoothing > 0 ? Time.deltaTime / inputSmoothing : 1f);
     }
     
     private void HandleWeaponInput()
     {
-        UseWeaponInput = Input.GetKeyDown(useWeaponKey);
-        NextWeaponInput = Input.GetKeyDown(nextWeaponKey);
-        PreviousWeaponInput = Input.GetKeyDown(previousWeaponKey);
+        UseBaseWeaponInput = Input.GetKeyDown(useBaseWeaponKey) || Input.GetKey(useBaseWeaponKey);
+        UseSpecialWeaponInput = Input.GetKeyDown(useSpecialWeaponKey) || Input.GetKey(useSpecialWeaponKey);
     }
 
     #endregion Input Handling --------------------------------------------------------------------------------------

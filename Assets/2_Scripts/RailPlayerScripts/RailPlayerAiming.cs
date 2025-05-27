@@ -3,7 +3,7 @@ using KBCore.Refs;
 using UnityEngine;
 
 
-public class RailShooterPlayerAiming : MonoBehaviour
+public class RailPlayerAiming : MonoBehaviour
 {
     [Header("Aiming Settings")]
     [SerializeField, Min(0)] private float crosshairBoundaryX = 21f;
@@ -22,15 +22,15 @@ public class RailShooterPlayerAiming : MonoBehaviour
     
     
     [Header("References")]
-    [SerializeField, Self] private RailShooterPlayerInput playerInput;
-    [SerializeField, Self] private RailShooterPlayerMovement playerMovement;
+    [SerializeField, Self] private RailPlayerInput playerInput;
+    [SerializeField, Self] private RailPlayerMovement playerMovement;
     [SerializeField] private Transform crosshair; 
     
     
-    private Vector3 aimDirection;
-    private Vector3 crosshairWorldPosition;
-    private Vector3 mouseOffset;
-    private Vector3 movementOffset;
+    private Vector3 _aimDirection;
+    private Vector3 _crosshairWorldPosition;
+    private Vector3 _mouseOffset;
+    private Vector3 _movementOffset;
 
 
     private void OnValidate()
@@ -45,7 +45,7 @@ public class RailShooterPlayerAiming : MonoBehaviour
     {
         if (crosshair)
         {
-            crosshairWorldPosition = transform.position + Vector3.forward * 10f;
+            _crosshairWorldPosition = transform.position + Vector3.forward * 10f;
             UpdateAimPosition();
         }
     }
@@ -61,17 +61,17 @@ public class RailShooterPlayerAiming : MonoBehaviour
     private void UpdateAimPosition()
     {
         
-        aimDirection = (crosshairWorldPosition - transform.position).normalized;
-        crosshairWorldPosition = transform.position + mouseOffset + movementOffset + crosshairOffset;
+        _aimDirection = (_crosshairWorldPosition - transform.position).normalized;
+        _crosshairWorldPosition = transform.position + _mouseOffset + _movementOffset + crosshairOffset;
         
-        Vector3 clampedPosition = crosshairWorldPosition;
+        Vector3 clampedPosition = _crosshairWorldPosition;
         clampedPosition.x = Mathf.Clamp(clampedPosition.x, -crosshairBoundaryX, crosshairBoundaryX);
         clampedPosition.y = Mathf.Clamp(clampedPosition.y, -crosshairBoundaryY, crosshairBoundaryY);
-        crosshairWorldPosition = clampedPosition;
+        _crosshairWorldPosition = clampedPosition;
         
         if (!crosshair) return;
         
-        crosshair.position = crosshairWorldPosition;
+        crosshair.position = _crosshairWorldPosition;
     }
     
     
@@ -80,7 +80,7 @@ public class RailShooterPlayerAiming : MonoBehaviour
     {
         if (!useMovementOffset)
         {
-            movementOffset = Vector3.zero;
+            _movementOffset = Vector3.zero;
             return;
         }
         
@@ -92,7 +92,7 @@ public class RailShooterPlayerAiming : MonoBehaviour
             0
         );
         
-        movementOffset = Vector3.Lerp(movementOffset, targetOffset, movementOffsetSmoothing * Time.deltaTime);
+        _movementOffset = Vector3.Lerp(_movementOffset, targetOffset, movementOffsetSmoothing * Time.deltaTime);
     }
     
     private void HandleAimingOffset()
@@ -100,7 +100,7 @@ public class RailShooterPlayerAiming : MonoBehaviour
 
         if (!useAimOffset)
         {
-            mouseOffset = Vector3.zero;
+            _mouseOffset = Vector3.zero;
             return;
         }
         
@@ -123,7 +123,7 @@ public class RailShooterPlayerAiming : MonoBehaviour
             0
         );
         
-        mouseOffset = Vector3.Lerp(mouseOffset, targetOffset, aimOffsetSmoothing * Time.deltaTime);
+        _mouseOffset = Vector3.Lerp(_mouseOffset, targetOffset, aimOffsetSmoothing * Time.deltaTime);
     }
     
 
@@ -133,19 +133,19 @@ public class RailShooterPlayerAiming : MonoBehaviour
 
     public Vector3 GetAimDirection()
     {
-        return aimDirection;
+        return _aimDirection;
     }
     
     public Vector3 GetAimPosition()
     {
-        return crosshairWorldPosition;
+        return _crosshairWorldPosition;
     }
     
     
     public bool IsAimingAtTarget(Transform target, float tolerance = 1f)
     {
         Vector3 directionToTarget = (target.position - transform.position).normalized;
-        float dot = Vector3.Dot(aimDirection, directionToTarget);
+        float dot = Vector3.Dot(_aimDirection, directionToTarget);
         return dot > (1f - tolerance);
     }
     
@@ -163,7 +163,7 @@ public class RailShooterPlayerAiming : MonoBehaviour
         
         
         // Aim direction ray
-        Gizmos.DrawRay(transform.position, aimDirection * 10f);
+        Gizmos.DrawLine(transform.position, _crosshairWorldPosition);
         
         
         // Draw boundaries

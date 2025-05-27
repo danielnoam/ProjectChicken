@@ -11,5 +11,31 @@ public class SOWeapon : ScriptableObject
     [SerializeField, Min(0)] private float projectileSpeed = 100f;
     [SerializeField, Min(0)] private float projectilePushForce;
     [SerializeField, Min(0)] private float projectileLifetime = 5f;
-    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private PlayerProjectile playerProjectilePrefab;
+    
+    
+    [Header("Impact Effect")]
+    [SerializeField] private AudioClip impactSound;
+    [SerializeField] private GameObject impactEffectPrefab;
+    
+    public float Damage => damage;
+    public float FireRate => fireRate;
+    public float ProjectileSpeed => projectileSpeed;
+    public float ProjectilePushForce => projectilePushForce;
+    public float ProjectileLifetime => projectileLifetime;
+    public PlayerProjectile PlayerProjectilePrefab => playerProjectilePrefab;
+    
+    
+    public void SpawnImpactEffect(Vector3 position, Quaternion rotation)
+    {
+        if (impactEffectPrefab)
+        {
+            Instantiate(impactEffectPrefab, position, rotation);
+        }
+        
+        if (impactSound)
+        {
+            AudioSource.PlayClipAtPoint(impactSound, position);
+        }
+    }
 }

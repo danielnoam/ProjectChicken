@@ -2,10 +2,8 @@ using System;
 using KBCore.Refs;
 using UnityEngine;
 
-[RequireComponent(typeof(RailShooterPlayerInput))]
-[RequireComponent(typeof(RailShooterPlayerAiming))]
-[RequireComponent(typeof(RailShooterPlayerWeaponSystem))]
-public class RailShooterPlayerMovement : MonoBehaviour
+
+public class RailPlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField, Min(0)] private float moveSpeed = 15f;
@@ -23,8 +21,8 @@ public class RailShooterPlayerMovement : MonoBehaviour
     [SerializeField] private Vector3 pathOffset = Vector3.zero;
     
     [Header("References")] 
-    [SerializeField, Self] private RailShooterPlayerAiming playerAiming;
-    [SerializeField, Self] private RailShooterPlayerInput playerInput;
+    [SerializeField, Self] private RailPlayerAiming playerAiming;
+    [SerializeField, Self] private RailPlayerInput playerInput;
     [SerializeField] private Transform shipModel;
     
     private Vector3 _targetMovePosition;
@@ -51,26 +49,26 @@ public class RailShooterPlayerMovement : MonoBehaviour
     
     private void HandleMovement()
     {
-        // Handle axis movement
-        _targetMovePosition = new Vector3(horizontalInput, verticalInput, 0) * (moveSpeed * Time.deltaTime);
+        // Accumulate player input as offset from path
+        Vector3 inputMovement = new Vector3(horizontalInput, verticalInput, 0) * (moveSpeed * Time.deltaTime);
+        _targetMovePosition += inputMovement;
+    
+        // Clamp the offset within boundaries
+        _targetMovePosition.x = Mathf.Clamp(_targetMovePosition.x, -boundaryX, boundaryX);
+        _targetMovePosition.y = Mathf.Clamp(_targetMovePosition.y, -boundaryY, boundaryY);
 
         // Handle the path following
         if (LevelManager.Instance && LevelManager.Instance.LevelPath)
         {
             Vector3 targetPosition = LevelManager.Instance.CurrentPositionOnPath.position + pathOffset;
             _targetPathPosition = Vector3.Lerp(_targetPathPosition, targetPosition, pathFollowSpeed * Time.deltaTime);
-        } else {
+        } 
+        else 
+        {
             _targetPathPosition = Vector3.zero;
         }
 
-        
-        transform.Translate(_targetMovePosition + _targetPathPosition, Space.World);
-        
-        // Clamp position within boundaries
-        Vector3 clampedPosition = transform.position;
-        clampedPosition.x = Mathf.Clamp(clampedPosition.x, -boundaryX, boundaryX);
-        clampedPosition.y = Mathf.Clamp(clampedPosition.y, -boundaryY, boundaryY);
-        transform.position = clampedPosition;
+        transform.position = _targetPathPosition + _targetMovePosition;
     }
     
     
@@ -101,11 +99,11 @@ public class RailShooterPlayerMovement : MonoBehaviour
     private void OnDrawGizmos()
     {
         // Draw boundaries
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(new Vector3(-boundaryX, -boundaryY, 0), new Vector3(-boundaryX, boundaryY, 0));
-        Gizmos.DrawLine(new Vector3(boundaryX, -boundaryY, 0), new Vector3(boundaryX, boundaryY, 0));
-        Gizmos.DrawLine(new Vector3(-boundaryX, -boundaryY, 0), new Vector3(boundaryX, -boundaryY, 0));
-        Gizmos.DrawLine(new Vector3(-boundaryX, boundaryY, 0), new Vector3(boundaryX, boundaryY, 0));
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position + new Vector3(-boundaryX, -boundaryY, 0), transform.position +  new Vector3(-boundaryX, boundaryY, 0));
+        Gizmos.DrawLine(transform.position + new Vector3(boundaryX, -boundaryY, 0), transform.position + new Vector3(boundaryX, boundaryY, 0));
+        Gizmos.DrawLine(transform.position + new Vector3(-boundaryX, -boundaryY, 0), transform.position + new Vector3(boundaryX, -boundaryY, 0));
+        Gizmos.DrawLine(transform.position + new Vector3(-boundaryX, boundaryY, 0), transform.position + new Vector3(boundaryX, boundaryY, 0));
         UnityEditor.Handles.Label(new Vector3(0, boundaryY + 0.5f, 0), "Player Boundaries");
     }
 

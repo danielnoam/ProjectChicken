@@ -4,25 +4,13 @@ using UnityEngine;
 using UnityEngine.Splines;
 
 [Serializable]
-public class LevelSection
-{
-    public string sectionName;
-    [Range(0,100)] public float sectionLength;
-    public SectionType sectionType = SectionType.ClearPath;
-}
 
-public enum SectionType
-{
-    ClearPath,
-    EnemyWave,
-}
+
 
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance { get; private set; }
     
-    [Header("Level Settings")]
-    [SerializeField, Min(2)] private LevelSection[] levelSections = new LevelSection[2];
     
     [Header("References")]
     [SerializeField, Child] private SplineContainer levelPath;
@@ -44,6 +32,17 @@ public class LevelManager : MonoBehaviour
             return;
         }
         
+    }
+
+
+    private void OnDrawGizmos()
+    {
+        // Draw the path position
+        if (currentPositonOnPath)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawSphere(currentPositonOnPath.position, 0.5f);
+        }
     }
 }
 
