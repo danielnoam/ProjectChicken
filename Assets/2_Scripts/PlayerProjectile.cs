@@ -9,21 +9,24 @@ public class PlayerProjectile : MonoBehaviour
     private float _speed;
     private float _pushForce;
     private float _lifetime;
+    private float _damage;
     private Vector3 _direction;
     private bool _isInitialized;
 
+    
+    public float Damage => _damage;
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (!_isInitialized) return;
 
 
         // Move the projectile
-        _rigidbody.MovePosition(_rigidbody.position + _direction * (_speed * Time.deltaTime));
+        _rigidbody.MovePosition(_rigidbody.position + _direction * (_speed * Time.fixedDeltaTime));
 
 
         // Destroy the projectile after its lifetime ends
@@ -61,6 +64,7 @@ public class PlayerProjectile : MonoBehaviour
         _pushForce = weaponData.ProjectilePushForce;
         _lifetime = weaponData.ProjectileLifetime;
         _direction = direction;
+        _damage = weaponData.Damage;
         _isInitialized = true;
     }
     

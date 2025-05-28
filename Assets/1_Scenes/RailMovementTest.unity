@@ -236,6 +236,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 34690903}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &61479685
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 61479686}
+  m_Layer: 0
+  m_Name: FollowPoints
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &61479686
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 61479685}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 310209910}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &116467613
 GameObject:
   m_ObjectHideFlags: 0
@@ -484,6 +515,7 @@ GameObject:
   m_Component:
   - component: {fileID: 310209910}
   - component: {fileID: 310209911}
+  - component: {fileID: 310209912}
   m_Layer: 0
   m_Name: LevelManager
   m_TagString: Untagged
@@ -506,6 +538,8 @@ Transform:
   m_Children:
   - {fileID: 1011914063}
   - {fileID: 335785509}
+  - {fileID: 61479686}
+  - {fileID: 1670337816}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &310209911
@@ -522,6 +556,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelPath: {fileID: 1011914064}
   currentPositonOnPath: {fileID: 335785509}
+--- !u!114 &310209912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310209909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a945f82e26bdaf44792f261ef3ce3ab9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnPositionOffset: {x: 0, y: 15, z: 12}
+  xSpawnPositionRange: {x: -10, y: 10}
+  ySpawnPositionRange: {x: 0, y: 0}
+  followPositionOffset: {x: 0, y: 0, z: 12}
+  xFollowPositionRange: {x: -10, y: 10}
+  yFollowPositionRange: {x: -10, y: 10}
+  levelManager: {fileID: 310209911}
+  followPointHolder: {fileID: 61479686}
+  enemyHolder: {fileID: 1670337816}
+  enemyPrefab: {fileID: 1834044068949957995, guid: cbd1f8282377425469ee4fed8e3f1c1c, type: 3}
 --- !u!1 &315217605
 GameObject:
   m_ObjectHideFlags: 0
@@ -1183,7 +1239,7 @@ MonoBehaviour:
   crosshairBoundaryX: 25
   crosshairBoundaryY: 15
   crosshairOffset: {x: 0, y: 0, z: 15}
-  useAimOffset: 1
+  useAimOffset: 0
   maxOffsetStrength: 5
   aimOffsetSmoothing: 2
   useMovementOffset: 1
@@ -1968,6 +2024,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1552552323}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1670337815
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1670337816}
+  m_Layer: 0
+  m_Name: Enemies
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1670337816
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670337815}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 310209910}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1694666485
 GameObject:
