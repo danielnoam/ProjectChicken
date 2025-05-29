@@ -69,8 +69,8 @@ public class RailPlayerInput : MonoBehaviour
     
     private void HandleWeaponInput()
     {
-        UseBaseWeaponInput = Input.GetKeyDown(useBaseWeaponKey) || Input.GetKey(useBaseWeaponKey);
-        UseSpecialWeaponInput = Input.GetKeyDown(useSpecialWeaponKey) || Input.GetKey(useSpecialWeaponKey);
+        UseBaseWeaponInput = Input.GetKeyDown(useBaseWeaponKey) || Input.GetKey(useBaseWeaponKey) || Input.GetMouseButton(0) || Input.GetMouseButtonDown(0);
+        UseSpecialWeaponInput = Input.GetKeyDown(useSpecialWeaponKey) || Input.GetKey(useSpecialWeaponKey) || Input.GetMouseButton(1) || Input.GetMouseButtonDown(1);
     }
 
     #endregion Input Handling --------------------------------------------------------------------------------------

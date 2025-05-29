@@ -8,8 +8,6 @@ public class RailPlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField, Min(0)] private float moveSpeed = 15f;
-    [SerializeField, Min(0)] private float boundaryX = 10f;
-    [SerializeField, Min(0)] private float boundaryY = 6f;
     
     [Header("Rotation Settings")]
     [SerializeField, Min(0)] private float rotationSpeed = 22f;
@@ -17,13 +15,8 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Min(0)] private float maxPitchAngle = 30f;
     [SerializeField, Min(0)] private float maxYawAngle = 45f;
     
-    [Header("Path Settings")]
-    [SerializeField] private float pathFollowSpeed = 5f;
-    [SerializeField] private float pathOffset = -8f;
-    [SerializeField] private bool alignToSplineDirection = true;
-    [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
-    
     [Header("References")] 
+    [SerializeField, Self] private RailPlayer player;
     [SerializeField, Self] private RailPlayerAiming playerAiming;
     [SerializeField, Self] private RailPlayerInput playerInput;
     [SerializeField] private Transform shipModel;
@@ -34,6 +27,9 @@ public class RailPlayerMovement : MonoBehaviour
     
     private float horizontalInput => playerInput.MovementInput.x;
     private float verticalInput => playerInput.MovementInput.y;
+    private readonly float boundaryX = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
+    private readonly float boundaryY = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
+    private readonly float pathOffset =  LevelManager.Instance ? LevelManager.Instance.PlayerOffset : -8f;
 
     
     private void Update()
@@ -72,7 +68,7 @@ public class RailPlayerMovement : MonoBehaviour
             targetSplineT = Mathf.Clamp01(targetSplineT); // Keep within spline bounds
     
             Vector3 targetPosition = LevelManager.Instance.LevelPath.EvaluatePosition(targetSplineT);
-            _targetPathPosition = Vector3.Lerp(_targetPathPosition, targetPosition, pathFollowSpeed * Time.deltaTime);
+            _targetPathPosition = Vector3.Lerp(_targetPathPosition, targetPosition, player.PathFollowSpeed * Time.deltaTime);
         } 
         else 
         {
@@ -112,7 +108,7 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void HandleSplineRotation()
     {
-        if (!alignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.LevelPath)
+        if (!player.AlignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.LevelPath)
         {
             _splineRotation = Quaternion.identity;
             return;
@@ -124,7 +120,7 @@ public class RailPlayerMovement : MonoBehaviour
         if (splineForward != Vector3.zero)
         {
             Quaternion targetSplineRotation = Quaternion.LookRotation(splineForward, Vector3.up);
-            _splineRotation = Quaternion.Slerp(_splineRotation, targetSplineRotation, splineRotationSpeed * Time.deltaTime);
+            _splineRotation = Quaternion.Slerp(_splineRotation, targetSplineRotation, player.SplineRotationSpeed * Time.deltaTime);
             
             // Apply spline rotation to the entire player transform
             transform.rotation = _splineRotation;
@@ -161,6 +157,8 @@ public class RailPlayerMovement : MonoBehaviour
 
     #endregion Spline --------------------------------------------------------------------------------------
  
+    
+    
     #region Editor -------------------------------------------------------------------------------------
 
     private void OnDrawGizmos()

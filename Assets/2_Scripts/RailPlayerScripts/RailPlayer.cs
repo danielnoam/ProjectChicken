@@ -9,15 +9,28 @@ using UnityEngine;
 public class RailPlayer : MonoBehaviour
 {
 
-    [Header("Player Settings")]
+    [Header("Health Settings")]
     [SerializeField, Min(0)] private int maxHealth = 3;
     [SerializeField, Min(0)] private float maxShieldHealth = 100f;
     
 
+    [Header("Path Settings")]
+    [SerializeField] private bool alignToSplineDirection = true;
+    [SerializeField] private float pathFollowSpeed = 5f;
+    [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
     
 
     private float _currentShieldHealth;
     private int _currentHealth;
+    
+    
+    public float CurrentShieldHealth => _currentShieldHealth;
+    public int CurrentHealth => _currentHealth;
+    public bool IsAlive => _currentHealth > 0;
+    public bool HasShield => _currentShieldHealth > 0f;
+    public bool AlignToSplineDirection => alignToSplineDirection;
+    public float PathFollowSpeed => pathFollowSpeed;
+    public float SplineRotationSpeed => splineRotationSpeed;
 
     private void Awake()
     {

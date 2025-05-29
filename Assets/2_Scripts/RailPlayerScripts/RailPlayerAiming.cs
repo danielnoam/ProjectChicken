@@ -8,9 +8,6 @@ public class RailPlayerAiming : MonoBehaviour
 {
     [Header("Aiming Settings")]
     [SerializeField] private bool hideCursor = true;
-    [SerializeField, Min(0)] private float crosshairBoundaryX = 25f;
-    [SerializeField, Min(0)] private float crosshairBoundaryY = 15f;
-    [SerializeField] private float crosshairOffset = 10f;
     
     [Header("Mouse Offset")]
     [SerializeField] private bool useMouseOffset = true;
@@ -22,11 +19,8 @@ public class RailPlayerAiming : MonoBehaviour
     [SerializeField, Min(0)] private float movementOffsetStrength = 11f;
     [SerializeField, Min(0)] private float movementOffsetSmoothing = 5f;
     
-    [Header("Spline Alignment")]
-    [SerializeField] private bool alignToSplineDirection = true;
-    [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
-    
     [Header("References")]
+    [SerializeField, Self] private RailPlayer player;
     [SerializeField, Self] private RailPlayerInput playerInput;
     [SerializeField, Self] private RailPlayerMovement playerMovement;
     [SerializeField] private Transform crosshair; 
@@ -37,6 +31,9 @@ public class RailPlayerAiming : MonoBehaviour
     private Vector3 _mouseOffset;
     private Vector3 _movementOffset;
     private Quaternion _splineRotation = Quaternion.identity;
+    private readonly float crosshairBoundaryX = LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.x : 25f;
+    private readonly float crosshairBoundaryY = LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.y :  15f;
+    private readonly float pathOffset = LevelManager.Instance ? LevelManager.Instance.EnemyOffset : 10f;
 
     private void Awake()
     {
@@ -65,7 +62,7 @@ public class RailPlayerAiming : MonoBehaviour
     
     private void HandleSplineRotation()
     {
-        if (!alignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.LevelPath)
+        if (!player.AlignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.LevelPath)
         {
             _splineRotation = Quaternion.identity;
             return;
@@ -77,7 +74,7 @@ public class RailPlayerAiming : MonoBehaviour
         if (splineForward != Vector3.zero)
         {
             Quaternion targetSplineRotation = Quaternion.LookRotation(splineForward, Vector3.up);
-            _splineRotation = Quaternion.Slerp(_splineRotation, targetSplineRotation, splineRotationSpeed * Time.deltaTime);
+            _splineRotation = Quaternion.Slerp(_splineRotation, targetSplineRotation, player.SplineRotationSpeed * Time.deltaTime);
         }
     }
     
@@ -96,7 +93,7 @@ public class RailPlayerAiming : MonoBehaviour
         if (!LevelManager.Instance || !LevelManager.Instance.LevelPath)
             return 0f;
             
-        float offsetT = crosshairOffset / LevelManager.Instance.LevelPath.CalculateLength();
+        float offsetT = pathOffset / LevelManager.Instance.LevelPath.CalculateLength();
         float crosshairSplineT = LevelManager.Instance.GetCurrentSplineT() + offsetT;
         return Mathf.Clamp01(crosshairSplineT);
     }
@@ -118,7 +115,7 @@ public class RailPlayerAiming : MonoBehaviour
        Vector3 localMouseOffset = _mouseOffset;
        Vector3 localMovementOffset = _movementOffset;
        
-       if (alignToSplineDirection)
+       if (player.AlignToSplineDirection)
        {
            // Transform offsets to world space using spline rotation
            localMouseOffset = _splineRotation * _mouseOffset;
@@ -129,7 +126,7 @@ public class RailPlayerAiming : MonoBehaviour
        _crosshairWorldPosition = boundaryCenter + localMouseOffset + localMovementOffset;
 
        // Apply boundary clamping
-       if (alignToSplineDirection)
+       if (player.AlignToSplineDirection)
        {
            // Transform to local spline space for clamping
            Vector3 localOffset = Quaternion.Inverse(_splineRotation) * (_crosshairWorldPosition - boundaryCenter);
@@ -157,7 +154,7 @@ public class RailPlayerAiming : MonoBehaviour
            crosshair.position = _crosshairWorldPosition;
            
            // Rotate crosshair to match boundary rotation
-           crosshair.rotation = alignToSplineDirection ? _splineRotation : Quaternion.identity;
+           crosshair.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
        }
     }
     
@@ -257,12 +254,12 @@ public class RailPlayerAiming : MonoBehaviour
         // Aim direction ray
         Gizmos.DrawLine(transform.position, _crosshairWorldPosition);
     
-        // Draw boundaries from the crosshair spline position (with crosshairOffset)
+        // Draw boundaries from the crosshair spline position 
         if (crosshair && LevelManager.Instance && LevelManager.Instance.LevelPath)
         {
             Vector3 crosshairSplinePosition = GetCrosshairSplinePosition();
             
-            if (alignToSplineDirection)
+            if (player.AlignToSplineDirection)
             {
                 // Draw rotated boundaries based on spline rotation
                 Vector3[] localCorners = new Vector3[]

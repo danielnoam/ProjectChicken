@@ -5,7 +5,7 @@ using UnityEngine;
 using VInspector;
 using Random = UnityEngine.Random;
 
-public class EnemyWaveHandler : MonoBehaviour
+public class TestEnemyWaveHandler : MonoBehaviour
 {
     [Header("Spawning Settings")] 
     [SerializeField] private Vector3 spawnPositionOffset = new Vector3(0, 0, 12f);
@@ -20,7 +20,7 @@ public class EnemyWaveHandler : MonoBehaviour
 
     
     [Header("References")]
-    [SerializeField, Self] private LevelManager levelManager;
+    [SerializeField] private LevelManager levelManager;
     [SerializeField] private Transform followPointHolder;
     [SerializeField] private Transform enemyHolder;
     [SerializeField] private EnemyBase enemyPrefab;
@@ -37,6 +37,13 @@ public class EnemyWaveHandler : MonoBehaviour
     private void Update()
     {
         MovePointsAlongPath();
+        
+        
+        // If there are no enemies, spawn a new wave
+        if (FindObjectsByType<EnemyBase>(FindObjectsSortMode.None).Length <= 0)
+        {
+            SpawnEnemyWave(Random.Range(1, 7));
+        }
     }
 
 
@@ -45,8 +52,10 @@ public class EnemyWaveHandler : MonoBehaviour
     #region Enemy Spawning  ------------------------------------------------------------
 
     [Button]
-    private void SpawnEnemyWave(int waveSize)
+    private void SpawnEnemyWave(int waveSize = 3)
     {
+        if (!Application.isPlaying) return;
+        
         ClearEnemies();
         CreateFollowPoints(waveSize);
 
