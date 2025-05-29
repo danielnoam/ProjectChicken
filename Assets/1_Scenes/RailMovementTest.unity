@@ -617,7 +617,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 55.336555
+  field of view: 55
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -643,8 +643,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.043619387, y: 0, z: 0, w: 0.99904823}
-  m_LocalPosition: {x: 0.012678899, y: 0.27983856, z: -13.511947}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -13.165059}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -751,7 +751,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 335785508}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.020012759, z: 0, w: 0.9997997}
+  m_LocalRotation: {x: 0.10621365, y: -0.13278288, z: 0.014313316, w: 0.98533374}
   m_LocalPosition: {x: 0.1874485, y: 0, z: -0.5781965}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -774,8 +774,8 @@ MonoBehaviour:
   m_PlayOnAwake: 1
   m_LoopMode: 0
   m_Method: 1
-  m_Duration: 133.0949
-  m_MaxSpeed: 5
+  m_Duration: 105.00428
+  m_MaxSpeed: 7
   m_EasingMode: 3
   m_AlignmentMode: 1
   m_ObjectForwardAxis: 2
@@ -1164,7 +1164,9 @@ MonoBehaviour:
   maxPitchAngle: 30
   maxYawAngle: 45
   pathFollowSpeed: 5
-  pathOffset: {x: 0, y: 0, z: -12}
+  pathOffset: 0
+  alignToSplineDirection: 1
+  splineRotationSpeed: 5
   playerAiming: {fileID: 726456715}
   playerInput: {fileID: 726456716}
   shipModel: {fileID: 1922725560}
@@ -1180,15 +1182,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 362cadd1e2438d3488e4058666825ab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hideCursor: 1
   crosshairBoundaryX: 25
   crosshairBoundaryY: 15
-  crosshairOffset: {x: 0, y: 0, z: 15}
-  useAimOffset: 1
-  maxOffsetStrength: 5
-  aimOffsetSmoothing: 2
-  useMovementOffset: 1
+  crosshairOffset: 10
+  useMouseOffset: 1
+  mouseOffsetStrength: 25
+  mouseOffsetSmoothing: 3
+  useMovementOffset: 0
   movementOffsetStrength: 11
   movementOffsetSmoothing: 5
+  alignToSplineDirection: 1
+  splineRotationSpeed: 5
   playerInput: {fileID: 726456716}
   playerMovement: {fileID: 726456714}
   crosshair: {fileID: 1458164930}
@@ -1449,76 +1454,76 @@ MonoBehaviour:
     m_Knots:
     - Position:
         x: 0
-        y: 0
+        y: 32.76
         z: 0
       TangentIn:
         x: -0
         y: -0
-        z: -4.951078
+        z: -6.755302
       TangentOut:
         x: 0
         y: 0
-        z: 4.951078
+        z: 6.755302
       Rotation:
         value:
-          x: 0
-          y: -0.02001276
-          z: -0
-          w: 0.9997998
+          x: 0.3437211
+          y: -0.12526242
+          z: 0.046319842
+          w: 0.9295265
     - Position:
-        x: -1.981298
-        y: 0
+        x: -13.58
+        y: -11.19
         z: 49.47112
       TangentIn:
         x: -0
         y: -0
-        z: -8.946981
+        z: -9.7582
       TangentOut:
         x: 0
         y: 0
-        z: 4.2463865
+        z: 6.0169744
       Rotation:
         value:
-          x: 0
-          y: 0.26164743
-          z: 0
-          w: 0.9651635
+          x: 0.061039004
+          y: 0.29518265
+          z: -0.015307563
+          w: 0.95336616
     - Position:
         x: 7.9528494
-        y: 0
+        y: 1.86
         z: 54.54051
       TangentIn:
         x: -0
         y: -0
-        z: -4.9169116
+        z: -9.274593
       TangentOut:
         x: 0
         y: 0
-        z: 17.549261
+        z: 21.817677
       Rotation:
         value:
-          x: 0
-          y: 0.26561055
-          z: 0
-          w: 0.96408045
+          x: -0.16813205
+          y: 0.29009283
+          z: 0.053371113
+          w: 0.94060045
     - Position:
         x: 4.60094
-        y: 0
+        y: 5.84
         z: 196.57626
       TangentIn:
         x: -0
         y: -0
-        z: -45.003918
+        z: -44.997517
       TangentOut:
         x: 0
         y: 0
-        z: 40.852577
+        z: 40.864136
       Rotation:
         value:
-          x: 0
-          y: -0.03856737
-          z: -0
-          w: 0.999256
+          x: 0.0054627676
+          y: -0.038555395
+          z: 0.00021083857
+          w: 0.99924153
     - Position:
         x: -10.658491
         y: 0
@@ -1526,17 +1531,17 @@ MonoBehaviour:
       TangentIn:
         x: -0
         y: -0
-        z: -18.456078
+        z: -18.464598
       TangentOut:
         x: 0
         y: 0
-        z: 5.745482
+        z: 5.7445645
       Rotation:
         value:
-          x: 0
-          y: -0.021027336
-          z: -0
-          w: 0.9997788
+          x: 0.012506532
+          y: -0.020998077
+          z: 0.0002631456
+          w: 0.9997012
     - Position:
         x: -10.130001
         y: 0
@@ -1676,11 +1681,11 @@ MonoBehaviour:
   RotationMode: 1
   UpdateMethod: 2
   Targets:
-  - Object: {fileID: 335785509}
-    Weight: 1
-    Radius: 1
   - Object: {fileID: 1566016868}
     Weight: 1
+    Radius: 1
+  - Object: {fileID: 1458164930}
+    Weight: 0.5
     Radius: 1
   m_LegacyTargets: []
 --- !u!4 &1435082330
@@ -1691,8 +1696,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1435082328}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.01000688, z: -0, w: 0.99994993}
-  m_LocalPosition: {x: 0.10192878, y: 0, z: -5.3329415}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -2.8193145}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2358,6 +2363,7 @@ GameObject:
   - component: {fileID: 1999201624}
   - component: {fileID: 1999201626}
   - component: {fileID: 1999201627}
+  - component: {fileID: 1999201630}
   - component: {fileID: 1999201629}
   m_Layer: 0
   m_Name: CinemachineCamera
@@ -2374,8 +2380,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1999201623}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.043619387, y: 0, z: 0, w: 0.99904823}
-  m_LocalPosition: {x: 0.10192878, y: 3, z: -15.332941}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 3, z: -12.819315}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2461,9 +2467,22 @@ MonoBehaviour:
   Damping: 2
   SizeAdjustment: 2
   LateralAdjustment: 0
-  FovRange: {x: 1, y: 100}
+  FovRange: {x: 55, y: 55}
   DollyRange: {x: -100, y: 100}
   OrthoSizeRange: {x: 1, y: 1000}
+--- !u!114 &1999201630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1999201623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4afa82ae3200b82408d605c3dbdd1e38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Damping: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
