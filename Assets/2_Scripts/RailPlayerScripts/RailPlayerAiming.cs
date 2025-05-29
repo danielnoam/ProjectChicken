@@ -31,9 +31,9 @@ public class RailPlayerAiming : MonoBehaviour
     private Vector3 _mouseOffset;
     private Vector3 _movementOffset;
     private Quaternion _splineRotation = Quaternion.identity;
-    private readonly float crosshairBoundaryX = LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.x : 25f;
-    private readonly float crosshairBoundaryY = LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.y :  15f;
-    private readonly float pathOffset = LevelManager.Instance ? LevelManager.Instance.EnemyOffset : 10f;
+    private readonly float _crosshairBoundaryX = LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.x : 25f;
+    private readonly float _crosshairBoundaryY = LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.y :  15f;
+    private readonly float _pathOffset = LevelManager.Instance ? LevelManager.Instance.EnemyOffset : 10f;
 
     private void Awake()
     {
@@ -93,7 +93,7 @@ public class RailPlayerAiming : MonoBehaviour
         if (!LevelManager.Instance || !LevelManager.Instance.LevelPath)
             return 0f;
             
-        float offsetT = pathOffset / LevelManager.Instance.LevelPath.CalculateLength();
+        float offsetT = _pathOffset / LevelManager.Instance.LevelPath.CalculateLength();
         float crosshairSplineT = LevelManager.Instance.GetCurrentSplineT() + offsetT;
         return Mathf.Clamp01(crosshairSplineT);
     }
@@ -132,8 +132,8 @@ public class RailPlayerAiming : MonoBehaviour
            Vector3 localOffset = Quaternion.Inverse(_splineRotation) * (_crosshairWorldPosition - boundaryCenter);
            
            // Clamp in the local spline space
-           localOffset.x = Mathf.Clamp(localOffset.x, -crosshairBoundaryX, crosshairBoundaryX);
-           localOffset.y = Mathf.Clamp(localOffset.y, -crosshairBoundaryY, crosshairBoundaryY);
+           localOffset.x = Mathf.Clamp(localOffset.x, -_crosshairBoundaryX, _crosshairBoundaryX);
+           localOffset.y = Mathf.Clamp(localOffset.y, -_crosshairBoundaryY, _crosshairBoundaryY);
            
            // Transform back to world space
            _crosshairWorldPosition = boundaryCenter + (_splineRotation * localOffset);
@@ -141,8 +141,8 @@ public class RailPlayerAiming : MonoBehaviour
        else
        {
            // Traditional world-space clamping
-           _crosshairWorldPosition.x = Mathf.Clamp(_crosshairWorldPosition.x, boundaryCenter.x - crosshairBoundaryX, boundaryCenter.x + crosshairBoundaryX);
-           _crosshairWorldPosition.y = Mathf.Clamp(_crosshairWorldPosition.y, boundaryCenter.y - crosshairBoundaryY, boundaryCenter.y + crosshairBoundaryY);
+           _crosshairWorldPosition.x = Mathf.Clamp(_crosshairWorldPosition.x, boundaryCenter.x - _crosshairBoundaryX, boundaryCenter.x + _crosshairBoundaryX);
+           _crosshairWorldPosition.y = Mathf.Clamp(_crosshairWorldPosition.y, boundaryCenter.y - _crosshairBoundaryY, boundaryCenter.y + _crosshairBoundaryY);
        }
        
        // Set aim direction
@@ -245,8 +245,9 @@ public class RailPlayerAiming : MonoBehaviour
     #endregion Public -------------------------------------------------------------------------
     
 
+    #if UNITY_EDITOR
     #region Editor -------------------------------------------------------------------------
-
+    
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
@@ -264,10 +265,10 @@ public class RailPlayerAiming : MonoBehaviour
                 // Draw rotated boundaries based on spline rotation
                 Vector3[] localCorners = new Vector3[]
                 {
-                    new Vector3(-crosshairBoundaryX, -crosshairBoundaryY, 0), // Bottom-left
-                    new Vector3(crosshairBoundaryX, -crosshairBoundaryY, 0),  // Bottom-right
-                    new Vector3(crosshairBoundaryX, crosshairBoundaryY, 0),   // Top-right
-                    new Vector3(-crosshairBoundaryX, crosshairBoundaryY, 0)   // Top-left
+                    new Vector3(-_crosshairBoundaryX, -_crosshairBoundaryY, 0), // Bottom-left
+                    new Vector3(_crosshairBoundaryX, -_crosshairBoundaryY, 0),  // Bottom-right
+                    new Vector3(_crosshairBoundaryX, _crosshairBoundaryY, 0),   // Top-right
+                    new Vector3(-_crosshairBoundaryX, _crosshairBoundaryY, 0)   // Top-left
                 };
                 
                 // Transform corners to world space using spline rotation
@@ -284,15 +285,15 @@ public class RailPlayerAiming : MonoBehaviour
                     Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
                 }
                 
-                UnityEditor.Handles.Label(crosshairSplinePosition + (_splineRotation * Vector3.up * (crosshairBoundaryY + 0.5f)), "Crosshair Boundaries (Spline Aligned)");
+                UnityEditor.Handles.Label(crosshairSplinePosition + (_splineRotation * Vector3.up * (_crosshairBoundaryY + 0.5f)), "Crosshair Boundaries (Spline Aligned)");
             }
             else
             {
                 // Draw traditional axis-aligned boundaries
-                Vector3 bottomLeft = crosshairSplinePosition + new Vector3(-crosshairBoundaryX, -crosshairBoundaryY, 0);
-                Vector3 bottomRight = crosshairSplinePosition + new Vector3(crosshairBoundaryX, -crosshairBoundaryY, 0);
-                Vector3 topLeft = crosshairSplinePosition + new Vector3(-crosshairBoundaryX, crosshairBoundaryY, 0);
-                Vector3 topRight = crosshairSplinePosition + new Vector3(crosshairBoundaryX, crosshairBoundaryY, 0);
+                Vector3 bottomLeft = crosshairSplinePosition + new Vector3(-_crosshairBoundaryX, -_crosshairBoundaryY, 0);
+                Vector3 bottomRight = crosshairSplinePosition + new Vector3(_crosshairBoundaryX, -_crosshairBoundaryY, 0);
+                Vector3 topLeft = crosshairSplinePosition + new Vector3(-_crosshairBoundaryX, _crosshairBoundaryY, 0);
+                Vector3 topRight = crosshairSplinePosition + new Vector3(_crosshairBoundaryX, _crosshairBoundaryY, 0);
             
                 Gizmos.color = Color.blue;
                 Gizmos.DrawLine(bottomLeft, bottomRight);  // Bottom edge
@@ -300,10 +301,11 @@ public class RailPlayerAiming : MonoBehaviour
                 Gizmos.DrawLine(topRight, topLeft);        // Top edge
                 Gizmos.DrawLine(topLeft, bottomLeft);      // Left edge
                 
-                UnityEditor.Handles.Label(crosshairSplinePosition + new Vector3(0, crosshairBoundaryY + 0.5f, 0), "Crosshair Boundaries (World Aligned)");
+                UnityEditor.Handles.Label(crosshairSplinePosition + new Vector3(0, _crosshairBoundaryY + 0.5f, 0), "Crosshair Boundaries (World Aligned)");
             }
         }
     }
 
     #endregion Editor -------------------------------------------------------------------------
+    #endif // UNITY_EDITOR
 }

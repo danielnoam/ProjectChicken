@@ -18,16 +18,12 @@ public class RailPlayer : MonoBehaviour
     [SerializeField] private bool alignToSplineDirection = true;
     [SerializeField] private float pathFollowSpeed = 5f;
     [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
-    
+
 
     private float _currentShieldHealth;
+
     private int _currentHealth;
     
-    
-    public float CurrentShieldHealth => _currentShieldHealth;
-    public int CurrentHealth => _currentHealth;
-    public bool IsAlive => _currentHealth > 0;
-    public bool HasShield => _currentShieldHealth > 0f;
     public bool AlignToSplineDirection => alignToSplineDirection;
     public float PathFollowSpeed => pathFollowSpeed;
     public float SplineRotationSpeed => splineRotationSpeed;
@@ -42,4 +38,24 @@ public class RailPlayer : MonoBehaviour
         _currentHealth = maxHealth;
         _currentShieldHealth = maxShieldHealth;
     }
+
+    
+    
+    
+
+    #region Helper Methods --------------------------------------------------------------------------------------
+
+    public bool HasShield()
+    {
+        return _currentShieldHealth > 0;
+    }
+    
+    public bool IsAlive()
+    {
+        return _currentHealth > 0;
+    }
+
+    #endregion Helper Methods --------------------------------------------------------------------------------------
+
+
 }

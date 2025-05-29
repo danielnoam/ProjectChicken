@@ -7,8 +7,8 @@ public class RailPlayerInput : MonoBehaviour
     [SerializeField] private float inputSmoothing = 0.1f;
     [SerializeField] private KeyCode useBaseWeaponKey = KeyCode.Space;
     [SerializeField] private KeyCode useSpecialWeaponKey = KeyCode.LeftShift;
-    [SerializeField] private KeyCode dodgeLeftKey = KeyCode.E;
-    [SerializeField] private KeyCode dodgeRightKey = KeyCode.Q;
+    [SerializeField] private KeyCode dodgeLeftKey = KeyCode.Q;
+    [SerializeField] private KeyCode dodgeRightKey = KeyCode.E;
 
     private Vector3 _lastMousePosition;
 

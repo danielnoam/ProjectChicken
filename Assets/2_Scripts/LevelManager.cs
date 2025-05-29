@@ -15,14 +15,15 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private float enemyOffset = 10f;
     [SerializeField] private float pathFollowSpeed = 5f;
     [SerializeField] private bool startMovingOnStart = true;
+    [SerializeField] private SplineAnimate.LoopMode loopMode = SplineAnimate.LoopMode.Loop;
     
     [Header("References")]
     [SerializeField, Child] private SplineContainer levelPath;
     [SerializeField] private Transform currentPositionOnPath;
     
     private SplineAnimate _positionAnimator;
-    private float splineLength;
-    private float targetEndPosition;
+    private float _splineLength;
+    private float _targetEndPosition;
     
     public SplineContainer LevelPath => levelPath;
     public Transform CurrentPositionOnPath => currentPositionOnPath;
@@ -68,28 +69,30 @@ public class LevelManager : MonoBehaviour
     {
         _positionAnimator = currentPositionOnPath.GetComponent<SplineAnimate>();
         _positionAnimator.MaxSpeed = pathFollowSpeed;
+        _positionAnimator.Loop = loopMode;
         
         // Calculate spline length
         SplinePath<Spline> splinePath = new SplinePath<Spline>(levelPath.Splines);
-        splineLength = splinePath.GetLength();
+        _splineLength = splinePath.GetLength();
         
         // Set starting position based on player offset
         float offsetDistance = Mathf.Abs(playerOffset);
-        float normalizedOffset = offsetDistance / splineLength;
+        float normalizedOffset = offsetDistance / _splineLength;
         _positionAnimator.StartOffset = normalizedOffset;
         
         // Calculate where to stop based on enemy offset
         float distanceFromEnd = Mathf.Abs(enemyOffset);
-        targetEndPosition = 1f - (distanceFromEnd / splineLength);
+        _targetEndPosition = 1f - (distanceFromEnd / _splineLength);
         
         _positionAnimator.Updated += OnSplineMovement;
     }
     
     private void OnSplineMovement(Vector3 position, Quaternion rotation)
     {
-        if (_positionAnimator.NormalizedTime >= targetEndPosition)
+        if (_positionAnimator.NormalizedTime >= _targetEndPosition)
         {
-            _positionAnimator.Pause();
+            // Dont stop for now so we loop
+            // _positionAnimator.Pause();
         }
     }
 
@@ -128,7 +131,7 @@ public class LevelManager : MonoBehaviour
         if (levelPath && levelPath.Splines.Count > 0)
         {
             // Calculate positions if we don't have them yet
-            if (splineLength <= 0)
+            if (_splineLength <= 0)
             {
                 SplinePath<Spline> splinePath = new SplinePath<Spline>(levelPath.Splines);
                 float tempSplineLength = splinePath.GetLength();
@@ -150,12 +153,12 @@ public class LevelManager : MonoBehaviour
             else
             {
                 // Use calculated values
-                float normalizedStartOffset = Mathf.Abs(playerOffset) / splineLength;
+                float normalizedStartOffset = Mathf.Abs(playerOffset) / _splineLength;
                 Vector3 startPos = levelPath.EvaluatePosition(normalizedStartOffset);
                 Gizmos.color = Color.green;
                 Gizmos.DrawSphere(startPos, 0.3f);
                 
-                Vector3 endPos = levelPath.EvaluatePosition(targetEndPosition);
+                Vector3 endPos = levelPath.EvaluatePosition(_targetEndPosition);
                 Gizmos.color = Color.red;
                 Gizmos.DrawSphere(endPos, 0.3f);
             }
