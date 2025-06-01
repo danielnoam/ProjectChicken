@@ -2,6 +2,7 @@ using System;
 using KBCore.Refs;
 using TMPEffects.SerializedCollections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [Serializable]
 public class WeaponInfo
@@ -21,13 +22,15 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Self] private RailPlayerInput playerInput;
     [SerializeField, Self] private RailPlayerAiming playerAiming;
     
-    
+    private bool _attackInputHeld;
     private SOWeapon _previousSpecialWeapon;
     private SOWeapon _currentSpecialWeapon;
     private WeaponInfo _baseWeaponInfo;
     private WeaponInfo _currentSpecialWeaponInfo;
     private float _baseWeaponCooldown;
     private float _specialWeaponCooldown;
+
+    private void OnValidate() { this.ValidateRefs(); }
 
     private void Awake()
     {
@@ -39,36 +42,48 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        playerInput.OnAttackEvent += OnAttack;
+    }
+    
+    private void OnDisable()
+    {
+        playerInput.OnAttackEvent -= OnAttack;
+    }
+
+
+    
+    
     private void Update()
     {
         
-        // Check for input
-        if (baseWeapon&& playerInput.UseBaseWeaponInput && _baseWeaponCooldown <= 0)
+        UpdateCooldowns();
+
+        if (_attackInputHeld)
+        {
+            TryFireWeapon();
+        }
+    }
+    
+
+
+    private void TryFireWeapon()
+    {
+        if (_currentSpecialWeapon && _specialWeaponCooldown <= 0)
+        {
+            UseWeapon(_currentSpecialWeapon, _currentSpecialWeaponInfo);
+            _specialWeaponCooldown = _currentSpecialWeapon.FireRate;
+            return;
+        }
+
+            
+        if (baseWeapon && _baseWeaponCooldown <= 0)
         {
             UseWeapon(baseWeapon, _baseWeaponInfo);
             _baseWeaponCooldown = baseWeapon.FireRate;
         }
-
-        if (_currentSpecialWeapon&& playerInput.UseSpecialWeaponInput && _specialWeaponCooldown <= 0)
-        {
-            UseWeapon(_currentSpecialWeapon, _currentSpecialWeaponInfo);
-            _specialWeaponCooldown = _currentSpecialWeapon.FireRate;
-        }
-
-        
-        // Check for cooldowns
-        if (_baseWeaponCooldown > 0)
-        {
-            _baseWeaponCooldown -= Time.deltaTime;
-        }
-        
-        if (_specialWeaponCooldown > 0)
-        {
-            _specialWeaponCooldown -= Time.deltaTime;
-        }
-
     }
-
 
     private void UseWeapon(SOWeapon weapon, WeaponInfo weaponInfo)
     {
@@ -102,7 +117,40 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             weaponInfo.weaponGfx?.gameObject.SetActive(true);
         }
     }
+
+    private void UpdateCooldowns()
+    {
+        if (_baseWeaponCooldown > 0)
+        {
+            _baseWeaponCooldown -= Time.deltaTime;
+        }
+
+        if (_specialWeaponCooldown > 0)
+        {
+            _specialWeaponCooldown -= Time.deltaTime;
+        }
+        
+    }
+
+
+    #region Input Handling --------------------------------------------------------------------------------------
+
     
+    private void OnAttack(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            _attackInputHeld = true;
+            TryFireWeapon();
+        }
+        else if (context.canceled)
+        {
+            _attackInputHeld = false;
+        }
+
+    }
+
+    #endregion Input Handling --------------------------------------------------------------------------------------
 
     
 }

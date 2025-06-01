@@ -1,78 +1,151 @@
+using System;
+using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using VInspector;
 
+[RequireComponent(typeof(PlayerInput))]
 public class RailPlayerInput : MonoBehaviour
 {
     [Header("Input Settings")] 
-    [SerializeField] private float mouseSensitivity = 1f;
-    [SerializeField] private float inputSmoothing = 0.1f;
-    [SerializeField] private KeyCode useBaseWeaponKey = KeyCode.Space;
-    [SerializeField] private KeyCode useSpecialWeaponKey = KeyCode.LeftShift;
-    [SerializeField] private KeyCode dodgeLeftKey = KeyCode.Q;
-    [SerializeField] private KeyCode dodgeRightKey = KeyCode.E;
+    [SerializeField, Self] private PlayerInput playerInput;
+    [SerializeField] private bool hideCursor = true;
+    
 
-    private Vector3 _lastMousePosition;
+    private InputActionMap _playerActionMap;
+    private InputActionMap _uiActionMap;
+    private InputAction _moveAction;
+    private InputAction _lookAction;
+    private InputAction _attackAction;
+    private InputAction _dodgeLeftAction;
+    private InputAction _dodgeRightAction;
+    
+    public event Action<InputAction.CallbackContext> OnMoveEvent;
+    public event Action<InputAction.CallbackContext> OnLookEvent;
+    public event Action<InputAction.CallbackContext> OnAttackEvent;
+    public event Action<InputAction.CallbackContext> OnDodgeLeftEvent;
+    public event Action<InputAction.CallbackContext> OnDodgeRightEvent;
+    public Vector3 PointerPosition => Input.mousePosition;
 
-    public Vector2 MovementInput { get; private set; }
 
-    public Vector2 RawMovementInput { get; private set; }
+    
+    
+    
+    private void OnValidate() { this.ValidateRefs(); }
 
-    public Vector2 AimInput { get; private set; }
-
-    public Vector2 RawAimInput { get; private set; }
-
-    public Vector3 MousePosition { get; private set; }
-
-    public Vector2 MouseDelta { get; private set; }
-    public bool UseBaseWeaponInput { get; private set; }
-    public bool UseSpecialWeaponInput { get; private set; }
-    public bool DodgeLeftInput { get; private set; }
-    public bool DodgeRightInput { get; private set; }
-    private void Start()
+    private void Awake()
     {
-        MousePosition = Input.mousePosition;
-        _lastMousePosition = MousePosition;
+        
+        _playerActionMap = playerInput.actions.FindActionMap("Player");
+        _uiActionMap = playerInput.actions.FindActionMap("UI");
+        
+        if (_playerActionMap == null || _uiActionMap == null)
+        {
+            Debug.LogError("Player or UI Action Map not found. Please check the action maps in the Player Input component.");
+            return;
+        }
+        
+        _moveAction = _playerActionMap.FindAction("Move");
+        _lookAction = _playerActionMap.FindAction("Look");
+        _attackAction = _playerActionMap.FindAction("Attack");
+        _dodgeLeftAction = _playerActionMap.FindAction("DodgeLeft");
+        _dodgeRightAction = _playerActionMap.FindAction("DodgeRight");
+        
+        if (_moveAction == null || _lookAction == null || _attackAction == null || _dodgeLeftAction == null || _dodgeRightAction == null)
+        {
+            Debug.LogError("One or more actions are not found in the Player Action Map. Please check the action names.");
+        }
+        
+        if (hideCursor)
+        {
+            ToggleCursorVisibility();
+        }
+        
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        HandleMovementInput();
-        HandleAimInput();
-        HandleWeaponInput();
+        _moveAction.performed += OnMove;
+        _moveAction.started += OnMove;
+        _moveAction.canceled += OnMove;
+        _lookAction.started += OnLook;
+        _lookAction.performed += OnLook;
+        _lookAction.canceled += OnLook;
+        _attackAction.started += OnAttack;
+        _attackAction.performed += OnAttack;
+        _attackAction.canceled += OnAttack;
+        _dodgeLeftAction.started += OnDodgeLeft;
+        _dodgeLeftAction.performed += OnDodgeLeft;
+        _dodgeLeftAction.canceled += OnDodgeLeft;
+        _dodgeRightAction.started += OnDodgeRight;
+        _dodgeRightAction.performed += OnDodgeRight;
+        _dodgeRightAction.canceled += OnDodgeRight;
     }
+    
+    private void OnDisable()
+    {
+        _moveAction.performed -= OnMove;
+        _moveAction.started -= OnMove;
+        _moveAction.canceled -= OnMove;
+        _lookAction.started -= OnLook;
+        _lookAction.performed -= OnLook;
+        _lookAction.canceled -= OnLook;
+        _attackAction.started -= OnAttack;
+        _attackAction.performed -= OnAttack;
+        _attackAction.canceled -= OnAttack;
+        _dodgeLeftAction.started -= OnDodgeLeft;
+        _dodgeLeftAction.performed -= OnDodgeLeft;
+        _dodgeLeftAction.canceled -= OnDodgeLeft;
+        _dodgeRightAction.started -= OnDodgeRight;
+        _dodgeRightAction.performed -= OnDodgeRight;
+        _dodgeRightAction.canceled -= OnDodgeRight;
+    }
+    
 
-
+    [Button]
+    private void ToggleCursorVisibility()
+    {
+        if (Cursor.visible)
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
 
 
     #region Input Handling --------------------------------------------------------------------------------------
-
-    private void HandleMovementInput()
+    
+    
+    public void OnMove(InputAction.CallbackContext context)
     {
-        Vector2 input = Vector2.zero;
-
-        input.x = Input.GetAxisRaw("Horizontal");
-        input.y = Input.GetAxisRaw("Vertical");
-
-        RawMovementInput = Vector2.ClampMagnitude(input, 1f);
-        MovementInput = Vector2.Lerp(MovementInput, RawMovementInput, inputSmoothing > 0 ? Time.deltaTime / inputSmoothing : 1f);
-        DodgeLeftInput = Input.GetKeyDown(dodgeLeftKey);
-        DodgeRightInput = Input.GetKeyDown(dodgeRightKey);
-    }
-
-    private void HandleAimInput()
-    {
-        _lastMousePosition = MousePosition;
-        MousePosition = Input.mousePosition;
-        MouseDelta = (MousePosition - _lastMousePosition) * mouseSensitivity;
-        RawAimInput = MouseDelta;
-        AimInput = Vector2.Lerp(AimInput, RawAimInput, inputSmoothing > 0 ? Time.deltaTime / inputSmoothing : 1f);
+        OnMoveEvent?.Invoke(context);
     }
     
-    private void HandleWeaponInput()
+    public void OnLook(InputAction.CallbackContext context)
     {
-        UseBaseWeaponInput = Input.GetKeyDown(useBaseWeaponKey) || Input.GetKey(useBaseWeaponKey) || Input.GetMouseButton(0) || Input.GetMouseButtonDown(0);
-        UseSpecialWeaponInput = Input.GetKeyDown(useSpecialWeaponKey) || Input.GetKey(useSpecialWeaponKey) || Input.GetMouseButton(1) || Input.GetMouseButtonDown(1);
+        OnLookEvent?.Invoke(context);
     }
+    
+    public void OnAttack(InputAction.CallbackContext context)
+    {
+        OnAttackEvent?.Invoke(context);
+    }
+    
+    public void OnDodgeLeft(InputAction.CallbackContext context)
+    {
+        OnDodgeLeftEvent?.Invoke(context);
+    }
+    
+    public void OnDodgeRight(InputAction.CallbackContext context)
+    {
+        OnDodgeRightEvent?.Invoke(context);
+    }
+    
 
     #endregion Input Handling --------------------------------------------------------------------------------------
     

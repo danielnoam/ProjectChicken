@@ -1,31 +1,35 @@
-using System;
+
 using KBCore.Refs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using VInspector;
 
 public class RailPlayerAiming : MonoBehaviour
 {
-    [Header("Aiming Settings")]
-    [SerializeField] private bool hideCursor = true;
     
     [Header("Mouse Offset")]
     [SerializeField] private bool useMouseOffset = true;
+    [EnableIf("useMouseOffset")]
     [SerializeField, Min(0)] private float mouseOffsetStrength = 25f;
     [SerializeField, Min(0)] private float mouseOffsetSmoothing = 3f;
+    [EndIf]
     
     [Header("Movement Offset")]
     [SerializeField] private bool useMovementOffset = true;
+    [EnableIf("useMovementOffset")]
     [SerializeField, Min(0)] private float movementOffsetStrength = 11f;
     [SerializeField, Min(0)] private float movementOffsetSmoothing = 5f;
+    [EndIf]
     
     [Header("References")]
     [SerializeField, Self] private RailPlayer player;
     [SerializeField, Self] private RailPlayerInput playerInput;
     [SerializeField, Self] private RailPlayerMovement playerMovement;
-    [SerializeField] private Transform crosshair; 
-    
-    
+    [SerializeField] private Transform crosshair;
+
+
+    private Vector2 _movementInput;
     private Vector3 _aimDirection;
     private Vector3 _crosshairWorldPosition;
     private Vector3 _mouseOffset;
@@ -34,14 +38,8 @@ public class RailPlayerAiming : MonoBehaviour
     private readonly float _crosshairBoundaryX = LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.x : 25f;
     private readonly float _crosshairBoundaryY = LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.y :  15f;
     private readonly float _pathOffset = LevelManager.Instance ? LevelManager.Instance.EnemyOffset : 10f;
-
-    private void Awake()
-    {
-        if (hideCursor)
-        {
-            ToggleCursorVisibility();
-        }
-    }
+    
+    private void OnValidate() { this.ValidateRefs(); }
 
     private void Start()
     {
@@ -51,7 +49,29 @@ public class RailPlayerAiming : MonoBehaviour
             UpdateAimPosition();
         }
     }
+
+    private void OnEnable()
+    {
+        playerInput.OnLookEvent += OnLook;
+        playerInput.OnMoveEvent += OnMove;
+    }
     
+    private void OnDisable()
+    {
+        playerInput.OnLookEvent -= OnLook;
+        playerInput.OnMoveEvent -= OnMove;
+    }
+    
+    private void OnLook(InputAction.CallbackContext context)
+    {
+
+    }
+    
+    private void OnMove(InputAction.CallbackContext context)
+    {
+        _movementInput = context.ReadValue<Vector2>();
+    }
+
     private void Update()
     {
         HandleSplineRotation();
@@ -167,11 +187,9 @@ public class RailPlayerAiming : MonoBehaviour
             return;
         }
         
-        Vector2 movementInput = playerInput.MovementInput;
-        
         Vector3 targetOffset = new Vector3(
-            movementInput.x * movementOffsetStrength,
-            movementInput.y * movementOffsetStrength,
+            _movementInput.x * movementOffsetStrength,
+            _movementInput.y * movementOffsetStrength,
             0
         );
         
@@ -187,7 +205,7 @@ public class RailPlayerAiming : MonoBehaviour
         }
         
         Vector3 screenCenter = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0);
-        Vector3 currentMousePosition = playerInput.MousePosition;
+        Vector3 currentMousePosition = playerInput.PointerPosition;
         
         Vector3 mouseFromCenter = currentMousePosition - screenCenter;
         
@@ -208,20 +226,7 @@ public class RailPlayerAiming : MonoBehaviour
         _mouseOffset = Vector3.Lerp(_mouseOffset, targetOffset, mouseOffsetSmoothing * Time.deltaTime);
     }
     
-    [Button]
-    private void ToggleCursorVisibility()
-    {
-        if (Cursor.visible)
-        {
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = false;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-    }
+
 
     #region Public -------------------------------------------------------------------------
 

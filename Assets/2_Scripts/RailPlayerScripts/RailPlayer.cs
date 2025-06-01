@@ -18,7 +18,7 @@ public class RailPlayer : MonoBehaviour
     [Header("Shield")]
     [SerializeField, Min(0)] private float maxShieldHealth = 100f;
     [SerializeField, Min(0)] private float shieldRegenRate = 5f;
-    [SerializeField, Min(0)] private float shieldRegenDelay = 2f;
+    [SerializeField, Min(0)] private float shieldRegenDelay = 4f;
     
     
     [Header("Resource Collection")]
@@ -27,8 +27,10 @@ public class RailPlayer : MonoBehaviour
     
     [Header("Path Following")]
     [SerializeField] private bool alignToSplineDirection = true;
+    [EnableIf("alignToSplineDirection")]
     [SerializeField] private float pathFollowSpeed = 5f;
     [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
+    [EndIf]
     
     [Header("Debug")]
     [SerializeField,Child] private TextMeshProUGUI playerStatusText;
