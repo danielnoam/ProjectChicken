@@ -9,7 +9,7 @@ public class RailPlayerInput : MonoBehaviour
 {
     [Header("Input Settings")] 
     [SerializeField, Self] private PlayerInput playerInput;
-    [SerializeField] private bool hideCursor = true;
+    [SerializeField] private bool autoHideCursor = true;
     
 
     private InputActionMap _playerActionMap;
@@ -56,7 +56,7 @@ public class RailPlayerInput : MonoBehaviour
             Debug.LogError("One or more actions are not found in the Player Action Map. Please check the action names.");
         }
         
-        if (hideCursor)
+        if (autoHideCursor)
         {
             ToggleCursorVisibility();
         }

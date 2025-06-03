@@ -1,11 +1,19 @@
 using UnityEngine;
+using VInspector;
+
+
 
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Scriptable Objects/New Weapon")]
 public class SOWeapon : ScriptableObject
 {
     [Header("Weapon Settings")]
+    [SerializeField] private string weaponName = "New Weapon";
+    [SerializeField, Multiline(3)] private string weaponDescription = "A Weapon";
+    [SerializeField] private WeaponDurationType weaponDurationType = WeaponDurationType.Permanent;
     [SerializeField, Min(0)] private float damage = 10f;
     [SerializeField, Min(0)] private float fireRate = 1f;
+    [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.TimeBased)] private float timeLimit = 10f;[EndIf]
+    [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
     
     [Header("Projectile Settings")]
     [SerializeField, Min(0)] private float projectileSpeed = 100f;
@@ -17,9 +25,14 @@ public class SOWeapon : ScriptableObject
     [Header("Impact Effect")]
     [SerializeField] private AudioClip impactSound;
     [SerializeField] private GameObject impactEffectPrefab;
-    
+
+    public string WeaponName => weaponName;
+    public string WeaponDescription => weaponDescription;
+    public WeaponDurationType WeaponDurationType => weaponDurationType;
     public float Damage => damage;
     public float FireRate => fireRate;
+    public float TimeLimit => timeLimit;
+    public float AmmoLimit => ammoLimit;
     public float ProjectileSpeed => projectileSpeed;
     public float ProjectilePushForce => projectilePushForce;
     public float ProjectileLifetime => projectileLifetime;

@@ -32,9 +32,14 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
     [EndIf]
     
-    [Header("Debug")]
-    [SerializeField,Child] private TextMeshProUGUI playerStatusText;
 
+
+    [Header("References")]
+    [SerializeField,Child] private TextMeshProUGUI playerStatusText;
+    [SerializeField, Self] private RailPlayerInput playerInput;
+    [SerializeField, Self] private RailPlayerAiming playerAiming;
+    [SerializeField, Self] private RailPlayerWeaponSystem playerWeapon;
+    [SerializeField, Self] private RailPlayerMovement playerMovement;
 
     private int _currentHealth;
     private float _currentShieldHealth;
@@ -44,6 +49,9 @@ public class RailPlayer : MonoBehaviour
     public bool AlignToSplineDirection => alignToSplineDirection;
     public float PathFollowSpeed => pathFollowSpeed;
     public float SplineRotationSpeed => splineRotationSpeed;
+
+
+    private void OnValidate() { this.ValidateRefs(); }
 
     private void Awake()
     {
@@ -56,10 +64,32 @@ public class RailPlayer : MonoBehaviour
         
         if (playerStatusText)
         {
+            string selectedWeapon = "";
+
+
+            if (playerWeapon.CurrentSpecialWeapon)
+            {
+                if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.AmmoBased)
+                {
+                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponAmmo}/{playerWeapon.CurrentSpecialWeapon.AmmoLimit})";
+                } 
+                else if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.TimeBased)
+                {
+                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponTime}/{playerWeapon.CurrentSpecialWeapon.TimeLimit})";
+                }
+            }
+            else
+            {
+                selectedWeapon = $"Base Weapon";
+            }
+
+            
             playerStatusText.text = $"Health: {_currentHealth}/ {maxHealth}\n" +
                                     $"Shield: {_currentShieldHealth:F1} / {maxShieldHealth:F1}  Regen: {_damagedCooldown}\n" +
                                     $"Alive: {IsAlive()}\n" +
-                                    $"Shielded: {HasShield()}";
+                                    $"Shielded: {HasShield()}\n" +
+                                    $"Weapon: {selectedWeapon}\n"
+                                    ;
         }
     }
     
@@ -130,6 +160,7 @@ public class RailPlayer : MonoBehaviour
 
     #endregion Damage ----------------------------------------------------------------------
 
+    
     
     #region Shield Regen --------------------------------------------------------------------------------------
 

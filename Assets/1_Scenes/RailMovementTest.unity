@@ -1586,18 +1586,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseWeapon: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
   weapons:
-    _serializedList:
+    serializedKvps:
     - Key: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
       Value:
         weaponGfx: {fileID: 1204605721}
         projectileSpawnPoints:
         - {fileID: 1583295127}
         - {fileID: 2872401}
+      index: 0
+      isKeyRepeated: 0
+      isKeyNull: 0
     - Key: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
       Value:
         weaponGfx: {fileID: 116467614}
         projectileSpawnPoints:
-        - {fileID: 737672433}
+        - {fileID: 1982082187}
+      index: 1
+      isKeyRepeated: 0
+      isKeyNull: 0
+    dividerPos: 0.33
   playerInput: {fileID: 726456720}
   playerAiming: {fileID: 726456715}
 --- !u!114 &726456718
@@ -1620,6 +1627,10 @@ MonoBehaviour:
   pathFollowSpeed: 5
   splineRotationSpeed: 5
   playerStatusText: {fileID: 670860334}
+  playerInput: {fileID: 726456720}
+  playerAiming: {fileID: 726456715}
+  playerWeapon: {fileID: 726456717}
+  playerMovement: {fileID: 726456714}
 --- !u!136 &726456719
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1656,7 +1667,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerInput: {fileID: 726456721}
-  hideCursor: 1
+  autoHideCursor: 1
 --- !u!114 &726456721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1781,7 +1792,8 @@ Transform:
   m_LocalPosition: {x: 0, y: -0.783, z: 1.0152}
   m_LocalScale: {x: 0.7417785, y: 0.88656175, z: 0.7417785}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1982082187}
   m_Father: {fileID: 116467614}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!23 &737672434
@@ -3033,6 +3045,37 @@ Transform:
   - {fileID: 1204605721}
   - {fileID: 116467614}
   m_Father: {fileID: 726456712}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1982082186
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1982082187}
+  m_Layer: 0
+  m_Name: ProjectileSpawnPoint (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1982082187
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1982082186}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.651, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 737672433}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1983499996
 GameObject:
