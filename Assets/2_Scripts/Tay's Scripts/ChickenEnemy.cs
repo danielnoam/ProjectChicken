@@ -22,33 +22,13 @@ public class ChickenEnemy : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         // Check if the object that hit us has the "Player Projectile" tag
-        if (other.CompareTag("PlayerProjectile"))
+        if (other.TryGetComponent(out PlayerProjectile projectile))
         {
-            HandleProjectileHit(other.gameObject);
+            TakeDamage(projectile.Damage);
         }
     }
     
-    void OnCollisionEnter(Collision collision)
-    {
-        // Alternative collision detection in case you're using rigidbodies
-        if (collision.gameObject.CompareTag("PlayerProjectile"))
-        {
-            HandleProjectileHit(collision.gameObject);
-        }
-    }
     
-    private void HandleProjectileHit(GameObject projectile)
-    {
-        float damage = GetDamageFromProjectile(projectile);
-        
-        if (damage > 0)
-        {
-            TakeDamage(damage);
-            
-            // Destroy the projectile after hit
-            Destroy(projectile);
-        }
-    }
     
     private float GetDamageFromProjectile(GameObject projectile)
     {
