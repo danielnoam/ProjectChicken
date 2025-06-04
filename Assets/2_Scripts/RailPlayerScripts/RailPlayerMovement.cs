@@ -52,7 +52,6 @@ public class RailPlayerMovement : MonoBehaviour
 
     private readonly float _boundaryX = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
     private readonly float _boundaryY = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
-    private readonly float _pathOffset =  LevelManager.Instance ? LevelManager.Instance.PlayerOffset : -8f;
 
     private void OnValidate() { this.ValidateRefs(); }
     private void OnEnable()
@@ -108,15 +107,9 @@ public class RailPlayerMovement : MonoBehaviour
         }
 
         // Handle the path following
-        if (LevelManager.Instance && LevelManager.Instance.LevelPath && LevelManager.Instance.CurrentPositionOnPath)
+        if (LevelManager.Instance)
         {
-            // Calculate target position on spline with offset from CurrentPositionOnPath
-            float offsetT = _pathOffset / LevelManager.Instance.LevelPath.CalculateLength();
-            float targetSplineT = LevelManager.Instance.GetCurrentSplineT() + offsetT;
-            targetSplineT = Mathf.Clamp01(targetSplineT); // Keep within spline bounds
-    
-            Vector3 targetPosition = LevelManager.Instance.LevelPath.EvaluatePosition(targetSplineT);
-            _targetPathPosition = Vector3.Lerp(_targetPathPosition, targetPosition, player.PathFollowSpeed * Time.deltaTime);
+            _targetPathPosition = Vector3.Lerp(_targetPathPosition, LevelManager.Instance.PlayerPosition, player.PathFollowSpeed * Time.deltaTime);
         } 
         else 
         {
@@ -180,65 +173,6 @@ public class RailPlayerMovement : MonoBehaviour
     #endregion Movement & Rotation --------------------------------------------------------------------------------------
     
     
-    
-    
-    
-    #region Input Handling --------------------------------------------------------------------------------------
-
-    private void OnMove(InputAction.CallbackContext context)
-    {
-        if (context.started || context.performed)
-        {
-            Vector2 input = context.ReadValue<Vector2>();
-            _horizontalInput = input.x;
-            _verticalInput = input.y;
-        } 
-        else if (context.canceled)
-        {
-            _horizontalInput = 0f;
-            _verticalInput = 0f;
-        }
-    }
-    
-    
-    private void OnDodgeLeft(InputAction.CallbackContext context)
-    {
-        if (!enableDodging) return;
-        
-        
-        if (context.performed)
-        {
-            
-            if (_dodgeCooldownTimer <= 0f && !_isDodging)
-            {
-                _dodgeDirection = Vector3.left;
-                _dodgeTimeCounter = 0f;
-                _isDodging = true;
-                
-                PlayDodgeRollAnimation();
-            }
-        }
-    }
-    
-    private void OnDodgeRight(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            if (!enableDodging) return;
-            
-            if (_dodgeCooldownTimer <= 0f && !_isDodging)
-            {
-                _dodgeDirection = Vector3.right;
-                _dodgeTimeCounter = 0f;
-                _isDodging = true;
-                
-                PlayDodgeRollAnimation();
-            }
-
-        }
-    }
-
-    #endregion Input Handling --------------------------------------------------------------------------------------
 
 
     #region Dodge --------------------------------------------------------------------------------------
@@ -304,18 +238,19 @@ public class RailPlayerMovement : MonoBehaviour
 
     #endregion Dodge --------------------------------------------------------------------------------------
     
+    
     #region Spline --------------------------------------------------------------------------------------
 
     private void HandleSplineRotation()
     {
-        if (!player.AlignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.LevelPath)
+        if (!player.AlignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.SplineContainer)
         {
             _splineRotation = Quaternion.identity;
             return;
         }
 
         // Get the spline direction - you'll need to implement this based on your spline system
-        Vector3 splineForward = GetSplineDirection();
+        Vector3 splineForward = GetPlayerDirectionOnSpline();
         
         if (splineForward != Vector3.zero)
         {
@@ -327,30 +262,9 @@ public class RailPlayerMovement : MonoBehaviour
         }
     }
     
-    private Vector3 GetSplineDirection()
+    private Vector3 GetPlayerDirectionOnSpline()
     {
-        if (!LevelManager.Instance || !LevelManager.Instance.LevelPath) 
-            return Vector3.forward;
-        
-        float offsetT = _pathOffset / LevelManager.Instance.LevelPath.CalculateLength();
-        float playerSplineT = LevelManager.Instance.GetCurrentSplineT() + offsetT;
-        playerSplineT = Mathf.Clamp01(playerSplineT);
-    
-        // Use math.normalize for float3, then convert to Vector3
-        var tangent = LevelManager.Instance.LevelPath.EvaluateTangent(playerSplineT);
-        return math.normalize(tangent);
-    }
-
-    public Vector3 GetPlayerSplinePosition()
-    {
-        if (!LevelManager.Instance || !LevelManager.Instance.LevelPath)
-            return transform.position;
-            
-        float offsetT = _pathOffset / LevelManager.Instance.LevelPath.CalculateLength();
-        float playerSplineT = LevelManager.Instance.GetCurrentSplineT() + offsetT;
-        playerSplineT = Mathf.Clamp01(playerSplineT);
-        
-        return LevelManager.Instance.LevelPath.EvaluatePosition(playerSplineT);
+        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetEnemyDirectionOnSpline(LevelManager.Instance.PlayerPosition);
     }
     
     
@@ -358,6 +272,63 @@ public class RailPlayerMovement : MonoBehaviour
     #endregion Spline --------------------------------------------------------------------------------------
  
     
+    #region Input Handling --------------------------------------------------------------------------------------
+
+    private void OnMove(InputAction.CallbackContext context)
+    {
+        if (context.started || context.performed)
+        {
+            Vector2 input = context.ReadValue<Vector2>();
+            _horizontalInput = input.x;
+            _verticalInput = input.y;
+        } 
+        else if (context.canceled)
+        {
+            _horizontalInput = 0f;
+            _verticalInput = 0f;
+        }
+    }
+    
+    
+    private void OnDodgeLeft(InputAction.CallbackContext context)
+    {
+        if (!enableDodging) return;
+        
+        
+        if (context.performed)
+        {
+            
+            if (_dodgeCooldownTimer <= 0f && !_isDodging)
+            {
+                _dodgeDirection = Vector3.left;
+                _dodgeTimeCounter = 0f;
+                _isDodging = true;
+                
+                PlayDodgeRollAnimation();
+            }
+        }
+    }
+    
+    private void OnDodgeRight(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            if (!enableDodging) return;
+            
+            if (_dodgeCooldownTimer <= 0f && !_isDodging)
+            {
+                _dodgeDirection = Vector3.right;
+                _dodgeTimeCounter = 0f;
+                _isDodging = true;
+                
+                PlayDodgeRollAnimation();
+            }
+
+        }
+    }
+
+    #endregion Input Handling --------------------------------------------------------------------------------------
+
     
     #if UNITY_EDITOR
     #region Editor -------------------------------------------------------------------------------------
@@ -365,9 +336,9 @@ public class RailPlayerMovement : MonoBehaviour
     private void OnDrawGizmos()
     {
         // Draw boundaries from the actual player position on spline (with pathOffset)
-        if (LevelManager.Instance && LevelManager.Instance.LevelPath)
+        if (LevelManager.Instance && LevelManager.Instance.SplineContainer)
         {
-            Vector3 playerSplinePosition = GetPlayerSplinePosition();
+            Vector3 playerSplinePosition = LevelManager.Instance.PlayerPosition;
             
             // Create boundary corners in local spline space, then transform to world space
             Vector3[] localCorners = new Vector3[]
@@ -395,11 +366,6 @@ public class RailPlayerMovement : MonoBehaviour
             
             UnityEditor.Handles.Label(playerSplinePosition + (_splineRotation * Vector3.up * (_boundaryY + 0.5f)), "Player Boundaries");
             
-            // Draw spline direction
-            Gizmos.color = Color.red;
-            Vector3 splineDir = GetSplineDirection();
-            Gizmos.DrawRay(transform.position, splineDir * 5f);
-            UnityEditor.Handles.Label(transform.position + splineDir * 5.5f, "Spline Direction");
         }
     }
 

@@ -75,7 +75,7 @@ public class RailPlayer : MonoBehaviour
                 } 
                 else if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.TimeBased)
                 {
-                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponTime}/{playerWeapon.CurrentSpecialWeapon.TimeLimit})";
+                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponTime:F1}/{playerWeapon.CurrentSpecialWeapon.TimeLimit})";
                 }
             }
             else
@@ -84,8 +84,8 @@ public class RailPlayer : MonoBehaviour
             }
 
             
-            playerStatusText.text = $"Health: {_currentHealth}/ {maxHealth}\n" +
-                                    $"Shield: {_currentShieldHealth:F1} / {maxShieldHealth:F1}  Regen: {_damagedCooldown}\n" +
+            playerStatusText.text = $"Health: {_currentHealth}/{maxHealth}\n" +
+                                    $"Shield: {_currentShieldHealth:F1} / {maxShieldHealth:F1}, Regen: {_damagedCooldown}\n" +
                                     $"Alive: {IsAlive()}\n" +
                                     $"Shielded: {HasShield()}\n" +
                                     $"Weapon: {selectedWeapon}\n"

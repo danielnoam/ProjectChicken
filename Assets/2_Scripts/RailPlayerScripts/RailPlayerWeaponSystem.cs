@@ -105,6 +105,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             
             UseWeapon(_currentSpecialWeapon, _currentSpecialWeaponInfo);
             _specialWeaponFireRateCooldown = _currentSpecialWeapon.FireRate;
+            
             return;
         }
 
@@ -124,7 +125,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         foreach (var spawnPoint in weaponInfo.projectileSpawnPoints)
         {
             PlayerProjectile playerProjectile = Instantiate(weapon.PlayerProjectilePrefab, spawnPoint.position, Quaternion.identity);
-            playerProjectile.SetUp(weapon, playerAiming.GetAimDirection());
+            playerProjectile.SetUpProjectile(weapon, playerAiming.GetAimDirection());
         }
         
     }

@@ -25,7 +25,6 @@ public class RailPlayerInput : MonoBehaviour
     public event Action<InputAction.CallbackContext> OnAttackEvent;
     public event Action<InputAction.CallbackContext> OnDodgeLeftEvent;
     public event Action<InputAction.CallbackContext> OnDodgeRightEvent;
-    public Vector3 PointerPosition => Input.mousePosition;
 
 
     
@@ -102,20 +101,7 @@ public class RailPlayerInput : MonoBehaviour
     }
     
 
-    [Button]
-    private void ToggleCursorVisibility()
-    {
-        if (Cursor.visible)
-        {
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = false;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-    }
+
 
 
     #region Input Handling --------------------------------------------------------------------------------------
@@ -148,9 +134,26 @@ public class RailPlayerInput : MonoBehaviour
     
 
     #endregion Input Handling --------------------------------------------------------------------------------------
-    
-    
 
+
+    #region Cursor --------------------------------------------------------------------------------------
+
+    [Button]
+    private void ToggleCursorVisibility()
+    {
+        if (Cursor.visible)
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
+    #endregion Cursor --------------------------------------------------------------------------------------
 
 
 

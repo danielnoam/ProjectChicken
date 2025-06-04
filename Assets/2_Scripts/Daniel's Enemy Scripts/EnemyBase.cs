@@ -16,7 +16,7 @@ public abstract class EnemyBase : MonoBehaviour
     [Header("References")]
     [SerializeField, Self] private Rigidbody rigidBody;
     private float _currentHealth;
-    private Transform _followTarget;
+    private Transform _followPosition;
     
     private void Awake()
     {
@@ -26,7 +26,8 @@ public abstract class EnemyBase : MonoBehaviour
 
     private void FixedUpdate()
     {
-        FollowTarget();
+        FollowPosition();
+        LookAtPosition();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -48,7 +49,7 @@ public abstract class EnemyBase : MonoBehaviour
         
         transform.localScale *= Random.Range(randomSizeRange.x, randomSizeRange.y);
         _currentHealth = maxHealth;
-        if (followTarget) _followTarget = followTarget;
+        if (followTarget) _followPosition = followTarget;
     }   
     
     
@@ -70,19 +71,30 @@ public abstract class EnemyBase : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void FollowTarget()
+    private void FollowPosition()
     {
-        if (!_followTarget) return;
+        if (!_followPosition) return;
 
-        float distanceFromTarget = Vector3.Distance(transform.position, _followTarget.position);
+        float distanceFromTarget = Vector3.Distance(transform.position, _followPosition.position);
         float speedModifier = Mathf.Clamp01(distanceFromTarget / maxDistanceFromFollowTarget);
         
-        Vector3 direction = (_followTarget.position - transform.position).normalized;
+        Vector3 direction = (_followPosition.position - transform.position).normalized;
         rigidBody.linearVelocity = (direction * (maxMoveSpeed * speedModifier * Time.fixedDeltaTime));
-
-        
-
     }
+
+    private void LookAtPosition()
+    {
+        if (!LevelManager.Instance) return;
+    
+        Vector3 direction = (LevelManager.Instance.PlayerPosition - transform.position).normalized;
+        if (direction != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(-direction);
+            rigidBody.rotation = targetRotation;
+        }
+    }
+    
+    
 
     #endregion Base Methods ------------------------------------------------------------
     
@@ -94,11 +106,11 @@ public abstract class EnemyBase : MonoBehaviour
     private void OnDrawGizmos()
     {
         // Draw the enemy's follow target
-        if (_followTarget)
+        if (_followPosition)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawSphere(_followTarget.position , 0.5f);
-            Gizmos.DrawLine(transform.position, _followTarget.position);
+            Gizmos.DrawSphere(_followPosition.position , 0.5f);
+            Gizmos.DrawLine(transform.position, _followPosition.position);
         }
         
     }

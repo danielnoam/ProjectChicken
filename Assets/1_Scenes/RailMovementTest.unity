@@ -465,12 +465,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a945f82e26bdaf44792f261ef3ce3ab9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnPositionOffset: {x: 0, y: 15, z: 12}
+  alignToSplineDirection: 1
   xSpawnPositionRange: {x: -10, y: 10}
   ySpawnPositionRange: {x: 0, y: 0}
-  followPositionOffset: {x: 0, y: 0, z: 12}
-  xFollowPositionRange: {x: -10, y: 10}
-  yFollowPositionRange: {x: -10, y: 10}
   levelManager: {fileID: 310209911}
   followPointHolder: {fileID: 61479686}
   enemyHolder: {fileID: 1670337816}
@@ -612,9 +609,9 @@ MonoBehaviour:
   playerOffset: -10
   enemyOffset: 10
   pathFollowSpeed: 8
-  startMovingOnStart: 1
+  autoStartMoving: 1
   loopMode: 1
-  levelPath: {fileID: 1011914064}
+  splineContainer: {fileID: 1011914064}
   currentPositionOnPath: {fileID: 335785509}
 --- !u!1 &315217605
 GameObject:
@@ -738,7 +735,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -13.165059}
+  m_LocalPosition: {x: 0, y: 0, z: -25.79506}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1453,7 +1450,7 @@ Transform:
   m_GameObject: {fileID: 726456711}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -12.63}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1562,9 +1559,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 362cadd1e2438d3488e4058666825ab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useMouseOffset: 1
-  mouseOffsetStrength: 25
-  mouseOffsetSmoothing: 3
+  useLookOffset: 1
+  lookOffsetStrength: 35
+  lookOffsetSmoothing: 1.4
+  inputSmoothing: 15
+  autoCenter: 1
+  autoCenterDelay: 5
+  autoCenterSpeed: 1
   useMovementOffset: 0
   movementOffsetStrength: 11
   movementOffsetSmoothing: 5
@@ -2360,7 +2361,7 @@ Transform:
   m_GameObject: {fileID: 1435082328}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -2.8193145}
+  m_LocalPosition: {x: 0, y: 0, z: -15.449316}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3278,7 +3279,7 @@ Transform:
   m_GameObject: {fileID: 1999201623}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3, z: -12.819315}
+  m_LocalPosition: {x: 0, y: 3, z: -25.449316}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
