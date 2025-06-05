@@ -579,8 +579,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyBoundary: {x: 25, y: 15}
-  playerBoundary: {x: 25, y: 5}
-  playerOffset: 10
+  playerBoundary: {x: 10, y: 6}
+  playerOffset: -10
   enemyOffset: 10
   pathFollowSpeed: 5
   startMovingOnStart: 1
@@ -3864,18 +3864,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ffbeef71da710542a84b84ff7a8e19f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentFormation: 0
+  currentFormation: 4
   autoUpdateFormation: 1
   formationOffset: {x: 0, y: 0, z: 10}
   useLocalOffset: 0
-  vShapeCount: 11
-  squareSize: 4
+  formationPosition: 1
+  boundaryPadding: 0
+  vShapeCount: 15
+  squareSize: 6
   triangleRows: 4
   circleCount: 12
   gridSize: {x: 5, y: 3}
+  gridFillsBoundary: 1
   horizontalSpacing: 2
   verticalSpacing: 2
   circleRadius: 5
+  constrainToBoundary: 1
+  minSpacingMultiplier: 0.3
   showGizmos: 1
   openSlotColor: {r: 0, g: 1, b: 0, a: 1}
   occupiedSlotColor: {r: 1, g: 0, b: 0, a: 1}
