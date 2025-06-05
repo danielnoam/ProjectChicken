@@ -10,10 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 108d4100b9f6ed44893c1bf888d0db7a, type: 3}
-  m_Name: SpecialWeapon1
+  m_Name: MissileWeapon
   m_EditorClassIdentifier: 
+  weaponName: Missile Weapon
+  weaponDescription: Boom goes the chicken!
+  weaponDurationType: 1
   damage: 20
   fireRate: 1
+  timeLimit: 10
+  ammoLimit: 5
   projectileSpeed: 100
   projectilePushForce: 5
   projectileLifetime: 5

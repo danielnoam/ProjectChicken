@@ -33,28 +33,32 @@ public class PlayerProjectile : MonoBehaviour
         _lifetime -= Time.deltaTime;
         if (_lifetime <= 0f)
         {
-            Destroy(gameObject);
+            DestroyProjectile();
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!_isInitialized) return;
-
-        // Check if the projectile hit an object with a Rigidbody
-        Rigidbody rb = other.GetComponent<Rigidbody>();
-        if (rb)
+        
+        
+        // Apply a force to the hit object
+        if (TryGetComponent(out Rigidbody rb))
         {
-            // Apply a force to the hit object
             rb.AddForce(_direction * _pushForce, ForceMode.Impulse);
-            _weaponData.SpawnImpactEffect(transform.position, Quaternion.identity);
         }
 
         // Destroy the projectile on impact
+        DestroyProjectile();
+    }
+
+    private void DestroyProjectile()
+    {
+        _weaponData.SpawnImpactEffect(transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
 
-    public void SetUp(SOWeapon weaponData, Vector3 direction)
+    public void SetUpProjectile(SOWeapon weaponData, Vector3 direction)
     {
         if (_isInitialized) return;
         

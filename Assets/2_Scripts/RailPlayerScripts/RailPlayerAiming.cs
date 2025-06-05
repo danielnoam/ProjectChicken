@@ -1,4 +1,3 @@
-
 using KBCore.Refs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -8,11 +7,14 @@ using VInspector;
 public class RailPlayerAiming : MonoBehaviour
 {
     
-    [Header("Mouse Offset")]
-    [SerializeField] private bool useMouseOffset = true;
-    [EnableIf("useMouseOffset")]
-    [SerializeField, Min(0)] private float mouseOffsetStrength = 25f;
-    [SerializeField, Min(0)] private float mouseOffsetSmoothing = 3f;
+    [Header("Look Offset")]
+    [SerializeField] private bool useLookOffset = true;
+    [EnableIf("useLookOffset")]
+    [SerializeField, Min(0)] private float lookOffsetStrength = 35f;
+    [SerializeField, Min(0)] private float lookOffsetSmoothing = 1.4f;
+    [SerializeField] private bool autoCenter;
+    [SerializeField, Min(0)] private float autoCenterDelay = 5f;
+    [SerializeField, Min(0)] private float autoCenterSpeed = 1f;
     [EndIf]
     
     [Header("Movement Offset")]
@@ -30,14 +32,15 @@ public class RailPlayerAiming : MonoBehaviour
 
 
     private Vector2 _movementInput;
+    private Vector2 _lookInput;
     private Vector3 _aimDirection;
     private Vector3 _crosshairWorldPosition;
-    private Vector3 _mouseOffset;
+    private Vector3 _lookOffset;
     private Vector3 _movementOffset;
     private Quaternion _splineRotation = Quaternion.identity;
-    private readonly float _crosshairBoundaryX = LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.x : 25f;
-    private readonly float _crosshairBoundaryY = LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.y :  15f;
-    private readonly float _pathOffset = LevelManager.Instance ? LevelManager.Instance.EnemyOffset : 10f;
+    private float _noInputTimer;
+    private float CrosshairBoundaryX => LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.x : 25f;
+    private float CrosshairBoundaryY => LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.y :  15f;
     
     private void OnValidate() { this.ValidateRefs(); }
 
@@ -45,7 +48,6 @@ public class RailPlayerAiming : MonoBehaviour
     {
         if (crosshair)
         {
-            _crosshairWorldPosition = transform.position + Vector3.forward * 10f;
             UpdateAimPosition();
         }
     }
@@ -61,35 +63,25 @@ public class RailPlayerAiming : MonoBehaviour
         playerInput.OnLookEvent -= OnLook;
         playerInput.OnMoveEvent -= OnMove;
     }
-    
-    private void OnLook(InputAction.CallbackContext context)
-    {
-
-    }
-    
-    private void OnMove(InputAction.CallbackContext context)
-    {
-        _movementInput = context.ReadValue<Vector2>();
-    }
 
     private void Update()
     {
         HandleSplineRotation();
         HandleMovementOffset();
-        HandleMouseOffset();
+        HandleLookOffset();
         UpdateAimPosition();
     }
     
     private void HandleSplineRotation()
     {
-        if (!player.AlignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.LevelPath)
+        if (!player.AlignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.SplineContainer)
         {
             _splineRotation = Quaternion.identity;
             return;
         }
 
         // Get the spline direction at the crosshair position
-        Vector3 splineForward = GetCrosshairSplineDirection();
+        Vector3 splineForward = GetSplineDirection();
         
         if (splineForward != Vector3.zero)
         {
@@ -98,52 +90,27 @@ public class RailPlayerAiming : MonoBehaviour
         }
     }
     
-    private Vector3 GetCrosshairSplineDirection()
-    {
-        if (!LevelManager.Instance || !LevelManager.Instance.LevelPath) 
-            return Vector3.forward;
-        
-        float crosshairSplineT = GetCrosshairSplineT();
-        var tangent = LevelManager.Instance.LevelPath.EvaluateTangent(crosshairSplineT);
-        return math.normalize(tangent);
-    }
     
-    private float GetCrosshairSplineT()
-    {
-        if (!LevelManager.Instance || !LevelManager.Instance.LevelPath)
-            return 0f;
-            
-        float offsetT = _pathOffset / LevelManager.Instance.LevelPath.CalculateLength();
-        float crosshairSplineT = LevelManager.Instance.GetCurrentSplineT() + offsetT;
-        return Mathf.Clamp01(crosshairSplineT);
-    }
     
-    private Vector3 GetCrosshairSplinePosition()
-    {
-        if (!LevelManager.Instance || !LevelManager.Instance.LevelPath)
-            return transform.position;
-            
-        float crosshairSplineT = GetCrosshairSplineT();
-        return LevelManager.Instance.LevelPath.EvaluatePosition(crosshairSplineT);
-    }
+    
     
     private void UpdateAimPosition()
     {
        Vector3 boundaryCenter = GetCrosshairSplinePosition();
 
        // Calculate offsets in the local spline space
-       Vector3 localMouseOffset = _mouseOffset;
+       Vector3 localLookOffset = _lookOffset;
        Vector3 localMovementOffset = _movementOffset;
        
        if (player.AlignToSplineDirection)
        {
            // Transform offsets to world space using spline rotation
-           localMouseOffset = _splineRotation * _mouseOffset;
+           localLookOffset = _splineRotation * _lookOffset;
            localMovementOffset = _splineRotation * _movementOffset;
        }
 
        // Calculate target position in world space
-       _crosshairWorldPosition = boundaryCenter + localMouseOffset + localMovementOffset;
+       _crosshairWorldPosition = boundaryCenter + localLookOffset + localMovementOffset;
 
        // Apply boundary clamping
        if (player.AlignToSplineDirection)
@@ -152,8 +119,8 @@ public class RailPlayerAiming : MonoBehaviour
            Vector3 localOffset = Quaternion.Inverse(_splineRotation) * (_crosshairWorldPosition - boundaryCenter);
            
            // Clamp in the local spline space
-           localOffset.x = Mathf.Clamp(localOffset.x, -_crosshairBoundaryX, _crosshairBoundaryX);
-           localOffset.y = Mathf.Clamp(localOffset.y, -_crosshairBoundaryY, _crosshairBoundaryY);
+           localOffset.x = Mathf.Clamp(localOffset.x, -CrosshairBoundaryX, CrosshairBoundaryX);
+           localOffset.y = Mathf.Clamp(localOffset.y, -CrosshairBoundaryY, CrosshairBoundaryY);
            
            // Transform back to world space
            _crosshairWorldPosition = boundaryCenter + (_splineRotation * localOffset);
@@ -161,8 +128,8 @@ public class RailPlayerAiming : MonoBehaviour
        else
        {
            // Traditional world-space clamping
-           _crosshairWorldPosition.x = Mathf.Clamp(_crosshairWorldPosition.x, boundaryCenter.x - _crosshairBoundaryX, boundaryCenter.x + _crosshairBoundaryX);
-           _crosshairWorldPosition.y = Mathf.Clamp(_crosshairWorldPosition.y, boundaryCenter.y - _crosshairBoundaryY, boundaryCenter.y + _crosshairBoundaryY);
+           _crosshairWorldPosition.x = Mathf.Clamp(_crosshairWorldPosition.x, boundaryCenter.x - CrosshairBoundaryX, boundaryCenter.x + CrosshairBoundaryX);
+           _crosshairWorldPosition.y = Mathf.Clamp(_crosshairWorldPosition.y, boundaryCenter.y - CrosshairBoundaryY, boundaryCenter.y + CrosshairBoundaryY);
        }
        
        // Set aim direction
@@ -196,39 +163,65 @@ public class RailPlayerAiming : MonoBehaviour
         _movementOffset = Vector3.Lerp(_movementOffset, targetOffset, movementOffsetSmoothing * Time.deltaTime);
     }
     
-    private void HandleMouseOffset()
+    private void HandleLookOffset()
     {
-        if (!useMouseOffset)
+        if (!useLookOffset)
         {
-            _mouseOffset = Vector3.zero;
+            _lookOffset = Vector3.zero;
             return;
         }
+    
+        // Check if we have any input
+        bool hasInput = _lookInput.magnitude > 0.01f;
+    
+        if (hasInput)
+        {
+            // Reset the no input timer when we have input
+            _noInputTimer = 0f;
         
-        Vector3 screenCenter = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0);
-        Vector3 currentMousePosition = playerInput.PointerPosition;
+            // Normalize the input to handle different device sensitivities consistently
+            Vector2 normalizedInput = _lookInput.magnitude > 1f ? _lookInput.normalized : _lookInput;
         
-        Vector3 mouseFromCenter = currentMousePosition - screenCenter;
+            Vector3 targetOffset = new Vector3(
+                normalizedInput.x * lookOffsetStrength,
+                normalizedInput.y * lookOffsetStrength,
+                0
+            );
         
-        Vector2 normalizedMouse = new Vector2(
-            mouseFromCenter.x / (Screen.width * 0.5f),
-            mouseFromCenter.y / (Screen.height * 0.5f)
-        );
+            _lookOffset = Vector3.Lerp(_lookOffset, targetOffset, lookOffsetSmoothing * Time.deltaTime);
+        }
+        else if (autoCenter)
+        {
+            _noInputTimer += Time.deltaTime;
         
-        normalizedMouse.x = Mathf.Clamp(normalizedMouse.x, -1f, 1f);
-        normalizedMouse.y = Mathf.Clamp(normalizedMouse.y, -1f, 1f);
-        
-        Vector3 targetOffset = new Vector3(
-            normalizedMouse.x * mouseOffsetStrength,
-            normalizedMouse.y * mouseOffsetStrength,
-            0
-        );
-        
-        _mouseOffset = Vector3.Lerp(_mouseOffset, targetOffset, mouseOffsetSmoothing * Time.deltaTime);
+            // Centering after the delay has passed
+            if (_noInputTimer >= autoCenterDelay)
+            {
+                _lookOffset = Vector3.Lerp(_lookOffset, Vector3.zero, autoCenterSpeed * Time.deltaTime);
+            }
+        }
+    }
+
+
+    
+    
+    #region Input --------------------------------------------------------------------------------------------------------
+
+    private void OnLook(InputAction.CallbackContext context)
+    {
+        _lookInput = context.ReadValue<Vector2>();
     }
     
+    private void OnMove(InputAction.CallbackContext context)
+    {
+        _movementInput = context.ReadValue<Vector2>();
+    }
+
+    #endregion Input --------------------------------------------------------------------------------------------------------
 
 
-    #region Public -------------------------------------------------------------------------
+
+    #region Helper -------------------------------------------------------------------------
 
     public Vector3 GetAimDirection()
     {
@@ -246,10 +239,24 @@ public class RailPlayerAiming : MonoBehaviour
         float dot = Vector3.Dot(_aimDirection, directionToTarget);
         return dot > (1f - tolerance);
     }
-
-    #endregion Public -------------------------------------------------------------------------
     
+    
+    private Vector3 GetSplineDirection()
+    {
+        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetEnemyDirectionOnSpline(LevelManager.Instance.EnemyPosition);
+    }
+    
+    private Vector3 GetCrosshairSplinePosition()
+    {
+        if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer) return transform.position;
+        
+        return LevelManager.Instance.EnemyPosition;
+    }
 
+    #endregion Helper -------------------------------------------------------------------------
+
+    
+    
     #if UNITY_EDITOR
     #region Editor -------------------------------------------------------------------------
     
@@ -261,7 +268,7 @@ public class RailPlayerAiming : MonoBehaviour
         Gizmos.DrawLine(transform.position, _crosshairWorldPosition);
     
         // Draw boundaries from the crosshair spline position 
-        if (crosshair && LevelManager.Instance && LevelManager.Instance.LevelPath)
+        if (crosshair && LevelManager.Instance && LevelManager.Instance.SplineContainer)
         {
             Vector3 crosshairSplinePosition = GetCrosshairSplinePosition();
             
@@ -270,10 +277,10 @@ public class RailPlayerAiming : MonoBehaviour
                 // Draw rotated boundaries based on spline rotation
                 Vector3[] localCorners = new Vector3[]
                 {
-                    new Vector3(-_crosshairBoundaryX, -_crosshairBoundaryY, 0), // Bottom-left
-                    new Vector3(_crosshairBoundaryX, -_crosshairBoundaryY, 0),  // Bottom-right
-                    new Vector3(_crosshairBoundaryX, _crosshairBoundaryY, 0),   // Top-right
-                    new Vector3(-_crosshairBoundaryX, _crosshairBoundaryY, 0)   // Top-left
+                    new Vector3(-CrosshairBoundaryX, -CrosshairBoundaryY, 0), // Bottom-left
+                    new Vector3(CrosshairBoundaryX, -CrosshairBoundaryY, 0),  // Bottom-right
+                    new Vector3(CrosshairBoundaryX, CrosshairBoundaryY, 0),   // Top-right
+                    new Vector3(-CrosshairBoundaryX, CrosshairBoundaryY, 0)   // Top-left
                 };
                 
                 // Transform corners to world space using spline rotation
@@ -290,27 +297,11 @@ public class RailPlayerAiming : MonoBehaviour
                     Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
                 }
                 
-                UnityEditor.Handles.Label(crosshairSplinePosition + (_splineRotation * Vector3.up * (_crosshairBoundaryY + 0.5f)), "Crosshair Boundaries (Spline Aligned)");
-            }
-            else
-            {
-                // Draw traditional axis-aligned boundaries
-                Vector3 bottomLeft = crosshairSplinePosition + new Vector3(-_crosshairBoundaryX, -_crosshairBoundaryY, 0);
-                Vector3 bottomRight = crosshairSplinePosition + new Vector3(_crosshairBoundaryX, -_crosshairBoundaryY, 0);
-                Vector3 topLeft = crosshairSplinePosition + new Vector3(-_crosshairBoundaryX, _crosshairBoundaryY, 0);
-                Vector3 topRight = crosshairSplinePosition + new Vector3(_crosshairBoundaryX, _crosshairBoundaryY, 0);
-            
-                Gizmos.color = Color.blue;
-                Gizmos.DrawLine(bottomLeft, bottomRight);  // Bottom edge
-                Gizmos.DrawLine(bottomRight, topRight);    // Right edge  
-                Gizmos.DrawLine(topRight, topLeft);        // Top edge
-                Gizmos.DrawLine(topLeft, bottomLeft);      // Left edge
-                
-                UnityEditor.Handles.Label(crosshairSplinePosition + new Vector3(0, _crosshairBoundaryY + 0.5f, 0), "Crosshair Boundaries (World Aligned)");
+                UnityEditor.Handles.Label(crosshairSplinePosition + (_splineRotation * Vector3.up * (CrosshairBoundaryY + 0.5f)), "Crosshair Boundaries");
             }
         }
     }
 
     #endregion Editor -------------------------------------------------------------------------
-    #endif // UNITY_EDITOR
+    #endif 
 }

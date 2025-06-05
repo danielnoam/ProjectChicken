@@ -9,7 +9,7 @@ public class RailPlayerInput : MonoBehaviour
 {
     [Header("Input Settings")] 
     [SerializeField, Self] private PlayerInput playerInput;
-    [SerializeField] private bool hideCursor = true;
+    [SerializeField] private bool autoHideCursor = true;
     
 
     private InputActionMap _playerActionMap;
@@ -25,7 +25,6 @@ public class RailPlayerInput : MonoBehaviour
     public event Action<InputAction.CallbackContext> OnAttackEvent;
     public event Action<InputAction.CallbackContext> OnDodgeLeftEvent;
     public event Action<InputAction.CallbackContext> OnDodgeRightEvent;
-    public Vector3 PointerPosition => Input.mousePosition;
 
 
     
@@ -56,7 +55,7 @@ public class RailPlayerInput : MonoBehaviour
             Debug.LogError("One or more actions are not found in the Player Action Map. Please check the action names.");
         }
         
-        if (hideCursor)
+        if (autoHideCursor)
         {
             ToggleCursorVisibility();
         }
@@ -102,20 +101,7 @@ public class RailPlayerInput : MonoBehaviour
     }
     
 
-    [Button]
-    private void ToggleCursorVisibility()
-    {
-        if (Cursor.visible)
-        {
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = false;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-    }
+
 
 
     #region Input Handling --------------------------------------------------------------------------------------
@@ -148,9 +134,26 @@ public class RailPlayerInput : MonoBehaviour
     
 
     #endregion Input Handling --------------------------------------------------------------------------------------
-    
-    
 
+
+    #region Cursor --------------------------------------------------------------------------------------
+
+    [Button]
+    private void ToggleCursorVisibility()
+    {
+        if (Cursor.visible)
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
+    #endregion Cursor --------------------------------------------------------------------------------------
 
 
 

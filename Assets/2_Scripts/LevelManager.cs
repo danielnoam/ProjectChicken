@@ -11,27 +11,34 @@ public class LevelManager : MonoBehaviour
     [Header("Path Settings")]
     [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(25f,15f);
     [SerializeField, Min(0)] private Vector2 playerBoundary = new Vector2(10f,6f);
+    
+    [Space(10)]
     [SerializeField] private float playerOffset = -10f;
     [SerializeField] private float enemyOffset = 10f;
+    
+    [Space(10)]
     [SerializeField] private float pathFollowSpeed = 5f;
-    [SerializeField] private bool startMovingOnStart = true;
+    [SerializeField] private bool autoStartMoving = true;
     [SerializeField] private SplineAnimate.LoopMode loopMode = SplineAnimate.LoopMode.Loop;
     
     [Header("References")]
-    [SerializeField, Child] private SplineContainer levelPath;
+    [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private Transform currentPositionOnPath;
+    
+    
     
     private SplineAnimate _positionAnimator;
     private float _splineLength;
-    private float _targetEndPosition;
-    
-    public SplineContainer LevelPath => levelPath;
-    public Transform CurrentPositionOnPath => currentPositionOnPath;
+    public Vector3 PlayerPosition { get; private set; }
+    public Vector3 EnemyPosition { get; private set; }
     public Vector2 PlayerBoundary => playerBoundary;
     public Vector2 EnemyBoundary => enemyBoundary;
-    public float PlayerOffset => playerOffset;
-    public float EnemyOffset => enemyOffset;
-    
+    public SplineContainer SplineContainer => splineContainer;
+    public Transform CurrentPositionOnPath => currentPositionOnPath;
+
+
+    private void OnValidate() { this.ValidateRefs(); }
+
     private void Awake()
     {
         if (!Instance || Instance == this)
@@ -49,7 +56,7 @@ public class LevelManager : MonoBehaviour
     
     private void Start()
     {
-        if (startMovingOnStart) _positionAnimator.Play();
+        if (autoStartMoving) _positionAnimator.Play();
     }
     
     private void OnDestroy()
@@ -72,37 +79,34 @@ public class LevelManager : MonoBehaviour
         _positionAnimator.Loop = loopMode;
         
         // Calculate spline length
-        SplinePath<Spline> splinePath = new SplinePath<Spline>(levelPath.Splines);
+        SplinePath<Spline> splinePath = new SplinePath<Spline>(splineContainer.Splines);
         _splineLength = splinePath.GetLength();
         
         // Set starting position based on player offset
         float offsetDistance = Mathf.Abs(playerOffset);
         float normalizedOffset = offsetDistance / _splineLength;
-        _positionAnimator.StartOffset = normalizedOffset;
-        
-        // Calculate where to stop based on enemy offset
-        float distanceFromEnd = Mathf.Abs(enemyOffset);
-        _targetEndPosition = 1f - (distanceFromEnd / _splineLength);
+        _positionAnimator.StartOffset = -normalizedOffset;
         
         _positionAnimator.Updated += OnSplineMovement;
     }
     
     private void OnSplineMovement(Vector3 position, Quaternion rotation)
     {
-        if (_positionAnimator.NormalizedTime >= _targetEndPosition)
-        {
-            // Dont stop for now so we loop
-            // _positionAnimator.Pause();
-        }
+        // Get current normalized position on spline
+        float currentT = GetCurrentSplineT();
+    
+        // Calculate player position (current position + player offset)
+        float playerOffsetNormalized = playerOffset / _splineLength;
+        float playerT = Mathf.Clamp01(currentT + playerOffsetNormalized);
+        PlayerPosition = splineContainer.EvaluatePosition(playerT);
+    
+        // Calculate enemy position (current position + enemy offset)
+        float enemyOffsetNormalized = enemyOffset / _splineLength;
+        float enemyT = Mathf.Clamp01(currentT + enemyOffsetNormalized);
+        EnemyPosition = splineContainer.EvaluatePosition(enemyT);
     }
 
-    public float GetCurrentSplineT()
-    {
-        if (!currentPositionOnPath || !levelPath) return 0f;
 
-        SplineUtility.GetNearestPoint(levelPath.Spline, currentPositionOnPath.position, out var nearestPoint, out var t);
-        return t;
-    }
     
     
     [Button] 
@@ -123,52 +127,61 @@ public class LevelManager : MonoBehaviour
     #endregion Spline Positinoning ---------------------------------------------------------------------------------
 
 
+
+    #region Helper ---------------------------------------------------------------------------------------------
+
+    public float GetCurrentSplineT()
+    {
+        if (!currentPositionOnPath || !splineContainer) return 0f;
+
+        SplineUtility.GetNearestPoint(splineContainer.Spline, currentPositionOnPath.position, out var nearestPoint, out var t);
+        return t;
+    }
+    
+    public Vector3 GetEnemyDirectionOnSpline(Vector3 point)
+    {
+        if (!SplineContainer) return Vector3.forward;
+    
+        // Get the current position and a slightly ahead position to calculate direction
+        Vector3 currentPos = point;
+        float currentT = GetCurrentSplineT();
+    
+        // Sample a small step ahead on the spline to get direction
+        float stepSize = 0.01f; // Small step forward
+        float aheadT = Mathf.Clamp01(currentT + stepSize);
+        Vector3 aheadPos = SplineContainer.EvaluatePosition(aheadT);
+    
+        Vector3 direction = (aheadPos - currentPos).normalized;
+        return direction.magnitude > 0.001f ? direction : Vector3.forward;
+    }
+
+    #endregion Helper ---------------------------------------------------------------------------------------------
+    
+    
+    
+    
+    
     #region Editor -----------------------------------------------------------------------------------------------
 
     private void OnDrawGizmos()
     {
-        // Draw the start and end position
-        if (levelPath && levelPath.Splines.Count > 0)
-        {
-            // Calculate positions if we don't have them yet
-            if (_splineLength <= 0)
-            {
-                SplinePath<Spline> splinePath = new SplinePath<Spline>(levelPath.Splines);
-                float tempSplineLength = splinePath.GetLength();
-                
-                // Draw start position (player offset)
-                float offsetDistance = Mathf.Abs(playerOffset);
-                float normalizedStartOffset = offsetDistance / tempSplineLength;
-                Vector3 startPos = levelPath.EvaluatePosition(normalizedStartOffset);
-                Gizmos.color = Color.green;
-                Gizmos.DrawSphere(startPos, 0.3f);
-                
-                // Draw end position (enemy offset)
-                float distanceFromEnd = Mathf.Abs(enemyOffset);
-                float normalizedEndPosition = 1f - (distanceFromEnd / tempSplineLength);
-                Vector3 endPos = levelPath.EvaluatePosition(normalizedEndPosition);
-                Gizmos.color = Color.red;
-                Gizmos.DrawSphere(endPos, 0.3f);
-            }
-            else
-            {
-                // Use calculated values
-                float normalizedStartOffset = Mathf.Abs(playerOffset) / _splineLength;
-                Vector3 startPos = levelPath.EvaluatePosition(normalizedStartOffset);
-                Gizmos.color = Color.green;
-                Gizmos.DrawSphere(startPos, 0.3f);
-                
-                Vector3 endPos = levelPath.EvaluatePosition(_targetEndPosition);
-                Gizmos.color = Color.red;
-                Gizmos.DrawSphere(endPos, 0.3f);
-            }
-        }
-        
         // Draw the current position on the path
         if (currentPositionOnPath)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawSphere(currentPositionOnPath.position, 0.5f);
+        }
+    
+        // Draw player and enemy positions relative to current position
+        if (splineContainer && splineContainer.Splines.Count > 0 && currentPositionOnPath)
+        {
+            // Draw player position
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(PlayerPosition, 0.3f);
+            
+            // Draw enemy position
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(EnemyPosition, 0.3f);
         }
     }
 
