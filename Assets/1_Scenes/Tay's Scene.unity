@@ -579,9 +579,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyBoundary: {x: 25, y: 15}
-  playerBoundary: {x: 25, y: 6}
+  playerBoundary: {x: 25, y: 5}
   playerOffset: 10
-  enemyOffset: 891.5
+  enemyOffset: 10
   pathFollowSpeed: 5
   startMovingOnStart: 1
   loopMode: 1
@@ -816,7 +816,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 335785508}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.12772873, y: 0.52835655, z: -0.10024841, w: 0.8333517}
   m_LocalPosition: {x: 0.1874485, y: 0, z: -0.5781965}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3846,7 +3846,7 @@ Transform:
   m_GameObject: {fileID: 1918639883}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.58714, y: -0.96707, z: 13.40131}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3861,22 +3861,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 1918639883}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63904db508474984f9d867f87ab3fe25, type: 3}
+  m_Script: {fileID: 11500000, guid: 6ffbeef71da710542a84b84ff7a8e19f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   currentFormation: 0
-  formationSize: 10
-  enemySpacing: 2
-  maxSlotsPerFormation: 16
-  useSplineFollowing: 1
-  splineOffset: 13
-  heightAboveSpline: 0
-  followSmoothness: 5
-  slotAssignmentRange: 100
-  enemyMoveToSlotSpeed: 1
-  arrivalThreshold: 4
-  player: {fileID: 1529065799}
-  enemyTag: Enemy
+  autoUpdateFormation: 1
+  formationOffset: {x: 0, y: 0, z: 10}
+  useLocalOffset: 0
+  vShapeCount: 11
+  squareSize: 4
+  triangleRows: 4
+  circleCount: 12
+  gridSize: {x: 5, y: 3}
+  horizontalSpacing: 2
+  verticalSpacing: 2
+  circleRadius: 5
+  showGizmos: 1
+  openSlotColor: {r: 0, g: 1, b: 0, a: 1}
+  occupiedSlotColor: {r: 1, g: 0, b: 0, a: 1}
+  gizmoSize: 0.5
 --- !u!1 &1922725559
 GameObject:
   m_ObjectHideFlags: 0
