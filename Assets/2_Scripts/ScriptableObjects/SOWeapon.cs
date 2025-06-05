@@ -21,7 +21,11 @@ public class SOWeapon : ScriptableObject
     [SerializeField, Min(0)] private float projectilePushForce;
     [SerializeField, Min(0)] private float projectileLifetime = 5f;
     [SerializeField] private PlayerProjectile playerProjectilePrefab;
+    [SerializeField] private List<SOProjectileBehaviorBase> projectileBehaviors = new List<SOProjectileBehaviorBase>();
     
+    [Header("Projectile Spawn Effect")]
+    [SerializeField] private AudioClip spawnSound;
+    [SerializeField] private GameObject spawnEffectPrefab;
     
     [Header("Impact Effect")]
     [SerializeField] private AudioClip impactSound;
@@ -51,11 +55,20 @@ public class SOWeapon : ScriptableObject
         // Initialize the projectile
         projectile.SetUpProjectile(this, direction);
         
+        // Spawn effect
+        PlaySpawnEffect(projectile.transform.position, Quaternion.identity);
+        
         return projectile;
     }
     
     
-    public void SpawnImpactEffect(Vector3 position, Quaternion rotation)
+
+
+
+    #region Projectile Effects --------------------------------------------------------------------
+
+    
+    public void PlayImpactEffect(Vector3 position, Quaternion rotation)
     {
         if (impactEffectPrefab)
         {
@@ -67,4 +80,69 @@ public class SOWeapon : ScriptableObject
             AudioSource.PlayClipAtPoint(impactSound, position);
         }
     }
+
+    private void PlaySpawnEffect(Vector3 position, Quaternion rotation)
+    {
+        if (spawnEffectPrefab)
+        {
+            Instantiate(spawnEffectPrefab, position, rotation);
+        }
+        
+        if (spawnSound)
+        {
+            AudioSource.PlayClipAtPoint(spawnSound, position);
+        }
+    }
+    
+    
+
+    #endregion Projectile Effects --------------------------------------------------------------------
+
+
+    #region Projectile Behaviors ---------------------------------------------------------------
+
+    public void OnProjectileSpawn(PlayerProjectile projectile)
+    {
+        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
+        {
+            behavior.OnSpawn(projectile);
+        }
+    }
+    
+    
+    public void OnProjectileMovement(PlayerProjectile projectile)
+    {
+        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
+        {
+            behavior.OnMovement(projectile);
+        }
+    }
+    
+    public void OnProjectileCollision(PlayerProjectile projectile, ChickenEnemy enemy)
+    {
+        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
+        {
+            behavior.OnCollision(projectile, enemy);
+        }
+    }
+    
+    public void OnProjectileDestroy()
+    {
+        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
+        {
+            behavior.OnDestroy();
+        }
+    }
+    
+    public void OnDrawGizmos(PlayerProjectile projectile)
+    {
+        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
+        {
+            behavior.OnDrawGizmos(projectile);
+        }
+    }
+
+    #endregion Projectile Behaviors ---------------------------------------------------------------
+    
+
 }

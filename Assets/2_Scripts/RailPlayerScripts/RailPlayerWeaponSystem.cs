@@ -73,13 +73,16 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             FireActiveWeapon();
         }
+
+
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            SelectRandomSpecialWeapon();
+        }
     }
 
 
-    private void OnTriggerEnter(Collider other)
-    {
-        
-    }
+
 
     private void FireActiveWeapon()
     {
@@ -184,6 +187,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         SetSpecialWeapon(randomWeapon);
     }
     
+    
 
     #region Weapon Timers ----------------------------------------------------------------------------------------------------
 
@@ -211,10 +215,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     }
 
     #endregion Weapon Timers ----------------------------------------------------------------------------------------------------
-    
-    
-    
-    
     
 
     #region Input Handling --------------------------------------------------------------------------------------

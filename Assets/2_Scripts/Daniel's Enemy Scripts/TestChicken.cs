@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Chicken : EnemyBase
+public class TestChicken : TestEnemyBase
 {
     public override void Attack()
     {

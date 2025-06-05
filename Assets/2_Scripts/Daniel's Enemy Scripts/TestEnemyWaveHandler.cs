@@ -15,7 +15,7 @@ public class TestEnemyWaveHandler : MonoBehaviour
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private Transform followPointHolder;
     [SerializeField] private Transform enemyHolder;
-    [SerializeField] private EnemyBase enemyPrefab;
+    [SerializeField] private TestEnemyBase testEnemyPrefab;
     
     private readonly Dictionary<Transform, Vector3> _followPoints = new Dictionary<Transform, Vector3>();
     private Quaternion _splineRotation = Quaternion.identity;
@@ -31,7 +31,7 @@ public class TestEnemyWaveHandler : MonoBehaviour
         MovePointsAlongPath();
         
         // If there are no enemies, spawn a new wave
-        if (FindObjectsByType<EnemyBase>(FindObjectsSortMode.None).Length <= 0)
+        if (FindObjectsByType<TestEnemyBase>(FindObjectsSortMode.None).Length <= 0)
         {
             SpawnEnemyWave(Random.Range(1, 7));
         }
@@ -76,17 +76,17 @@ public class TestEnemyWaveHandler : MonoBehaviour
     
     private void SpawnEnemy(Transform followPoint)
     {
-        if (!levelManager || !enemyPrefab) return;
+        if (!levelManager || !testEnemyPrefab) return;
         
         Vector3 spawnPoint = levelManager.EnemyPosition + new Vector3(Random.Range(xSpawnPositionRange.x, xSpawnPositionRange.y), Random.Range(ySpawnPositionRange.x, ySpawnPositionRange.y), 0);
         
-        EnemyBase newEnemy = Instantiate(enemyPrefab, spawnPoint, Quaternion.identity, enemyHolder);
-        newEnemy.SetUp(followPoint);
+        TestEnemyBase newTestEnemy = Instantiate(testEnemyPrefab, spawnPoint, Quaternion.identity, enemyHolder);
+        newTestEnemy.SetUp(followPoint);
     }
     
     private void ClearEnemies()
     {
-        var enemies = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
+        var enemies = FindObjectsByType<TestEnemyBase>(FindObjectsSortMode.None);
         if (enemies.Length > 0)
         {
             foreach (var enemy in enemies)

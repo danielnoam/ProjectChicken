@@ -3,7 +3,7 @@ using KBCore.Refs;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public abstract class EnemyBase : MonoBehaviour
+public abstract class TestEnemyBase : MonoBehaviour
 {
     [Header("Enemy Settings")]
     [SerializeField,Min(0)] private float maxHealth = 100f;

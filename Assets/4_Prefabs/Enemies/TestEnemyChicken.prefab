@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 3640276846923883925}
   - component: {fileID: 6229520557478994104}
   - component: {fileID: 8871952831000586692}
-  - component: {fileID: 1834044068949957995}
+  - component: {fileID: 8649091038145737602}
   m_Layer: 0
-  m_Name: EnemiePrefabBase
+  m_Name: TestEnemyChicken
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -85,7 +85,7 @@ CapsuleCollider:
   m_Height: 4
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1834044068949957995
+--- !u!114 &8649091038145737602
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,13 +94,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 761269833103634017}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceea38979ef86b444a0e4267bdf138df, type: 3}
+  m_Script: {fileID: 11500000, guid: 48964a295ab564249acfc867f9a546bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 25
-  randomSizeRange: {x: 0.75, y: 1.25}
+  randomSizeRange: {x: 0.5, y: 1.5}
   maxMoveSpeed: 800
-  maxDistanceFromFollowTarget: 2
+  maxDistanceFromFollowTarget: 5
   rigidBody: {fileID: 6229520557478994104}
 --- !u!1 &2278015463138662857
 GameObject:

@@ -14,7 +14,15 @@ public class PlayerProjectile : MonoBehaviour
     private bool _isInitialized;
 
     
+    public Rigidbody Rigidbody => _rigidbody;
+    public SOWeapon WeaponData => _weaponData;
+    public float Speed => _speed;
+    public float PushForce => _pushForce;
+    public Vector3 Direction => _direction;
     public float Damage => _damage;
+    
+    
+    
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -39,8 +47,15 @@ public class PlayerProjectile : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!_isInitialized) return;
+
+
         
-        ProjectileHit(other);
+        if (TryGetComponent(out ChickenEnemy enemy))
+        {
+            
+            ProjectileHit(enemy);
+        }
+
 
     }
     
@@ -70,6 +85,8 @@ public class PlayerProjectile : MonoBehaviour
         _direction = direction;
         _damage = weaponData.Damage;
         _isInitialized = true;
+        
+        _weaponData?.OnProjectileSpawn(this);
     }
 
     #endregion Base -------------------------------------------------------------------------
@@ -79,25 +96,37 @@ public class PlayerProjectile : MonoBehaviour
 
     protected virtual void MoveProjectile()
     {
-        _rigidbody?.MovePosition(_rigidbody.position + _direction * (_speed * Time.fixedDeltaTime));
+        _weaponData?.OnProjectileMovement(this);
     }
 
     
     protected virtual void DestroyProjectile()
     {
-        _weaponData?.SpawnImpactEffect(transform.position, Quaternion.identity);
+        _weaponData?.OnProjectileDestroy();
+        
         Destroy(gameObject);
     }
 
 
-    protected virtual void ProjectileHit(Collider other)
+    protected virtual void ProjectileHit(ChickenEnemy enemy)
     {
+        
+        _weaponData?.OnProjectileCollision(this, enemy);
+        
         // Apply a force to the hit object
         if (TryGetComponent(out Rigidbody rb))
         {
             rb.AddForce(_direction * _pushForce, ForceMode.Impulse);
         }
+        
+        // Apply damage to the enemy object
+        enemy.TakeDamage(_damage);
+        
 
+        // Play impact effect
+        _weaponData?.PlayImpactEffect(transform.position, Quaternion.identity);
+        
+        
         // Destroy the projectile on impact
         DestroyProjectile();
     }
@@ -105,8 +134,17 @@ public class PlayerProjectile : MonoBehaviour
     #endregion Custom Behivors -----------------------------------------------------------------------------
 
 
-    
 
+#if UNITY_EDITOR
+    #region Editor -------------------------------------------------------------------------
+
+    private void OnDrawGizmos()
+    {
+        _weaponData?.OnDrawGizmos(this);
+    }
+
+    #endregion Editor -------------------------------------------------------------------------
+#endif
 
     
 }
