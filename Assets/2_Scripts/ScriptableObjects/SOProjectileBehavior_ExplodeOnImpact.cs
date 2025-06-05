@@ -10,17 +10,17 @@ public class SOProjectileBehavior_ExplodeOnImpact : SOProjectileBehaviorBase
     [SerializeField] private float explosionForce = 10f;
     [SerializeField] private float explosionDamage = 10f;
     
-    public override void OnSpawn(PlayerProjectile projectile)
+    public override void OnBehaviorSpawn(PlayerProjectile projectile)
     {
 
     }
 
-    public override void OnMovement(PlayerProjectile projectile)
+    public override void OnBehaviorMovement(PlayerProjectile projectile)
     {
 
     }
 
-    public override void OnCollision(PlayerProjectile projectile, ChickenEnemy enemy)
+    public override void OnBehaviorCollision(PlayerProjectile projectile, ChickenEnemy enemy)
     {
         // Get the collision point position
         Vector3 explosionCenter = enemy.transform.position;
@@ -78,12 +78,12 @@ public class SOProjectileBehavior_ExplodeOnImpact : SOProjectileBehaviorBase
         return 1f - normalizedDistance; // Inverted so closer = higher value
     }
 
-    public override void OnDestroy()
+    public override void OnBehaviorDestroy(PlayerProjectile projectile)
     {
 
     }
 
-    public override void OnDrawGizmos(PlayerProjectile projectile)
+    public override void OnBehaviorDrawGizmos(PlayerProjectile projectile)
     {
         // Draw the explosion radius spheres
         Gizmos.color = Color.red;

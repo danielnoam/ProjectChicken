@@ -105,7 +105,7 @@ public class SOWeapon : ScriptableObject
     {
         foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
         {
-            behavior.OnSpawn(projectile);
+            behavior.OnBehaviorSpawn(projectile);
         }
     }
     
@@ -114,7 +114,7 @@ public class SOWeapon : ScriptableObject
     {
         foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
         {
-            behavior.OnMovement(projectile);
+            behavior.OnBehaviorMovement(projectile);
         }
     }
     
@@ -122,23 +122,23 @@ public class SOWeapon : ScriptableObject
     {
         foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
         {
-            behavior.OnCollision(projectile, enemy);
+            behavior.OnBehaviorCollision(projectile, enemy);
         }
     }
     
-    public void OnProjectileDestroy()
+    public void OnProjectileDestroy(PlayerProjectile projectile)
     {
         foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
         {
-            behavior.OnDestroy();
+            behavior.OnBehaviorDestroy(projectile);
         }
     }
     
-    public void OnDrawGizmos(PlayerProjectile projectile)
+    public void OnProjectileDrawGizmos(PlayerProjectile projectile)
     {
         foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
         {
-            behavior.OnDrawGizmos(projectile);
+            behavior.OnBehaviorDrawGizmos(projectile);
         }
     }
 

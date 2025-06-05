@@ -102,7 +102,7 @@ public class PlayerProjectile : MonoBehaviour
     
     protected virtual void DestroyProjectile()
     {
-        _weaponData?.OnProjectileDestroy();
+        _weaponData?.OnProjectileDestroy(this);
         
         Destroy(gameObject);
     }
@@ -140,7 +140,7 @@ public class PlayerProjectile : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        _weaponData?.OnDrawGizmos(this);
+        _weaponData?.OnProjectileDrawGizmos(this);
     }
 
     #endregion Editor -------------------------------------------------------------------------
