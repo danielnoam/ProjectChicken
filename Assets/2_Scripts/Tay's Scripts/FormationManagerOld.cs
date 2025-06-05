@@ -284,7 +284,7 @@ public class FormationManagerOld : MonoBehaviour
     {
         if (player == null) return;
         
-        if (useSplineFollowing && levelManager != null && levelManager.LevelPath != null)
+        if (useSplineFollowing && levelManager != null && levelManager.SplineContainer != null)
         {
             UpdateSplineBasedPosition();
         }
@@ -300,20 +300,20 @@ public class FormationManagerOld : MonoBehaviour
     void UpdateSplineBasedPosition()
     {
         float playerT = levelManager.GetCurrentSplineT();
-        SplinePath<Spline> splinePath = new SplinePath<Spline>(levelManager.LevelPath.Splines);
+        SplinePath<Spline> splinePath = new SplinePath<Spline>(levelManager.SplineContainer.Splines);
         float splineLength = splinePath.GetLength();
         float normalizedOffset = splineOffset / splineLength;
         float targetT = playerT + normalizedOffset;
         
-        if (levelManager.LevelPath.Splines.Count > 0)
+        if (levelManager.SplineContainer.Splines.Count > 0)
         {
             if (targetT > 1f)
                 targetT = targetT % 1f;
         }
         
-        Vector3 splinePosition = levelManager.LevelPath.EvaluatePosition(targetT);
-        Vector3 splineTangent = levelManager.LevelPath.EvaluateTangent(targetT);
-        Vector3 splineUp = levelManager.LevelPath.EvaluateUpVector(targetT);
+        Vector3 splinePosition = levelManager.SplineContainer.EvaluatePosition(targetT);
+        Vector3 splineTangent = levelManager.SplineContainer.EvaluateTangent(targetT);
+        Vector3 splineUp = levelManager.SplineContainer.EvaluateUpVector(targetT);
         
         targetFormationCenter = splinePosition + splineUp * heightAboveSpline;
         
