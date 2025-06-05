@@ -50,8 +50,8 @@ public class RailPlayerMovement : MonoBehaviour
     private Vector3 _dodgeDirection;
     private Tween _dodgeTween;
 
-    private readonly float _boundaryX = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
-    private readonly float _boundaryY = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
+    private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
+    private float MovementBoundaryY => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
 
     private void OnValidate() { this.ValidateRefs(); }
     private void OnEnable()
@@ -99,8 +99,8 @@ public class RailPlayerMovement : MonoBehaviour
             Vector3 localOffset = Quaternion.Inverse(_splineRotation) * _targetMovePosition;
         
             // Clamp in the local spline space
-            localOffset.x = Mathf.Clamp(localOffset.x, -_boundaryX, _boundaryX);
-            localOffset.y = Mathf.Clamp(localOffset.y, -_boundaryY, _boundaryY);
+            localOffset.x = Mathf.Clamp(localOffset.x, -MovementBoundaryX, MovementBoundaryX);
+            localOffset.y = Mathf.Clamp(localOffset.y, -MovementBoundaryY, MovementBoundaryY);
         
             // Transform back to world space    
             _targetMovePosition = _splineRotation * localOffset;
@@ -193,8 +193,8 @@ public class RailPlayerMovement : MonoBehaviour
 
             // Transform to local spline space and clamp to boundaries
             Vector3 localOffset = Quaternion.Inverse(_splineRotation) * _targetMovePosition;
-            localOffset.x = Mathf.Clamp(localOffset.x, -_boundaryX, _boundaryX);
-            localOffset.y = Mathf.Clamp(localOffset.y, -_boundaryY, _boundaryY);
+            localOffset.x = Mathf.Clamp(localOffset.x, -MovementBoundaryX, MovementBoundaryX);
+            localOffset.y = Mathf.Clamp(localOffset.y, -MovementBoundaryY, MovementBoundaryY);
 
             // Transform back to world space
             _targetMovePosition = _splineRotation * localOffset;
@@ -343,10 +343,10 @@ public class RailPlayerMovement : MonoBehaviour
             // Create boundary corners in local spline space, then transform to world space
             Vector3[] localCorners = new Vector3[]
             {
-                new Vector3(-_boundaryX, -_boundaryY, 0), // Bottom-left
-                new Vector3(_boundaryX, -_boundaryY, 0),  // Bottom-right
-                new Vector3(_boundaryX, _boundaryY, 0),   // Top-right
-                new Vector3(-_boundaryX, _boundaryY, 0)   // Top-left
+                new Vector3(-MovementBoundaryX, -MovementBoundaryY, 0), // Bottom-left
+                new Vector3(MovementBoundaryX, -MovementBoundaryY, 0),  // Bottom-right
+                new Vector3(MovementBoundaryX, MovementBoundaryY, 0),   // Top-right
+                new Vector3(-MovementBoundaryX, MovementBoundaryY, 0)   // Top-left
             };
             
             // Transform corners to world space using spline rotation
@@ -364,7 +364,7 @@ public class RailPlayerMovement : MonoBehaviour
                 Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
             }
             
-            UnityEditor.Handles.Label(playerSplinePosition + (_splineRotation * Vector3.up * (_boundaryY + 0.5f)), "Player Boundaries");
+            UnityEditor.Handles.Label(playerSplinePosition + (_splineRotation * Vector3.up * (MovementBoundaryY + 0.5f)), "Player Boundaries");
             
         }
     }

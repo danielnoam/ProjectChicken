@@ -11,8 +11,12 @@ public class LevelManager : MonoBehaviour
     [Header("Path Settings")]
     [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(25f,15f);
     [SerializeField, Min(0)] private Vector2 playerBoundary = new Vector2(10f,6f);
+    
+    [Space(10)]
     [SerializeField] private float playerOffset = -10f;
     [SerializeField] private float enemyOffset = 10f;
+    
+    [Space(10)]
     [SerializeField] private float pathFollowSpeed = 5f;
     [SerializeField] private bool autoStartMoving = true;
     [SerializeField] private SplineAnimate.LoopMode loopMode = SplineAnimate.LoopMode.Loop;
