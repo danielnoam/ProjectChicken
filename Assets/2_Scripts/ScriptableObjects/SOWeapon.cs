@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using VInspector;
 
@@ -8,7 +9,7 @@ public class SOWeapon : ScriptableObject
 {
     [Header("Weapon Settings")]
     [SerializeField] private string weaponName = "New Weapon";
-    [SerializeField, Multiline(3)] private string weaponDescription = "A Weapon";
+    [SerializeField] private string weaponDescription = "A Weapon";
     [SerializeField] private WeaponDurationType weaponDurationType = WeaponDurationType.Permanent;
     [SerializeField, Min(0)] private float damage = 10f;
     [SerializeField, Min(0)] private float fireRate = 1f;
@@ -36,7 +37,22 @@ public class SOWeapon : ScriptableObject
     public float ProjectileSpeed => projectileSpeed;
     public float ProjectilePushForce => projectilePushForce;
     public float ProjectileLifetime => projectileLifetime;
-    public PlayerProjectile PlayerProjectilePrefab => playerProjectilePrefab;
+    
+    
+
+    
+    public PlayerProjectile CreateProjectile(Vector3 position, Vector3 direction)
+    {
+        if (!playerProjectilePrefab) return null;
+        
+        // Instantiate the base projectile
+        PlayerProjectile projectile = Instantiate(playerProjectilePrefab, position, Quaternion.identity);
+        
+        // Initialize the projectile
+        projectile.SetUpProjectile(this, direction);
+        
+        return projectile;
+    }
     
     
     public void SpawnImpactEffect(Vector3 position, Quaternion rotation)

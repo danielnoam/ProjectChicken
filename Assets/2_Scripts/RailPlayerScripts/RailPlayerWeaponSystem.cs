@@ -124,8 +124,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         // Shoot a projectile from each projectile spawn point
         foreach (var spawnPoint in weaponInfo.projectileSpawnPoints)
         {
-            PlayerProjectile playerProjectile = Instantiate(weapon.PlayerProjectilePrefab, spawnPoint.position, Quaternion.identity);
-            playerProjectile.SetUpProjectile(weapon, playerAiming.GetAimDirection());
+            weapon.CreateProjectile(spawnPoint.transform.position, playerAiming.GetAimDirection());
         }
         
     }

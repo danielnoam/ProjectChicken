@@ -19,29 +19,79 @@ public class PlayerProjectile : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody>();
     }
+    
+    private void Update()
+    {
+        if (!_isInitialized) return;
+        
+        CheckLiftTime();
+    }
+
 
     private void FixedUpdate()
     {
         if (!_isInitialized) return;
+        
+        MoveProjectile();
+    }
 
 
-        // Move the projectile
-        _rigidbody.MovePosition(_rigidbody.position + _direction * (_speed * Time.fixedDeltaTime));
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!_isInitialized) return;
+        
+        ProjectileHit(other);
 
+    }
+    
+    
 
-        // Destroy the projectile after its lifetime ends
+        
+    #region Base -------------------------------------------------------------------------
+
+    private void CheckLiftTime()
+    {
         _lifetime -= Time.deltaTime;
         if (_lifetime <= 0f)
         {
             DestroyProjectile();
         }
     }
-
-    private void OnTriggerEnter(Collider other)
+    
+    
+    public void SetUpProjectile(SOWeapon weaponData, Vector3 direction)
     {
-        if (!_isInitialized) return;
+        if (_isInitialized) return;
         
-        
+        _weaponData = weaponData;
+        _speed = weaponData.ProjectileSpeed;
+        _pushForce = weaponData.ProjectilePushForce;
+        _lifetime = weaponData.ProjectileLifetime;
+        _direction = direction;
+        _damage = weaponData.Damage;
+        _isInitialized = true;
+    }
+
+    #endregion Base -------------------------------------------------------------------------
+    
+
+    #region Custom Behivors -----------------------------------------------------------------------------
+
+    protected virtual void MoveProjectile()
+    {
+        _rigidbody?.MovePosition(_rigidbody.position + _direction * (_speed * Time.fixedDeltaTime));
+    }
+
+    
+    protected virtual void DestroyProjectile()
+    {
+        _weaponData?.SpawnImpactEffect(transform.position, Quaternion.identity);
+        Destroy(gameObject);
+    }
+
+
+    protected virtual void ProjectileHit(Collider other)
+    {
         // Apply a force to the hit object
         if (TryGetComponent(out Rigidbody rb))
         {
@@ -52,24 +102,11 @@ public class PlayerProjectile : MonoBehaviour
         DestroyProjectile();
     }
 
-    private void DestroyProjectile()
-    {
-        _weaponData.SpawnImpactEffect(transform.position, Quaternion.identity);
-        Destroy(gameObject);
-    }
+    #endregion Custom Behivors -----------------------------------------------------------------------------
 
-    public void SetUpProjectile(SOWeapon weaponData, Vector3 direction)
-    {
-        if (_isInitialized) return;
-        
-        // Set up the projectile
-        _weaponData = weaponData;
-        _speed = weaponData.ProjectileSpeed;
-        _pushForce = weaponData.ProjectilePushForce;
-        _lifetime = weaponData.ProjectileLifetime;
-        _direction = direction;
-        _damage = weaponData.Damage;
-        _isInitialized = true;
-    }
+
+    
+
+
     
 }
