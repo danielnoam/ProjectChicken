@@ -29,14 +29,7 @@ public abstract class EnemyBase : MonoBehaviour
         FollowPosition();
         LookAtPosition();
     }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.TryGetComponent(out PlayerProjectile projectile))
-        {
-            TakeDamage(projectile.Damage);
-        }
-    }
+    
 
     private void OnValidate()
     {
@@ -59,7 +52,7 @@ public abstract class EnemyBase : MonoBehaviour
     
     #region Base Methods ------------------------------------------------------------
 
-    private void TakeDamage(float damage)
+    public void TakeDamage(float damage)
     {
         _currentHealth -= damage;
         if (_currentHealth <= 0) Die();
