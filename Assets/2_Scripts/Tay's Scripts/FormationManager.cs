@@ -11,6 +11,7 @@ using VInspector;
 // - Formation positioning (center, corners, edges, or random)
 // - Grid formations can fill entire boundary
 // - Follows spline path with customizable offset
+// - Spline rotation alignment for formations
 
 public class FormationManager : MonoBehaviour
 {
@@ -60,11 +61,15 @@ public class FormationManager : MonoBehaviour
 
     [Header("Formation Settings")]
     [SerializeField] private FormationType currentFormation = FormationType.VShape;
-    [SerializeField] private bool autoUpdateFormation = true;
+    [SerializeField] private bool autoUpdateFormation = true; 
     [SerializeField] private Vector3 formationOffset = Vector3.zero;
     [SerializeField] private bool useLocalOffset = false;
     [SerializeField] private FormationPosition formationPosition = FormationPosition.Center;
     [SerializeField, Range(0f, 1f)] private float boundaryPadding = 0.1f;
+
+    [Header("Spline Rotation")]
+    [SerializeField] private bool alignToSplineDirection = false;
+    [SerializeField, EnableIf("alignToSplineDirection"), Min(0)] private float splineRotationSpeed = 5f;
 
     [Header("Formation Parameters")]
     [SerializeField, Min(3)] private int vShapeCount = 7;
@@ -96,6 +101,7 @@ public class FormationManager : MonoBehaviour
     private Vector3 formationCenter;
     private float currentSpacingMultiplier = 1f;
     private Vector2 randomPositionOffset = Vector2.zero;
+    private Quaternion splineRotation = Quaternion.identity;
 
     #endregion
 
@@ -108,6 +114,8 @@ public class FormationManager : MonoBehaviour
     public bool IsGridFillingBoundary => currentFormation == FormationType.Grid && gridFillsBoundary;
     public Vector3 FormationWorldCenter => formationCenter + new Vector3(randomPositionOffset.x, randomPositionOffset.y, 0);
     public FormationPosition CurrentPosition => formationPosition;
+    public bool AlignToSplineDirection => alignToSplineDirection;
+    public Quaternion SplineRotation => splineRotation;
 
     #endregion
 
@@ -121,6 +129,7 @@ public class FormationManager : MonoBehaviour
 
     private void Update()
     {
+        HandleSplineRotation();
         UpdateFormationCenter();
 
         if (autoUpdateFormation && lastFormationType != currentFormation)
@@ -134,10 +143,38 @@ public class FormationManager : MonoBehaviour
     {
         if (!showGizmos) return;
 
+        HandleSplineRotation();
         UpdateFormationCenter();
         DrawBoundary();
         DrawFormationSlots();
         DrawFormationInfo();
+    }
+
+    #endregion
+
+    #region Spline Rotation
+
+    private void HandleSplineRotation()
+    {
+        if (!alignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.SplineContainer)
+        {
+            splineRotation = Quaternion.identity;
+            return;
+        }
+
+        // Get the spline direction at the formation position
+        Vector3 splineForward = GetSplineDirection();
+        
+        if (splineForward != Vector3.zero)
+        {
+            Quaternion targetSplineRotation = Quaternion.LookRotation(splineForward, Vector3.up);
+            splineRotation = Quaternion.Slerp(splineRotation, targetSplineRotation, splineRotationSpeed * Time.deltaTime);
+        }
+    }
+
+    private Vector3 GetSplineDirection()
+    {
+        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetEnemyDirectionOnSpline(LevelManager.Instance.EnemyPosition);
     }
 
     #endregion
@@ -333,10 +370,13 @@ public class FormationManager : MonoBehaviour
 
         foreach (var slot in formationSlots)
         {
-            minX = Mathf.Min(minX, slot.localPosition.x);
-            maxX = Mathf.Max(maxX, slot.localPosition.x);
-            minY = Mathf.Min(minY, slot.localPosition.y);
-            maxY = Mathf.Max(maxY, slot.localPosition.y);
+            // Apply spline rotation to get rotated bounds
+            Vector3 rotatedPosition = alignToSplineDirection ? splineRotation * slot.localPosition : slot.localPosition;
+            
+            minX = Mathf.Min(minX, rotatedPosition.x);
+            maxX = Mathf.Max(maxX, rotatedPosition.x);
+            minY = Mathf.Min(minY, rotatedPosition.y);
+            maxY = Mathf.Max(maxY, rotatedPosition.y);
         }
 
         return new Vector4(minX, minY, maxX, maxY);
@@ -481,7 +521,14 @@ public class FormationManager : MonoBehaviour
 
     public Vector3 GetSlotWorldPosition(FormationSlot slot)
     {
-        return formationCenter + slot.localPosition + new Vector3(randomPositionOffset.x, randomPositionOffset.y, 0);
+        Vector3 basePosition = formationCenter + new Vector3(randomPositionOffset.x, randomPositionOffset.y, 0);
+        
+        // Apply spline rotation to the slot's local position if alignment is enabled
+        Vector3 rotatedLocalPosition = alignToSplineDirection ? 
+            splineRotation * slot.localPosition : 
+            slot.localPosition;
+            
+        return basePosition + rotatedLocalPosition;
     }
 
     #endregion
@@ -575,6 +622,12 @@ public class FormationManager : MonoBehaviour
         }
     }
 
+    [Button]
+    private void ToggleSplineAlignment()
+    {
+        alignToSplineDirection = !alignToSplineDirection;
+    }
+
     #endregion
 
     #region Gizmo Drawing
@@ -584,12 +637,47 @@ public class FormationManager : MonoBehaviour
         if (!LevelManager.Instance) return;
 
         Gizmos.color = constrainToBoundary ? Color.yellow : Color.gray;
-        Vector3 boundarySize = new Vector3(
-            LevelManager.Instance.EnemyBoundary.x,
-            LevelManager.Instance.EnemyBoundary.y,
-            0.1f
-        );
-        Gizmos.DrawWireCube(formationCenter, boundarySize);
+        Vector3 boundaryCenter = formationCenter + new Vector3(randomPositionOffset.x, randomPositionOffset.y, 0);
+        
+        if (alignToSplineDirection)
+        {
+            // Draw rotated boundary
+            Vector3 boundarySize = new Vector3(
+                LevelManager.Instance.EnemyBoundary.x,
+                LevelManager.Instance.EnemyBoundary.y,
+                0.1f
+            );
+
+            // Draw rotated boundary wireframe
+            Vector3[] localCorners = new Vector3[]
+            {
+                new Vector3(-boundarySize.x * 0.5f, -boundarySize.y * 0.5f, 0),
+                new Vector3(boundarySize.x * 0.5f, -boundarySize.y * 0.5f, 0),
+                new Vector3(boundarySize.x * 0.5f, boundarySize.y * 0.5f, 0),
+                new Vector3(-boundarySize.x * 0.5f, boundarySize.y * 0.5f, 0)
+            };
+
+            Vector3[] worldCorners = new Vector3[4];
+            for (int i = 0; i < 4; i++)
+            {
+                worldCorners[i] = boundaryCenter + (splineRotation * localCorners[i]);
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                int nextIndex = (i + 1) % 4;
+                Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
+            }
+        }
+        else
+        {
+            Vector3 boundarySize = new Vector3(
+                LevelManager.Instance.EnemyBoundary.x,
+                LevelManager.Instance.EnemyBoundary.y,
+                0.1f
+            );
+            Gizmos.DrawWireCube(boundaryCenter, boundarySize);
+        }
     }
 
     private void DrawFormationSlots()
@@ -602,8 +690,37 @@ public class FormationManager : MonoBehaviour
             Vector3 boundsSize = new Vector3(bounds.z - bounds.x, bounds.w - bounds.y, 0.1f);
 
             Gizmos.color = Color.blue * 0.5f;
-            Gizmos.DrawWireCube(boundsCenter, boundsSize);
+            
+            if (alignToSplineDirection)
+            {
+                // Draw rotated formation bounds
+                Vector3[] localCorners = new Vector3[]
+                {
+                    new Vector3(-boundsSize.x * 0.5f, -boundsSize.y * 0.5f, 0),
+                    new Vector3(boundsSize.x * 0.5f, -boundsSize.y * 0.5f, 0),
+                    new Vector3(boundsSize.x * 0.5f, boundsSize.y * 0.5f, 0),
+                    new Vector3(-boundsSize.x * 0.5f, boundsSize.y * 0.5f, 0)
+                };
+
+                Vector3[] worldCorners = new Vector3[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    worldCorners[i] = boundsCenter + (splineRotation * localCorners[i]);
+                }
+
+                for (int i = 0; i < 4; i++)
+                {
+                    int nextIndex = (i + 1) % 4;
+                    Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
+                }
+            }
+            else
+            {
+                Gizmos.DrawWireCube(boundsCenter, boundsSize);
+            }
         }
+
+        Vector3 formationWorldCenter = formationCenter + new Vector3(randomPositionOffset.x, randomPositionOffset.y, 0);
 
         foreach (var slot in formationSlots)
         {
@@ -612,11 +729,27 @@ public class FormationManager : MonoBehaviour
             Gizmos.DrawSphere(worldPos, gizmoSize);
 
             Gizmos.color = Color.gray * 0.5f;
-            Gizmos.DrawLine(formationCenter + new Vector3(randomPositionOffset.x, randomPositionOffset.y, 0), worldPos);
+            Gizmos.DrawLine(formationWorldCenter, worldPos);
         }
 
         Gizmos.color = Color.white;
-        Gizmos.DrawWireSphere(formationCenter + new Vector3(randomPositionOffset.x, randomPositionOffset.y, 0), gizmoSize * 1.5f);
+        Gizmos.DrawWireSphere(formationWorldCenter, gizmoSize * 1.5f);
+
+        // Draw spline alignment indicator
+        if (alignToSplineDirection)
+        {
+            Gizmos.color = Color.cyan;
+            Vector3 forwardDirection = splineRotation * Vector3.forward;
+            Gizmos.DrawRay(formationWorldCenter, forwardDirection * 3f);
+            
+            // Draw small arrow to show direction
+            Vector3 arrowTip = formationWorldCenter + forwardDirection * 3f;
+            Vector3 arrowLeft = arrowTip - (splineRotation * (Vector3.forward * 0.5f + Vector3.left * 0.3f));
+            Vector3 arrowRight = arrowTip - (splineRotation * (Vector3.forward * 0.5f + Vector3.right * 0.3f));
+            
+            Gizmos.DrawLine(arrowTip, arrowLeft);
+            Gizmos.DrawLine(arrowTip, arrowRight);
+        }
 
         if (useLocalOffset && LevelManager.Instance?.CurrentPositionOnPath)
         {
@@ -646,6 +779,12 @@ public class FormationManager : MonoBehaviour
         {
             Vector3 positionInfoPos = baseInfoPos + Vector3.up * 7f;
             UnityEditor.Handles.Label(positionInfoPos, $"Position: {formationPosition}");
+        }
+
+        if (alignToSplineDirection)
+        {
+            Vector3 splineInfoPos = baseInfoPos + Vector3.up * 8f;
+            UnityEditor.Handles.Label(splineInfoPos, "Spline Aligned");
         }
 #endif
     }
