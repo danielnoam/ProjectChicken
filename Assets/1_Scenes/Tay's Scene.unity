@@ -1075,7 +1075,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2233603387570671912, guid: 0dc27c5e616b3bc4d89d1e222c4dae5d, type: 3}
       propertyPath: pathFollowSpeed
-      value: 50
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5042140183398147502, guid: 0dc27c5e616b3bc4d89d1e222c4dae5d, type: 3}
       propertyPath: m_Name
@@ -1229,7 +1229,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 98154818553496101, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: pathFollowSpeed
-      value: 50
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6161437660023631568, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1446,8 +1446,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 574347184607947500, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 574347184607947500, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: m_LocalPosition.z
       value: -12.819315
+      objectReference: {fileID: 0}
+    - target: {fileID: 574347184607947500, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 574347184607947500, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3807761247422892083, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1498,16 +1510,40 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1458164930}
     - target: {fileID: 4638451551156659305, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4638451551156659305, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: m_LocalPosition.z
       value: -2.8193145
+      objectReference: {fileID: 0}
+    - target: {fileID: 4638451551156659305, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4638451551156659305, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 6663246058566032334, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: m_Name
       value: CameraManager
       objectReference: {fileID: 0}
     - target: {fileID: 7112784176072851888, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7112784176072851888, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: m_LocalPosition.z
       value: -13.165059
+      objectReference: {fileID: 0}
+    - target: {fileID: 7112784176072851888, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7112784176072851888, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1962,28 +1998,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ffbeef71da710542a84b84ff7a8e19f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentFormation: 4
+  currentFormation: 1
   autoUpdateFormation: 1
-  formationOffset: {x: -10, y: 0, z: 0}
-  useLocalOffset: 0
+  formationCount: 3
   formationPosition: 1
   boundaryPadding: 0
-  followSplineRotation: 1
-  vShapeCount: 15
-  squareSize: 6
-  triangleRows: 4
-  circleCount: 12
-  gridSize: {x: 5, y: 3}
+  formationSeparation: 1.2
+  boundaryOffset: 2
+  alignToSplineDirection: 1
+  splineRotationSpeed: 5
+  vShapeCount: 19
+  squareSize: 4
+  triangleRows: 5
+  circleCount: 15
+  gridSize: {x: 6, y: 6}
   gridFillsBoundary: 1
   horizontalSpacing: 2
   verticalSpacing: 2
   circleRadius: 5
   constrainToBoundary: 1
-  minSpacingMultiplier: 0.3
+  optimizeBoundaryUsage: 1
+  minSpacingMultiplier: 0.1
+  maxSpacingMultiplier: 4
+  vShapeBottomPadding: 5
   showGizmos: 1
   openSlotColor: {r: 0, g: 1, b: 0, a: 1}
   occupiedSlotColor: {r: 1, g: 0, b: 0, a: 1}
   gizmoSize: 0.5
+  showFormationBounds: 1
+  formationColors:
+  - {r: 0, g: 1, b: 1, a: 1}
+  - {r: 1, g: 0, b: 1, a: 1}
+  - {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  - {r: 0, g: 0, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0, a: 1}
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 1, g: 0.5, b: 0, a: 1}
+  - {r: 0.5, g: 0, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0.5, a: 1}
+  - {r: 1, g: 1, b: 1, a: 1}
 --- !u!1001 &1940515659
 PrefabInstance:
   m_ObjectHideFlags: 0
