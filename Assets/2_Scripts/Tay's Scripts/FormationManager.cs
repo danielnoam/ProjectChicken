@@ -7,7 +7,7 @@ using VInspector;
 // 
 // Key Concepts:
 // - Formation Boundary: A fixed rectangular area centered at the enemy position on the spline
-//   * When spline alignment is enabled, this boundary rotates to match the spline direction
+//   * This boundary rotates to match the spline direction
 //   * Formations move within this 2D plane, not in 3D space
 // - Formation Center: Can move within the boundary based on FormationPosition setting
 //   * Movement is constrained to the boundary's local 2D space (X/Y axes of the rotated boundary)
@@ -37,9 +37,7 @@ using VInspector;
 //   * Grid formations can fill entire boundary
 //   * V-Shape formations auto-scale to boundary width and position at bottom
 // - Follows spline path using exact enemy position from LevelManager
-// - Optional spline rotation alignment:
-//   * When enabled, boundary and formations rotate to match spline direction
-//   * Position offsets stay within the rotated boundary plane
+// - Boundary and formations rotate to match spline direction
 //
 // Usage:
 // 1. Place FormationManager in scene
@@ -48,8 +46,7 @@ using VInspector;
 // 4. Set formation count (1-10, Grid and V-Shape always use 1)
 // 5. Enable constrainToBoundary for automatic fitting
 // 6. Choose formation position (center, corners, etc.) - V-Shape ignores this
-// 7. Enable alignToSplineDirection to rotate with spline
-// 8. Formations will automatically adjust spacing to fit!
+// 7. Formations will automatically adjust spacing to fit!
 
 public class FormationManager : MonoBehaviour
 {
@@ -148,10 +145,7 @@ public class FormationManager : MonoBehaviour
     private float boundaryOffset = 2f; // Default 2 units smaller on each edge
 
     [Header("Spline Rotation")]
-    [SerializeField] 
-    [Tooltip("When enabled, the boundary and formations rotate to match the spline direction. Formations move within the rotated 2D plane.")]
-    private bool alignToSplineDirection = false;
-    [SerializeField, EnableIf("alignToSplineDirection"), Min(0)] private float splineRotationSpeed = 5f;
+    [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
 
     [Header("Formation Parameters")]
     [SerializeField, Min(3)] 
@@ -179,6 +173,7 @@ public class FormationManager : MonoBehaviour
     [SerializeField, Min(1f)] private float maxSpacingMultiplier = 2f;
     
     [SerializeField, Min(0f)] private float vShapeBottomPadding = 0.5f;
+    
     [Header("Debug")]
     [SerializeField] private bool showGizmos = true;
     [SerializeField] private Color openSlotColor = Color.green;
@@ -201,7 +196,6 @@ public class FormationManager : MonoBehaviour
     private int lastFormationCount = 1;
     private Vector3 formationCenter; // World position at enemy location on spline
     private float currentSpacingMultiplier = 1f;
-    private Vector2 randomPositionOffset = Vector2.zero; // Offset in local boundary space (2D plane)
     private Quaternion splineRotation = Quaternion.identity;
 
     #endregion
@@ -218,21 +212,13 @@ public class FormationManager : MonoBehaviour
     {
         get
         {
-            if (alignToSplineDirection)
-            {
-                // Apply offset in rotated space
-                return formationCenter + (splineRotation * new Vector3(randomPositionOffset.x, randomPositionOffset.y, 0));
-            }
-            else
-            {
-                return formationCenter + new Vector3(randomPositionOffset.x, randomPositionOffset.y, 0);
-            }
+            var offset = formations.Count > 0 ? formations[0].positionOffset : Vector2.zero;
+            return formationCenter + (splineRotation * new Vector3(offset.x, offset.y, 0));
         }
     }
     public FormationPosition CurrentPosition => formationPosition;
-    public bool AlignToSplineDirection => alignToSplineDirection;
     public Quaternion SplineRotation => splineRotation;
-    public Vector2 PositionOffset => randomPositionOffset; // Offset in local boundary space (X/Y of the 2D plane)
+    public Vector2 PositionOffset => formations.Count > 0 ? formations[0].positionOffset : Vector2.zero;
     public int FormationCount => (currentFormation == FormationType.Grid || currentFormation == FormationType.VShape) ? 1 : formationCount;
     public List<FormationInstance> Formations => formations;
 
@@ -281,7 +267,7 @@ public class FormationManager : MonoBehaviour
                 {
                     if (!IsFormationInstanceWithinBounds(formation))
                     {
-                        ForceConstraintCheck();
+                        GenerateFormations();
                         break;
                     }
                 }
@@ -293,11 +279,9 @@ public class FormationManager : MonoBehaviour
     {
         if (!showGizmos) return;
 
-        // Always update these for gizmo drawing
         HandleSplineRotation();
         UpdateFormationCenter();
         
-        // Draw in correct order for visibility
         DrawBoundary();
         DrawFormationSlots();
         DrawFormationInfo();
@@ -309,13 +293,12 @@ public class FormationManager : MonoBehaviour
 
     private void HandleSplineRotation()
     {
-        if (!alignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.SplineContainer)
+        if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer)
         {
             splineRotation = Quaternion.identity;
             return;
         }
 
-        // Get the spline direction at the formation position
         Vector3 splineForward = GetSplineDirection();
         
         if (splineForward != Vector3.zero)
@@ -337,7 +320,6 @@ public class FormationManager : MonoBehaviour
     public void GenerateFormations()
     {
         currentSpacingMultiplier = 1f;
-        randomPositionOffset = Vector2.zero;
         formations.Clear();
         formationSlots.Clear();
         
@@ -382,7 +364,6 @@ public class FormationManager : MonoBehaviour
                 break;
         }
         
-        // Calculate bounds for this formation
         formation.bounds = CalculateFormationInstanceBounds(formation);
     }
     
@@ -390,7 +371,6 @@ public class FormationManager : MonoBehaviour
     {
         if (formations.Count <= 1)
         {
-            // Single formation - apply normal positioning
             if (formations.Count == 1)
             {
                 ApplyFormationPosition(formations[0]);
@@ -406,40 +386,31 @@ public class FormationManager : MonoBehaviour
         // Multiple formations - distribute them to avoid overlap
         Vector2 boundary = GetFormationBoundary();
         
-        // Calculate total space needed
-        float totalWidth = 0f;
-        float totalHeight = 0f;
         float maxFormationWidth = 0f;
         float maxFormationHeight = 0f;
         
         foreach (var formation in formations)
         {
-            float width = formation.bounds.size.x;
-            float height = formation.bounds.size.y;
-            maxFormationWidth = Mathf.Max(maxFormationWidth, width);
-            maxFormationHeight = Mathf.Max(maxFormationHeight, height);
+            maxFormationWidth = Mathf.Max(maxFormationWidth, formation.bounds.size.x);
+            maxFormationHeight = Mathf.Max(maxFormationHeight, formation.bounds.size.y);
         }
         
-        // Add separation between formations
         float separationDistance = maxFormationWidth * formationSeparation;
         
-        // Try different layout patterns based on formation count
+        // Position formations based on count
         if (formations.Count == 2)
         {
-            // Side by side
             formations[0].positionOffset = new Vector2(-separationDistance * 0.5f, 0);
             formations[1].positionOffset = new Vector2(separationDistance * 0.5f, 0);
         }
         else if (formations.Count == 3)
         {
-            // Horizontal line: Left, Center, Right
             formations[0].positionOffset = new Vector2(-separationDistance * 2f, 0);
             formations[1].positionOffset = new Vector2(0, 0);
-            formations[2].positionOffset = new Vector2(separationDistance* 2f, 0);
+            formations[2].positionOffset = new Vector2(separationDistance * 2f, 0);
         }
         else if (formations.Count == 4)
         {
-            // Square pattern
             float halfSep = separationDistance * 0.5f;
             formations[0].positionOffset = new Vector2(-halfSep, halfSep);
             formations[1].positionOffset = new Vector2(halfSep, halfSep);
@@ -474,7 +445,6 @@ public class FormationManager : MonoBehaviour
         // Apply boundary constraints to each formation
         if (constrainToBoundary)
         {
-            // First check if formations fit with current offsets
             bool allFit = true;
             foreach (var formation in formations)
             {
@@ -485,7 +455,6 @@ public class FormationManager : MonoBehaviour
                 }
             }
             
-            // If not all fit, scale down all formations uniformly
             if (!allFit)
             {
                 float scaleReduction = 0.9f;
@@ -496,20 +465,15 @@ public class FormationManager : MonoBehaviour
                 {
                     iteration++;
                     
-                    // Scale down all formations
                     foreach (var formation in formations)
                     {
                         formation.spacingMultiplier *= scaleReduction;
                         GenerateFormationInstance(formation);
                     }
                     
-                    // Also scale down separation
                     separationDistance *= scaleReduction;
-                    
-                    // Reposition with new separation
                     PositionFormationsWithSeparation(separationDistance);
                     
-                    // Check if all fit now
                     allFit = true;
                     foreach (var formation in formations)
                     {
@@ -520,7 +484,6 @@ public class FormationManager : MonoBehaviour
                         }
                     }
                     
-                    // Update global spacing multiplier
                     if (formations.Count > 0)
                     {
                         currentSpacingMultiplier = formations[0].spacingMultiplier;
@@ -537,7 +500,6 @@ public class FormationManager : MonoBehaviour
     
     private void PositionFormationsWithSeparation(float separationDistance)
     {
-        // Re-apply the same positioning logic with new separation distance
         if (formations.Count == 2)
         {
             formations[0].positionOffset = new Vector2(-separationDistance * 0.5f, 0);
@@ -545,7 +507,6 @@ public class FormationManager : MonoBehaviour
         }
         else if (formations.Count == 3)
         {
-            // Horizontal line: Left, Center, Right
             formations[0].positionOffset = new Vector2(-separationDistance * 2f, 0);
             formations[1].positionOffset = new Vector2(0, 0);
             formations[2].positionOffset = new Vector2(separationDistance * 2f, 0);
@@ -599,12 +560,7 @@ public class FormationManager : MonoBehaviour
         foreach (var slot in formation.slots)
         {
             Vector3 worldPos = GetSlotWorldPosition(slot);
-            Vector3 localPos = worldPos - formationCenter;
-            
-            if (alignToSplineDirection)
-            {
-                localPos = Quaternion.Inverse(splineRotation) * localPos;
-            }
+            Vector3 localPos = Quaternion.Inverse(splineRotation) * (worldPos - formationCenter);
             
             if (Mathf.Abs(localPos.x) > boundary.x * 0.5f || Mathf.Abs(localPos.y) > boundary.y * 0.5f)
             {
@@ -635,23 +591,11 @@ public class FormationManager : MonoBehaviour
         return new Bounds(center, size);
     }
 
-    private void GenerateFormationWithSpacing()
-    {
-        // Legacy method for backward compatibility
-        if (formations.Count > 0)
-        {
-            GenerateFormationInstance(formations[0]);
-            RebuildSlotList();
-        }
-    }
-
     private void GenerateVShape(FormationInstance formation)
     {
         int halfCount = vShapeCount / 2;
         var spacing = GetAdjustedSpacing(formation.spacingMultiplier);
 
-        // Generate V-shape with the lowest point at y=0
-        // The V points upward (like chicken invaders)
         for (int i = 0; i < vShapeCount; i++)
         {
             float xPos = (i - halfCount) * spacing.x;
@@ -659,18 +603,15 @@ public class FormationManager : MonoBehaviour
             AddSlot(formation, new Vector3(xPos, yPos, 0));
         }
         
-        // After generation, adjust all positions so the lowest point is at y=0
-        // This makes positioning calculations easier
+        // Normalize so lowest point is at y=0
         if (formation.slots.Count > 0)
         {
-            // Find the minimum Y position
             float minY = float.MaxValue;
             foreach (var slot in formation.slots)
             {
                 minY = Mathf.Min(minY, slot.localPosition.y);
             }
             
-            // Offset all slots so minimum Y is at 0
             if (minY != 0)
             {
                 foreach (var slot in formation.slots)
@@ -743,23 +684,18 @@ public class FormationManager : MonoBehaviour
         {
             Vector2 boundary = GetFormationBoundary();
             
-            // Apply safety margin for grid boundary filling
             float safetyMargin = constrainToBoundary ? 0.95f : 1f;
             Vector2 safeBoundary = boundary * safetyMargin;
 
-            // Calculate spacing to fill boundary
             float horizontalSpace = columns > 1 ? safeBoundary.x / (columns - 1) : 0;
             float verticalSpace = rows > 1 ? safeBoundary.y / (rows - 1) : 0;
 
-            // Apply spacing multiplier
             horizontalSpace *= formation.spacingMultiplier;
             verticalSpace *= formation.spacingMultiplier;
 
-            // Calculate grid dimensions
             float gridWidth = (columns - 1) * horizontalSpace;
             float gridHeight = (rows - 1) * verticalSpace;
 
-            // Generate from top-left
             float startX = -gridWidth * 0.5f;
             float startY = gridHeight * 0.5f;
 
@@ -775,7 +711,6 @@ public class FormationManager : MonoBehaviour
         }
         else
         {
-            // Use standard spacing
             var spacing = GetAdjustedSpacing(formation.spacingMultiplier);
             float halfWidth = (columns - 1) * 0.5f;
             float halfHeight = (rows - 1) * 0.5f;
@@ -795,15 +730,6 @@ public class FormationManager : MonoBehaviour
     #endregion
 
     #region Boundary Management
-
-    private void ApplyBoundaryConstraints()
-    {
-        // Legacy method - redirect to new system
-        if (formations.Count > 0)
-        {
-            ApplyBoundaryConstraintsAtPosition(formations[0]);
-        }
-    }
     
     private void ApplyBoundaryConstraintsAtPosition(FormationInstance formation)
     {
@@ -811,38 +737,29 @@ public class FormationManager : MonoBehaviour
         
         Vector2 boundary = GetFormationBoundary();
         
-        // First, check if we need to constrain at all
         var currentBounds = CalculateFormationBoundsWithOffset(formation);
         float currentWidth = currentBounds.z - currentBounds.x;
         float currentHeight = currentBounds.w - currentBounds.y;
         
-        // Debug log initial state
         if (Application.isPlaying)
         {
             Debug.Log($"[FormationConstraints] Checking {currentFormation} - Boundary: {boundary.x:F1}x{boundary.y:F1}, Formation: {currentWidth:F1}x{currentHeight:F1}");
         }
         
-        // Keep trying smaller spacing until formation fits
-        int maxIterations = 20; // Increased iterations for better fitting
+        int maxIterations = 20;
         int iteration = 0;
         
         while (!IsFormationInstanceWithinBounds(formation) && iteration < maxIterations)
         {
             iteration++;
             
-            // Calculate how much we're exceeding bounds
             float maxExceedX = 0f;
             float maxExceedY = 0f;
             
             foreach (var slot in formation.slots)
             {
                 Vector3 worldPos = GetSlotWorldPosition(slot);
-                Vector3 localPos = worldPos - formationCenter;
-                
-                if (alignToSplineDirection)
-                {
-                    localPos = Quaternion.Inverse(splineRotation) * localPos;
-                }
+                Vector3 localPos = Quaternion.Inverse(splineRotation) * (worldPos - formationCenter);
                 
                 float exceedX = Mathf.Abs(localPos.x) - (boundary.x * 0.5f);
                 float exceedY = Mathf.Abs(localPos.y) - (boundary.y * 0.5f);
@@ -851,12 +768,10 @@ public class FormationManager : MonoBehaviour
                 maxExceedY = Mathf.Max(maxExceedY, exceedY);
             }
             
-            // Recalculate bounds after considering position offset
             var bounds = CalculateFormationBoundsWithOffset(formation);
             float formationWidth = bounds.z - bounds.x;
             float formationHeight = bounds.w - bounds.y;
             
-            // Calculate precise reduction needed
             float reductionFactor = 1f;
             
             if (formationWidth > boundary.x)
@@ -871,7 +786,6 @@ public class FormationManager : MonoBehaviour
                 reductionFactor = Mathf.Min(reductionFactor, requiredScaleY);
             }
             
-            // If we're exceeding bounds by position, calculate based on exceed amount
             if (maxExceedX > 0 || maxExceedY > 0)
             {
                 float currentScale = formation.spacingMultiplier;
@@ -891,32 +805,26 @@ public class FormationManager : MonoBehaviour
                 }
             }
             
-            // Apply safety margin and ensure we're actually reducing
             reductionFactor = Mathf.Min(reductionFactor * 0.9f, 0.95f);
             
             formation.spacingMultiplier *= reductionFactor;
             formation.spacingMultiplier = Mathf.Max(formation.spacingMultiplier, minSpacingMultiplier);
             
-            // Debug log iteration
             if (Application.isPlaying && iteration <= 5)
             {
                 Debug.Log($"[FormationConstraints] Iteration {iteration}: Spacing {(formation.spacingMultiplier * 100):F0}%, Exceed X:{maxExceedX:F1} Y:{maxExceedY:F1}");
             }
             
-            // Regenerate with new spacing
             GenerateFormationInstance(formation);
             
-            // If we've hit minimum spacing and still don't fit, break
             if (formation.spacingMultiplier <= minSpacingMultiplier)
             {
                 break;
             }
         }
         
-        // Update global spacing multiplier
         currentSpacingMultiplier = formation.spacingMultiplier;
         
-        // Final check and log result
         if (Application.isPlaying)
         {
             bool fits = IsFormationInstanceWithinBounds(formation);
@@ -938,7 +846,6 @@ public class FormationManager : MonoBehaviour
 
         foreach (var slot in formation.slots)
         {
-            // Include position offset in calculation
             float x = slot.localPosition.x + formation.positionOffset.x;
             float y = slot.localPosition.y + formation.positionOffset.y;
             
@@ -951,71 +858,28 @@ public class FormationManager : MonoBehaviour
         return new Vector4(minX, minY, maxX, maxY);
     }
 
-    private Vector4 CalculateFormationBounds()
-    {
-        if (formationSlots.Count == 0) return Vector4.zero;
-
-        float minX = float.MaxValue, maxX = float.MinValue;
-        float minY = float.MaxValue, maxY = float.MinValue;
-
-        foreach (var slot in formationSlots)
-        {
-            // Calculate bounds in local space (before rotation)
-            minX = Mathf.Min(minX, slot.localPosition.x);
-            maxX = Mathf.Max(maxX, slot.localPosition.x);
-            minY = Mathf.Min(minY, slot.localPosition.y);
-            maxY = Mathf.Max(maxY, slot.localPosition.y);
-        }
-
-        return new Vector4(minX, minY, maxX, maxY);
-    }
-
     #endregion
 
     #region Formation Positioning
-
-    private void ApplyFormationPosition()
-    {
-        // Legacy method - apply to first formation
-        if (formations.Count > 0)
-        {
-            ApplyFormationPosition(formations[0]);
-        }
-    }
     
     private void ApplyFormationPosition(FormationInstance formation)
     {
         if (!LevelManager.Instance) return;
 
-        // For grid formations that fill boundary, don't reposition
         if (IsGridFillingBoundary)
         {
             formation.positionOffset = Vector2.zero;
             return;
         }
         
-        // Get boundary and bounds once at the beginning
         Vector2 boundary = GetFormationBoundary();
         var bounds = formation.bounds;
         
-        // Special handling for V-Shape formation
         if (currentFormation == FormationType.VShape)
         {
-            // V-Shape should be positioned at the very bottom of the boundary
-            float vHeight = bounds.size.y;
-            
-            // The V-shape has its lowest point at y=0 (after normalization in GenerateVShape)
-            // We want this point to be at the bottom edge of the boundary
             float bottomBoundary = -(boundary.y * 0.5f);
-            
-            // Since the V extends upward from y=0, we position it so that
-            // its lowest point (y=0) is at the bottom boundary plus padding
             float targetCenterY = bottomBoundary + vShapeBottomPadding;
-            
             formation.positionOffset = new Vector2(0, targetCenterY);
-            
-            // Update the global random position offset for backward compatibility
-            randomPositionOffset = formation.positionOffset;
             
             if (Application.isPlaying)
             {
@@ -1029,78 +893,56 @@ public class FormationManager : MonoBehaviour
         float formationWidth = bounds.size.x;
         float formationHeight = bounds.size.y;
 
-        // For constrained formations, calculate max offset more conservatively
         float safetyMargin = constrainToBoundary ? 0.95f : 1f;
         
-        // Calculate the maximum offset that keeps the formation within bounds
         float maxOffsetX = Mathf.Max(0, ((boundary.x * safetyMargin) - formationWidth) * 0.5f);
         float maxOffsetY = Mathf.Max(0, ((boundary.y * safetyMargin) - formationHeight) * 0.5f);
 
-        // Apply additional padding
         float padding = boundaryPadding * Mathf.Min(boundary.x, boundary.y) * 0.5f;
         maxOffsetX -= padding;
         maxOffsetY -= padding;
 
-        // If formation is too large to move, center it
         if (maxOffsetX <= 0 || maxOffsetY <= 0)
         {
             formation.positionOffset = Vector2.zero;
             return;
         }
 
-        // Apply position based on selected option
-        // Note: These offsets are in the local 2D space of the boundary
-        // They will be transformed to world space when rendering
         switch (formationPosition)
         {
             case FormationPosition.Center:
                 formation.positionOffset = Vector2.zero;
                 break;
-
             case FormationPosition.Random:
                 formation.positionOffset = new Vector2(
                     UnityEngine.Random.Range(-maxOffsetX, maxOffsetX),
                     UnityEngine.Random.Range(-maxOffsetY, maxOffsetY)
                 );
                 break;
-
             case FormationPosition.TopLeft:
                 formation.positionOffset = new Vector2(-maxOffsetX, maxOffsetY);
                 break;
-
             case FormationPosition.TopCenter:
                 formation.positionOffset = new Vector2(0, maxOffsetY);
                 break;
-
             case FormationPosition.TopRight:
                 formation.positionOffset = new Vector2(maxOffsetX, maxOffsetY);
                 break;
-
             case FormationPosition.MiddleLeft:
                 formation.positionOffset = new Vector2(-maxOffsetX, 0);
                 break;
-
             case FormationPosition.MiddleRight:
                 formation.positionOffset = new Vector2(maxOffsetX, 0);
                 break;
-
             case FormationPosition.BottomLeft:
                 formation.positionOffset = new Vector2(-maxOffsetX, -maxOffsetY);
                 break;
-
             case FormationPosition.BottomCenter:
                 formation.positionOffset = new Vector2(0, -maxOffsetY);
                 break;
-
             case FormationPosition.BottomRight:
                 formation.positionOffset = new Vector2(maxOffsetX, -maxOffsetY);
                 break;
-        }
-        
-        // Update the global random position offset for backward compatibility
-        if (formations.IndexOf(formation) == 0)
-        {
-            randomPositionOffset = formation.positionOffset;
         }
     }
 
@@ -1181,7 +1023,6 @@ public class FormationManager : MonoBehaviour
 
     public Vector3 GetSlotWorldPosition(FormationSlot slot)
     {
-        // Find which formation this slot belongs to
         FormationInstance formationInstance = null;
         foreach (var formation in formations)
         {
@@ -1194,36 +1035,19 @@ public class FormationManager : MonoBehaviour
         
         if (formationInstance == null)
         {
-            // Fallback to old behavior if slot not found
             return formationCenter + slot.localPosition;
         }
         
-        // Start with formation center (enemy position on spline)
         Vector3 worldPosition = formationCenter;
-        
-        // Apply position offset in the correct space
-        if (alignToSplineDirection)
-        {
-            // Apply offset in rotated space - offset is rotated with the boundary
-            Vector3 rotatedOffset = splineRotation * new Vector3(formationInstance.positionOffset.x, formationInstance.positionOffset.y, 0);
-            worldPosition += rotatedOffset;
-            
-            // Add the slot's local position also rotated
-            worldPosition += splineRotation * slot.localPosition;
-        }
-        else
-        {
-            // No rotation - apply offsets directly
-            worldPosition += new Vector3(formationInstance.positionOffset.x, formationInstance.positionOffset.y, 0);
-            worldPosition += slot.localPosition;
-        }
+        Vector3 rotatedOffset = splineRotation * new Vector3(formationInstance.positionOffset.x, formationInstance.positionOffset.y, 0);
+        worldPosition += rotatedOffset;
+        worldPosition += splineRotation * slot.localPosition;
         
         return worldPosition;
     }
     
     public Vector3 GetSlotLocalPosition(FormationSlot slot)
     {
-        // Find which formation this slot belongs to
         FormationInstance formationInstance = null;
         foreach (var formation in formations)
         {
@@ -1239,33 +1063,17 @@ public class FormationManager : MonoBehaviour
             return slot.localPosition;
         }
         
-        // Returns the slot position in local boundary space (2D)
         return slot.localPosition + new Vector3(formationInstance.positionOffset.x, formationInstance.positionOffset.y, 0);
     }
     
     public Vector3 LocalToWorldPosition(Vector2 localPos)
     {
-        // Convert a 2D position in boundary space to world position
-        if (alignToSplineDirection)
-        {
-            return formationCenter + (splineRotation * new Vector3(localPos.x, localPos.y, 0));
-        }
-        else
-        {
-            return formationCenter + new Vector3(localPos.x, localPos.y, 0);
-        }
+        return formationCenter + (splineRotation * new Vector3(localPos.x, localPos.y, 0));
     }
     
     public Vector2 WorldToLocalPosition(Vector3 worldPos)
     {
-        // Convert a world position to 2D boundary space
-        Vector3 localPos3D = worldPos - formationCenter;
-        
-        if (alignToSplineDirection)
-        {
-            localPos3D = Quaternion.Inverse(splineRotation) * localPos3D;
-        }
-        
+        Vector3 localPos3D = Quaternion.Inverse(splineRotation) * (worldPos - formationCenter);
         return new Vector2(localPos3D.x, localPos3D.y);
     }
 
@@ -1276,32 +1084,21 @@ public class FormationManager : MonoBehaviour
     private void UpdateFormationCenter()
     {
         if (!LevelManager.Instance) return;
-
-        // Use the exact enemy position from LevelManager - no offset needed
         formationCenter = LevelManager.Instance.EnemyPosition;
     }
 
     private Vector2 GetFormationBoundary()
     {
-        if (!LevelManager.Instance) return new Vector2(50f, 30f); // Default fallback
+        if (!LevelManager.Instance) return new Vector2(50f, 30f);
         
-        // Crosshair moves from -EnemyBoundary to +EnemyBoundary
-        // So the total crosshair boundary area is 2 * EnemyBoundary
         Vector2 crosshairBoundary = LevelManager.Instance.EnemyBoundary * 2f;
         
-        // Apply the offset to reduce formation boundary size
-        // boundaryOffset reduces the boundary on all edges
         return new Vector2(
-            Mathf.Max(1f, crosshairBoundary.x - (boundaryOffset * 2f)), // Min 1 unit to avoid zero
-            Mathf.Max(1f, crosshairBoundary.y - (boundaryOffset * 2f))  // Min 1 unit to avoid zero
+            Mathf.Max(1f, crosshairBoundary.x - (boundaryOffset * 2f)),
+            Mathf.Max(1f, crosshairBoundary.y - (boundaryOffset * 2f))
         );
     }
 
-    private Vector2 GetAdjustedSpacing()
-    {
-        return GetAdjustedSpacing(currentSpacingMultiplier);
-    }
-    
     private Vector2 GetAdjustedSpacing(float multiplier)
     {
         return new Vector2(
@@ -1312,21 +1109,12 @@ public class FormationManager : MonoBehaviour
     
     public Vector2 GetCurrentSpacing()
     {
-        return GetAdjustedSpacing();
+        return GetAdjustedSpacing(currentSpacingMultiplier);
     }
     
     public float GetCurrentCircleRadius()
     {
         return circleRadius * currentSpacingMultiplier;
-    }
-
-    private void AddSlot(Vector3 position)
-    {
-        // Legacy method - add to first formation
-        if (formations.Count > 0)
-        {
-            AddSlot(formations[0], position);
-        }
     }
     
     private void AddSlot(FormationInstance formation, Vector3 position)
@@ -1344,7 +1132,6 @@ public class FormationManager : MonoBehaviour
     {
         formationPosition = position;
         
-        // V-Shape formations ignore position settings
         if (currentFormation == FormationType.VShape)
         {
             Debug.LogWarning("V-Shape formations always position at the bottom of the boundary and ignore FormationPosition settings.");
@@ -1358,31 +1145,19 @@ public class FormationManager : MonoBehaviour
     
     public void SetPositionOffset(Vector2 offset)
     {
-        // Legacy method - set offset for first formation
         if (formations.Count > 0)
         {
             formations[0].positionOffset = offset;
-            randomPositionOffset = offset;
             
-            // Validate it's within bounds if constraints are enabled
             if (constrainToBoundary && !IsGridFillingBoundary)
             {
                 if (!IsFormationInstanceWithinBounds(formations[0]))
                 {
-                    // Force constraint check
                     ApplyBoundaryConstraintsAtPosition(formations[0]);
                 }
             }
             
             RebuildSlotList();
-        }
-    }
-    
-    public void RecalculateBounds()
-    {
-        if (formationSlots.Count > 0)
-        {
-            GenerateFormations();
         }
     }
     
@@ -1406,27 +1181,12 @@ public class FormationManager : MonoBehaviour
         return new Bounds(center, size);
     }
     
-    private bool IsFormationWithinBounds(Vector2 testOffset)
-    {
-        // Legacy method - check first formation
-        if (formations.Count > 0)
-        {
-            var tempOffset = formations[0].positionOffset;
-            formations[0].positionOffset = testOffset;
-            bool result = IsFormationInstanceWithinBounds(formations[0]);
-            formations[0].positionOffset = tempOffset;
-            return result;
-        }
-        return true;
-    }
-    
     public Vector2 GetMaximumOffset()
     {
         if (formations.Count == 0) return Vector2.zero;
         
         Vector2 boundary = GetFormationBoundary();
         
-        // Get the maximum bounds of all formations
         float maxFormationWidth = 0f;
         float maxFormationHeight = 0f;
         
@@ -1436,7 +1196,6 @@ public class FormationManager : MonoBehaviour
             maxFormationHeight = Mathf.Max(maxFormationHeight, formation.bounds.size.y);
         }
         
-        // Account for separation when multiple formations
         if (formations.Count > 1)
         {
             float separationDistance = maxFormationWidth * formationSeparation;
@@ -1448,14 +1207,6 @@ public class FormationManager : MonoBehaviour
         float maxOffsetY = Mathf.Max(0, (boundary.y - maxFormationHeight) * 0.5f);
         
         return new Vector2(maxOffsetX, maxOffsetY);
-    }
-    
-    public void ForceConstraintCheck()
-    {
-        if (constrainToBoundary && !IsGridFillingBoundary && formationSlots.Count > 0)
-        {
-            GenerateFormations();
-        }
     }
     
     public bool IsCurrentFormationWithinBounds()
@@ -1509,7 +1260,7 @@ public class FormationManager : MonoBehaviour
         if (currentFormation == FormationType.VShape)
         {
             Debug.Log("V-Shape formations always position at bottom - randomization has no effect.");
-            GenerateFormations(); // Still regenerate to ensure proper setup
+            GenerateFormations();
             return;
         }
         
@@ -1541,213 +1292,19 @@ public class FormationManager : MonoBehaviour
     }
 
     [Button]
-    private void ToggleSplineAlignment()
-    {
-        alignToSplineDirection = !alignToSplineDirection;
-    }
-    
-    [Button]
     private void RecalculateBoundaryConstraints()
     {
-        RecalculateBounds();
-    }
-    
-    [Button]
-    private void TestConstraintSystem()
-    {
-        if (formationSlots.Count > 0)
-        {
-            Debug.Log($"=== Formation Constraint Test ===");
-            Debug.Log($"Current Formation: {currentFormation}");
-            Debug.Log($"Active Formations: {formations.Count}");
-            Debug.Log($"Total Slots: {formationSlots.Count}");
-            Debug.Log($"Spacing Multiplier: {(currentSpacingMultiplier * 100):F0}%");
-            Debug.Log($"Within Bounds: {IsCurrentFormationWithinBounds()}");
-            
-            var bounds = CalculateFormationBounds();
-            Debug.Log($"Formation Size: {bounds.z - bounds.x:F1} x {bounds.w - bounds.y:F1}");
-            Debug.Log($"Boundary Size: {GetFormationBoundary().x:F1} x {GetFormationBoundary().y:F1}");
-            
-            foreach (var formation in formations)
-            {
-                var fBounds = CalculateFormationBoundsWithOffset(formation);
-                Debug.Log($"Formation {formation.index}: Offset ({formation.positionOffset.x:F2}, {formation.positionOffset.y:F2}), " +
-                         $"Size: {fBounds.z - fBounds.x:F1} x {fBounds.w - fBounds.y:F1}, " +
-                         $"Spacing: {(formation.spacingMultiplier * 100):F0}%");
-            }
-        }
-    }
-    
-    [Button]
-    private void TestAllFormationTypes()
-    {
-        Debug.Log("=== Testing All Formation Types ===");
-        
-        var originalFormation = currentFormation;
-        var originalCount = formationCount;
-        formationCount = 1; // Test with single formation first
-        
-        foreach (FormationType fType in Enum.GetValues(typeof(FormationType)))
-        {
-            currentFormation = fType;
-            GenerateFormations();
-            
-            bool fits = IsCurrentFormationWithinBounds();
-            Debug.Log($"{fType}: Fits={fits}, Spacing={(currentSpacingMultiplier * 100):F0}%");
-        }
-        
-        // Restore original
-        currentFormation = originalFormation;
-        formationCount = originalCount;
         GenerateFormations();
     }
     
     [Button]
     private void DebugPositionSpace()
     {
-        if (alignToSplineDirection)
-        {
-            Debug.Log($"=== Position Space Debug ===");
-            Debug.Log($"Boundary is rotated: {splineRotation.eulerAngles}");
-            Debug.Log($"Formation world center: {FormationWorldCenter}");
-            Debug.Log($"Boundary center: {formationCenter}");
-            Debug.Log($"Active Formations: {formations.Count}");
-        }
-        else
-        {
-            Debug.Log("Spline alignment disabled - no rotation applied");
-        }
-    }
-    
-    [Button]
-    private void ForceRecalculateWithDebug()
-    {
-        Debug.Log("=== Force Recalculate With Debug ===");
-        Debug.Log($"Formation: {currentFormation}, Count: {formationCount}");
-        Debug.Log($"Boundary Offset: {boundaryOffset}");
-        Debug.Log($"Constrain To Boundary: {constrainToBoundary}");
-        Debug.Log($"Optimize Boundary Usage: {optimizeBoundaryUsage}");
-        
-        // Force regeneration
-        GenerateFormations();
-        
-        // Log results
-        Debug.Log($"Result: Spacing={(currentSpacingMultiplier * 100):F0}%, Fits={IsCurrentFormationWithinBounds()}");
-        
-        // Log detailed slot positions
-        if (formations.Count > 0 && formations[0].slots.Count <= 20)
-        {
-            Debug.Log("=== Slot Positions ===");
-            foreach (var slot in formations[0].slots)
-            {
-                Vector3 worldPos = GetSlotWorldPosition(slot);
-                Vector3 localPos = worldPos - formationCenter;
-                if (alignToSplineDirection)
-                {
-                    localPos = Quaternion.Inverse(splineRotation) * localPos;
-                }
-                Debug.Log($"Slot: Local({slot.localPosition.x:F1}, {slot.localPosition.y:F1}) -> " +
-                         $"World({worldPos.x:F1}, {worldPos.y:F1}, {worldPos.z:F1}) -> " +
-                         $"Check({localPos.x:F1}, {localPos.y:F1})");
-            }
-        }
-    }
-    
-    [Button]
-    private void TestVShapeFormation()
-    {
-        Debug.Log("=== Testing V-Shape Formation ===");
-        
-        var originalFormation = currentFormation;
-        currentFormation = FormationType.VShape;
-        
-        GenerateFormations();
-        
-        if (formations.Count > 0)
-        {
-            var formation = formations[0];
-            var bounds = CalculateFormationBoundsWithOffset(formation);
-            Vector2 boundary = GetFormationBoundary();
-            
-            Debug.Log($"V-Shape Count: {vShapeCount} slots");
-            Debug.Log($"Boundary Size: {boundary.x:F1} x {boundary.y:F1}");
-            Debug.Log($"Formation Size: {bounds.z - bounds.x:F1} x {bounds.w - bounds.y:F1}");
-            Debug.Log($"Position Offset: ({formation.positionOffset.x:F2}, {formation.positionOffset.y:F2})");
-            Debug.Log($"Spacing: {(formation.spacingMultiplier * 100):F0}%");
-            Debug.Log($"Fits in bounds: {IsFormationInstanceWithinBounds(formation)}");
-            
-            // Check actual world positions
-            float lowestY = float.MaxValue;
-            float highestY = float.MinValue;
-            foreach (var slot in formation.slots)
-            {
-                Vector3 worldPos = GetSlotWorldPosition(slot);
-                Vector3 localPos = worldPos - formationCenter;
-                if (alignToSplineDirection)
-                {
-                    localPos = Quaternion.Inverse(splineRotation) * localPos;
-                }
-                lowestY = Mathf.Min(lowestY, localPos.y);
-                highestY = Mathf.Max(highestY, localPos.y);
-            }
-            
-            float boundaryBottom = -boundary.y * 0.5f;
-            float boundaryTop = boundary.y * 0.5f;
-            
-            Debug.Log($"=== Actual Positions ===");
-            Debug.Log($"Lowest slot Y: {lowestY:F2} (Boundary bottom: {boundaryBottom:F2})");
-            Debug.Log($"Highest slot Y: {highestY:F2} (Boundary top: {boundaryTop:F2})");
-            Debug.Log($"Distance from bottom: {Mathf.Abs(lowestY - boundaryBottom):F2}");
-            Debug.Log($"Distance from top: {Mathf.Abs(boundaryTop - highestY):F2}");
-            
-            // Check if any slots are outside bounds
-            int slotsOutside = 0;
-            foreach (var slot in formation.slots)
-            {
-                Vector3 worldPos = GetSlotWorldPosition(slot);
-                Vector3 localPos = worldPos - formationCenter;
-                if (alignToSplineDirection)
-                {
-                    localPos = Quaternion.Inverse(splineRotation) * localPos;
-                }
-                
-                if (Mathf.Abs(localPos.x) > boundary.x * 0.5f || Mathf.Abs(localPos.y) > boundary.y * 0.5f)
-                {
-                    slotsOutside++;
-                }
-            }
-            
-            if (slotsOutside > 0)
-            {
-                Debug.LogWarning($"WARNING: {slotsOutside} slots are outside the boundary!");
-            }
-        }
-        
-        // Restore original
-        currentFormation = originalFormation;
-        if (originalFormation != FormationType.VShape)
-        {
-            GenerateFormations();
-        }
-    }
-    
-    [Button]
-    private void TestBoundaryInfo()
-    {
-        Vector2 boundary = GetFormationBoundary();
-        Vector2 crosshairBoundary = LevelManager.Instance ? LevelManager.Instance.EnemyBoundary * 2f : new Vector2(50f, 30f);
-        
-        Debug.Log("=== Boundary Information ===");
-        Debug.Log($"Crosshair Boundary: {crosshairBoundary.x:F1} x {crosshairBoundary.y:F1}");
-        Debug.Log($"Boundary Offset: {boundaryOffset}");
-        Debug.Log($"Formation Boundary: {boundary.x:F1} x {boundary.y:F1}");
-        Debug.Log($"Formation Center: {formationCenter}");
-        Debug.Log($"Boundary extends from Y: {-boundary.y * 0.5f:F1} to {boundary.y * 0.5f:F1}");
-        
-        if (currentFormation == FormationType.VShape && formations.Count > 0)
-        {
-            var formation = formations[0];
-        }
+        Debug.Log($"=== Position Space Debug ===");
+        Debug.Log($"Boundary is rotated: {splineRotation.eulerAngles}");
+        Debug.Log($"Formation world center: {FormationWorldCenter}");
+        Debug.Log($"Boundary center: {formationCenter}");
+        Debug.Log($"Active Formations: {formations.Count}");
     }
 
     #endregion
@@ -1757,125 +1314,71 @@ public class FormationManager : MonoBehaviour
     private void DrawBoundary()
     {
         if (!LevelManager.Instance) return;
-
-        // The boundary is a 2D rectangular plane that defines where formations can exist
-        // When spline alignment is enabled, this plane rotates to face along the spline direction
-        // Formations can only move within this 2D plane, not in full 3D space
         
-        // Check if formation is within bounds to determine boundary color
         bool isWithinBounds = true;
         if (formationSlots.Count > 0)
         {
             isWithinBounds = IsCurrentFormationWithinBounds();
         }
         
-        // Set color based on whether formation is within bounds
         if (!isWithinBounds)
         {
-            Gizmos.color = Color.red; // Red when formation exceeds bounds
+            Gizmos.color = Color.red;
         }
         else if (constrainToBoundary)
         {
-            Gizmos.color = Color.yellow; // Yellow when constraints are active
+            Gizmos.color = Color.yellow;
         }
         else
         {
-            Gizmos.color = Color.gray; // Gray when constraints are off
+            Gizmos.color = Color.gray;
         }
         
-        // Boundary is always fixed at the enemy position (formationCenter)
         Vector3 boundaryCenter = formationCenter;
         Vector2 formationBoundary = GetFormationBoundary();
         
-        if (alignToSplineDirection)
+        Vector3 boundarySize = new Vector3(formationBoundary.x, formationBoundary.y, 0.1f);
+
+        Vector3[] localCorners = new Vector3[]
         {
-            // Draw rotated boundary - this is the 2D plane where formations can move
-            Vector3 boundarySize = new Vector3(
-                formationBoundary.x,
-                formationBoundary.y,
-                0.1f
-            );
+            new Vector3(-boundarySize.x * 0.5f, -boundarySize.y * 0.5f, 0),
+            new Vector3(boundarySize.x * 0.5f, -boundarySize.y * 0.5f, 0),
+            new Vector3(boundarySize.x * 0.5f, boundarySize.y * 0.5f, 0),
+            new Vector3(-boundarySize.x * 0.5f, boundarySize.y * 0.5f, 0)
+        };
 
-            // Draw rotated boundary wireframe
-            Vector3[] localCorners = new Vector3[]
-            {
-                new Vector3(-boundarySize.x * 0.5f, -boundarySize.y * 0.5f, 0),
-                new Vector3(boundarySize.x * 0.5f, -boundarySize.y * 0.5f, 0),
-                new Vector3(boundarySize.x * 0.5f, boundarySize.y * 0.5f, 0),
-                new Vector3(-boundarySize.x * 0.5f, boundarySize.y * 0.5f, 0)
-            };
-
-            Vector3[] worldCorners = new Vector3[4];
-            for (int i = 0; i < 4; i++)
-            {
-                worldCorners[i] = boundaryCenter + (splineRotation * localCorners[i]);
-            }
-
-            for (int i = 0; i < 4; i++)
-            {
-                int nextIndex = (i + 1) % 4;
-                Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
-            }
-            
-            // Draw diagonal lines to show it's a flat plane
-            Gizmos.color *= 0.3f;
-            Gizmos.DrawLine(worldCorners[0], worldCorners[2]);
-            Gizmos.DrawLine(worldCorners[1], worldCorners[3]);
-            
-            // Add text to indicate this is a 2D plane
-            #if UNITY_EDITOR
-            Vector3 planeLabel = boundaryCenter + (splineRotation * Vector3.up * (boundarySize.y * 0.5f + 1f));
-            UnityEditor.Handles.Label(planeLabel, "2D Boundary Plane");
-            
-            // Draw a semi-transparent plane to show the 2D surface
-            if (showGizmos && formationPosition != FormationPosition.Center)
-            {
-                UnityEditor.Handles.color = new Color(1f, 1f, 0f, 0.05f);
-                UnityEditor.Handles.DrawSolidRectangleWithOutline(worldCorners, new Color(1f, 1f, 0f, 0.05f), Color.clear);
-            }
-            #endif
-        }
-        else
+        Vector3[] worldCorners = new Vector3[4];
+        for (int i = 0; i < 4; i++)
         {
-            Vector3 boundarySize = new Vector3(
-                formationBoundary.x,
-                formationBoundary.y,
-                0.1f
-            );
-            Gizmos.DrawWireCube(boundaryCenter, boundarySize);
-            
-            // Draw diagonals for non-rotated boundary too
-            Gizmos.color *= 0.3f;
-            Vector3 halfSize = boundarySize * 0.5f;
-            Gizmos.DrawLine(boundaryCenter + new Vector3(-halfSize.x, -halfSize.y, 0),
-                           boundaryCenter + new Vector3(halfSize.x, halfSize.y, 0));
-            Gizmos.DrawLine(boundaryCenter + new Vector3(halfSize.x, -halfSize.y, 0),
-                           boundaryCenter + new Vector3(-halfSize.x, halfSize.y, 0));
-            
-            // Draw semi-transparent boundary plane for non-rotated
-            #if UNITY_EDITOR
-            if (showGizmos && formationPosition != FormationPosition.Center)
-            {
-                Vector3[] corners = new Vector3[]
-                {
-                    boundaryCenter + new Vector3(-halfSize.x, -halfSize.y, 0),
-                    boundaryCenter + new Vector3(halfSize.x, -halfSize.y, 0),
-                    boundaryCenter + new Vector3(halfSize.x, halfSize.y, 0),
-                    boundaryCenter + new Vector3(-halfSize.x, halfSize.y, 0)
-                };
-                UnityEditor.Handles.color = new Color(1f, 1f, 0f, 0.05f);
-                UnityEditor.Handles.DrawSolidRectangleWithOutline(corners, new Color(1f, 1f, 0f, 0.05f), Color.clear);
-            }
-            #endif
+            worldCorners[i] = boundaryCenter + (splineRotation * localCorners[i]);
         }
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nextIndex = (i + 1) % 4;
+            Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
+        }
+        
+        Gizmos.color *= 0.3f;
+        Gizmos.DrawLine(worldCorners[0], worldCorners[2]);
+        Gizmos.DrawLine(worldCorners[1], worldCorners[3]);
+        
+        #if UNITY_EDITOR
+        Vector3 planeLabel = boundaryCenter + (splineRotation * Vector3.up * (boundarySize.y * 0.5f + 1f));
+        UnityEditor.Handles.Label(planeLabel, "2D Boundary Plane");
+        
+        if (showGizmos && formationPosition != FormationPosition.Center)
+        {
+            UnityEditor.Handles.color = new Color(1f, 1f, 0f, 0.05f);
+            UnityEditor.Handles.DrawSolidRectangleWithOutline(worldCorners, new Color(1f, 1f, 0f, 0.05f), Color.clear);
+        }
+        #endif
     }
 
     private void DrawFormationSlots()
     {
-        // Get formation boundary for checking
         Vector2 boundary = GetFormationBoundary();
         
-        // Draw formation bounds when enabled
         if (showFormationBounds && formations.Count > 0)
         {
             foreach (var formation in formations)
@@ -1884,48 +1387,32 @@ public class FormationManager : MonoBehaviour
                 Vector3 boundsSize = new Vector3(bounds.size.x, bounds.size.y, 0.1f);
                 Vector3 formationWorldCenter = formationCenter;
                 
-                if (alignToSplineDirection)
-                {
-                    formationWorldCenter += splineRotation * new Vector3(formation.positionOffset.x, formation.positionOffset.y, 0);
-                }
-                else
-                {
-                    formationWorldCenter += new Vector3(formation.positionOffset.x, formation.positionOffset.y, 0);
-                }
+                formationWorldCenter += splineRotation * new Vector3(formation.positionOffset.x, formation.positionOffset.y, 0);
 
                 Color boundsColor = GetFormationColor(formation.index);
                 boundsColor.a = 0.3f;
                 Gizmos.color = boundsColor;
                 
-                if (alignToSplineDirection)
+                Vector3[] localCorners = new Vector3[]
                 {
-                    // Draw rotated formation bounds
-                    Vector3[] localCorners = new Vector3[]
-                    {
-                        new Vector3(-boundsSize.x * 0.5f, -boundsSize.y * 0.5f, 0),
-                        new Vector3(boundsSize.x * 0.5f, -boundsSize.y * 0.5f, 0),
-                        new Vector3(boundsSize.x * 0.5f, boundsSize.y * 0.5f, 0),
-                        new Vector3(-boundsSize.x * 0.5f, boundsSize.y * 0.5f, 0)
-                    };
+                    new Vector3(-boundsSize.x * 0.5f, -boundsSize.y * 0.5f, 0),
+                    new Vector3(boundsSize.x * 0.5f, -boundsSize.y * 0.5f, 0),
+                    new Vector3(boundsSize.x * 0.5f, boundsSize.y * 0.5f, 0),
+                    new Vector3(-boundsSize.x * 0.5f, boundsSize.y * 0.5f, 0)
+                };
 
-                    Vector3[] worldCorners = new Vector3[4];
-                    for (int i = 0; i < 4; i++)
-                    {
-                        worldCorners[i] = formationWorldCenter + (splineRotation * localCorners[i]);
-                    }
-
-                    for (int i = 0; i < 4; i++)
-                    {
-                        int nextIndex = (i + 1) % 4;
-                        Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
-                    }
+                Vector3[] worldCorners = new Vector3[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    worldCorners[i] = formationWorldCenter + (splineRotation * localCorners[i]);
                 }
-                else
+
+                for (int i = 0; i < 4; i++)
                 {
-                    Gizmos.DrawWireCube(formationWorldCenter, boundsSize);
+                    int nextIndex = (i + 1) % 4;
+                    Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
                 }
                 
-                // Draw formation center
                 Gizmos.color = GetFormationColor(formation.index);
                 Gizmos.DrawWireSphere(formationWorldCenter, gizmoSize * 0.75f);
             }
@@ -1935,20 +1422,14 @@ public class FormationManager : MonoBehaviour
         {
             Vector3 worldPos = GetSlotWorldPosition(slot);
             
-            // Check if this slot is within bounds
-            Vector3 localPos = worldPos - formationCenter;
-            if (alignToSplineDirection)
-            {
-                localPos = Quaternion.Inverse(splineRotation) * localPos;
-            }
+            Vector3 localPos = Quaternion.Inverse(splineRotation) * (worldPos - formationCenter);
             
             bool slotInBounds = Mathf.Abs(localPos.x) <= boundary.x * 0.5f && 
                                Mathf.Abs(localPos.y) <= boundary.y * 0.5f;
             
-            // Color based on occupation and bounds status
             if (!slotInBounds)
             {
-                Gizmos.color = Color.red; // Always red if outside bounds
+                Gizmos.color = Color.red;
             }
             else
             {
@@ -1959,47 +1440,33 @@ public class FormationManager : MonoBehaviour
             
             Gizmos.DrawSphere(worldPos, gizmoSize);
 
-            // Draw connection lines to formation centers
             if (formations.Count > 1 && slot.formationIndex < formations.Count)
             {
                 var formation = formations[slot.formationIndex];
                 Vector3 formationWorldCenter = formationCenter;
                 
-                if (alignToSplineDirection)
-                {
-                    formationWorldCenter += splineRotation * new Vector3(formation.positionOffset.x, formation.positionOffset.y, 0);
-                }
-                else
-                {
-                    formationWorldCenter += new Vector3(formation.positionOffset.x, formation.positionOffset.y, 0);
-                }
+                formationWorldCenter += splineRotation * new Vector3(formation.positionOffset.x, formation.positionOffset.y, 0);
                 
                 Gizmos.color = GetFormationColor(formation.index) * 0.3f;
                 Gizmos.DrawLine(formationWorldCenter, worldPos);
             }
         }
 
-        // Draw spline alignment indicator
-        if (alignToSplineDirection)
-        {
-            Gizmos.color = Color.cyan;
-            Vector3 forwardDirection = splineRotation * Vector3.forward;
-            Gizmos.DrawRay(formationCenter, forwardDirection * 3f);
-            
-            // Draw small arrow to show direction
-            Vector3 arrowTip = formationCenter + forwardDirection * 3f;
-            Vector3 arrowLeft = arrowTip - (splineRotation * (Vector3.forward * 0.5f + Vector3.left * 0.3f));
-            Vector3 arrowRight = arrowTip - (splineRotation * (Vector3.forward * 0.5f + Vector3.right * 0.3f));
-            
-            Gizmos.DrawLine(arrowTip, arrowLeft);
-            Gizmos.DrawLine(arrowTip, arrowRight);
-        }
+        Gizmos.color = Color.cyan;
+        Vector3 forwardDirection = splineRotation * Vector3.forward;
+        Gizmos.DrawRay(formationCenter, forwardDirection * 3f);
+        
+        Vector3 arrowTip = formationCenter + forwardDirection * 3f;
+        Vector3 arrowLeft = arrowTip - (splineRotation * (Vector3.forward * 0.5f + Vector3.left * 0.3f));
+        Vector3 arrowRight = arrowTip - (splineRotation * (Vector3.forward * 0.5f + Vector3.right * 0.3f));
+        
+        Gizmos.DrawLine(arrowTip, arrowLeft);
+        Gizmos.DrawLine(arrowTip, arrowRight);
     }
 
     private void DrawFormationInfo()
     {
-#if UNITY_EDITOR
-        // Info should be displayed relative to the formation center
+        #if UNITY_EDITOR
         Vector3 baseInfoPos = formationCenter;
 
         if (constrainToBoundary && currentSpacingMultiplier < 1f)
@@ -2026,18 +1493,13 @@ public class FormationManager : MonoBehaviour
             UnityEditor.Handles.Label(countInfoPos, $"Active Formations: {formations.Count}");
         }
 
-        if (alignToSplineDirection)
-        {
-            Vector3 splineInfoPos = baseInfoPos + Vector3.up * 8f;
-            UnityEditor.Handles.Label(splineInfoPos, "Spline Aligned");
-        }
+        Vector3 splineInfoPos = baseInfoPos + Vector3.up * 8f;
+        UnityEditor.Handles.Label(splineInfoPos, "Spline Aligned");
         
-        // Show boundary info
         Vector2 boundary = GetFormationBoundary();
         Vector3 boundaryInfoPos = formationCenter + Vector3.down * (boundary.y * 0.5f + 2f);
         UnityEditor.Handles.Label(boundaryInfoPos, $"Formation Boundary: {boundary.x:F1} x {boundary.y:F1}");
         
-        // Check if formations are within bounds
         bool allWithinBounds = true;
         int totalSlotsOutside = 0;
         foreach (var formation in formations)
@@ -2045,12 +1507,7 @@ public class FormationManager : MonoBehaviour
             foreach (var slot in formation.slots)
             {
                 Vector3 worldPos = GetSlotWorldPosition(slot);
-                Vector3 localPos = worldPos - formationCenter;
-                
-                if (alignToSplineDirection)
-                {
-                    localPos = Quaternion.Inverse(splineRotation) * localPos;
-                }
+                Vector3 localPos = Quaternion.Inverse(splineRotation) * (worldPos - formationCenter);
                 
                 if (Mathf.Abs(localPos.x) > boundary.x * 0.5f || Mathf.Abs(localPos.y) > boundary.y * 0.5f)
                 {
@@ -2081,7 +1538,7 @@ public class FormationManager : MonoBehaviour
             UnityEditor.Handles.Label(successPos, "✓ V-Shape positioned at bottom boundary");
             UnityEditor.Handles.color = Color.white;
         }
-#endif
+        #endif
     }
     
     private Color GetFormationColor(int index)
@@ -2094,39 +1551,3 @@ public class FormationManager : MonoBehaviour
 
     #endregion
 }
-
-/* Example Usage:
-
-// Get FormationManager reference
-FormationManager formationManager = GetComponent<FormationManager>();
-
-// Set formation count (Grid and V-Shape always use 1)
-formationManager.formationCount = 3; // This will create 3 formations (except for Grid/V-Shape)
-
-// V-Shape formations are special:
-// - Always spawn as single instance
-// - Auto-scale to fit boundary width  
-// - Position at bottom of boundary
-// - Ignore FormationPosition setting
-
-// The formations will automatically position themselves to avoid overlap
-
-// Get a slot for an enemy from any formation
-FormationSlot slot = formationManager.TryOccupySlot(enemyGameObject);
-if (slot != null)
-{
-    // Move enemy to slot position
-    Vector3 targetPosition = formationManager.GetSlotWorldPosition(slot);
-    enemy.transform.position = targetPosition;
-}
-
-// Or get a slot from a specific formation
-FormationSlot slot = formationManager.TryOccupySlotInFormation(enemyGameObject, 0); // First formation
-
-// When enemy dies
-formationManager.ReleaseSlot(slot);
-
-// Get available slots in a specific formation
-List<FormationSlot> availableSlots = formationManager.GetAvailableSlotsInFormation(1); // Second formation
-
-*/
