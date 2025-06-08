@@ -394,8 +394,8 @@ public class FormationManager : MonoBehaviour
         // Position formations based on count
         if (formations.Count == 2)
         {
-            formations[0].positionOffset = new Vector2(-separationDistance * 0.5f, 0);
-            formations[1].positionOffset = new Vector2(separationDistance * 0.5f, 0);
+            formations[0].positionOffset = new Vector2(-separationDistance * 1.25f, 0);
+            formations[1].positionOffset = new Vector2(separationDistance * 1.25f, 0);
         }
         else if (formations.Count == 3)
         {
@@ -496,8 +496,8 @@ public class FormationManager : MonoBehaviour
     {
         if (formations.Count == 2)
         {
-            formations[0].positionOffset = new Vector2(-separationDistance * 0.5f, 0);
-            formations[1].positionOffset = new Vector2(separationDistance * 0.5f, 0);
+            formations[0].positionOffset = new Vector2(-separationDistance * 1.25f, 0);
+            formations[1].positionOffset = new Vector2(separationDistance * 1.25f, 0);
         }
         else if (formations.Count == 3)
         {
