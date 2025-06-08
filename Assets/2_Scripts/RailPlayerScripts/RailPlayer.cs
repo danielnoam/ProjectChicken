@@ -22,12 +22,10 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Min(0)] private float shieldRegenRate = 5f;
     [SerializeField, Min(0)] private float shieldRegenDelay = 4f;
     
-    
     [Header("Resource Collection")]
+    [SerializeField, Min(0)] private float resourceCollectionRadius = 2f;
     [SerializeField ,Min(0)] private float magnetRadius = 5f;
     [SerializeField, Min(0)] private float magnetMoveSpeed = 5f;
-    [SerializeField, Min(0)] private float resourceCollectionRadius = 2f;
-    
     
     [Header("Path Following")]
     [SerializeField] private bool alignToSplineDirection = true;
@@ -45,8 +43,9 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self] private RailPlayerMovement playerMovement;
 
-    private List<Resource> _resourcesInRange = new List<Resource>();
+    private readonly List<Resource> _resourcesInRange = new List<Resource>();
     private int _currentHealth;
+    private int _currentCurrency;
     private float _currentShieldHealth;
     private float _damagedCooldown;
     private Coroutine _regenShieldCoroutine;
@@ -232,8 +231,7 @@ public class RailPlayer : MonoBehaviour
         Collider[] colliders = Physics.OverlapSphere(transform.position, magnetRadius);
         foreach (var col in colliders)
         {
-
-            if (TryGetComponent(out Resource resource))
+            if (col.TryGetComponent(out Resource resource))
             {
                 if (resource && !_resourcesInRange.Contains(resource))
                 {
@@ -248,6 +246,8 @@ public class RailPlayer : MonoBehaviour
         {
             if (!_resourcesInRange[i] || Vector3.Distance(transform.position, _resourcesInRange[i].transform.position) > magnetRadius)
             {
+                if (!_resourcesInRange[i]) continue;
+                
                 _resourcesInRange[i].SetMagnetized(false);
                 _resourcesInRange.RemoveAt(i);
             }
@@ -258,9 +258,11 @@ public class RailPlayer : MonoBehaviour
     private void UpdateMagnetizedResources()
     {
         if (_resourcesInRange.Count == 0) return;
-        
-        foreach (var resource in _resourcesInRange)
+    
+        // Iterate through all resources in range
+        for (int i = _resourcesInRange.Count - 1; i >= 0; i--)
         {
+            var resource = _resourcesInRange[i];
             if (!resource) continue;
 
             // Move the resource towards the player if within magnet radius
@@ -268,8 +270,7 @@ public class RailPlayer : MonoBehaviour
             {
                 resource.MoveTowardsPlayer(transform.position, magnetMoveSpeed);
             }
-            
-            
+        
             // Check if the resource is within the collection radius
             if (Vector3.Distance(transform.position, resource.transform.position) <= resourceCollectionRadius)
             {
@@ -286,6 +287,7 @@ public class RailPlayer : MonoBehaviour
         switch (resource.ResourceType)
         {
             case ResourceType.Currency:
+                _currentCurrency += resource.CurrencyWorth;
                 Debug.Log("Collected Currency! " + resource.CurrencyWorth);
                 break;
             case ResourceType.HealthPack:
