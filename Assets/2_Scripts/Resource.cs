@@ -1,33 +1,41 @@
 using System;
 using UnityEngine;
+using VInspector;
 
 
-public abstract class ResourceBase : MonoBehaviour
+public class Resource : MonoBehaviour
 {
 
     [Header("Resource Settings")]
     [SerializeField, Min(0)] private float moveSpeed = 5f;
     [SerializeField, Min(0)] private float lifetime = 10f;
+    [SerializeField] private ResourceType resourceType;
+    [SerializeField, Min(1), EnableIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
+    [SerializeField, Min(1), EnableIf("resourceType", ResourceType.HealthPack)] private int healthWorth = 1;[EndIf]
+    [SerializeField, Min(1), EnableIf("resourceType", ResourceType.ShieldPack)] private int shieldWorth = 50;[EndIf]
     
     [Header("Collection Effects")]
     [SerializeField] private AudioClip collectionSound;
     [SerializeField] private ParticleSystem collectionEffect;
+
+    
+    
+    
     
     private bool _isMagnetized;
+    public ResourceType ResourceType => resourceType;
+    public int HealthWorth => healthWorth;
+    public int ShieldWorth => shieldWorth;
+    public int CurrencyWorth => currencyWorth;
+    
+    
     
     private void Update()
     {
         MoveAlongSpline();
         CheckLifetime();
     }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.TryGetComponent(out RailPlayer player))
-        {
-            ResourceCollected(player);
-        }
-    }
+    
 
     #region State Management ---------------------------------------------------------------------------------------
 
@@ -47,8 +55,6 @@ public abstract class ResourceBase : MonoBehaviour
 
     #endregion State Management ---------------------------------------------------------------------------------------
      
-
-    
     
 
     #region Movement ---------------------------------------------------------------------------------------
@@ -56,16 +62,20 @@ public abstract class ResourceBase : MonoBehaviour
     private void MoveAlongSpline()
     {
         if (!_isMagnetized) return;
-            
 
+
+        if (LevelManager.Instance && LevelManager.Instance.SplineContainer)
+        {
+            // Move along the spline
+        }
 
     }
     
     
-    public void MoveTowardsPlayer(Vector3 playerPosition)
+    public void MoveTowardsPlayer(Vector3 playerPosition, float speed)
     {
         Vector3 direction = (playerPosition - transform.position).normalized;
-        transform.position += direction * moveSpeed * Time.deltaTime;
+        transform.position += direction * (speed * Time.deltaTime);
     }
     
     
@@ -76,9 +86,8 @@ public abstract class ResourceBase : MonoBehaviour
     
     #region Resource Collection --------------------------------------------------------------------------------------
 
-    private void ResourceCollected(RailPlayer player)
+    public void ResourceCollected()
     {
-        Debug.Log($"{gameObject.name} collected by player!");
         
         if (collectionSound)
         {
@@ -90,13 +99,10 @@ public abstract class ResourceBase : MonoBehaviour
             Instantiate(collectionEffect, transform.position, Quaternion.identity);
         }
         
-        UpdatePlayerResourceCollected(player);
 
         Destroy(gameObject);
     }
     
-
-    protected abstract void UpdatePlayerResourceCollected(RailPlayer player);
 
     #endregion Resource Collection --------------------------------------------------------------------------------------
     

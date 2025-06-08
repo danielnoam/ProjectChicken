@@ -170,7 +170,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
 
     [Button]
-    private void SelectRandomSpecialWeapon()
+    public void SelectRandomSpecialWeapon()
     {
         if (!Application.isPlaying || weapons.Count <= 0) return;
         

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using KBCore.Refs;
 using TMPro;
 using UnityEngine;
@@ -24,6 +25,7 @@ public class RailPlayer : MonoBehaviour
     
     [Header("Resource Collection")]
     [SerializeField ,Min(0)] private float magnetRadius = 5f;
+    [SerializeField, Min(0)] private float magnetMoveSpeed = 5f;
     [SerializeField, Min(0)] private float resourceCollectionRadius = 2f;
     
     
@@ -43,6 +45,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self] private RailPlayerMovement playerMovement;
 
+    private List<Resource> _resourcesInRange = new List<Resource>();
     private int _currentHealth;
     private float _currentShieldHealth;
     private float _damagedCooldown;
@@ -63,16 +66,12 @@ public class RailPlayer : MonoBehaviour
     private void Update()
     {
         CheckDamageCooldown();
+        CheckResourcesInRange();
+        UpdateMagnetizedResources();
         UpdateDebugText();
 
     }
     
-    
-
-    private void OnTriggerEnter(Collider other)
-    {
-        
-    }
     
     
     private void SetUpPlayer()
@@ -126,6 +125,19 @@ public class RailPlayer : MonoBehaviour
             Die();
         }
     }
+    
+    private void CheckDamageCooldown()
+    {
+        if (_damagedCooldown > 0)
+        {
+            _damagedCooldown -= Time.deltaTime;
+        }
+        
+        if (_damagedCooldown <= 0 &&  _regenShieldCoroutine == null)
+        {
+            StartShieldRegen();
+        }
+    }
 
     private void Die()
     {
@@ -134,9 +146,24 @@ public class RailPlayer : MonoBehaviour
 
     #endregion Damage ----------------------------------------------------------------------
 
+
+    #region Health  --------------------------------------------------------------------------------------
+
+    private void HealHealth(float amount)
+    {
+        if (amount <= 0 || !IsAlive()) return;
+        
+        _currentHealth += (int)amount;
+        if (_currentHealth > maxHealth)
+        {
+            _currentHealth = maxHealth;
+        }
+    }
+
+    #endregion Health  --------------------------------------------------------------------------------------
     
     
-    #region Shield Regen --------------------------------------------------------------------------------------
+    #region Shield  --------------------------------------------------------------------------------------
 
     
     private IEnumerator RegenShieldRoutine()
@@ -177,21 +204,22 @@ public class RailPlayer : MonoBehaviour
         
     }
     
-    private void CheckDamageCooldown()
+    private void HealShield(float amount)
     {
-        if (_damagedCooldown > 0)
+        if (HasShield()) return;
+        
+        _currentShieldHealth += amount;
+        if (_currentShieldHealth > maxShieldHealth)
         {
-            _damagedCooldown -= Time.deltaTime;
+            _currentShieldHealth = maxShieldHealth;
         }
         
-        if (_damagedCooldown <= 0 &&  _regenShieldCoroutine == null)
-        {
-            StartShieldRegen();
-        }
+        StartShieldRegen();
     }
+
     
 
-    #endregion Shield Regen --------------------------------------------------------------------------------------
+    #endregion Shield  --------------------------------------------------------------------------------------
 
 
     
@@ -200,10 +228,85 @@ public class RailPlayer : MonoBehaviour
     private void CheckResourcesInRange()
     {
         
+        // Find all resources in range
+        Collider[] colliders = Physics.OverlapSphere(transform.position, magnetRadius);
+        foreach (var col in colliders)
+        {
+
+            if (TryGetComponent(out Resource resource))
+            {
+                if (resource && !_resourcesInRange.Contains(resource))
+                {
+                    _resourcesInRange.Add(resource);
+                    resource.SetMagnetized(true);
+                }
+            }
+        }
+
+        // Remove resources that are no longer in range
+        for (int i = _resourcesInRange.Count - 1; i >= 0; i--)
+        {
+            if (!_resourcesInRange[i] || Vector3.Distance(transform.position, _resourcesInRange[i].transform.position) > magnetRadius)
+            {
+                _resourcesInRange[i].SetMagnetized(false);
+                _resourcesInRange.RemoveAt(i);
+            }
+        }
+
+    }
+    
+    private void UpdateMagnetizedResources()
+    {
+        if (_resourcesInRange.Count == 0) return;
+        
+        foreach (var resource in _resourcesInRange)
+        {
+            if (!resource) continue;
+
+            // Move the resource towards the player if within magnet radius
+            if (Vector3.Distance(transform.position, resource.transform.position) <= magnetRadius)
+            {
+                resource.MoveTowardsPlayer(transform.position, magnetMoveSpeed);
+            }
+            
+            
+            // Check if the resource is within the collection radius
+            if (Vector3.Distance(transform.position, resource.transform.position) <= resourceCollectionRadius)
+            {
+                CollectResource(resource);
+            }
+        }
+    }
+    
+    
+    private void CollectResource(Resource resource)
+    {
+        if (!resource) return;
+        
+        switch (resource.ResourceType)
+        {
+            case ResourceType.Currency:
+                Debug.Log("Collected Currency! " + resource.CurrencyWorth);
+                break;
+            case ResourceType.HealthPack:
+                HealHealth(resource.HealthWorth);
+                break;
+            case ResourceType.ShieldPack:
+                HealShield(resource.ShieldWorth);
+                break;
+            case ResourceType.RandomWeapon:
+                playerWeapon.SelectRandomSpecialWeapon();
+                break;
+            default:
+                Debug.LogWarning($"Unknown resource type: {resource.ResourceType}");
+                break;
+        }
+        
+        _resourcesInRange.Remove(resource);
+        resource.ResourceCollected();
     }
 
     #endregion Resource Collection --------------------------------------------------------------------------------------
-    
     
     
 
