@@ -4,50 +4,7 @@ using UnityEngine;
 using VInspector;
 
 // FormationManager: Handles enemy formations for a chicken invaders-style game
-// 
-// Key Concepts:
-// - Formation Boundary: A fixed rectangular area centered at the enemy position on the spline
-//   * This boundary rotates to match the spline direction
-//   * Formations move within this 2D plane, not in 3D space
-// - Formation Center: Can move within the boundary based on FormationPosition setting
-//   * Movement is constrained to the boundary's local 2D space (X/Y axes of the rotated boundary)
-//   * Position offsets are applied in the same rotated space as the boundary
-// - Crosshair Boundary: The area where the player can aim (2x LevelManager.EnemyBoundary)
-// - Formation Boundary = Crosshair Boundary - (boundaryOffset * 2)
-// - Multiple Formations: Can spawn multiple non-overlapping formations
-//   * Grid and V-Shape formations are limited to 1 instance
-//   * V-Shape auto-scales to fit boundary width and positions at bottom
-//   * Other formations can have multiple instances based on formationCount
-//   * Formations are automatically positioned to avoid overlap
-//
-// Features:
-// - Multiple formation types (V-Shape, Square, Triangle, Circle, Grid)
-// - Multiple formation instances with automatic separation
-// - Dynamic slot management with occupation tracking
-// - Fixed boundary at enemy position with adjustable offset from crosshair boundary
-// - Formation center moves within the fixed boundary's 2D plane
-// - Intelligent Spacing Constraint System:
-//   * Automatically detects when formation exceeds boundary
-//   * Iteratively reduces spacing until all slots fit within bounds
-//   * Works with all formation positions (center, corners, edges)
-//   * Respects minimum spacing to prevent overlap
-//   * Visual feedback shows when auto-adjustment is active
-//   * Slots outside bounds are highlighted in red
-// - Special Formations:
-//   * Grid formations can fill entire boundary
-//   * V-Shape formations auto-scale to boundary width and position at bottom
-// - Follows spline path using exact enemy position from LevelManager
-// - Boundary and formations rotate to match spline direction
-//
-// Usage:
-// 1. Place FormationManager in scene
-// 2. Configure formation type and parameters
-// 3. Set boundary offset from crosshair boundary
-// 4. Set formation count (1-10, Grid and V-Shape always use 1)
-// 5. Enable constrainToBoundary for automatic fitting
-// 6. Choose formation position (center, corners, etc.) - V-Shape ignores this
-// 7. Formations will automatically adjust spacing to fit!
-
+// Now includes notification system for formation changes
 public class FormationManager : MonoBehaviour
 {
     #region Enums and Classes
@@ -120,6 +77,13 @@ public class FormationManager : MonoBehaviour
             index = idx;
         }
     }
+
+    #endregion
+
+    #region Events
+
+    // Event fired when formation changes
+    public static event System.Action OnFormationChanged;
 
     #endregion
 
@@ -228,7 +192,7 @@ public class FormationManager : MonoBehaviour
 
     private void Start()
     {
-        GenerateFormations();
+        GenerateFormations(false); // Don't notify on initial generation
         lastFormationType = currentFormation;
         lastFormationCount = formationCount;
     }
@@ -254,7 +218,7 @@ public class FormationManager : MonoBehaviour
         
         if (needsRegeneration)
         {
-            GenerateFormations();
+            GenerateFormations(true); // Notify on runtime changes
         }
         
         // Runtime boundary check - useful if boundary size changes
@@ -267,7 +231,7 @@ public class FormationManager : MonoBehaviour
                 {
                     if (!IsFormationInstanceWithinBounds(formation))
                     {
-                        GenerateFormations();
+                        GenerateFormations(true); // Notify on boundary adjustments
                         break;
                     }
                 }
@@ -317,8 +281,18 @@ public class FormationManager : MonoBehaviour
 
     #region Formation Generation
 
-    public void GenerateFormations()
+    public void GenerateFormations(bool notifyChickens = true)
     {
+        // Store previous occupants before clearing
+        List<GameObject> previousOccupants = new List<GameObject>();
+        foreach (var slot in formationSlots)
+        {
+            if (slot.isOccupied && slot.occupant != null)
+            {
+                previousOccupants.Add(slot.occupant);
+            }
+        }
+        
         currentSpacingMultiplier = 1f;
         formations.Clear();
         formationSlots.Clear();
@@ -338,6 +312,26 @@ public class FormationManager : MonoBehaviour
         
         // Rebuild the main slot list
         RebuildSlotList();
+        
+        // Notify all chickens about formation change
+        if (notifyChickens && Application.isPlaying)
+        {
+            Debug.Log($"FormationManager: Formation changed to {currentFormation} with {formationSlots.Count} slots");
+            NotifyFormationChanged();
+        }
+    }
+    
+    // Notify all chickens that formation has changed
+    private void NotifyFormationChanged()
+    {
+        OnFormationChanged?.Invoke();
+        
+        // Also find all chickens directly and notify them
+        var allChickens = FindObjectsOfType<ChickenFollowFormation>();
+        foreach (var chicken in allChickens)
+        {
+            chicken.OnFormationChangedNotification();
+        }
     }
     
     private void GenerateFormationInstance(FormationInstance formation)
@@ -988,7 +982,17 @@ public class FormationManager : MonoBehaviour
             slot.occupant = null;
         }
     }
-
+    
+    public bool OccupySpecificSlot(FormationSlot slot, GameObject occupant)
+    {
+        if (slot != null && !slot.isOccupied)
+        {
+            slot.isOccupied = true;
+            slot.occupant = occupant;
+            return true;
+        }
+        return false;
+    }
     public FormationSlot GetNearestAvailableSlot(Vector3 worldPosition)
     {
         FormationSlot nearestSlot = null;
@@ -1139,7 +1143,7 @@ public class FormationManager : MonoBehaviour
         
         if (formationSlots.Count > 0)
         {
-            GenerateFormations();
+            GenerateFormations(true);
         }
     }
     
@@ -1245,13 +1249,13 @@ public class FormationManager : MonoBehaviour
     {
         int nextFormation = ((int)currentFormation + 1) % Enum.GetValues(typeof(FormationType)).Length;
         currentFormation = (FormationType)nextFormation;
-        GenerateFormations();
+        GenerateFormations(true);
     }
 
     [Button]
     private void RegenerateFormation()
     {
-        GenerateFormations();
+        GenerateFormations(true);
     }
 
     [Button]
@@ -1260,7 +1264,7 @@ public class FormationManager : MonoBehaviour
         if (currentFormation == FormationType.VShape)
         {
             Debug.Log("V-Shape formations always position at bottom - randomization has no effect.");
-            GenerateFormations();
+            GenerateFormations(true);
             return;
         }
         
@@ -1268,7 +1272,7 @@ public class FormationManager : MonoBehaviour
         {
             var previousPosition = formationPosition;
             formationPosition = FormationPosition.Random;
-            GenerateFormations();
+            GenerateFormations(true);
             formationPosition = previousPosition;
         }
     }
@@ -1287,14 +1291,14 @@ public class FormationManager : MonoBehaviour
         
         if (formationSlots.Count > 0)
         {
-            GenerateFormations();
+            GenerateFormations(true);
         }
     }
 
     [Button]
     private void RecalculateBoundaryConstraints()
     {
-        GenerateFormations();
+        GenerateFormations(true);
     }
     
     [Button]
