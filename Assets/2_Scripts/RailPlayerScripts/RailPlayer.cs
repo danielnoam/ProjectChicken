@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using VInspector;
 
+[SelectionBase]
 [RequireComponent(typeof(RailPlayerInput))]
 [RequireComponent(typeof(RailPlayerMovement))]
 [RequireComponent(typeof(RailPlayerAiming))]
@@ -22,7 +23,8 @@ public class RailPlayer : MonoBehaviour
     
     
     [Header("Resource Collection")]
-    
+    [SerializeField ,Min(0)] private float magnetRadius = 5f;
+    [SerializeField, Min(0)] private float resourceCollectionRadius = 2f;
     
     
     [Header("Path Following")]
@@ -61,36 +63,8 @@ public class RailPlayer : MonoBehaviour
     private void Update()
     {
         CheckDamageCooldown();
-        
-        if (playerStatusText)
-        {
-            string selectedWeapon = "";
+        UpdateDebugText();
 
-
-            if (playerWeapon.CurrentSpecialWeapon)
-            {
-                if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.AmmoBased)
-                {
-                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponAmmo}/{playerWeapon.CurrentSpecialWeapon.AmmoLimit})";
-                } 
-                else if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.TimeBased)
-                {
-                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponTime:F1}/{playerWeapon.CurrentSpecialWeapon.TimeLimit})";
-                }
-            }
-            else
-            {
-                selectedWeapon = $"Base Weapon";
-            }
-
-            
-            playerStatusText.text = $"Health: {_currentHealth}/{maxHealth}\n" +
-                                    $"Shield: {_currentShieldHealth:F1} / {maxShieldHealth:F1}, Regen: {_damagedCooldown}\n" +
-                                    $"Alive: {IsAlive()}\n" +
-                                    $"Shielded: {HasShield()}\n" +
-                                    $"Weapon: {selectedWeapon}\n"
-                                    ;
-        }
     }
     
     
@@ -218,6 +192,18 @@ public class RailPlayer : MonoBehaviour
     
 
     #endregion Shield Regen --------------------------------------------------------------------------------------
+
+
+    
+    #region Resource Collection --------------------------------------------------------------------------------------
+
+    private void CheckResourcesInRange()
+    {
+        
+    }
+
+    #endregion Resource Collection --------------------------------------------------------------------------------------
+    
     
     
 
@@ -235,5 +221,61 @@ public class RailPlayer : MonoBehaviour
 
     #endregion Helper Methods --------------------------------------------------------------------------------------
 
+    
+    #region Editor  --------------------------------------------------------------------------------------
+    
+    
+    private void UpdateDebugText()
+    {
+        if (playerStatusText)
+        {
+            string selectedWeapon = "";
+
+
+            if (playerWeapon.CurrentSpecialWeapon)
+            {
+                if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.AmmoBased)
+                {
+                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponAmmo}/{playerWeapon.CurrentSpecialWeapon.AmmoLimit})";
+                } 
+                else if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.TimeBased)
+                {
+                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponTime:F1}/{playerWeapon.CurrentSpecialWeapon.TimeLimit})";
+                }
+            }
+            else
+            {
+                selectedWeapon = $"Base Weapon";
+            }
+
+            
+            playerStatusText.text = $"Health: {_currentHealth}/{maxHealth}\n" +
+                                    $"Shield: {_currentShieldHealth:F1} / {maxShieldHealth:F1}, Regen: {_damagedCooldown}\n" +
+                                    $"Alive: {IsAlive()}\n" +
+                                    $"Shielded: {HasShield()}\n" +
+                                    $"Weapon: {selectedWeapon}\n"
+                ;
+        }
+    }
+    
+    
+
+#if UNITY_EDITOR
+
+
+    private void OnDrawGizmos()
+    {
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, resourceCollectionRadius);
+        
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, magnetRadius);
+    }
+
+
+#endif
+
+    #endregion Editor  --------------------------------------------------------------------------------------
 
 }
