@@ -168,9 +168,16 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _currentSpecialWeapon = null;
     }
 
-
-    [Button]
-    public void SelectRandomSpecialWeapon()
+    
+    
+    public void SelectSpecialWeapon(SOWeapon weapon)
+    {
+        SetSpecialWeapon(weapon);
+    }
+    
+    
+    [Button] // Select a random special weapon from the list of available weapons only used for testing purposes
+    private void SelectRandomSpecialWeapon()
     {
         if (!Application.isPlaying || weapons.Count <= 0) return;
         
@@ -186,7 +193,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         
         SetSpecialWeapon(randomWeapon);
     }
-    
     
 
     #region Weapon Timers ----------------------------------------------------------------------------------------------------

@@ -148,11 +148,12 @@ public class RailPlayer : MonoBehaviour
 
     #region Health  --------------------------------------------------------------------------------------
 
-    private void HealHealth(float amount)
+    [Button]
+    private void HealHealth(int amount = 1)
     {
         if (amount <= 0 || !IsAlive()) return;
         
-        _currentHealth += (int)amount;
+        _currentHealth += amount;
         if (_currentHealth > maxHealth)
         {
             _currentHealth = maxHealth;
@@ -203,7 +204,8 @@ public class RailPlayer : MonoBehaviour
         
     }
     
-    private void HealShield(float amount)
+    [Button]
+    private void HealShield(float amount = 25f)
     {
         if (HasShield()) return;
         
@@ -219,8 +221,7 @@ public class RailPlayer : MonoBehaviour
     
 
     #endregion Shield  --------------------------------------------------------------------------------------
-
-
+    
     
     #region Resource Collection --------------------------------------------------------------------------------------
 
@@ -296,8 +297,8 @@ public class RailPlayer : MonoBehaviour
             case ResourceType.ShieldPack:
                 HealShield(resource.ShieldWorth);
                 break;
-            case ResourceType.RandomWeapon:
-                playerWeapon.SelectRandomSpecialWeapon();
+            case ResourceType.SpecialWeapon:
+                playerWeapon.SelectSpecialWeapon(resource.Weapon);
                 break;
             default:
                 Debug.LogWarning($"Unknown resource type: {resource.ResourceType}");
@@ -309,7 +310,6 @@ public class RailPlayer : MonoBehaviour
     }
 
     #endregion Resource Collection --------------------------------------------------------------------------------------
-    
     
 
     #region Helper Methods --------------------------------------------------------------------------------------

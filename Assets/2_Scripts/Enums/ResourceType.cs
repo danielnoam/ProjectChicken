@@ -3,5 +3,5 @@
     Currency,
     HealthPack,
     ShieldPack,
-    RandomWeapon,
+    SpecialWeapon,
 }
