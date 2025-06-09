@@ -3694,7 +3694,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1918639885}
   - component: {fileID: 1918639886}
-  - component: {fileID: 1918639887}
   m_Layer: 0
   m_Name: Enemy Fomation Controller
   m_TagString: Untagged
@@ -3767,19 +3766,6 @@ MonoBehaviour:
   - {r: 0.5, g: 0, b: 1, a: 1}
   - {r: 0, g: 1, b: 0.5, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
---- !u!114 &1918639887
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1918639883}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ab7e56c1441bf147a710c7fc222bfdd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetFPS: 20
 --- !u!1001 &1943620528
 PrefabInstance:
   m_ObjectHideFlags: 0
