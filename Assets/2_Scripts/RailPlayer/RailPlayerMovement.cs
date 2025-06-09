@@ -7,17 +7,21 @@ using Unity.VisualScripting;
 using UnityEngine.InputSystem;
 using VInspector;
 
-
+[RequireComponent(typeof(Rigidbody))]
 public class RailPlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField, Min(0)] private float moveSpeed = 15f;
+    [SerializeField, Min(0)] private float maxMoveSpeed = 15f;
+    [SerializeField, Min(0.1f)] private float acceleration = 10f;
+    [SerializeField, Min(0.1f)] private float deceleration = 5f;
+    [SerializeField, Min(0)] private float pathFollowSpeed = 5f;
     
     [Header("Rotation Settings")]
     [SerializeField, Min(0)] private float rotationSpeed = 22f;
     [SerializeField, Min(0)] private float movementTiltAmount = 30f;
     [SerializeField, Min(0)] private float maxPitchAngle = 30f;
     [SerializeField, Min(0)] private float maxYawAngle = 45f;
+    [SerializeField, Min(0)] private float pathRotationSpeed = 5f;
     
     [Header("Dodge Settings")]
     [SerializeField] private bool enableDodging = true;
@@ -26,22 +30,35 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Min(0)] private float dodgeTime = 0.2f;
     [SerializeField, Min(0)] private float dodgeCooldown = 1.5f;
     [SerializeField, Min(0)] private float dodgeRollAmount = 720f;
-    [SerializeField] private TweenSettings dodgeTweenSettings = new TweenSettings(1.2f, Ease.Custom);
+    [SerializeField, Min(0)] private TweenSettings dodgeTweenSettings = new TweenSettings(1.2f, Ease.Custom);
     [EndIf]
     
     [Header("References")] 
     [SerializeField, Self] private RailPlayer player;
     [SerializeField, Self] private RailPlayerAiming playerAiming;
     [SerializeField, Self] private RailPlayerInput playerInput;
+    [SerializeField, Self] private Rigidbody playerRigidbody;
     [SerializeField] private Transform shipModel;
 
 
     
     private float _horizontalInput;
     private float _verticalInput;
-    private Vector3 _targetMovePosition;
-    private Vector3 _targetPathPosition;
+    
     private Quaternion _splineRotation = Quaternion.identity;
+    private Quaternion _aimRotation = Quaternion.identity;
+    private Vector3 _currentMoveVelocity;
+    private Vector3 _targetMoveVelocity;
+    private Vector3 _splineFollowVelocity = Vector3.zero;
+    
+    
+
+    
+    
+
+
+
+
     private bool _isDodging;
     private float _dodgeCooldownTimer;
     private float _dodgeTimeCounter;
@@ -74,54 +91,136 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        HandleMovement();
-        HandleDodgeMovement();
-        HandleSplineRotation();
+        UpdateDodgeState();
         HandleShipRotation();
-        UpdateDodgeCooldown();
-        
-        // Apply final movement
-        transform.position = _targetPathPosition + _targetMovePosition;
     }
-    
+
+    private void FixedUpdate()
+    {
+        HandleRotation();
+        HandleMovement();
+    }
 
 
     #region Movement & Rotation --------------------------------------------------------------------------------------
 
-        private void HandleMovement()
+    private void HandleMovement()
     {
+        // Handle the spline following
+        if (LevelManager.Instance && player.AlignToSplineDirection)
+        {
+            Vector3 splineFollowDirection = LevelManager.Instance.PlayerPosition - transform.position;
+            float distanceToSpline = splineFollowDirection.magnitude;
+            
+            
+            float lerpFactor = Mathf.Clamp01(distanceToSpline / 10f);
+            _splineFollowVelocity = Vector3.Lerp(Vector3.zero, splineFollowDirection.normalized * pathFollowSpeed, lerpFactor * Time.fixedDeltaTime);
+        }
+        else
+        {
+            _splineFollowVelocity = Vector3.zero;
+        }
+        
+        
+        
+        // Handle input movement or dodging
         if (!_isDodging)
         {
-            // Create input movement in a local spline space
-            Vector3 localInputMovement = new Vector3(_horizontalInput, _verticalInput, 0) * (moveSpeed * Time.deltaTime);
+            // Get the input direction based on horizontal and vertical input
+            Vector3 inputDirection = new Vector3(_horizontalInput, _verticalInput, 0);
         
             // Transform input to world space relative to spline rotation
-            Vector3 worldInputMovement = _splineRotation * localInputMovement;
-            _targetMovePosition += worldInputMovement;
-    
-            // Transform current offset to spline local space for boundary clamping
-            Vector3 localOffset = Quaternion.Inverse(_splineRotation) * _targetMovePosition;
-        
-            // Clamp in the local spline space
-            localOffset.x = Mathf.Clamp(localOffset.x, -MovementBoundaryX, MovementBoundaryX);
-            localOffset.y = Mathf.Clamp(localOffset.y, -MovementBoundaryY, MovementBoundaryY);
-        
-            // Transform back to world space    
-            _targetMovePosition = _splineRotation * localOffset;
+            Vector3 moveDirection = _splineRotation * inputDirection;
+            
+            // Set target acceleration based on input
+            float targetAcceleration = inputDirection != Vector3.zero ? acceleration : deceleration;
+            
+            // Calculate target move velocity based on input
+            _targetMoveVelocity = moveDirection.normalized * maxMoveSpeed;
+            
+            // Check if we are within movement boundaries
+            if (LevelManager.Instance && LevelManager.Instance.SplineContainer)
+            {
+                Vector3 playerSplinePosition = LevelManager.Instance.PlayerPosition;
+                Vector3 localPosition = Quaternion.Inverse(_splineRotation) * (playerSplinePosition - transform.position);
+                
+                // Check if we are outside the movement boundaries
+                if (Mathf.Abs(localPosition.x) > MovementBoundaryX || Mathf.Abs(localPosition.y) > MovementBoundaryY)
+                {
+                    targetAcceleration = acceleration * 2f;
+                    _targetMoveVelocity = Vector3.zero;
+                }
+            }
+            
+            // Smoothly interpolate current move velocity towards target
+            _currentMoveVelocity = Vector3.Lerp(_currentMoveVelocity, _targetMoveVelocity, targetAcceleration * Time.fixedDeltaTime);
+        }
+        else
+        {
+            // Calculate dodge movement in world space
+            Vector3 worldDodgeMovement = _splineRotation * _dodgeDirection * (dodgeMoveSpeed * Time.fixedDeltaTime);
+            
+            // Apply dodge movement to input
+            _currentMoveVelocity += worldDodgeMovement;
         }
 
-        // Handle the path following
-        if (LevelManager.Instance)
+        
+        playerRigidbody.linearVelocity = _splineFollowVelocity + _currentMoveVelocity;
+        Debug.Log($"Current Move Velocity: {_currentMoveVelocity}, Spline Follow Velocity: {_splineFollowVelocity}");
+    }
+
+    private void HandleRotation()
+    {
+        // Get spline rotation
+        if (LevelManager.Instance && player.AlignToSplineDirection)
         {
-            _targetPathPosition = Vector3.Lerp(_targetPathPosition, LevelManager.Instance.PlayerPosition, player.PathFollowSpeed * Time.deltaTime);
-        } 
-        else 
+            Vector3 splineDirection = LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.PlayerPosition);
+            Quaternion targetSplineRotation = Quaternion.LookRotation(splineDirection, Vector3.up);
+        
+            // Smoothly rotate towards the spline direction
+            _splineRotation = Quaternion.Slerp(_splineRotation, targetSplineRotation, pathRotationSpeed * Time.fixedDeltaTime);
+        }
+        else
         {
-            _targetPathPosition = Vector3.zero;
+            _splineRotation = Quaternion.identity;
         }
         
+        
+        // Get aim rotation from player aiming (only pitch and yaw, no roll)
+        // Not being used for now, looks better when just rotating the ship model
+        if (playerAiming)
+        {
+            Vector3 aimDirection = playerAiming.GetAimDirection();
+            
+            // Convert aim direction to local space relative to spline
+            Vector3 localAimDirection = Quaternion.Inverse(_splineRotation) * aimDirection;
+            
+            // Calculate pitch and yaw angles only
+            float yawAngle = Mathf.Atan2(localAimDirection.x, localAimDirection.z) * Mathf.Rad2Deg;
+            float pitchAngle = -Mathf.Asin(Mathf.Clamp(localAimDirection.y, -1f, 1f)) * Mathf.Rad2Deg;
+            
+            // Clamp the angles
+            yawAngle = Mathf.Clamp(yawAngle, -maxYawAngle, maxYawAngle);
+            pitchAngle = Mathf.Clamp(pitchAngle, -maxPitchAngle, maxPitchAngle);
+            
+            // Create target aim rotation with only pitch and yaw (no roll)
+            Quaternion targetAimRotation = Quaternion.Euler(pitchAngle, yawAngle, 0f);
+            
+            // Smoothly rotate towards the target aim rotation
+            _aimRotation = Quaternion.Slerp(_aimRotation, targetAimRotation, rotationSpeed * Time.fixedDeltaTime);
+            
+        }
+        else
+        {
+            _aimRotation = Quaternion.identity;
+        }
+
+        // Apply the combined rotation to the rigidbody
+        playerRigidbody.rotation = _splineRotation;
     }
         
+        
+
     
         
     private void HandleShipRotation()
@@ -176,33 +275,16 @@ public class RailPlayerMovement : MonoBehaviour
 
     #endregion Movement & Rotation --------------------------------------------------------------------------------------
     
-    
-
 
     #region Dodge --------------------------------------------------------------------------------------
 
-    private void HandleDodgeMovement()
+    private void UpdateDodgeState()
     {
         if (!enableDodging) return;
         
-        
-        // Apply dodge movement as long as we are dodging and within the dodge time
+        // Check if we are currently dodging
         if (_isDodging && _dodgeTimeCounter <= dodgeTime)
         {
-            // Calculate dodge movement in world space
-            Vector3 worldDodgeMovement = _splineRotation * _dodgeDirection * (dodgeMoveSpeed * Time.deltaTime);
-            
-            // Apply dodge movement to _targetMovePosition
-            _targetMovePosition += worldDodgeMovement;
-
-            // Transform to local spline space and clamp to boundaries
-            Vector3 localOffset = Quaternion.Inverse(_splineRotation) * _targetMovePosition;
-            localOffset.x = Mathf.Clamp(localOffset.x, -MovementBoundaryX, MovementBoundaryX);
-            localOffset.y = Mathf.Clamp(localOffset.y, -MovementBoundaryY, MovementBoundaryY);
-
-            // Transform back to world space
-            _targetMovePosition = _splineRotation * localOffset;
-            
             _dodgeTimeCounter += Time.deltaTime;
             
             // Reset dodge if we exceed the dodge time
@@ -212,16 +294,16 @@ public class RailPlayerMovement : MonoBehaviour
                 _dodgeCooldownTimer = dodgeCooldown;
             }
         }
-    }
-    
-    private void UpdateDodgeCooldown()
-    {
+        
+        
+        // Check cooldown
         if (!_isDodging && _dodgeCooldownTimer > 0f)
         {
             _dodgeCooldownTimer -= Time.deltaTime;
             if (_dodgeCooldownTimer < 0f) _dodgeCooldownTimer = 0f;
         }
     }
+    
     
     private void PlayDodgeRollAnimation()
     {
@@ -242,40 +324,7 @@ public class RailPlayerMovement : MonoBehaviour
 
     #endregion Dodge --------------------------------------------------------------------------------------
     
-    
-    #region Spline --------------------------------------------------------------------------------------
 
-    private void HandleSplineRotation()
-    {
-        if (!player.AlignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.SplineContainer)
-        {
-            _splineRotation = Quaternion.identity;
-            return;
-        }
-
-        // Get the spline direction - you'll need to implement this based on your spline system
-        Vector3 splineForward = GetPlayerDirectionOnSpline();
-        
-        if (splineForward != Vector3.zero)
-        {
-            Quaternion targetSplineRotation = Quaternion.LookRotation(splineForward, Vector3.up);
-            _splineRotation = Quaternion.Slerp(_splineRotation, targetSplineRotation, player.SplineRotationSpeed * Time.deltaTime);
-            
-            // Apply spline rotation to the entire player transform
-            transform.rotation = _splineRotation;
-        }
-    }
-    
-    private Vector3 GetPlayerDirectionOnSpline()
-    {
-        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetEnemyDirectionOnSpline(LevelManager.Instance.PlayerPosition);
-    }
-    
-    
-
-    #endregion Spline --------------------------------------------------------------------------------------
- 
-    
     #region Input Handling --------------------------------------------------------------------------------------
 
     private void OnMove(InputAction.CallbackContext context)

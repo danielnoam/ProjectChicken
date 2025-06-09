@@ -243,7 +243,7 @@ public class RailPlayerAiming : MonoBehaviour
     
     private Vector3 GetSplineDirection()
     {
-        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetEnemyDirectionOnSpline(LevelManager.Instance.EnemyPosition);
+        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.EnemyPosition);
     }
     
     private Vector3 GetCrosshairSplinePosition()

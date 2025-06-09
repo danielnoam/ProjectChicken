@@ -140,7 +140,7 @@ public class LevelManager : MonoBehaviour
         return t;
     }
     
-    public Vector3 GetEnemyDirectionOnSpline(Vector3 point)
+    public Vector3 GetDirectionOnSpline(Vector3 point)
     {
         if (!SplineContainer) return Vector3.forward;
     

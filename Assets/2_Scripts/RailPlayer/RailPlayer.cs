@@ -30,8 +30,6 @@ public class RailPlayer : MonoBehaviour
     
     [Header("Path Following")]
     [SerializeField] private bool alignToSplineDirection = true;
-    [EnableIf("alignToSplineDirection")]
-    [SerializeField] private float pathFollowSpeed = 5f;
     [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
     [EndIf]
     
@@ -52,7 +50,6 @@ public class RailPlayer : MonoBehaviour
     private Coroutine _regenShieldCoroutine;
     
     public bool AlignToSplineDirection => alignToSplineDirection;
-    public float PathFollowSpeed => pathFollowSpeed;
     public float SplineRotationSpeed => splineRotationSpeed;
 
 
