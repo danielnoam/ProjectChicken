@@ -42,7 +42,6 @@ public class RailPlayerMovement : MonoBehaviour
     private Vector3 _targetMovePosition;
     private Vector3 _targetPathPosition;
     private Quaternion _splineRotation = Quaternion.identity;
-    
     private bool _isDodging;
     private float _dodgeCooldownTimer;
     private float _dodgeTimeCounter;
@@ -52,6 +51,9 @@ public class RailPlayerMovement : MonoBehaviour
 
     private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
     private float MovementBoundaryY => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
+    public bool IsDodging => _isDodging;
+    
+    
 
     private void OnValidate() { this.ValidateRefs(); }
     private void OnEnable()
@@ -59,6 +61,7 @@ public class RailPlayerMovement : MonoBehaviour
         playerInput.OnMoveEvent += OnMove;
         playerInput.OnDodgeLeftEvent += OnDodgeLeft;
         playerInput.OnDodgeRightEvent += OnDodgeRight;
+        playerInput.OnDodgeFreeformEvent += OnDodgeFreeform;
     }
     
     private void OnDisable()
@@ -66,6 +69,7 @@ public class RailPlayerMovement : MonoBehaviour
         playerInput.OnMoveEvent -= OnMove;
         playerInput.OnDodgeLeftEvent -= OnDodgeLeft;
         playerInput.OnDodgeRightEvent -= OnDodgeRight;
+        playerInput.OnDodgeFreeformEvent -= OnDodgeFreeform;
     }
 
     private void Update()
@@ -79,7 +83,7 @@ public class RailPlayerMovement : MonoBehaviour
         // Apply final movement
         transform.position = _targetPathPosition + _targetMovePosition;
     }
-
+    
 
 
     #region Movement & Rotation --------------------------------------------------------------------------------------
@@ -294,36 +298,42 @@ public class RailPlayerMovement : MonoBehaviour
     {
         if (!enableDodging) return;
         
-        
-        if (context.performed)
+
+        if (_dodgeCooldownTimer <= 0f && !_isDodging)
         {
-            
-            if (_dodgeCooldownTimer <= 0f && !_isDodging)
-            {
-                _dodgeDirection = Vector3.left;
-                _dodgeTimeCounter = 0f;
-                _isDodging = true;
+            _dodgeDirection = Vector3.left;
+            _dodgeTimeCounter = 0f;
+            _isDodging = true;
                 
-                PlayDodgeRollAnimation();
-            }
+            PlayDodgeRollAnimation();
         }
     }
     
     private void OnDodgeRight(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (!enableDodging) return;
+        
+        if (_dodgeCooldownTimer <= 0f && !_isDodging)
         {
-            if (!enableDodging) return;
-            
-            if (_dodgeCooldownTimer <= 0f && !_isDodging)
-            {
-                _dodgeDirection = Vector3.right;
-                _dodgeTimeCounter = 0f;
-                _isDodging = true;
+            _dodgeDirection = Vector3.right;
+            _dodgeTimeCounter = 0f;
+            _isDodging = true;
                 
-                PlayDodgeRollAnimation();
-            }
+            PlayDodgeRollAnimation();
+        }
+    }
+    
+    private void OnDodgeFreeform(InputAction.CallbackContext context)
+    {
+        if (!enableDodging) return;
 
+        if (_horizontalInput < 0)
+        {
+            OnDodgeLeft(context);
+        } 
+        else if (_horizontalInput > 0)
+        {
+            OnDodgeRight(context);
         }
     }
 

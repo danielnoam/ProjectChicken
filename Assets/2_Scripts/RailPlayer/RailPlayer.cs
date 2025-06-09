@@ -116,7 +116,7 @@ public class RailPlayer : MonoBehaviour
     
     private void DamageHealth()
     {
-        if (!IsAlive()) return;
+        if (!IsAlive() || !IsDodging()) return;
 
         _currentHealth -= 1;
         if (_currentHealth < 0)
@@ -325,6 +325,11 @@ public class RailPlayer : MonoBehaviour
     public bool IsAlive()
     {
         return _currentHealth > 0;
+    }
+    
+    public bool IsDodging()
+    {
+        return playerMovement.IsDodging;
     }
 
     #endregion Helper Methods --------------------------------------------------------------------------------------

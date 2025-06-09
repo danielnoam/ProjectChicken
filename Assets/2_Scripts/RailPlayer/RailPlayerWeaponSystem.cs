@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Core.Attributes;
 using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -17,7 +18,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 {
     
     [Header("Weapon System Settings")]
-    [SerializeField] private SOWeapon baseWeapon;
+    [Tooltip("If true, the player can use the base weapon even with a special weapon, using a different button.")]
+    [SerializeField] private bool allowBaseWeaponWithSpecialWeapon = true;
+    [SerializeField, CreateEditableAsset] private SOWeapon baseWeapon;
     [SerializeField] private SerializedDictionary<SOWeapon, WeaponInfo> weapons = new SerializedDictionary<SOWeapon, WeaponInfo>();
     
     [Header("References")]
@@ -25,6 +28,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Self] private RailPlayerAiming playerAiming;
     
     private bool _attackInputHeld;
+    private bool _attack2InputHeld;
     private SOWeapon _previousSpecialWeapon;
     private SOWeapon _currentSpecialWeapon;
     private WeaponInfo _baseWeaponInfo;
@@ -54,11 +58,13 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private void OnEnable()
     {
         playerInput.OnAttackEvent += OnAttack;
+        playerInput.OnAttack2Event += OnAttack2;
     }
     
     private void OnDisable()
     {
         playerInput.OnAttackEvent -= OnAttack;
+        playerInput.OnAttack2Event -= OnAttack2;
     }
 
 
@@ -68,12 +74,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         
         UpdateWeaponTimers();
-
-        if (_attackInputHeld)
-        {
-            FireActiveWeapon();
-        }
-
+        CheckAttackInputsHeld();
 
         if (Input.GetKeyDown(KeyCode.F1))
         {
@@ -83,10 +84,35 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
 
 
+    #region Weapon Usage ----------------------------------------------------------------------------------------------------
 
     private void FireActiveWeapon()
     {
         // If there is a special weapon selected, use it
+        if (_currentSpecialWeapon)
+        {
+            FireSpecialWeapon();
+        }
+        else
+        {
+            // If not, use the base weapon
+            FireBaseWeapon();
+        }
+
+
+    }
+    
+    private void FireBaseWeapon()
+    {
+        if (baseWeapon && _baseWeaponFireRateCooldown <= 0)
+        {
+            UseWeapon(baseWeapon, _baseWeaponInfo);
+            _baseWeaponFireRateCooldown = baseWeapon.FireRate;
+        }
+    }
+
+    private void FireSpecialWeapon()
+    {
         if (_currentSpecialWeapon && _specialWeaponFireRateCooldown <= 0)
         {
             
@@ -108,18 +134,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             
             UseWeapon(_currentSpecialWeapon, _currentSpecialWeaponInfo);
             _specialWeaponFireRateCooldown = _currentSpecialWeapon.FireRate;
-            
-            return;
-        }
-
-        // If not, use the base weapon
-         if (!_currentSpecialWeapon && baseWeapon && _baseWeaponFireRateCooldown <= 0)
-        {
-            UseWeapon(baseWeapon, _baseWeaponInfo);
-            _baseWeaponFireRateCooldown = baseWeapon.FireRate;
         }
     }
-
+    
+    
     private void UseWeapon(SOWeapon weapon, WeaponInfo weaponInfo)
     {
         if (!weapon || weaponInfo == null) return;
@@ -129,10 +147,14 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             weapon.CreateProjectile(spawnPoint.transform.position, playerAiming.GetAimDirection());
         }
-        
     }
+
+    #endregion Weapon Usage ----------------------------------------------------------------------------------------------------
+
     
-    
+
+    #region Special Weapon Management --------------------------------------------------------------------------------------
+
     private void SetSpecialWeapon(SOWeapon weapon)
     {
         if (!weapon) return;
@@ -193,7 +215,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         
         SetSpecialWeapon(randomWeapon);
     }
-    
+
+    #endregion Special Weapon Management --------------------------------------------------------------------------------------
+
+
 
     #region Weapon Timers ----------------------------------------------------------------------------------------------------
 
@@ -222,6 +247,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     #endregion Weapon Timers ----------------------------------------------------------------------------------------------------
     
+    
 
     #region Input Handling --------------------------------------------------------------------------------------
 
@@ -237,7 +263,34 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             _attackInputHeld = false;
         }
+    }
+    
+    private void OnAttack2(InputAction.CallbackContext context)
+    {
+        
+        if (!allowBaseWeaponWithSpecialWeapon) return;
+        
+        if (context.started)
+        {
+            _attack2InputHeld = true;
+        }
+        else if (context.canceled)
+        {
+            _attack2InputHeld = false;
+        }
+    }
 
+    private void CheckAttackInputsHeld()
+    {
+        if (_attackInputHeld)
+        {
+            FireActiveWeapon();
+        }
+        
+        if (_attack2InputHeld && allowBaseWeaponWithSpecialWeapon && _currentSpecialWeapon)
+        {
+            FireBaseWeapon();
+        }
     }
 
     #endregion Input Handling --------------------------------------------------------------------------------------

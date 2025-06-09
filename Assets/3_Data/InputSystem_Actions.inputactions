@@ -33,7 +33,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SpecialAttack",
+                    "name": "Attack2",
                     "type": "Button",
                     "id": "18a067f9-0cad-4288-a737-8babfc1ea291",
                     "expectedControlType": "",
@@ -54,6 +54,15 @@
                     "name": "DodgeRight",
                     "type": "Button",
                     "id": "6354554b-09b3-430d-b75c-8a3c4c80c43e",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DodgeFreeform",
+                    "type": "Button",
+                    "id": "34109c79-7947-4d2c-be7d-9f90017b8056",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -310,7 +319,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "SpecialAttack",
+                    "action": "Attack2",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -321,7 +330,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "SpecialAttack",
+                    "action": "Attack2",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -332,7 +341,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Touch",
-                    "action": "SpecialAttack",
+                    "action": "Attack2",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -343,7 +352,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "SpecialAttack",
+                    "action": "Attack2",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -388,6 +397,28 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "DodgeRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0f3a4d15-b636-41b8-80d2-1b4b785cc0bf",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "DodgeFreeform",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bc6e090d-37a5-4eb6-bf73-44a18b0e051c",
+                    "path": "<Keyboard>/leftCtrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "DodgeFreeform",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

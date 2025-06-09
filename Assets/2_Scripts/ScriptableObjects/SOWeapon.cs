@@ -25,11 +25,11 @@ public class SOWeapon : ScriptableObject
     
     [Header("Projectile Spawn Effect")]
     [SerializeField] private AudioClip spawnSound;
-    [SerializeField] private GameObject spawnEffectPrefab;
+    [SerializeField] private ParticleSystem spawnEffectPrefab;
     
     [Header("Impact Effect")]
     [SerializeField] private AudioClip impactSound;
-    [SerializeField] private GameObject impactEffectPrefab;
+    [SerializeField] private ParticleSystem impactEffectPrefab;
 
     public string WeaponName => weaponName;
     public string WeaponDescription => weaponDescription;
