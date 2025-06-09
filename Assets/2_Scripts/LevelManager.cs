@@ -156,6 +156,20 @@ public class LevelManager : MonoBehaviour
         Vector3 direction = (aheadPos - currentPos).normalized;
         return direction.magnitude > 0.001f ? direction : Vector3.forward;
     }
+    
+    public float GetPositionOnSpline(Vector3 position)
+    {
+        if (!splineContainer) return 0f;
+
+        // Get the current T value on the spline based on the position
+        SplineUtility.GetNearestPoint(splineContainer.Spline, position, out var nearestPoint, out var positionAlongSpline);
+        
+        // Normalize the position along the spline to a value between 0 and 1
+        float normalizedPosition = positionAlongSpline / _splineLength;
+        return Mathf.Clamp01(normalizedPosition);
+        
+        
+    }
 
     #endregion Helper ---------------------------------------------------------------------------------------------
     

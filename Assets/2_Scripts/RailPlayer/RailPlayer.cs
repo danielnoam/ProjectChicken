@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using KBCore.Refs;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 using VInspector;
 
 [SelectionBase]
@@ -245,7 +246,9 @@ public class RailPlayer : MonoBehaviour
         // Remove resources that are no longer in range
         for (int i = _resourcesInRange.Count - 1; i >= 0; i--)
         {
-            if (!_resourcesInRange[i] || Vector3.Distance(transform.position, _resourcesInRange[i].transform.position) > magnetRadius)
+            bool isWithinRange = Vector3.Distance(transform.position, _resourcesInRange[i].transform.position) <= magnetRadius;
+            bool isBehindPlayer = LevelManager.Instance.GetPositionOnSpline(transform.position) > LevelManager.Instance.GetPositionOnSpline(_resourcesInRange[i].transform.position);
+            if (!_resourcesInRange[i] || !isWithinRange  || isBehindPlayer)
             {
                 if (!_resourcesInRange[i]) continue;
                 
@@ -358,7 +361,8 @@ public class RailPlayer : MonoBehaviour
                                     $"Shield: {_currentShieldHealth:F1} / {maxShieldHealth:F1}, Regen: {_damagedCooldown}\n" +
                                     $"Alive: {IsAlive()}\n" +
                                     $"Shielded: {HasShield()}\n" +
-                                    $"Weapon: {selectedWeapon}\n"
+                                    $"Weapon: {selectedWeapon}\n" +
+                                    $"Currency: {_currentCurrency}"
                 ;
         }
     }
@@ -368,14 +372,17 @@ public class RailPlayer : MonoBehaviour
 #if UNITY_EDITOR
 
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
-
+        
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, resourceCollectionRadius);
+        UnityEditor.Handles.Label(transform.position + (Vector3.up * resourceCollectionRadius), "Resource Collection Radius");
+
         
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, magnetRadius);
+        UnityEditor.Handles.Label(transform.position + (Vector3.up * magnetRadius), "Magnet Radius");
     }
 
 

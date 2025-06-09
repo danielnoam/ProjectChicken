@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 using VInspector;
 
 [Serializable]
@@ -23,8 +22,11 @@ public class Resource : MonoBehaviour
     [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private WeaponChance[] weaponChances = Array.Empty<WeaponChance>();[EndIf]
     
     [Header("Movement Settings")]
-    [SerializeField, Min(0)] private float moveSpeed = 5f;
     [SerializeField, Min(0)] private float rotationSpeed = 45f;
+    [SerializeField] private bool alignToSplineDirection = true;
+    [SerializeField,EnableIf("alignToSplineDirection")] private float pathFollowSpeed = 5f;[EndIf]
+
+
     
     [Header("Spawn Effects")]
     [SerializeField] private AudioClip spawnSound;
@@ -39,6 +41,7 @@ public class Resource : MonoBehaviour
     
     private float _currentLifetime;
     private bool _isMagnetized;
+    private Vector3 _splineOffset;
     private Vector3 _rotationAxis = Vector3.up;
     
     public ResourceType ResourceType => resourceType;
@@ -62,6 +65,8 @@ public class Resource : MonoBehaviour
 
     private void Start()
     {
+        
+        GetSplineOffset();
         PlaySpawnEffects();
     }
 
@@ -79,7 +84,7 @@ public class Resource : MonoBehaviour
 
     private void CheckLifetime()
     {
-        if (lifetime <= 0f) return;
+        if (lifetime <= 0f || _isMagnetized) return;
 
         _currentLifetime -= Time.deltaTime;
         if (_currentLifetime <= 0f)
@@ -117,14 +122,47 @@ public class Resource : MonoBehaviour
     
     private void MoveAlongSpline()
     {
-        if (!_isMagnetized) return;
+        if (_isMagnetized) return;
 
-
-        if (LevelManager.Instance && LevelManager.Instance.SplineContainer)
+        if (LevelManager.Instance && LevelManager.Instance.SplineContainer && alignToSplineDirection)
         {
-            // Move along the spline
+            // Get the spline direction at the current position
+            Vector3 splineDirection = GetSplineDirectionAtCurrentPosition();
+        
+            // Move in the opposite direction of the spline flow
+            Vector3 movementDirection = -splineDirection;
+        
+            // Apply movement
+            transform.position += movementDirection * (pathFollowSpeed * Time.deltaTime);
         }
+    }
+    
+    private Vector3 GetSplineDirectionAtCurrentPosition()
+    {
+        if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer) return Vector3.forward;
 
+        var splineContainer = LevelManager.Instance.SplineContainer;
+    
+        // Get the current T value on the spline based on our current position
+        UnityEngine.Splines.SplineUtility.GetNearestPoint(
+            splineContainer.Spline, 
+            transform.position, 
+            out var nearestPoint, 
+            out var t
+        );
+    
+        // Get the tangent (direction) at this point on the spline
+        Vector3 tangent = splineContainer.EvaluateTangent(t);
+    
+        return tangent.normalized;
+    }
+    
+    private void GetSplineOffset()
+    {
+        if (LevelManager.Instance && LevelManager.Instance.CurrentPositionOnPath)
+        {
+            _splineOffset = LevelManager.Instance.CurrentPositionOnPath.position - transform.position;
+        }
     }
     
     
@@ -170,6 +208,7 @@ public class Resource : MonoBehaviour
 
     #endregion Effects ---------------------------------------------------------------------------------------
 
+    
     #region Weapon Selection ---------------------------------------------------------------------------------------
     
     
@@ -206,7 +245,7 @@ public class Resource : MonoBehaviour
         
         if (totalWeight <= 0f) return validWeapons[0].weapon;
         
-        // Select random weapon based on weights
+        // Select a random weapon based on weights
         float randomValue = UnityEngine.Random.Range(0f, totalWeight);
         float currentWeight = 0f;
         
@@ -227,34 +266,34 @@ public class Resource : MonoBehaviour
     {
         if (weaponChances.Length == 0) return;
         
-        // Calculate total of all valid chances
+        // Calculate the total of all valid chances
         float totalChance = 0f;
         int validWeaponCount = 0;
         
-        for (int i = 0; i < weaponChances.Length; i++)
+        foreach (var weaponChance in weaponChances)
         {
-            if (weaponChances[i].weapon)
+            if (weaponChance.weapon)
             {
-                totalChance += Mathf.Max(0f, weaponChances[i].chance);
+                totalChance += Mathf.Max(0f, weaponChance.chance);
                 validWeaponCount++;
             }
         }
         
         if (validWeaponCount == 0) return;
         
-        // If total is 0, set equal chances
+        // If the total is 0, set equal chances
         if (totalChance <= 0f)
         {
             float equalChance = 100f / validWeaponCount;
-            for (int i = 0; i < weaponChances.Length; i++)
+            foreach (var weaponChance in weaponChances)
             {
-                if (weaponChances[i].weapon)
+                if (weaponChance.weapon)
                 {
-                    weaponChances[i].chance = equalChance;
+                    weaponChance.chance = equalChance;
                 }
             }
         }
-        // If total is not 100, normalize to 100%
+        // If the total is not 100, normalize to 100%
         else if (Mathf.Abs(totalChance - 100f) > 0.01f)
         {
             foreach (var weaponChance in weaponChances)
@@ -266,6 +305,8 @@ public class Resource : MonoBehaviour
             }
         }
     }
+    
+    
     
     [Button]
     private void EqualizeWeaponsChances()

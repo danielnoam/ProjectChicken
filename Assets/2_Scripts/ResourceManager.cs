@@ -154,23 +154,8 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    [Button]
-    public void SpawnRandomResourceOnSpline()
-    {
-        if (!Application.isPlaying) return;
-        if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer) return;
-        
-        Resource randomResource = SelectRandomResource();
-        if (randomResource)
-        {
-            // Get a random point on the spline
-            float randomT = Random.Range(0f, 1f);
-            Vector3 positionOnSpline = LevelManager.Instance.SplineContainer.EvaluatePosition(randomT);
-            
-            // Spawn the resource at that position
-            SpawnResource(randomResource, positionOnSpline);
-        }
-    }
+
+    
 
     #endregion Spwaing Resources ---------------------------------------------------------------------------------------
 
@@ -200,6 +185,28 @@ public class ResourceManager : MonoBehaviour
                 resourceChance.chance = equalChance;
             }
         }
+    }
+
+    [Button]
+    private void SpawnRandomResourceOnSpline()
+    {
+        if (!Application.isPlaying) return;
+        if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer) return;
+
+        Resource randomResource = SelectRandomResource();
+        if (randomResource)
+        {
+            // Get a random point on the spline
+            float randomT = Random.Range(0f, 1f);
+            Vector3 positionOnSpline = LevelManager.Instance.SplineContainer.EvaluatePosition(randomT);
+            
+            // Add a small offset to the position to avoid overlapping with the spline
+            Vector3 randomOffset = new Vector3(Random.Range(-3f,3f), Random.Range(-3f,3f), Random.Range(-3f,3f)); // Adjust Y offset as needed
+
+            // Spawn the resource at that position
+            SpawnResource(randomResource, positionOnSpline + randomOffset);
+        }
+
     }
 
     #endregion Editor Methods ---------------------------------------------------------------------------------------
