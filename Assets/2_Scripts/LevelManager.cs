@@ -1,8 +1,10 @@
-using System;
 using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.Splines;
 using VInspector;
+
+
+
 
 public class LevelManager : MonoBehaviour
 {
@@ -100,7 +102,7 @@ public class LevelManager : MonoBehaviour
         float playerT = Mathf.Clamp01(currentT + playerOffsetNormalized);
         PlayerPosition = splineContainer.EvaluatePosition(playerT);
     
-        // Calculate enemy position (current position + enemy offset)
+        // Calculate enemy position (current position and enemy offset)
         float enemyOffsetNormalized = enemyOffset / _splineLength;
         float enemyT = Mathf.Clamp01(currentT + enemyOffsetNormalized);
         EnemyPosition = splineContainer.EvaluatePosition(enemyT);
@@ -142,17 +144,31 @@ public class LevelManager : MonoBehaviour
     {
         if (!SplineContainer) return Vector3.forward;
     
-        // Get the current position and a slightly ahead position to calculate direction
+        // Get the current position and a slightly ahead position to calculate a direction
         Vector3 currentPos = point;
         float currentT = GetCurrentSplineT();
     
-        // Sample a small step ahead on the spline to get direction
+        // Sample a small step ahead on the spline to get a direction
         float stepSize = 0.01f; // Small step forward
         float aheadT = Mathf.Clamp01(currentT + stepSize);
         Vector3 aheadPos = SplineContainer.EvaluatePosition(aheadT);
     
         Vector3 direction = (aheadPos - currentPos).normalized;
         return direction.magnitude > 0.001f ? direction : Vector3.forward;
+    }
+    
+    public float GetPositionOnSpline(Vector3 position)
+    {
+        if (!splineContainer) return 0f;
+
+        // Get the current T value on the spline based on the position
+        SplineUtility.GetNearestPoint(splineContainer.Spline, position, out var nearestPoint, out var positionAlongSpline);
+        
+        // Normalize the position along the spline to a value between 0 and 1
+        float normalizedPosition = positionAlongSpline / _splineLength;
+        return Mathf.Clamp01(normalizedPosition);
+        
+        
     }
 
     #endregion Helper ---------------------------------------------------------------------------------------------
