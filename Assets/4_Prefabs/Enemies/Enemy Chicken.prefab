@@ -10,9 +10,13 @@ GameObject:
   m_Component:
   - component: {fileID: 3640276846923883925}
   - component: {fileID: 8871952831000586692}
-  - component: {fileID: 3789004621596840171}
-  - component: {fileID: 3646778975052508356}
-  - component: {fileID: -1345406021866519916}
+  - component: {fileID: 600272469207642476}
+  - component: {fileID: 4467979689407774567}
+  - component: {fileID: 8387795123847547033}
+  - component: {fileID: 3460422942991614325}
+  - component: {fileID: 7994237744549321368}
+  - component: {fileID: 745806696497487914}
+  - component: {fileID: 5199395647962857549}
   m_Layer: 3
   m_Name: Enemy Chicken
   m_TagString: Untagged
@@ -59,22 +63,7 @@ CapsuleCollider:
   m_Height: 4
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3789004621596840171
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 761269833103634017}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bea4e634c3116d947a39e06caf291505, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 100
-  currentHealth: 0
-  showDebugLogs: 0
---- !u!54 &3646778975052508356
+--- !u!54 &600272469207642476
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -99,9 +88,9 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &-1345406021866519916
+--- !u!114 &4467979689407774567
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -110,10 +99,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 761269833103634017}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38a5ea66fd2501c439a94ece4923b15b, type: 3}
+  m_Script: {fileID: 11500000, guid: 83122dce6a19efd40a66f28e89d3eb58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialSpeed: 4
+  initialSpeed: 3
   arrivalTimeVariance: 2
   movementCurve:
     serializedVersion: 2
@@ -139,22 +128,75 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  spawnPointSpeed: 3
+  arrivalThreshold: 0.5
+  maxWaitTime: 5
+  slotCheckInterval: 2
+  followStrength: 10
+  damping: 5
+  followLerpSpeed: 2
+  positionDeadZone: 0.1
+  hasAssignedSlot: 0
+  assignedSlotInfo: None
+--- !u!114 &8387795123847547033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761269833103634017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36ef0df466f49e44398fbc3efc68712d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   concussTime: 1.5
   concussRange: 5
   concussFloatDrag: 2
   enableConcussRotation: 1
   concussRotationSpeed: 50
-  arrivalThreshold: 0.5
-  followStrength: 10
-  damping: 5
-  maxWaitTime: 5
-  slotCheckInterval: 2
-  followLerpSpeed: 2
-  positionDeadZone: 0.1
+  currentConcussTimer: 0
+  canBeConcussed: 0
+--- !u!114 &3460422942991614325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761269833103634017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a31a75e51137d674cb7c2a9449941bf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   spawnPoint: {fileID: 0}
   spawnPointRadius: 3
   randomizeSpawnOffset: 1
+  spawnPointSpeed: 3
+  enableIdleMovement: 1
+  idleWobbleSpeed: 1
+  idleWobbleAmount: 0.5
+  slotCheckInterval: 2
+  movementCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  arrivalThreshold: 0.5
+  nextSlotCheckTime: 0
+  currentTargetPosition: {x: 0, y: 0, z: 0}
+--- !u!114 &7994237744549321368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761269833103634017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b748c7968edfbe547be5c34227ad4b70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   lookAtPlayer: 1
   rotationSpeed: 5
   instantFirstRotation: 1
@@ -163,10 +205,41 @@ MonoBehaviour:
   playerOverride: {fileID: 0}
   playerFound: 0
   currentPlayerName: None
-  enableIdleMovement: 1
-  idleWobbleSpeed: 1
-  idleWobbleAmount: 0.5
-  currentState: None
+--- !u!114 &745806696497487914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761269833103634017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90aa9676e22673741846501d33c38c33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentState: 0
+  currentStateName: None
+  formationBehavior: {fileID: 0}
+  combatBehavior: {fileID: 0}
+  idleBehavior: {fileID: 0}
+  lookAtBehavior: {fileID: 0}
+  hasSlot: 0
+  isInCombat: 0
+--- !u!114 &5199395647962857549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761269833103634017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bea4e634c3116d947a39e06caf291505, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  showDebugLogs: 0
 --- !u!1 &2278015463138662857
 GameObject:
   m_ObjectHideFlags: 0
