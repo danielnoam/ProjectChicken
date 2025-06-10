@@ -13,19 +13,14 @@ public class WeaponChance
 public class Resource : MonoBehaviour
 {
 
-    [Header("Resource Settings")]
+
+    [Header("General Settings")]
     [Tooltip("Time before the resource destroys itself (0 = unlimited time)"), SerializeField, Min(0)] private float lifetime = 10f;
-    [SerializeField] private ResourceType resourceType;
-    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
-    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.HealthPack)] private int healthWorth = 1;[EndIf]
-    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.ShieldPack)] private int shieldWorth = 50;[EndIf]
-    [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private WeaponChance[] weaponChances = Array.Empty<WeaponChance>();[EndIf]
     
     [Header("Movement Settings")]
-    [SerializeField, Min(0)] private float rotationSpeed = 45f;
     [SerializeField] private bool alignToSplineDirection = true;
     [SerializeField,EnableIf("alignToSplineDirection")] private float pathFollowSpeed = 5f;[EndIf]
-
+    [SerializeField, Min(0)] private float rotationSpeed = 45f;
 
     
     [Header("Spawn Effects")]
@@ -35,7 +30,14 @@ public class Resource : MonoBehaviour
     [Header("Collection Effects")]
     [SerializeField] private AudioClip collectionSound;
     [SerializeField] private ParticleSystem collectionEffect;
-
+    
+    
+    [Header("Resource Settings")]
+    [SerializeField] private ResourceType resourceType;
+    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
+    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.HealthPack)] private int healthWorth = 1;[EndIf]
+    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.ShieldPack)] private int shieldWorth = 50;[EndIf]
+    [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private WeaponChance[] weaponChances = Array.Empty<WeaponChance>();[EndIf]
     
     
     

@@ -4,33 +4,27 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerProjectile : MonoBehaviour
 {
-    private Rigidbody _rigidbody;
-    private SOWeaponData _weaponDataData;
-    private float _speed;
-    private float _pushForce;
-    private float _lifetime;
-    private float _damage;
-    private Vector3 _direction;
-    private bool _isInitialized;
+    
+    public Rigidbody Rigidbody { get; private set; }
+    public SOWeaponData WeaponDataData { get; private set; }
+    public RailPlayer Owner { get; private set;  }
+    public ChickenEnemy Target { get; private set;  }
+    public Vector3 StartDirection { get; private set; }
+    public float Damage { get; private set; }
+    public float Lifetime { get; private set; }
+    public bool IsInitialized { get; private set; }
 
-    
-    public Rigidbody Rigidbody => _rigidbody;
-    public SOWeaponData WeaponDataData => _weaponDataData;
-    public float Speed => _speed;
-    public float PushForce => _pushForce;
-    public Vector3 Direction => _direction;
-    public float Damage => _damage;
-    
-    
-    
+
+
+
     private void Awake()
     {
-        _rigidbody = GetComponent<Rigidbody>();
+        Rigidbody = GetComponent<Rigidbody>();
     }
     
     private void Update()
     {
-        if (!_isInitialized) return;
+        if (!IsInitialized) return;
         
         CheckLiftTime();
     }
@@ -38,7 +32,7 @@ public class PlayerProjectile : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!_isInitialized) return;
+        if (!IsInitialized) return;
         
         MoveProjectile();
     }
@@ -46,13 +40,12 @@ public class PlayerProjectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!_isInitialized) return;
+        if (!IsInitialized) return;
 
 
         
         if (TryGetComponent(out ChickenEnemy enemy))
         {
-            
             ProjectileHit(enemy);
         }
 
@@ -66,65 +59,65 @@ public class PlayerProjectile : MonoBehaviour
 
     private void CheckLiftTime()
     {
-        _lifetime -= Time.deltaTime;
-        if (_lifetime <= 0f)
+        Lifetime -= Time.deltaTime;
+        if (Lifetime <= 0f)
         {
             DestroyProjectile();
         }
     }
     
     
-    public void SetUpProjectile(SOWeaponData weaponDataData, Vector3 direction)
+    public void SetUpProjectile(SOWeaponData weaponDataData, RailPlayer player )
     {
-        if (_isInitialized) return;
+        if (IsInitialized) return;
         
-        _weaponDataData = weaponDataData;
-        _speed = weaponDataData.ProjectileSpeed;
-        _pushForce = weaponDataData.ProjectilePushForce;
-        _lifetime = weaponDataData.ProjectileLifetime;
-        _direction = direction;
-        _damage = weaponDataData.Damage;
-        _isInitialized = true;
+        // Set up the projectile
+        WeaponDataData = weaponDataData;
+        Owner = player;
+        Lifetime = weaponDataData.ProjectileLifetime;
+        Damage = weaponDataData.Damage;
+        StartDirection = player.GetAimDirection();
+        Target = player.GetTarget();
+        IsInitialized = true;
         
-        _weaponDataData?.OnProjectileSpawn(this);
+        // Apply custom behaviors on spawn
+        WeaponDataData?.OnProjectileSpawn(this, player , Target);
     }
 
     #endregion Base -------------------------------------------------------------------------
     
 
+    
     #region Custom Behivors -----------------------------------------------------------------------------
 
     protected virtual void MoveProjectile()
     {
-        _weaponDataData?.OnProjectileMovement(this);
+        // Apply custom behaviors on movement
+        WeaponDataData?.OnProjectileMovement(this, Owner, Target);
     }
 
     
     protected virtual void DestroyProjectile()
     {
-        _weaponDataData?.OnProjectileDestroy(this);
+        // Apply custom behaviors on destroy
+        WeaponDataData?.OnProjectileDestroy(this, Owner, Target);
         
+        // Destroy the projectile object
         Destroy(gameObject);
     }
 
 
-    protected virtual void ProjectileHit(ChickenEnemy enemy)
+    protected virtual void ProjectileHit(ChickenEnemy collision)
     {
         
-        _weaponDataData?.OnProjectileCollision(this, enemy);
+        // Apply custom behaviors on collision
+        WeaponDataData?.OnProjectileCollision(this, Owner, Target, collision);
         
-        // Apply a force to the hit object
-        if (TryGetComponent(out Rigidbody rb))
-        {
-            rb.AddForce(_direction * _pushForce, ForceMode.Impulse);
-        }
+        // Play impact effect
+        WeaponDataData?.PlayImpactEffect(transform.position, Quaternion.identity);
         
         // Apply damage to the enemy object
-        enemy.TakeDamage(_damage);
-        
-
-        // Play impact effect
-        _weaponDataData?.PlayImpactEffect(transform.position, Quaternion.identity);
+        collision.TakeDamage(Damage);
         
         
         // Destroy the projectile on impact
@@ -140,7 +133,7 @@ public class PlayerProjectile : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        _weaponDataData?.OnProjectileDrawGizmos(this);
+        WeaponDataData?.OnProjectileDrawGizmos(this, Owner, Target);
     }
 
     #endregion Editor -------------------------------------------------------------------------

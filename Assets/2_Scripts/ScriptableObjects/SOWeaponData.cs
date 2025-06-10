@@ -17,8 +17,6 @@ public class SOWeaponData : ScriptableObject
     [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
     
     [Header("Projectile Settings")]
-    [SerializeField, Min(0)] private float projectileSpeed = 100f;
-    [SerializeField, Min(0)] private float projectilePushForce;
     [SerializeField, Min(0)] private float projectileLifetime = 5f;
     [SerializeField] private PlayerProjectile playerProjectilePrefab;
     [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>();
@@ -38,14 +36,11 @@ public class SOWeaponData : ScriptableObject
     public float FireRate => fireRate;
     public float TimeLimit => timeLimit;
     public float AmmoLimit => ammoLimit;
-    public float ProjectileSpeed => projectileSpeed;
-    public float ProjectilePushForce => projectilePushForce;
     public float ProjectileLifetime => projectileLifetime;
-    
     
 
     
-    public PlayerProjectile CreateProjectile(Vector3 position, Vector3 direction)
+    public PlayerProjectile CreateProjectile(Vector3 position, RailPlayer owner)
     {
         if (!playerProjectilePrefab) return null;
         
@@ -53,7 +48,7 @@ public class SOWeaponData : ScriptableObject
         PlayerProjectile projectile = Instantiate(playerProjectilePrefab, position, Quaternion.identity);
         
         // Initialize the projectile
-        projectile.SetUpProjectile(this, direction);
+        projectile.SetUpProjectile(this, owner);
         
         // Spawn effect
         PlaySpawnEffect(projectile.transform.position, Quaternion.identity);
@@ -62,7 +57,6 @@ public class SOWeaponData : ScriptableObject
     }
     
     
-
 
 
     #region Projectile Effects --------------------------------------------------------------------
@@ -101,44 +95,44 @@ public class SOWeaponData : ScriptableObject
 
     #region Projectile Behaviors ---------------------------------------------------------------
 
-    public void OnProjectileSpawn(PlayerProjectile projectile)
+    public void OnProjectileSpawn(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
     {
         foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
         {
-            behavior.OnBehaviorSpawn(projectile);
+            behavior.OnBehaviorSpawn(projectile, owner, target);
         }
     }
     
     
-    public void OnProjectileMovement(PlayerProjectile projectile)
+    public void OnProjectileMovement(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
     {
         foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
         {
-            behavior.OnBehaviorMovement(projectile);
+            behavior.OnBehaviorMovement(projectile, owner, target);
         }
     }
     
-    public void OnProjectileCollision(PlayerProjectile projectile, ChickenEnemy enemy)
+    public void OnProjectileCollision(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target, ChickenEnemy collision)
     {
         foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
         {
-            behavior.OnBehaviorCollision(projectile, enemy);
+            behavior.OnBehaviorCollision(projectile, owner, target, collision);
         }
     }
     
-    public void OnProjectileDestroy(PlayerProjectile projectile)
+    public void OnProjectileDestroy(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
     {
         foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
         {
-            behavior.OnBehaviorDestroy(projectile);
+            behavior.OnBehaviorDestroy(projectile, owner , target);
         }
     }
     
-    public void OnProjectileDrawGizmos(PlayerProjectile projectile)
+    public void OnProjectileDrawGizmos(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
     {
         foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
         {
-            behavior.OnBehaviorDrawGizmos(projectile);
+            behavior.OnBehaviorDrawGizmos(projectile, owner , target);
         }
     }
 

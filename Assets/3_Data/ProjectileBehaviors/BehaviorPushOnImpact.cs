@@ -2,12 +2,12 @@ using System;
 using UnityEngine;
 
 
-
-public class BehaviorNormalMovement : ProjectileBehaviorBase
+public class BehaviorPushOnImpact : ProjectileBehaviorBase
 {
-    [Header("Normal Movement Settings")]
-    [SerializeField, Min(0)] private float moveSpeed = 100f;
-    
+    [Header("Push Settings")]
+    [SerializeField] private float pushForce = 5f;
+
+
     public override void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
     {
 
@@ -15,12 +15,15 @@ public class BehaviorNormalMovement : ProjectileBehaviorBase
 
     public override void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
     {
-        projectile.Rigidbody?.MovePosition(projectile.Rigidbody.position + projectile.StartDirection * (moveSpeed * Time.fixedDeltaTime));
+
     }
 
     public override void OnBehaviorCollision(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target, ChickenEnemy collision)
     {
-
+        if (collision.TryGetComponent(out Rigidbody rb))
+        {
+            rb.AddForce(projectile.StartDirection * pushForce, ForceMode.Impulse);
+        }
     }
 
     public override void OnBehaviorDestroy(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)

@@ -1,8 +1,6 @@
-using System.Collections.Generic;
-using Unity.Collections.LowLevel.Unsafe;
-using VInspector;
 using UnityEngine;
-using UnityEngine.Splines;
+using VInspector;
+
 
 [System.Serializable]
 public class ResourceChance 
@@ -11,35 +9,52 @@ public class ResourceChance
     [Range(0f, 100f)] public float chance = 10f;
 }
 
-public class ResourceManager : MonoBehaviour
+[CreateAssetMenu(fileName = "New LootTable", menuName = "Scriptable Objects/New LootTable")]
+public class SOLootTable : ScriptableObject
 {
-    public static ResourceManager Instance { get; private set; }
-
     
-    [Header("Resource Settings")]
+    [Header("Loot Table")]
+    [SerializeField, Multiline(3)] private string description = "This is a loot table that defines the chances of different resources being spawned.";
     [SerializeField] private ResourceChance[] resourceChances = System.Array.Empty<ResourceChance>();
-    [SerializeField] private Transform resourceHolder;
+
 
     
-    private void Awake()
+    private void OnValidate()
     {
-        if (!Instance || Instance == this)
+        if (resourceChances is { Length: > 0 })
         {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
+            NormalizeResourceChances();
         }
     }
-    
-    
-    
 
+
+    #region Resource Spawning ---------------------------------------------------------------------------------------
+
+    
+    public Resource SpawnResource(Resource resource, Vector3 position, Transform parent)
+    {
+        if (!resource) return null;
+        
+        Resource newResource = Instantiate(resource, position, Quaternion.identity, parent);
+
+        return newResource;
+    }
+    
+    public Resource SpawnResource(Resource resource, Vector3 position)
+    {
+        if (!resource) return null;
+        
+        Resource newResource = Instantiate(resource, position, Quaternion.identity);
+
+        return newResource;
+    }
+
+    #endregion Resource Spawning ---------------------------------------------------------------------------------------
+    
+    
     #region Resource Selection ---------------------------------------------------------------------------------------
     
-    private Resource SelectRandomResource()
+    public Resource GetRandomResource()
     {
         if (resourceChances.Length == 0) return null;
         
@@ -65,7 +80,7 @@ public class ResourceManager : MonoBehaviour
         if (totalWeight <= 0f) return validResources[0].resource;
         
         // Select random resource based on weights
-        float randomValue = UnityEngine.Random.Range(0f, totalWeight);
+        float randomValue = Random.Range(0f, totalWeight);
         float currentWeight = 0f;
         
         foreach (var resourceChance in validResources)
@@ -80,6 +95,13 @@ public class ResourceManager : MonoBehaviour
         // Fallback
         return validResources[0].resource;
     }
+    
+    
+    #endregion Resource Selection ---------------------------------------------------------------------------------------
+    
+
+    #region Resource List Handling ---------------------------------------------------------------------------------------
+
     
     private void NormalizeResourceChances()
     {
@@ -125,54 +147,8 @@ public class ResourceManager : MonoBehaviour
         }
     }
     
-    #endregion Resource Selection ---------------------------------------------------------------------------------------
-
-
-
-    #region Spwaing Resources ---------------------------------------------------------------------------------------
-
-    private void SpawnResource(Resource resource, Vector3 position)
-    {
-        if (!resource) return;
-        
-        Resource newResource = Instantiate(resource, position, Quaternion.identity, resourceHolder);
-    }
     
-    public void SpawnResourceAtPosition(Resource resource, Vector3 position)
-    {
-        if (!resource) return;
-        
-        SpawnResource(resource, position);
-    }
-
-    public void SpawnRandomResourceAtPosition(Vector3 position)
-    {
-        Resource randomResource = SelectRandomResource();
-        if (randomResource)
-        {
-            SpawnResource(randomResource, position);
-        }
-    }
-
-
-    
-
-    #endregion Spwaing Resources ---------------------------------------------------------------------------------------
-
-
-
-    #region Editor Methods ---------------------------------------------------------------------------------------
-
-    
-    private void OnValidate()
-    {
-        if (resourceChances is { Length: > 0 })
-        {
-            NormalizeResourceChances();
-        }
-    }
-    
-    [Button]
+    [ContextMenu("Equalize Resource Chances")]
     private void EqualizeResourceChances()
     {
         if (resourceChances.Length == 0) return;
@@ -187,28 +163,8 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    [Button]
-    private void SpawnRandomResourceOnSpline()
-    {
-        if (!Application.isPlaying) return;
-        if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer) return;
+    #endregion Resource List Handling ---------------------------------------------------------------------------------------
 
-        Resource randomResource = SelectRandomResource();
-        if (randomResource)
-        {
-            // Get a random point on the spline
-            float randomT = Random.Range(0f, 1f);
-            Vector3 positionOnSpline = LevelManager.Instance.SplineContainer.EvaluatePosition(randomT);
-            
-            // Add a small offset to the position to avoid overlapping with the spline
-            Vector3 randomOffset = new Vector3(Random.Range(-3f,3f), Random.Range(-3f,3f), Random.Range(-3f,3f)); // Adjust Y offset as needed
-
-            // Spawn the resource at that position
-            SpawnResource(randomResource, positionOnSpline + randomOffset);
-        }
-
-    }
-
-    #endregion Editor Methods ---------------------------------------------------------------------------------------
-
+    
+    
 }
