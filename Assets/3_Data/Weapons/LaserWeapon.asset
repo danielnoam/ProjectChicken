@@ -24,8 +24,14 @@ MonoBehaviour:
   projectileLifetime: 5
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
   projectileBehaviors:
-  - {fileID: 11400000, guid: d86d9f400826ecc4a9a39f0af1ef6583, type: 2}
+  - rid: 2319611325492494600
   spawnSound: {fileID: 0}
   spawnEffectPrefab: {fileID: 0}
   impactSound: {fileID: 0}
   impactEffectPrefab: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 2319611325492494600
+      type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
+      data: 

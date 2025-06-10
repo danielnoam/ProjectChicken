@@ -9,15 +9,15 @@ public class WeaponChanceDrawer : PropertyDrawer
     {
         EditorGUI.BeginProperty(position, label, property);
 
-        // Get the weapon and chance properties
-        var weaponProperty = property.FindPropertyRelative("weapon");
+        // Get the weaponData and chance properties
+        var weaponProperty = property.FindPropertyRelative("weaponData");
         var chanceProperty = property.FindPropertyRelative("chance");
 
-        // Calculate rects for weapon field and slider
+        // Calculate rects for weaponData field and slider
         var weaponRect = new Rect(position.x, position.y, position.width * 0.6f - 5f, position.height);
         var sliderRect = new Rect(position.x + position.width * 0.6f, position.y, position.width * 0.4f, position.height);
 
-        // Draw weapon object field
+        // Draw weaponData object field
         EditorGUI.PropertyField(weaponRect, weaponProperty, GUIContent.none);
 
         // Draw chance slider

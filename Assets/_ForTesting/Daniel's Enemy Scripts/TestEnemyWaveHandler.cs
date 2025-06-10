@@ -202,7 +202,7 @@ public class TestEnemyWaveHandler : MonoBehaviour
 
     private Vector3 GetSplineDirection()
     {
-        return !levelManager ? Vector3.forward : levelManager.GetEnemyDirectionOnSpline(levelManager.EnemyPosition);
+        return !levelManager ? Vector3.forward : levelManager.GetDirectionOnSpline(levelManager.EnemyPosition);
     }
 
     #endregion Helper Methods ------------------------------------------------------------

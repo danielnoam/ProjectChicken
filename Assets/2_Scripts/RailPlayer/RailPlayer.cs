@@ -30,8 +30,6 @@ public class RailPlayer : MonoBehaviour
     
     [Header("Path Following")]
     [SerializeField] private bool alignToSplineDirection = true;
-    [EnableIf("alignToSplineDirection")]
-    [SerializeField] private float pathFollowSpeed = 5f;
     [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
     [EndIf]
     
@@ -52,7 +50,6 @@ public class RailPlayer : MonoBehaviour
     private Coroutine _regenShieldCoroutine;
     
     public bool AlignToSplineDirection => alignToSplineDirection;
-    public float PathFollowSpeed => pathFollowSpeed;
     public float SplineRotationSpeed => splineRotationSpeed;
 
 
@@ -116,7 +113,7 @@ public class RailPlayer : MonoBehaviour
     
     private void DamageHealth()
     {
-        if (!IsAlive()) return;
+        if (!IsAlive() || !IsDodging()) return;
 
         _currentHealth -= 1;
         if (_currentHealth < 0)
@@ -292,7 +289,6 @@ public class RailPlayer : MonoBehaviour
         {
             case ResourceType.Currency:
                 _currentCurrency += resource.CurrencyWorth;
-                Debug.Log("Collected Currency! " + resource.CurrencyWorth);
                 break;
             case ResourceType.HealthPack:
                 HealHealth(resource.HealthWorth);
@@ -301,7 +297,7 @@ public class RailPlayer : MonoBehaviour
                 HealShield(resource.ShieldWorth);
                 break;
             case ResourceType.SpecialWeapon:
-                playerWeapon.SelectSpecialWeapon(resource.Weapon);
+                playerWeapon.SelectSpecialWeapon(resource.WeaponData);
                 break;
             default:
                 Debug.LogWarning($"Unknown resource type: {resource.ResourceType}");
@@ -326,6 +322,11 @@ public class RailPlayer : MonoBehaviour
     {
         return _currentHealth > 0;
     }
+    
+    public bool IsDodging()
+    {
+        return playerMovement.IsDodging;
+    }
 
     #endregion Helper Methods --------------------------------------------------------------------------------------
 
@@ -340,20 +341,20 @@ public class RailPlayer : MonoBehaviour
             string selectedWeapon = "";
 
 
-            if (playerWeapon.CurrentSpecialWeapon)
+            if (playerWeapon.CurrentSpecialWeaponData)
             {
-                if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.AmmoBased)
+                if (playerWeapon.CurrentSpecialWeaponData.WeaponDurationType == WeaponDurationType.AmmoBased)
                 {
-                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponAmmo}/{playerWeapon.CurrentSpecialWeapon.AmmoLimit})";
+                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeaponData.WeaponName} ({playerWeapon.SpecialWeaponAmmo}/{playerWeapon.CurrentSpecialWeaponData.AmmoLimit})";
                 } 
-                else if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.TimeBased)
+                else if (playerWeapon.CurrentSpecialWeaponData.WeaponDurationType == WeaponDurationType.TimeBased)
                 {
-                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponTime:F1}/{playerWeapon.CurrentSpecialWeapon.TimeLimit})";
+                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeaponData.WeaponName} ({playerWeapon.SpecialWeaponTime:F1}/{playerWeapon.CurrentSpecialWeaponData.TimeLimit})";
                 }
             }
             else
             {
-                selectedWeapon = $"Base Weapon";
+                selectedWeapon = $"{playerWeapon.BaseWeaponData.WeaponName}";
             }
 
             

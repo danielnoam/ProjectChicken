@@ -740,6 +740,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8474555558549935190}
+  - component: {fileID: 8177767816080453902}
   - component: {fileID: 8027271115035412187}
   - component: {fileID: 6276024430624118950}
   - component: {fileID: 2233603387570671912}
@@ -773,6 +774,33 @@ Transform:
   - {fileID: 3487920039434990482}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &8177767816080453902
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042140183398147502}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 2
+  m_Constraints: 0
+  m_CollisionDetection: 1
 --- !u!114 &8027271115035412187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -862,6 +890,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be
     m_ActionName: UI/TrackedDeviceOrientation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 34109c79-7947-4d2c-be7d-9f90017b8056
+    m_ActionName: 'Player/DodgeFreeform[/Keyboard/leftCtrl]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -910,7 +942,6 @@ MonoBehaviour:
   magnetRadius: 12
   magnetMoveSpeed: 10
   alignToSplineDirection: 1
-  pathFollowSpeed: 5
   splineRotationSpeed: 5
   playerStatusText: {fileID: 1622783546286214265}
   playerInput: {fileID: 8438971806570489096}
@@ -929,8 +960,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9e45040352c29448ef258dd725fd76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerInput: {fileID: 8027271115035412187}
   autoHideCursor: 1
+  doubleTapToDodge: 1
+  doubleTapTime: 0.3
+  allowFreeformDodge: 1
+  playerInput: {fileID: 8027271115035412187}
 --- !u!114 &7233717465822237952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -943,13 +977,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea7d6ee3afc6aae46a559dcd89ac8ae2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 15
-  rotationSpeed: 22
-  movementTiltAmount: 30
+  maxMoveSpeed: 35
+  acceleration: 5
+  deceleration: 3
+  pathFollowSpeed: 1000
+  rollSpeed: 5
+  maxRollAmount: 30
+  pitchYawSpeed: 22
   maxPitchAngle: 30
   maxYawAngle: 45
+  pathRotationSpeed: 5
   enableDodging: 1
-  dodgeMoveSpeed: 45
+  dodgeMoveSpeed: 35
   dodgeTime: 0.4
   dodgeCooldown: 0.45
   dodgeRollAmount: 360
@@ -1017,6 +1056,7 @@ MonoBehaviour:
   player: {fileID: 2233603387570671912}
   playerAiming: {fileID: 890854243081262160}
   playerInput: {fileID: 8438971806570489096}
+  playerRigidbody: {fileID: 8177767816080453902}
   shipModel: {fileID: 5119365439155976064}
 --- !u!114 &890854243081262160
 MonoBehaviour:
@@ -1030,12 +1070,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 362cadd1e2438d3488e4058666825ab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useLookOffset: 1
-  lookOffsetStrength: 35
-  lookOffsetSmoothing: 1.4
+  aimSpeed: 25
   autoCenter: 1
   autoCenterDelay: 5
   autoCenterSpeed: 1
+  useLookOffset: 1
+  lookOffsetStrength: 35
+  lookOffsetSmoothing: 1.4
   useMovementOffset: 0
   movementOffsetStrength: 11
   movementOffsetSmoothing: 5
@@ -1055,7 +1096,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91ec119c576a7204ebf9d2bd9c0e1bcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseWeapon: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
+  allowBaseWeaponWithSpecialWeapon: 1
+  baseWeaponData: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
   weapons:
     serializedKvps:
     - Key: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}

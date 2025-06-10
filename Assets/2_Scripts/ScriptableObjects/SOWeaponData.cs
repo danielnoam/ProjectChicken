@@ -4,15 +4,15 @@ using VInspector;
 
 
 
-[CreateAssetMenu(fileName = "New Weapon", menuName = "Scriptable Objects/New Weapon")]
-public class SOWeapon : ScriptableObject
+[CreateAssetMenu(fileName = "New WeaponData", menuName = "Scriptable Objects/New WeaponData")]
+public class SOWeaponData : ScriptableObject
 {
-    [Header("Weapon Settings")]
-    [SerializeField] private string weaponName = "New Weapon";
-    [SerializeField] private string weaponDescription = "A Weapon";
-    [SerializeField] private WeaponDurationType weaponDurationType = WeaponDurationType.Permanent;
+    [Header("WeaponData Settings")]
+    [SerializeField] private string weaponName = "New WeaponData";
+    [SerializeField] private string weaponDescription = "A WeaponData";
     [SerializeField, Min(0)] private float damage = 10f;
     [SerializeField, Min(0)] private float fireRate = 1f;
+    [SerializeField] private WeaponDurationType weaponDurationType = WeaponDurationType.Permanent;
     [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.TimeBased)] private float timeLimit = 10f;[EndIf]
     [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
     
@@ -21,15 +21,15 @@ public class SOWeapon : ScriptableObject
     [SerializeField, Min(0)] private float projectilePushForce;
     [SerializeField, Min(0)] private float projectileLifetime = 5f;
     [SerializeField] private PlayerProjectile playerProjectilePrefab;
-    [SerializeField] private List<SOProjectileBehaviorBase> projectileBehaviors = new List<SOProjectileBehaviorBase>();
+    [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>();
     
     [Header("Projectile Spawn Effect")]
     [SerializeField] private AudioClip spawnSound;
-    [SerializeField] private GameObject spawnEffectPrefab;
+    [SerializeField] private ParticleSystem spawnEffectPrefab;
     
     [Header("Impact Effect")]
     [SerializeField] private AudioClip impactSound;
-    [SerializeField] private GameObject impactEffectPrefab;
+    [SerializeField] private ParticleSystem impactEffectPrefab;
 
     public string WeaponName => weaponName;
     public string WeaponDescription => weaponDescription;
@@ -103,7 +103,7 @@ public class SOWeapon : ScriptableObject
 
     public void OnProjectileSpawn(PlayerProjectile projectile)
     {
-        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
+        foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
         {
             behavior.OnBehaviorSpawn(projectile);
         }
@@ -112,7 +112,7 @@ public class SOWeapon : ScriptableObject
     
     public void OnProjectileMovement(PlayerProjectile projectile)
     {
-        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
+        foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
         {
             behavior.OnBehaviorMovement(projectile);
         }
@@ -120,7 +120,7 @@ public class SOWeapon : ScriptableObject
     
     public void OnProjectileCollision(PlayerProjectile projectile, ChickenEnemy enemy)
     {
-        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
+        foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
         {
             behavior.OnBehaviorCollision(projectile, enemy);
         }
@@ -128,7 +128,7 @@ public class SOWeapon : ScriptableObject
     
     public void OnProjectileDestroy(PlayerProjectile projectile)
     {
-        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
+        foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
         {
             behavior.OnBehaviorDestroy(projectile);
         }
@@ -136,7 +136,7 @@ public class SOWeapon : ScriptableObject
     
     public void OnProjectileDrawGizmos(PlayerProjectile projectile)
     {
-        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
+        foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
         {
             behavior.OnBehaviorDrawGizmos(projectile);
         }

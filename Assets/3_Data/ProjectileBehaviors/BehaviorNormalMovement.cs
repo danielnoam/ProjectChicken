@@ -2,8 +2,8 @@ using System;
 using UnityEngine;
 
 
-[CreateAssetMenu(fileName = "Movement_Normal", menuName = "Scriptable Objects/Projectile Behavior/Movement_Normal")]
-public class SoSoProjectileBehaviorBaseNormalMovement : SOProjectileBehaviorBase
+
+public class BehaviorNormalMovement : ProjectileBehaviorBase
 {
     
     public override void OnBehaviorSpawn(PlayerProjectile projectile)

@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerProjectile : MonoBehaviour
 {
     private Rigidbody _rigidbody;
-    private SOWeapon _weaponData;
+    private SOWeaponData _weaponDataData;
     private float _speed;
     private float _pushForce;
     private float _lifetime;
@@ -15,7 +15,7 @@ public class PlayerProjectile : MonoBehaviour
 
     
     public Rigidbody Rigidbody => _rigidbody;
-    public SOWeapon WeaponData => _weaponData;
+    public SOWeaponData WeaponDataData => _weaponDataData;
     public float Speed => _speed;
     public float PushForce => _pushForce;
     public Vector3 Direction => _direction;
@@ -74,19 +74,19 @@ public class PlayerProjectile : MonoBehaviour
     }
     
     
-    public void SetUpProjectile(SOWeapon weaponData, Vector3 direction)
+    public void SetUpProjectile(SOWeaponData weaponDataData, Vector3 direction)
     {
         if (_isInitialized) return;
         
-        _weaponData = weaponData;
-        _speed = weaponData.ProjectileSpeed;
-        _pushForce = weaponData.ProjectilePushForce;
-        _lifetime = weaponData.ProjectileLifetime;
+        _weaponDataData = weaponDataData;
+        _speed = weaponDataData.ProjectileSpeed;
+        _pushForce = weaponDataData.ProjectilePushForce;
+        _lifetime = weaponDataData.ProjectileLifetime;
         _direction = direction;
-        _damage = weaponData.Damage;
+        _damage = weaponDataData.Damage;
         _isInitialized = true;
         
-        _weaponData?.OnProjectileSpawn(this);
+        _weaponDataData?.OnProjectileSpawn(this);
     }
 
     #endregion Base -------------------------------------------------------------------------
@@ -96,13 +96,13 @@ public class PlayerProjectile : MonoBehaviour
 
     protected virtual void MoveProjectile()
     {
-        _weaponData?.OnProjectileMovement(this);
+        _weaponDataData?.OnProjectileMovement(this);
     }
 
     
     protected virtual void DestroyProjectile()
     {
-        _weaponData?.OnProjectileDestroy(this);
+        _weaponDataData?.OnProjectileDestroy(this);
         
         Destroy(gameObject);
     }
@@ -111,7 +111,7 @@ public class PlayerProjectile : MonoBehaviour
     protected virtual void ProjectileHit(ChickenEnemy enemy)
     {
         
-        _weaponData?.OnProjectileCollision(this, enemy);
+        _weaponDataData?.OnProjectileCollision(this, enemy);
         
         // Apply a force to the hit object
         if (TryGetComponent(out Rigidbody rb))
@@ -124,7 +124,7 @@ public class PlayerProjectile : MonoBehaviour
         
 
         // Play impact effect
-        _weaponData?.PlayImpactEffect(transform.position, Quaternion.identity);
+        _weaponDataData?.PlayImpactEffect(transform.position, Quaternion.identity);
         
         
         // Destroy the projectile on impact
@@ -140,7 +140,7 @@ public class PlayerProjectile : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        _weaponData?.OnProjectileDrawGizmos(this);
+        _weaponDataData?.OnProjectileDrawGizmos(this);
     }
 
     #endregion Editor -------------------------------------------------------------------------
