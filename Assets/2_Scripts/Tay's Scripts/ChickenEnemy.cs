@@ -19,35 +19,8 @@ public class ChickenEnemy : MonoBehaviour
         currentHealth = maxHealth;
     }
     
-    void OnTriggerEnter(Collider other)
-    {
-        // Check if the object that hit us has the "Player Projectile" tag
-        if (other.TryGetComponent(out PlayerProjectile projectile))
-        {
-            TakeDamage(projectile.Damage);
-        }
-    }
     
     
-    
-    private float GetDamageFromProjectile(GameObject projectile)
-    {
-        // Try to get damage from projectile components
-        ProjectileDamage projectileDamage = projectile.GetComponent<ProjectileDamage>();
-        if (projectileDamage != null)
-        {
-            return projectileDamage.GetDamage();
-        }
-        
-        
-        // If no damage component found, return default damage
-        if (showDebugLogs)
-        {
-            Debug.LogWarning($"No damage component found on projectile: {projectile.name}. Using default damage of 10.");
-        }
-        
-        return 10f; // Default damage if no component found
-    }
     
     public void TakeDamage(float damage)
     {

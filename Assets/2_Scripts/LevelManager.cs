@@ -1,8 +1,11 @@
-using System;
+using Core.Attributes;
 using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.Splines;
 using VInspector;
+
+
+
 
 public class LevelManager : MonoBehaviour
 {
@@ -24,6 +27,9 @@ public class LevelManager : MonoBehaviour
     [Header("References")]
     [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private Transform currentPositionOnPath;
+    [SerializeField] private Transform resourceHolder;
+    [SerializeField, CreateEditableAsset] private SOLootTable lootTable;
+
     
     
     
@@ -100,7 +106,7 @@ public class LevelManager : MonoBehaviour
         float playerT = Mathf.Clamp01(currentT + playerOffsetNormalized);
         PlayerPosition = splineContainer.EvaluatePosition(playerT);
     
-        // Calculate enemy position (current position + enemy offset)
+        // Calculate enemy position (current position and enemy offset)
         float enemyOffsetNormalized = enemyOffset / _splineLength;
         float enemyT = Mathf.Clamp01(currentT + enemyOffsetNormalized);
         EnemyPosition = splineContainer.EvaluatePosition(enemyT);
@@ -127,6 +133,36 @@ public class LevelManager : MonoBehaviour
     #endregion Spline Positinoning ---------------------------------------------------------------------------------
 
 
+    
+    #region Spwaing Resources ---------------------------------------------------------------------------------------
+    
+    
+    [Button]
+    private void SpawnRandomResourceOnSpline()
+    {
+        if (!Application.isPlaying) return;
+        if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer || !lootTable) return;
+
+        Resource randomResource = lootTable.GetRandomResource();
+        if (randomResource)
+        {
+            // Get a random point on the spline
+            float randomT = Random.Range(0f, 1f);
+            Vector3 positionOnSpline = LevelManager.Instance.SplineContainer.EvaluatePosition(randomT);
+            
+            // Add a small offset to the position to avoid overlapping with the spline
+            Vector3 randomOffset = new Vector3(Random.Range(-3f,3f), Random.Range(-3f,3f), Random.Range(-3f,3f));
+
+            // Spawn the resource at that position
+            lootTable.SpawnResource(randomResource, positionOnSpline + randomOffset, resourceHolder);
+        }
+
+    }
+    
+
+    #endregion Spwaing Resources ---------------------------------------------------------------------------------------
+
+
 
     #region Helper ---------------------------------------------------------------------------------------------
 
@@ -138,15 +174,15 @@ public class LevelManager : MonoBehaviour
         return t;
     }
     
-    public Vector3 GetEnemyDirectionOnSpline(Vector3 point)
+    public Vector3 GetDirectionOnSpline(Vector3 point)
     {
         if (!SplineContainer) return Vector3.forward;
     
-        // Get the current position and a slightly ahead position to calculate direction
+        // Get the current position and a slightly ahead position to calculate a direction
         Vector3 currentPos = point;
         float currentT = GetCurrentSplineT();
     
-        // Sample a small step ahead on the spline to get direction
+        // Sample a small step ahead on the spline to get a direction
         float stepSize = 0.01f; // Small step forward
         float aheadT = Mathf.Clamp01(currentT + stepSize);
         Vector3 aheadPos = SplineContainer.EvaluatePosition(aheadT);
@@ -154,11 +190,22 @@ public class LevelManager : MonoBehaviour
         Vector3 direction = (aheadPos - currentPos).normalized;
         return direction.magnitude > 0.001f ? direction : Vector3.forward;
     }
+    
+    public float GetPositionOnSpline(Vector3 position)
+    {
+        if (!splineContainer) return 0f;
+
+        // Get the current T value on the spline based on the position
+        SplineUtility.GetNearestPoint(splineContainer.Spline, position, out var nearestPoint, out var positionAlongSpline);
+        
+        // Normalize the position along the spline to a value between 0 and 1
+        float normalizedPosition = positionAlongSpline / _splineLength;
+        return Mathf.Clamp01(normalizedPosition);
+        
+        
+    }
 
     #endregion Helper ---------------------------------------------------------------------------------------------
-    
-    
-    
     
     
     #region Editor -----------------------------------------------------------------------------------------------
