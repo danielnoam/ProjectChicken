@@ -268,7 +268,6 @@ public class RailPlayerAiming : MonoBehaviour
     public ChickenEnemy GetTarget()
     {
         return GetClosestEnemyToCrosshair();
-        return null;
     }
     
     public Vector3 GetAimDirection()
@@ -295,7 +294,7 @@ public class RailPlayerAiming : MonoBehaviour
         Dictionary<ChickenEnemy, float> enemyDistances = new Dictionary<ChickenEnemy, float>();
         
         // Create a sphere cast to detect all colliders
-        Collider[] hitColliders = Physics.OverlapSphere(_crosshairWorldPosition, 2f);
+        Collider[] hitColliders = Physics.OverlapSphere(_crosshairWorldPosition, 3f);
         
         // Check each collider for ChickenEnemy
         foreach (Collider hitCollider in hitColliders)
@@ -343,13 +342,18 @@ public class RailPlayerAiming : MonoBehaviour
     
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.blue;
+
     
         // Aim direction ray
+        Gizmos.color = Color.blue;
         Gizmos.DrawLine(transform.position, _crosshairWorldPosition);
     
-        // Draw boundaries from the crosshair spline position 
-        if (crosshair && LevelManager.Instance && LevelManager.Instance.SplineContainer)
+        // Draw target radius
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(_crosshairWorldPosition, 3f);
+        
+        // Draw boundaries from spline position 
+        if (LevelManager.Instance && LevelManager.Instance.SplineContainer)
         {
             Vector3 crosshairSplinePosition = GetCrosshairSplinePosition();
             

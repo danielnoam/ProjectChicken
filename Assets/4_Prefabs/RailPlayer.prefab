@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8445288471549559756}
   m_Layer: 6
-  m_Name: SpecialWeaponGfx
+  m_Name: MissileWeaponGfx
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1115,6 +1115,14 @@ MonoBehaviour:
         projectileSpawnPoints:
         - {fileID: 8658125663898116613}
       index: 1
+      isKeyRepeated: 0
+      isKeyNull: 0
+    - Key: {fileID: 11400000, guid: a365c295771c18953ad247a015cfd40c, type: 2}
+      Value:
+        weaponGfx: {fileID: 8445288471549559756}
+        projectileSpawnPoints:
+        - {fileID: 8658125663898116613}
+      index: 2
       isKeyRepeated: 0
       isKeyNull: 0
     dividerPos: 0.33

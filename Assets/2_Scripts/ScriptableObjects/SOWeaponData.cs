@@ -7,16 +7,14 @@ using VInspector;
 [CreateAssetMenu(fileName = "New WeaponData", menuName = "Scriptable Objects/New WeaponData")]
 public class SOWeaponData : ScriptableObject
 {
-    [Header("WeaponData Settings")]
+    [Header("Weapon Settings")]
     [SerializeField] private string weaponName = "New WeaponData";
     [SerializeField] private string weaponDescription = "A WeaponData";
-    [SerializeField, Min(0)] private float damage = 10f;
-    [SerializeField, Min(0)] private float fireRate = 1f;
     [SerializeField] private WeaponDurationType weaponDurationType = WeaponDurationType.Permanent;
     [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.TimeBased)] private float timeLimit = 10f;[EndIf]
     [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
-    
-    [Header("Projectile Settings")]
+    [SerializeField, Min(0)] private float damage = 10f;
+    [SerializeField, Min(0)] private float fireRate = 1f;
     [SerializeField, Min(0)] private float projectileLifetime = 5f;
     [SerializeField] private PlayerProjectile playerProjectilePrefab;
     [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>();
@@ -25,7 +23,7 @@ public class SOWeaponData : ScriptableObject
     [SerializeField] private AudioClip spawnSound;
     [SerializeField] private ParticleSystem spawnEffectPrefab;
     
-    [Header("Impact Effect")]
+    [Header("Projectile Impact Effect")]
     [SerializeField] private AudioClip impactSound;
     [SerializeField] private ParticleSystem impactEffectPrefab;
 
@@ -37,6 +35,7 @@ public class SOWeaponData : ScriptableObject
     public float TimeLimit => timeLimit;
     public float AmmoLimit => ammoLimit;
     public float ProjectileLifetime => projectileLifetime;
+    public  List<ProjectileBehaviorBase> ProjectileBehaviors => projectileBehaviors;
     
 
     
@@ -59,9 +58,6 @@ public class SOWeaponData : ScriptableObject
     
 
 
-    #region Projectile Effects --------------------------------------------------------------------
-
-    
     public void PlayImpactEffect(Vector3 position, Quaternion rotation)
     {
         if (impactEffectPrefab)
@@ -87,56 +83,8 @@ public class SOWeaponData : ScriptableObject
             AudioSource.PlayClipAtPoint(spawnSound, position);
         }
     }
-    
-    
-
-    #endregion Projectile Effects --------------------------------------------------------------------
 
 
-    #region Projectile Behaviors ---------------------------------------------------------------
-
-    public void OnProjectileSpawn(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
-    {
-        foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
-        {
-            behavior.OnBehaviorSpawn(projectile, owner, target);
-        }
-    }
-    
-    
-    public void OnProjectileMovement(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
-    {
-        foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
-        {
-            behavior.OnBehaviorMovement(projectile, owner, target);
-        }
-    }
-    
-    public void OnProjectileCollision(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target, ChickenEnemy collision)
-    {
-        foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
-        {
-            behavior.OnBehaviorCollision(projectile, owner, target, collision);
-        }
-    }
-    
-    public void OnProjectileDestroy(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
-    {
-        foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
-        {
-            behavior.OnBehaviorDestroy(projectile, owner , target);
-        }
-    }
-    
-    public void OnProjectileDrawGizmos(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
-    {
-        foreach (ProjectileBehaviorBase behavior in projectileBehaviors)
-        {
-            behavior.OnBehaviorDrawGizmos(projectile, owner , target);
-        }
-    }
-
-    #endregion Projectile Behaviors ---------------------------------------------------------------
     
 
 }

@@ -14,7 +14,6 @@ public class SOLootTable : ScriptableObject
 {
     
     [Header("Loot Table")]
-    [SerializeField, Multiline(3)] private string description = "This is a loot table that defines the chances of different resources being spawned.";
     [SerializeField] private ResourceChance[] resourceChances = System.Array.Empty<ResourceChance>();
 
 

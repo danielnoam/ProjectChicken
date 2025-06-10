@@ -80,8 +80,37 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F1))
         {
-            SelectRandomSpecialWeapon();
+            // Select the first weapon in the dictionary (base weaponData)
+            SetSpecialWeapon(weapons.Keys.FirstOrDefault());
         }
+        else if (Input.GetKeyDown(KeyCode.F2))
+        {
+            // Select the second weapon in the dictionary (if available)
+            var secondWeapon = weapons.Keys.Skip(1).FirstOrDefault();
+            if (secondWeapon)
+            {
+                SetSpecialWeapon(secondWeapon);
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.F3))
+        {
+            // Select the second weapon in the dictionary (if available)
+            var secondWeapon = weapons.Keys.Skip(2).FirstOrDefault();
+            if (secondWeapon)
+            {
+                SetSpecialWeapon(secondWeapon);
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.F4))
+        {
+            // Select the second weapon in the dictionary (if available)
+            var secondWeapon = weapons.Keys.Skip(3).FirstOrDefault();
+            if (secondWeapon)
+            {
+                SetSpecialWeapon(secondWeapon);
+            }
+        }
+        
     }
 
 
