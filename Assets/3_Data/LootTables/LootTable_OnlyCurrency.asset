@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2949bdaf9893089978be4f6ace1db926, type: 3}
+  m_Name: LootTable_OnlyCurrency
+  m_EditorClassIdentifier: 
+  description: Contains only currency items
+  resourceChances:
+  - resource: {fileID: 2318045658582117789, guid: b3f17779b6d49aa4bbe13f28e3094751, type: 3}
+    chance: 48.71535
+  - resource: {fileID: 2318045658582117789, guid: 99d7793c9eabf7948a0cf1fddf2ccbaa, type: 3}
+    chance: 32.0131
+  - resource: {fileID: 2318045658582117789, guid: 8a5832540f2fba540b083961eb819df1, type: 3}
+    chance: 19.27155

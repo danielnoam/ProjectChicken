@@ -327,6 +327,16 @@ public class RailPlayer : MonoBehaviour
     {
         return playerMovement.IsDodging;
     }
+    
+    public Vector3 GetAimDirection()
+    {
+        return playerAiming.GetAimDirection();
+    }
+    
+    public ChickenEnemy GetTarget()
+    {
+        return playerAiming.GetTarget();
+    }
 
     #endregion Helper Methods --------------------------------------------------------------------------------------
 

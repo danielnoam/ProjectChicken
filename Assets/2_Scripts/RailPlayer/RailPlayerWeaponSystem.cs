@@ -24,6 +24,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField] private SerializedDictionary<SOWeaponData, WeaponInfo> weapons = new SerializedDictionary<SOWeaponData, WeaponInfo>();
     
     [Header("References")]
+    [SerializeField, Self] private RailPlayer player;
     [SerializeField, Self] private RailPlayerInput playerInput;
     [SerializeField, Self] private RailPlayerAiming playerAiming;
     
@@ -146,7 +147,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         // Shoot a projectile from each projectile spawn point
         foreach (var spawnPoint in weaponInfo.projectileSpawnPoints)
         {
-            weaponData.CreateProjectile(spawnPoint.transform.position, playerAiming.GetAimDirection());
+            weaponData.CreateProjectile(spawnPoint.transform.position, player);
         }
     }
 

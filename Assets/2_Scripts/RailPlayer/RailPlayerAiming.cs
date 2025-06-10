@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using KBCore.Refs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -77,7 +78,13 @@ public class RailPlayerAiming : MonoBehaviour
         UpdateAimPosition();
     }
     
-    private void HandleSplineRotation()
+    
+    
+
+
+    #region Aiming --------------------------------------------------------------------------------------------------------
+
+        private void HandleSplineRotation()
     {
         if (!player.AlignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.SplineContainer)
         {
@@ -235,6 +242,9 @@ public class RailPlayerAiming : MonoBehaviour
             }
         }
     }
+
+    #endregion Aiming --------------------------------------------------------------------------------------------------------
+    
     
     
     #region Input --------------------------------------------------------------------------------------------------------
@@ -255,21 +265,15 @@ public class RailPlayerAiming : MonoBehaviour
 
     #region Helper -------------------------------------------------------------------------
 
+    public ChickenEnemy GetTarget()
+    {
+        return GetClosestEnemyToCrosshair();
+        return null;
+    }
+    
     public Vector3 GetAimDirection()
     {
         return _aimDirection;
-    }
-    
-    public Vector3 GetAimPosition()
-    {
-        return _crosshairWorldPosition;
-    }
-    
-    public bool IsAimingAtTarget(Transform target, float tolerance = 1f)
-    {
-        Vector3 directionToTarget = (target.position - transform.position).normalized;
-        float dot = Vector3.Dot(_aimDirection, directionToTarget);
-        return dot > (1f - tolerance);
     }
     
     
@@ -283,6 +287,51 @@ public class RailPlayerAiming : MonoBehaviour
         if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer) return transform.position;
         
         return LevelManager.Instance.EnemyPosition;
+    }
+    
+    private ChickenEnemy GetClosestEnemyToCrosshair()
+    {
+        // Create a dictionary to store distances to each ChickenEnemy
+        Dictionary<ChickenEnemy, float> enemyDistances = new Dictionary<ChickenEnemy, float>();
+        
+        // Create a sphere cast to detect all colliders
+        Collider[] hitColliders = Physics.OverlapSphere(_crosshairWorldPosition, 2f);
+        
+        // Check each collider for ChickenEnemy
+        foreach (Collider hitCollider in hitColliders)
+        {
+            // Try to get ChickenEnemy component
+            if (hitCollider.TryGetComponent(out ChickenEnemy chickenEnemy))
+            {
+                // Calculate distance from crosshair to chicken
+                float distance = Vector3.Distance(_crosshairWorldPosition, chickenEnemy.transform.position);
+                
+                // Store the distance in the dictionary
+                enemyDistances[chickenEnemy] = distance;
+            }
+        }
+        
+        // return the closest ChickenEnemy
+        if (enemyDistances.Count > 0)
+        {
+            // Find the ChickenEnemy with the minimum distance
+            ChickenEnemy closestEnemy = null;
+            float minDistance = float.MaxValue;
+            
+            foreach (var kvp in enemyDistances)
+            {
+                if (kvp.Value < minDistance)
+                {
+                    minDistance = kvp.Value;
+                    closestEnemy = kvp.Key;
+                }
+            }
+            
+            return closestEnemy; // Return the closest enemy found
+        }
+        
+        
+        return null; // Return null if no enemy found
     }
 
     #endregion Helper -------------------------------------------------------------------------

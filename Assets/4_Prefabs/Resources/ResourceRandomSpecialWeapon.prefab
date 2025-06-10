@@ -54,11 +54,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponChances.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponChances.Array.data[0].chance
-      value: 100
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponChances.Array.data[0].weapon
@@ -66,7 +66,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponChances.Array.data[1].chance
-      value: 48.38377
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponChances.Array.data[1].weapon
@@ -84,6 +84,14 @@ PrefabInstance:
       propertyPath: weaponsList.serializedKvps.Array.size
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weaponChances.Array.data[0].weaponData
+      value: 
+      objectReference: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weaponChances.Array.data[1].weaponData
+      value: 
+      objectReference: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponsList.serializedKvps.Array.data[0].Key
       value: 

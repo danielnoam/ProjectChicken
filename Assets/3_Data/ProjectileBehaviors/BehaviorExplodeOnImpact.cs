@@ -10,26 +10,27 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
     [SerializeField] private float explosionForce = 10f;
     [SerializeField] private float explosionDamage = 10f;
     
-    public override void OnBehaviorSpawn(PlayerProjectile projectile)
+
+    
+    
+
+    public override void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
     {
 
     }
 
-    public override void OnBehaviorMovement(PlayerProjectile projectile)
+    public override void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
     {
 
     }
 
-    public override void OnBehaviorCollision(PlayerProjectile projectile, ChickenEnemy enemy)
+    public override void OnBehaviorCollision(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target, ChickenEnemy collision)
     {
         // Get the collision point position
-        Vector3 explosionCenter = enemy.transform.position;
+        Vector3 explosionCenter = collision.transform.position;
         
         // Create a sphere cast to detect all colliders within the explosion radius
         Collider[] hitColliders = Physics.OverlapSphere(explosionCenter, explosionMaxRadius);
-        
-        
-        Debug.Log(hitColliders);
         
         // Check each collider for ChickenEnemy
         foreach (Collider hitCollider in hitColliders)
@@ -58,6 +59,23 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
         }
     }
 
+    public override void OnBehaviorDestroy(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
+    {
+
+    }
+
+    public override void OnBehaviorDrawGizmos(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
+    {
+        // Draw the explosion radius spheres
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(projectile.transform.position, explosionMaxRadius);
+            
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(projectile.transform.position, explosionMinRadius);
+    }
+    
+    
+    
     private float CalculateDistanceMultiplier(float distance)
     {
         // If within minimum radius, apply full damage/force
@@ -76,20 +94,5 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
         // Closer to center = higher multiplier, farther = lower multiplier
         float normalizedDistance = (distance - explosionMinRadius) / (explosionMaxRadius - explosionMinRadius);
         return 1f - normalizedDistance; // Inverted so closer = higher value
-    }
-
-    public override void OnBehaviorDestroy(PlayerProjectile projectile)
-    {
-
-    }
-
-    public override void OnBehaviorDrawGizmos(PlayerProjectile projectile)
-    {
-        // Draw the explosion radius spheres
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(projectile.transform.position, explosionMaxRadius);
-            
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(projectile.transform.position, explosionMinRadius);
     }
 }

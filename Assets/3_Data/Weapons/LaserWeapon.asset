@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Laser Weapon
   weaponDescription: The base weapon
-  weaponDurationType: 2
   damage: 10
   fireRate: 0.2
+  weaponDurationType: 2
   timeLimit: 10
   ammoLimit: 3
   projectileSpeed: 100
-  projectilePushForce: 0
   projectileLifetime: 5
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
   projectileBehaviors:
   - rid: 2319611325492494600
+  - rid: 3357952728375754824
   spawnSound: {fileID: 0}
   spawnEffectPrefab: {fileID: 0}
   impactSound: {fileID: 0}
@@ -35,3 +35,7 @@ MonoBehaviour:
     - rid: 2319611325492494600
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
       data: 
+    - rid: 3357952728375754824
+      type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        pushForce: 5
