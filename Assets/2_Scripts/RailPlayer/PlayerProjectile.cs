@@ -41,10 +41,8 @@ public class PlayerProjectile : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!IsInitialized) return;
-
-
         
-        if (TryGetComponent(out ChickenEnemy enemy))
+        if (other.TryGetComponent(out ChickenEnemy enemy))
         {
             ProjectileHit(enemy);
         }
