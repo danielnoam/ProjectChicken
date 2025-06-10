@@ -14,16 +14,19 @@ public class EnemyLookAtPlayer : MonoBehaviour
     
     void Update()
     {
-        if (player == null) return;
-        
-        // Calculate direction to player
+        if (player == null)
+        {
+            Debug.LogWarning("Player not found!");
+            return;
+        }
+
+        Debug.DrawLine(transform.position, player.position, Color.red); // Visual aid
+
         Vector3 directionToPlayer = player.position - transform.position;
+        directionToPlayer.y = 0; // Ignore vertical difference
         directionToPlayer.Normalize();
-        
-        // Create rotation that looks at player
+
         Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
-        
-        // Smoothly rotate towards player
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 }
