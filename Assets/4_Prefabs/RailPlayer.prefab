@@ -977,16 +977,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea7d6ee3afc6aae46a559dcd89ac8ae2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxMoveSpeed: 50
+  maxMoveSpeed: 35
   acceleration: 5
   deceleration: 3
   pathFollowSpeed: 1000
-  rotationSpeed: 22
-  movementTiltAmount: 30
+  rollSpeed: 5
+  maxRollAmount: 30
+  pitchYawSpeed: 22
   maxPitchAngle: 30
   maxYawAngle: 45
+  pathRotationSpeed: 5
   enableDodging: 1
-  dodgeMoveSpeed: 45
+  dodgeMoveSpeed: 35
   dodgeTime: 0.4
   dodgeCooldown: 0.45
   dodgeRollAmount: 360
@@ -1068,12 +1070,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 362cadd1e2438d3488e4058666825ab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useLookOffset: 1
-  lookOffsetStrength: 35
-  lookOffsetSmoothing: 1.4
+  aimSpeed: 25
   autoCenter: 1
   autoCenterDelay: 5
   autoCenterSpeed: 1
+  useLookOffset: 1
+  lookOffsetStrength: 35
+  lookOffsetSmoothing: 1.4
   useMovementOffset: 0
   movementOffsetStrength: 11
   movementOffsetSmoothing: 5
@@ -1094,7 +1097,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allowBaseWeaponWithSpecialWeapon: 1
-  baseWeapon: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
+  baseWeaponData: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
   weapons:
     serializedKvps:
     - Key: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}

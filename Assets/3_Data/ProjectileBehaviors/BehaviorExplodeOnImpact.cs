@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Collision_ExplodeOnImpact", menuName = "Scriptable Objects/Projectile Behavior/Collision_ExplodeOnImpact")]
-public class SOProjectileBehavior_ExplodeOnImpact : SOProjectileBehaviorBase
+
+public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
 {
     [Header("Explosion Settings")]
     [SerializeField] private float explosionMinRadius = 1f;

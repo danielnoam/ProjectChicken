@@ -289,7 +289,6 @@ public class RailPlayer : MonoBehaviour
         {
             case ResourceType.Currency:
                 _currentCurrency += resource.CurrencyWorth;
-                Debug.Log("Collected Currency! " + resource.CurrencyWorth);
                 break;
             case ResourceType.HealthPack:
                 HealHealth(resource.HealthWorth);
@@ -298,7 +297,7 @@ public class RailPlayer : MonoBehaviour
                 HealShield(resource.ShieldWorth);
                 break;
             case ResourceType.SpecialWeapon:
-                playerWeapon.SelectSpecialWeapon(resource.Weapon);
+                playerWeapon.SelectSpecialWeapon(resource.WeaponData);
                 break;
             default:
                 Debug.LogWarning($"Unknown resource type: {resource.ResourceType}");
@@ -342,20 +341,20 @@ public class RailPlayer : MonoBehaviour
             string selectedWeapon = "";
 
 
-            if (playerWeapon.CurrentSpecialWeapon)
+            if (playerWeapon.CurrentSpecialWeaponData)
             {
-                if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.AmmoBased)
+                if (playerWeapon.CurrentSpecialWeaponData.WeaponDurationType == WeaponDurationType.AmmoBased)
                 {
-                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponAmmo}/{playerWeapon.CurrentSpecialWeapon.AmmoLimit})";
+                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeaponData.WeaponName} ({playerWeapon.SpecialWeaponAmmo}/{playerWeapon.CurrentSpecialWeaponData.AmmoLimit})";
                 } 
-                else if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.TimeBased)
+                else if (playerWeapon.CurrentSpecialWeaponData.WeaponDurationType == WeaponDurationType.TimeBased)
                 {
-                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponTime:F1}/{playerWeapon.CurrentSpecialWeapon.TimeLimit})";
+                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeaponData.WeaponName} ({playerWeapon.SpecialWeaponTime:F1}/{playerWeapon.CurrentSpecialWeaponData.TimeLimit})";
                 }
             }
             else
             {
-                selectedWeapon = $"Base Weapon";
+                selectedWeapon = $"{playerWeapon.BaseWeaponData.WeaponName}";
             }
 
             

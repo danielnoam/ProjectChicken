@@ -5,7 +5,7 @@ using VInspector;
 [Serializable]
 public class WeaponChance 
 {
-    public SOWeapon weapon;
+    public SOWeaponData weaponData;
     [Range(0f, 100f)] public float chance = 10f;
 }
 
@@ -48,7 +48,7 @@ public class Resource : MonoBehaviour
     public int HealthWorth => healthWorth;
     public int ShieldWorth => shieldWorth;
     public int CurrencyWorth => currencyWorth;
-    public SOWeapon Weapon { get; private set;}
+    public SOWeaponData WeaponData { get; private set;}
 
 
     private void Awake()
@@ -58,7 +58,7 @@ public class Resource : MonoBehaviour
         
         if (resourceType == ResourceType.SpecialWeapon && weaponChances.Length > 0)
         {
-            Weapon = SelectRandomWeapon();
+            WeaponData = SelectRandomWeapon();
         }
         
     }
@@ -209,7 +209,7 @@ public class Resource : MonoBehaviour
     #endregion Effects ---------------------------------------------------------------------------------------
 
     
-    #region Weapon Selection ---------------------------------------------------------------------------------------
+    #region WeaponData Selection ---------------------------------------------------------------------------------------
     
     
     private void OnValidate()
@@ -220,7 +220,7 @@ public class Resource : MonoBehaviour
         }
     }
     
-    private SOWeapon SelectRandomWeapon()
+    private SOWeaponData SelectRandomWeapon()
     {
         if (weaponChances.Length == 0) return null;
         
@@ -228,7 +228,7 @@ public class Resource : MonoBehaviour
         var validWeapons = new System.Collections.Generic.List<WeaponChance>();
         foreach (var weaponChance in weaponChances)
         {
-            if (weaponChance.weapon && weaponChance.chance > 0f)
+            if (weaponChance.weaponData && weaponChance.chance > 0f)
             {
                 validWeapons.Add(weaponChance);
             }
@@ -243,9 +243,9 @@ public class Resource : MonoBehaviour
             totalWeight += weaponChance.chance;
         }
         
-        if (totalWeight <= 0f) return validWeapons[0].weapon;
+        if (totalWeight <= 0f) return validWeapons[0].weaponData;
         
-        // Select a random weapon based on weights
+        // Select a random weaponData based on weights
         float randomValue = UnityEngine.Random.Range(0f, totalWeight);
         float currentWeight = 0f;
         
@@ -254,12 +254,12 @@ public class Resource : MonoBehaviour
             currentWeight += weaponChance.chance;
             if (randomValue <= currentWeight)
             {
-                return weaponChance.weapon;
+                return weaponChance.weaponData;
             }
         }
         
         // Fallback
-        return validWeapons[0].weapon;
+        return validWeapons[0].weaponData;
     }
     
     private void NormalizeWeaponChances()
@@ -272,7 +272,7 @@ public class Resource : MonoBehaviour
         
         foreach (var weaponChance in weaponChances)
         {
-            if (weaponChance.weapon)
+            if (weaponChance.weaponData)
             {
                 totalChance += Mathf.Max(0f, weaponChance.chance);
                 validWeaponCount++;
@@ -287,7 +287,7 @@ public class Resource : MonoBehaviour
             float equalChance = 100f / validWeaponCount;
             foreach (var weaponChance in weaponChances)
             {
-                if (weaponChance.weapon)
+                if (weaponChance.weaponData)
                 {
                     weaponChance.chance = equalChance;
                 }
@@ -298,7 +298,7 @@ public class Resource : MonoBehaviour
         {
             foreach (var weaponChance in weaponChances)
             {
-                if (weaponChance.weapon)
+                if (weaponChance.weaponData)
                 {
                     weaponChance.chance = (weaponChance.chance / totalChance) * 100f;
                 }
@@ -316,14 +316,14 @@ public class Resource : MonoBehaviour
         float equalChance = 100f / weaponChances.Length;
         foreach (var weaponChance in weaponChances)
         {
-            if (weaponChance.weapon)
+            if (weaponChance.weaponData)
             {
                 weaponChance.chance = equalChance;
             }
         }
     }
     
-    #endregion Weapon Selection ---------------------------------------------------------------------------------------
+    #endregion WeaponData Selection ---------------------------------------------------------------------------------------
 
     
 }

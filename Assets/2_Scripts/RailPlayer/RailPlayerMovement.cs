@@ -1,9 +1,7 @@
-using System;
+
 using KBCore.Refs;
-using Unity.Mathematics;
 using UnityEngine;
 using PrimeTween;
-using Unity.VisualScripting;
 using UnityEngine.InputSystem;
 using VInspector;
 
@@ -17,11 +15,13 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Min(0)] private float pathFollowSpeed = 5f;
     
     [Header("Rotation Settings")]
-    [SerializeField, Min(0)] private float rotationSpeed = 22f;
-    [SerializeField, Min(0)] private float movementTiltAmount = 30f;
+    [SerializeField, Min(0)] private float rollSpeed = 22f;
+    [SerializeField, Min(0)] private float maxRollAmount = 30f;
+    [SerializeField, Min(0)] private float pitchYawSpeed = 22f;
     [SerializeField, Min(0)] private float maxPitchAngle = 30f;
     [SerializeField, Min(0)] private float maxYawAngle = 45f;
     [SerializeField, Min(0)] private float pathRotationSpeed = 5f;
+
     
     [Header("Dodge Settings")]
     [SerializeField] private bool enableDodging = true;
@@ -40,37 +40,24 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Self] private Rigidbody playerRigidbody;
     [SerializeField] private Transform shipModel;
 
-
-    
     private float _horizontalInput;
     private float _verticalInput;
-    
+    Quaternion velocityRotation = Quaternion.identity;
     private Quaternion _splineRotation = Quaternion.identity;
     private Quaternion _aimRotation = Quaternion.identity;
-    private Vector3 _currentMoveVelocity;
-    private Vector3 _targetMoveVelocity;
-    private Vector3 _splineFollowVelocity = Vector3.zero;
-    
-    
-
-    
-    
-
-
-
-
+    private Vector3 _currentMoveVelocity = Vector3.zero;
+    private Vector3 _targetOffsetFromSpline = Vector3.zero;
+    private Vector3 _currentOffsetFromSpline = Vector3.zero;
     private bool _isDodging;
     private float _dodgeCooldownTimer;
     private float _dodgeTimeCounter;
-    private float _currentBarrelRoll;
+    private float _currentDodgeRoll;
     private Vector3 _dodgeDirection;
     private Tween _dodgeTween;
 
     private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
     private float MovementBoundaryY => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
     public bool IsDodging => _isDodging;
-    
-    
 
     private void OnValidate() { this.ValidateRefs(); }
     private void OnEnable()
@@ -92,84 +79,110 @@ public class RailPlayerMovement : MonoBehaviour
     private void Update()
     {
         UpdateDodgeState();
-        HandleShipRotation();
+        HandleMovementAndAimRotation();
     }
 
     private void FixedUpdate()
     {
-        HandleRotation();
+        HandleSplineRotation();
         HandleMovement();
     }
 
+    #region Movement --------------------------------------------------------------------------------------
 
-    #region Movement & Rotation --------------------------------------------------------------------------------------
 
     private void HandleMovement()
     {
-        // Handle the spline following
-        if (LevelManager.Instance && player.AlignToSplineDirection)
+        if (LevelManager.Instance)
         {
-            Vector3 splineFollowDirection = LevelManager.Instance.PlayerPosition - transform.position;
-            float distanceToSpline = splineFollowDirection.magnitude;
-            
-            
-            float lerpFactor = Mathf.Clamp01(distanceToSpline / 10f);
-            _splineFollowVelocity = Vector3.Lerp(Vector3.zero, splineFollowDirection.normalized * pathFollowSpeed, lerpFactor * Time.fixedDeltaTime);
+            SplineBasedMovement();
         }
         else
         {
-            _splineFollowVelocity = Vector3.zero;
+            NonSplineMovement();    
         }
-        
-        
-        
-        // Handle input movement or dodging
-        if (!_isDodging)
-        {
-            // Get the input direction based on horizontal and vertical input
-            Vector3 inputDirection = new Vector3(_horizontalInput, _verticalInput, 0);
-        
-            // Transform input to world space relative to spline rotation
-            Vector3 moveDirection = _splineRotation * inputDirection;
-            
-            // Set target acceleration based on input
-            float targetAcceleration = inputDirection != Vector3.zero ? acceleration : deceleration;
-            
-            // Calculate target move velocity based on input
-            _targetMoveVelocity = moveDirection.normalized * maxMoveSpeed;
-            
-            // Check if we are within movement boundaries
-            if (LevelManager.Instance && LevelManager.Instance.SplineContainer)
-            {
-                Vector3 playerSplinePosition = LevelManager.Instance.PlayerPosition;
-                Vector3 localPosition = Quaternion.Inverse(_splineRotation) * (playerSplinePosition - transform.position);
-                
-                // Check if we are outside the movement boundaries
-                if (Mathf.Abs(localPosition.x) > MovementBoundaryX || Mathf.Abs(localPosition.y) > MovementBoundaryY)
-                {
-                    targetAcceleration = acceleration * 2f;
-                    _targetMoveVelocity = Vector3.zero;
-                }
-            }
-            
-            // Smoothly interpolate current move velocity towards target
-            _currentMoveVelocity = Vector3.Lerp(_currentMoveVelocity, _targetMoveVelocity, targetAcceleration * Time.fixedDeltaTime);
-        }
-        else
-        {
-            // Calculate dodge movement in world space
-            Vector3 worldDodgeMovement = _splineRotation * _dodgeDirection * (dodgeMoveSpeed * Time.fixedDeltaTime);
-            
-            // Apply dodge movement to input
-            _currentMoveVelocity += worldDodgeMovement;
-        }
-
-        
-        playerRigidbody.linearVelocity = _splineFollowVelocity + _currentMoveVelocity;
-        Debug.Log($"Current Move Velocity: {_currentMoveVelocity}, Spline Follow Velocity: {_splineFollowVelocity}");
     }
 
-    private void HandleRotation()
+
+    private void SplineBasedMovement()
+    {
+            Vector3 playerSplinePosition = LevelManager.Instance.PlayerPosition;
+            
+            // Calculate current offset from spline in local space
+            Vector3 worldOffset = transform.position - playerSplinePosition;
+            _currentOffsetFromSpline = Quaternion.Inverse(_splineRotation) * worldOffset;
+            
+            // Handle input movement or dodging
+            if (!_isDodging)
+            {
+                // Get the input direction based on horizontal and vertical input
+                Vector3 inputDirection = new Vector3(_horizontalInput, _verticalInput, 0);
+                
+                // Update target offset based on input
+                if (inputDirection != Vector3.zero)
+                {
+                    // Add to the target offset based on input
+                    _targetOffsetFromSpline += inputDirection * (maxMoveSpeed * Time.fixedDeltaTime);
+                    
+                    // Clamp the target offset to boundaries
+                    _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
+                    _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
+                    _targetOffsetFromSpline.z = 0; // Keep Z offset at 0
+                }
+                
+                // Smoothly interpolate current offset towards target offset
+                float lerpSpeed = inputDirection != Vector3.zero ? acceleration : deceleration;
+                _currentOffsetFromSpline = Vector3.Lerp(_currentOffsetFromSpline, _targetOffsetFromSpline, lerpSpeed * Time.fixedDeltaTime);
+            }
+            else
+            {
+                // During dodge, add dodge movement to the offset
+                Vector3 dodgeMovement = _dodgeDirection * (dodgeMoveSpeed * Time.fixedDeltaTime);
+                _targetOffsetFromSpline += dodgeMovement;
+                _currentOffsetFromSpline += dodgeMovement;
+                
+                // Clamp to boundaries after dodge
+                _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
+                _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
+                _currentOffsetFromSpline.x = Mathf.Clamp(_currentOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
+                _currentOffsetFromSpline.y = Mathf.Clamp(_currentOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
+            }
+            
+            // Calculate the desired world position (spline position and offset)
+            Vector3 desiredWorldPosition = playerSplinePosition + (_splineRotation * _currentOffsetFromSpline);
+            
+            // Calculate velocity to reach the desired position
+            Vector3 positionDifference = desiredWorldPosition - transform.position;
+            
+            // Use a higher follow speed when we're far from the desired position
+            float distanceToDesired = positionDifference.magnitude;
+            float effectiveFollowSpeed = pathFollowSpeed * (1f + distanceToDesired);
+            
+            // Set the rigidbody velocity
+            playerRigidbody.linearVelocity = positionDifference.normalized * Mathf.Min(effectiveFollowSpeed, distanceToDesired / Time.fixedDeltaTime);
+    }
+    
+    
+    
+    private void NonSplineMovement()
+    {
+        Vector3 inputDirection = new Vector3(_horizontalInput, _verticalInput, 0);
+        Vector3 targetMoveVelocity = inputDirection.normalized * maxMoveSpeed;
+        float targetAcceleration = inputDirection != Vector3.zero ? acceleration : deceleration;
+        
+        
+        _currentMoveVelocity = Vector3.Lerp(_currentMoveVelocity, targetMoveVelocity, targetAcceleration * Time.fixedDeltaTime);
+        playerRigidbody.linearVelocity = _currentMoveVelocity;
+    }
+    
+    
+    #endregion Movement  --------------------------------------------------------------------------------------
+
+    
+    
+    #region Rotation  --------------------------------------------------------------------------------------
+
+    private void HandleSplineRotation()
     {
         // Get spline rotation
         if (LevelManager.Instance && player.AlignToSplineDirection)
@@ -184,97 +197,115 @@ public class RailPlayerMovement : MonoBehaviour
         {
             _splineRotation = Quaternion.identity;
         }
-        
-        
-        // Get aim rotation from player aiming (only pitch and yaw, no roll)
-        // Not being used for now, looks better when just rotating the ship model
+
+        // Apply the rotation to the rigidbody
+        playerRigidbody.rotation = _splineRotation;
+    }
+    
+    private void HandleMovementAndAimRotation()
+    {
+        if (!shipModel) return;
+    
+        // Movement rotation based on movement (only roll)
+        float inputRoll = -_horizontalInput * maxRollAmount;
+        Quaternion targetVelocityRotation = Quaternion.Euler(0f, 0f, inputRoll);
+    
+        if (_horizontalInput != 0f)
+        {
+            velocityRotation = Quaternion.Slerp(velocityRotation, targetVelocityRotation, rollSpeed * Time.deltaTime);
+        }
+        else
+        {
+            velocityRotation = Quaternion.Slerp(velocityRotation, targetVelocityRotation, rollSpeed / 2 * Time.deltaTime);
+        }
+
+        // Aim rotation from aiming (only pitch and yaw)
         if (playerAiming)
         {
             Vector3 aimDirection = playerAiming.GetAimDirection();
-            
-            // Convert aim direction to local space relative to spline
             Vector3 localAimDirection = Quaternion.Inverse(_splineRotation) * aimDirection;
-            
-            // Calculate pitch and yaw angles only
+        
             float yawAngle = Mathf.Atan2(localAimDirection.x, localAimDirection.z) * Mathf.Rad2Deg;
             float pitchAngle = -Mathf.Asin(Mathf.Clamp(localAimDirection.y, -1f, 1f)) * Mathf.Rad2Deg;
-            
-            // Clamp the angles
+        
             yawAngle = Mathf.Clamp(yawAngle, -maxYawAngle, maxYawAngle);
             pitchAngle = Mathf.Clamp(pitchAngle, -maxPitchAngle, maxPitchAngle);
-            
-            // Create target aim rotation with only pitch and yaw (no roll)
+        
             Quaternion targetAimRotation = Quaternion.Euler(pitchAngle, yawAngle, 0f);
-            
-            // Smoothly rotate towards the target aim rotation
-            _aimRotation = Quaternion.Slerp(_aimRotation, targetAimRotation, rotationSpeed * Time.fixedDeltaTime);
-            
+            _aimRotation = Quaternion.Slerp(_aimRotation, targetAimRotation, pitchYawSpeed * Time.deltaTime);
         }
         else
         {
             _aimRotation = Quaternion.identity;
         }
 
-        // Apply the combined rotation to the rigidbody
-        playerRigidbody.rotation = _splineRotation;
-    }
-        
-        
-
+        // Combine all rotations: aim + input roll + dodge roll
+        Vector3 finalEuler = _aimRotation.eulerAngles;
+        finalEuler.z = velocityRotation.eulerAngles.z + _currentDodgeRoll;
     
-        
-    private void HandleShipRotation()
-    {
-        if (!shipModel || !playerAiming) return;
-        
-        Vector3 aimDirection = playerAiming.GetAimDirection();
-        
-        // Convert the aim direction to local space relative to spline rotation
-        Vector3 localAimDirection = Quaternion.Inverse(_splineRotation) * aimDirection;
-        
-        // Clamp the local aim direction to prevent excessive angles
-        float yawAngle = Mathf.Atan2(localAimDirection.x, localAimDirection.z) * Mathf.Rad2Deg;
-        float pitchAngle = -Mathf.Asin(localAimDirection.y) * Mathf.Rad2Deg;
-        yawAngle = Mathf.Clamp(yawAngle, -maxYawAngle, maxYawAngle);
-        pitchAngle = Mathf.Clamp(pitchAngle, -maxPitchAngle, maxPitchAngle);
-        
-        // Get current Z rotation 
-        float currentZRotation = shipModel.localEulerAngles.z;
-        
-        // Handle banking only when not dodging
-        if (!_dodgeTween.isAlive)
-        {
-            float bankAngle = -_horizontalInput * movementTiltAmount * 0.5f;
-            currentZRotation = bankAngle;
-        }
-        
-        // Apply rotation but preserve the Z-axis if tween is running
-        Quaternion targetRotation = Quaternion.Euler(pitchAngle, yawAngle, currentZRotation);
-        
-        // Only interpolate X and Y axes when tween is active
-        if (_dodgeTween.isAlive)
-        {
-            // Preserve the exact Z rotation from the tween, only lerp X and Y
-            Vector3 currentEuler = shipModel.localEulerAngles;
-            Vector3 targetEuler = targetRotation.eulerAngles;
-            
-            // Interpolate only pitch and yaw
-            float lerpedPitch = Mathf.LerpAngle(currentEuler.x, targetEuler.x, rotationSpeed * Time.deltaTime);
-            float lerpedYaw = Mathf.LerpAngle(currentEuler.y, targetEuler.y, rotationSpeed * Time.deltaTime);
-            
-            shipModel.localRotation = Quaternion.Euler(lerpedPitch, lerpedYaw, currentEuler.z);
-        }
-        else
-        {
-            // Normal rotation when no tween is active
-            shipModel.localRotation = Quaternion.Slerp(shipModel.localRotation, targetRotation, rotationSpeed * Time.deltaTime);
-        }
+        shipModel.localRotation = Quaternion.Euler(finalEuler);
     }
     
-
-
-    #endregion Movement & Rotation --------------------------------------------------------------------------------------
     
+    
+    // private void HandleAimRotation()
+    // {
+    //     if (!shipModel) return;
+    //     
+    //     Vector3 aimDirection = playerAiming.GetAimDirection();
+    //     
+    //     // Convert the aim direction to local space relative to spline rotation
+    //     Vector3 localAimDirection = Quaternion.Inverse(_splineRotation) * aimDirection;
+    //     
+    //     // Clamp the local aim direction to prevent excessive angles
+    //     float yawAngle = Mathf.Atan2(localAimDirection.x, localAimDirection.z) * Mathf.Rad2Deg;
+    //     float pitchAngle = -Mathf.Asin(localAimDirection.y) * Mathf.Rad2Deg;
+    //     yawAngle = Mathf.Clamp(yawAngle, -maxYawAngle, maxYawAngle);
+    //     pitchAngle = Mathf.Clamp(pitchAngle, -maxPitchAngle, maxPitchAngle);
+    //     
+    //     // Get current Z rotation 
+    //     float currentZRotation = shipModel.localEulerAngles.z;
+    //     
+    //     // Handle banking only when not dodging
+    //     if (!_dodgeTween.isAlive)
+    //     {
+    //         float bankAngle = -_horizontalInput * movementTiltAmount * 0.5f;
+    //         currentZRotation = bankAngle;
+    //     }
+    //     
+    //     // Apply rotation but preserve the Z-axis if tween is running
+    //     Quaternion targetRotation = Quaternion.Euler(pitchAngle, yawAngle, currentZRotation);
+    //     
+    //     // Only interpolate X and Y axes when tween is active
+    //     if (_dodgeTween.isAlive)
+    //     {
+    //         // Preserve the exact Z rotation from the tween, only lerp X and Y
+    //         Vector3 currentEuler = shipModel.localEulerAngles;
+    //         Vector3 targetEuler = targetRotation.eulerAngles;
+    //         
+    //         // Interpolate only pitch and yaw
+    //         float lerpedPitch = Mathf.LerpAngle(currentEuler.x, targetEuler.x, rotationSpeed * Time.deltaTime);
+    //         float lerpedYaw = Mathf.LerpAngle(currentEuler.y, targetEuler.y, rotationSpeed * Time.deltaTime);
+    //         
+    //         shipModel.localRotation = Quaternion.Euler(lerpedPitch, lerpedYaw, currentEuler.z);
+    //     }
+    //     else
+    //     {
+    //         // Normal rotation when no tween is active
+    //         shipModel.localRotation = Quaternion.Slerp(shipModel.localRotation, targetRotation, rotationSpeed * Time.deltaTime);
+    //     }
+    //
+    //
+    //
+    //     if (playerAiming)
+    //     {
+    //         
+    //     }
+    // }
+
+    #endregion Rotation  --------------------------------------------------------------------------------------
+    
+   
 
     #region Dodge --------------------------------------------------------------------------------------
 
@@ -295,7 +326,6 @@ public class RailPlayerMovement : MonoBehaviour
             }
         }
         
-        
         // Check cooldown
         if (!_isDodging && _dodgeCooldownTimer > 0f)
         {
@@ -304,27 +334,27 @@ public class RailPlayerMovement : MonoBehaviour
         }
     }
     
-    
     private void PlayDodgeRollAnimation()
     {
         if (_dodgeTween.isAlive) _dodgeTween.Stop();
-    
+
         // Calculate target roll
-        float startRoll = shipModel.localEulerAngles.z;
+        float startRoll = _currentDodgeRoll;
         float targetRoll = startRoll + (-_dodgeDirection.x * dodgeRollAmount);
-    
-        // Only tween the roll angle
+
+        // Tween just the dodge roll component
         _dodgeTween = Tween.Custom(
-            onValueChange: rollAngle => { Vector3 currentEuler = shipModel.localEulerAngles; shipModel.localRotation = Quaternion.Euler(currentEuler.x, currentEuler.y, rollAngle); },
+            onValueChange: rollAngle => _currentDodgeRoll = rollAngle,
             startValue: startRoll,
             endValue: targetRoll,
-            settings:dodgeTweenSettings
+            settings: dodgeTweenSettings
         );
     }
 
     #endregion Dodge --------------------------------------------------------------------------------------
     
-
+    
+    
     #region Input Handling --------------------------------------------------------------------------------------
 
     private void OnMove(InputAction.CallbackContext context)
@@ -342,12 +372,10 @@ public class RailPlayerMovement : MonoBehaviour
         }
     }
     
-    
     private void OnDodgeLeft(InputAction.CallbackContext context)
     {
         if (!enableDodging) return;
         
-
         if (_dodgeCooldownTimer <= 0f && !_isDodging)
         {
             _dodgeDirection = Vector3.left;
@@ -389,6 +417,7 @@ public class RailPlayerMovement : MonoBehaviour
     #endregion Input Handling --------------------------------------------------------------------------------------
 
     
+    
     #if UNITY_EDITOR
     #region Editor -------------------------------------------------------------------------------------
 
@@ -424,14 +453,9 @@ public class RailPlayerMovement : MonoBehaviour
             }
             
             UnityEditor.Handles.Label(playerSplinePosition + (_splineRotation * Vector3.up * (MovementBoundaryY + 0.5f)), "Player Boundaries");
-            
         }
     }
 
     #endregion Editor -------------------------------------------------------------------------------------
     #endif
-    
-    
-    
-    
 }

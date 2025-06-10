@@ -6,15 +6,19 @@ using VInspector;
 
 public class RailPlayerAiming : MonoBehaviour
 {
+    [Header("Aiming Settings")]
+    [SerializeField] private float aimSpeed = 15f;
+    [SerializeField] private bool autoCenter = true;
+    [EnableIf("autoCenter")]
+    [SerializeField, Min(0)] private float autoCenterDelay = 5f;
+    [SerializeField, Min(0)] private float autoCenterSpeed = 1f;
+    [EndIf]
     
     [Header("Look Offset")]
     [SerializeField] private bool useLookOffset = true;
     [EnableIf("useLookOffset")]
     [SerializeField, Min(0)] private float lookOffsetStrength = 35f;
     [SerializeField, Min(0)] private float lookOffsetSmoothing = 1.4f;
-    [SerializeField] private bool autoCenter;
-    [SerializeField, Min(0)] private float autoCenterDelay = 5f;
-    [SerializeField, Min(0)] private float autoCenterSpeed = 1f;
     [EndIf]
     
     [Header("Movement Offset")]
@@ -69,6 +73,7 @@ public class RailPlayerAiming : MonoBehaviour
         HandleSplineRotation();
         HandleMovementOffset();
         HandleLookOffset();
+        HandleAutoCenter();
         UpdateAimPosition();
     }
     
@@ -91,9 +96,55 @@ public class RailPlayerAiming : MonoBehaviour
     }
     
     
+
+    private void HandleMovementOffset()
+    {
+        if (!useMovementOffset)
+        {
+            _movementOffset = Vector3.zero;
+            return;
+        }
     
+        bool hasMovementInput = _movementInput.magnitude > 0.01f;
     
+        if (hasMovementInput)
+        {
+            Vector3 targetOffset = new Vector3(
+                _movementInput.x * movementOffsetStrength,
+                _movementInput.y * movementOffsetStrength,
+                0
+            );
+        
+            _movementOffset = Vector3.Lerp(_movementOffset, targetOffset, movementOffsetSmoothing * Time.deltaTime);
+        }
+    }
     
+    private void HandleLookOffset()
+    {
+        if (!useLookOffset)
+        {
+            _lookOffset = Vector3.zero;
+            return;
+        }
+
+        bool hasLookInput = _lookInput.magnitude > 0.01f;
+
+        if (hasLookInput)
+        {
+            // Normalize the input to handle different device sensitivities consistently
+            Vector2 normalizedInput = _lookInput.magnitude > 1f ? _lookInput.normalized : _lookInput;
+    
+            Vector3 targetOffset = new Vector3(
+                normalizedInput.x * lookOffsetStrength,
+                normalizedInput.y * lookOffsetStrength,
+                0
+            );
+    
+            _lookOffset = Vector3.Lerp(_lookOffset, targetOffset, lookOffsetSmoothing * Time.deltaTime);
+        }
+    }
+
+
     private void UpdateAimPosition()
     {
        Vector3 boundaryCenter = GetCrosshairSplinePosition();
@@ -132,77 +183,58 @@ public class RailPlayerAiming : MonoBehaviour
            _crosshairWorldPosition.y = Mathf.Clamp(_crosshairWorldPosition.y, boundaryCenter.y - CrosshairBoundaryY, boundaryCenter.y + CrosshairBoundaryY);
        }
        
-       // Set aim direction
-       _aimDirection = (_crosshairWorldPosition - transform.position).normalized;
+       // Lerp aim direction for smoothness
+        _aimDirection = Vector3.Lerp(_aimDirection, (_crosshairWorldPosition - transform.position).normalized, aimSpeed * Time.deltaTime);
+
 
        // Update crosshair position and rotation
        if (crosshair)
        {
-           crosshair.position = _crosshairWorldPosition;
+           // Lerp the crosshair rotation for smoothness
+            crosshair.position = Vector3.Lerp(crosshair.position, _crosshairWorldPosition, aimSpeed * Time.deltaTime);
            
            // Rotate crosshair to match boundary rotation
            crosshair.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
        }
     }
     
-
-    private void HandleMovementOffset()
+    
+    private void HandleAutoCenter()
     {
-        if (!useMovementOffset)
-        {
-            _movementOffset = Vector3.zero;
-            return;
-        }
-        
-        Vector3 targetOffset = new Vector3(
-            _movementInput.x * movementOffsetStrength,
-            _movementInput.y * movementOffsetStrength,
-            0
-        );
-        
-        _movementOffset = Vector3.Lerp(_movementOffset, targetOffset, movementOffsetSmoothing * Time.deltaTime);
-    }
+        if (!autoCenter) return;
     
-    private void HandleLookOffset()
-    {
-        if (!useLookOffset)
-        {
-            _lookOffset = Vector3.zero;
-            return;
-        }
+        // Check if we have any input (look or movement)
+        bool hasLookInput = _lookInput.magnitude > 0.01f;
+        bool hasMovementInput = _movementInput.magnitude > 0.01f;
+        bool hasAnyInput = hasLookInput || hasMovementInput;
     
-        // Check if we have any input
-        bool hasInput = _lookInput.magnitude > 0.01f;
-    
-        if (hasInput)
+        if (hasAnyInput)
         {
-            // Reset the no input timer when we have input
+            // Reset the timer when we have any input
             _noInputTimer = 0f;
-        
-            // Normalize the input to handle different device sensitivities consistently
-            Vector2 normalizedInput = _lookInput.magnitude > 1f ? _lookInput.normalized : _lookInput;
-        
-            Vector3 targetOffset = new Vector3(
-                normalizedInput.x * lookOffsetStrength,
-                normalizedInput.y * lookOffsetStrength,
-                0
-            );
-        
-            _lookOffset = Vector3.Lerp(_lookOffset, targetOffset, lookOffsetSmoothing * Time.deltaTime);
         }
-        else if (autoCenter)
+        else
         {
+            // Increment timer when no input is detected
             _noInputTimer += Time.deltaTime;
         
-            // Centering after the delay has passed
+            // Start centering after the delay has passed
             if (_noInputTimer >= autoCenterDelay)
             {
-                _lookOffset = Vector3.Lerp(_lookOffset, Vector3.zero, autoCenterSpeed * Time.deltaTime);
+                // Auto-center look offset if it's enabled
+                if (useLookOffset)
+                {
+                    _lookOffset = Vector3.Lerp(_lookOffset, Vector3.zero, autoCenterSpeed * Time.deltaTime);
+                }
+            
+                // Auto-center movement offset if it's enabled
+                if (useMovementOffset)
+                {
+                    _movementOffset = Vector3.Lerp(_movementOffset, Vector3.zero, autoCenterSpeed * Time.deltaTime);
+                }
             }
         }
     }
-
-
     
     
     #region Input --------------------------------------------------------------------------------------------------------
