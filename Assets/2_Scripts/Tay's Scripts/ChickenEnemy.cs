@@ -18,10 +18,7 @@ public class ChickenEnemy : MonoBehaviour
         // Initialize current health to max health
         currentHealth = maxHealth;
     }
-    
-    
-    
-    
+   
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;

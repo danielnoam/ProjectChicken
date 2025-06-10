@@ -131,11 +131,11 @@ public class ChickenFollowFormation : MonoBehaviour
             if (spawnPointObject != null)
             {
                 spawnPoint = spawnPointObject.transform;
-                Debug.Log($"{gameObject.name}: Found spawn point - {spawnPointObject.name}");
+                //Debug.Log($"{gameObject.name}: Found spawn point - {spawnPointObject.name}");
             }
             else
             {
-                Debug.LogWarning($"{gameObject.name}: No spawn point assigned and couldn't find 'Spawn Point' GameObject!");
+                //Debug.LogWarning($"{gameObject.name}: No spawn point assigned and couldn't find 'Spawn Point' GameObject!");
             }
         }
     }
@@ -148,7 +148,7 @@ public class ChickenFollowFormation : MonoBehaviour
             playerTransform = playerOverride;
             playerFound = true;
             currentPlayerName = playerOverride.name;
-            Debug.Log($"{gameObject.name}: Using player override - {playerOverride.name}");
+            //Debug.Log($"{gameObject.name}: Using player override - {playerOverride.name}");
             return;
         }
         
@@ -159,7 +159,7 @@ public class ChickenFollowFormation : MonoBehaviour
             playerTransform = playerObject.transform;
             playerFound = true;
             currentPlayerName = playerObject.name;
-            Debug.Log($"{gameObject.name}: Found player by tag '{playerTag}' - {playerObject.name}");
+            //Debug.Log($"{gameObject.name}: Found player by tag '{playerTag}' - {playerObject.name}");
         }
         else
         {
@@ -177,7 +177,7 @@ public class ChickenFollowFormation : MonoBehaviour
                             playerTransform = playerObject.transform;
                             playerFound = true;
                             currentPlayerName = playerObject.name;
-                            Debug.LogWarning($"{gameObject.name}: Player not found with tag '{playerTag}', but found with tag '{tag}'. Consider updating playerTag setting.");
+                            //Debug.LogWarning($"{gameObject.name}: Player not found with tag '{playerTag}', but found with tag '{tag}'. Consider updating playerTag setting.");
                             return;
                         }
                     }
@@ -190,7 +190,7 @@ public class ChickenFollowFormation : MonoBehaviour
             
             playerFound = false;
             currentPlayerName = "None";
-            Debug.LogError($"{gameObject.name}: Player with tag '{playerTag}' not found! Chicken won't be able to look at player. Make sure player GameObject has the correct tag or assign playerOverride manually.");
+            //Debug.LogError($"{gameObject.name}: Player with tag '{playerTag}' not found! Chicken won't be able to look at player. Make sure player GameObject has the correct tag or assign playerOverride manually.");
         }
     }
     
@@ -199,7 +199,7 @@ public class ChickenFollowFormation : MonoBehaviour
         // Validate player setup
         if (lookAtPlayer && playerTransform == null)
         {
-            Debug.LogError($"{gameObject.name}: lookAtPlayer is enabled but no player found! Check player tag or assign playerOverride.");
+            //Debug.LogError($"{gameObject.name}: lookAtPlayer is enabled but no player found! Check player tag or assign playerOverride.");
         }
         
         // Find FormationManager
@@ -207,7 +207,7 @@ public class ChickenFollowFormation : MonoBehaviour
         
         if (formationManager == null)
         {
-            Debug.LogError("FormationManager not found! Chicken will not be able to join formation.");
+            //Debug.LogError("FormationManager not found! Chicken will not be able to join formation.");
             // Move to spawn point if available
             if (spawnPoint != null)
             {
@@ -224,7 +224,7 @@ public class ChickenFollowFormation : MonoBehaviour
         // Double-check rigidbody rotation is frozen
         if (rb != null && !rb.freezeRotation)
         {
-            Debug.LogWarning($"{gameObject.name}: Rigidbody rotation was not frozen. Freezing it now to prevent physics interference.");
+            //Debug.LogWarning($"{gameObject.name}: Rigidbody rotation was not frozen. Freezing it now to prevent physics interference.");
             rb.freezeRotation = true;
         }
         
@@ -232,7 +232,7 @@ public class ChickenFollowFormation : MonoBehaviour
         Animator animator = GetComponent<Animator>();
         if (animator != null && animator.applyRootMotion)
         {
-            Debug.LogWarning($"{gameObject.name}: Animator has 'Apply Root Motion' enabled which may interfere with rotation! Consider disabling it.");
+            //Debug.LogWarning($"{gameObject.name}: Animator has 'Apply Root Motion' enabled which may interfere with rotation! Consider disabling it.");
         }
         
         // Start coroutine to wait for formation generation
@@ -253,7 +253,7 @@ public class ChickenFollowFormation : MonoBehaviour
             // Check if formations are available
             if (formationManager.FormationSlots != null && formationManager.FormationSlots.Count > 0)
             {
-                Debug.Log($"Formations ready! Total slots: {formationManager.FormationSlots.Count}");
+                //Debug.Log($"Formations ready! Total slots: {formationManager.FormationSlots.Count}");
                 
                 // Try to assign to slot
                 if (TryAssignToSlot())
@@ -265,12 +265,12 @@ public class ChickenFollowFormation : MonoBehaviour
                     // Calculate actual arrival time with random variance
                     actualArrivalTime = initialSpeed + Random.Range(0f, arrivalTimeVariance);
                     
-                    Debug.Log($"{gameObject.name} successfully assigned to formation! Arrival time: {actualArrivalTime:F2}s");
+                    //Debug.Log($"{gameObject.name} successfully assigned to formation! Arrival time: {actualArrivalTime:F2}s");
                     yield break;
                 }
                 else
                 {
-                    Debug.Log($"All {formationManager.FormationSlots.Count} slots are occupied. {gameObject.name} will move to spawn point.");
+                    //Debug.Log($"All {formationManager.FormationSlots.Count} slots are occupied. {gameObject.name} will move to spawn point.");
                     SetState(ChickenState.MovingToSpawnPoint);
                     MoveToSpawnPoint();
                     yield break;
@@ -284,7 +284,7 @@ public class ChickenFollowFormation : MonoBehaviour
         // If we're here and still waiting, formation generation timed out
         if (state == ChickenState.WaitingForFormation)
         {
-            Debug.LogWarning($"{gameObject.name} timed out waiting for formation generation! Moving to spawn point.");
+            //Debug.LogWarning($"{gameObject.name} timed out waiting for formation generation! Moving to spawn point.");
             SetState(ChickenState.MovingToSpawnPoint);
             MoveToSpawnPoint();
         }
@@ -293,7 +293,7 @@ public class ChickenFollowFormation : MonoBehaviour
     // Handle formation change notification
     private void HandleFormationChanged()
     {
-        Debug.Log($"{gameObject.name} received formation change notification!");
+        //Debug.Log($"{gameObject.name} received formation change notification!");
         OnFormationChangedNotification();
     }
     
@@ -303,7 +303,7 @@ public class ChickenFollowFormation : MonoBehaviour
         // Don't reset if in concuss state - keep the slot
         if (state == ChickenState.Concussed)
         {
-            Debug.Log($"{gameObject.name} is concussed, keeping slot assignment during formation change");
+            //Debug.Log($"{gameObject.name} is concussed, keeping slot assignment during formation change");
             return;
         }
         
@@ -328,7 +328,7 @@ public class ChickenFollowFormation : MonoBehaviour
     {
         if (spawnPoint == null)
         {
-            Debug.LogWarning($"{gameObject.name} can't move to spawn point - no spawn point assigned!");
+            //Debug.LogWarning($"{gameObject.name} can't move to spawn point - no spawn point assigned!");
             // Just idle in place
             SetState(ChickenState.Idle);
             idleStartPosition = transform.position;
@@ -352,12 +352,12 @@ public class ChickenFollowFormation : MonoBehaviour
             spawnPointTargetPosition = spawnPoint.position;
         }
         
-        Debug.Log($"{gameObject.name} moving to spawn point at {spawnPointTargetPosition}");
+        //Debug.Log($"{gameObject.name} moving to spawn point at {spawnPointTargetPosition}");
     }
     
     private IEnumerator IdleAndCheckForSlots()
     {
-        Debug.Log($"{gameObject.name} entering idle state, will check for slots every {slotCheckInterval} seconds.");
+        //Debug.Log($"{gameObject.name} entering idle state, will check for slots every {slotCheckInterval} seconds.");
         
         while (state == ChickenState.Idle || state == ChickenState.AtSpawnPoint)
         {
@@ -368,7 +368,7 @@ public class ChickenFollowFormation : MonoBehaviour
             if (formationManager != null && formationManager.FormationSlots != null && formationManager.FormationSlots.Count > 0)
             {
                 var availableSlots = formationManager.GetAvailableSlots();
-                Debug.Log($"{gameObject.name} checking for slots... Available: {availableSlots.Count}");
+               // Debug.Log($"{gameObject.name} checking for slots... Available: {availableSlots.Count}");
                 
                 if (availableSlots.Count > 0 && TryAssignToSlot())
                 {
@@ -379,7 +379,7 @@ public class ChickenFollowFormation : MonoBehaviour
                     // Calculate actual arrival time with random variance
                     actualArrivalTime = initialSpeed + Random.Range(0f, arrivalTimeVariance);
                     
-                    Debug.Log($"{gameObject.name} found an open slot! Moving to formation in {actualArrivalTime:F2}s.");
+                    //Debug.Log($"{gameObject.name} found an open slot! Moving to formation in {actualArrivalTime:F2}s.");
                     yield break;
                 }
             }
@@ -390,14 +390,14 @@ public class ChickenFollowFormation : MonoBehaviour
     {
         // First, log current formation state
         var availableSlots = formationManager.GetAvailableSlots();
-        Debug.Log($"Attempting to assign {gameObject.name}. Available slots: {availableSlots.Count} / {formationManager.FormationSlots.Count}");
+        //Debug.Log($"Attempting to assign {gameObject.name}. Available slots: {availableSlots.Count} / {formationManager.FormationSlots.Count}");
         
         // Method 1: Try to get any available slot
         assignedSlot = formationManager.TryOccupySlot(gameObject);
         
         if (assignedSlot != null)
         {
-            Debug.Log($"{gameObject.name} assigned to slot at position {assignedSlot.localPosition} (index: {assignedSlot.formationIndex})");
+            //Debug.Log($"{gameObject.name} assigned to slot at position {assignedSlot.localPosition} (index: {assignedSlot.formationIndex})");
             return true;
         }
         
@@ -406,7 +406,7 @@ public class ChickenFollowFormation : MonoBehaviour
         if (nearestSlot != null && formationManager.OccupySpecificSlot(nearestSlot, gameObject))
         {
             assignedSlot = nearestSlot;
-            Debug.Log($"{gameObject.name} assigned to nearest slot at position {nearestSlot.localPosition} (index: {nearestSlot.formationIndex})");
+            //Debug.Log($"{gameObject.name} assigned to nearest slot at position {nearestSlot.localPosition} (index: {nearestSlot.formationIndex})");
             return true;
         }
         
@@ -426,7 +426,7 @@ public class ChickenFollowFormation : MonoBehaviour
             FindPlayer();
             if (playerTransform == null && Time.frameCount % 300 == 0) // Log every 5 seconds
             {
-                Debug.LogWarning($"{gameObject.name}: lookAtPlayer is enabled but no player found!");
+                //Debug.LogWarning($"{gameObject.name}: lookAtPlayer is enabled but no player found!");
             }
         }
         
@@ -458,7 +458,7 @@ public class ChickenFollowFormation : MonoBehaviour
                 // If rotation is way off what we expect, something else changed it
                 if (angleDifference > 45f && hasPerformedFirstRotation)
                 {
-                    Debug.LogWarning($"{gameObject.name}: Rotation was changed by another script! Expected angle difference: {angleDifference:F1}°. Re-applying player look rotation.");
+                    //Debug.LogWarning($"{gameObject.name}: Rotation was changed by another script! Expected angle difference: {angleDifference:F1}°. Re-applying player look rotation.");
                     HandleLookAtPlayer();
                 }
             }
@@ -488,7 +488,7 @@ public class ChickenFollowFormation : MonoBehaviour
             {
                 transform.rotation = targetRotation;
                 hasPerformedFirstRotation = true;
-                Debug.Log($"{gameObject.name} - Instant first rotation to face player at {worldPlayerPos}");
+                //Debug.Log($"{gameObject.name} - Instant first rotation to face player at {worldPlayerPos}");
             }
             else
             {
@@ -513,7 +513,7 @@ public class ChickenFollowFormation : MonoBehaviour
                     idleStartPosition = transform.position;
                     idleTime = 0f;
                     nextSlotCheckTime = Time.time + slotCheckInterval;
-                    Debug.Log($"{gameObject.name} arrived at spawn point");
+                    //Debug.Log($"{gameObject.name} arrived at spawn point");
                     StartCoroutine(IdleAndCheckForSlots());
                 });
                 break;
@@ -604,7 +604,7 @@ public class ChickenFollowFormation : MonoBehaviour
     {
         if (state != ChickenState.InCombat || !hasArrivedAtSlotOnce)
         {
-            Debug.LogWarning($"{gameObject.name} tried to enter concuss state but wasn't in combat or hasn't arrived at slot once!");
+            //Debug.LogWarning($"{gameObject.name} tried to enter concuss state but wasn't in combat or hasn't arrived at slot once!");
             return;
         }
         
@@ -612,7 +612,7 @@ public class ChickenFollowFormation : MonoBehaviour
         concussTimer = concussTime;
         concussVelocity = rb.linearVelocity; // Preserve current velocity
         
-        Debug.Log($"{gameObject.name} entered concuss state! Will recover in {concussTime} seconds");
+        //Debug.Log($"{gameObject.name} entered concuss state! Will recover in {concussTime} seconds");
     }
     
     private void ExitConcussState()
@@ -624,7 +624,7 @@ public class ChickenFollowFormation : MonoBehaviour
         // Calculate faster return time (half the initial speed = twice as fast)
         actualArrivalTime = initialSpeed / 2f;
         
-        Debug.Log($"{gameObject.name} exiting concuss state, returning to slot at double speed!");
+        //Debug.Log($"{gameObject.name} exiting concuss state, returning to slot at double speed!");
     }
     
     private void MoveTowardsPosition(Vector3 targetPosition, float speed, System.Action onArrival)
@@ -670,7 +670,7 @@ public class ChickenFollowFormation : MonoBehaviour
             {
                 hasArrivedAtSlotOnce = true;
                 SetState(ChickenState.InCombat);
-                Debug.Log($"{gameObject.name} arrived at formation slot for the first time - entering combat mode!");
+                //Debug.Log($"{gameObject.name} arrived at formation slot for the first time - entering combat mode!");
             }
         }
         
@@ -691,7 +691,7 @@ public class ChickenFollowFormation : MonoBehaviour
         {
             hasArrivedAtSlotOnce = true;
             SetState(ChickenState.InCombat);
-            Debug.Log($"{gameObject.name} arrived at formation slot (early arrival) - entering combat mode!");
+            //Debug.Log($"{gameObject.name} arrived at formation slot (early arrival) - entering combat mode!");
         }
     }
     
@@ -705,7 +705,7 @@ public class ChickenFollowFormation : MonoBehaviour
             // Arrived back at slot
             t = 1f;
             SetState(ChickenState.InCombat);
-            Debug.Log($"{gameObject.name} returned to formation slot - back in combat mode!");
+            //Debug.Log($"{gameObject.name} returned to formation slot - back in combat mode!");
         }
         
         // Apply ease-out curve
@@ -724,7 +724,7 @@ public class ChickenFollowFormation : MonoBehaviour
         if (distanceToSlot < arrivalThreshold)
         {
             SetState(ChickenState.InCombat);
-            Debug.Log($"{gameObject.name} returned to formation slot (early arrival) - back in combat mode!");
+            //Debug.Log($"{gameObject.name} returned to formation slot (early arrival) - back in combat mode!");
         }
     }
     
@@ -763,7 +763,7 @@ public class ChickenFollowFormation : MonoBehaviour
         // Only apply concussion if in combat mode
         if (state != ChickenState.InCombat)
         {
-            Debug.LogWarning($"{gameObject.name} can't be concussed - not in combat mode! Current state: {state}");
+            //Debug.LogWarning($"{gameObject.name} can't be concussed - not in combat mode! Current state: {state}");
             return;
         }
         
@@ -771,7 +771,7 @@ public class ChickenFollowFormation : MonoBehaviour
         rb.AddForce(force, ForceMode.Impulse);
         
         // The actual concussion state will be triggered by distance check in FixedUpdate
-        Debug.Log($"{gameObject.name} was hit by concussive force!");
+        //Debug.Log($"{gameObject.name} was hit by concussive force!");
     }
     
     // Call this when chicken takes damage (for visual feedback or other systems)
@@ -799,14 +799,14 @@ public class ChickenFollowFormation : MonoBehaviour
         // Don't release slot if concussed - we keep the slot reservation
         if (state == ChickenState.Concussed)
         {
-            Debug.Log($"{gameObject.name} is concussed - keeping slot reservation");
+            //Debug.Log($"{gameObject.name} is concussed - keeping slot reservation");
             return;
         }
         
         if (assignedSlot != null && formationManager != null)
         {
             formationManager.ReleaseSlot(assignedSlot);
-            Debug.Log($"{gameObject.name} released its formation slot");
+            //Debug.Log($"{gameObject.name} released its formation slot");
             assignedSlot = null;
         }
         
@@ -820,7 +820,7 @@ public class ChickenFollowFormation : MonoBehaviour
         // Don't reassign if concussed
         if (state == ChickenState.Concussed)
         {
-            Debug.LogWarning($"{gameObject.name} is concussed - cannot force reassign!");
+            //Debug.LogWarning($"{gameObject.name} is concussed - cannot force reassign!");
             return;
         }
         
@@ -838,7 +838,7 @@ public class ChickenFollowFormation : MonoBehaviour
     {
         if (state == ChickenState.Idle || state == ChickenState.AtSpawnPoint)
         {
-            Debug.Log($"{gameObject.name} notified of available slot, attempting assignment...");
+            //Debug.Log($"{gameObject.name} notified of available slot, attempting assignment...");
             StopAllCoroutines();
             SetState(ChickenState.WaitingForFormation);
             moveTimer = 0f;
@@ -869,13 +869,13 @@ public class ChickenFollowFormation : MonoBehaviour
         {
             playerFound = false;
             currentPlayerName = "None";
-            Debug.LogWarning($"{gameObject.name}: Player transform set to null!");
+            //Debug.LogWarning($"{gameObject.name}: Player transform set to null!");
         }
         else
         {
             playerFound = true;
             currentPlayerName = newPlayer.name;
-            Debug.Log($"{gameObject.name}: Player transform updated to {newPlayer.name}");
+            //Debug.Log($"{gameObject.name}: Player transform updated to {newPlayer.name}");
         }
     }
     

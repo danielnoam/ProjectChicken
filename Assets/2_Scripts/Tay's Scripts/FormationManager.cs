@@ -316,7 +316,7 @@ public class FormationManager : MonoBehaviour
         // Notify all chickens about formation change
         if (notifyChickens && Application.isPlaying)
         {
-            Debug.Log($"FormationManager: Formation changed to {currentFormation} with {formationSlots.Count} slots");
+            //Debug.Log($"FormationManager: Formation changed to {currentFormation} with {formationSlots.Count} slots");
             NotifyFormationChanged();
         }
     }
@@ -486,7 +486,7 @@ public class FormationManager : MonoBehaviour
                 
                 if (!allFit && Application.isPlaying)
                 {
-                    Debug.LogWarning($"Multiple formations cannot fit within bounds even at minimum spacing!");
+                    //Debug.LogWarning($"Multiple formations cannot fit within bounds even at minimum spacing!");
                 }
             }
         }
@@ -737,7 +737,7 @@ public class FormationManager : MonoBehaviour
         
         if (Application.isPlaying)
         {
-            Debug.Log($"[FormationConstraints] Checking {currentFormation} - Boundary: {boundary.x:F1}x{boundary.y:F1}, Formation: {currentWidth:F1}x{currentHeight:F1}");
+            //Debug.Log($"[FormationConstraints] Checking {currentFormation} - Boundary: {boundary.x:F1}x{boundary.y:F1}, Formation: {currentWidth:F1}x{currentHeight:F1}");
         }
         
         int maxIterations = 20;
@@ -806,7 +806,7 @@ public class FormationManager : MonoBehaviour
             
             if (Application.isPlaying && iteration <= 5)
             {
-                Debug.Log($"[FormationConstraints] Iteration {iteration}: Spacing {(formation.spacingMultiplier * 100):F0}%, Exceed X:{maxExceedX:F1} Y:{maxExceedY:F1}");
+                //Debug.Log($"[FormationConstraints] Iteration {iteration}: Spacing {(formation.spacingMultiplier * 100):F0}%, Exceed X:{maxExceedX:F1} Y:{maxExceedY:F1}");
             }
             
             GenerateFormationInstance(formation);
@@ -822,11 +822,11 @@ public class FormationManager : MonoBehaviour
         if (Application.isPlaying)
         {
             bool fits = IsFormationInstanceWithinBounds(formation);
-            Debug.Log($"[FormationConstraints] Final result: Fits={fits}, Spacing={(currentSpacingMultiplier * 100):F0}%, Iterations={iteration}");
+            //Debug.Log($"[FormationConstraints] Final result: Fits={fits}, Spacing={(currentSpacingMultiplier * 100):F0}%, Iterations={iteration}");
             
             if (!fits)
             {
-                Debug.LogWarning($"Formation '{currentFormation}' at position '{formationPosition}' cannot fit within bounds even at minimum spacing!");
+                //Debug.LogWarning($"Formation '{currentFormation}' at position '{formationPosition}' cannot fit within bounds even at minimum spacing!");
             }
         }
     }
@@ -877,8 +877,7 @@ public class FormationManager : MonoBehaviour
             
             if (Application.isPlaying)
             {
-                Debug.Log($"[V-Shape Positioning] Boundary: {boundary.y:F1} (bottom at {bottomBoundary:F1}), " +
-                         $"Target Y: {targetCenterY:F1}, Padding: {vShapeBottomPadding:F1}");
+                //Debug.Log($"[V-Shape Positioning] Boundary: {boundary.y:F1} (bottom at {bottomBoundary:F1}), " + $"Target Y: {targetCenterY:F1}, Padding: {vShapeBottomPadding:F1}");
             }
             
             return;
@@ -1138,7 +1137,7 @@ public class FormationManager : MonoBehaviour
         
         if (currentFormation == FormationType.VShape)
         {
-            Debug.LogWarning("V-Shape formations always position at the bottom of the boundary and ignore FormationPosition settings.");
+            //Debug.LogWarning("V-Shape formations always position at the bottom of the boundary and ignore FormationPosition settings.");
         }
         
         if (formationSlots.Count > 0)
@@ -1263,7 +1262,7 @@ public class FormationManager : MonoBehaviour
     {
         if (currentFormation == FormationType.VShape)
         {
-            Debug.Log("V-Shape formations always position at bottom - randomization has no effect.");
+            //Debug.Log("V-Shape formations always position at bottom - randomization has no effect.");
             GenerateFormations(true);
             return;
         }
@@ -1282,7 +1281,7 @@ public class FormationManager : MonoBehaviour
     {
         if (currentFormation == FormationType.VShape)
         {
-            Debug.Log("V-Shape formations always position at bottom - position cycling has no effect.");
+            //Debug.Log("V-Shape formations always position at bottom - position cycling has no effect.");
             return;
         }
         
@@ -1304,11 +1303,11 @@ public class FormationManager : MonoBehaviour
     [Button]
     private void DebugPositionSpace()
     {
-        Debug.Log($"=== Position Space Debug ===");
-        Debug.Log($"Boundary is rotated: {splineRotation.eulerAngles}");
-        Debug.Log($"Formation world center: {FormationWorldCenter}");
-        Debug.Log($"Boundary center: {formationCenter}");
-        Debug.Log($"Active Formations: {formations.Count}");
+        //Debug.Log($"=== Position Space Debug ===");
+        //Debug.Log($"Boundary is rotated: {splineRotation.eulerAngles}");
+        //Debug.Log($"Formation world center: {FormationWorldCenter}");
+        //Debug.Log($"Boundary center: {formationCenter}");
+        //Debug.Log($"Active Formations: {formations.Count}");
     }
 
     #endregion

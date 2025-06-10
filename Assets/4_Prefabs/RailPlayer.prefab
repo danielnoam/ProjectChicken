@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8445288471549559756}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SpecialWeaponGfx
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4913251172318160832}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BaseWeaponGfx
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -74,7 +74,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5119365439155976064}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Gfx
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -108,7 +108,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7239159908269156373}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CameraTarget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -141,7 +141,7 @@ GameObject:
   - component: {fileID: 4688035395830200613}
   - component: {fileID: 5023822418595247511}
   - component: {fileID: 7732228944662284959}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -227,7 +227,7 @@ GameObject:
   - component: {fileID: 4486165507181737557}
   - component: {fileID: 7916817630572122540}
   - component: {fileID: 3701714565008483880}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -314,7 +314,7 @@ GameObject:
   - component: {fileID: 6836121939850626960}
   - component: {fileID: 6250998303371249983}
   - component: {fileID: 6678957683698290977}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -413,7 +413,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6174838063405869257}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Crosshair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -450,7 +450,7 @@ GameObject:
   - component: {fileID: 7079655128871609596}
   - component: {fileID: 1521367215413431465}
   - component: {fileID: 7124719717599433649}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -537,7 +537,7 @@ GameObject:
   - component: {fileID: 650185302501957326}
   - component: {fileID: 2061809994831394379}
   - component: {fileID: 1622783546286214265}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlayerStats
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -678,7 +678,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2538473021605918491}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -709,7 +709,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8658125663898116613}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ProjectileSpawnPoint (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -748,7 +748,7 @@ GameObject:
   - component: {fileID: 7233717465822237952}
   - component: {fileID: 890854243081262160}
   - component: {fileID: 3423310960035294283}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RailPlayer
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -1118,6 +1118,7 @@ MonoBehaviour:
       isKeyRepeated: 0
       isKeyNull: 0
     dividerPos: 0.33
+  player: {fileID: 2233603387570671912}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
 --- !u!1 &5233889759303089162
@@ -1131,7 +1132,7 @@ GameObject:
   - component: {fileID: 9056031533831509997}
   - component: {fileID: 2604621547379929373}
   - component: {fileID: 5707783105019397194}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1217,7 +1218,7 @@ GameObject:
   - component: {fileID: 5829169123053976795}
   - component: {fileID: 3861301425744338897}
   - component: {fileID: 3954000043469550707}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1301,7 +1302,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 147079955209707014}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Spaceship
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1337,7 +1338,7 @@ GameObject:
   - component: {fileID: 7505649629923921561}
   - component: {fileID: 925819848504179945}
   - component: {fileID: 2267080844491920373}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1423,7 +1424,7 @@ GameObject:
   - component: {fileID: 3438372924203813476}
   - component: {fileID: 8469581158790341040}
   - component: {fileID: 4450059601338276375}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1510,7 +1511,7 @@ GameObject:
   - component: {fileID: 1304584556472675668}
   - component: {fileID: 582837039857651978}
   - component: {fileID: 7420932571048184413}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cylinder (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1597,7 +1598,7 @@ GameObject:
   - component: {fileID: 3385265377747687933}
   - component: {fileID: 68666288102914462}
   - component: {fileID: 8642202346870350222}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1683,7 +1684,7 @@ GameObject:
   - component: {fileID: 302745937291007421}
   - component: {fileID: 967988056409844843}
   - component: {fileID: 2379201968457840565}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1767,7 +1768,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3537693180872267810}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -14,13 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Missile Weapon
   weaponDescription: Boom goes the chicken!
-  weaponDurationType: 1
   damage: 1
   fireRate: 1
+  weaponDurationType: 1
   timeLimit: 10
   ammoLimit: 5
-  projectileSpeed: 100
-  projectilePushForce: 5
   projectileLifetime: 5
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: 20978eb0d84dfd74fbd018ce1cb29fbf, type: 3}
   projectileBehaviors:
@@ -35,11 +33,12 @@ MonoBehaviour:
     RefIds:
     - rid: 2319611325492494601
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
-      data: 
+      data:
+        moveSpeed: 100
     - rid: 2319611325492494602
       type: {class: BehaviorExplodeOnImpact, ns: , asm: Assembly-CSharp}
       data:
-        explosionMinRadius: 1
-        explosionMaxRadius: 5
-        explosionForce: 10
-        explosionDamage: 10
+        explosionMinRadius: 2
+        explosionMaxRadius: 6
+        explosionForce: 15
+        explosionDamage: 25

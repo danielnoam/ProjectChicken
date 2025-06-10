@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class LaggingScript : MonoBehaviour
 {
-    [Range(1, 120)]
+    [Range(1, 999)]
     public int targetFPS = 20;
 
     private void Awake()
@@ -12,9 +12,4 @@ public class LaggingScript : MonoBehaviour
         QualitySettings.vSyncCount = 0; // Disable vSync to allow frame rate limiting
     }
 
-    private void Update()
-    {
-        Application.targetFrameRate = targetFPS;
-        QualitySettings.vSyncCount = 0; // Disable vSync to allow frame rate limiting
-    }
 }
