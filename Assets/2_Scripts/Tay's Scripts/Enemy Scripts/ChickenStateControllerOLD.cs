@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 
 // Central state controller that manages the chicken's current state and transitions
-public class ChickenStateController : MonoBehaviour
+public class ChickenStateControllerOLD : MonoBehaviour
 {
     // State enum
     public enum ChickenState

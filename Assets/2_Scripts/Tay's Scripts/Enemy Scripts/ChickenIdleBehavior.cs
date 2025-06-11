@@ -1,4 +1,5 @@
 using System.Collections;
+using KBCore.Refs;
 using UnityEngine;
 using VInspector;
 
@@ -27,9 +28,9 @@ public class ChickenIdleBehavior : MonoBehaviour
     [SerializeField, ReadOnly] private Vector3 currentTargetPosition;
     
     // References
-    private ChickenController chickenController;
-    private ChickenFormationBehavior formationBehavior;
-    private Rigidbody rb;
+    [SerializeField, Self]private ChickenController chickenController;
+    [SerializeField, Self] private ChickenFormationBehavior formationBehavior;
+    [SerializeField, Self]private Rigidbody rb;
     
     // Movement state
     private Vector3 initialPosition;
@@ -38,13 +39,12 @@ public class ChickenIdleBehavior : MonoBehaviour
     private float moveTimer = 0f;
     private float idleTime = 0f;
     private Coroutine currentIdleCoroutine;
-    
+    private void OnValidate()
+    {
+        this.ValidateRefs();
+    }
     private void Awake()
     {
-        chickenController = GetComponent<ChickenController>();
-        formationBehavior = GetComponent<ChickenFormationBehavior>();
-        rb = GetComponent<Rigidbody>();
-        
         // Find spawn point if not assigned
         if (spawnPoint == null)
         {

@@ -1,3 +1,4 @@
+using KBCore.Refs;
 using UnityEngine;
 using VInspector;
 
@@ -24,9 +25,9 @@ public class ChickenCombatBehavior : MonoBehaviour
     [SerializeField, ReadOnly] private bool isHovering = false;
     
     // References
-    private ChickenController chickenController;
-    private ChickenFormationBehavior formationBehavior;
-    private Rigidbody rb;
+    [SerializeField, Self] private ChickenController chickenController;
+    [SerializeField, Self] private ChickenFormationBehavior formationBehavior;
+    [SerializeField, Self] private Rigidbody rb;
     
     // Concussion state
     private float concussTimer = 0f;
@@ -44,12 +45,12 @@ public class ChickenCombatBehavior : MonoBehaviour
     public event System.Action OnHoverStart;
     public event System.Action OnHoverEnd;
     
+    private void OnValidate()
+    {
+        this.ValidateRefs();
+    }
     private void Awake()
     {
-        chickenController = GetComponent<ChickenController>();
-        formationBehavior = GetComponent<ChickenFormationBehavior>();
-        rb = GetComponent<Rigidbody>();
-        
         // Initialize random noise offset for unique wiggle pattern
         noiseOffset = new Vector3(
             Random.Range(0f, 100f),

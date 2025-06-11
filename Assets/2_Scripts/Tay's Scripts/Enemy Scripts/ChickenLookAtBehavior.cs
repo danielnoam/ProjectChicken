@@ -1,3 +1,4 @@
+using KBCore.Refs;
 using UnityEngine;
 using VInspector;
 
@@ -20,7 +21,7 @@ public class ChickenLookAtBehavior : MonoBehaviour
     [SerializeField, ReadOnly] private string currentPlayerName = "None";
     
     // References
-    private ChickenController chickenController;
+    [SerializeField, Self] private ChickenController chickenController;
     private Transform playerTransform;
     private bool hasPerformedFirstRotation = false;
     
@@ -28,10 +29,17 @@ public class ChickenLookAtBehavior : MonoBehaviour
     public Transform CurrentPlayerTarget => playerTransform;
     public bool IsLookingAtPlayer => lookAtPlayer && playerTransform != null;
     
+    private void OnValidate()
+    {
+        if (Application.isPlaying && playerOverride != null)
+        {
+            SetPlayerTransform(playerOverride);
+        }
+        this.ValidateRefs();
+    }
+
     private void Awake()
     {
-        chickenController = GetComponent<ChickenController>();
-        
         // Ensure rigidbody rotation is frozen
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
@@ -225,13 +233,6 @@ public class ChickenLookAtBehavior : MonoBehaviour
         }
     }
     
-    private void OnValidate()
-    {
-        if (Application.isPlaying && playerOverride != null)
-        {
-            SetPlayerTransform(playerOverride);
-        }
-    }
     
     private void OnDrawGizmos()
     {

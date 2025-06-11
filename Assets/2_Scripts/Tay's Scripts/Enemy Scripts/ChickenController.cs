@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using KBCore.Refs;
 using VInspector;
 
 // Main controller that manages state and all chicken behaviors
@@ -28,10 +29,10 @@ public class ChickenController : MonoBehaviour
     [SerializeField, ReadOnly] private string currentStateName = "WaitingForFormation";
     
     [Header("Component References")]
-    [SerializeField, ReadOnly] private ChickenFormationBehavior formationBehavior;
-    [SerializeField, ReadOnly] private ChickenCombatBehavior combatBehavior;
-    [SerializeField, ReadOnly] private ChickenIdleBehavior idleBehavior;
-    [SerializeField, ReadOnly] private ChickenLookAtBehavior lookAtBehavior;
+    [SerializeField, Self] private ChickenFormationBehavior formationBehavior;
+    [SerializeField, Self] private ChickenCombatBehavior combatBehavior;
+    [SerializeField, Self] private ChickenIdleBehavior idleBehavior;
+    [SerializeField, Self] private ChickenLookAtBehavior lookAtBehavior;
     
     [Header("Status")]
     [SerializeField, ReadOnly] private bool hasSlot = false;
@@ -60,15 +61,14 @@ public class ChickenController : MonoBehaviour
     // Behavior properties
     public bool HasAssignedSlot => formationBehavior != null && formationBehavior.HasAssignedSlot;
     public Transform CurrentPlayerTarget => lookAtBehavior != null ? lookAtBehavior.CurrentPlayerTarget : null;
-    
+
+    private void OnValidate()
+    {
+        this.ValidateRefs();
+    }
+
     private void Awake()
     {
-        // Get all components
-        formationBehavior = GetComponent<ChickenFormationBehavior>();
-        combatBehavior = GetComponent<ChickenCombatBehavior>();
-        idleBehavior = GetComponent<ChickenIdleBehavior>();
-        lookAtBehavior = GetComponent<ChickenLookAtBehavior>();
-        
         // Validate components
         if (formationBehavior == null) Debug.LogError($"{gameObject.name}: Missing ChickenFormationBehavior!");
         if (combatBehavior == null) Debug.LogError($"{gameObject.name}: Missing ChickenCombatBehavior!");

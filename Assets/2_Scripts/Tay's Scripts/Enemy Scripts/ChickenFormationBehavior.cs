@@ -1,4 +1,5 @@
 using System.Collections;
+using KBCore.Refs;
 using UnityEngine;
 using VInspector;
 
@@ -25,10 +26,11 @@ public class ChickenFormationBehavior : MonoBehaviour
     [SerializeField, ReadOnly] private string assignedSlotInfo = "None";
     
     // References
-    private ChickenController chickenController;
+    [SerializeField,Self] private ChickenController chickenController; 
     private FormationManager formationManager;
     private FormationManager.FormationSlot assignedSlot;
-    private Rigidbody rb;
+   
+    [SerializeField, Self] private Rigidbody rb;
     
     // Movement tracking
     private Vector3 initialPosition;
@@ -46,11 +48,12 @@ public class ChickenFormationBehavior : MonoBehaviour
     public Vector3 GetTargetSlotPosition => assignedSlot != null && formationManager != null ? 
         formationManager.GetSlotWorldPosition(assignedSlot) : transform.position;
     
+    private void OnValidate()
+    {
+        this.ValidateRefs();
+    }
     private void Awake()
     {
-        chickenController = GetComponent<ChickenController>();
-        rb = GetComponent<Rigidbody>();
-        
         // Find FormationManager
         formationManager = FindObjectOfType<FormationManager>();
         if (formationManager == null)
