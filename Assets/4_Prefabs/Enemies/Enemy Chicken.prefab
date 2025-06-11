@@ -149,13 +149,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36ef0df466f49e44398fbc3efc68712d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  concussTime: 1.5
+  hoverHeight: 3
+  hoverForce: 5
+  wiggleAmount: 2
+  wiggleSpeed: 1
+  hoverDamping: 5
   concussRange: 5
   concussFloatDrag: 2
   enableConcussRotation: 1
   concussRotationSpeed: 50
   currentConcussTimer: 0
   canBeConcussed: 0
+  isHovering: 0
 --- !u!114 &3460422942991614325
 MonoBehaviour:
   m_ObjectHideFlags: 0

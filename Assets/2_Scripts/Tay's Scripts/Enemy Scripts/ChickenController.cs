@@ -185,11 +185,11 @@ public class ChickenController : MonoBehaviour
             combatBehavior.TakeDamage(damage);
     }
     
-    // Apply concussive force
-    public void ApplyConcussion(Vector3 force)
+    //Apply Concussion to the chicken
+    public void ApplyConcussion(Vector3 direction,float force, float concussDuration)
     {
         if (combatBehavior != null)
-            combatBehavior.ApplyConcussion(force);
+            combatBehavior.ApplyConcussion(direction, force, concussDuration);
     }
     
     // Force chicken to find new slot
