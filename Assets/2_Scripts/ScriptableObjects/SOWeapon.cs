@@ -29,6 +29,7 @@ public class SOWeapon : ScriptableObject
     [Header("Hitscan Settings")]
     [SerializeField, Min(0)] private float maxRange = 25f;
     [SerializeField, Min(0)] private float pushForce = 5f;
+    [SerializeField, Min(0)] private float stunTime;
     [SerializeField] private LayerMask hitLayers = -1;
     [EndIf]
 
@@ -95,7 +96,7 @@ public class SOWeapon : ScriptableObject
         if (weaponType != WeaponType.Hitscan) return;
 
         // Get enemy target
-        ChickenEnemy enemy = owner.GetTarget();
+        ChickenController enemy = owner.GetTarget();
         
         // Play spawn effect
         PlayFireEffect(startPosition, Quaternion.identity);
@@ -105,64 +106,14 @@ public class SOWeapon : ScriptableObject
         {
             // Apply damage
             enemy.TakeDamage(damage);
+            
+            enemy.ApplyConcussion(stunTime);
 
-            // Push the enemy
-            if (enemy.TryGetComponent(out Rigidbody rb))
-            {
-                rb.AddForce(startPosition * pushForce, ForceMode.Impulse);
-            }
-
+            enemy.ApplyForce(startPosition, pushForce);
+            
             // Play impact effect
             PlayImpactEffect(enemy.transform.position, Quaternion.identity);
         }
-    }
-    
-    private RaycastHit PerformHitscan(Vector3 startPosition , RailPlayer owner)
-    {
-        if (weaponType != WeaponType.Hitscan) return default;
-        
-        Vector3 currentPosition = startPosition;
-        Vector3 rayDirection = owner.GetAimDirection();
-        float remainingRange = maxRange;
-        
-        // Play spawn effect
-        PlayFireEffect(startPosition, Quaternion.identity);
-        
-        
-        // Cast a ray from the start position in the aim direction
-        if (Physics.Raycast(currentPosition, rayDirection, out RaycastHit hit, remainingRange, hitLayers))
-        {
-            Vector3 hitPoint = hit.point;
-                
-            // Check if we hit an enemy
-            if (hit.collider.TryGetComponent(out ChickenEnemy enemy))
-            {
-                // Apply damage
-                enemy.TakeDamage(damage);
-                
-                // Push the enemy
-                if (enemy.TryGetComponent(out Rigidbody rb))
-                {
-                    rb.AddForce(startPosition * pushForce, ForceMode.Impulse);
-                }
-                
-                // Play impact effect
-                PlayImpactEffect(hitPoint, Quaternion.identity);
-
-
-            }
-            else // Hit something else 
-            {
-                
-
-
-            }
-            
-            return hit;
-        }
-
-        
-        return default;
     }
     
 

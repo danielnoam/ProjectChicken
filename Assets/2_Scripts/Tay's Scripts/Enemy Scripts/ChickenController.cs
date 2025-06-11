@@ -24,19 +24,26 @@ public class ChickenController : MonoBehaviour
         Idle
     }
     
+    [Header("Settings")]
+    [SerializeField] private float maxHealth = 100f;
+    [SerializeField] private SOLootTable lootTable;
+    
     [Header("State")]
     [SerializeField, ReadOnly] private ChickenState currentState = ChickenState.WaitingForFormation;
     [SerializeField, ReadOnly] private string currentStateName = "WaitingForFormation";
     
-    [Header("Component References")]
+    [Header("Status")]
+    [SerializeField, ReadOnly] private bool hasSlot = false;
+    [SerializeField, ReadOnly] private bool isInCombat = false;
+    
+    [Header("References")]
     [SerializeField, Self] private ChickenFormationBehavior formationBehavior;
     [SerializeField, Self] private ChickenCombatBehavior combatBehavior;
     [SerializeField, Self] private ChickenIdleBehavior idleBehavior;
     [SerializeField, Self] private ChickenLookAtBehavior lookAtBehavior;
     
-    [Header("Status")]
-    [SerializeField, ReadOnly] private bool hasSlot = false;
-    [SerializeField, ReadOnly] private bool isInCombat = false;
+    
+
     
     // State change events
     public event Action<ChickenState, ChickenState> OnStateChanged; // oldState, newState
@@ -45,8 +52,9 @@ public class ChickenController : MonoBehaviour
     public event Action OnConcussed;
     public event Action OnRecovered;
     public event Action OnDeath;
+    public event Action<float> OnHealthChanged;
     
-    // State properties
+    // Public properties
     public ChickenState CurrentState => currentState;
     public bool IsInFormation => currentState == ChickenState.InCombat;
     public bool IsWaitingForSlot => currentState == ChickenState.WaitingForFormation;
@@ -57,10 +65,21 @@ public class ChickenController : MonoBehaviour
     public bool IsMoving => currentState == ChickenState.MovingToSlot || 
                            currentState == ChickenState.MovingToSpawnPoint || 
                            currentState == ChickenState.ReturningToSlot;
+    public float CurrentHealth => _currentHealth;
+    
+    public float MaxHealth => maxHealth;
+    
+    public float HealthPercentage => _currentHealth / maxHealth;
+    
     
     // Behavior properties
     public bool HasAssignedSlot => formationBehavior != null && formationBehavior.HasAssignedSlot;
     public Transform CurrentPlayerTarget => lookAtBehavior != null ? lookAtBehavior.CurrentPlayerTarget : null;
+    
+    
+    // Private properties
+    private float _currentHealth;
+    
 
     private void OnValidate()
     {
@@ -81,6 +100,8 @@ public class ChickenController : MonoBehaviour
         rb.linearDamping = 1f;
         rb.angularDamping = 2f;
         rb.freezeRotation = true;
+        
+        _currentHealth = maxHealth;
     }
     
     private void OnEnable()
@@ -100,6 +121,68 @@ public class ChickenController : MonoBehaviour
             
         FormationManager.OnFormationChanged -= HandleFormationChanged;
     }
+
+
+    
+
+    #region Health Management -----------------------------------------------------------------------------------------------------
+    
+    public void TakeDamage(float damage)
+    {
+        
+        _currentHealth -= damage;
+        _currentHealth = Mathf.Max(_currentHealth, 0); // Ensure health doesn't go below 0
+        
+        // Trigger health changed event
+        OnHealthChanged?.Invoke(_currentHealth);
+        
+        // Check if enemy should die
+        if (_currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+    
+    private void Die()
+    {
+        
+        // Trigger death event
+        OnDeath?.Invoke();
+        
+        
+        if (formationBehavior != null)
+            formationBehavior.ReleaseSlot();
+
+
+        // Drop a loot resource if available
+        if (lootTable)
+        {
+            Resource loot = lootTable.GetRandomResource();
+            lootTable.SpawnResource(loot, transform.position);
+        }
+
+        
+        // Destroy or pool the chicken
+        Destroy(gameObject);
+    }
+    
+    
+    
+    
+    public void Heal(float healAmount)
+    {
+        _currentHealth += healAmount;
+        _currentHealth = Mathf.Min(_currentHealth, maxHealth); // Don't exceed max health
+        
+        OnHealthChanged?.Invoke(_currentHealth);
+    }
+    
+
+    #endregion  Health Management ----------------------------------------------------------------------------------------------------- 
+    
+    
+    
+    
     
     // Set new state with validation
     public void SetState(ChickenState newState)
@@ -177,19 +260,22 @@ public class ChickenController : MonoBehaviour
     }
     
     // Public API methods for external systems
-    
-    // Apply damage to chicken
-    public void TakeDamage(float damage)
-    {
-        if (combatBehavior != null)
-            combatBehavior.TakeDamage(damage);
-    }
+
     
     //Apply Concussion to the chicken
-    public void ApplyConcussion(Vector3 direction,float force, float concussDuration)
+    public void ApplyConcussion(float concussDuration)
     {
-        if (combatBehavior != null)
-            combatBehavior.ApplyConcussion(direction, force, concussDuration);
+        if (combatBehavior != null) combatBehavior.ApplyConcussion(concussDuration);
+    }
+    
+    public void ApplyForce(Vector3 direction, float force)
+    {
+        if (combatBehavior != null) combatBehavior.ApplyForce(direction, force);
+    }
+    
+    public void ApplyTorque(Vector3 torque, float force)
+    {
+        if (combatBehavior != null) combatBehavior.ApplyTorque(torque, force);
     }
     
     // Force chicken to find new slot
@@ -216,18 +302,8 @@ public class ChickenController : MonoBehaviour
             lookAtBehavior.SetPlayerTransform(player);
     }
     
-    // Called when chicken dies
-    public void Die()
-    {
-        if (formationBehavior != null)
-            formationBehavior.ReleaseSlot();
-            
-        OnDeath?.Invoke();
-        
-        // Destroy or pool the chicken
-        Destroy(gameObject);
-    }
-    
+
+
     // Debug methods
     [Button]
     private void DebugCurrentStatus()

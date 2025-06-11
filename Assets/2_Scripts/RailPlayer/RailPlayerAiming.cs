@@ -268,10 +268,10 @@ public class RailPlayerAiming : MonoBehaviour
 
     #region Helper -------------------------------------------------------------------------
     
-    public ChickenEnemy GetTarget(float radius = 3f)
+    public ChickenController GetTarget(float radius = 3f)
     {
         // Create a dictionary to store distances to each ChickenEnemy
-        Dictionary<ChickenEnemy, float> enemyDistances = new Dictionary<ChickenEnemy, float>();
+        Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
         
         // Create a sphere cast to detect all colliders
         Collider[] hitColliders = Physics.OverlapSphere(_crosshairWorldPosition, radius);
@@ -280,13 +280,13 @@ public class RailPlayerAiming : MonoBehaviour
         foreach (Collider hitCollider in hitColliders)
         {
             // Try to get ChickenEnemy component
-            if (hitCollider.TryGetComponent(out ChickenEnemy chickenEnemy))
+            if (hitCollider.TryGetComponent(out ChickenController enemy))
             {
                 // Calculate distance from crosshair to chicken
-                float distance = Vector3.Distance(_crosshairWorldPosition, chickenEnemy.transform.position);
+                float distance = Vector3.Distance(_crosshairWorldPosition, enemy.transform.position);
                 
                 // Store the distance in the dictionary
-                enemyDistances[chickenEnemy] = distance;
+                enemyDistances[enemy] = distance;
             }
         }
         
@@ -294,7 +294,7 @@ public class RailPlayerAiming : MonoBehaviour
         if (enemyDistances.Count > 0)
         {
             // Find the ChickenEnemy with the minimum distance
-            ChickenEnemy closestEnemy = null;
+            ChickenController closestEnemy = null;
             float minDistance = float.MaxValue;
             
             foreach (var kvp in enemyDistances)

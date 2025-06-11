@@ -13,7 +13,7 @@ public class WeaponChanceDrawer : PropertyDrawer
         EditorGUI.BeginProperty(position, label, property);
 
         // Get the weaponData and chance properties
-        var weaponProperty = property.FindPropertyRelative("weaponData");
+        var weaponProperty = property.FindPropertyRelative("weapon");
         var chanceProperty = property.FindPropertyRelative("chance");
 
         // Calculate rects for weaponData field and slider
@@ -136,7 +136,7 @@ public class WeaponChanceArrayDrawer : PropertyDrawer
         var weaponHeaderRect = new Rect(rect.x, rect.y, rect.width * 0.6f - 5f, rect.height);
         var chanceHeaderRect = new Rect(rect.x + rect.width * 0.6f, rect.y, rect.width * 0.4f, rect.height);
         
-        GUI.Label(weaponHeaderRect, "Weapon Data", headerStyle);
+        GUI.Label(weaponHeaderRect, "Weapon", headerStyle);
         GUI.Label(chanceHeaderRect, "Chance %", chanceHeaderStyle);
     }
     
@@ -157,7 +157,7 @@ public class WeaponChanceArrayDrawer : PropertyDrawer
         for (int i = 0; i < arrayProperty.arraySize; i++)
         {
             var element = arrayProperty.GetArrayElementAtIndex(i);
-            var weaponProp = element.FindPropertyRelative("weaponData");
+            var weaponProp = element.FindPropertyRelative("weapon");
             if (weaponProp.objectReferenceValue != null)
             {
                 validCount++;
@@ -171,7 +171,7 @@ public class WeaponChanceArrayDrawer : PropertyDrawer
         for (int i = 0; i < arrayProperty.arraySize; i++)
         {
             var element = arrayProperty.GetArrayElementAtIndex(i);
-            var weaponProp = element.FindPropertyRelative("weaponData");
+            var weaponProp = element.FindPropertyRelative("weapon");
             var chanceProp = element.FindPropertyRelative("chance");
             
             if (weaponProp.objectReferenceValue != null)

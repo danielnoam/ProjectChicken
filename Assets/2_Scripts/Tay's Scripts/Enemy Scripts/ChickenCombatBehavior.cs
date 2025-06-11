@@ -225,26 +225,47 @@ public class ChickenCombatBehavior : MonoBehaviour
     }
     
     // Apply concussive force (called by weapons)
-    public void ApplyConcussion(Vector3 direction, float force, float concussDuration)
+    public void ApplyConcussion(float concussDuration)
     {
         if (!canBeConcussed || chickenController.CurrentState != ChickenController.ChickenState.InCombat)
         {
             Debug.LogWarning($"{gameObject.name}: Cannot apply concussion - not in combat mode!");
             return;
         }
+        
         EnterConcussState(concussDuration);
         
-        // Apply the force
-        rb.AddForce(direction * force, ForceMode.Impulse);
     }
     
-    // Take damage (for other systems to hook into)
-    public void TakeDamage(float damage)
+    public void ApplyForce(Vector3 direction, float force)
     {
-        OnDamaged?.Invoke();
-        // Add damage handling logic here if needed
+        if (chickenController.CurrentState == ChickenController.ChickenState.Concussed)
+        {
+            // Apply force while concussed
+            concussVelocity += direction * force;
+        }
+        else if (chickenController.CurrentState == ChickenController.ChickenState.InCombat)
+        {
+            // Apply force normally
+            rb.AddForce(direction * force, ForceMode.Impulse);
+        }
     }
     
+    public void ApplyTorque(Vector3 torque, float force)
+    {
+        if (chickenController.CurrentState == ChickenController.ChickenState.Concussed)
+        {
+            // Apply torque while concussed
+            rb.AddTorque(torque * force, ForceMode.Impulse);
+        }
+        else if (chickenController.CurrentState == ChickenController.ChickenState.InCombat)
+        {
+            // Apply torque normally
+            rb.AddTorque(torque * force, ForceMode.VelocityChange);
+        }
+    }
+    
+
     private void OnDrawGizmos()
     {
         // Draw concuss range when in combat

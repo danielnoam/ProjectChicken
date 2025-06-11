@@ -16,7 +16,7 @@ public class PlayerProjectile : MonoBehaviour
     
     public SOWeapon Weapon { get; private set; }
     public RailPlayer Owner { get; private set;  }
-    public ChickenEnemy Target { get; private set;  }
+    public ChickenController Target { get; private set;  }
     public Vector3 StartDirection { get; private set; }
     public float Damage { get; private set; }
     public float Lifetime { get; private set; }
@@ -51,7 +51,7 @@ public class PlayerProjectile : MonoBehaviour
     {
         if (!IsInitialized) return;
         
-        if (other.TryGetComponent(out ChickenEnemy collision))
+        if (other.TryGetComponent(out ChickenController collision))
         {
             // Apply custom behaviors on collision
             ApplyCollisionBehaviors(this, Owner, Target, collision);
@@ -158,7 +158,7 @@ public class PlayerProjectile : MonoBehaviour
     
     #region Projectile Behaviors Calls ---------------------------------------------------------------
 
-    private void ApplySpawnBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
+    private void ApplySpawnBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
     {
         foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
         {
@@ -167,7 +167,7 @@ public class PlayerProjectile : MonoBehaviour
     }
     
     
-    private void ApplyMovementBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
+    private void ApplyMovementBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
     {
         foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
         {
@@ -175,7 +175,7 @@ public class PlayerProjectile : MonoBehaviour
         }
     }
     
-    private void ApplyCollisionBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target, ChickenEnemy collision)
+    private void ApplyCollisionBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController target, ChickenController collision)
     {
         foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
         {
@@ -183,7 +183,7 @@ public class PlayerProjectile : MonoBehaviour
         }
     }
     
-    private void ApplyDestroyBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
+    private void ApplyDestroyBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
     {
         foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
         {
@@ -191,7 +191,7 @@ public class PlayerProjectile : MonoBehaviour
         }
     }
     
-    private void ApplyDrawGizmoBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenEnemy target)
+    private void ApplyDrawGizmoBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
     {
         foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
         {

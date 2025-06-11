@@ -358,7 +358,7 @@ public class RailPlayer : MonoBehaviour
         return playerAiming.GetAimDirection();
     }
     
-    public ChickenEnemy GetTarget()
+    public ChickenController GetTarget()
     {
         return playerAiming.GetTarget();
     }
