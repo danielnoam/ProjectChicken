@@ -1,13 +1,12 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using KBCore.Refs;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering;
 using VInspector;
 
 [SelectionBase]
+[RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(RailPlayerInput))]
 [RequireComponent(typeof(RailPlayerMovement))]
 [RequireComponent(typeof(RailPlayerAiming))]
@@ -33,14 +32,22 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
     [EndIf]
     
-
-
+    [Header("SFXs")]
+    [SerializeField] private SOAudioEvent healthDamageSfx;
+    [SerializeField] private SOAudioEvent healthHealedSfx;
+    [SerializeField] private SOAudioEvent deathSfx;
+    [SerializeField] private SOAudioEvent shieldDamageSfx;
+    [SerializeField] private SOAudioEvent shieldStartRegenSfx;
+    [SerializeField] private SOAudioEvent shieldRegeneratedSfx;
+    [SerializeField] private SOAudioEvent shieldDepletedSfx;
+    
     [Header("References")]
-    [SerializeField,Child] private TextMeshProUGUI playerStatusText;
     [SerializeField, Self] private RailPlayerInput playerInput;
     [SerializeField, Self] private RailPlayerAiming playerAiming;
     [SerializeField, Self] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self] private RailPlayerMovement playerMovement;
+    [SerializeField, Self] private AudioSource audioSource;
+    [SerializeField, Child] private TextMeshProUGUI playerStatusText;
 
     private readonly List<Resource> _resourcesInRange = new List<Resource>();
     private int _currentHealth;
@@ -76,7 +83,6 @@ public class RailPlayer : MonoBehaviour
         _currentHealth = maxHealth;
         _currentShieldHealth = maxShieldHealth;
     }
-
     
 
     #region Damage ---------------------------------------------------------------------- 
@@ -102,12 +108,16 @@ public class RailPlayer : MonoBehaviour
         if (damage <= 0 || !HasShield()) return;
         
         _currentShieldHealth -= damage;
-        
 
         if (_currentShieldHealth < 0)
         {
             _currentShieldHealth = 0;
             DamageHealth();
+            shieldDepletedSfx?.Play(audioSource);
+        }
+        else
+        {
+            shieldDamageSfx?.Play(audioSource);
         }
     }
     
@@ -121,7 +131,12 @@ public class RailPlayer : MonoBehaviour
             _currentHealth = 0;
             Die();
         }
+        else
+        {
+            healthDamageSfx?.Play(audioSource);
+        }
     }
+    
     
     private void CheckDamageCooldown()
     {
@@ -135,17 +150,21 @@ public class RailPlayer : MonoBehaviour
             StartShieldRegen();
         }
     }
+    
+    
 
     private void Die()
     {
+        deathSfx?.Play(audioSource);
         Debug.Log("Player has died!");
     }
 
     #endregion Damage ----------------------------------------------------------------------
 
 
-    #region Health  --------------------------------------------------------------------------------------
+    #region Healing ----------------------------------------------------------------------
 
+    
     [Button]
     private void HealHealth(int amount = 1)
     {
@@ -156,9 +175,26 @@ public class RailPlayer : MonoBehaviour
         {
             _currentHealth = maxHealth;
         }
+        healthHealedSfx?.Play(audioSource);
     }
+    
+    [Button]
+    private void HealShield(float amount = 25f)
+    {
+        if (HasShield()) return;
+        
+        _currentShieldHealth += amount;
+        if (_currentShieldHealth >= maxShieldHealth)
+        {
+            _currentShieldHealth = maxShieldHealth;
+            shieldRegeneratedSfx?.Play(audioSource);
+        }
+        
+        StartShieldRegen();
+    }
+    
 
-    #endregion Health  --------------------------------------------------------------------------------------
+    #endregion Healing ----------------------------------------------------------------------
     
     
     #region Shield  --------------------------------------------------------------------------------------
@@ -170,9 +206,10 @@ public class RailPlayer : MonoBehaviour
         while (_currentShieldHealth < maxShieldHealth)
         {
             _currentShieldHealth += shieldRegenRate * Time.deltaTime;
-            if (_currentShieldHealth > maxShieldHealth)
+            if (_currentShieldHealth >= maxShieldHealth)
             {
                 _currentShieldHealth = maxShieldHealth;
+                shieldRegeneratedSfx?.Play(audioSource);
                 yield break;
             }
             yield return null;
@@ -200,22 +237,10 @@ public class RailPlayer : MonoBehaviour
         
         _damagedCooldown = 0;
         
+        shieldStartRegenSfx?.Play(audioSource);
+        
     }
     
-    [Button]
-    private void HealShield(float amount = 25f)
-    {
-        if (HasShield()) return;
-        
-        _currentShieldHealth += amount;
-        if (_currentShieldHealth > maxShieldHealth)
-        {
-            _currentShieldHealth = maxShieldHealth;
-        }
-        
-        StartShieldRegen();
-    }
-
     
 
     #endregion Shield  --------------------------------------------------------------------------------------
@@ -297,7 +322,7 @@ public class RailPlayer : MonoBehaviour
                 HealShield(resource.ShieldWorth);
                 break;
             case ResourceType.SpecialWeapon:
-                playerWeapon.SelectSpecialWeapon(resource.WeaponData);
+                playerWeapon.SelectSpecialWeapon(resource.Weapon);
                 break;
             default:
                 Debug.LogWarning($"Unknown resource type: {resource.ResourceType}");
@@ -351,20 +376,20 @@ public class RailPlayer : MonoBehaviour
             string selectedWeapon = "";
 
 
-            if (playerWeapon.CurrentSpecialWeaponData)
+            if (playerWeapon.CurrentSpecialWeapon)
             {
-                if (playerWeapon.CurrentSpecialWeaponData.WeaponDurationType == WeaponDurationType.AmmoBased)
+                if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.AmmoBased)
                 {
-                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeaponData.WeaponName} ({playerWeapon.SpecialWeaponAmmo}/{playerWeapon.CurrentSpecialWeaponData.AmmoLimit})";
+                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponAmmo}/{playerWeapon.CurrentSpecialWeapon.AmmoLimit})";
                 } 
-                else if (playerWeapon.CurrentSpecialWeaponData.WeaponDurationType == WeaponDurationType.TimeBased)
+                else if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.TimeBased)
                 {
-                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeaponData.WeaponName} ({playerWeapon.SpecialWeaponTime:F1}/{playerWeapon.CurrentSpecialWeaponData.TimeLimit})";
+                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponTime:F1}/{playerWeapon.CurrentSpecialWeapon.TimeLimit})";
                 }
             }
             else
             {
-                selectedWeapon = $"{playerWeapon.BaseWeaponData.WeaponName}";
+                selectedWeapon = $"{playerWeapon.BaseWeapon.WeaponName}";
             }
 
             

@@ -33,16 +33,20 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Min(0)] private TweenSettings dodgeTweenSettings = new TweenSettings(1.2f, Ease.Custom);
     [EndIf]
     
+    [Header("SFXs")]
+    [SerializeField] private SOAudioEvent dodgeSfx;
+    
     [Header("References")] 
     [SerializeField, Self] private RailPlayer player;
     [SerializeField, Self] private RailPlayerAiming playerAiming;
     [SerializeField, Self] private RailPlayerInput playerInput;
     [SerializeField, Self] private Rigidbody playerRigidbody;
+    [SerializeField, Self] private AudioSource audioSource;
     [SerializeField] private Transform shipModel;
 
     private float _horizontalInput;
     private float _verticalInput;
-    Quaternion velocityRotation = Quaternion.identity;
+    private Quaternion _velocityRotation = Quaternion.identity;
     private Quaternion _splineRotation = Quaternion.identity;
     private Quaternion _aimRotation = Quaternion.identity;
     private Vector3 _currentMoveVelocity = Vector3.zero;
@@ -87,6 +91,8 @@ public class RailPlayerMovement : MonoBehaviour
         HandleSplineRotation();
         HandleMovement();
     }
+    
+    
 
     #region Movement --------------------------------------------------------------------------------------
 
@@ -212,11 +218,11 @@ public class RailPlayerMovement : MonoBehaviour
     
         if (_horizontalInput != 0f)
         {
-            velocityRotation = Quaternion.Slerp(velocityRotation, targetVelocityRotation, rollSpeed * Time.deltaTime);
+            _velocityRotation = Quaternion.Slerp(_velocityRotation, targetVelocityRotation, rollSpeed * Time.deltaTime);
         }
         else
         {
-            velocityRotation = Quaternion.Slerp(velocityRotation, targetVelocityRotation, rollSpeed / 2 * Time.deltaTime);
+            _velocityRotation = Quaternion.Slerp(_velocityRotation, targetVelocityRotation, rollSpeed / 2 * Time.deltaTime);
         }
 
         // Aim rotation from aiming (only pitch and yaw)
@@ -241,67 +247,11 @@ public class RailPlayerMovement : MonoBehaviour
 
         // Combine all rotations: aim + input roll + dodge roll
         Vector3 finalEuler = _aimRotation.eulerAngles;
-        finalEuler.z = velocityRotation.eulerAngles.z + _currentDodgeRoll;
+        finalEuler.z = _velocityRotation.eulerAngles.z + _currentDodgeRoll;
     
         shipModel.localRotation = Quaternion.Euler(finalEuler);
     }
     
-    
-    
-    // private void HandleAimRotation()
-    // {
-    //     if (!shipModel) return;
-    //     
-    //     Vector3 aimDirection = playerAiming.GetAimDirection();
-    //     
-    //     // Convert the aim direction to local space relative to spline rotation
-    //     Vector3 localAimDirection = Quaternion.Inverse(_splineRotation) * aimDirection;
-    //     
-    //     // Clamp the local aim direction to prevent excessive angles
-    //     float yawAngle = Mathf.Atan2(localAimDirection.x, localAimDirection.z) * Mathf.Rad2Deg;
-    //     float pitchAngle = -Mathf.Asin(localAimDirection.y) * Mathf.Rad2Deg;
-    //     yawAngle = Mathf.Clamp(yawAngle, -maxYawAngle, maxYawAngle);
-    //     pitchAngle = Mathf.Clamp(pitchAngle, -maxPitchAngle, maxPitchAngle);
-    //     
-    //     // Get current Z rotation 
-    //     float currentZRotation = shipModel.localEulerAngles.z;
-    //     
-    //     // Handle banking only when not dodging
-    //     if (!_dodgeTween.isAlive)
-    //     {
-    //         float bankAngle = -_horizontalInput * movementTiltAmount * 0.5f;
-    //         currentZRotation = bankAngle;
-    //     }
-    //     
-    //     // Apply rotation but preserve the Z-axis if tween is running
-    //     Quaternion targetRotation = Quaternion.Euler(pitchAngle, yawAngle, currentZRotation);
-    //     
-    //     // Only interpolate X and Y axes when tween is active
-    //     if (_dodgeTween.isAlive)
-    //     {
-    //         // Preserve the exact Z rotation from the tween, only lerp X and Y
-    //         Vector3 currentEuler = shipModel.localEulerAngles;
-    //         Vector3 targetEuler = targetRotation.eulerAngles;
-    //         
-    //         // Interpolate only pitch and yaw
-    //         float lerpedPitch = Mathf.LerpAngle(currentEuler.x, targetEuler.x, rotationSpeed * Time.deltaTime);
-    //         float lerpedYaw = Mathf.LerpAngle(currentEuler.y, targetEuler.y, rotationSpeed * Time.deltaTime);
-    //         
-    //         shipModel.localRotation = Quaternion.Euler(lerpedPitch, lerpedYaw, currentEuler.z);
-    //     }
-    //     else
-    //     {
-    //         // Normal rotation when no tween is active
-    //         shipModel.localRotation = Quaternion.Slerp(shipModel.localRotation, targetRotation, rotationSpeed * Time.deltaTime);
-    //     }
-    //
-    //
-    //
-    //     if (playerAiming)
-    //     {
-    //         
-    //     }
-    // }
 
     #endregion Rotation  --------------------------------------------------------------------------------------
     
@@ -341,7 +291,11 @@ public class RailPlayerMovement : MonoBehaviour
         // Calculate target roll
         float startRoll = _currentDodgeRoll;
         float targetRoll = startRoll + (-_dodgeDirection.x * dodgeRollAmount);
-
+        
+        // Play dodge sound effect
+        dodgeSfx?.Play(audioSource);
+        
+        
         // Tween just the dodge roll component
         _dodgeTween = Tween.Custom(
             onValueChange: rollAngle => _currentDodgeRoll = rollAngle,

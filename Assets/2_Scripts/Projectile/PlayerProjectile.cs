@@ -1,13 +1,20 @@
 using System;
 using System.Collections.Generic;
+using KBCore.Refs;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerProjectile : MonoBehaviour
 {
     
-    public Rigidbody Rigidbody { get; private set; }
-    public SOWeaponData WeaponDataData { get; private set; }
+    [Header("References")]
+    [SerializeField, Self] private AudioSource audioSource;
+    [SerializeField, Self] private Rigidbody rigidBody;
+    
+    
+    
+    public SOWeapon Weapon { get; private set; }
     public RailPlayer Owner { get; private set;  }
     public ChickenEnemy Target { get; private set;  }
     public Vector3 StartDirection { get; private set; }
@@ -16,12 +23,14 @@ public class PlayerProjectile : MonoBehaviour
     public bool IsInitialized { get; private set; }
 
     public List<ProjectileBehaviorBase> ProjectileSpecificBehaviors { get; private set; }
-
-    private void Awake()
-    {
-        Rigidbody = GetComponent<Rigidbody>();
-    }
     
+    public AudioSource AudioSource => audioSource;
+    public Rigidbody Rigidbody => rigidBody;
+
+
+    private void OnValidate() { this.ValidateRefs(); }
+    
+
     private void Update()
     {
         if (!IsInitialized) return;
@@ -48,7 +57,7 @@ public class PlayerProjectile : MonoBehaviour
             ApplyCollisionBehaviors(this, Owner, Target, collision);
         
             // Play impact effect
-            WeaponDataData?.PlayImpactEffect(transform.position, Quaternion.identity);
+            Weapon?.PlayImpactEffect(transform.position, Quaternion.identity);
         
             // Apply damage to the enemy object
             collision.TakeDamage(Damage);
@@ -57,8 +66,6 @@ public class PlayerProjectile : MonoBehaviour
             // Destroy the projectile on impact
             DestroyProjectile();
         }
-
-
     }
     
     private void CheckLiftTime()
@@ -85,19 +92,19 @@ public class PlayerProjectile : MonoBehaviour
 
     #region SetUp -------------------------------------------------------------------------
 
-    public void SetUpProjectile(SOWeaponData weaponDataData, RailPlayer player)
+    public void SetUpProjectile(SOWeapon weapon, RailPlayer player)
     {
         if (IsInitialized) return;
     
         // Set up the projectile
-        WeaponDataData = weaponDataData;
+        Weapon = weapon;
         Owner = player;
     
         // Create unique behavior instances for this projectile
-        ProjectileSpecificBehaviors = CreateUniqueBehaviorInstances(weaponDataData.ProjectileBehaviors);
+        ProjectileSpecificBehaviors = CreateUniqueBehaviorInstances(weapon.ProjectileBehaviors);
     
-        Lifetime = weaponDataData.ProjectileLifetime;
-        Damage = weaponDataData.Damage;
+        Lifetime = weapon.ProjectileLifetime;
+        Damage = weapon.Damage;
         StartDirection = player.GetAimDirection();
         Target = player.GetTarget();
         IsInitialized = true;
