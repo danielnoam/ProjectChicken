@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 108d4100b9f6ed44893c1bf888d0db7a, type: 3}
-  m_Name: LaserWeapon
+  m_Name: AimAssistWeaponTest
   m_EditorClassIdentifier: 
-  weaponName: Laser Weapon
+  weaponName: Aim assisted weapon
   weaponDescription: The base weapon
   weaponDurationType: 2
   timeLimit: 10
   ammoLimit: 3
-  damage: 25
-  fireRate: 0.2
-  projectileLifetime: 4
+  damage: 10
+  fireRate: 0.1
+  projectileLifetime: 5
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
   projectileBehaviors:
-  - rid: 3357952732499804233
-  - rid: 3357952728375754824
+  - rid: 3357952732499804160
+  - rid: 3357952732499804234
   spawnSound: {fileID: 0}
   spawnEffectPrefab: {fileID: 0}
   impactSound: {fileID: 0}
@@ -31,11 +31,14 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 3357952728375754824
+    - rid: 3357952732499804160
+      type: {class: BehaviorAssistedMovement, ns: , asm: Assembly-CSharp}
+      data:
+        straightPhaseDuration: 0.01
+        bendPhaseDuration: 0.05
+        targetPhaseDuration: 2
+        moveSpeed: 50
+    - rid: 3357952732499804234
       type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
       data:
-        pushForce: 10
-    - rid: 3357952732499804233
-      type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
-      data:
-        moveSpeed: 100
+        pushForce: 25

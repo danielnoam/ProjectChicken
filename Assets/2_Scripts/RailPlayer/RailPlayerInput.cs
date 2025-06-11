@@ -9,9 +9,15 @@ public class RailPlayerInput : MonoBehaviour
 {
     [Header("Input Settings")] 
     [SerializeField] private bool autoHideCursor = true;
+    
+    [Header("Aim Settings")]
+    [SerializeField] private bool invertY;
+    [SerializeField] private bool invertX;
+    
+    [Header("Dodge Settings")]
+    [SerializeField] private bool allowFreeformDodge;
     [SerializeField] private bool doubleTapToDodge = true;
     [SerializeField, ShowIf("doubleTapToDodge")] private float doubleTapTime = 0.3f;[EndIf]
-    [SerializeField] private bool allowFreeformDodge = true;
     
     [Header("References")]
     [SerializeField, Self] private PlayerInput playerInput;
@@ -38,7 +44,7 @@ public class RailPlayerInput : MonoBehaviour
     public event Action<InputAction.CallbackContext> OnDodgeLeftEvent;
     public event Action<InputAction.CallbackContext> OnDodgeRightEvent;
     public event Action<InputAction.CallbackContext> OnDodgeFreeformEvent;
-    public Vector2 MousePosition => Mouse.current.position.ReadValue();
+    public event Action<Vector2> OnProcessedLookEvent;
 
 
     
@@ -130,7 +136,16 @@ public class RailPlayerInput : MonoBehaviour
     
     public void OnLook(InputAction.CallbackContext context)
     {
-        OnLookEvent?.Invoke(context);
+        Vector2 lookDelta = context.ReadValue<Vector2>();
+    
+        
+        Vector2 processedLookDelta = new Vector2(
+            invertX ? -lookDelta.x : lookDelta.x,
+            invertY ? -lookDelta.y : lookDelta.y
+        );
+        
+        OnLookEvent?.Invoke(context);                    
+        OnProcessedLookEvent?.Invoke(processedLookDelta); 
     }
     
     public void OnAttack(InputAction.CallbackContext context)
@@ -202,6 +217,7 @@ public class RailPlayerInput : MonoBehaviour
         action.started -= callback;
         action.canceled -= callback;
     }
+    
 
     #endregion Helpers --------------------------------------------------------------------------------------
 

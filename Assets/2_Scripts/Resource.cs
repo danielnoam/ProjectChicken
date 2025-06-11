@@ -1,15 +1,17 @@
 using System;
+using KBCore.Refs;
 using UnityEngine;
 using VInspector;
 
 [Serializable]
 public class WeaponChance 
 {
-    public SOWeaponData weaponData;
+    public SOWeapon weapon;
     [Range(0f, 100f)] public float chance = 10f;
 }
 
 
+[RequireComponent(typeof(AudioSource))]
 public class Resource : MonoBehaviour
 {
 
@@ -21,14 +23,13 @@ public class Resource : MonoBehaviour
     [SerializeField] private bool alignToSplineDirection = true;
     [SerializeField,EnableIf("alignToSplineDirection")] private float pathFollowSpeed = 5f;[EndIf]
     [SerializeField, Min(0)] private float rotationSpeed = 45f;
-
     
     [Header("Spawn Effects")]
-    [SerializeField] private AudioClip spawnSound;
+    [SerializeField] private SOAudioEvent spawnSfx;
     [SerializeField] private ParticleSystem spawnEffect;
     
     [Header("Collection Effects")]
-    [SerializeField] private AudioClip collectionSound;
+    [SerializeField] private SOAudioEvent collectionSfx;
     [SerializeField] private ParticleSystem collectionEffect;
     
     
@@ -40,6 +41,8 @@ public class Resource : MonoBehaviour
     [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private WeaponChance[] weaponChances = Array.Empty<WeaponChance>();[EndIf]
     
     
+    [Header("References")]
+    [SerializeField, Self] private AudioSource audioSource;
     
     private float _currentLifetime;
     private bool _isMagnetized;
@@ -50,8 +53,21 @@ public class Resource : MonoBehaviour
     public int HealthWorth => healthWorth;
     public int ShieldWorth => shieldWorth;
     public int CurrencyWorth => currencyWorth;
-    public SOWeaponData WeaponData { get; private set;}
+    public SOWeapon Weapon { get; private set;}
 
+    
+    
+    private void OnValidate()
+    {
+        
+        this.ValidateRefs();
+        
+        if (resourceType == ResourceType.SpecialWeapon && weaponChances is { Length: > 0 })
+        {
+            NormalizeWeaponChances();
+        }
+    }
+    
 
     private void Awake()
     {
@@ -60,7 +76,7 @@ public class Resource : MonoBehaviour
         
         if (resourceType == ResourceType.SpecialWeapon && weaponChances.Length > 0)
         {
-            WeaponData = SelectRandomWeapon();
+            Weapon = SelectRandomWeapon();
         }
         
     }
@@ -184,9 +200,9 @@ public class Resource : MonoBehaviour
 
     private void PlaySpawnEffects()
     {
-        if (spawnSound)
+        if (spawnSfx)
         {
-            AudioSource.PlayClipAtPoint(spawnSound, transform.position);
+            spawnSfx.Play(audioSource);
         }
         
         if (spawnEffect)
@@ -197,9 +213,9 @@ public class Resource : MonoBehaviour
     
     private void PlayCollectionEffects()
     {
-        if (collectionSound)
+        if (collectionSfx)
         {
-            AudioSource.PlayClipAtPoint(collectionSound, transform.position);
+            collectionSfx.PlayAtPoint(transform.position);
         }
         
         if (collectionEffect)
@@ -214,15 +230,8 @@ public class Resource : MonoBehaviour
     #region WeaponData Selection ---------------------------------------------------------------------------------------
     
     
-    private void OnValidate()
-    {
-        if (resourceType == ResourceType.SpecialWeapon && weaponChances is { Length: > 0 })
-        {
-            NormalizeWeaponChances();
-        }
-    }
     
-    private SOWeaponData SelectRandomWeapon()
+    private SOWeapon SelectRandomWeapon()
     {
         if (weaponChances.Length == 0) return null;
         
@@ -230,7 +239,7 @@ public class Resource : MonoBehaviour
         var validWeapons = new System.Collections.Generic.List<WeaponChance>();
         foreach (var weaponChance in weaponChances)
         {
-            if (weaponChance.weaponData && weaponChance.chance > 0f)
+            if (weaponChance.weapon && weaponChance.chance > 0f)
             {
                 validWeapons.Add(weaponChance);
             }
@@ -245,7 +254,7 @@ public class Resource : MonoBehaviour
             totalWeight += weaponChance.chance;
         }
         
-        if (totalWeight <= 0f) return validWeapons[0].weaponData;
+        if (totalWeight <= 0f) return validWeapons[0].weapon;
         
         // Select a random weaponData based on weights
         float randomValue = UnityEngine.Random.Range(0f, totalWeight);
@@ -256,12 +265,12 @@ public class Resource : MonoBehaviour
             currentWeight += weaponChance.chance;
             if (randomValue <= currentWeight)
             {
-                return weaponChance.weaponData;
+                return weaponChance.weapon;
             }
         }
         
         // Fallback
-        return validWeapons[0].weaponData;
+        return validWeapons[0].weapon;
     }
     
     private void NormalizeWeaponChances()
@@ -274,7 +283,7 @@ public class Resource : MonoBehaviour
         
         foreach (var weaponChance in weaponChances)
         {
-            if (weaponChance.weaponData)
+            if (weaponChance.weapon)
             {
                 totalChance += Mathf.Max(0f, weaponChance.chance);
                 validWeaponCount++;
@@ -289,7 +298,7 @@ public class Resource : MonoBehaviour
             float equalChance = 100f / validWeaponCount;
             foreach (var weaponChance in weaponChances)
             {
-                if (weaponChance.weaponData)
+                if (weaponChance.weapon)
                 {
                     weaponChance.chance = equalChance;
                 }
@@ -300,7 +309,7 @@ public class Resource : MonoBehaviour
         {
             foreach (var weaponChance in weaponChances)
             {
-                if (weaponChance.weaponData)
+                if (weaponChance.weapon)
                 {
                     weaponChance.chance = (weaponChance.chance / totalChance) * 100f;
                 }
@@ -318,7 +327,7 @@ public class Resource : MonoBehaviour
         float equalChance = 100f / weaponChances.Length;
         foreach (var weaponChance in weaponChances)
         {
-            if (weaponChance.weaponData)
+            if (weaponChance.weapon)
             {
                 weaponChance.chance = equalChance;
             }
