@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using KBCore.Refs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -6,15 +7,20 @@ using VInspector;
 
 public class RailPlayerAiming : MonoBehaviour
 {
+    [Header("Aiming Settings")]
+    [SerializeField] private float aimSpeed = 15f;
+    [SerializeField] private bool autoCenter = true;
+    [EnableIf("autoCenter")]
+    [SerializeField, Min(0)] private float autoCenterDelay = 5f;
+    [SerializeField, Min(0)] private float autoCenterSpeed = 1f;
+    [EndIf]
+
     
     [Header("Look Offset")]
     [SerializeField] private bool useLookOffset = true;
     [EnableIf("useLookOffset")]
     [SerializeField, Min(0)] private float lookOffsetStrength = 35f;
     [SerializeField, Min(0)] private float lookOffsetSmoothing = 1.4f;
-    [SerializeField] private bool autoCenter;
-    [SerializeField, Min(0)] private float autoCenterDelay = 5f;
-    [SerializeField, Min(0)] private float autoCenterSpeed = 1f;
     [EndIf]
     
     [Header("Movement Offset")]
@@ -33,10 +39,12 @@ public class RailPlayerAiming : MonoBehaviour
 
     private Vector2 _movementInput;
     private Vector2 _lookInput;
-    private Vector3 _aimDirection;
-    private Vector3 _crosshairWorldPosition;
+    private Vector2 _smoothedLookInput;
+    private Vector2 _smoothedMovementInput;
     private Vector3 _lookOffset;
     private Vector3 _movementOffset;
+    private Vector3 _aimDirection;
+    private Vector3 _crosshairWorldPosition;
     private Quaternion _splineRotation = Quaternion.identity;
     private float _noInputTimer;
     private float CrosshairBoundaryX => LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.x : 25f;
@@ -54,13 +62,13 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void OnEnable()
     {
-        playerInput.OnLookEvent += OnLook;
+        playerInput.OnProcessedLookEvent += OnProcessedLook;
         playerInput.OnMoveEvent += OnMove;
     }
     
     private void OnDisable()
     {
-        playerInput.OnLookEvent -= OnLook;
+        playerInput.OnProcessedLookEvent -= OnProcessedLook;
         playerInput.OnMoveEvent -= OnMove;
     }
 
@@ -69,10 +77,17 @@ public class RailPlayerAiming : MonoBehaviour
         HandleSplineRotation();
         HandleMovementOffset();
         HandleLookOffset();
+        HandleAutoCenter();
         UpdateAimPosition();
     }
     
-    private void HandleSplineRotation()
+    
+    
+
+
+    #region Aiming --------------------------------------------------------------------------------------------------------
+
+        private void HandleSplineRotation()
     {
         if (!player.AlignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.SplineContainer)
         {
@@ -91,9 +106,55 @@ public class RailPlayerAiming : MonoBehaviour
     }
     
     
+
+    private void HandleMovementOffset()
+    {
+        if (!useMovementOffset)
+        {
+            _movementOffset = Vector3.zero;
+            return;
+        }
     
+        bool hasMovementInput = _movementInput.magnitude > 0.01f;
     
+        if (hasMovementInput)
+        {
+            Vector3 targetOffset = new Vector3(
+                _movementInput.x * movementOffsetStrength,
+                _movementInput.y * movementOffsetStrength,
+                0
+            );
+        
+            _movementOffset = Vector3.Lerp(_movementOffset, targetOffset, movementOffsetSmoothing * Time.deltaTime);
+        }
+    }
     
+
+    
+    private void HandleLookOffset()
+    {
+        if (!useLookOffset)
+        {
+            _lookOffset = Vector3.Lerp(_lookOffset, Vector3.zero, lookOffsetSmoothing * Time.deltaTime);
+            return;
+        }
+
+        bool hasLookInput = _lookInput.magnitude > 0.01f;
+
+        if (hasLookInput)
+        {
+            Vector3 targetOffset = new Vector3(
+                _lookInput.normalized.x * lookOffsetStrength,
+                _lookInput.normalized.y * lookOffsetStrength,
+                0
+            );
+            
+            _lookOffset = Vector3.Lerp(_lookOffset, targetOffset, lookOffsetSmoothing * Time.deltaTime);
+        }
+    }
+    
+
+
     private void UpdateAimPosition()
     {
        Vector3 boundaryCenter = GetCrosshairSplinePosition();
@@ -132,86 +193,70 @@ public class RailPlayerAiming : MonoBehaviour
            _crosshairWorldPosition.y = Mathf.Clamp(_crosshairWorldPosition.y, boundaryCenter.y - CrosshairBoundaryY, boundaryCenter.y + CrosshairBoundaryY);
        }
        
-       // Set aim direction
-       _aimDirection = (_crosshairWorldPosition - transform.position).normalized;
+       // Lerp aim direction for smoothness
+        _aimDirection = Vector3.Lerp(_aimDirection, (_crosshairWorldPosition - transform.position).normalized, aimSpeed * Time.deltaTime);
+
 
        // Update crosshair position and rotation
        if (crosshair)
        {
-           crosshair.position = _crosshairWorldPosition;
+           // Lerp the crosshair rotation for smoothness
+            crosshair.position = Vector3.Lerp(crosshair.position, _crosshairWorldPosition, aimSpeed * Time.deltaTime);
            
            // Rotate crosshair to match boundary rotation
            crosshair.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
        }
     }
     
-
-    private void HandleMovementOffset()
+    
+    private void HandleAutoCenter()
     {
-        if (!useMovementOffset)
-        {
-            _movementOffset = Vector3.zero;
-            return;
-        }
-        
-        Vector3 targetOffset = new Vector3(
-            _movementInput.x * movementOffsetStrength,
-            _movementInput.y * movementOffsetStrength,
-            0
-        );
-        
-        _movementOffset = Vector3.Lerp(_movementOffset, targetOffset, movementOffsetSmoothing * Time.deltaTime);
-    }
+        if (!autoCenter) return;
     
-    private void HandleLookOffset()
-    {
-        if (!useLookOffset)
-        {
-            _lookOffset = Vector3.zero;
-            return;
-        }
+        // Check if we have any input (look or movement)
+        bool hasLookInput = _lookInput.magnitude > 0.01f;
+        bool hasMovementInput = _movementInput.magnitude > 0.01f;
+        bool hasAnyInput = hasLookInput || hasMovementInput;
     
-        // Check if we have any input
-        bool hasInput = _lookInput.magnitude > 0.01f;
-    
-        if (hasInput)
+        if (hasAnyInput)
         {
-            // Reset the no input timer when we have input
+            // Reset the timer when we have any input
             _noInputTimer = 0f;
-        
-            // Normalize the input to handle different device sensitivities consistently
-            Vector2 normalizedInput = _lookInput.magnitude > 1f ? _lookInput.normalized : _lookInput;
-        
-            Vector3 targetOffset = new Vector3(
-                normalizedInput.x * lookOffsetStrength,
-                normalizedInput.y * lookOffsetStrength,
-                0
-            );
-        
-            _lookOffset = Vector3.Lerp(_lookOffset, targetOffset, lookOffsetSmoothing * Time.deltaTime);
         }
-        else if (autoCenter)
+        else
         {
+            // Increment timer when no input is detected
             _noInputTimer += Time.deltaTime;
         
-            // Centering after the delay has passed
+            // Start centering after the delay has passed
             if (_noInputTimer >= autoCenterDelay)
             {
-                _lookOffset = Vector3.Lerp(_lookOffset, Vector3.zero, autoCenterSpeed * Time.deltaTime);
+                // Auto-center look offset if it's enabled
+                if (useLookOffset)
+                {
+                    _lookOffset = Vector3.Lerp(_lookOffset, Vector3.zero, autoCenterSpeed * Time.deltaTime);
+                }
+            
+                // Auto-center movement offset if it's enabled
+                if (useMovementOffset)
+                {
+                    _movementOffset = Vector3.Lerp(_movementOffset, Vector3.zero, autoCenterSpeed * Time.deltaTime);
+                }
             }
         }
     }
 
-
+    #endregion Aiming --------------------------------------------------------------------------------------------------------
+    
     
     
     #region Input --------------------------------------------------------------------------------------------------------
 
-    private void OnLook(InputAction.CallbackContext context)
+    private void OnProcessedLook(Vector2 processedLookInput)
     {
-        _lookInput = context.ReadValue<Vector2>();
+        _lookInput = processedLookInput;
     }
-    
+
     private void OnMove(InputAction.CallbackContext context)
     {
         _movementInput = context.ReadValue<Vector2>();
@@ -222,28 +267,99 @@ public class RailPlayerAiming : MonoBehaviour
 
 
     #region Helper -------------------------------------------------------------------------
-
+    
+    public ChickenController GetEnemyTarget(float radius)
+    {
+        // Create a dictionary to store distances to each ChickenEnemy
+        Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
+        
+        // Create a sphere cast to detect all colliders
+        Collider[] hitColliders = Physics.OverlapSphere(_crosshairWorldPosition, radius);
+        
+        // Check each collider for ChickenEnemy
+        foreach (Collider hitCollider in hitColliders)
+        {
+            // Try to get ChickenEnemy component
+            if (hitCollider.TryGetComponent(out ChickenController enemy))
+            {
+                // Calculate distance from crosshair to chicken
+                float distance = Vector3.Distance(_crosshairWorldPosition, enemy.transform.position);
+                
+                // Store the distance in the dictionary
+                enemyDistances[enemy] = distance;
+            }
+        }
+        
+        // return the closest ChickenEnemy
+        if (enemyDistances.Count > 0)
+        {
+            // Find the ChickenEnemy with the minimum distance
+            ChickenController closestEnemy = null;
+            float minDistance = float.MaxValue;
+            
+            foreach (var kvp in enemyDistances)
+            {
+                if (kvp.Value < minDistance)
+                {
+                    minDistance = kvp.Value;
+                    closestEnemy = kvp.Key;
+                }
+            }
+            
+            return closestEnemy; // Return the closest enemy found
+        }
+        
+        
+        return null; 
+    }
+    
+    public ChickenController[] GetEnemyTargets(int maxTargets, float radius)
+    {
+        // Create a list to store detected ChickenEnemies and order them by distance
+        Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
+        
+        // Create a sphere cast to detect all colliders
+        Collider[] hitColliders = Physics.OverlapSphere(_crosshairWorldPosition, radius);
+        // Check each collider for ChickenEnemy
+        foreach (Collider hitCollider in hitColliders)
+        {
+            // Try to get ChickenEnemy component
+            if (hitCollider.TryGetComponent(out ChickenController enemy))
+            {
+                // Calculate distance from crosshair to chicken
+                float distance = Vector3.Distance(_crosshairWorldPosition, enemy.transform.position);
+                
+                // Store the distance in the dictionary
+                enemyDistances[enemy] = distance;
+            }
+        }
+        
+        // Sort the ChickenEnemies by distance
+        List<ChickenController> sortedEnemies = new List<ChickenController>(enemyDistances.Keys);
+        sortedEnemies.Sort((a, b) => enemyDistances[a].CompareTo(enemyDistances[b]));
+        
+        
+        // Return the closest ChickenEnemies up to maxTargets
+        int targetCount = Mathf.Min(maxTargets, sortedEnemies.Count);
+        ChickenController[] targets = new ChickenController[targetCount];
+        for (int i = 0; i < targetCount; i++)
+        {
+            targets[i] = sortedEnemies[i];
+        }
+        
+        return targets;
+        
+    }
+    
     public Vector3 GetAimDirection()
     {
         return _aimDirection;
     }
     
-    public Vector3 GetAimPosition()
-    {
-        return _crosshairWorldPosition;
-    }
-    
-    public bool IsAimingAtTarget(Transform target, float tolerance = 1f)
-    {
-        Vector3 directionToTarget = (target.position - transform.position).normalized;
-        float dot = Vector3.Dot(_aimDirection, directionToTarget);
-        return dot > (1f - tolerance);
-    }
-    
     
     private Vector3 GetSplineDirection()
     {
-        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetEnemyDirectionOnSpline(LevelManager.Instance.EnemyPosition);
+        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.EnemyPosition);
     }
     
     private Vector3 GetCrosshairSplinePosition()
@@ -252,23 +368,31 @@ public class RailPlayerAiming : MonoBehaviour
         
         return LevelManager.Instance.EnemyPosition;
     }
+    
+
 
     #endregion Helper -------------------------------------------------------------------------
 
     
     
-    #if UNITY_EDITOR
     #region Editor -------------------------------------------------------------------------
+    #if UNITY_EDITOR
+
     
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.blue;
+
     
         // Aim direction ray
+        Gizmos.color = Color.blue;
         Gizmos.DrawLine(transform.position, _crosshairWorldPosition);
     
-        // Draw boundaries from the crosshair spline position 
-        if (crosshair && LevelManager.Instance && LevelManager.Instance.SplineContainer)
+        // Draw target radius
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(_crosshairWorldPosition, 3f);
+        
+        // Draw boundaries from spline position 
+        if (LevelManager.Instance && LevelManager.Instance.SplineContainer)
         {
             Vector3 crosshairSplinePosition = GetCrosshairSplinePosition();
             
@@ -301,7 +425,7 @@ public class RailPlayerAiming : MonoBehaviour
             }
         }
     }
-
-    #endregion Editor -------------------------------------------------------------------------
+    
     #endif 
+    #endregion Editor -------------------------------------------------------------------------
 }

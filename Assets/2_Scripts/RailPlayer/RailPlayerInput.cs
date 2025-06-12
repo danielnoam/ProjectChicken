@@ -8,23 +8,43 @@ using VInspector;
 public class RailPlayerInput : MonoBehaviour
 {
     [Header("Input Settings")] 
-    [SerializeField, Self] private PlayerInput playerInput;
     [SerializeField] private bool autoHideCursor = true;
     
+    [Header("Aim Settings")]
+    [SerializeField] private bool invertY;
+    [SerializeField] private bool invertX;
+    
+    [Header("Dodge Settings")]
+    [SerializeField] private bool allowFreeformDodge;
+    [SerializeField] private bool doubleTapToDodge = true;
+    [SerializeField, ShowIf("doubleTapToDodge")] private float doubleTapTime = 0.3f;[EndIf]
+    
+    [Header("References")]
+    [SerializeField, Self] private PlayerInput playerInput;
 
+    
+    
     private InputActionMap _playerActionMap;
     private InputActionMap _uiActionMap;
     private InputAction _moveAction;
     private InputAction _lookAction;
     private InputAction _attackAction;
+    private InputAction _attack2Action;
     private InputAction _dodgeLeftAction;
     private InputAction _dodgeRightAction;
+    private InputAction _dodgeFreeformAction;
+    private float _lastMoveLeftTime;
+    private float _lastMoveRightTime;
+    
     
     public event Action<InputAction.CallbackContext> OnMoveEvent;
     public event Action<InputAction.CallbackContext> OnLookEvent;
     public event Action<InputAction.CallbackContext> OnAttackEvent;
+    public event Action<InputAction.CallbackContext> OnAttack2Event;
     public event Action<InputAction.CallbackContext> OnDodgeLeftEvent;
     public event Action<InputAction.CallbackContext> OnDodgeRightEvent;
+    public event Action<InputAction.CallbackContext> OnDodgeFreeformEvent;
+    public event Action<Vector2> OnProcessedLookEvent;
 
 
     
@@ -47,13 +67,11 @@ public class RailPlayerInput : MonoBehaviour
         _moveAction = _playerActionMap.FindAction("Move");
         _lookAction = _playerActionMap.FindAction("Look");
         _attackAction = _playerActionMap.FindAction("Attack");
+        _attack2Action = _playerActionMap.FindAction("Attack2");
         _dodgeLeftAction = _playerActionMap.FindAction("DodgeLeft");
         _dodgeRightAction = _playerActionMap.FindAction("DodgeRight");
+        _dodgeFreeformAction = _playerActionMap.FindAction("DodgeFreeform");
         
-        if (_moveAction == null || _lookAction == null || _attackAction == null || _dodgeLeftAction == null || _dodgeRightAction == null)
-        {
-            Debug.LogError("One or more actions are not found in the Player Action Map. Please check the action names.");
-        }
         
         if (autoHideCursor)
         {
@@ -64,62 +82,80 @@ public class RailPlayerInput : MonoBehaviour
 
     private void OnEnable()
     {
-        _moveAction.performed += OnMove;
-        _moveAction.started += OnMove;
-        _moveAction.canceled += OnMove;
-        _lookAction.started += OnLook;
-        _lookAction.performed += OnLook;
-        _lookAction.canceled += OnLook;
-        _attackAction.started += OnAttack;
-        _attackAction.performed += OnAttack;
-        _attackAction.canceled += OnAttack;
-        _dodgeLeftAction.started += OnDodgeLeft;
-        _dodgeLeftAction.performed += OnDodgeLeft;
-        _dodgeLeftAction.canceled += OnDodgeLeft;
-        _dodgeRightAction.started += OnDodgeRight;
-        _dodgeRightAction.performed += OnDodgeRight;
-        _dodgeRightAction.canceled += OnDodgeRight;
+        SubscribeToAction(_moveAction, OnMove);
+        SubscribeToAction(_lookAction, OnLook);
+        SubscribeToAction(_attackAction, OnAttack);
+        SubscribeToAction(_attack2Action, OnAttack2);
+        SubscribeToAction(_dodgeLeftAction, OnDodgeLeft);
+        SubscribeToAction(_dodgeRightAction, OnDodgeRight);
+        SubscribeToAction(_dodgeFreeformAction, OnDodgeFreeform);
     }
     
     private void OnDisable()
     {
-        _moveAction.performed -= OnMove;
-        _moveAction.started -= OnMove;
-        _moveAction.canceled -= OnMove;
-        _lookAction.started -= OnLook;
-        _lookAction.performed -= OnLook;
-        _lookAction.canceled -= OnLook;
-        _attackAction.started -= OnAttack;
-        _attackAction.performed -= OnAttack;
-        _attackAction.canceled -= OnAttack;
-        _dodgeLeftAction.started -= OnDodgeLeft;
-        _dodgeLeftAction.performed -= OnDodgeLeft;
-        _dodgeLeftAction.canceled -= OnDodgeLeft;
-        _dodgeRightAction.started -= OnDodgeRight;
-        _dodgeRightAction.performed -= OnDodgeRight;
-        _dodgeRightAction.canceled -= OnDodgeRight;
+        UnsubscribeFromAction(_moveAction, OnMove);
+        UnsubscribeFromAction(_lookAction, OnLook);
+        UnsubscribeFromAction(_attackAction, OnAttack);
+        UnsubscribeFromAction(_attack2Action, OnAttack2);
+        UnsubscribeFromAction(_dodgeLeftAction, OnDodgeLeft);
+        UnsubscribeFromAction(_dodgeRightAction, OnDodgeRight);
+        UnsubscribeFromAction(_dodgeFreeformAction, OnDodgeFreeform);
     }
+
     
 
 
-
-
-    #region Input Handling --------------------------------------------------------------------------------------
+    #region Input Events --------------------------------------------------------------------------------------
     
     
     public void OnMove(InputAction.CallbackContext context)
     {
         OnMoveEvent?.Invoke(context);
+        
+        // Double-tap dodge logic
+        if (doubleTapToDodge && context.started)
+        {
+            if (context.ReadValue<Vector2>().x < 0)   // Left movement 
+            {
+                if (Time.time - _lastMoveLeftTime < doubleTapTime)
+                {
+                    OnDodgeLeftEvent?.Invoke(context);
+                }
+                _lastMoveLeftTime = Time.time;
+            }
+            else if (context.ReadValue<Vector2>().x > 0)   // Right movement 
+            {
+                if (Time.time - _lastMoveRightTime < doubleTapTime)
+                {
+                    OnDodgeRightEvent?.Invoke(context);
+                }
+                _lastMoveRightTime = Time.time;
+            }
+        }
     }
     
     public void OnLook(InputAction.CallbackContext context)
     {
-        OnLookEvent?.Invoke(context);
+        Vector2 lookDelta = context.ReadValue<Vector2>();
+    
+        
+        Vector2 processedLookDelta = new Vector2(
+            invertX ? -lookDelta.x : lookDelta.x,
+            invertY ? -lookDelta.y : lookDelta.y
+        );
+        
+        OnLookEvent?.Invoke(context);                    
+        OnProcessedLookEvent?.Invoke(processedLookDelta); 
     }
     
     public void OnAttack(InputAction.CallbackContext context)
     {
         OnAttackEvent?.Invoke(context);
+    }
+    
+    public void OnAttack2(InputAction.CallbackContext context)
+    {
+        OnAttack2Event?.Invoke(context);
     }
     
     public void OnDodgeLeft(InputAction.CallbackContext context)
@@ -132,8 +168,14 @@ public class RailPlayerInput : MonoBehaviour
         OnDodgeRightEvent?.Invoke(context);
     }
     
+    public void OnDodgeFreeform(InputAction.CallbackContext context)
+    {
+        if (!allowFreeformDodge) return;
+        OnDodgeFreeformEvent?.Invoke(context);
+    }
+    
 
-    #endregion Input Handling --------------------------------------------------------------------------------------
+    #endregion Input Events --------------------------------------------------------------------------------------
 
 
     #region Cursor --------------------------------------------------------------------------------------
@@ -156,5 +198,27 @@ public class RailPlayerInput : MonoBehaviour
     #endregion Cursor --------------------------------------------------------------------------------------
 
 
+    #region Helpers --------------------------------------------------------------------------------------
+
+    private void SubscribeToAction(InputAction action, Action<InputAction.CallbackContext> callback)
+    {
+        if (action == null) return;
+        
+        action.performed += callback;
+        action.started += callback;
+        action.canceled += callback;
+    }
+    
+    private void UnsubscribeFromAction(InputAction action, Action<InputAction.CallbackContext> callback)
+    {
+        if (action == null) return;
+        
+        action.performed -= callback;
+        action.started -= callback;
+        action.canceled -= callback;
+    }
+    
+
+    #endregion Helpers --------------------------------------------------------------------------------------
 
 }

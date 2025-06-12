@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VInspector;
@@ -10,64 +11,162 @@ public class SOWeapon : ScriptableObject
     [Header("Weapon Settings")]
     [SerializeField] private string weaponName = "New Weapon";
     [SerializeField] private string weaponDescription = "A Weapon";
+    [SerializeField] private WeaponType weaponType = WeaponType.Projectile;
     [SerializeField] private WeaponDurationType weaponDurationType = WeaponDurationType.Permanent;
-    [SerializeField, Min(0)] private float damage = 10f;
-    [SerializeField, Min(0)] private float fireRate = 1f;
     [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.TimeBased)] private float timeLimit = 10f;[EndIf]
     [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
+    [SerializeField, Min(0)] private float damage = 10f;
+    [SerializeField, Min(0)] private float fireRate = 1f;
+
     
+    [ShowIf("weaponType", WeaponType.Projectile)]
     [Header("Projectile Settings")]
-    [SerializeField, Min(0)] private float projectileSpeed = 100f;
-    [SerializeField, Min(0)] private float projectilePushForce;
-    [SerializeField, Min(0)] private float projectileLifetime = 5f;
     [SerializeField] private PlayerProjectile playerProjectilePrefab;
-    [SerializeField] private List<SOProjectileBehaviorBase> projectileBehaviors = new List<SOProjectileBehaviorBase>();
+    [SerializeField, Min(0)] private float projectileLifetime = 5f;
+    [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>();
+    [EndIf]
     
-    [Header("Projectile Spawn Effect")]
-    [SerializeField] private AudioClip spawnSound;
-    [SerializeField] private GameObject spawnEffectPrefab;
+    [ShowIf("weaponType", WeaponType.Hitscan)]
+    [Header("Hitscan Settings")]
+    [SerializeField, Min(0.1f)] private float radius = 3f;
+    [SerializeField, Min(0), Tooltip("0 = Means infinite targets")] private int maxTargets = 1;
+    [SerializeField, Min(0)] private float pushForce = 5f;
+    [SerializeField, Min(0)] private float stunTime;
+    [SerializeField] private LayerMask hitLayers = -1;
+    [EndIf]
+
+    
+    [Header("Fire Effect")]
+    [SerializeField] private SOAudioEvent fireSound;
+    [SerializeField] private ParticleSystem fireEffectPrefab;
     
     [Header("Impact Effect")]
-    [SerializeField] private AudioClip impactSound;
-    [SerializeField] private GameObject impactEffectPrefab;
+    [SerializeField] private SOAudioEvent impactSound;
+    [SerializeField] private ParticleSystem impactEffectPrefab;
 
     public string WeaponName => weaponName;
     public string WeaponDescription => weaponDescription;
     public WeaponDurationType WeaponDurationType => weaponDurationType;
+    public WeaponType WeaponType => weaponType;
     public float Damage => damage;
     public float FireRate => fireRate;
     public float TimeLimit => timeLimit;
     public float AmmoLimit => ammoLimit;
-    public float ProjectileSpeed => projectileSpeed;
-    public float ProjectilePushForce => projectilePushForce;
     public float ProjectileLifetime => projectileLifetime;
-    
+    public  List<ProjectileBehaviorBase> ProjectileBehaviors => projectileBehaviors;
     
 
     
-    public PlayerProjectile CreateProjectile(Vector3 position, Vector3 direction)
+
+
+    #region Weapon Usage ---------------------------------------------------------------------------------
+
+    
+    public void Fire(Vector3 position, RailPlayer owner)
     {
-        if (!playerProjectilePrefab) return null;
+        switch (weaponType)
+        {
+            case WeaponType.Projectile:
+                CreateProjectile(position, owner);
+                break;
+            case WeaponType.Hitscan:
+                Hitscan(position, owner);
+                break;
+        }
+    }
+    private PlayerProjectile CreateProjectile(Vector3 position, RailPlayer owner)
+    {
+        if (!playerProjectilePrefab || weaponType != WeaponType.Projectile) return null;
         
         // Instantiate the base projectile
         PlayerProjectile projectile = Instantiate(playerProjectilePrefab, position, Quaternion.identity);
         
         // Initialize the projectile
-        projectile.SetUpProjectile(this, direction);
+        projectile.SetUpProjectile(this, owner);
         
         // Spawn effect
-        PlaySpawnEffect(projectile.transform.position, Quaternion.identity);
+        PlayFireEffect(projectile.transform.position, Quaternion.identity, projectile.AudioSource);
         
         return projectile;
     }
     
     
+    private void Hitscan(Vector3 startPosition ,RailPlayer owner)
+    {
+        if (weaponType != WeaponType.Hitscan) return;
+        
+        // Play spawn effect
+        PlayFireEffect(startPosition, Quaternion.identity);
+
+        // Get enemy target
+        if (maxTargets == 1)
+        {
+            ChickenController enemy = owner.GetTarget(radius);
+            
+            if (enemy)
+            {
+                // Apply damage
+                enemy.TakeDamage(damage);
+            
+                enemy.ApplyConcussion(stunTime);
+
+                enemy.ApplyForce(startPosition, pushForce);
+            
+                // Play impact effect
+                PlayImpactEffect(enemy.transform.position, Quaternion.identity);
+            }
+        } 
+        else
+        {
+
+            // Create a list of enemies
+            ChickenController[] enemies = Array.Empty<ChickenController>();
+            
+            // Get the right number of targets
+            if (maxTargets <= 0)
+            {
+                enemies = owner.GetAllTargets(999, radius);
+            } 
+            else if (maxTargets > 1)
+            {
+                enemies = owner.GetAllTargets(maxTargets, radius);
+            }
+
+            
+            // Attack all enemies in the list
+            foreach (ChickenController target in enemies)
+            {
+                if (target)
+                {
+                    // Apply damage
+                    target.TakeDamage(damage);
+                
+                    target.ApplyConcussion(stunTime);
+
+                    target.ApplyForce(startPosition, pushForce);
+                
+                    // Play impact effect
+                    PlayImpactEffect(target.transform.position, Quaternion.identity);
+                }
+            }
+        }
+
+
+        
 
 
 
-    #region Projectile Effects --------------------------------------------------------------------
 
+    }
     
+
+    #endregion Weapon Usage ---------------------------------------------------------------------------------
+
+
+
+
+    #region Effects ---------------------------------------------------------------------------------
+
     public void PlayImpactEffect(Vector3 position, Quaternion rotation)
     {
         if (impactEffectPrefab)
@@ -77,72 +176,38 @@ public class SOWeapon : ScriptableObject
         
         if (impactSound)
         {
-            AudioSource.PlayClipAtPoint(impactSound, position);
+            impactSound.PlayAtPoint(position);
         }
     }
-
-    private void PlaySpawnEffect(Vector3 position, Quaternion rotation)
+    
+    
+    public void PlayFireEffect(Vector3 position, Quaternion rotation, AudioSource audioSource = null)
     {
-        if (spawnEffectPrefab)
+        if (fireEffectPrefab)
         {
-            Instantiate(spawnEffectPrefab, position, rotation);
+            Instantiate(fireEffectPrefab, position, rotation);
         }
         
-        if (spawnSound)
+        if (fireSound)
         {
-            AudioSource.PlayClipAtPoint(spawnSound, position);
-        }
-    }
-    
-    
+            if (audioSource)
+            {
+                fireSound.Play(audioSource);
+            }
+            else
+            {
+                fireSound.PlayAtPoint(position);
+            }
 
-    #endregion Projectile Effects --------------------------------------------------------------------
-
-
-    #region Projectile Behaviors ---------------------------------------------------------------
-
-    public void OnProjectileSpawn(PlayerProjectile projectile)
-    {
-        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
-        {
-            behavior.OnBehaviorSpawn(projectile);
-        }
-    }
-    
-    
-    public void OnProjectileMovement(PlayerProjectile projectile)
-    {
-        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
-        {
-            behavior.OnBehaviorMovement(projectile);
-        }
-    }
-    
-    public void OnProjectileCollision(PlayerProjectile projectile, ChickenEnemy enemy)
-    {
-        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
-        {
-            behavior.OnBehaviorCollision(projectile, enemy);
-        }
-    }
-    
-    public void OnProjectileDestroy(PlayerProjectile projectile)
-    {
-        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
-        {
-            behavior.OnBehaviorDestroy(projectile);
-        }
-    }
-    
-    public void OnProjectileDrawGizmos(PlayerProjectile projectile)
-    {
-        foreach (SOProjectileBehaviorBase behavior in projectileBehaviors)
-        {
-            behavior.OnBehaviorDrawGizmos(projectile);
         }
     }
 
-    #endregion Projectile Behaviors ---------------------------------------------------------------
+    #endregion Effects ---------------------------------------------------------------------------------
+    
+
+
+
+
     
 
 }

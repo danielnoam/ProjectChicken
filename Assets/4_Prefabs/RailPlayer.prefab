@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8445288471549559756}
-  m_Layer: 0
-  m_Name: SpecialWeaponGfx
+  m_Layer: 6
+  m_Name: MissileWeaponGfx
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41,7 +41,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4913251172318160832}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BaseWeaponGfx
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -65,6 +65,38 @@ Transform:
   - {fileID: 1304584556472675668}
   m_Father: {fileID: 5119365439155976064}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1506644416565149069
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2591645915025464599}
+  m_Layer: 6
+  m_Name: LightningWeaponGfx
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &2591645915025464599
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506644416565149069}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8826812915458435621}
+  m_Father: {fileID: 5119365439155976064}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2103388375372321124
 GameObject:
   m_ObjectHideFlags: 0
@@ -74,9 +106,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5119365439155976064}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Gfx
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -97,6 +129,7 @@ Transform:
   - {fileID: 147079955209707014}
   - {fileID: 4913251172318160832}
   - {fileID: 8445288471549559756}
+  - {fileID: 2591645915025464599}
   m_Father: {fileID: 8474555558549935190}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2440519371583176229
@@ -108,7 +141,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7239159908269156373}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CameraTarget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -141,7 +174,7 @@ GameObject:
   - component: {fileID: 4688035395830200613}
   - component: {fileID: 5023822418595247511}
   - component: {fileID: 7732228944662284959}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -227,7 +260,7 @@ GameObject:
   - component: {fileID: 4486165507181737557}
   - component: {fileID: 7916817630572122540}
   - component: {fileID: 3701714565008483880}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -314,7 +347,7 @@ GameObject:
   - component: {fileID: 6836121939850626960}
   - component: {fileID: 6250998303371249983}
   - component: {fileID: 6678957683698290977}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -404,6 +437,93 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!1 &3121836401442161220
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8826812915458435621}
+  - component: {fileID: 4087554002010048452}
+  - component: {fileID: 4749590694838001224}
+  m_Layer: 6
+  m_Name: Capsule
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8826812915458435621
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3121836401442161220}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.70710707, y: -0, z: -0, w: 0.7071066}
+  m_LocalPosition: {x: 0, y: -0.298, z: 2.089}
+  m_LocalScale: {x: 0.42, y: 0.50197726, z: 0.42}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 188962324070582139}
+  m_Father: {fileID: 2591645915025464599}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &4087554002010048452
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3121836401442161220}
+  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &4749590694838001224
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3121836401442161220}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &3149249986635875231
 GameObject:
   m_ObjectHideFlags: 0
@@ -413,7 +533,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6174838063405869257}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Crosshair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -450,7 +570,7 @@ GameObject:
   - component: {fileID: 7079655128871609596}
   - component: {fileID: 1521367215413431465}
   - component: {fileID: 7124719717599433649}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -537,7 +657,7 @@ GameObject:
   - component: {fileID: 650185302501957326}
   - component: {fileID: 2061809994831394379}
   - component: {fileID: 1622783546286214265}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlayerStats
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -678,7 +798,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2538473021605918491}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -709,8 +829,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8658125663898116613}
-  m_Layer: 0
-  m_Name: ProjectileSpawnPoint (1)
+  m_Layer: 6
+  m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -740,6 +860,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8474555558549935190}
+  - component: {fileID: 8177767816080453902}
+  - component: {fileID: 7652548364264720769}
   - component: {fileID: 8027271115035412187}
   - component: {fileID: 6276024430624118950}
   - component: {fileID: 2233603387570671912}
@@ -747,7 +869,7 @@ GameObject:
   - component: {fileID: 7233717465822237952}
   - component: {fileID: 890854243081262160}
   - component: {fileID: 3423310960035294283}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RailPlayer
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -773,6 +895,130 @@ Transform:
   - {fileID: 3487920039434990482}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &8177767816080453902
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042140183398147502}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 2
+  m_Constraints: 0
+  m_CollisionDetection: 1
+--- !u!82 &7652548364264720769
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042140183398147502}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &8027271115035412187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -862,6 +1108,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be
     m_ActionName: UI/TrackedDeviceOrientation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 34109c79-7947-4d2c-be7d-9f90017b8056
+    m_ActionName: 'Player/DodgeFreeform[/Keyboard/leftCtrl]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -910,13 +1160,20 @@ MonoBehaviour:
   magnetRadius: 12
   magnetMoveSpeed: 10
   alignToSplineDirection: 1
-  pathFollowSpeed: 5
   splineRotationSpeed: 5
-  playerStatusText: {fileID: 1622783546286214265}
+  healthDamageSfx: {fileID: 0}
+  healthHealedSfx: {fileID: 0}
+  deathSfx: {fileID: 0}
+  shieldDamageSfx: {fileID: 0}
+  shieldStartRegenSfx: {fileID: 0}
+  shieldRegeneratedSfx: {fileID: 0}
+  shieldDepletedSfx: {fileID: 0}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
   playerWeapon: {fileID: 3423310960035294283}
   playerMovement: {fileID: 7233717465822237952}
+  audioSource: {fileID: 7652548364264720769}
+  playerStatusText: {fileID: 1622783546286214265}
 --- !u!114 &8438971806570489096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -929,8 +1186,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9e45040352c29448ef258dd725fd76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerInput: {fileID: 8027271115035412187}
   autoHideCursor: 1
+  invertY: 0
+  invertX: 0
+  allowFreeformDodge: 0
+  doubleTapToDodge: 1
+  doubleTapTime: 0.3
+  playerInput: {fileID: 8027271115035412187}
 --- !u!114 &7233717465822237952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -943,13 +1205,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea7d6ee3afc6aae46a559dcd89ac8ae2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 15
-  rotationSpeed: 22
-  movementTiltAmount: 30
+  maxMoveSpeed: 35
+  acceleration: 5
+  deceleration: 3
+  pathFollowSpeed: 1000
+  rollSpeed: 5
+  maxRollAmount: 30
+  pitchYawSpeed: 22
   maxPitchAngle: 30
   maxYawAngle: 45
+  pathRotationSpeed: 5
   enableDodging: 1
-  dodgeMoveSpeed: 45
+  dodgeMoveSpeed: 35
   dodgeTime: 0.4
   dodgeCooldown: 0.45
   dodgeRollAmount: 360
@@ -1014,9 +1281,12 @@ MonoBehaviour:
     useUnscaledTime: 0
     _useFixedUpdate: 0
     _updateType: 0
+  dodgeSfx: {fileID: 0}
   player: {fileID: 2233603387570671912}
   playerAiming: {fileID: 890854243081262160}
   playerInput: {fileID: 8438971806570489096}
+  playerRigidbody: {fileID: 8177767816080453902}
+  audioSource: {fileID: 7652548364264720769}
   shipModel: {fileID: 5119365439155976064}
 --- !u!114 &890854243081262160
 MonoBehaviour:
@@ -1030,12 +1300,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 362cadd1e2438d3488e4058666825ab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useLookOffset: 1
-  lookOffsetStrength: 35
-  lookOffsetSmoothing: 1.4
+  aimSpeed: 25
   autoCenter: 1
   autoCenterDelay: 5
   autoCenterSpeed: 1
+  useLookOffset: 1
+  lookOffsetStrength: 35
+  lookOffsetSmoothing: 1.2
   useMovementOffset: 0
   movementOffsetStrength: 11
   movementOffsetSmoothing: 5
@@ -1055,6 +1326,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91ec119c576a7204ebf9d2bd9c0e1bcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  allowBaseWeaponWithSpecialWeapon: 1
   baseWeapon: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
   weapons:
     serializedKvps:
@@ -1075,9 +1347,20 @@ MonoBehaviour:
       index: 1
       isKeyRepeated: 0
       isKeyNull: 0
+    - Key: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
+      Value:
+        weaponGfx: {fileID: 2591645915025464599}
+        projectileSpawnPoints:
+        - {fileID: 188962324070582139}
+      index: 2
+      isKeyRepeated: 0
+      isKeyNull: 0
     dividerPos: 0.33
+  weaponSwitchSfx: {fileID: 0}
+  player: {fileID: 2233603387570671912}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
+  audioSource: {fileID: 7652548364264720769}
 --- !u!1 &5233889759303089162
 GameObject:
   m_ObjectHideFlags: 0
@@ -1089,7 +1372,7 @@ GameObject:
   - component: {fileID: 9056031533831509997}
   - component: {fileID: 2604621547379929373}
   - component: {fileID: 5707783105019397194}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1175,7 +1458,7 @@ GameObject:
   - component: {fileID: 5829169123053976795}
   - component: {fileID: 3861301425744338897}
   - component: {fileID: 3954000043469550707}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1259,9 +1542,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 147079955209707014}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Spaceship
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1284,6 +1567,37 @@ Transform:
   - {fileID: 4688035395830200613}
   m_Father: {fileID: 5119365439155976064}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6163952699444016125
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 188962324070582139}
+  m_Layer: 6
+  m_Name: ProjectileSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &188962324070582139
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6163952699444016125}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.6510001, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8826812915458435621}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6271107796300875885
 GameObject:
   m_ObjectHideFlags: 0
@@ -1295,7 +1609,7 @@ GameObject:
   - component: {fileID: 7505649629923921561}
   - component: {fileID: 925819848504179945}
   - component: {fileID: 2267080844491920373}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1381,7 +1695,7 @@ GameObject:
   - component: {fileID: 3438372924203813476}
   - component: {fileID: 8469581158790341040}
   - component: {fileID: 4450059601338276375}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1468,7 +1782,7 @@ GameObject:
   - component: {fileID: 1304584556472675668}
   - component: {fileID: 582837039857651978}
   - component: {fileID: 7420932571048184413}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cylinder (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1555,7 +1869,7 @@ GameObject:
   - component: {fileID: 3385265377747687933}
   - component: {fileID: 68666288102914462}
   - component: {fileID: 8642202346870350222}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1641,7 +1955,7 @@ GameObject:
   - component: {fileID: 302745937291007421}
   - component: {fileID: 967988056409844843}
   - component: {fileID: 2379201968457840565}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1725,7 +2039,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3537693180872267810}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

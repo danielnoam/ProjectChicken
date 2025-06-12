@@ -1,3 +1,4 @@
+using Core.Attributes;
 using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.Splines;
@@ -26,6 +27,9 @@ public class LevelManager : MonoBehaviour
     [Header("References")]
     [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private Transform currentPositionOnPath;
+    [SerializeField] private Transform resourceHolder;
+    [SerializeField, CreateEditableAsset] private SOLootTable lootTable;
+
     
     
     
@@ -129,6 +133,36 @@ public class LevelManager : MonoBehaviour
     #endregion Spline Positinoning ---------------------------------------------------------------------------------
 
 
+    
+    #region Spwaing Resources ---------------------------------------------------------------------------------------
+    
+    
+    [Button]
+    private void SpawnRandomResourceOnSpline()
+    {
+        if (!Application.isPlaying) return;
+        if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer || !lootTable) return;
+
+        Resource randomResource = lootTable.GetRandomResource();
+        if (randomResource)
+        {
+            // Get a random point on the spline
+            float randomT = Random.Range(0f, 1f);
+            Vector3 positionOnSpline = LevelManager.Instance.SplineContainer.EvaluatePosition(randomT);
+            
+            // Add a small offset to the position to avoid overlapping with the spline
+            Vector3 randomOffset = new Vector3(Random.Range(-3f,3f), Random.Range(-3f,3f), Random.Range(-3f,3f));
+
+            // Spawn the resource at that position
+            lootTable.SpawnResource(randomResource, positionOnSpline + randomOffset, resourceHolder);
+        }
+
+    }
+    
+
+    #endregion Spwaing Resources ---------------------------------------------------------------------------------------
+
+
 
     #region Helper ---------------------------------------------------------------------------------------------
 
@@ -140,7 +174,7 @@ public class LevelManager : MonoBehaviour
         return t;
     }
     
-    public Vector3 GetEnemyDirectionOnSpline(Vector3 point)
+    public Vector3 GetDirectionOnSpline(Vector3 point)
     {
         if (!SplineContainer) return Vector3.forward;
     
@@ -172,9 +206,6 @@ public class LevelManager : MonoBehaviour
     }
 
     #endregion Helper ---------------------------------------------------------------------------------------------
-    
-    
-    
     
     
     #region Editor -----------------------------------------------------------------------------------------------
