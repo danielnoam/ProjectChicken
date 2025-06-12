@@ -74,12 +74,24 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponChances.Array.data[2].chance
-      value: 32.780743
+      value: 33
       objectReference: {fileID: 0}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponChances.Array.data[2].weapon
       value: 
-      objectReference: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
+      objectReference: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weaponChances.Array.data[0].isLocked
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weaponChances.Array.data[1].isLocked
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weaponChances.Array.data[2].isLocked
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponsList.serializedKvps.Array.size
       value: 1

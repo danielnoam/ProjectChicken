@@ -55,7 +55,7 @@ public class ChickenFormationBehavior : MonoBehaviour
     private void Awake()
     {
         // Find FormationManager
-        formationManager = FindObjectOfType<FormationManager>();
+        formationManager = FindFirstObjectByType<FormationManager>();
         if (formationManager == null)
         {
             Debug.LogError($"{gameObject.name}: FormationManager not found!");

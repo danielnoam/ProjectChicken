@@ -268,7 +268,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     #region Helper -------------------------------------------------------------------------
     
-    public ChickenController GetTarget(float radius = 3f)
+    public ChickenController GetEnemyTarget(float radius)
     {
         // Create a dictionary to store distances to each ChickenEnemy
         Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
@@ -311,6 +311,44 @@ public class RailPlayerAiming : MonoBehaviour
         
         
         return null; 
+    }
+    
+    public ChickenController[] GetEnemyTargets(int maxTargets, float radius)
+    {
+        // Create a list to store detected ChickenEnemies and order them by distance
+        Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
+        
+        // Create a sphere cast to detect all colliders
+        Collider[] hitColliders = Physics.OverlapSphere(_crosshairWorldPosition, radius);
+        // Check each collider for ChickenEnemy
+        foreach (Collider hitCollider in hitColliders)
+        {
+            // Try to get ChickenEnemy component
+            if (hitCollider.TryGetComponent(out ChickenController enemy))
+            {
+                // Calculate distance from crosshair to chicken
+                float distance = Vector3.Distance(_crosshairWorldPosition, enemy.transform.position);
+                
+                // Store the distance in the dictionary
+                enemyDistances[enemy] = distance;
+            }
+        }
+        
+        // Sort the ChickenEnemies by distance
+        List<ChickenController> sortedEnemies = new List<ChickenController>(enemyDistances.Keys);
+        sortedEnemies.Sort((a, b) => enemyDistances[a].CompareTo(enemyDistances[b]));
+        
+        
+        // Return the closest ChickenEnemies up to maxTargets
+        int targetCount = Mathf.Min(maxTargets, sortedEnemies.Count);
+        ChickenController[] targets = new ChickenController[targetCount];
+        for (int i = 0; i < targetCount; i++)
+        {
+            targets[i] = sortedEnemies[i];
+        }
+        
+        return targets;
+        
     }
     
     public Vector3 GetAimDirection()

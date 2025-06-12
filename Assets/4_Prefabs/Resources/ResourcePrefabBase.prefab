@@ -284,12 +284,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifetime: 15
-  alignToSplineDirection: 1
-  pathFollowSpeed: 3
   rotationSpeed: 45
-  spawnSFX: {fileID: 0}
+  conformToSpline: 1
+  pathFollowSpeed: 3
+  maxDistanceFromSpline: 3
+  spawnSfx: {fileID: 0}
   spawnEffect: {fileID: 0}
-  collectionSFX: {fileID: 0}
+  collectionSfx: {fileID: 0}
   collectionEffect: {fileID: 0}
   resourceType: 0
   currencyWorth: 1

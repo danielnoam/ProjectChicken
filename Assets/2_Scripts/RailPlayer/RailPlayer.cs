@@ -35,11 +35,11 @@ public class RailPlayer : MonoBehaviour
     [Header("SFXs")]
     [SerializeField] private SOAudioEvent healthDamageSfx;
     [SerializeField] private SOAudioEvent healthHealedSfx;
-    [SerializeField] private SOAudioEvent deathSfx;
     [SerializeField] private SOAudioEvent shieldDamageSfx;
     [SerializeField] private SOAudioEvent shieldStartRegenSfx;
     [SerializeField] private SOAudioEvent shieldRegeneratedSfx;
     [SerializeField] private SOAudioEvent shieldDepletedSfx;
+    [SerializeField] private SOAudioEvent deathSfx;
     
     [Header("References")]
     [SerializeField, Self] private RailPlayerInput playerInput;
@@ -358,9 +358,14 @@ public class RailPlayer : MonoBehaviour
         return playerAiming.GetAimDirection();
     }
     
-    public ChickenController GetTarget()
+    public ChickenController GetTarget(float radius = 3)
     {
-        return playerAiming.GetTarget();
+        return playerAiming.GetEnemyTarget(radius);
+    }
+    
+    public ChickenController[] GetAllTargets(int maxTargets, float radius = 3)
+    {
+        return playerAiming.GetEnemyTargets(maxTargets, radius);
     }
 
     #endregion Helper Methods --------------------------------------------------------------------------------------

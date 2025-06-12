@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VInspector;
@@ -27,7 +28,8 @@ public class SOWeapon : ScriptableObject
     
     [ShowIf("weaponType", WeaponType.Hitscan)]
     [Header("Hitscan Settings")]
-    [SerializeField, Min(0)] private float maxRange = 25f;
+    [SerializeField, Min(0.1f)] private float radius = 3f;
+    [SerializeField, Min(0), Tooltip("0 = Means infinite targets")] private int maxTargets = 1;
     [SerializeField, Min(0)] private float pushForce = 5f;
     [SerializeField, Min(0)] private float stunTime;
     [SerializeField] private LayerMask hitLayers = -1;
@@ -46,8 +48,6 @@ public class SOWeapon : ScriptableObject
     public string WeaponDescription => weaponDescription;
     public WeaponDurationType WeaponDurationType => weaponDurationType;
     public WeaponType WeaponType => weaponType;
-    public float MaxRange => maxRange;
-    public LayerMask HitLayers => hitLayers;
     public float Damage => damage;
     public float FireRate => fireRate;
     public float TimeLimit => timeLimit;
@@ -94,26 +94,69 @@ public class SOWeapon : ScriptableObject
     private void Hitscan(Vector3 startPosition ,RailPlayer owner)
     {
         if (weaponType != WeaponType.Hitscan) return;
-
-        // Get enemy target
-        ChickenController enemy = owner.GetTarget();
         
         // Play spawn effect
         PlayFireEffect(startPosition, Quaternion.identity);
 
-
-        if (enemy)
+        // Get enemy target
+        if (maxTargets == 1)
         {
-            // Apply damage
-            enemy.TakeDamage(damage);
+            ChickenController enemy = owner.GetTarget(radius);
             
-            enemy.ApplyConcussion(stunTime);
+            if (enemy)
+            {
+                // Apply damage
+                enemy.TakeDamage(damage);
+            
+                enemy.ApplyConcussion(stunTime);
 
-            enemy.ApplyForce(startPosition, pushForce);
+                enemy.ApplyForce(startPosition, pushForce);
             
-            // Play impact effect
-            PlayImpactEffect(enemy.transform.position, Quaternion.identity);
+                // Play impact effect
+                PlayImpactEffect(enemy.transform.position, Quaternion.identity);
+            }
+        } 
+        else
+        {
+
+            // Create a list of enemies
+            ChickenController[] enemies = Array.Empty<ChickenController>();
+            
+            // Get the right number of targets
+            if (maxTargets <= 0)
+            {
+                enemies = owner.GetAllTargets(999, radius);
+            } 
+            else if (maxTargets > 1)
+            {
+                enemies = owner.GetAllTargets(maxTargets, radius);
+            }
+
+            
+            // Attack all enemies in the list
+            foreach (ChickenController target in enemies)
+            {
+                if (target)
+                {
+                    // Apply damage
+                    target.TakeDamage(damage);
+                
+                    target.ApplyConcussion(stunTime);
+
+                    target.ApplyForce(startPosition, pushForce);
+                
+                    // Play impact effect
+                    PlayImpactEffect(target.transform.position, Quaternion.identity);
+                }
+            }
         }
+
+
+        
+
+
+
+
     }
     
 

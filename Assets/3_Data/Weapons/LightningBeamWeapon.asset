@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 108d4100b9f6ed44893c1bf888d0db7a, type: 3}
-  m_Name: LightningWeapon
+  m_Name: LightningBeamWeapon
   m_EditorClassIdentifier: 
-  weaponName: Buzzzzz Weapon
+  weaponName: Lightning Beam Weapon
   weaponDescription: Lightning!
   weaponType: 1
   weaponDurationType: 0
@@ -23,8 +23,10 @@ MonoBehaviour:
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
   projectileLifetime: 5
   projectileBehaviors: []
-  maxRange: 35
+  radius: 4
+  maxTargets: 5
   pushForce: 0.05
+  stunTime: 0
   hitLayers:
     serializedVersion: 2
     m_Bits: 8

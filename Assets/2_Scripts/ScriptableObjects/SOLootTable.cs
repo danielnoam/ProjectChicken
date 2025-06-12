@@ -1,23 +1,28 @@
 using UnityEngine;
-using VInspector;
+
 
 
 [System.Serializable]
 public class ResourceChance 
 {
     public Resource resource;
-    [Range(0f, 100f)] public float chance = 10f;
+    [Range(0, 100)] public int chance = 10;
+    public bool isLocked;
+    public string displayName;
+    
+    public string GetDisplayName()
+    {
+        if (!string.IsNullOrEmpty(displayName)) return displayName;
+        return resource ? resource.name : "Nothing";
+    }
 }
 
 [CreateAssetMenu(fileName = "New LootTable", menuName = "Scriptable Objects/New LootTable")]
 public class SOLootTable : ScriptableObject
 {
-    
     [Header("Loot Table")]
     [SerializeField] private ResourceChance[] resourceChances = System.Array.Empty<ResourceChance>();
 
-
-    
     private void OnValidate()
     {
         if (resourceChances is { Length: > 0 })
@@ -26,16 +31,13 @@ public class SOLootTable : ScriptableObject
         }
     }
 
-
     #region Resource Spawning ---------------------------------------------------------------------------------------
 
-    
     public Resource SpawnResource(Resource resource, Vector3 position, Transform parent)
     {
         if (!resource) return null;
         
         Resource newResource = Instantiate(resource, position, Quaternion.identity, parent);
-
         return newResource;
     }
     
@@ -44,12 +46,10 @@ public class SOLootTable : ScriptableObject
         if (!resource) return null;
         
         Resource newResource = Instantiate(resource, position, Quaternion.identity);
-
         return newResource;
     }
 
     #endregion Resource Spawning ---------------------------------------------------------------------------------------
-    
     
     #region Resource Selection ---------------------------------------------------------------------------------------
     
@@ -57,11 +57,11 @@ public class SOLootTable : ScriptableObject
     {
         if (resourceChances.Length == 0) return null;
         
-        // Filter out resources with null references
+        // Include ALL entries (even null resources for "nothing")
         var validResources = new System.Collections.Generic.List<ResourceChance>();
         foreach (var resourceChance in resourceChances)
         {
-            if (resourceChance.resource && resourceChance.chance > 0f)
+            if (resourceChance.chance > 0) // Only need chance > 0, resource can be null
             {
                 validResources.Add(resourceChance);
             }
@@ -76,7 +76,7 @@ public class SOLootTable : ScriptableObject
             totalWeight += resourceChance.chance;
         }
         
-        if (totalWeight <= 0f) return validResources[0].resource;
+        if (totalWeight <= 0f) return validResources[0].resource; // Could be null
         
         // Select random resource based on weights
         float randomValue = Random.Range(0f, totalWeight);
@@ -87,7 +87,7 @@ public class SOLootTable : ScriptableObject
             currentWeight += resourceChance.chance;
             if (randomValue <= currentWeight)
             {
-                return resourceChance.resource;
+                return resourceChance.resource; // Could return null for "nothing"
             }
         }
         
@@ -95,75 +95,99 @@ public class SOLootTable : ScriptableObject
         return validResources[0].resource;
     }
     
-    
     #endregion Resource Selection ---------------------------------------------------------------------------------------
-    
 
     #region Resource List Handling ---------------------------------------------------------------------------------------
 
-    
+
     private void NormalizeResourceChances()
     {
         if (resourceChances.Length == 0) return;
         
-        // Calculate total of all valid chances
-        float totalChance = 0f;
-        int validResourceCount = 0;
+        // Separate locked and unlocked entries
+        var unlockedEntries = new System.Collections.Generic.List<ResourceChance>();
+        int lockedTotal = 0;
         
-        for (int i = 0; i < resourceChances.Length; i++)
+        foreach (var chance in resourceChances)
         {
-            if (resourceChances[i].resource != null)
+            if (chance.isLocked)
             {
-                totalChance += Mathf.Max(0f, resourceChances[i].chance);
-                validResourceCount++;
+                lockedTotal += Mathf.Max(0, chance.chance);
+            }
+            else
+            {
+                unlockedEntries.Add(chance);
             }
         }
         
-        if (validResourceCount == 0) return;
+        // If all entries are locked, don't normalize
+        if (unlockedEntries.Count == 0) return;
         
-        // If total is 0, set equal chances
-        if (totalChance <= 0f)
+        // Calculate remaining percentage for unlocked entries
+        int remainingPercentage = Mathf.Max(0, 100 - lockedTotal);
+        
+        // Calculate the total of unlocked chances
+        int unlockedTotal = 0;
+        foreach (var chance in unlockedEntries)
         {
-            float equalChance = 100f / validResourceCount;
-            for (int i = 0; i < resourceChances.Length; i++)
+            unlockedTotal += Mathf.Max(0, chance.chance);
+        }
+        
+        // If the unlocked total is 0, set equal chances for unlocked entries
+        if (unlockedTotal <= 0)
+        {
+            int equalChance = remainingPercentage / unlockedEntries.Count;
+            int remainder = remainingPercentage % unlockedEntries.Count;
+            
+            for (int i = 0; i < unlockedEntries.Count; i++)
             {
-                if (resourceChances[i].resource != null)
+                unlockedEntries[i].chance = equalChance + (i < remainder ? 1 : 0);
+            }
+        }
+        // If the unlocked total doesn't match the remaining percentage, normalize unlocked entries
+        else if (unlockedTotal != remainingPercentage)
+        {
+            int newTotal = 0;
+            
+            // First pass: calculate normalized values for unlocked entries only
+            foreach (var resourceChance in unlockedEntries)
+            {
+                int normalizedChance = Mathf.RoundToInt((resourceChance.chance / (float)unlockedTotal) * remainingPercentage);
+                resourceChance.chance = normalizedChance;
+                newTotal += normalizedChance;
+            }
+            
+            // Second pass: adjust for rounding errors to ensure unlocked total = remainingPercentage
+            int difference = remainingPercentage - newTotal;
+            if (difference != 0 && unlockedEntries.Count > 0)
+            {
+                // Sort unlocked entries by current chance value (descending) to adjust larger values first
+                unlockedEntries.Sort((a, b) => b.chance.CompareTo(a.chance));
+                
+                // Distribute the difference, ensuring no negative values
+                for (int i = 0; i < Mathf.Abs(difference) && i < unlockedEntries.Count; i++)
                 {
-                    resourceChances[i].chance = equalChance;
+                    if (difference > 0)
+                    {
+                        unlockedEntries[i].chance += 1;
+                    }
+                    else if (unlockedEntries[i].chance > 0) // Only subtract if we won't go negative
+                    {
+                        unlockedEntries[i].chance -= 1;
+                    }
                 }
             }
         }
-        // If total is not 100, normalize to 100%
-        else if (Mathf.Abs(totalChance - 100f) > 0.01f)
+        
+        // Final safety check: ensure no negative values in all entries
+        foreach (var chance in resourceChances)
         {
-            foreach (var resourceChance in resourceChances)
+            if (chance.chance < 0)
             {
-                if (resourceChance.resource)
-                {
-                    resourceChance.chance = (resourceChance.chance / totalChance) * 100f;
-                }
+                chance.chance = 0;
             }
         }
     }
     
-    
-    [ContextMenu("Equalize Resource Chances")]
-    private void EqualizeResourceChances()
-    {
-        if (resourceChances.Length == 0) return;
-        
-        float equalChance = 100f / resourceChances.Length;
-        foreach (var resourceChance in resourceChances)
-        {
-            if (resourceChance.resource)
-            {
-                resourceChance.chance = equalChance;
-            }
-        }
-    }
-
     #endregion Resource List Handling ---------------------------------------------------------------------------------------
-
-    
-    
 }
