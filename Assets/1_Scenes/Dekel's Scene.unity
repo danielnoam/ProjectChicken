@@ -1073,6 +1073,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1622783546286214265, guid: 0dc27c5e616b3bc4d89d1e222c4dae5d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2f7116f10747a67409388e93052ae222, type: 2}
+    - target: {fileID: 1622783546286214265, guid: 0dc27c5e616b3bc4d89d1e222c4dae5d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -6055507529455485361, guid: 2f7116f10747a67409388e93052ae222, type: 2}
     - target: {fileID: 5042140183398147502, guid: 0dc27c5e616b3bc4d89d1e222c4dae5d, type: 3}
       propertyPath: m_Name
       value: RailPlayer
@@ -1503,7 +1511,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7112784176072851888, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -13.165059
+      value: -13.965632
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1960,10 +1968,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentFormation: 4
   autoUpdateFormation: 1
-  formationOffset: {x: 0, y: 0, z: 10}
-  useLocalOffset: 0
+  formationCount: 1
   formationPosition: 1
   boundaryPadding: 0
+  formationSeparation: 1.2
+  boundaryOffset: 2
+  splineRotationSpeed: 5
   vShapeCount: 15
   squareSize: 6
   triangleRows: 4
@@ -1974,11 +1984,26 @@ MonoBehaviour:
   verticalSpacing: 2
   circleRadius: 5
   constrainToBoundary: 1
+  optimizeBoundaryUsage: 0
   minSpacingMultiplier: 0.3
+  maxSpacingMultiplier: 2
+  vShapeBottomPadding: 0.5
   showGizmos: 1
   openSlotColor: {r: 0, g: 1, b: 0, a: 1}
   occupiedSlotColor: {r: 1, g: 0, b: 0, a: 1}
   gizmoSize: 0.5
+  showFormationBounds: 1
+  formationColors:
+  - {r: 0, g: 1, b: 1, a: 1}
+  - {r: 1, g: 0, b: 1, a: 1}
+  - {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  - {r: 0, g: 0, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0, a: 1}
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 1, g: 0.5, b: 0, a: 1}
+  - {r: 0.5, g: 0, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0.5, a: 1}
+  - {r: 1, g: 1, b: 1, a: 1}
 --- !u!1001 &1940515659
 PrefabInstance:
   m_ObjectHideFlags: 0
