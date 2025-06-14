@@ -32,7 +32,6 @@ public class Resource : MonoBehaviour
     [SerializeField] private bool conformToSpline = true;
     [EnableIf("conformToSpline")]
     [SerializeField] private float pathFollowSpeed = 3f;
-    [SerializeField] private float maxDistanceFromSpline = 7f;
     [EndIf]
     
     [Header("Spawn Effects")]
@@ -58,7 +57,7 @@ public class Resource : MonoBehaviour
     private float _currentLifetime;
     private bool _isMagnetized;
     private Vector3 _splineOffset;
-    private Vector3 _rotationAxis = Vector3.up;
+    private Vector3 _rotationAxis;
     
     public ResourceType ResourceType => resourceType;
     public int HealthWorth => healthWorth;
@@ -82,14 +81,7 @@ public class Resource : MonoBehaviour
 
     private void Awake()
     {
-        _currentLifetime = lifetime;
-        _rotationAxis = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized;
-        
-        if (resourceType == ResourceType.SpecialWeapon && weaponChances.Length > 0)
-        {
-            Weapon = SelectRandomWeapon();
-        }
-        
+        Initialize();
     }
 
     private void Start()
@@ -108,6 +100,19 @@ public class Resource : MonoBehaviour
     }
     
 
+    private void Initialize()
+    {
+        
+        _currentLifetime = lifetime;
+        _isMagnetized = false;
+        _splineOffset = Vector3.zero;
+        _rotationAxis = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized;
+        
+        if (resourceType == ResourceType.SpecialWeapon && weaponChances.Length > 0)
+        {
+            Weapon = SelectRandomWeapon();
+        }
+    }
 
     #region State Management ---------------------------------------------------------------------------------------
 
@@ -138,6 +143,7 @@ public class Resource : MonoBehaviour
     #endregion State Management ---------------------------------------------------------------------------------------
     
 
+    
     #region Movement ---------------------------------------------------------------------------------------
 
     private void Rotate()
@@ -159,22 +165,6 @@ public class Resource : MonoBehaviour
         
             // Move in the opposite direction of the spline flow
             Vector3 movementDirection = -splineDirection;
-            
-            // Calculate the distance to the spline offset
-            Vector3 offsetDirection = _splineOffset.normalized;
-            float distanceToSplineOffset = Vector3.Distance(transform.position, LevelManager.Instance.CurrentPositionOnPath.position);
-            
-            // If the distance to the spline offset is greater than the max distance, move towards it
-            if (distanceToSplineOffset > maxDistanceFromSpline)
-            {
-                // Move towards the spline offset
-                movementDirection = Vector3.Lerp(movementDirection, offsetDirection, 1f).normalized;
-            }
-            else
-            {
-                // If within max distance, just follow the spline direction
-                movementDirection = splineDirection.normalized;
-            }
             
             // Move the resource along the spline
             transform.position += movementDirection * (pathFollowSpeed * Time.deltaTime);
@@ -220,6 +210,7 @@ public class Resource : MonoBehaviour
     
 
     #endregion Movement ---------------------------------------------------------------------------------------
+    
     
 
     #region Effects ---------------------------------------------------------------------------------------

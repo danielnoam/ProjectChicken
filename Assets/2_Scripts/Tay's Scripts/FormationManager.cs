@@ -1495,9 +1495,7 @@ public class FormationManager : MonoBehaviour
             Vector3 countInfoPos = baseInfoPos + Vector3.up * 7f;
             UnityEditor.Handles.Label(countInfoPos, $"Active Formations: {formations.Count}");
         }
-
-        Vector3 splineInfoPos = baseInfoPos + Vector3.up * 8f;
-        UnityEditor.Handles.Label(splineInfoPos, "Spline Aligned");
+        
         
         Vector2 boundary = GetFormationBoundary();
         Vector3 boundaryInfoPos = formationCenter + Vector3.down * (boundary.y * 0.5f + 2f);

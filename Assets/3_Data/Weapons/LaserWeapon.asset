@@ -26,7 +26,8 @@ MonoBehaviour:
   - rid: 3357952732499804233
   - rid: 3357952728375754824
   - rid: 3357952757002403913
-  maxRange: 25
+  radius: 3
+  maxTargets: 1
   pushForce: 5
   stunTime: 0
   hitLayers:
@@ -47,6 +48,34 @@ MonoBehaviour:
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
       data:
         moveSpeed: 100
+        useAimAssist: 1
+        aimAssistStrength: 10
+        useSpeedStagger: 1
+        speedStaggerTime: 0.1
+        staggerSpeedCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 2
+            outSlope: 2
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
     - rid: 3357952757002403913
       type: {class: BehaviorStunOnImpact, ns: , asm: Assembly-CSharp}
       data:

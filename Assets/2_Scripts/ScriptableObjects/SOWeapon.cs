@@ -17,6 +17,8 @@ public class SOWeapon : ScriptableObject
     [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
     [SerializeField, Min(0)] private float damage = 10f;
     [SerializeField, Min(0)] private float fireRate = 1f;
+    [SerializeField, Min(0.1f)] private float targetCheckRadius = 3f;
+    [SerializeField, Min(0), Tooltip("0 = Means infinite targets")] private int maxTargets = 1;
 
     
     [ShowIf("weaponType", WeaponType.Projectile)]
@@ -28,8 +30,6 @@ public class SOWeapon : ScriptableObject
     
     [ShowIf("weaponType", WeaponType.Hitscan)]
     [Header("Hitscan Settings")]
-    [SerializeField, Min(0.1f)] private float radius = 3f;
-    [SerializeField, Min(0), Tooltip("0 = Means infinite targets")] private int maxTargets = 1;
     [SerializeField, Min(0)] private float pushForce = 5f;
     [SerializeField, Min(0)] private float stunTime;
     [SerializeField] private LayerMask hitLayers = -1;
@@ -57,10 +57,6 @@ public class SOWeapon : ScriptableObject
     
 
     
-
-
-    #region Weapon Usage ---------------------------------------------------------------------------------
-
     
     public void Fire(Vector3 position, RailPlayer owner)
     {
@@ -74,15 +70,57 @@ public class SOWeapon : ScriptableObject
                 break;
         }
     }
+    
+    
+
+
+    #region Projectile  ---------------------------------------------------------------------------------
+
+    
+
     private PlayerProjectile CreateProjectile(Vector3 position, RailPlayer owner)
     {
-        if (!playerProjectilePrefab || weaponType != WeaponType.Projectile) return null;
+        if (!playerProjectilePrefab) return null;
+        
+        // Get enemy target
+        if (maxTargets == 1)
+        {
+            ChickenController enemy = owner.GetTarget(targetCheckRadius);
+            
+        } 
+        else
+        {
+
+            // Create a list of enemies
+            ChickenController[] enemies = Array.Empty<ChickenController>();
+            
+            // Get the right number of targets
+            if (maxTargets <= 0)
+            {
+                enemies = owner.GetAllTargets(999, targetCheckRadius);
+            } 
+            else if (maxTargets > 1)
+            {
+                enemies = owner.GetAllTargets(maxTargets, targetCheckRadius);
+            }
+
+            
+            // Attack all enemies in the list
+            foreach (ChickenController target in enemies)
+            {
+                if (target)
+                {
+
+                }
+            }
+        }
+        
         
         // Instantiate the base projectile
         PlayerProjectile projectile = Instantiate(playerProjectilePrefab, position, Quaternion.identity);
         
         // Initialize the projectile
-        projectile.SetUpProjectile(this, owner);
+        projectile.SetUpProjectile(this, owner, owner.GetTarget(targetCheckRadius));
         
         // Spawn effect
         PlayFireEffect(projectile.transform.position, Quaternion.identity, projectile.AudioSource);
@@ -91,9 +129,17 @@ public class SOWeapon : ScriptableObject
     }
     
     
+
+    
+
+    #endregion Projectile  ---------------------------------------------------------------------------------
+
+    
+
+    #region Hitscan ----------------------------------------------------------------------------------
+
     private void Hitscan(Vector3 startPosition ,RailPlayer owner)
     {
-        if (weaponType != WeaponType.Hitscan) return;
         
         // Play spawn effect
         PlayFireEffect(startPosition, Quaternion.identity);
@@ -101,7 +147,7 @@ public class SOWeapon : ScriptableObject
         // Get enemy target
         if (maxTargets == 1)
         {
-            ChickenController enemy = owner.GetTarget(radius);
+            ChickenController enemy = owner.GetTarget(targetCheckRadius);
             
             if (enemy)
             {
@@ -125,11 +171,11 @@ public class SOWeapon : ScriptableObject
             // Get the right number of targets
             if (maxTargets <= 0)
             {
-                enemies = owner.GetAllTargets(999, radius);
+                enemies = owner.GetAllTargets(999, targetCheckRadius);
             } 
             else if (maxTargets > 1)
             {
-                enemies = owner.GetAllTargets(maxTargets, radius);
+                enemies = owner.GetAllTargets(maxTargets, targetCheckRadius);
             }
 
             
@@ -150,21 +196,12 @@ public class SOWeapon : ScriptableObject
                 }
             }
         }
-
-
-        
-
-
-
-
     }
+
+    #endregion Hitscan ----------------------------------------------------------------------------------
+
+
     
-
-    #endregion Weapon Usage ---------------------------------------------------------------------------------
-
-
-
-
     #region Effects ---------------------------------------------------------------------------------
 
     public void PlayImpactEffect(Vector3 position, Quaternion rotation)

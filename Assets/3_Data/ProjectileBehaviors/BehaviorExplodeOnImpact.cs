@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
 {
-    [Header("Explosion Settings")]
     [SerializeField] private float minRadius = 2f;
     [SerializeField] private float maxRadius = 6f;
     [SerializeField] private float maxDamage = 25f;
@@ -15,17 +14,17 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
     
     
 
-    public override void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    public override void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
 
     }
 
-    public override void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    public override void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner )
     {
 
     }
 
-    public override void OnBehaviorCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController target, ChickenController collision)
+    public override void OnBehaviorCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
     {
         // Get the collision point position
         Vector3 explosionCenter = collision.transform.position;
@@ -65,12 +64,12 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
         }
     }
 
-    public override void OnBehaviorDestroy(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    public override void OnBehaviorDestroy(PlayerProjectile projectile, RailPlayer owner )
     {
 
     }
 
-    public override void OnBehaviorDrawGizmos(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    public override void OnBehaviorDrawGizmos(PlayerProjectile projectile, RailPlayer owner)
     {
         // Draw the explosion radius spheres
         Gizmos.color = Color.red;
