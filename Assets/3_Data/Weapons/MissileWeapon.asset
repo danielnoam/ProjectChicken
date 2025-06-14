@@ -18,14 +18,15 @@ MonoBehaviour:
   weaponDurationType: 1
   timeLimit: 10
   ammoLimit: 5
-  damage: 1
+  damage: 0
   fireRate: 1
+  maxTargets: 1
+  targetCheckRadius: 3
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: 20978eb0d84dfd74fbd018ce1cb29fbf, type: 3}
   projectileLifetime: 5
   projectileBehaviors:
   - rid: 2319611325492494601
   - rid: 2319611325492494602
-  maxRange: 25
   pushForce: 5
   stunTime: 0
   hitLayers:
@@ -41,12 +42,41 @@ MonoBehaviour:
     - rid: 2319611325492494601
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
       data:
-        moveSpeed: 100
+        moveSpeed: 75
+        useAimAssist: 1
+        aimAssistStrength: 25
+        useSpeedStagger: 0
+        speedStaggerTime: 0.5
+        staggerSpeedCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
     - rid: 2319611325492494602
       type: {class: BehaviorExplodeOnImpact, ns: , asm: Assembly-CSharp}
       data:
         minRadius: 1
         maxRadius: 7
-        maxDamage: 35
-        maxForce: 25
+        maxDamage: 45
+        maxForce: 45
+        stunChance: 25
         maxStunTime: 2

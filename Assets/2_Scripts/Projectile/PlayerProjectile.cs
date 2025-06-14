@@ -13,7 +13,6 @@ public class PlayerProjectile : MonoBehaviour
     [SerializeField, Self] private Rigidbody rigidBody;
     
     
-    
     public SOWeapon Weapon { get; private set; }
     public RailPlayer Owner { get; private set;  }
     public ChickenController Target { get; private set;  }
@@ -43,7 +42,7 @@ public class PlayerProjectile : MonoBehaviour
     {
         if (!IsInitialized) return;
         
-        ApplyMovementBehaviors(this, Owner, Target);
+        ApplyMovementBehaviors(this, Owner);
     }
 
 
@@ -54,7 +53,7 @@ public class PlayerProjectile : MonoBehaviour
         if (other.TryGetComponent(out ChickenController collision))
         {
             // Apply custom behaviors on collision
-            ApplyCollisionBehaviors(this, Owner, Target, collision);
+            ApplyCollisionBehaviors(this, Owner, collision);
         
             // Play impact effect
             Weapon?.PlayImpactEffect(transform.position, Quaternion.identity);
@@ -81,7 +80,7 @@ public class PlayerProjectile : MonoBehaviour
     private void DestroyProjectile()
     {
         // Apply custom behaviors on destroy
-        ApplyDestroyBehaviors(this, Owner, Target);
+        ApplyDestroyBehaviors(this, Owner);
         
         // Destroy the projectile object
         Destroy(gameObject);
@@ -92,7 +91,7 @@ public class PlayerProjectile : MonoBehaviour
 
     #region SetUp -------------------------------------------------------------------------
 
-    public void SetUpProjectile(SOWeapon weapon, RailPlayer player)
+    public void SetUpProjectile(SOWeapon weapon, RailPlayer player, ChickenController target)
     {
         if (IsInitialized) return;
     
@@ -102,15 +101,19 @@ public class PlayerProjectile : MonoBehaviour
     
         // Create unique behavior instances for this projectile
         ProjectileSpecificBehaviors = CreateUniqueBehaviorInstances(weapon.ProjectileBehaviors);
-    
+        
         Lifetime = weapon.ProjectileLifetime;
         Damage = weapon.Damage;
         StartDirection = player.GetAimDirection();
-        Target = player.GetTarget();
+        rigidBody.rotation = Quaternion.LookRotation(StartDirection);
+        Target = target;
         IsInitialized = true;
     
+        // Play the fire effect
+        weapon.PlayFireEffect(transform.position, Quaternion.identity, AudioSource);
+        
         // Apply custom behaviors on spawn
-        ApplySpawnBehaviors(this, player, Target);
+        ApplySpawnBehaviors(this, player);
     }
     
     private List<ProjectileBehaviorBase> CreateUniqueBehaviorInstances(List<ProjectileBehaviorBase> originalBehaviors)
@@ -158,44 +161,44 @@ public class PlayerProjectile : MonoBehaviour
     
     #region Projectile Behaviors Calls ---------------------------------------------------------------
 
-    private void ApplySpawnBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    private void ApplySpawnBehaviors(PlayerProjectile projectile, RailPlayer owner )
     {
         foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
         {
-            behavior.OnBehaviorSpawn(projectile, owner, target);
+            behavior.OnBehaviorSpawn(projectile, owner);
         }
     }
     
     
-    private void ApplyMovementBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    private void ApplyMovementBehaviors(PlayerProjectile projectile, RailPlayer owner)
     {
         foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
         {
-            behavior.OnBehaviorMovement(projectile, owner, target);
+            behavior.OnBehaviorMovement(projectile, owner);
         }
     }
     
-    private void ApplyCollisionBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController target, ChickenController collision)
+    private void ApplyCollisionBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
     {
         foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
         {
-            behavior.OnBehaviorCollision(projectile, owner, target, collision);
+            behavior.OnBehaviorCollision(projectile, owner, collision);
         }
     }
     
-    private void ApplyDestroyBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    private void ApplyDestroyBehaviors(PlayerProjectile projectile, RailPlayer owner)
     {
         foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
         {
-            behavior.OnBehaviorDestroy(projectile, owner , target);
+            behavior.OnBehaviorDestroy(projectile, owner);
         }
     }
     
-    private void ApplyDrawGizmoBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    private void ApplyDrawGizmoBehaviors(PlayerProjectile projectile, RailPlayer owner)
     {
         foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
         {
-            behavior.OnBehaviorDrawGizmos(projectile, owner , target);
+            behavior.OnBehaviorDrawGizmos(projectile, owner);
         }
     }
 
@@ -209,7 +212,12 @@ public class PlayerProjectile : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        ApplyDrawGizmoBehaviors(this, Owner, Target);
+        
+        if (Application.isPlaying && IsInitialized)
+        {
+            ApplyDrawGizmoBehaviors(this, Owner);
+        }
+
     }
 
 

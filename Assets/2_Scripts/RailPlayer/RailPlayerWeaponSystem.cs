@@ -48,6 +48,11 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public SOWeapon CurrentSpecialWeapon => _currentSpecialWeapon;
     public float SpecialWeaponTime => _specialWeaponTime;
     public float SpecialWeaponAmmo => _specialWeaponAmmo;
+    public event Action<SOWeapon> OnSpecialWeaponSwitched;
+    
+    
+    
+    
 
     private void OnValidate() { this.ValidateRefs(); }
 
@@ -84,13 +89,15 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F1))
         {
-            // Select the first weapon in the dictionary (base weaponData)
-            SetSpecialWeapon(weapons.Keys.FirstOrDefault());
+            var secondWeapon = weapons.Keys.Skip(1).FirstOrDefault();
+            if (secondWeapon)
+            {
+                SetSpecialWeapon(secondWeapon);
+            }
         }
         else if (Input.GetKeyDown(KeyCode.F2))
         {
-            // Select the second weapon in the dictionary (if available)
-            var secondWeapon = weapons.Keys.Skip(1).FirstOrDefault();
+            var secondWeapon = weapons.Keys.Skip(2).FirstOrDefault();
             if (secondWeapon)
             {
                 SetSpecialWeapon(secondWeapon);
@@ -98,21 +105,12 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.F3))
         {
-            // Select the second weapon in the dictionary (if available)
-            var secondWeapon = weapons.Keys.Skip(2).FirstOrDefault();
-            if (secondWeapon)
-            {
-                SetSpecialWeapon(secondWeapon);
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.F4))
-        {
-            // Select the second weapon in the dictionary (if available)
             var secondWeapon = weapons.Keys.Skip(3).FirstOrDefault();
             if (secondWeapon)
             {
                 SetSpecialWeapon(secondWeapon);
             }
+
         }
         
     }
@@ -223,6 +221,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             
             // Play the weapon switch SFX
             weaponSwitchSfx?.Play(audioSource);
+            
+            // Notify
+            OnSpecialWeaponSwitched?.Invoke(weapon);
         }
     }
 

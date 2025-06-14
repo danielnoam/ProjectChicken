@@ -1,13 +1,13 @@
 using System;
 using UnityEngine;
 
-public class BehaviorAssistedMovement : ProjectileBehaviorBase
+public class BehaviorAimLockMovement : ProjectileBehaviorBase
 {
-    [Header("Assisted Movement Settings")]
+    [SerializeField, Min(0)] private float moveSpeed = 200f;
     [SerializeField, Min(0)] private float straightPhaseDuration = 0.5f;
     [SerializeField, Min(0)] private float bendPhaseDuration = 0.3f;
     [SerializeField, Min(0)] private float targetPhaseDuration = 2f;
-    [SerializeField, Min(0)] private float moveSpeed = 200f;
+
     
     private float _startTime;
     private Vector3 _startPosition;
@@ -26,17 +26,17 @@ public class BehaviorAssistedMovement : ProjectileBehaviorBase
         TowardTarget
     }
     
-    public override void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    public override void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
         _startTime = Time.time;
         _startPosition = projectile.transform.position;
         _currentDirection = projectile.StartDirection.normalized;
         _lastTargetDirection = _currentDirection;
-        _hasTarget = target;
+        _hasTarget = projectile.Target;
         
         if (_hasTarget)
         {
-            _targetPosition = target.transform.position;
+            _targetPosition = projectile.Target.transform.position;
         }
         
         // Generate random bend direction (perpendicular to current direction for more natural curve)
@@ -50,7 +50,7 @@ public class BehaviorAssistedMovement : ProjectileBehaviorBase
         _randomBendDirection = Quaternion.AngleAxis(randomAngle, _currentDirection) * perpendicular.normalized;
     }
 
-    public override void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    public override void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner)
     {
         float elapsedTime = Time.time - _startTime;
         MovementPhase currentPhase = GetCurrentPhase(elapsedTime);
@@ -67,7 +67,7 @@ public class BehaviorAssistedMovement : ProjectileBehaviorBase
                 break;
                 
             case MovementPhase.TowardTarget:
-                newPosition = MoveTowardTarget(projectile, owner, target, elapsedTime);
+                newPosition = MoveTowardTarget(projectile, owner, elapsedTime);
                 break;
         }
         
@@ -75,17 +75,17 @@ public class BehaviorAssistedMovement : ProjectileBehaviorBase
     }
     
 
-    public override void OnBehaviorCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController target, ChickenController collision)
+    public override void OnBehaviorCollision(PlayerProjectile projectile, RailPlayer owner , ChickenController collision)
     {
 
     }
 
-    public override void OnBehaviorDestroy(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    public override void OnBehaviorDestroy(PlayerProjectile projectile, RailPlayer owner )
     {
 
     }
 
-    public override void OnBehaviorDrawGizmos(PlayerProjectile projectile, RailPlayer owner, ChickenController target)
+    public override void OnBehaviorDrawGizmos(PlayerProjectile projectile, RailPlayer owner )
     {
 
     }
@@ -110,7 +110,7 @@ public class BehaviorAssistedMovement : ProjectileBehaviorBase
     
     private Vector3 MoveStraight(PlayerProjectile projectile, float elapsedTime)
     {
-        Vector3 movement = _currentDirection * moveSpeed * Time.fixedDeltaTime;
+        Vector3 movement = _currentDirection * (moveSpeed * Time.fixedDeltaTime);
         return projectile.Rigidbody.position + movement;
     }
     
@@ -127,7 +127,7 @@ public class BehaviorAssistedMovement : ProjectileBehaviorBase
         
         // Smoothly transition from straight direction to bend direction
         Vector3 blendedDirection = Vector3.Slerp(_currentDirection, _randomBendDirection, bendProgress);
-        Vector3 movement = blendedDirection * moveSpeed * Time.fixedDeltaTime;
+        Vector3 movement = blendedDirection * (moveSpeed * Time.fixedDeltaTime);
         
         // Update current direction for next phase
         _currentDirection = blendedDirection;
@@ -135,7 +135,7 @@ public class BehaviorAssistedMovement : ProjectileBehaviorBase
         return projectile.Rigidbody.position + movement;
     }
     
-    private Vector3 MoveTowardTarget(PlayerProjectile projectile, RailPlayer owner, ChickenController target, float elapsedTime)
+    private Vector3 MoveTowardTarget(PlayerProjectile projectile, RailPlayer owner, float elapsedTime)
     {
         // Store position at start of target phase
         if (elapsedTime >= straightPhaseDuration + bendPhaseDuration && _targetPhaseStartPosition == Vector3.zero)
@@ -143,10 +143,10 @@ public class BehaviorAssistedMovement : ProjectileBehaviorBase
             _targetPhaseStartPosition = projectile.transform.position;
         }
         
-        if (_hasTarget && target)
+        if (_hasTarget && projectile.Target)
         {
             // Update target position in case it moved
-            _targetPosition = target.transform.position;
+            _targetPosition = projectile.Target.transform.position;
             _lastTargetDirection = (_targetPosition - projectile.transform.position).normalized;
             
             float targetProgress = (elapsedTime - straightPhaseDuration - bendPhaseDuration) / targetPhaseDuration;
@@ -158,13 +158,13 @@ public class BehaviorAssistedMovement : ProjectileBehaviorBase
             
             _currentDirection = blendedDirection;
             
-            Vector3 movement = blendedDirection * moveSpeed * Time.fixedDeltaTime;
+            Vector3 movement = blendedDirection * (moveSpeed * Time.fixedDeltaTime);
             return projectile.Rigidbody.position + movement;
         }
         else
         {
             // No target - continue with  direction
-            Vector3 movement = _lastTargetDirection * moveSpeed * Time.fixedDeltaTime;
+            Vector3 movement = _lastTargetDirection * (moveSpeed * Time.fixedDeltaTime);
             return projectile.Rigidbody.position + movement;
         }
     }
