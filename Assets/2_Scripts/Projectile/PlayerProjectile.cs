@@ -109,6 +109,9 @@ public class PlayerProjectile : MonoBehaviour
         Target = target;
         IsInitialized = true;
     
+        // Play the fire effect
+        weapon.PlayFireEffect(transform.position, Quaternion.identity, AudioSource);
+        
         // Apply custom behaviors on spawn
         ApplySpawnBehaviors(this, player);
     }

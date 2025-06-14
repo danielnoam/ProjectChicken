@@ -20,14 +20,14 @@ MonoBehaviour:
   ammoLimit: 3
   damage: 25
   fireRate: 0.15
+  maxTargets: 1
+  targetCheckRadius: 3
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
   projectileLifetime: 4
   projectileBehaviors:
   - rid: 3357952732499804233
   - rid: 3357952728375754824
   - rid: 3357952757002403913
-  radius: 3
-  maxTargets: 1
   pushForce: 5
   stunTime: 0
   hitLayers:

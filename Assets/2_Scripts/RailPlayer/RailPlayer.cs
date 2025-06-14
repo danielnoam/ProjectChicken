@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using KBCore.Refs;
@@ -47,8 +48,10 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self] private RailPlayerMovement playerMovement;
     [SerializeField, Self] private AudioSource audioSource;
-    [SerializeField, Child] private TextMeshProUGUI playerStatusText;
+    [SerializeField] private TextMeshProUGUI playerStatusText;
 
+    
+    // Private fields
     private readonly List<Resource> _resourcesInRange = new List<Resource>();
     private int _currentHealth;
     private int _currentCurrency;
@@ -56,16 +59,25 @@ public class RailPlayer : MonoBehaviour
     private float _damagedCooldown;
     private Coroutine _regenShieldCoroutine;
     
+    // Public properties
     public bool AlignToSplineDirection => alignToSplineDirection;
     public float SplineRotationSpeed => splineRotationSpeed;
+    public event Action OnPlayerDeath;
+    public event Action<int> OnPlayerHealthChanged;
+    public event Action<float> OnPlayerShieldChanged;
+    public event Action<Resource> OnResourceCollected;
+    public event Action<SOWeapon> OnSpecialWeaponSwitched;
 
 
+    
+    
     private void OnValidate() { this.ValidateRefs(); }
 
     private void Awake()
     {
         SetUpPlayer();
     }
+    
 
     private void Update()
     {
@@ -73,16 +85,26 @@ public class RailPlayer : MonoBehaviour
         CheckResourcesInRange();
         UpdateMagnetizedResources();
         UpdateDebugText();
-
     }
-    
-    
-    
+
+    private void OnEnable()
+    {
+        
+        playerWeapon.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
+    }
+
+    private void OnDisable()
+    {
+        playerWeapon.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
+    }
+
     private void SetUpPlayer()
     {
         _currentHealth = maxHealth;
         _currentShieldHealth = maxShieldHealth;
     }
+    
+    
     
 
     #region Damage ---------------------------------------------------------------------- 
@@ -119,6 +141,8 @@ public class RailPlayer : MonoBehaviour
         {
             shieldDamageSfx?.Play(audioSource);
         }
+        
+        OnPlayerShieldChanged?.Invoke(_currentShieldHealth);
     }
     
     private void DamageHealth()
@@ -135,6 +159,8 @@ public class RailPlayer : MonoBehaviour
         {
             healthDamageSfx?.Play(audioSource);
         }
+        
+        OnPlayerHealthChanged?.Invoke(_currentHealth);
     }
     
     
@@ -156,45 +182,14 @@ public class RailPlayer : MonoBehaviour
     private void Die()
     {
         deathSfx?.Play(audioSource);
+        
+        OnPlayerDeath?.Invoke();
+        
+        
         Debug.Log("Player has died!");
     }
 
     #endregion Damage ----------------------------------------------------------------------
-
-
-    #region Healing ----------------------------------------------------------------------
-
-    
-    [Button]
-    private void HealHealth(int amount = 1)
-    {
-        if (amount <= 0 || !IsAlive()) return;
-        
-        _currentHealth += amount;
-        if (_currentHealth > maxHealth)
-        {
-            _currentHealth = maxHealth;
-        }
-        healthHealedSfx?.Play(audioSource);
-    }
-    
-    [Button]
-    private void HealShield(float amount = 25f)
-    {
-        if (HasShield()) return;
-        
-        _currentShieldHealth += amount;
-        if (_currentShieldHealth >= maxShieldHealth)
-        {
-            _currentShieldHealth = maxShieldHealth;
-            shieldRegeneratedSfx?.Play(audioSource);
-        }
-        
-        StartShieldRegen();
-    }
-    
-
-    #endregion Healing ----------------------------------------------------------------------
     
     
     #region Shield  --------------------------------------------------------------------------------------
@@ -245,6 +240,41 @@ public class RailPlayer : MonoBehaviour
 
     #endregion Shield  --------------------------------------------------------------------------------------
     
+    
+    #region Healing ----------------------------------------------------------------------
+
+    
+    [Button]
+    private void HealHealth(int amount = 1)
+    {
+        if (amount <= 0 || !IsAlive()) return;
+        
+        _currentHealth += amount;
+        if (_currentHealth > maxHealth)
+        {
+            _currentHealth = maxHealth;
+        }
+        healthHealedSfx?.Play(audioSource);
+    }
+    
+    [Button]
+    private void HealShield(float amount = 25f)
+    {
+        if (HasShield()) return;
+        
+        _currentShieldHealth += amount;
+        if (_currentShieldHealth >= maxShieldHealth)
+        {
+            _currentShieldHealth = maxShieldHealth;
+            shieldRegeneratedSfx?.Play(audioSource);
+        }
+        
+        StartShieldRegen();
+    }
+    
+
+    #endregion Healing ----------------------------------------------------------------------
+
     
     #region Resource Collection --------------------------------------------------------------------------------------
 
@@ -331,6 +361,7 @@ public class RailPlayer : MonoBehaviour
         
         _resourcesInRange.Remove(resource);
         resource.ResourceCollected();
+        OnResourceCollected?.Invoke(resource);
     }
 
     #endregion Resource Collection --------------------------------------------------------------------------------------
@@ -358,12 +389,12 @@ public class RailPlayer : MonoBehaviour
         return playerAiming.GetAimDirection();
     }
     
-    public ChickenController GetTarget(float radius = 3)
+    public ChickenController GetTarget(float radius)
     {
         return playerAiming.GetEnemyTarget(radius);
     }
     
-    public ChickenController[] GetAllTargets(int maxTargets, float radius = 3)
+    public ChickenController[] GetAllTargets(int maxTargets, float radius)
     {
         return playerAiming.GetEnemyTargets(maxTargets, radius);
     }

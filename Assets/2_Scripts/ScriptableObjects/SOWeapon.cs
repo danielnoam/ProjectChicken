@@ -17,8 +17,8 @@ public class SOWeapon : ScriptableObject
     [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
     [SerializeField, Min(0)] private float damage = 10f;
     [SerializeField, Min(0)] private float fireRate = 1f;
-    [SerializeField, Min(0.1f)] private float targetCheckRadius = 3f;
     [SerializeField, Min(0), Tooltip("0 = Means infinite targets")] private int maxTargets = 1;
+    [SerializeField, Min(0.1f)] private float targetCheckRadius = 3f;
 
     
     [ShowIf("weaponType", WeaponType.Projectile)]
@@ -78,17 +78,17 @@ public class SOWeapon : ScriptableObject
 
     
 
-    private PlayerProjectile CreateProjectile(Vector3 position, RailPlayer owner)
+    private void CreateProjectile(Vector3 position, RailPlayer owner)
     {
-        if (!playerProjectilePrefab) return null;
+        if (!playerProjectilePrefab) return;
         
-        // Get enemy target
-        if (maxTargets == 1)
+        
+        if (maxTargets == 1) // If we only want to target one enemy
         {
-            ChickenController enemy = owner.GetTarget(targetCheckRadius);
+            SpawnProjectile(owner, position, owner.GetTarget(targetCheckRadius));
             
         } 
-        else
+        else // If we want to target multiple enemies
         {
 
             // Create a list of enemies
@@ -106,28 +106,36 @@ public class SOWeapon : ScriptableObject
 
             
             // Attack all enemies in the list
-            foreach (ChickenController target in enemies)
+            if (enemies.Length > 0)
             {
-                if (target)
+                foreach (ChickenController target in enemies)
                 {
-
+                    if (target)
+                    {
+                        SpawnProjectile(owner, position, target);
+                    }
                 }
             }
+            else // If no enemies were found, just spawn a projectile without a target
+            {
+                SpawnProjectile(owner, position, null);
+            }
+
         }
         
-        
-        // Instantiate the base projectile
-        PlayerProjectile projectile = Instantiate(playerProjectilePrefab, position, Quaternion.identity);
-        
-        // Initialize the projectile
-        projectile.SetUpProjectile(this, owner, owner.GetTarget(targetCheckRadius));
-        
-        // Spawn effect
-        PlayFireEffect(projectile.transform.position, Quaternion.identity, projectile.AudioSource);
-        
-        return projectile;
     }
     
+    
+    private void SpawnProjectile(RailPlayer owner, Vector3 spawnPosition, ChickenController target)
+    {
+        // Instantiate the base projectile
+        PlayerProjectile projectile = Instantiate(playerProjectilePrefab, spawnPosition, Quaternion.identity);
+        
+        
+        // Initialize the projectile
+        projectile.SetUpProjectile(this, owner, target);
+        
+    }
     
 
     
