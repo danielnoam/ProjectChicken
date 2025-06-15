@@ -14,14 +14,15 @@ public class SOLevelStage : ScriptableObject
     [SerializeField, Min(0.1f)] private float stageDuration = 5;
     [EndIf]
     [ShowIf("stageType", StageType.EnemyWave)]
-    [SerializeField] private SerializedDictionary<ChickenController,int> enemyCount = new SerializedDictionary<ChickenController, int>();
+    [SerializeField] private SerializedDictionary<ChickenController,int> enemyWave = new SerializedDictionary<ChickenController, int>();
     [SerializeField] private float enemyStageOffset;
+    [SerializeField, Min(0)] private float delayBeforeNextStage = 1f;
     [EndIf]
     
     [Header("Path Settings")]
     [SerializeField] private float pathFollowSpeed = 3f;
-    [SerializeField] private SplineAnimate.AlignAxis upAxis = SplineAnimate.AlignAxis.YAxis;
-    [SerializeField] private SplineAnimate.AlignAxis forwardAxis = SplineAnimate.AlignAxis.ZAxis;
+    [SerializeField] private SplineComponent.AlignAxis upAxis = SplineComponent.AlignAxis.YAxis;
+    [SerializeField] private SplineComponent.AlignAxis forwardAxis = SplineComponent.AlignAxis.ZAxis;
     [SerializeField] private SplineAnimate.AlignmentMode alignmentMode = SplineAnimate.AlignmentMode.SplineElement;
     
     [Header("Player Settings")]
@@ -32,13 +33,18 @@ public class SOLevelStage : ScriptableObject
     
 
     public StageType StageType => stageType;
+    
     public float StageDuration => stageType == StageType.Checkpoint ? stageDuration : 0f;
-    public SerializedDictionary<ChickenController, int> EnemyCount => enemyCount;
+    
+    public SerializedDictionary<ChickenController, int> EnemyWave => enemyWave;
     public float EnemyStageOffset => enemyStageOffset;
+    public float DelayBeforeNextStage => delayBeforeNextStage;
+    
     public float PathFollowSpeed => pathFollowSpeed;
-    public SplineAnimate.AlignAxis UpAxis => upAxis;
-    public SplineAnimate.AlignAxis ForwardAxis => forwardAxis;
+    public SplineComponent.AlignAxis UpAxis => upAxis;
+    public SplineComponent.AlignAxis ForwardAxis => forwardAxis;
     public SplineAnimate.AlignmentMode AlignmentMode => alignmentMode;
+    
     public bool AllowPlayerMovement => allowPlayerMovement;
     public bool AllowPlayerAim => allowPlayerAim;
     public bool AllowPlayerShooting => allowPlayerShooting;

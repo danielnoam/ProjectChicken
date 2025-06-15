@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
-using Core.Attributes;
 using KBCore.Refs;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;
 using VInspector;
@@ -28,11 +26,15 @@ public class LevelManager : MonoBehaviour
     
     
     [Header("References")]
+    [SerializeField, Scene] private EnemyWaveSpawnerTest enemyWaveSpawner;
     [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private Transform currentPositionOnPath;
 
 
 
+    private Coroutine _stageChangeCoroutine;
+    
+    
     public Vector3 PlayerPosition { get; private set; }
     public Vector3 EnemyPosition { get; private set; }
     public float SplineLength { get; private set; }
@@ -86,6 +88,16 @@ public class LevelManager : MonoBehaviour
         StartLevel();
     }
 
+    private void OnEnable()
+    {
+        enemyWaveSpawner.OnEnemyWaveCleared += OnEnemyWaveCleared;
+    }
+    
+    private void OnDisable()
+    {
+        enemyWaveSpawner.OnEnemyWaveCleared -= OnEnemyWaveCleared;
+    }
+
 
     private void Update()
     {
@@ -134,7 +146,7 @@ public class LevelManager : MonoBehaviour
         switch (CurrentStage.StageType)
         {
             case StageType.Checkpoint:
-                StartCoroutine(ChangeStageAfterDelay(CurrentStage.StageDuration));
+                SetStageAfterDelay(CurrentStage.StageDuration);
                 break;
             case StageType.EnemyWave:
                 break;
@@ -144,12 +156,37 @@ public class LevelManager : MonoBehaviour
         OnStageChanged?.Invoke(CurrentStage);
     }
     
+    private void SetStageAfterDelay(float delay)
+    {
+        if (_stageChangeCoroutine != null)
+        {
+            StopCoroutine(_stageChangeCoroutine);
+        }
+        
+        _stageChangeCoroutine = StartCoroutine(ChangeStageAfterDelay(delay));
+    }
+    
 
     
     private IEnumerator ChangeStageAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         SetNextStage();
+    }
+    
+    private void OnEnemyWaveCleared()
+    {
+        if (!CurrentStage || CurrentStage.StageType != StageType.EnemyWave) return;
+
+        if (CurrentStage.DelayBeforeNextStage <= 0)
+        {
+            SetNextStage();
+        }
+        else
+        {
+            SetStageAfterDelay(CurrentStage.DelayBeforeNextStage);
+        }
+
     }
 
     #endregion Stage Management ---------------------------------------------------------------------------------
@@ -278,21 +315,21 @@ public class LevelManager : MonoBehaviour
         return Quaternion.LookRotation(forward, up);
     }
 
-    private Vector3 GetAxisVector(Vector3 splineVector, SplineAnimate.AlignAxis axis)
+    private Vector3 GetAxisVector(Vector3 splineVector, SplineComponent.AlignAxis axis)
     {
         switch (axis)
         {
-            case SplineAnimate.AlignAxis.XAxis:
+            case SplineComponent.AlignAxis.XAxis:
                 return splineVector;
-            case SplineAnimate.AlignAxis.YAxis:
+            case SplineComponent.AlignAxis.YAxis:
                 return splineVector;
-            case SplineAnimate.AlignAxis.ZAxis:
+            case SplineComponent.AlignAxis.ZAxis:
                 return splineVector;
-            case SplineAnimate.AlignAxis.NegativeXAxis:
+            case SplineComponent.AlignAxis.NegativeXAxis:
                 return -splineVector;
-            case SplineAnimate.AlignAxis.NegativeYAxis:
+            case SplineComponent.AlignAxis.NegativeYAxis:
                 return -splineVector;
-            case SplineAnimate.AlignAxis.NegativeZAxis:
+            case SplineComponent.AlignAxis.NegativeZAxis:
                 return -splineVector;
             default:
                 return splineVector;
