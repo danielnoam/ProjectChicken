@@ -49,6 +49,8 @@ public class RailPlayerAiming : MonoBehaviour
     private float _noInputTimer;
     private float CrosshairBoundaryX => LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.x : 25f;
     private float CrosshairBoundaryY => LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.y :  15f;
+    private bool AllowAiming => LevelManager.Instance ? LevelManager.Instance.CurrentStage.AllowPlayerAim : true;
+    
     
     private void OnValidate() { this.ValidateRefs(); }
 
@@ -89,7 +91,7 @@ public class RailPlayerAiming : MonoBehaviour
 
         private void HandleSplineRotation()
     {
-        if (!player.AlignToSplineDirection || !LevelManager.Instance || !LevelManager.Instance.SplineContainer)
+        if (!player.AlignToSplineDirection || !LevelManager.Instance)
         {
             _splineRotation = Quaternion.identity;
             return;
@@ -254,11 +256,15 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void OnProcessedLook(Vector2 processedLookInput)
     {
+        if (!AllowAiming) return;
+        
         _lookInput = processedLookInput;
     }
 
     private void OnMove(InputAction.CallbackContext context)
     {
+        if (!AllowAiming) return;
+        
         _movementInput = context.ReadValue<Vector2>();
     }
 
@@ -364,7 +370,7 @@ public class RailPlayerAiming : MonoBehaviour
     
     private Vector3 GetCrosshairSplinePosition()
     {
-        if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer) return transform.position;
+        if (!LevelManager.Instance) return transform.position;
         
         return LevelManager.Instance.EnemyPosition;
     }
@@ -392,7 +398,7 @@ public class RailPlayerAiming : MonoBehaviour
         Gizmos.DrawWireSphere(_crosshairWorldPosition, 3f);
         
         // Draw boundaries from spline position 
-        if (LevelManager.Instance && LevelManager.Instance.SplineContainer)
+        if (LevelManager.Instance)
         {
             Vector3 crosshairSplinePosition = GetCrosshairSplinePosition();
             

@@ -158,7 +158,7 @@ public class Resource : MonoBehaviour
     {
         if (_isMagnetized) return;
 
-        if (LevelManager.Instance && LevelManager.Instance.SplineContainer && conformToSpline)
+        if (LevelManager.Instance && conformToSpline)
         {
             // Get the spline direction at the current position
             Vector3 splineDirection = GetSplineDirectionAtCurrentPosition();
@@ -174,22 +174,16 @@ public class Resource : MonoBehaviour
     
     private Vector3 GetSplineDirectionAtCurrentPosition()
     {
-        if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer) return Vector3.forward;
-
-        var splineContainer = LevelManager.Instance.SplineContainer;
+        if (!LevelManager.Instance) return Vector3.forward;
+        
     
         // Get the current T value on the spline based on our current position
-        UnityEngine.Splines.SplineUtility.GetNearestPoint(
-            splineContainer.Spline, 
-            transform.position, 
-            out var nearestPoint, 
-            out var t
-        );
+        float currentT = LevelManager.Instance.GetCurrentSplineT(transform.position);
     
         // Get the tangent (direction) at this point on the spline
-        Vector3 tangent = splineContainer.EvaluateTangent(t);
+        Vector3 tangent = LevelManager.Instance.EvaluateTangentOnSpline(currentT);
     
-        return tangent.normalized;
+        return tangent;
     }
     
     private void GetSplineOffset()

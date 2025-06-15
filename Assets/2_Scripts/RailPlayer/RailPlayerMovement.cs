@@ -61,6 +61,8 @@ public class RailPlayerMovement : MonoBehaviour
 
     private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
     private float MovementBoundaryY => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
+    private bool AllowMovement => LevelManager.Instance.CurrentStage.AllowPlayerMovement;
+    
     public bool IsDodging => _isDodging;
 
     private void OnValidate() { this.ValidateRefs(); }
@@ -112,60 +114,61 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void SplineBasedMovement()
     {
-            Vector3 playerSplinePosition = LevelManager.Instance.PlayerPosition;
+        
+        Vector3 playerSplinePosition = LevelManager.Instance.PlayerPosition;
+        
+        // Calculate current offset from spline in local space
+        Vector3 worldOffset = transform.position - playerSplinePosition;
+        _currentOffsetFromSpline = Quaternion.Inverse(_splineRotation) * worldOffset;
+        
+        // Handle input movement or dodging
+        if (!_isDodging)
+        {
+            // Get the input direction based on horizontal and vertical input
+            Vector3 inputDirection = new Vector3(_horizontalInput, _verticalInput, 0);
             
-            // Calculate current offset from spline in local space
-            Vector3 worldOffset = transform.position - playerSplinePosition;
-            _currentOffsetFromSpline = Quaternion.Inverse(_splineRotation) * worldOffset;
-            
-            // Handle input movement or dodging
-            if (!_isDodging)
+            // Update target offset based on input
+            if (inputDirection != Vector3.zero)
             {
-                // Get the input direction based on horizontal and vertical input
-                Vector3 inputDirection = new Vector3(_horizontalInput, _verticalInput, 0);
+                // Add to the target offset based on input
+                _targetOffsetFromSpline += inputDirection * (maxMoveSpeed * Time.fixedDeltaTime);
                 
-                // Update target offset based on input
-                if (inputDirection != Vector3.zero)
-                {
-                    // Add to the target offset based on input
-                    _targetOffsetFromSpline += inputDirection * (maxMoveSpeed * Time.fixedDeltaTime);
-                    
-                    // Clamp the target offset to boundaries
-                    _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
-                    _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
-                    _targetOffsetFromSpline.z = 0; // Keep Z offset at 0
-                }
-                
-                // Smoothly interpolate current offset towards target offset
-                float lerpSpeed = inputDirection != Vector3.zero ? acceleration : deceleration;
-                _currentOffsetFromSpline = Vector3.Lerp(_currentOffsetFromSpline, _targetOffsetFromSpline, lerpSpeed * Time.fixedDeltaTime);
-            }
-            else
-            {
-                // During dodge, add dodge movement to the offset
-                Vector3 dodgeMovement = _dodgeDirection * (dodgeMoveSpeed * Time.fixedDeltaTime);
-                _targetOffsetFromSpline += dodgeMovement;
-                _currentOffsetFromSpline += dodgeMovement;
-                
-                // Clamp to boundaries after dodge
+                // Clamp the target offset to boundaries
                 _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
                 _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
-                _currentOffsetFromSpline.x = Mathf.Clamp(_currentOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
-                _currentOffsetFromSpline.y = Mathf.Clamp(_currentOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
+                _targetOffsetFromSpline.z = 0; // Keep Z offset at 0
             }
             
-            // Calculate the desired world position (spline position and offset)
-            Vector3 desiredWorldPosition = playerSplinePosition + (_splineRotation * _currentOffsetFromSpline);
+            // Smoothly interpolate current offset towards target offset
+            float lerpSpeed = inputDirection != Vector3.zero ? acceleration : deceleration;
+            _currentOffsetFromSpline = Vector3.Lerp(_currentOffsetFromSpline, _targetOffsetFromSpline, lerpSpeed * Time.fixedDeltaTime);
+        }
+        else
+        {
+            // During dodge, add dodge movement to the offset
+            Vector3 dodgeMovement = _dodgeDirection * (dodgeMoveSpeed * Time.fixedDeltaTime);
+            _targetOffsetFromSpline += dodgeMovement;
+            _currentOffsetFromSpline += dodgeMovement;
             
-            // Calculate velocity to reach the desired position
-            Vector3 positionDifference = desiredWorldPosition - transform.position;
-            
-            // Use a higher follow speed when we're far from the desired position
-            float distanceToDesired = positionDifference.magnitude;
-            float effectiveFollowSpeed = pathFollowSpeed * (1f + distanceToDesired);
-            
-            // Set the rigidbody velocity
-            playerRigidbody.linearVelocity = positionDifference.normalized * Mathf.Min(effectiveFollowSpeed, distanceToDesired / Time.fixedDeltaTime);
+            // Clamp to boundaries after dodge
+            _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
+            _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
+            _currentOffsetFromSpline.x = Mathf.Clamp(_currentOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
+            _currentOffsetFromSpline.y = Mathf.Clamp(_currentOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
+        }
+        
+        // Calculate the desired world position (spline position and offset)
+        Vector3 desiredWorldPosition = playerSplinePosition + (_splineRotation * _currentOffsetFromSpline);
+        
+        // Calculate velocity to reach the desired position
+        Vector3 positionDifference = desiredWorldPosition - transform.position;
+        
+        // Use a higher follow speed when we're far from the desired position
+        float distanceToDesired = positionDifference.magnitude;
+        float effectiveFollowSpeed = pathFollowSpeed * (1f + distanceToDesired);
+        
+        // Set the rigidbody velocity
+        playerRigidbody.linearVelocity = positionDifference.normalized * Mathf.Min(effectiveFollowSpeed, distanceToDesired / Time.fixedDeltaTime);
     }
     
     
@@ -313,6 +316,13 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void OnMove(InputAction.CallbackContext context)
     {
+        if (!AllowMovement)
+        {
+            _horizontalInput = 0f;
+            _verticalInput = 0f;
+            return;
+        }
+        
         if (context.started || context.performed)
         {
             Vector2 input = context.ReadValue<Vector2>();
@@ -328,7 +338,7 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void OnDodgeLeft(InputAction.CallbackContext context)
     {
-        if (!enableDodging) return;
+        if (!enableDodging || !AllowMovement) return;
         
         if (_dodgeCooldownTimer <= 0f && !_isDodging)
         {
@@ -342,7 +352,7 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void OnDodgeRight(InputAction.CallbackContext context)
     {
-        if (!enableDodging) return;
+        if (!enableDodging || !AllowMovement) return;
         
         if (_dodgeCooldownTimer <= 0f && !_isDodging)
         {
@@ -356,7 +366,8 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void OnDodgeFreeform(InputAction.CallbackContext context)
     {
-        if (!enableDodging) return;
+        if (!enableDodging || !AllowMovement) return;
+        
 
         if (_horizontalInput < 0)
         {
@@ -378,7 +389,7 @@ public class RailPlayerMovement : MonoBehaviour
     private void OnDrawGizmos()
     {
         // Draw boundaries from the actual player position on spline (with pathOffset)
-        if (LevelManager.Instance && LevelManager.Instance.SplineContainer)
+        if (LevelManager.Instance)
         {
             Vector3 playerSplinePosition = LevelManager.Instance.PlayerPosition;
             

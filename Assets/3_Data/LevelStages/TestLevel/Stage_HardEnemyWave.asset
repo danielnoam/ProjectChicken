@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
+  m_Name: Stage_HardEnemyWave
+  m_EditorClassIdentifier: 
+  stageType: 1
+  stageDuration: 15
+  enemyWave:
+    serializedKvps:
+    - Key: {fileID: 745806696497487914, guid: 6c00b75d8a669d04395aeb4d7c57f138, type: 3}
+      Value: 25
+      index: 0
+      isKeyRepeated: 0
+      isKeyNull: 0
+    dividerPos: 0.33
+  enemyStageOffset: 0
+  delayBeforeNextStage: 1
+  pathFollowSpeed: 4
+  upAxis: 1
+  forwardAxis: 2
+  alignmentMode: 1
+  allowPlayerMovement: 1
+  allowPlayerAim: 1
+  allowPlayerShooting: 1
+  playerStageOffset: 0

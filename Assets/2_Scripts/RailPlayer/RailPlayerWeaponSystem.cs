@@ -42,7 +42,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private float _specialWeaponFireRateCooldown;
     private float _specialWeaponTime;
     private float _specialWeaponAmmo;
-
+    private bool AllowShooting => LevelManager.Instance ? LevelManager.Instance.CurrentStage.AllowPlayerShooting : true;
 
     public SOWeapon BaseWeapon => baseWeapon;
     public SOWeapon CurrentSpecialWeapon => _currentSpecialWeapon;
@@ -302,6 +302,12 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void OnAttack(InputAction.CallbackContext context)
     {
+        if (!AllowShooting)
+        {
+            _attackInputHeld = false;
+            return;
+        }
+        
         if (context.started)
         {
             _attackInputHeld = true;
@@ -315,8 +321,13 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void OnAttack2(InputAction.CallbackContext context)
     {
-        
         if (!allowBaseWeaponWithSpecialWeapon) return;
+        
+        if (!AllowShooting)
+        {
+            _attack2InputHeld = false;
+            return;
+        }
         
         if (context.started)
         {

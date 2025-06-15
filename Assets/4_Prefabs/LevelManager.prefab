@@ -40,7 +40,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3017262246087303862}
-  - component: {fileID: 8625877817737927090}
   m_Layer: 0
   m_Name: CurrentSequencePosition
   m_TagString: Untagged
@@ -56,36 +55,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4518134958218238457}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.100439616, y: -0.6725344, z: 0.09030706, w: 0.7276359}
-  m_LocalPosition: {x: 0.1874485, y: 0, z: -0.5781965}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6161437660023631568}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8625877817737927090
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4518134958218238457}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29a074d529cf945029ef7cf40540c9df, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Target: {fileID: 5337217381014650461}
-  m_PlayOnAwake: 1
-  m_LoopMode: 0
-  m_Method: 1
-  m_Duration: 403.55472
-  m_MaxSpeed: 7
-  m_EasingMode: 0
-  m_AlignmentMode: 1
-  m_ObjectForwardAxis: 2
-  m_ObjectUpAxis: 1
-  m_StartOffset: 0
 --- !u!1 &5733738478967912776
 GameObject:
   m_ObjectHideFlags: 0
@@ -112,7 +88,7 @@ Transform:
   m_GameObject: {fileID: 5733738478967912776}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.1874485, y: 0, z: -0.5781965}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -329,8 +305,14 @@ MonoBehaviour:
   playerBoundary: {x: 15, y: 8}
   playerOffset: -20
   enemyOffset: 25
-  pathFollowSpeed: 5
-  autoStartMoving: 1
-  loopMode: 1
+  startOffset: 0
+  pathFollowSmoothness: 2
+  currentStageIndex: 0
+  levelStages:
+  - {fileID: 11400000, guid: f338646e377bf42469dcc8b8dfde2127, type: 2}
+  - {fileID: 11400000, guid: 688e0171d02b4e301bc3d4e9445a7756, type: 2}
+  - {fileID: 11400000, guid: 3f59532f35693fa4098c43943f9c8523, type: 2}
+  - {fileID: 11400000, guid: 4dfc8af771fa0ab43a1dde2fcb835ae5, type: 2}
+  enemyWaveSpawner: {fileID: 0}
   splineContainer: {fileID: 5337217381014650461}
   currentPositionOnPath: {fileID: 3017262246087303862}

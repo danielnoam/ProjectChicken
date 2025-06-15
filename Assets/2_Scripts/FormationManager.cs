@@ -257,7 +257,7 @@ public class FormationManager : MonoBehaviour
 
     private void HandleSplineRotation()
     {
-        if (!LevelManager.Instance || !LevelManager.Instance.SplineContainer)
+        if (!LevelManager.Instance)
         {
             splineRotation = Quaternion.identity;
             return;
