@@ -74,8 +74,6 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
         // Draw the explosion radius spheres
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(projectile.transform.position, maxRadius);
-            
-        Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(projectile.transform.position, minRadius);
     }
     

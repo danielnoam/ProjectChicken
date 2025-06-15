@@ -97,12 +97,12 @@ public class LevelManager : MonoBehaviour
 
     private void OnEnable()
     {
-        enemyWaveSpawner.OnEnemyWaveCleared += OnEnemyWaveCleared;
+        if (enemyWaveSpawner) enemyWaveSpawner.OnEnemyWaveCleared += OnEnemyWaveCleared;
     }
     
     private void OnDisable()
     {
-        enemyWaveSpawner.OnEnemyWaveCleared -= OnEnemyWaveCleared;
+        if (enemyWaveSpawner) enemyWaveSpawner.OnEnemyWaveCleared -= OnEnemyWaveCleared;
     }
 
 
@@ -235,7 +235,6 @@ public class LevelManager : MonoBehaviour
         // Lerp the current speed towards the target speed
         float targetSpeed = CurrentStage.PathFollowSpeed;
         _currentPathSpeed = Mathf.Lerp(_currentPathSpeed, targetSpeed, pathFollowSmoothness * Time.deltaTime);
-        Debug.Log("Current Path Speed: " + _currentPathSpeed);
 
         // Determine movement direction (forward or backward)
         Vector3 movementDir = GetMovementDirection(currentT);

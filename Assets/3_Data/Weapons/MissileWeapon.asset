@@ -21,9 +21,10 @@ MonoBehaviour:
   damage: 0
   fireRate: 1
   maxTargets: 1
-  targetCheckRadius: 3
+  targetCheckRadius: 4
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: 20978eb0d84dfd74fbd018ce1cb29fbf, type: 3}
   projectileLifetime: 5
+  convergenceMultiplier: 1
   projectileBehaviors:
   - rid: 2319611325492494601
   - rid: 2319611325492494602
@@ -74,7 +75,7 @@ MonoBehaviour:
     - rid: 2319611325492494602
       type: {class: BehaviorExplodeOnImpact, ns: , asm: Assembly-CSharp}
       data:
-        minRadius: 1
+        minRadius: 2
         maxRadius: 7
         maxDamage: 45
         maxForce: 45

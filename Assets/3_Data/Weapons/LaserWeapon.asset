@@ -21,9 +21,10 @@ MonoBehaviour:
   damage: 25
   fireRate: 0.15
   maxTargets: 1
-  targetCheckRadius: 3
+  targetCheckRadius: 4
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
   projectileLifetime: 4
+  convergenceMultiplier: 4
   projectileBehaviors:
   - rid: 3357952732499804233
   - rid: 3357952728375754824
@@ -49,7 +50,7 @@ MonoBehaviour:
       data:
         moveSpeed: 100
         useAimAssist: 1
-        aimAssistStrength: 10
+        aimAssistStrength: 25
         useSpeedStagger: 1
         speedStaggerTime: 0.1
         staggerSpeedCurve:

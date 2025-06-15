@@ -389,6 +389,12 @@ public class RailPlayer : MonoBehaviour
         return playerAiming.GetAimDirection();
     }
     
+    public Vector3 GetAimDirectionFromBarrelPosition(Vector3 barrelPosition, float convergenceMultiplier = 0f)
+    {
+        
+        return playerAiming.GetAimDirectionFromBarrelPosition(barrelPosition, convergenceMultiplier);
+    }
+    
     public ChickenController GetTarget(float radius)
     {
         return playerAiming.GetEnemyTarget(radius);

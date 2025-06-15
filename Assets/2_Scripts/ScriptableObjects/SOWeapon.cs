@@ -25,6 +25,7 @@ public class SOWeapon : ScriptableObject
     [Header("Projectile Settings")]
     [SerializeField] private PlayerProjectile playerProjectilePrefab;
     [SerializeField, Min(0)] private float projectileLifetime = 5f;
+    [SerializeField, Tooltip("Controls where projectiles converge: 0 = parallel, 1 = at crosshair, 0.5 = halfway to crosshair")] private float convergenceMultiplier = 1f;
     [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>();
     [EndIf]
     
@@ -50,6 +51,7 @@ public class SOWeapon : ScriptableObject
     public WeaponType WeaponType => weaponType;
     public float Damage => damage;
     public float FireRate => fireRate;
+    public float ConvergenceMultiplier => convergenceMultiplier;
     public float TimeLimit => timeLimit;
     public float AmmoLimit => ammoLimit;
     public float ProjectileLifetime => projectileLifetime;
