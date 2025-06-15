@@ -284,7 +284,7 @@ public class FormationManagerOld : MonoBehaviour
     {
         if (player == null) return;
         
-        if (useSplineFollowing && levelManager != null && levelManager.SplineContainer != null)
+        if (useSplineFollowing && levelManager != null)
         {
             UpdateSplineBasedPosition();
         }
@@ -299,27 +299,19 @@ public class FormationManagerOld : MonoBehaviour
     
     void UpdateSplineBasedPosition()
     {
-        float playerT = levelManager.GetCurrentSplineT();
-        SplinePath<Spline> splinePath = new SplinePath<Spline>(levelManager.SplineContainer.Splines);
-        float splineLength = splinePath.GetLength();
-        float normalizedOffset = splineOffset / splineLength;
+        float playerT = levelManager.GetCurrentSplineT(transform.position);
+        float normalizedOffset = splineOffset / levelManager.SplineLength;
         float targetT = playerT + normalizedOffset;
         
-        if (levelManager.SplineContainer.Splines.Count > 0)
-        {
-            if (targetT > 1f)
-                targetT = targetT % 1f;
-        }
         
-        Vector3 splinePosition = levelManager.SplineContainer.EvaluatePosition(targetT);
-        Vector3 splineTangent = levelManager.SplineContainer.EvaluateTangent(targetT);
-        Vector3 splineUp = levelManager.SplineContainer.EvaluateUpVector(targetT);
+        Vector3 splinePosition = levelManager.EvaluateTangentOnSpline(targetT);
+        Vector3 splineTangent = levelManager.EvaluateTangentOnSpline(targetT);
         
-        targetFormationCenter = splinePosition + splineUp * heightAboveSpline;
+        targetFormationCenter = splinePosition + Vector3.up * heightAboveSpline;
         
         if (splineTangent != Vector3.zero)
         {
-            formationRotation = Quaternion.LookRotation(splineTangent, splineUp);
+            formationRotation = Quaternion.LookRotation(splineTangent, Vector3.up );
         }
     }
     
