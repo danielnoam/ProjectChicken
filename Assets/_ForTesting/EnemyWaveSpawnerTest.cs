@@ -8,13 +8,14 @@ using UnityEngine;
 
 public class EnemyWaveSpawnerTest : MonoBehaviour
 {
+    public static EnemyWaveSpawnerTest Instance { get; private set; }
     
     [Header("References")]
     [SerializeField, Scene(Flag.Editable)] private LevelManager levelManager;
     [SerializeField] private Transform enemyHolder;
 
 
-    private int enemyCount;
+    private int _enemyCount;
     public event Action OnEnemyWaveCleared; 
 
     private void OnValidate()
@@ -22,10 +23,24 @@ public class EnemyWaveSpawnerTest : MonoBehaviour
         this.ValidateRefs();
     }
 
+    
+    private void Awake()
+    {
+        if (!Instance || Instance == this)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+    
+    
     private void OnEnable()
     {
         levelManager.OnStageChanged += OnStageChanged;
-        
     }
 
     private void OnDisable()
@@ -40,36 +55,56 @@ public class EnemyWaveSpawnerTest : MonoBehaviour
         }
     }
 
+
+
+
+    #region Events --------------------------------------------------------------------------------------
+    
+    
     private void OnStageChanged(SOLevelStage stage)
     {
         if (!stage) return;
 
 
-        if (stage.StageType == StageType.EnemyWave)
+        switch (stage.StageType)
         {
-            SpawnEnemyWave(stage);
-        } 
+            case StageType.EnemyWave:
+                SpawnEnemyWave(stage);
+                break;
+            case StageType.Checkpoint:
+                ClearEnemies();
+                break;
+        }
     }
     
     
     private void OnEnemyDeath()
     {
-        enemyCount--;
+        _enemyCount--;
         
-        if (enemyCount <= 0)
+        if (_enemyCount <= 0)
         {
             OnEnemyWaveCleared?.Invoke();
         }
     }
+    
 
-
+    #endregion Events --------------------------------------------------------------------------------------
+    
+    
 
     #region Enemy Spawning --------------------------------------------------------------------------------------
 
     private void SpawnEnemyWave(SOLevelStage stage)
     {
         if (stage.EnemyWave.Count == 0) return;
+        
+        
+        // Clear previous enemies
+        ClearEnemies();
 
+        
+        // Spawn new enemies
         int totalEnemiesSpawned = 0;
 
         foreach (var enemyType in stage.EnemyWave)
@@ -83,7 +118,7 @@ public class EnemyWaveSpawnerTest : MonoBehaviour
             }
         }
         
-        enemyCount = totalEnemiesSpawned;
+        _enemyCount = totalEnemiesSpawned;
     }
     
     
@@ -96,6 +131,19 @@ public class EnemyWaveSpawnerTest : MonoBehaviour
         enemyInstance.transform.localPosition = Vector3.zero;
         enemyInstance.transform.localRotation = Quaternion.identity;
         enemyInstance.OnDeath += OnEnemyDeath;
+    }
+    
+    private void ClearEnemies()
+    {
+        foreach (Transform child in enemyHolder)
+        {
+            if (child.TryGetComponent<ChickenController>(out var enemy))
+            {
+                Destroy(child.gameObject);
+            }
+        }
+        
+        _enemyCount = 0;
     }
 
     #endregion Enemy Spawning --------------------------------------------------------------------------------------

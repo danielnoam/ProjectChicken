@@ -8,6 +8,7 @@ using VInspector;
 public class SOLevelStage : ScriptableObject
 {
 
+    
     [Header("Stage Settings")]
     [SerializeField] private StageType stageType;
     [ShowIf("stageType", StageType.Checkpoint)] 
