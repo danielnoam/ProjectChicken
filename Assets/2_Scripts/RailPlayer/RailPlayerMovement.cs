@@ -196,7 +196,7 @@ public class RailPlayerMovement : MonoBehaviour
         // Get spline rotation
         if (LevelManager.Instance && player.AlignToSplineDirection)
         {
-            Vector3 splineDirection = LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.PlayerPosition);
+            Vector3 splineDirection = LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.CurrentPositionOnPath.position);
             Quaternion targetSplineRotation = Quaternion.LookRotation(splineDirection, Vector3.up);
         
             // Smoothly rotate towards the spline direction

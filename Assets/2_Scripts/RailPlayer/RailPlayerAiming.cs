@@ -385,7 +385,7 @@ public class RailPlayerAiming : MonoBehaviour
     
     private Vector3 GetSplineDirection()
     {
-        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.EnemyPosition);
+        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.CurrentPositionOnPath.position);
     }
     
     private Vector3 GetCrosshairSplinePosition()
@@ -407,16 +407,10 @@ public class RailPlayerAiming : MonoBehaviour
     
     private void OnDrawGizmos()
     {
-
-    
-        // Aim direction ray
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, _crosshairWorldPosition);
-        
-        
         // Draw boundaries from spline position 
         if (LevelManager.Instance)
         {
+            Gizmos.color = Color.blue;
             Vector3 crosshairSplinePosition = GetCrosshairSplinePosition();
             
             if (player.AlignToSplineDirection)

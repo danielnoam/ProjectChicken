@@ -290,7 +290,7 @@ public class RailPlayer : MonoBehaviour
                 if (resource && !_resourcesInRange.Contains(resource))
                 {
                     _resourcesInRange.Add(resource);
-                    resource.SetMagnetized(true);
+                    resource.SetMagnetized(magnetMoveSpeed);
                 }
             }
         }
@@ -304,7 +304,7 @@ public class RailPlayer : MonoBehaviour
             {
                 if (!_resourcesInRange[i]) continue;
                 
-                _resourcesInRange[i].SetMagnetized(false);
+                _resourcesInRange[i].ReleaseFromMagnetization();
                 _resourcesInRange.RemoveAt(i);
             }
         }
@@ -324,7 +324,7 @@ public class RailPlayer : MonoBehaviour
             // Move the resource towards the player if within magnet radius
             if (Vector3.Distance(transform.position, resource.transform.position) <= magnetRadius)
             {
-                resource.MoveTowardsPlayer(transform.position, magnetMoveSpeed);
+                resource.MoveTowardsPlayer(transform.position);
             }
         
             // Check if the resource is within the collection radius

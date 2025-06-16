@@ -274,7 +274,7 @@ public class FormationManager : MonoBehaviour
 
     private Vector3 GetSplineDirection()
     {
-        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.EnemyPosition);
+        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.CurrentPositionOnPath.position);
     }
 
     #endregion

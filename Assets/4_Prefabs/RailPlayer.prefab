@@ -724,7 +724,7 @@ Transform:
   m_GameObject: {fileID: 2440519371583176229}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.86, z: -31.87}
+  m_LocalPosition: {x: 0, y: 0, z: -40}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2051,8 +2051,8 @@ MonoBehaviour:
   maxShieldHealth: 100
   shieldRegenRate: 5
   shieldRegenDelay: 4
-  resourceCollectionRadius: 10
-  magnetRadius: 20
+  resourceCollectionRadius: 6.37
+  magnetRadius: 15
   magnetMoveSpeed: 15
   alignToSplineDirection: 1
   splineRotationSpeed: 5
@@ -2111,7 +2111,7 @@ MonoBehaviour:
   maxYawAngle: 45
   pathRotationSpeed: 5
   enableDodging: 1
-  dodgeMoveSpeed: 35
+  dodgeMoveSpeed: 65
   dodgeTime: 0.4
   dodgeCooldown: 0.45
   dodgeRollAmount: 360
@@ -3173,7 +3173,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -6184839944336561336, guid: 3957aa1eef0028ad386378314e062a35, type: 3}
+  - {fileID: 2100000, guid: 0aba5f4f037115ba8beab83c7cccbf46, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3360,10 +3360,38 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -180
       objectReference: {fileID: 0}
+    - target: {fileID: -7901965365810808197, guid: 3957aa1eef0028ad386378314e062a35, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 0aba5f4f037115ba8beab83c7cccbf46, type: 2}
+    - target: {fileID: -1592289475483123607, guid: 3957aa1eef0028ad386378314e062a35, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 0aba5f4f037115ba8beab83c7cccbf46, type: 2}
     - target: {fileID: 919132149155446097, guid: 3957aa1eef0028ad386378314e062a35, type: 3}
       propertyPath: m_Name
       value: SpaceShipProxy01
       objectReference: {fileID: 0}
+    - target: {fileID: 1603246306389932429, guid: 3957aa1eef0028ad386378314e062a35, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 0aba5f4f037115ba8beab83c7cccbf46, type: 2}
+    - target: {fileID: 3816654056258493912, guid: 3957aa1eef0028ad386378314e062a35, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 0aba5f4f037115ba8beab83c7cccbf46, type: 2}
+    - target: {fileID: 4407187375235809858, guid: 3957aa1eef0028ad386378314e062a35, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 0aba5f4f037115ba8beab83c7cccbf46, type: 2}
+    - target: {fileID: 4431670454091400558, guid: 3957aa1eef0028ad386378314e062a35, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 0aba5f4f037115ba8beab83c7cccbf46, type: 2}
+    - target: {fileID: 8424073627695423409, guid: 3957aa1eef0028ad386378314e062a35, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 0aba5f4f037115ba8beab83c7cccbf46, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
