@@ -6,9 +6,9 @@ using UnityEngine;
 
 
 
-public class EnemyWaveSpawnerTest : MonoBehaviour
+public class EnemyWaveSpawner : MonoBehaviour
 {
-    public static EnemyWaveSpawnerTest Instance { get; private set; }
+    public static EnemyWaveSpawner Instance { get; private set; }
     
     [Header("References")]
     [SerializeField, Scene(Flag.Editable)] private LevelManager levelManager;

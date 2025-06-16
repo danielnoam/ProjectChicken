@@ -437,8 +437,6 @@ public class RailPlayer : MonoBehaviour
             
             playerStatusText.text = $"Health: {_currentHealth}/{maxHealth}\n" +
                                     $"Shield: {_currentShieldHealth:F1} / {maxShieldHealth:F1}, Regen: {_damagedCooldown}\n" +
-                                    $"Alive: {IsAlive()}\n" +
-                                    $"Shielded: {HasShield()}\n" +
                                     $"Weapon: {selectedWeapon}\n" +
                                     $"Currency: {_currentCurrency}"
                 ;
@@ -448,8 +446,6 @@ public class RailPlayer : MonoBehaviour
     
 
 #if UNITY_EDITOR
-
-
     private void OnDrawGizmosSelected()
     {
         
@@ -465,7 +461,6 @@ public class RailPlayer : MonoBehaviour
 
 
 #endif
-
     #endregion Editor  --------------------------------------------------------------------------------------
 
 }
