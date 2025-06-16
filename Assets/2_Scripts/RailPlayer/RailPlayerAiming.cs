@@ -362,23 +362,22 @@ public class RailPlayerAiming : MonoBehaviour
         return _aimDirection;
     }
     
-    public Vector3 GetAimDirectionFromBarrelPosition(Vector3 barrelPosition, float convergenceMultiplier = 0f)
+    public Vector3 GetAimDirectionFromBarrelPosition(Vector3 position, float convergenceMultiplier = 0f)
     {
         if (convergenceMultiplier == 0f)
         {
             // Parallel shooting - both barrels shoot in the same direction
-            // Use direction from ship center to crosshair
             Vector3 parallelDirection = (_crosshairWorldPosition - transform.position).normalized;
             return parallelDirection;
         }
         else
         {
-            // Converging shooting - aim directly at crosshair or modified convergence point
+            // Converging shooting - aim directly at the convergence point
             Vector3 baseCrosshairDirection = (_crosshairWorldPosition - transform.position).normalized;
             float crosshairDistance = Vector3.Distance(transform.position, _crosshairWorldPosition);
             Vector3 convergencePoint = transform.position + (baseCrosshairDirection * (crosshairDistance * convergenceMultiplier));
         
-            return (convergencePoint - barrelPosition).normalized;
+            return (convergencePoint - position).normalized;
         }
     }
     
