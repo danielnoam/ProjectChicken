@@ -1,4 +1,5 @@
 
+using System;
 using KBCore.Refs;
 using UnityEngine;
 using PrimeTween;
@@ -62,8 +63,11 @@ public class RailPlayerMovement : MonoBehaviour
     private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
     private float MovementBoundaryY => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
     private bool AllowMovement => LevelManager.Instance.CurrentStage.AllowPlayerMovement;
-    
+
+    public float MaxDodgeCooldown => dodgeCooldown;
     public bool IsDodging => _isDodging;
+    public event Action OnDodge;
+    public event Action<float> OnDodgeCooldownUpdated;
 
     private void OnValidate() { this.ValidateRefs(); }
     private void OnEnable()
@@ -285,6 +289,8 @@ public class RailPlayerMovement : MonoBehaviour
             _dodgeCooldownTimer -= Time.deltaTime;
             if (_dodgeCooldownTimer < 0f) _dodgeCooldownTimer = 0f;
         }
+        
+        OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer);
     }
     
     private void PlayDodgeRollAnimation()
@@ -347,6 +353,7 @@ public class RailPlayerMovement : MonoBehaviour
             _isDodging = true;
                 
             PlayDodgeRollAnimation();
+            OnDodge?.Invoke();
         }
     }
     
@@ -361,6 +368,7 @@ public class RailPlayerMovement : MonoBehaviour
             _isDodging = true;
                 
             PlayDodgeRollAnimation();
+            OnDodge?.Invoke();
         }
     }
     

@@ -27,7 +27,7 @@ public class LevelManager : MonoBehaviour
     
     
     [Header("References")]
-    [SerializeField, Scene] private EnemyWaveSpawner enemyWaveSpawner;
+    [SerializeField, Scene] private EnemyWaveManager enemyWaveManager;
     [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private Transform currentPositionOnPath;
 
@@ -97,12 +97,12 @@ public class LevelManager : MonoBehaviour
 
     private void OnEnable()
     {
-        if (enemyWaveSpawner) enemyWaveSpawner.OnEnemyWaveCleared += OnEnemyWaveCleared;
+        if (enemyWaveManager) enemyWaveManager.OnEnemyWaveCleared += OnEnemyWaveCleared;
     }
     
     private void OnDisable()
     {
-        if (enemyWaveSpawner) enemyWaveSpawner.OnEnemyWaveCleared -= OnEnemyWaveCleared;
+        if (enemyWaveManager) enemyWaveManager.OnEnemyWaveCleared -= OnEnemyWaveCleared;
     }
 
 

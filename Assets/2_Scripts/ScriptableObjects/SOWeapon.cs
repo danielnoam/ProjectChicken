@@ -11,10 +11,12 @@ public class SOWeapon : ScriptableObject
     [Header("Weapon Settings")]
     [SerializeField] private string weaponName = "New Weapon";
     [SerializeField] private string weaponDescription = "A Weapon";
+    [SerializeField] private Sprite weaponWeaponIcon;
     [SerializeField] private WeaponType weaponType = WeaponType.Projectile;
-    [SerializeField] private WeaponDurationType weaponDurationType = WeaponDurationType.Permanent;
-    [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.TimeBased)] private float timeLimit = 10f;[EndIf]
-    [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
+    [SerializeField] private WeaponLimitationType weaponLimitationType = WeaponLimitationType.None;
+    [SerializeField, Min(0), ShowIf("weaponLimitationType", WeaponLimitationType.HeatBased)] private float heatPerShot = 1f;[EndIf]
+    [SerializeField, Min(0), ShowIf("weaponLimitationType", WeaponLimitationType.TimeBased)] private float timeLimit = 10f;[EndIf]
+    [SerializeField, Min(0), ShowIf("weaponLimitationType", WeaponLimitationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
     [SerializeField, Min(0)] private float damage = 10f;
     [SerializeField, Min(0)] private float fireRate = 1f;
     [SerializeField, Min(0), Tooltip("0 = Means infinite targets")] private int maxTargets = 1;
@@ -47,13 +49,15 @@ public class SOWeapon : ScriptableObject
 
     public string WeaponName => weaponName;
     public string WeaponDescription => weaponDescription;
-    public WeaponDurationType WeaponDurationType => weaponDurationType;
+    public Sprite WeaponIcon => weaponWeaponIcon;
+    public WeaponLimitationType WeaponLimitationType => weaponLimitationType;
     public WeaponType WeaponType => weaponType;
     public float Damage => damage;
     public float FireRate => fireRate;
     public float ConvergenceMultiplier => convergenceMultiplier;
     public float TimeLimit => timeLimit;
     public float AmmoLimit => ammoLimit;
+    public float HeatPerShot => heatPerShot;
     public float ProjectileLifetime => projectileLifetime;
     public  List<ProjectileBehaviorBase> ProjectileBehaviors => projectileBehaviors;
     
