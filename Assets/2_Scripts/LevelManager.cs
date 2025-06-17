@@ -27,7 +27,7 @@ public class LevelManager : MonoBehaviour
     
     
     [Header("References")]
-    [SerializeField, Scene] private EnemyWaveManager enemyWaveManager;
+    [SerializeField, Scene(Flag.Editable)] private EnemyWaveManager enemyWaveManager;
     [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private Transform currentPositionOnPath;
 
