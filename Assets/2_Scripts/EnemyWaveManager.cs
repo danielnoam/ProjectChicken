@@ -6,17 +6,19 @@ using UnityEngine;
 
 
 
-public class EnemyWaveSpawnerTest : MonoBehaviour
+public class EnemyWaveManager : MonoBehaviour
 {
-    public static EnemyWaveSpawnerTest Instance { get; private set; }
+    public static EnemyWaveManager Instance { get; private set; }
     
     [Header("References")]
     [SerializeField, Scene(Flag.Editable)] private LevelManager levelManager;
     [SerializeField] private Transform enemyHolder;
 
 
+    private SOLevelStage _currentStage;
     private int _enemyCount;
-    public event Action OnEnemyWaveCleared; 
+    public event Action<int> OnEnemyWaveCleared;
+    public event Action<int> OnEnemyDeath;
 
     private void OnValidate()
     {
@@ -51,6 +53,7 @@ public class EnemyWaveSpawnerTest : MonoBehaviour
             if (child.TryGetComponent<ChickenController>(out var enemy))
             {
                 enemy.OnDeath -= OnEnemyDeath;
+                enemy.OnDeath -= UpdateEnemyCount;
             }
         }
     }
@@ -65,11 +68,13 @@ public class EnemyWaveSpawnerTest : MonoBehaviour
     {
         if (!stage) return;
 
-
+        _currentStage = stage;
+        
         switch (stage.StageType)
         {
             case StageType.EnemyWave:
                 SpawnEnemyWave(stage);
+                _currentStage = stage;
                 break;
             case StageType.Checkpoint:
                 ClearEnemies();
@@ -78,13 +83,13 @@ public class EnemyWaveSpawnerTest : MonoBehaviour
     }
     
     
-    private void OnEnemyDeath()
+    private void UpdateEnemyCount(int enemyScore)
     {
         _enemyCount--;
         
         if (_enemyCount <= 0)
         {
-            OnEnemyWaveCleared?.Invoke();
+            OnEnemyWaveCleared?.Invoke(_currentStage.WaveScore);
         }
     }
     
@@ -131,6 +136,7 @@ public class EnemyWaveSpawnerTest : MonoBehaviour
         enemyInstance.transform.localPosition = Vector3.zero;
         enemyInstance.transform.localRotation = Quaternion.identity;
         enemyInstance.OnDeath += OnEnemyDeath;
+        enemyInstance.OnDeath += UpdateEnemyCount;
     }
     
     private void ClearEnemies()

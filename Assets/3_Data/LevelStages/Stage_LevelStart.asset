@@ -10,21 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_HardEnemyWave
+  m_Name: Stage_LevelStart
   m_EditorClassIdentifier: 
-  stageType: 1
-  stageDuration: 15
+  stageType: 0
+  stageDuration: 3
   enemyWave:
-    serializedKvps:
-    - Key: {fileID: 745806696497487914, guid: 6c00b75d8a669d04395aeb4d7c57f138, type: 3}
-      Value: 25
-      index: 0
-      isKeyRepeated: 0
-      isKeyNull: 0
+    serializedKvps: []
     dividerPos: 0.33
   enemyStageOffset: 0
   delayBeforeNextStage: 1
-  pathFollowSpeed: 4
+  pathFollowSpeed: 25
   upAxis: 1
   forwardAxis: 2
   alignmentMode: 1

@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 3460422942991614325}
   - component: {fileID: 7994237744549321368}
   m_Layer: 3
-  m_Name: Enemy Chicken
+  m_Name: EnemyChicken
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -255,7 +255,7 @@ MonoBehaviour:
   arrivalThreshold: 0.5
   maxWaitTime: 5
   slotCheckInterval: 2
-  followStrength: 10
+  followStrength: 13
   damping: 5
   followLerpSpeed: 2
   positionDeadZone: 0.1
@@ -369,7 +369,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 978278415228283758}

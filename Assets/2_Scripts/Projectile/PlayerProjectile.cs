@@ -104,7 +104,7 @@ public class PlayerProjectile : MonoBehaviour
         
         Lifetime = weapon.ProjectileLifetime;
         Damage = weapon.Damage;
-        StartDirection = player.GetAimDirection();
+        StartDirection = player.GetAimDirectionFromBarrelPosition(transform.position, weapon.ConvergenceMultiplier);
         rigidBody.rotation = Quaternion.LookRotation(StartDirection);
         Target = target;
         IsInitialized = true;

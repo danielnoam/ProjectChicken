@@ -26,40 +26,36 @@ public class Resource : MonoBehaviour
 
     [Header("General Settings")]
     [Tooltip("Time before the resource destroys itself (0 = unlimited time)"), SerializeField, Min(0)] private float lifetime = 10f;
-    
-    [Header("Movement Settings")]
-    [SerializeField, Min(0)] private float rotationSpeed = 45f;
-    [SerializeField] private bool conformToSpline = true;
-    [EnableIf("conformToSpline")]
-    [SerializeField] private float pathFollowSpeed = 3f;
-    [EndIf]
-    
-    [Header("Spawn Effects")]
-    [SerializeField] private SOAudioEvent spawnSfx;
-    [SerializeField] private ParticleSystem spawnEffect;
-    
-    [Header("Collection Effects")]
-    [SerializeField] private SOAudioEvent collectionSfx;
-    [SerializeField] private ParticleSystem collectionEffect;
-    
+    [SerializeField, Min(0)] private float rotationSpeed = 55f;
+    [SerializeField] private float pathFollowSpeed = 8f;
+    [SerializeField, Min(0.1f)] private float transitionSmoothness = 5f;
     
     [Header("Resource Settings")]
+    [SerializeField] private int scoreWorth = 50;
     [SerializeField] private ResourceType resourceType;
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.HealthPack)] private int healthWorth = 1;[EndIf]
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.ShieldPack)] private int shieldWorth = 50;[EndIf]
     [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private WeaponChance[] weaponChances = Array.Empty<WeaponChance>();[EndIf]
     
+    [Header("Effects")]
+    [SerializeField] private SOAudioEvent spawnSfx;
+    [SerializeField] private ParticleSystem spawnEffect;
+    [SerializeField] private SOAudioEvent collectionSfx;
+    [SerializeField] private ParticleSystem collectionEffect;
     
     [Header("References")]
     [SerializeField, Self] private AudioSource audioSource;
     
     private float _currentLifetime;
     private bool _isMagnetized;
+    private float _currentMovementSpeed;
+    private float _targetMovementSpeed;
     private Vector3 _splineOffset;
     private Vector3 _rotationAxis;
     
     public ResourceType ResourceType => resourceType;
+    public int ScoreWorth => scoreWorth;
     public int HealthWorth => healthWorth;
     public int ShieldWorth => shieldWorth;
     public int CurrencyWorth => currencyWorth;
@@ -69,6 +65,7 @@ public class Resource : MonoBehaviour
     
     private void OnValidate()
     {
+        if (Application.isPlaying) return;
         
         this.ValidateRefs();
         
@@ -83,36 +80,16 @@ public class Resource : MonoBehaviour
     {
         Initialize();
     }
-
-    private void Start()
-    {
-        
-        GetSplineOffset();
-        PlaySpawnEffects();
-    }
-
+    
 
     private void Update()
     {
         Rotate();
+        UpdateMovementSpeed();
         MoveAlongSpline();
         CheckLifetime();
     }
     
-
-    private void Initialize()
-    {
-        
-        _currentLifetime = lifetime;
-        _isMagnetized = false;
-        _splineOffset = Vector3.zero;
-        _rotationAxis = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized;
-        
-        if (resourceType == ResourceType.SpecialWeapon && weaponChances.Length > 0)
-        {
-            Weapon = SelectRandomWeapon();
-        }
-    }
 
     #region State Management ---------------------------------------------------------------------------------------
 
@@ -127,9 +104,17 @@ public class Resource : MonoBehaviour
         }
     }
 
-    public void SetMagnetized(bool magnetized)
+    public void SetMagnetized(float magnetizedSpeed)
     {
-        _isMagnetized = magnetized;
+        _isMagnetized = true;
+        _targetMovementSpeed = magnetizedSpeed;
+    }
+    
+    
+    public void ReleaseFromMagnetization()
+    {
+        _isMagnetized = false;
+        _targetMovementSpeed = pathFollowSpeed;
     }
     
     public void ResourceCollected()
@@ -138,6 +123,24 @@ public class Resource : MonoBehaviour
         PlayCollectionEffects();
 
         Destroy(gameObject);
+    }
+    
+    private void Initialize()
+    {
+        
+        _currentLifetime = lifetime;
+        _isMagnetized = false;
+        _currentMovementSpeed = pathFollowSpeed;
+        _targetMovementSpeed = pathFollowSpeed;
+        _rotationAxis = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized;
+        
+        if (resourceType == ResourceType.SpecialWeapon && weaponChances.Length > 0)
+        {
+            Weapon = SelectRandomWeapon();
+        }
+        
+        GetSplineOffset();
+        PlaySpawnEffects();
     }
 
     #endregion State Management ---------------------------------------------------------------------------------------
@@ -154,11 +157,16 @@ public class Resource : MonoBehaviour
         
     }
     
+    private void UpdateMovementSpeed()
+    {
+        _currentMovementSpeed = Mathf.Lerp(_currentMovementSpeed, _targetMovementSpeed, transitionSmoothness * Time.deltaTime);
+    }
+    
     private void MoveAlongSpline()
     {
         if (_isMagnetized) return;
 
-        if (LevelManager.Instance && conformToSpline)
+        if (LevelManager.Instance)
         {
             // Get the spline direction at the current position
             Vector3 splineDirection = GetSplineDirectionAtCurrentPosition();
@@ -166,10 +174,15 @@ public class Resource : MonoBehaviour
             // Move in the opposite direction of the spline flow
             Vector3 movementDirection = -splineDirection;
             
-            // Move the resource along the spline
-            transform.position += movementDirection * (pathFollowSpeed * Time.deltaTime);
-            
+            // Use the current speed (which may be lerping) instead of pathFollowSpeed directly
+            transform.position += movementDirection * (_currentMovementSpeed * Time.deltaTime);
         }
+    }
+    
+    public void MoveTowardsPlayer(Vector3 playerPosition)
+    {
+        Vector3 direction = (playerPosition - transform.position).normalized;
+        transform.position += direction * (_currentMovementSpeed * Time.deltaTime);
     }
     
     private Vector3 GetSplineDirectionAtCurrentPosition()
@@ -192,15 +205,11 @@ public class Resource : MonoBehaviour
         {
             _splineOffset = LevelManager.Instance.CurrentPositionOnPath.position - transform.position;
         }
+        else
+        {
+            _splineOffset = Vector3.zero;
+        }
     }
-    
-    
-    public void MoveTowardsPlayer(Vector3 playerPosition, float speed)
-    {
-        Vector3 direction = (playerPosition - transform.position).normalized;
-        transform.position += direction * (speed * Time.deltaTime);
-    }
-    
     
 
     #endregion Movement ---------------------------------------------------------------------------------------

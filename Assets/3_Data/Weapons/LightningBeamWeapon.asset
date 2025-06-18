@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Lightning Beam Weapon
   weaponDescription: Lightning!
+  weaponWeaponIcon: {fileID: 21300000, guid: d629af8e92b6b0892b661fba0e6c2912, type: 3}
   weaponType: 1
-  weaponDurationType: 0
+  weaponLimitationType: 1
+  heatPerShot: 3
   timeLimit: 30
   ammoLimit: 3
   damage: 10
   fireRate: 0.1
+  maxTargets: 5
+  targetCheckRadius: 4
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
   projectileLifetime: 5
+  convergenceMultiplier: 1
   projectileBehaviors: []
-  radius: 4
-  maxTargets: 5
   pushForce: 0.05
   stunTime: 0
   hitLayers:

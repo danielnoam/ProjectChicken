@@ -11,10 +11,12 @@ public class SOWeapon : ScriptableObject
     [Header("Weapon Settings")]
     [SerializeField] private string weaponName = "New Weapon";
     [SerializeField] private string weaponDescription = "A Weapon";
+    [SerializeField] private Sprite weaponWeaponIcon;
     [SerializeField] private WeaponType weaponType = WeaponType.Projectile;
-    [SerializeField] private WeaponDurationType weaponDurationType = WeaponDurationType.Permanent;
-    [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.TimeBased)] private float timeLimit = 10f;[EndIf]
-    [SerializeField, Min(0), ShowIf("weaponDurationType", WeaponDurationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
+    [SerializeField] private WeaponLimitationType weaponLimitationType = WeaponLimitationType.None;
+    [SerializeField, Min(0), ShowIf("weaponLimitationType", WeaponLimitationType.HeatBased)] private float heatPerShot = 1f;[EndIf]
+    [SerializeField, Min(0), ShowIf("weaponLimitationType", WeaponLimitationType.TimeBased)] private float timeLimit = 10f;[EndIf]
+    [SerializeField, Min(0), ShowIf("weaponLimitationType", WeaponLimitationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
     [SerializeField, Min(0)] private float damage = 10f;
     [SerializeField, Min(0)] private float fireRate = 1f;
     [SerializeField, Min(0), Tooltip("0 = Means infinite targets")] private int maxTargets = 1;
@@ -25,6 +27,7 @@ public class SOWeapon : ScriptableObject
     [Header("Projectile Settings")]
     [SerializeField] private PlayerProjectile playerProjectilePrefab;
     [SerializeField, Min(0)] private float projectileLifetime = 5f;
+    [SerializeField, Tooltip("Controls where projectiles converge: 0 = parallel, 1 = at crosshair, 0.5 = halfway to crosshair")] private float convergenceMultiplier = 1f;
     [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>();
     [EndIf]
     
@@ -46,27 +49,40 @@ public class SOWeapon : ScriptableObject
 
     public string WeaponName => weaponName;
     public string WeaponDescription => weaponDescription;
-    public WeaponDurationType WeaponDurationType => weaponDurationType;
+    public Sprite WeaponIcon => weaponWeaponIcon;
+    public WeaponLimitationType WeaponLimitationType => weaponLimitationType;
     public WeaponType WeaponType => weaponType;
     public float Damage => damage;
     public float FireRate => fireRate;
+    public float ConvergenceMultiplier => convergenceMultiplier;
     public float TimeLimit => timeLimit;
     public float AmmoLimit => ammoLimit;
+    public float HeatPerShot => heatPerShot;
     public float ProjectileLifetime => projectileLifetime;
     public  List<ProjectileBehaviorBase> ProjectileBehaviors => projectileBehaviors;
     
 
     
     
-    public void Fire(Vector3 position, RailPlayer owner)
+    public void Fire(RailPlayer owner, Transform[] barrelPositions)
     {
         switch (weaponType)
         {
             case WeaponType.Projectile:
-                CreateProjectile(position, owner);
+
+                foreach (var barrelPosition in barrelPositions)
+                {
+                    CreateProjectile(owner, barrelPosition.position);
+                }
+
                 break;
             case WeaponType.Hitscan:
-                Hitscan(position, owner);
+                
+                foreach (var barrelPosition in barrelPositions)
+                {
+                    Hitscan(owner, barrelPosition.position);
+                }
+
                 break;
         }
     }
@@ -78,7 +94,7 @@ public class SOWeapon : ScriptableObject
 
     
 
-    private void CreateProjectile(Vector3 position, RailPlayer owner)
+    private void CreateProjectile(RailPlayer owner, Vector3 position)
     {
         if (!playerProjectilePrefab) return;
         
@@ -146,7 +162,7 @@ public class SOWeapon : ScriptableObject
 
     #region Hitscan ----------------------------------------------------------------------------------
 
-    private void Hitscan(Vector3 startPosition ,RailPlayer owner)
+    private void Hitscan(RailPlayer owner, Vector3 startPosition)
     {
         
         // Play spawn effect

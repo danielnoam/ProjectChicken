@@ -20,8 +20,9 @@ public class RailPlayer : MonoBehaviour
     
     [Header("Shield")]
     [SerializeField, Min(0)] private float maxShieldHealth = 100f;
+    [SerializeField, Min(0)] private float shieldRegenCooldown = 4f;
     [SerializeField, Min(0)] private float shieldRegenRate = 5f;
-    [SerializeField, Min(0)] private float shieldRegenDelay = 4f;
+
     
     [Header("Resource Collection")]
     [SerializeField, Min(0)] private float resourceCollectionRadius = 2f;
@@ -48,7 +49,6 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self] private RailPlayerMovement playerMovement;
     [SerializeField, Self] private AudioSource audioSource;
-    [SerializeField] private TextMeshProUGUI playerStatusText;
 
     
     // Private fields
@@ -62,11 +62,22 @@ public class RailPlayer : MonoBehaviour
     // Public properties
     public bool AlignToSplineDirection => alignToSplineDirection;
     public float SplineRotationSpeed => splineRotationSpeed;
-    public event Action OnPlayerDeath;
-    public event Action<int> OnPlayerHealthChanged;
-    public event Action<float> OnPlayerShieldChanged;
+    public int MaxHealth => maxHealth;
+    public float MaxShieldHealth => maxShieldHealth;
+    public int CurrentCurrency => _currentCurrency;
+    public event Action OnDeath;
+    public event Action<int> OnHealthChanged;
+    public event Action<float> OnShieldChanged;
+    public event Action<SOWeapon,SOWeapon> OnSpecialWeaponSwitched;
+    public event Action<SOWeapon,float> OnBaseWeaponCooldownUpdated;
+    public event Action<SOWeapon,float> OnSpecialWeaponCooldownUpdated;
+    public event Action<float> OnWeaponHeatUpdated;
+    public event Action OnWeaponOverheated;
+    public event Action OnWeaponHeatReset;
     public event Action<Resource> OnResourceCollected;
-    public event Action<SOWeapon> OnSpecialWeaponSwitched;
+    public event Action<int> OnCurrencyChanged;
+    public event Action OnDodge;
+    public event Action<float> OnDodgeCooldownUpdated;
 
 
     
@@ -79,23 +90,35 @@ public class RailPlayer : MonoBehaviour
     }
     
 
-    private void Update()
-    {
-        CheckDamageCooldown();
-        CheckResourcesInRange();
-        UpdateMagnetizedResources();
-        UpdateDebugText();
-    }
-
     private void OnEnable()
     {
-        
         playerWeapon.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
+        playerWeapon.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
+        playerWeapon.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
+        playerWeapon.OnWeaponHeatUpdated += OnWeaponHeatUpdated;
+        playerWeapon.OnWeaponOverheated += OnWeaponOverheated;
+        playerWeapon.OnWeaponHeatReset += OnWeaponHeatReset;
+        playerMovement.OnDodge += OnDodge;
+        playerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
     }
 
     private void OnDisable()
     {
         playerWeapon.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
+        playerWeapon.OnBaseWeaponCooldownUpdated -= OnBaseWeaponCooldownUpdated;
+        playerWeapon.OnSpecialWeaponCooldownUpdated -= OnSpecialWeaponCooldownUpdated;
+        playerWeapon.OnWeaponHeatUpdated -= OnWeaponHeatUpdated;
+        playerWeapon.OnWeaponOverheated -= OnWeaponOverheated;
+        playerWeapon.OnWeaponHeatReset -= OnWeaponHeatReset;
+        playerMovement.OnDodge -= OnDodge;
+        playerMovement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
+    }
+    
+    private void Update()
+    {
+        CheckDamageCooldown();
+        CheckResourcesInRange();
+        UpdateMagnetizedResources();
     }
 
     private void SetUpPlayer()
@@ -142,15 +165,15 @@ public class RailPlayer : MonoBehaviour
             shieldDamageSfx?.Play(audioSource);
         }
         
-        OnPlayerShieldChanged?.Invoke(_currentShieldHealth);
+        OnShieldChanged?.Invoke(_currentShieldHealth);
     }
     
     private void DamageHealth()
     {
-        if (!IsAlive() || !IsDodging()) return;
+        if (!IsAlive() || IsDodging()) return;
 
         _currentHealth -= 1;
-        if (_currentHealth < 0)
+        if (_currentHealth <= 0)
         {
             _currentHealth = 0;
             Die();
@@ -160,12 +183,14 @@ public class RailPlayer : MonoBehaviour
             healthDamageSfx?.Play(audioSource);
         }
         
-        OnPlayerHealthChanged?.Invoke(_currentHealth);
+        OnHealthChanged?.Invoke(_currentHealth);
     }
     
     
     private void CheckDamageCooldown()
     {
+        if (!IsAlive()) return;
+        
         if (_damagedCooldown > 0)
         {
             _damagedCooldown -= Time.deltaTime;
@@ -183,7 +208,7 @@ public class RailPlayer : MonoBehaviour
     {
         deathSfx?.Play(audioSource);
         
-        OnPlayerDeath?.Invoke();
+        OnDeath?.Invoke();
         
         
         Debug.Log("Player has died!");
@@ -201,6 +226,7 @@ public class RailPlayer : MonoBehaviour
         while (_currentShieldHealth < maxShieldHealth)
         {
             _currentShieldHealth += shieldRegenRate * Time.deltaTime;
+            OnShieldChanged?.Invoke(_currentShieldHealth);
             if (_currentShieldHealth >= maxShieldHealth)
             {
                 _currentShieldHealth = maxShieldHealth;
@@ -219,7 +245,7 @@ public class RailPlayer : MonoBehaviour
             _regenShieldCoroutine = null;
         }
         
-        _damagedCooldown = shieldRegenDelay;
+        _damagedCooldown = shieldRegenCooldown;
     }
 
     private void StartShieldRegen()
@@ -255,12 +281,14 @@ public class RailPlayer : MonoBehaviour
             _currentHealth = maxHealth;
         }
         healthHealedSfx?.Play(audioSource);
+        
+        OnHealthChanged?.Invoke(_currentHealth);
     }
     
     [Button]
     private void HealShield(float amount = 25f)
     {
-        if (HasShield()) return;
+        if (_currentShieldHealth >= maxShieldHealth) return;
         
         _currentShieldHealth += amount;
         if (_currentShieldHealth >= maxShieldHealth)
@@ -268,8 +296,12 @@ public class RailPlayer : MonoBehaviour
             _currentShieldHealth = maxShieldHealth;
             shieldRegeneratedSfx?.Play(audioSource);
         }
+        else
+        {
+            StartShieldRegen();
+        }
         
-        StartShieldRegen();
+        OnShieldChanged?.Invoke(_currentShieldHealth);
     }
     
 
@@ -280,6 +312,7 @@ public class RailPlayer : MonoBehaviour
 
     private void CheckResourcesInRange()
     {
+        if (!IsAlive()) return;
         
         // Find all resources in range
         Collider[] colliders = Physics.OverlapSphere(transform.position, magnetRadius);
@@ -290,7 +323,7 @@ public class RailPlayer : MonoBehaviour
                 if (resource && !_resourcesInRange.Contains(resource))
                 {
                     _resourcesInRange.Add(resource);
-                    resource.SetMagnetized(true);
+                    resource.SetMagnetized(magnetMoveSpeed);
                 }
             }
         }
@@ -304,7 +337,7 @@ public class RailPlayer : MonoBehaviour
             {
                 if (!_resourcesInRange[i]) continue;
                 
-                _resourcesInRange[i].SetMagnetized(false);
+                _resourcesInRange[i].ReleaseFromMagnetization();
                 _resourcesInRange.RemoveAt(i);
             }
         }
@@ -313,7 +346,7 @@ public class RailPlayer : MonoBehaviour
     
     private void UpdateMagnetizedResources()
     {
-        if (_resourcesInRange.Count == 0) return;
+        if (_resourcesInRange.Count == 0 || !IsAlive()) return;
     
         // Iterate through all resources in range
         for (int i = _resourcesInRange.Count - 1; i >= 0; i--)
@@ -324,7 +357,7 @@ public class RailPlayer : MonoBehaviour
             // Move the resource towards the player if within magnet radius
             if (Vector3.Distance(transform.position, resource.transform.position) <= magnetRadius)
             {
-                resource.MoveTowardsPlayer(transform.position, magnetMoveSpeed);
+                resource.MoveTowardsPlayer(transform.position);
             }
         
             // Check if the resource is within the collection radius
@@ -344,6 +377,7 @@ public class RailPlayer : MonoBehaviour
         {
             case ResourceType.Currency:
                 _currentCurrency += resource.CurrencyWorth;
+                OnCurrencyChanged?.Invoke(_currentCurrency);
                 break;
             case ResourceType.HealthPack:
                 HealHealth(resource.HealthWorth);
@@ -384,9 +418,30 @@ public class RailPlayer : MonoBehaviour
         return playerMovement.IsDodging;
     }
     
-    public Vector3 GetAimDirection()
+    public float GetMaxWeaponHeat()
     {
-        return playerAiming.GetAimDirection();
+        return playerWeapon.MaxWeaponHeat;
+    }
+    
+    public float GetDodgeMaxCooldown()
+    {
+        return playerMovement.MaxDodgeCooldown;
+    }
+    
+    public SOWeapon GetCurrentBaseWeapon()
+    {
+        return playerWeapon.BaseWeapon;
+    }
+    
+    public SOWeapon GetCurrentSpecialWeapon()
+    {
+        return playerWeapon.CurrentSpecialWeapon;
+    }
+    
+    public Vector3 GetAimDirectionFromBarrelPosition(Vector3 barrelPosition, float convergenceMultiplier = 0f)
+    {
+        
+        return playerAiming.GetAimDirectionFromBarrelPosition(barrelPosition, convergenceMultiplier);
     }
     
     public ChickenController GetTarget(float radius)
@@ -405,45 +460,9 @@ public class RailPlayer : MonoBehaviour
     #region Editor  --------------------------------------------------------------------------------------
     
     
-    private void UpdateDebugText()
-    {
-        if (playerStatusText)
-        {
-            string selectedWeapon = "";
-
-
-            if (playerWeapon.CurrentSpecialWeapon)
-            {
-                if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.AmmoBased)
-                {
-                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponAmmo}/{playerWeapon.CurrentSpecialWeapon.AmmoLimit})";
-                } 
-                else if (playerWeapon.CurrentSpecialWeapon.WeaponDurationType == WeaponDurationType.TimeBased)
-                {
-                    selectedWeapon = $"{playerWeapon.CurrentSpecialWeapon.WeaponName} ({playerWeapon.SpecialWeaponTime:F1}/{playerWeapon.CurrentSpecialWeapon.TimeLimit})";
-                }
-            }
-            else
-            {
-                selectedWeapon = $"{playerWeapon.BaseWeapon.WeaponName}";
-            }
-
-            
-            playerStatusText.text = $"Health: {_currentHealth}/{maxHealth}\n" +
-                                    $"Shield: {_currentShieldHealth:F1} / {maxShieldHealth:F1}, Regen: {_damagedCooldown}\n" +
-                                    $"Alive: {IsAlive()}\n" +
-                                    $"Shielded: {HasShield()}\n" +
-                                    $"Weapon: {selectedWeapon}\n" +
-                                    $"Currency: {_currentCurrency}"
-                ;
-        }
-    }
-    
     
 
 #if UNITY_EDITOR
-
-
     private void OnDrawGizmosSelected()
     {
         
@@ -459,7 +478,6 @@ public class RailPlayer : MonoBehaviour
 
 
 #endif
-
     #endregion Editor  --------------------------------------------------------------------------------------
 
 }

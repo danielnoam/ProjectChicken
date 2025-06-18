@@ -14,16 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Laser Weapon
   weaponDescription: The base weapon
+  weaponWeaponIcon: {fileID: 21300000, guid: 5e47d3c0bf2847232a36283961f60a7d, type: 3}
   weaponType: 0
-  weaponDurationType: 2
+  weaponLimitationType: 1
+  heatPerShot: 4
   timeLimit: 10
   ammoLimit: 3
   damage: 25
   fireRate: 0.15
   maxTargets: 1
-  targetCheckRadius: 3
+  targetCheckRadius: 4
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
-  projectileLifetime: 4
+  projectileLifetime: 2
+  convergenceMultiplier: 1.5
   projectileBehaviors:
   - rid: 3357952732499804233
   - rid: 3357952728375754824
@@ -49,7 +52,7 @@ MonoBehaviour:
       data:
         moveSpeed: 100
         useAimAssist: 1
-        aimAssistStrength: 10
+        aimAssistStrength: 35
         useSpeedStagger: 1
         speedStaggerTime: 0.1
         staggerSpeedCurve:

@@ -301,10 +301,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66b5b163cee51194294655b38566b6a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyBoundary: {x: 25, y: 15}
-  playerBoundary: {x: 15, y: 8}
-  playerOffset: -20
-  enemyOffset: 25
+  enemyBoundary: {x: 30, y: 20}
+  playerBoundary: {x: 25, y: 15}
+  playerOffset: -30
+  enemyOffset: 30
   startOffset: 0
   pathFollowSmoothness: 2
   currentStageIndex: 0
@@ -313,6 +313,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 688e0171d02b4e301bc3d4e9445a7756, type: 2}
   - {fileID: 11400000, guid: 3f59532f35693fa4098c43943f9c8523, type: 2}
   - {fileID: 11400000, guid: 4dfc8af771fa0ab43a1dde2fcb835ae5, type: 2}
-  enemyWaveSpawner: {fileID: 0}
+  - {fileID: 11400000, guid: 688e0171d02b4e301bc3d4e9445a7756, type: 2}
+  - {fileID: 11400000, guid: 4dfc8af771fa0ab43a1dde2fcb835ae5, type: 2}
+  - {fileID: 11400000, guid: 4dfc8af771fa0ab43a1dde2fcb835ae5, type: 2}
+  enemyWaveManager: {fileID: 0}
+  player: {fileID: 0}
   splineContainer: {fileID: 5337217381014650461}
   currentPositionOnPath: {fileID: 3017262246087303862}

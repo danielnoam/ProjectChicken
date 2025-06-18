@@ -10,20 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_LevelStart
+  m_Name: Stage_EnemyWave1
   m_EditorClassIdentifier: 
-  stageType: 0
-  stageDuration: 4
+  stageType: 1
+  stageDuration: 15
   enemyWave:
-    serializedKvps: []
+    serializedKvps:
+    - Key: {fileID: 745806696497487914, guid: 6c00b75d8a669d04395aeb4d7c57f138, type: 3}
+      Value: 10
+      index: 0
+      isKeyRepeated: 0
+      isKeyNull: 0
     dividerPos: 0.33
   enemyStageOffset: 0
   delayBeforeNextStage: 1
-  pathFollowSpeed: 15
+  pathFollowSpeed: 5
   upAxis: 1
   forwardAxis: 2
   alignmentMode: 1
-  allowPlayerMovement: 0
-  allowPlayerAim: 0
-  allowPlayerShooting: 0
-  playerStageOffset: -10
+  allowPlayerMovement: 1
+  allowPlayerAim: 1
+  allowPlayerShooting: 1
+  playerStageOffset: 0

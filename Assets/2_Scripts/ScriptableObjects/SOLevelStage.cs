@@ -15,6 +15,7 @@ public class SOLevelStage : ScriptableObject
     [SerializeField, Min(0.1f)] private float stageDuration = 5;
     [EndIf]
     [ShowIf("stageType", StageType.EnemyWave)]
+    [SerializeField, Min(0)] private int waveScore = 1000;
     [SerializeField] private SerializedDictionary<ChickenController,int> enemyWave = new SerializedDictionary<ChickenController, int>();
     [SerializeField] private float enemyStageOffset;
     [SerializeField, Min(0)] private float delayBeforeNextStage = 1f;
@@ -37,6 +38,7 @@ public class SOLevelStage : ScriptableObject
     
     public float StageDuration => stageType == StageType.Checkpoint ? stageDuration : 0f;
     
+    public int WaveScore => stageType == StageType.EnemyWave ? waveScore : 0;
     public SerializedDictionary<ChickenController, int> EnemyWave => enemyWave;
     public float EnemyStageOffset => enemyStageOffset;
     public float DelayBeforeNextStage => delayBeforeNextStage;

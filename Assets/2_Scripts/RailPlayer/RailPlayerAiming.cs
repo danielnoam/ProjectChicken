@@ -362,10 +362,29 @@ public class RailPlayerAiming : MonoBehaviour
         return _aimDirection;
     }
     
+    public Vector3 GetAimDirectionFromBarrelPosition(Vector3 position, float convergenceMultiplier = 0f)
+    {
+        if (convergenceMultiplier == 0f)
+        {
+            // Parallel shooting - both barrels shoot in the same direction
+            Vector3 parallelDirection = (_crosshairWorldPosition - transform.position).normalized;
+            return parallelDirection;
+        }
+        else
+        {
+            // Converging shooting - aim directly at the convergence point
+            Vector3 baseCrosshairDirection = (_crosshairWorldPosition - transform.position).normalized;
+            float crosshairDistance = Vector3.Distance(transform.position, _crosshairWorldPosition);
+            Vector3 convergencePoint = transform.position + (baseCrosshairDirection * (crosshairDistance * convergenceMultiplier));
+        
+            return (convergencePoint - position).normalized;
+        }
+    }
+    
     
     private Vector3 GetSplineDirection()
     {
-        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.EnemyPosition);
+        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.CurrentPositionOnPath.position);
     }
     
     private Vector3 GetCrosshairSplinePosition()
@@ -387,19 +406,10 @@ public class RailPlayerAiming : MonoBehaviour
     
     private void OnDrawGizmos()
     {
-
-    
-        // Aim direction ray
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, _crosshairWorldPosition);
-    
-        // Draw target radius
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(_crosshairWorldPosition, 3f);
-        
         // Draw boundaries from spline position 
         if (LevelManager.Instance)
         {
+            Gizmos.color = Color.blue;
             Vector3 crosshairSplinePosition = GetCrosshairSplinePosition();
             
             if (player.AlignToSplineDirection)
