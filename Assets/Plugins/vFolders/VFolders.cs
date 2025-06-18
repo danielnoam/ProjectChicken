@@ -18,6 +18,12 @@ using static VFolders.Libs.VGUI;
 using static VFolders.VFoldersData;
 using static VFolders.VFoldersCache;
 
+#if UNITY_6000_2_OR_NEWER
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+#endif
+
+
 
 
 namespace VFolders
@@ -100,7 +106,7 @@ namespace VFolders
                 var maxScrollPos = 20;
 
 
-                var scrollPos = window.GetMemberValue(isOneColumn ? "m_AssetTree" : "m_FolderTree").GetMemberValue<UnityEditor.IMGUI.Controls.TreeViewState>("state").scrollPos.y;
+                var scrollPos = window.GetMemberValue(isOneColumn ? "m_AssetTree" : "m_FolderTree").GetMemberValue<TreeViewState>("state").scrollPos.y;
 
                 var opacity = ((scrollPos - minScrollPos) / (maxScrollPos - minScrollPos)).Clamp01();
 
@@ -1644,7 +1650,7 @@ namespace VFolders
 
 
 
-        const string version = "2.1.7";
+        const string version = "2.1.8";
 
     }
 

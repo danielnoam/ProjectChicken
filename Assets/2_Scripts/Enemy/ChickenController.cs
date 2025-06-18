@@ -28,6 +28,7 @@ public class ChickenController : MonoBehaviour
     
     [Header("Settings")]
     [SerializeField] private float maxHealth = 100f;
+    [SerializeField] private int scoreValue = 100;
     [SerializeField] private SOLootTable lootTable;
     
     
@@ -60,7 +61,7 @@ public class ChickenController : MonoBehaviour
     public event Action OnExitCombat;
     public event Action OnConcussed;
     public event Action OnRecovered;
-    public event Action OnDeath;
+    public event Action<int> OnDeath;
     public event Action<float> OnHealthChanged;
     
     // Public properties
@@ -229,10 +230,6 @@ public class ChickenController : MonoBehaviour
     private void Die()
     {
         
-        // Trigger death event
-        OnDeath?.Invoke();
-        
-        
         if (formationBehavior != null)
             formationBehavior.ReleaseSlot();
 
@@ -247,6 +244,9 @@ public class ChickenController : MonoBehaviour
         // Play death sound effect
         deathSfx?.PlayAtPoint(transform.position);
 
+        
+        // Trigger death event
+        OnDeath?.Invoke(scoreValue);
         
         // Destroy or pool the chicken
         Destroy(gameObject);

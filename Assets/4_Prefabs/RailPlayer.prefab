@@ -1002,7 +1002,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 3
   maxShieldHealth: 100
-  shieldRegenCooldown: 4
+  shieldRegenCooldown: 3
   shieldRegenRate: 15
   resourceCollectionRadius: 4
   magnetRadius: 15
@@ -1180,6 +1180,8 @@ MonoBehaviour:
   timeBeforeRegen: 1
   heatRegenRate: 15
   switchingWeaponsResetsHeat: 1
+  dodgeReleasesHeat: 1
+  heatReleased: 25
   baseWeapon: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
   weapons:
     serializedKvps:
@@ -1223,6 +1225,7 @@ MonoBehaviour:
   player: {fileID: 2233603387570671912}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
+  playerMovement: {fileID: 7233717465822237952}
   audioSource: {fileID: 7652548364264720769}
 --- !u!1 &5233889759303089162
 GameObject:

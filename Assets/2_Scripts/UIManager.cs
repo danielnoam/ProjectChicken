@@ -5,16 +5,18 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    [Header("Icons")]
+    [SerializeField] private Color cooldownIconColor = Color.grey;
+        
     [Header("Overheat Bar")]
     [SerializeField] private Color overheatedBarColor = Color.red;
     [SerializeField] private Color normalBarColor = Color.white;
     
     [Header("Asset References")] 
     [SerializeField] private Image playerIconPrefab;
+    [SerializeField] private Sprite heartIcon;
     
-    [Header("Scene References")] 
-    [SerializeField, Scene(Flag.Editable)] private LevelManager levelManager;
-    [SerializeField, Scene(Flag.Editable)] private RailPlayer player;
+    [Header("Child References")] 
     [SerializeField] private Transform playerHealthHolder;
     [SerializeField] private Image playerWeaponIcon;
     [SerializeField] private Image playerSecondaryWeaponIcon;
@@ -22,10 +24,18 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image playerDodgeIcon;
     [SerializeField] private TextMeshProUGUI playerShieldText;
     [SerializeField] private TextMeshProUGUI playerCurrencyText;
-    [SerializeField] private TextMeshProUGUI playerScoreText;
+    [SerializeField] private TextMeshProUGUI scoreText;
+    
+    [Header("Scene References")] 
+    [SerializeField, Scene(Flag.Editable)] private LevelManager levelManager;
+    [SerializeField, Scene(Flag.Editable)] private RailPlayer player;
+
 
     
     private Image[] _healthIcons;
+    private Color _secondaryWeaponStartColor;
+    private Color _weaponStartColor;
+    private Color _dodgeStartColor;
     
     private void OnValidate()
     {
@@ -53,6 +63,12 @@ public class UIManager : MonoBehaviour
             player.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
             player.OnDodge += OnDodge;
         }
+
+
+        if (levelManager)
+        {
+            levelManager.OnScoreChanged += OnScoreChanged;
+        }
     }
 
     private void OnDisable()
@@ -68,6 +84,11 @@ public class UIManager : MonoBehaviour
             player.OnWeaponHeatUpdated -= OnWeaponHeatUpdated;
             player.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
             player.OnDodge -= OnDodge;
+        }
+        
+        if (levelManager)
+        {
+            levelManager.OnScoreChanged -= OnScoreChanged;
         }
     }
 
@@ -88,20 +109,33 @@ public class UIManager : MonoBehaviour
             {
                 var healthObject = Instantiate(playerIconPrefab, playerHealthHolder);
                 healthObject.name = $"HealthIcon{health}";
+                healthObject.sprite = heartIcon;
                 _healthIcons[health] = healthObject;
             }
             
             
-            // Setup secondary weapon icon
+            // Weapon Icons
+            _weaponStartColor = playerWeaponIcon.color;
+            _secondaryWeaponStartColor = playerSecondaryWeaponIcon.color;
             playerSecondaryWeaponIcon.sprite = player.GetCurrentBaseWeapon().WeaponIcon;
             playerSecondaryWeaponIcon.gameObject.SetActive(false);
+            
+            // Dodge Icon
+            _dodgeStartColor = playerDodgeIcon.color;
             
             // Update 
             OnUpdateHealth(player.MaxHealth);
             OnUpdateShield(player.MaxShieldHealth);
+            OnSpecialWeaponSwitched(null,null);
             OnWeaponHeatUpdated(0);
             OnUpdateCurrency(player.CurrentCurrency);
             OnDodgeCooldownUpdated(player.GetDodgeMaxCooldown());
+        }
+
+
+        if (levelManager)
+        {
+            OnScoreChanged(0);
         }
     }
 
@@ -139,7 +173,8 @@ public class UIManager : MonoBehaviour
     private void OnSpecialWeaponCooldownUpdated(SOWeapon specialWeapon, float cooldown)
     {
         float fillAmount = 1f - (cooldown / specialWeapon.FireRate);
-        playerWeaponIcon.fillAmount = fillAmount;
+        // playerWeaponIcon.fillAmount = fillAmount;
+        playerWeaponIcon.color = Color.Lerp(cooldownIconColor, _weaponStartColor, fillAmount);
     }
     
     private void OnBaseWeaponCooldownUpdated(SOWeapon baseWeapon, float cooldown)
@@ -148,11 +183,13 @@ public class UIManager : MonoBehaviour
         
         if (player.GetCurrentSpecialWeapon())
         {
-            playerSecondaryWeaponIcon.fillAmount = fillAmount; 
+            // playerSecondaryWeaponIcon.fillAmount = fillAmount; 
+            playerSecondaryWeaponIcon.color = Color.Lerp(Color.clear, _secondaryWeaponStartColor, fillAmount);
         }
         else
         {
-            playerWeaponIcon.fillAmount = fillAmount;
+            // playerWeaponIcon.fillAmount = fillAmount;
+            playerWeaponIcon.color = Color.Lerp(cooldownIconColor, _weaponStartColor, fillAmount);
         }
     }
     
@@ -171,12 +208,12 @@ public class UIManager : MonoBehaviour
     private void OnDodgeCooldownUpdated(float cooldown)
     {
         float fillAmount = 1f - (cooldown / player.GetDodgeMaxCooldown());
-        playerDodgeIcon.color = Color.Lerp(Color.clear, Color.white, fillAmount);
+        playerDodgeIcon.color = Color.Lerp(cooldownIconColor, _dodgeStartColor, fillAmount);
     }
     
     private void OnDodge()
     {
-        playerDodgeIcon.color = Color.clear;
+        playerDodgeIcon.color = cooldownIconColor;
     }
     
 
@@ -184,6 +221,16 @@ public class UIManager : MonoBehaviour
     #endregion Player UI ----------------------------------------------------------------------------------
 
 
+    #region Level UI ----------------------------------------------------------------------------------
+
+    private void OnScoreChanged(int score)
+    {
+        scoreText.text = score.ToString("D7"); // Shows right now up to a million
+    }
+
+    
+
+    #endregion Level UI ----------------------------------------------------------------------------------
     
     
 }

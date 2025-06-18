@@ -70,6 +70,13 @@ public class RailPlayerMovement : MonoBehaviour
     public event Action<float> OnDodgeCooldownUpdated;
 
     private void OnValidate() { this.ValidateRefs(); }
+
+
+    private void Start()
+    {
+        OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer);
+    }
+
     private void OnEnable()
     {
         playerInput.OnMoveEvent += OnMove;
@@ -288,9 +295,8 @@ public class RailPlayerMovement : MonoBehaviour
         {
             _dodgeCooldownTimer -= Time.deltaTime;
             if (_dodgeCooldownTimer < 0f) _dodgeCooldownTimer = 0f;
+            OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer);
         }
-        
-        OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer);
     }
     
     private void PlayDodgeRollAnimation()

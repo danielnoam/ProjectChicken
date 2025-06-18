@@ -31,6 +31,7 @@ public class Resource : MonoBehaviour
     [SerializeField, Min(0.1f)] private float transitionSmoothness = 5f;
     
     [Header("Resource Settings")]
+    [SerializeField] private int scoreWorth = 50;
     [SerializeField] private ResourceType resourceType;
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.HealthPack)] private int healthWorth = 1;[EndIf]
@@ -54,6 +55,7 @@ public class Resource : MonoBehaviour
     private Vector3 _rotationAxis;
     
     public ResourceType ResourceType => resourceType;
+    public int ScoreWorth => scoreWorth;
     public int HealthWorth => healthWorth;
     public int ShieldWorth => shieldWorth;
     public int CurrencyWorth => currencyWorth;

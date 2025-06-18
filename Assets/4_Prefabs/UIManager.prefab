@@ -331,11 +331,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e4e746f509a4313ca65fc8fc548d668, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cooldownIconColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
   overheatedBarColor: {r: 1, g: 0, b: 0, a: 1}
   normalBarColor: {r: 1, g: 1, b: 1, a: 1}
   playerIconPrefab: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
-  levelManager: {fileID: 0}
-  player: {fileID: 0}
+  heartIcon: {fileID: 21300000, guid: 289a6a26f1a86538dba134624b3bac36, type: 3}
   playerHealthHolder: {fileID: 7206587545251318471}
   playerWeaponIcon: {fileID: 8922614708895910532}
   playerSecondaryWeaponIcon: {fileID: 616318926374214678}
@@ -343,7 +343,9 @@ MonoBehaviour:
   playerDodgeIcon: {fileID: 6222991068581116642}
   playerShieldText: {fileID: 3434976926301271806}
   playerCurrencyText: {fileID: 1184307438426412104}
-  playerScoreText: {fileID: 1738198353898339583}
+  scoreText: {fileID: 1738198353898339583}
+  levelManager: {fileID: 0}
+  player: {fileID: 0}
 --- !u!1 &3147404315476675997
 GameObject:
   m_ObjectHideFlags: 0
@@ -1129,6 +1131,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 113039464978034753}
     m_Modifications:
+    - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 02a988877f68625d8b0f53a00e163ce5, type: 3}
     - target: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1368,6 +1374,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7206587545251318471}
     m_Modifications:
+    - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 289a6a26f1a86538dba134624b3bac36, type: 3}
     - target: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1474,6 +1484,10 @@ PrefabInstance:
       propertyPath: m_Type
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: d596c97ce3598243d8fb13eb03cd80cc, type: 3}
     - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Color.b
       value: 1
@@ -1607,6 +1621,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7206587545251318471}
     m_Modifications:
+    - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 289a6a26f1a86538dba134624b3bac36, type: 3}
     - target: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1709,6 +1727,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7206587545251318471}
     m_Modifications:
+    - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 289a6a26f1a86538dba134624b3bac36, type: 3}
     - target: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1811,6 +1833,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5413574461630775663}
     m_Modifications:
+    - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 6fce774351e964302b8fced386bbd8b0, type: 3}
     - target: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

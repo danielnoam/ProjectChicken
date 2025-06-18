@@ -29,6 +29,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Min(0.1f)] private float timeBeforeRegen = 1f;
     [SerializeField, Min(0.1f)] private float heatRegenRate = 4f;
     [SerializeField] private bool switchingWeaponsResetsHeat = true;
+    [SerializeField] private bool dodgeReleasesHeat = true;
+    [SerializeField, Min(0f), ShowIf("dodgeReleasesHeat")] private float heatReleased = 25f;[EndIf]
     
     [Header("Weapons")]
     [SerializeField] private SOWeapon baseWeapon;
@@ -43,6 +45,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Self] private RailPlayer player;
     [SerializeField, Self] private RailPlayerInput playerInput;
     [SerializeField, Self] private RailPlayerAiming playerAiming;
+    [SerializeField, Self] private RailPlayerMovement playerMovement;
     [SerializeField, Self] private AudioSource audioSource;
     
     
@@ -101,12 +104,14 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         playerInput.OnAttackEvent += OnAttack;
         playerInput.OnAttack2Event += OnAttack2;
+        playerMovement.OnDodge += OnDodge;
     }
     
     private void OnDisable()
     {
         playerInput.OnAttackEvent -= OnAttack;
         playerInput.OnAttack2Event -= OnAttack2;
+        playerMovement.OnDodge -= OnDodge;
     }
 
 
@@ -232,11 +237,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (!weapon || weaponInfo == null) return;
         
         
-        // use weapon for each "barrel" 
-        foreach (var spawnPoint in weaponInfo.projectileSpawnPoints)
-        {
-            weapon.Fire(spawnPoint.transform.position, player);
-        }
+        weapon.Fire(player, weaponInfo.projectileSpawnPoints);
         
     }
 
@@ -347,7 +348,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             yield return null;
         }
         
-        while (regenTime > 0)
+        while (regenTime > 0 || _currentHeat > 0)
         {
             regenTime -= Time.deltaTime;
             _currentHeat -= regenRate * Time.deltaTime;
@@ -356,6 +357,19 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
         
         ResetHeat();
+    }
+
+    private void OnDodge()
+    {
+        if (_isOverHeating || !dodgeReleasesHeat) return;
+        
+        _currentHeat -= heatReleased;
+        
+        if (_currentHeat < 0)
+        {
+            _currentHeat = 0;
+        }
+        OnWeaponHeatUpdated?.Invoke(_currentHeat);
     }
     
 

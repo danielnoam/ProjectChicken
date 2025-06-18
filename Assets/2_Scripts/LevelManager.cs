@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using KBCore.Refs;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Splines;
 using VInspector;
@@ -28,6 +29,7 @@ public class LevelManager : MonoBehaviour
     
     [Header("References")]
     [SerializeField, Scene(Flag.Editable)] private EnemyWaveManager enemyWaveManager;
+    [SerializeField, Scene(Flag.Editable)] private RailPlayer player;
     [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private Transform currentPositionOnPath;
 
@@ -42,6 +44,7 @@ public class LevelManager : MonoBehaviour
     public float SplineLength { get; private set; }
     public SOLevelStage CurrentStage { get; private set; }
     public SplinePath <Spline> SplinePath  { get; private set; }
+    public int Score { get; private set; }
     public Vector2 PlayerBoundary => playerBoundary;
     public Vector2 EnemyBoundary => enemyBoundary;
     public Transform CurrentPositionOnPath => currentPositionOnPath;
@@ -49,6 +52,7 @@ public class LevelManager : MonoBehaviour
 
 
     public event Action<SOLevelStage> OnStageChanged;
+    public event Action<int> OnScoreChanged;
 
 
     private void OnValidate()
@@ -92,17 +96,39 @@ public class LevelManager : MonoBehaviour
         }
         
         SetUpSpline();
+    }
+
+    private void Start()
+    {
         StartLevel();
     }
 
     private void OnEnable()
     {
-        if (enemyWaveManager) enemyWaveManager.OnEnemyWaveCleared += OnEnemyWaveCleared;
+        if (enemyWaveManager)
+        {
+            enemyWaveManager.OnEnemyWaveCleared += OnEnemyWaveCleared;
+            enemyWaveManager.OnEnemyDeath += AddScore;
+        }
+
+        if (player)
+        {
+            player.OnResourceCollected += OnPlayerCollectedResource;
+        }
     }
     
     private void OnDisable()
     {
-        if (enemyWaveManager) enemyWaveManager.OnEnemyWaveCleared -= OnEnemyWaveCleared;
+        if (enemyWaveManager)
+        {
+            enemyWaveManager.OnEnemyWaveCleared -= OnEnemyWaveCleared;
+            enemyWaveManager.OnEnemyDeath -= AddScore;
+        }
+        
+        if (player)
+        {
+            player.OnResourceCollected -= OnPlayerCollectedResource;
+        }
     }
 
 
@@ -127,6 +153,7 @@ public class LevelManager : MonoBehaviour
         }
         
         SetStage(0);
+        ResetScore();
     }
     
     [Button]
@@ -183,11 +210,13 @@ public class LevelManager : MonoBehaviour
         SetNextStage();
     }
     
-    private void OnEnemyWaveCleared()
+    private void OnEnemyWaveCleared(int scoreWorth)
     {
         if (!CurrentStage || CurrentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
 
         _settingStageFlag = true;
+        
+        AddScore(scoreWorth);
         
         if (CurrentStage.DelayBeforeNextStage <= 0)
         {
@@ -265,8 +294,36 @@ public class LevelManager : MonoBehaviour
     }
     
     #endregion Spline Positinoning ---------------------------------------------------------------------------------
+
     
 
+    #region Score Management ---------------------------------------------------------------------------------
+
+    private void AddScore(int score)
+    {
+        Score += score;
+        
+        OnScoreChanged?.Invoke(Score);
+    }
+
+    private void ResetScore()
+    {
+        Score = 0;
+
+        OnScoreChanged?.Invoke(Score);
+    }
+    
+    private void OnPlayerCollectedResource(Resource resource)
+    {
+        if (!resource) return;
+        
+        int score = resource.ScoreWorth;
+        AddScore(score);
+    }
+    
+    
+
+    #endregion
     
     
     

@@ -64,15 +64,25 @@ public class SOWeapon : ScriptableObject
 
     
     
-    public void Fire(Vector3 position, RailPlayer owner)
+    public void Fire(RailPlayer owner, Transform[] barrelPositions)
     {
         switch (weaponType)
         {
             case WeaponType.Projectile:
-                CreateProjectile(position, owner);
+
+                foreach (var barrelPosition in barrelPositions)
+                {
+                    CreateProjectile(owner, barrelPosition.position);
+                }
+
                 break;
             case WeaponType.Hitscan:
-                Hitscan(position, owner);
+                
+                foreach (var barrelPosition in barrelPositions)
+                {
+                    Hitscan(owner, barrelPosition.position);
+                }
+
                 break;
         }
     }
@@ -84,7 +94,7 @@ public class SOWeapon : ScriptableObject
 
     
 
-    private void CreateProjectile(Vector3 position, RailPlayer owner)
+    private void CreateProjectile(RailPlayer owner, Vector3 position)
     {
         if (!playerProjectilePrefab) return;
         
@@ -152,7 +162,7 @@ public class SOWeapon : ScriptableObject
 
     #region Hitscan ----------------------------------------------------------------------------------
 
-    private void Hitscan(Vector3 startPosition ,RailPlayer owner)
+    private void Hitscan(RailPlayer owner, Vector3 startPosition)
     {
         
         // Play spawn effect
