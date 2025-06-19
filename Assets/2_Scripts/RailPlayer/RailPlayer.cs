@@ -273,7 +273,7 @@ public class RailPlayer : MonoBehaviour
     [Button]
     private void HealHealth(int amount = 1)
     {
-        if (amount <= 0 || !IsAlive()) return;
+        if (amount <= 0) return;
         
         _currentHealth += amount;
         if (_currentHealth > maxHealth)
