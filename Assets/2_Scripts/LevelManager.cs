@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using KBCore.Refs;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Splines;
 using VInspector;
@@ -21,21 +20,25 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private float startOffset;
     [SerializeField, Tooltip("The smoothness applied when stages have different move speeds")] private float pathFollowSmoothness = 0.1f;
     
+    [Header("Score Settings")]
+    [SerializeField, Min(0)] private int bonusThreshold = 500000;
+    
     [Header("Level Stages")]
     [SerializeField, ReadOnly] private int currentStageIndex;
     [SerializeField] private SOLevelStage[] levelStages;
     
     [Header("References")]
-    [SerializeField, Scene(Flag.Editable)] private EnemyWaveManager enemyWaveManager;
-    [SerializeField, Scene(Flag.Editable)] private RailPlayer player;
     [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private Transform currentPositionOnPath;
+    [SerializeField, Scene(Flag.Editable)] private EnemyWaveManager enemyWaveManager;
+    [SerializeField, Scene(Flag.Editable)] private RailPlayer player;
 
 
 
     private Coroutine _stageChangeCoroutine;
     private float _currentPathSpeed;
     private bool _settingStageFlag;
+    private int _bonusThresholdCounter;
     
     public Vector3 PlayerPosition { get; private set; }
     public Vector3 EnemyPosition { get; private set; }
@@ -51,17 +54,16 @@ public class LevelManager : MonoBehaviour
 
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
+    public event Action OnBonusThresholdReached;
 
 
     private void OnValidate()
     {
+        this.ValidateRefs();
+        
+        
         if (Application.isPlaying) return;
         
-        
-        
-        this.ValidateRefs();
-            
-            
         // Update Current Position on Path position if it exists based on the startOffset offset
         if (currentPositionOnPath && splineContainer && splineContainer.Splines.Count > 0)
         {
@@ -300,14 +302,23 @@ public class LevelManager : MonoBehaviour
     private void AddScore(int score)
     {
         Score += score;
+        _bonusThresholdCounter -= score;
         
         OnScoreChanged?.Invoke(Score);
+        
+        if (_bonusThresholdCounter <= 0)
+        {
+            OnBonusThresholdReached?.Invoke();
+            _bonusThresholdCounter = bonusThreshold;
+        }
+
     }
 
     private void ResetScore()
     {
         Score = 0;
-
+        _bonusThresholdCounter = bonusThreshold;
+        
         OnScoreChanged?.Invoke(Score);
     }
     

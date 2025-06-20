@@ -88,9 +88,11 @@ public class UIManager : MonoBehaviour
     
     private void OnValidate()
     {
-        if (!Application.isPlaying) return;
-        
+                
         this.ValidateRefs();
+        
+        if (!Application.isPlaying) return;
+
     }
 
     private void Awake()

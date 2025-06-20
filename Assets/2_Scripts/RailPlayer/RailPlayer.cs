@@ -17,12 +17,12 @@ public class RailPlayer : MonoBehaviour
 
     [Header("Health")]
     [SerializeField, Min(0)] private int maxHealth = 3;
+    [SerializeField] private bool receiveHealthOnBonusThreshold = true;
     
     [Header("Shield")]
     [SerializeField, Min(0)] private float maxShieldHealth = 100f;
     [SerializeField, Min(0)] private float shieldRegenCooldown = 4f;
     [SerializeField, Min(0)] private float shieldRegenRate = 5f;
-
     
     [Header("Resource Collection")]
     [SerializeField, Min(0)] private float resourceCollectionRadius = 2f;
@@ -49,6 +49,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self] private RailPlayerMovement playerMovement;
     [SerializeField, Self] private AudioSource audioSource;
+    [SerializeField, Scene(Flag.Editable)] private LevelManager levelManager;
 
     
     // Private fields
@@ -100,6 +101,7 @@ public class RailPlayer : MonoBehaviour
         playerWeapon.OnWeaponHeatReset += OnWeaponHeatReset;
         playerMovement.OnDodge += OnDodge;
         playerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
+        levelManager.OnBonusThresholdReached += OnMillionScoreReached;
     }
 
     private void OnDisable()
@@ -112,6 +114,7 @@ public class RailPlayer : MonoBehaviour
         playerWeapon.OnWeaponHeatReset -= OnWeaponHeatReset;
         playerMovement.OnDodge -= OnDodge;
         playerMovement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
+        levelManager.OnBonusThresholdReached -= OnMillionScoreReached;
     }
     
     private void Update()
@@ -302,6 +305,13 @@ public class RailPlayer : MonoBehaviour
         }
         
         OnShieldChanged?.Invoke(_currentShieldHealth);
+    }
+    
+    private void OnMillionScoreReached()
+    {
+        if (!receiveHealthOnBonusThreshold) return;
+        
+        HealHealth(1);
     }
     
 

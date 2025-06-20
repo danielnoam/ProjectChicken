@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 108d4100b9f6ed44893c1bf888d0db7a, type: 3}
-  m_Name: CurvedAutoWeapon
+  m_Name: AutoBallWeapon
   m_EditorClassIdentifier: 
-  weaponName: Curved Auto Weapon
+  weaponName: Auto Ball Weapon
   weaponDescription: Test Weapon
   weaponWeaponIcon: {fileID: 7482667652216324306, guid: fdd5f3b30ce2cdf0c90c67509b1811a2, type: 3}
   weaponType: 0
@@ -36,9 +36,9 @@ MonoBehaviour:
   hitLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  fireSound: {fileID: 0}
+  fireSound: {fileID: 11400000, guid: 5eb27489a8552824ea06fe214befbe72, type: 2}
   fireEffectPrefab: {fileID: 0}
-  impactSound: {fileID: 0}
+  impactSound: {fileID: 11400000, guid: ca5580e59bab65b42a64c5ca5924a136, type: 2}
   impactEffectPrefab: {fileID: 0}
   references:
     version: 2

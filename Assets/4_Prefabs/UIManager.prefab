@@ -335,8 +335,10 @@ MonoBehaviour:
   healthAnimationDuration: 0.5
   shieldAnimationDuration: 0.2
   shieldPunchStrength: 0.5
-  currencyAnimationDuration: 0.2
+  currencyAnimationDuration: 1
+  currencyPunchDuration: 0.2
   currencyPunchStrength: 0.2
+  bigCurrencyDifference: 5
   dodgeAnimationDuration: 0.2
   dodgePunchStrength: 0.2
   weaponAnimationDuration: 0.2
@@ -346,6 +348,11 @@ MonoBehaviour:
   heatBarPunchStrength: 0.2
   heatedBarColor: {r: 1, g: 0, b: 0, a: 1}
   normalBarColor: {r: 1, g: 1, b: 1, a: 1}
+  scoreAnimationDuration: 0.2
+  scorePunchDuration: 0.2
+  scorePunchStrength: 0.2
+  bigScoreDifference: 200
+  scoreDigits: 7
   playerIconPrefab: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
   heartIcon: {fileID: 21300000, guid: 289a6a26f1a86538dba134624b3bac36, type: 3}
   playerHealthHolder: {fileID: 7206587545251318471}

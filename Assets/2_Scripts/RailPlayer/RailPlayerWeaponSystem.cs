@@ -57,7 +57,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private WeaponInfo _baseWeaponInfo;
     private WeaponInfo _currentSpecialWeaponInfo;
     private Coroutine _overHeatCooldownRoutine;
-    private bool _isOverHeating;
+    private bool _isOverHeated;
     private float _lastFireTimer;
     private float _currentHeat;
     private float _baseWeaponFireRateCooldown;
@@ -67,7 +67,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private bool AllowShooting => LevelManager.Instance ? LevelManager.Instance.CurrentStage.AllowPlayerShooting : true;
     
     
-    public bool IsOverheating => _isOverHeating;
+    public bool IsOverHeated => _isOverHeated;
     public SOWeapon BaseWeapon => baseWeapon;
     public SOWeapon CurrentSpecialWeapon => _currentSpecialWeapon;
     public float CurrentHeat => _currentHeat;
@@ -153,7 +153,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         
         if (baseWeapon.WeaponLimitationType == WeaponLimitationType.HeatBased)
         {
-            if (_isOverHeating)
+            if (_isOverHeated)
             { 
                 return;
             }
@@ -202,7 +202,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             case WeaponLimitationType.HeatBased:
             {
 
-                if (_isOverHeating)
+                if (_isOverHeated)
                 {
                     if (!specialWeaponsArePermanent)
                     {
@@ -266,16 +266,18 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private void UpdateHeatRegeneration()
     {
         // Heat regeneration
-        if (!_isOverHeating && _currentHeat > 0)
+        if (!_isOverHeated && _currentHeat > 0)
         {
 
             if (_lastFireTimer <= 0)
             {
                 _currentHeat -= heatRegenRate * Time.deltaTime;
                 
-                if (_currentHeat < 0)
+                if (_currentHeat <= 0)
                 {
                     _currentHeat = 0;
+                    weaponHeatResetSfx?.Play(audioSource);
+                    OnWeaponHeatReset?.Invoke();
                 }
                 
                 OnWeaponHeatUpdated?.Invoke(_currentHeat);
@@ -284,7 +286,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             {
                 _lastFireTimer -= Time.deltaTime;
             }
-
         }
     }
     
@@ -312,7 +313,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _overHeatCooldownRoutine = StartCoroutine(OverHeatCooldownRoutine());
         _currentHeat = maxHeat;
         _lastFireTimer = timeBeforeRegen;
-        _isOverHeating = true;
+        _isOverHeated = true;
         weaponOverheatSfx?.Play(audioSource);
         OnWeaponOverheated?.Invoke();
     }
@@ -325,7 +326,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             _overHeatCooldownRoutine = null;
         }
         
-        _isOverHeating = false;
+        _isOverHeated = false;
         _currentHeat = 0;
         _lastFireTimer = 0;
         weaponHeatResetSfx?.Play(audioSource);
@@ -359,7 +360,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     private void OnDodge()
     {
-        if (_isOverHeating || !dodgeReleasesHeat) return;
+        if (_isOverHeated || !dodgeReleasesHeat || _currentHeat == 0) return;
         
         _currentHeat -= heatReleased;
         
@@ -368,6 +369,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             _currentHeat = 0;
         }
         OnWeaponHeatUpdated?.Invoke(_currentHeat);
+        weaponHeatResetSfx?.Play(audioSource);
     }
     
 
