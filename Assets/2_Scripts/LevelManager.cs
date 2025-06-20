@@ -16,16 +16,14 @@ public class LevelManager : MonoBehaviour
     [Header("Path Settings")]
     [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(25f,15f);
     [SerializeField, Min(0)] private Vector2 playerBoundary = new Vector2(10f,6f);
-    [SerializeField] private float playerOffset = -20f;
-    [SerializeField] private float enemyOffset = 25f;
+    [SerializeField] private float playerOffset = -30f;
+    [SerializeField] private float enemyOffset = 30f;
     [SerializeField] private float startOffset;
     [SerializeField, Tooltip("The smoothness applied when stages have different move speeds")] private float pathFollowSmoothness = 0.1f;
     
     [Header("Level Stages")]
     [SerializeField, ReadOnly] private int currentStageIndex;
     [SerializeField] private SOLevelStage[] levelStages;
-
-    
     
     [Header("References")]
     [SerializeField, Scene(Flag.Editable)] private EnemyWaveManager enemyWaveManager;

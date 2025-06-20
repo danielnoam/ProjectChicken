@@ -95,6 +95,7 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
+        PrimeTweenConfig.warnEndValueEqualsCurrent = false;
         SetUpUI();
     }
 
