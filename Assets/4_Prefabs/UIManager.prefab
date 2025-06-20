@@ -331,15 +331,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e4e746f509a4313ca65fc8fc548d668, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cooldownIconColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
   healthAnimationDuration: 0.5
   shieldAnimationDuration: 0.2
   shieldPunchStrength: 0.5
-  dodgeAnimationDuration: 0.2
-  dodgePunchStrength: 0.2
   currencyAnimationDuration: 0.2
   currencyPunchStrength: 0.2
-  cooldownIconColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
-  overheatedBarColor: {r: 1, g: 0, b: 0, a: 1}
+  dodgeAnimationDuration: 0.2
+  dodgePunchStrength: 0.2
+  weaponAnimationDuration: 0.2
+  weaponPunchStrength: 0.2
+  heatBarAnimationDuration: 0.2
+  heatBarPunchDuration: 0.2
+  heatBarPunchStrength: 0.2
+  heatedBarColor: {r: 1, g: 0, b: 0, a: 1}
   normalBarColor: {r: 1, g: 1, b: 1, a: 1}
   playerIconPrefab: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
   heartIcon: {fileID: 21300000, guid: 289a6a26f1a86538dba134624b3bac36, type: 3}
@@ -348,7 +353,7 @@ MonoBehaviour:
   playerWeaponIcon: {fileID: 8922614708895910532}
   playerSecondaryWeaponIcon: {fileID: 616318926374214678}
   playerCurrencyIcon: {fileID: 246031940554071247}
-  playerOverheatBar: {fileID: 1085152276087718066}
+  playerHeatBar: {fileID: 1085152276087718066}
   playerDodgeIcon: {fileID: 6222991068581116642}
   playerShieldText: {fileID: 3434976926301271806}
   playerCurrencyText: {fileID: 1184307438426412104}

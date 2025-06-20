@@ -16,14 +16,14 @@ MonoBehaviour:
   weaponDescription: Test Weapon
   weaponWeaponIcon: {fileID: 7482667652216324306, guid: fdd5f3b30ce2cdf0c90c67509b1811a2, type: 3}
   weaponType: 0
-  weaponLimitationType: 2
-  heatPerShot: 1
+  weaponLimitationType: 1
+  heatPerShot: 0.75
   timeLimit: 20
   ammoLimit: 3
   damage: 10
   fireRate: 0.1
   maxTargets: 3
-  targetCheckRadius: 4
+  targetCheckRadius: 5
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: 14e001c3c26e24543956a33a00868bc9, type: 3}
   projectileLifetime: 4
   convergenceMultiplier: 1

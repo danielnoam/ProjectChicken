@@ -242,10 +242,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     }
 
     #endregion Weapon Usage ----------------------------------------------------------------------------------------------------
-
     
-
-
 
     #region Weapon Limiters ----------------------------------------------------------------------------------------------------
 
@@ -332,6 +329,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _currentHeat = 0;
         _lastFireTimer = 0;
         weaponHeatResetSfx?.Play(audioSource);
+        OnWeaponHeatUpdated?.Invoke(_currentHeat);
         OnWeaponHeatReset?.Invoke();
     }
     
@@ -375,7 +373,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
 
     #endregion Weapon Limiters ----------------------------------------------------------------------------------------------------
-    
     
     
     #region Special Weapon Management --------------------------------------------------------------------------------------

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using KBCore.Refs;
@@ -5,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using PrimeTween;
+using VHierarchy.Libs;
 using VInspector;
 
 public class UIManager : MonoBehaviour
@@ -22,7 +24,10 @@ public class UIManager : MonoBehaviour
     
     [Header("Currency")]
     [SerializeField] private float currencyAnimationDuration = 0.2f;
+    [SerializeField] private float currencyPunchDuration = 0.2f;
     [SerializeField] private float currencyPunchStrength = 0.2f;
+    [SerializeField, Min(0), Tooltip("The difference between the previous currency and the current currency that must be reached to trigger a big currency animation")] 
+    private int bigCurrencyDifference = 5;
     
     [Header("Dodge")]
     [SerializeField] private float dodgeAnimationDuration = 0.2f;
@@ -33,10 +38,19 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float weaponPunchStrength = 0.2f;
     
     [Header("Overheat Bar")]
-    [SerializeField] private float overheatedBarAnimationDuration = 0.2f;
-    [SerializeField] private float overheatedBarPunchStrength = 0.2f;
-    [SerializeField] private Color overheatedBarColor = Color.red;
+    [SerializeField] private float heatBarAnimationDuration = 0.2f;
+    [SerializeField] private float heatBarPunchDuration = 0.2f;
+    [SerializeField] private float heatBarPunchStrength = 0.2f;
+    [SerializeField] private Color heatedBarColor = Color.red;
     [SerializeField] private Color normalBarColor = Color.white;
+    
+    [Header("Score")]
+    [SerializeField] private float scoreAnimationDuration = 0.2f;
+    [SerializeField] private float scorePunchDuration = 0.2f;
+    [SerializeField] private float scorePunchStrength = 0.2f;
+    [SerializeField, Min(0), Tooltip("The difference between the previous score and the current score that must be reached to trigger a big score animation")] 
+    private int bigScoreDifference = 200;
+    [SerializeField, Min(0), Tooltip("How many 0 is the score made out of")] private int scoreDigits = 7;
     [EndFoldout]
     
     [Header("Asset References")] 
@@ -49,7 +63,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image playerWeaponIcon;
     [SerializeField] private Image playerSecondaryWeaponIcon;
     [SerializeField] private Image playerCurrencyIcon;
-    [SerializeField] private Image playerOverheatBar;
+    [SerializeField] private Image playerHeatBar;
     [SerializeField] private Image playerDodgeIcon;
     [SerializeField] private TextMeshProUGUI playerShieldText;
     [SerializeField] private TextMeshProUGUI playerCurrencyText;
@@ -64,6 +78,13 @@ public class UIManager : MonoBehaviour
     private Color _secondaryWeaponStartColor;
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
+    private Sequence _heatBarSequence;
+    private Sequence _scoreSequence;
+    private Sequence _playerCurrencySequence;
+    private int _previousScore;
+    private int _score;
+    private int _previousPlayerCurrency;
+    private int _playerCurrency;
     
     private void OnValidate()
     {
@@ -123,6 +144,12 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        scoreText.text = _score.ToString($"D{scoreDigits}"); // Shows right now up to a million
+        playerCurrencyText.text = _playerCurrency.ToString();
+    }
+
     private void SetUpUI()
     {
         if (player)
@@ -135,7 +162,6 @@ public class UIManager : MonoBehaviour
         
             // Create new icons and cache references
             _healthIcons = new Dictionary<Image, bool>();
-            
             for (int health = 0; health < player.MaxHealth; health++)
             {
                 var healthObject = Instantiate(playerIconPrefab, playerHealthHolder);
@@ -145,14 +171,16 @@ public class UIManager : MonoBehaviour
                 _healthIcons[healthObject] = false; // Initially set to false
             }
             
-            // Weapon Icons
+
             _weaponStartColor = playerWeaponIcon.color;
             _secondaryWeaponStartColor = playerSecondaryWeaponIcon.color;
             playerSecondaryWeaponIcon.sprite = player.GetCurrentBaseWeapon().WeaponIcon;
             playerSecondaryWeaponIcon.gameObject.SetActive(false);
-            
-            // Dodge Icon
             _dodgeStartColor = playerDodgeIcon.color;
+            _previousScore = 0;
+            _score = 0;
+            _previousPlayerCurrency = 0;
+            _playerCurrency = 0;
             
             // Update 
             OnUpdateHealth(player.MaxHealth);
@@ -163,6 +191,7 @@ public class UIManager : MonoBehaviour
             OnDodgeCooldownUpdated(player.GetDodgeMaxCooldown());
         }
 
+        
         if (levelManager)
         {
             OnScoreChanged(0);
@@ -252,25 +281,54 @@ public class UIManager : MonoBehaviour
     private void OnWeaponHeatUpdated(float heat)
     {
         float fillAmount = heat / player.GetMaxWeaponHeat();
-        playerOverheatBar.fillAmount = fillAmount;
-        playerOverheatBar.color = Color.Lerp(normalBarColor, overheatedBarColor, fillAmount);
+        Color fillColor = Color.Lerp(normalBarColor, heatedBarColor, fillAmount);
+        
+        if (_heatBarSequence.isAlive) _heatBarSequence.Stop();
+        _heatBarSequence = Sequence.Create()
+                .Group(Tween.Color(playerHeatBar, startValue: playerHeatBar.color, endValue: fillColor, heatBarAnimationDuration))
+                .Group(Tween.UIFillAmount(playerHeatBar, startValue: playerHeatBar.fillAmount, endValue: fillAmount, heatBarAnimationDuration))
+
+            ;
     }
     
     private void OnWeaponOverheated()
     {
-        Tween.PunchScale(playerOverheatBar.transform, strength: Vector3.one * overheatedBarPunchStrength, duration: overheatedBarAnimationDuration);
+        Tween.PunchScale(playerHeatBar.transform, strength: Vector3.one * heatBarPunchStrength, duration: heatBarPunchDuration);
     }
     
     private void OnWeaponHeatReset()
     {
-        Tween.PunchScale(playerOverheatBar.transform, strength: Vector3.one * overheatedBarPunchStrength, duration: overheatedBarAnimationDuration);
+        Tween.PunchScale(playerHeatBar.transform, strength: Vector3.one * heatBarPunchStrength, duration: heatBarPunchDuration);
     }
     
-    private void OnUpdateCurrency(int currency)
+    private void OnUpdateCurrency(int newCurrency)
     {
-        playerCurrencyText.text = $"{currency}";
         
-        Tween.PunchScale(playerCurrencyIcon.transform, strength: Vector3.one * currencyPunchStrength, duration: currencyAnimationDuration);
+
+        
+        
+        int currencyDifferance = newCurrency - _previousPlayerCurrency;
+        if (currencyDifferance >= bigCurrencyDifference)
+        {
+            if (_playerCurrencySequence.isAlive) _playerCurrencySequence.Stop();
+            _playerCurrencySequence = Sequence.Create()
+                
+                    .Group(Tween.Custom(startValue: _previousPlayerCurrency, endValue: newCurrency, duration: currencyAnimationDuration, onValueChange: value => _playerCurrency = value.ToInt()))
+                    .Chain(Tween.PunchScale(playerCurrencyIcon.transform, strength: Vector3.one * currencyPunchStrength, duration: currencyPunchDuration))
+                    .OnComplete(() => _previousPlayerCurrency = newCurrency)
+                ;
+        }
+        else
+        {
+            if (_playerCurrencySequence.isAlive) _playerCurrencySequence.Stop();
+            _playerCurrencySequence = Sequence.Create()
+                
+                    .Group(Tween.Custom(startValue: _previousPlayerCurrency, endValue: newCurrency, duration: currencyAnimationDuration, onValueChange: value => _playerCurrency = value.ToInt()))
+                    .OnComplete(() => _previousPlayerCurrency = newCurrency)
+                ;
+        }
+
+
         
     }
     
@@ -294,9 +352,30 @@ public class UIManager : MonoBehaviour
 
     #region Level UI ----------------------------------------------------------------------------------
 
-    private void OnScoreChanged(int score)
+    private void OnScoreChanged(int newScore)
     {
-        scoreText.text = score.ToString("D7"); // Shows right now up to a million
+        int scoreDifference = newScore - _previousScore;
+        if (scoreDifference >= bigScoreDifference)
+        {
+            if (_scoreSequence.isAlive) _scoreSequence.Stop();
+            _scoreSequence = Sequence.Create()
+                
+                    .Group(Tween.Custom(startValue: _previousScore, endValue: newScore, duration: scoreAnimationDuration, onValueChange: value => _score = value.ToInt()))
+                    .Chain(Tween.PunchScale(scoreText.transform, strength: Vector3.one * scorePunchStrength, duration: scoreAnimationDuration))
+                    .OnComplete(() => _previousScore = newScore)
+                ;
+        }
+        else
+        {
+            if (_scoreSequence.isAlive) _scoreSequence.Stop();
+            _scoreSequence = Sequence.Create()
+                
+                    .Group(Tween.Custom(startValue: _previousScore, endValue: newScore, duration: scoreAnimationDuration, onValueChange: value => _score = value.ToInt()))
+                    .OnComplete(() => _previousScore = newScore)
+                ;
+        }
+        
+
     }
 
     #endregion Level UI ----------------------------------------------------------------------------------
