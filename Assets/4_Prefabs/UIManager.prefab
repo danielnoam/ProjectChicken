@@ -211,8 +211,8 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
-  m_ChildScaleWidth: 1
-  m_ChildScaleHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
 --- !u!1 &3115555840128185723
 GameObject:
@@ -291,10 +291,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1980, y: 1020}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -332,14 +332,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cooldownIconColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
-  overheatedBarColor: {r: 1, g: 0, b: 0, a: 1}
+  healthAnimationDuration: 0.5
+  shieldPunchDuration: 0.2
+  shieldPunchStrength: 0.5
+  currencyAnimationDuration: 1
+  currencyPunchDuration: 0.2
+  currencyPunchStrength: 0.2
+  bigCurrencyDifference: 5
+  dodgeAnimationDuration: 0.2
+  dodgePunchStrength: 0.2
+  weaponAnimationDuration: 0.2
+  weaponPunchStrength: 0.2
+  heatBarAnimationDuration: 0.2
+  heatBarPunchDuration: 0.2
+  heatBarPunchStrength: 0.2
+  heatedBarColor: {r: 1, g: 0, b: 0, a: 1}
   normalBarColor: {r: 1, g: 1, b: 1, a: 1}
+  scoreAnimationDuration: 0.2
+  scorePunchDuration: 0.2
+  scorePunchStrength: 0.2
+  bigScoreDifference: 200
+  scoreDigits: 7
   playerIconPrefab: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
   heartIcon: {fileID: 21300000, guid: 289a6a26f1a86538dba134624b3bac36, type: 3}
   playerHealthHolder: {fileID: 7206587545251318471}
+  playerShieldIcon: {fileID: 8682517557666568211}
   playerWeaponIcon: {fileID: 8922614708895910532}
   playerSecondaryWeaponIcon: {fileID: 616318926374214678}
-  playerOverheatBar: {fileID: 1085152276087718066}
+  playerCurrencyIcon: {fileID: 246031940554071247}
+  playerHeatBar: {fileID: 1085152276087718066}
   playerDodgeIcon: {fileID: 6222991068581116642}
   playerShieldText: {fileID: 3434976926301271806}
   playerCurrencyText: {fileID: 1184307438426412104}
@@ -406,8 +427,8 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
-  m_ChildScaleWidth: 1
-  m_ChildScaleHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
 --- !u!1 &3276137629475680840
 GameObject:
@@ -607,8 +628,8 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
-  m_ChildScaleWidth: 1
-  m_ChildScaleHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
 --- !u!1 &4524324188716284610
 GameObject:
@@ -671,8 +692,8 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
-  m_ChildScaleWidth: 1
-  m_ChildScaleHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
 --- !u!1 &5462623161029998906
 GameObject:
@@ -736,8 +757,8 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
-  m_ChildScaleWidth: 1
-  m_ChildScaleHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
 --- !u!1 &5914098215501328528
 GameObject:
@@ -1224,6 +1245,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
+--- !u!114 &246031940554071247 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
+  m_PrefabInstance: {fileID: 1345177222194652477}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &3282925616271391481 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
@@ -1931,6 +1963,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
   m_PrefabInstance: {fileID: 7619928417587503585}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8682517557666568211 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
+  m_PrefabInstance: {fileID: 7619928417587503585}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7643292450249864054
 PrefabInstance:
   m_ObjectHideFlags: 0

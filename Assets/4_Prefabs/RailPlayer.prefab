@@ -1001,6 +1001,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 3
+  receiveHealthOnBonusThreshold: 1
   maxShieldHealth: 100
   shieldRegenCooldown: 3
   shieldRegenRate: 15
@@ -1011,16 +1012,17 @@ MonoBehaviour:
   splineRotationSpeed: 5
   healthDamageSfx: {fileID: 0}
   healthHealedSfx: {fileID: 0}
-  shieldDamageSfx: {fileID: 0}
-  shieldStartRegenSfx: {fileID: 0}
-  shieldRegeneratedSfx: {fileID: 0}
-  shieldDepletedSfx: {fileID: 0}
+  shieldDamageSfx: {fileID: 11400000, guid: d2d3e99fb5af65241a4debcb6162257a, type: 2}
+  shieldStartRegenSfx: {fileID: 11400000, guid: d7dedcc5555a51447abef07f15cef2c8, type: 2}
+  shieldRegeneratedSfx: {fileID: 11400000, guid: bc47d05a62c00dd4785060c06155c96d, type: 2}
+  shieldDepletedSfx: {fileID: 11400000, guid: 37b968dd3a5328b478e0c33c3645f263, type: 2}
   deathSfx: {fileID: 0}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
   playerWeapon: {fileID: 3423310960035294283}
   playerMovement: {fileID: 7233717465822237952}
   audioSource: {fileID: 7652548364264720769}
+  levelManager: {fileID: 0}
 --- !u!114 &8438971806570489096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1220,8 +1222,8 @@ MonoBehaviour:
       isKeyNull: 0
     dividerPos: 0.33
   weaponSwitchSfx: {fileID: 0}
-  weaponOverheatSfx: {fileID: 0}
-  weaponHeatResetSfx: {fileID: 0}
+  weaponOverheatSfx: {fileID: 11400000, guid: 7ad50aeb9c2a07149856f950872b5fd4, type: 2}
+  weaponHeatResetSfx: {fileID: 11400000, guid: 561cd25779a5fb64cb6612dd49a39b31, type: 2}
   player: {fileID: 2233603387570671912}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}

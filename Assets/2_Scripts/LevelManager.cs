@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using KBCore.Refs;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Splines;
 using VInspector;
@@ -16,28 +15,31 @@ public class LevelManager : MonoBehaviour
     [Header("Path Settings")]
     [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(25f,15f);
     [SerializeField, Min(0)] private Vector2 playerBoundary = new Vector2(10f,6f);
-    [SerializeField] private float playerOffset = -20f;
-    [SerializeField] private float enemyOffset = 25f;
+    [SerializeField] private float playerOffset = -30f;
+    [SerializeField] private float enemyOffset = 30f;
     [SerializeField] private float startOffset;
     [SerializeField, Tooltip("The smoothness applied when stages have different move speeds")] private float pathFollowSmoothness = 0.1f;
     
+    [Header("Score Settings")]
+    [SerializeField, Min(0)] private int bonusThreshold = 500000;
+    
     [Header("Level Stages")]
+    [SerializeField] private bool debugStageLevel;
     [SerializeField, ReadOnly] private int currentStageIndex;
     [SerializeField] private SOLevelStage[] levelStages;
-
-    
     
     [Header("References")]
-    [SerializeField, Scene(Flag.Editable)] private EnemyWaveManager enemyWaveManager;
-    [SerializeField, Scene(Flag.Editable)] private RailPlayer player;
     [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private Transform currentPositionOnPath;
+    [SerializeField, Scene(Flag.Editable)] private EnemyWaveManager enemyWaveManager;
+    [SerializeField, Scene(Flag.Editable)] private RailPlayer player;
 
 
 
     private Coroutine _stageChangeCoroutine;
     private float _currentPathSpeed;
     private bool _settingStageFlag;
+    private int _bonusThresholdCounter;
     
     public Vector3 PlayerPosition { get; private set; }
     public Vector3 EnemyPosition { get; private set; }
@@ -53,17 +55,16 @@ public class LevelManager : MonoBehaviour
 
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
+    public event Action OnBonusThresholdReached;
 
 
     private void OnValidate()
     {
+        this.ValidateRefs();
+        
+        
         if (Application.isPlaying) return;
         
-        
-        
-        this.ValidateRefs();
-            
-            
         // Update Current Position on Path position if it exists based on the startOffset offset
         if (currentPositionOnPath && splineContainer && splineContainer.Splines.Count > 0)
         {
@@ -148,84 +149,88 @@ public class LevelManager : MonoBehaviour
     {
         if (levelStages == null || levelStages.Length == 0)
         {
-            Debug.LogError("No level stages defined!");
+            if (debugStageLevel) Debug.LogError("No level stages defined!");
             return;
         }
         
-        SetStage(0);
         ResetScore();
+        SetStage(0);
     }
     
     [Button]
-    private void SetNextStage()
+    private void SetNextStage(float delay = 0)
     {
+        if (_settingStageFlag) return;
+        
+        
         int nextStageIndex = currentStageIndex + 1;
         if (nextStageIndex < levelStages.Length)
         {
-            SetStage(nextStageIndex);
+            
+            _settingStageFlag = true;
+            
+            if (delay <= 0)
+            {
+                SetStage(nextStageIndex);
+            }
+            else
+            {
+                if (_stageChangeCoroutine != null)
+                {
+                    StopCoroutine(_stageChangeCoroutine);
+                }
+        
+                _stageChangeCoroutine = StartCoroutine(ChangeStageAfterDelay(nextStageIndex, delay));
+            }
+
         }
         else
         {
-            Debug.Log("No more stages available");
+            if (debugStageLevel) Debug.Log("No more stages available");
         }
     }
     
     private void SetStage(int newStageIndex)
     {
         if (newStageIndex < 0 || newStageIndex >= levelStages.Length) return;
+        
 
+        SOLevelStage newStage = levelStages[newStageIndex];
+        
+        if (debugStageLevel) Debug.Log("Set stage to: " + newStage.name);
+        
         currentStageIndex = newStageIndex;
-        CurrentStage = levelStages[currentStageIndex];
+        CurrentStage = newStage;
         
-        switch (CurrentStage.StageType)
-        {
-            case StageType.Checkpoint:
-                SetStageAfterDelay(CurrentStage.StageDuration);
-                break;
-            case StageType.EnemyWave:
-                break;
-        }
-
         _settingStageFlag = false;
+        OnStageChanged?.Invoke(newStage);
         
-        Debug.Log("Setting stage: " + CurrentStage.name);
-        OnStageChanged?.Invoke(CurrentStage);
-    }
-    
-    private void SetStageAfterDelay(float delay)
-    {
-        if (_stageChangeCoroutine != null)
+        if (newStage.IsTimeBasedStage)
         {
-            StopCoroutine(_stageChangeCoroutine);
+            SetNextStage(newStage.StageDuration);
         }
-        
-        _stageChangeCoroutine = StartCoroutine(ChangeStageAfterDelay(delay));
-    }
-    
 
-    
-    private IEnumerator ChangeStageAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        SetNextStage();
     }
-    
+
+
+
+    private IEnumerator ChangeStageAfterDelay(int newStateIndex, float delay)
+    {
+
+        if (debugStageLevel) Debug.Log("Setting stage: " + levelStages[newStateIndex].name + ", In " + delay);
+
+        yield return new WaitForSeconds(delay);
+
+        SetStage(newStateIndex);
+    }
+
     private void OnEnemyWaveCleared(int scoreWorth)
     {
         if (!CurrentStage || CurrentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
-
-        _settingStageFlag = true;
         
         AddScore(scoreWorth);
         
-        if (CurrentStage.DelayBeforeNextStage <= 0)
-        {
-            SetNextStage();
-        }
-        else
-        {
-            SetStageAfterDelay(CurrentStage.DelayBeforeNextStage);
-        }
+        SetNextStage(CurrentStage.DelayBeforeNextStage);
 
     }
 
@@ -302,14 +307,23 @@ public class LevelManager : MonoBehaviour
     private void AddScore(int score)
     {
         Score += score;
+        _bonusThresholdCounter -= score;
         
         OnScoreChanged?.Invoke(Score);
+        
+        if (_bonusThresholdCounter <= 0)
+        {
+            OnBonusThresholdReached?.Invoke();
+            _bonusThresholdCounter = bonusThreshold;
+        }
+
     }
 
     private void ResetScore()
     {
         Score = 0;
-
+        _bonusThresholdCounter = bonusThreshold;
+        
         OnScoreChanged?.Invoke(Score);
     }
     

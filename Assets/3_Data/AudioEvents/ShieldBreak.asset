@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f091914f821aeddd7b3676db7383e3d7, type: 3}
+  m_Name: ShieldBreak
+  m_EditorClassIdentifier: 
+  clips:
+  - {fileID: 8300000, guid: d41ae39ab40e7064c845eadebc618daf, type: 3}
+  mixerGroup: {fileID: -8308305412286519963, guid: 77db4088ae7ef521a93687acac7e30ed, type: 2}
+  volume:
+    minValue: 0.5
+    maxValue: 0.5
+  pitch:
+    minValue: 0.8
+    maxValue: 1.5
+  stereoPan: 0
+  spatialBlend: 1
+  reverbZoneMix: 1
+  bypassEffects: 0
+  bypassListenerEffects: 0
+  bypassReverbZones: 0
+  loop: 0
+  set3DSettings: 1
+  dopplerLevel: 1
+  spread: 0
+  rolloffMode: 1
+  minDistance: 1
+  maxDistance: 500

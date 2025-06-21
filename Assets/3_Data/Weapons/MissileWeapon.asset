@@ -30,14 +30,15 @@ MonoBehaviour:
   projectileBehaviors:
   - rid: 2319611325492494601
   - rid: 2319611325492494602
+  - rid: 4758515269536055580
   pushForce: 5
   stunTime: 0
   hitLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  fireSound: {fileID: 0}
+  fireSound: {fileID: 11400000, guid: 65200ec152ef8d74fb474ec1f37a6549, type: 2}
   fireEffectPrefab: {fileID: 0}
-  impactSound: {fileID: 0}
+  impactSound: {fileID: 11400000, guid: ca5580e59bab65b42a64c5ca5924a136, type: 2}
   impactEffectPrefab: {fileID: 0}
   references:
     version: 2
@@ -47,7 +48,7 @@ MonoBehaviour:
       data:
         moveSpeed: 75
         useAimAssist: 1
-        aimAssistStrength: 25
+        aimAssistStrength: 35
         useSpeedStagger: 0
         speedStaggerTime: 0.5
         staggerSpeedCurve:
@@ -83,3 +84,7 @@ MonoBehaviour:
         maxForce: 45
         stunChance: 25
         maxStunTime: 2
+    - rid: 4758515269536055580
+      type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        pushForce: 25

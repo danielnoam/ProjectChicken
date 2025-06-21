@@ -200,10 +200,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  scoreValue: 100
   lootTable: {fileID: 11400000, guid: 5b9315d82c63681c6a44897478ec311f, type: 2}
-  deathSfx: {fileID: 0}
-  damageSfx: {fileID: 0}
-  concussedSfx: {fileID: 0}
+  deathSfx: {fileID: 11400000, guid: 8564a5dd3420bf646b3807326223f693, type: 2}
+  damageSfx: {fileID: 11400000, guid: 39342ebf1d4ddb14a94552600160c6ee, type: 2}
+  concussedSfx: {fileID: 11400000, guid: d9e74b275c5f11849a54f992ccd0c376, type: 2}
   attackSfx: {fileID: 0}
   currentState: 0
   hasSlot: 0

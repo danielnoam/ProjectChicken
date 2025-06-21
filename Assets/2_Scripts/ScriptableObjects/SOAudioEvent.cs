@@ -140,21 +140,57 @@ public class SOAudioEvent : ScriptableObject
     public void Stop(AudioSource source)
     {
         if (!source) return;
-        
-        source.Stop();
+
+        foreach (var clip in clips)
+        {
+            if (source.clip == clip)
+            {
+                source.Stop();
+            }
+        }
     }
 
     public void Pause(AudioSource source)
     {
         if (!source) return;
         
-        source.Pause();
+        foreach (var clip in clips)
+        {
+            if (source.clip == clip)
+            {
+                source.Pause();
+            }
+        }
     }
 
     public void Continue(AudioSource source)
     {
         if (!source) return;
-        source.UnPause();
+        
+        foreach (var clip in clips)
+        {
+            if (source.clip == clip)
+            {
+                source.UnPause();
+            }
+        }
+    }
+    
+    public bool IsPlaying(AudioSource source)
+    {
+        if (!source) return false;
+        
+        foreach (var clip in clips)
+        {
+            if (source.clip != clip) continue;
+            
+            if (source.isPlaying)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     #endregion Autdio source control ------------------------------------------------------------------------------------------------

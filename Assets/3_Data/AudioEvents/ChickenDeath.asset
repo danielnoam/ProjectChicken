@@ -10,26 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f091914f821aeddd7b3676db7383e3d7, type: 3}
-  m_Name: TestSFX
+  m_Name: ChickenDeath
   m_EditorClassIdentifier: 
-  clips: []
-  mixerGroup: {fileID: 24300002, guid: 77db4088ae7ef521a93687acac7e30ed, type: 2}
+  clips:
+  - {fileID: 8300000, guid: d91f7e229fc19a549a358f1dd4e369c5, type: 3}
+  - {fileID: 8300000, guid: b90a07f9f6d3c464d820e54795aee780, type: 3}
+  mixerGroup: {fileID: -8308305412286519963, guid: 77db4088ae7ef521a93687acac7e30ed, type: 2}
   volume:
-    minValue: -1
-    maxValue: 1
+    minValue: 0.5
+    maxValue: 0.5
   pitch:
-    minValue: -1
-    maxValue: 1
+    minValue: 1.2
+    maxValue: 1.5
   stereoPan: 0
-  spatialBlend: 0
+  spatialBlend: 1
   reverbZoneMix: 1
   bypassEffects: 0
   bypassListenerEffects: 0
   bypassReverbZones: 0
   loop: 0
-  set3DSettings: 0
+  set3DSettings: 1
   dopplerLevel: 1
   spread: 0
-  rolloffMode: 0
+  rolloffMode: 1
   minDistance: 1
   maxDistance: 500

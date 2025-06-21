@@ -11,7 +11,7 @@ public class EnemyWaveManager : MonoBehaviour
     public static EnemyWaveManager Instance { get; private set; }
     
     [Header("References")]
-    [SerializeField, Scene(Flag.Editable)] private LevelManager levelManager;
+    [SerializeField] private LevelManager levelManager;
     [SerializeField] private Transform enemyHolder;
 
 
@@ -20,10 +20,7 @@ public class EnemyWaveManager : MonoBehaviour
     public event Action<int> OnEnemyWaveCleared;
     public event Action<int> OnEnemyDeath;
 
-    private void OnValidate()
-    {
-        this.ValidateRefs();
-    }
+
 
     
     private void Awake()
@@ -70,21 +67,23 @@ public class EnemyWaveManager : MonoBehaviour
 
         _currentStage = stage;
         
-        switch (stage.StageType)
+        if (stage.StageType == StageType.EnemyWave)
         {
-            case StageType.EnemyWave:
-                SpawnEnemyWave(stage);
-                _currentStage = stage;
-                break;
-            case StageType.Checkpoint:
-                ClearEnemies();
-                break;
+            SpawnEnemyWave(stage);
         }
+        else
+        {
+            ClearEnemies();
+        }
+        
+
     }
     
     
     private void UpdateEnemyCount(int enemyScore)
     {
+        if (_currentStage && _currentStage.IsTimeBasedStage) return;
+        
         _enemyCount--;
         
         if (_enemyCount <= 0)
