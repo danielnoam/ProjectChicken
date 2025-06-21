@@ -49,7 +49,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self] private RailPlayerMovement playerMovement;
     [SerializeField, Self] private AudioSource audioSource;
-    [SerializeField, Scene(Flag.Editable)] private LevelManager levelManager;
+    [SerializeField] private LevelManager levelManager;
 
     
     // Private fields
@@ -199,7 +199,7 @@ public class RailPlayer : MonoBehaviour
             _damagedCooldown -= Time.deltaTime;
         }
         
-        if (_damagedCooldown <= 0 &&  _regenShieldCoroutine == null)
+        if (_damagedCooldown <= 0 &&  _regenShieldCoroutine == null && _currentShieldHealth < maxShieldHealth)
         {
             StartShieldRegen();
         }
@@ -225,17 +225,19 @@ public class RailPlayer : MonoBehaviour
     
     private IEnumerator RegenShieldRoutine()
     {
+        shieldStartRegenSfx?.Play(audioSource);
         
         while (_currentShieldHealth < maxShieldHealth)
         {
             _currentShieldHealth += shieldRegenRate * Time.deltaTime;
-            OnShieldChanged?.Invoke(_currentShieldHealth);
             if (_currentShieldHealth >= maxShieldHealth)
             {
                 _currentShieldHealth = maxShieldHealth;
                 shieldRegeneratedSfx?.Play(audioSource);
                 yield break;
             }
+            
+            OnShieldChanged?.Invoke(_currentShieldHealth);
             yield return null;
         }
     }
@@ -260,9 +262,6 @@ public class RailPlayer : MonoBehaviour
         }
         
         _damagedCooldown = 0;
-        
-        shieldStartRegenSfx?.Play(audioSource);
-        
     }
     
     
@@ -386,8 +385,7 @@ public class RailPlayer : MonoBehaviour
         switch (resource.ResourceType)
         {
             case ResourceType.Currency:
-                _currentCurrency += resource.CurrencyWorth;
-                OnCurrencyChanged?.Invoke(_currentCurrency);
+                UpdateCurrency(resource.CurrencyWorth);
                 break;
             case ResourceType.HealthPack:
                 HealHealth(resource.HealthWorth);
@@ -406,6 +404,13 @@ public class RailPlayer : MonoBehaviour
         _resourcesInRange.Remove(resource);
         resource.ResourceCollected();
         OnResourceCollected?.Invoke(resource);
+    }
+    
+    [Button]
+    private void UpdateCurrency(int amount)
+    {
+        _currentCurrency += amount;
+        OnCurrencyChanged?.Invoke(_currentCurrency);
     }
 
     #endregion Resource Collection --------------------------------------------------------------------------------------

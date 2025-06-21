@@ -24,6 +24,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Min(0)] private int bonusThreshold = 500000;
     
     [Header("Level Stages")]
+    [SerializeField] private bool debugStageLevel;
     [SerializeField, ReadOnly] private int currentStageIndex;
     [SerializeField] private SOLevelStage[] levelStages;
     
@@ -148,84 +149,88 @@ public class LevelManager : MonoBehaviour
     {
         if (levelStages == null || levelStages.Length == 0)
         {
-            Debug.LogError("No level stages defined!");
+            if (debugStageLevel) Debug.LogError("No level stages defined!");
             return;
         }
         
-        SetStage(0);
         ResetScore();
+        SetStage(0);
     }
     
     [Button]
-    private void SetNextStage()
+    private void SetNextStage(float delay = 0)
     {
+        if (_settingStageFlag) return;
+        
+        
         int nextStageIndex = currentStageIndex + 1;
         if (nextStageIndex < levelStages.Length)
         {
-            SetStage(nextStageIndex);
+            
+            _settingStageFlag = true;
+            
+            if (delay <= 0)
+            {
+                SetStage(nextStageIndex);
+            }
+            else
+            {
+                if (_stageChangeCoroutine != null)
+                {
+                    StopCoroutine(_stageChangeCoroutine);
+                }
+        
+                _stageChangeCoroutine = StartCoroutine(ChangeStageAfterDelay(nextStageIndex, delay));
+            }
+
         }
         else
         {
-            Debug.Log("No more stages available");
+            if (debugStageLevel) Debug.Log("No more stages available");
         }
     }
     
     private void SetStage(int newStageIndex)
     {
         if (newStageIndex < 0 || newStageIndex >= levelStages.Length) return;
+        
 
+        SOLevelStage newStage = levelStages[newStageIndex];
+        
+        if (debugStageLevel) Debug.Log("Set stage to: " + newStage.name);
+        
         currentStageIndex = newStageIndex;
-        CurrentStage = levelStages[currentStageIndex];
+        CurrentStage = newStage;
         
-        switch (CurrentStage.StageType)
-        {
-            case StageType.Checkpoint:
-                SetStageAfterDelay(CurrentStage.StageDuration);
-                break;
-            case StageType.EnemyWave:
-                break;
-        }
-
         _settingStageFlag = false;
+        OnStageChanged?.Invoke(newStage);
         
-        Debug.Log("Setting stage: " + CurrentStage.name);
-        OnStageChanged?.Invoke(CurrentStage);
-    }
-    
-    private void SetStageAfterDelay(float delay)
-    {
-        if (_stageChangeCoroutine != null)
+        if (newStage.IsTimeBasedStage)
         {
-            StopCoroutine(_stageChangeCoroutine);
+            SetNextStage(newStage.StageDuration);
         }
-        
-        _stageChangeCoroutine = StartCoroutine(ChangeStageAfterDelay(delay));
-    }
-    
 
-    
-    private IEnumerator ChangeStageAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        SetNextStage();
     }
-    
+
+
+
+    private IEnumerator ChangeStageAfterDelay(int newStateIndex, float delay)
+    {
+
+        if (debugStageLevel) Debug.Log("Setting stage: " + levelStages[newStateIndex].name + ", In " + delay);
+
+        yield return new WaitForSeconds(delay);
+
+        SetStage(newStateIndex);
+    }
+
     private void OnEnemyWaveCleared(int scoreWorth)
     {
         if (!CurrentStage || CurrentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
-
-        _settingStageFlag = true;
         
         AddScore(scoreWorth);
         
-        if (CurrentStage.DelayBeforeNextStage <= 0)
-        {
-            SetNextStage();
-        }
-        else
-        {
-            SetStageAfterDelay(CurrentStage.DelayBeforeNextStage);
-        }
+        SetNextStage(CurrentStage.DelayBeforeNextStage);
 
     }
 

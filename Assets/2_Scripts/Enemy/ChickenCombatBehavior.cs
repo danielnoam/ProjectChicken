@@ -229,7 +229,7 @@ public class ChickenCombatBehavior : MonoBehaviour
     {
         if (!canBeConcussed || chickenController.CurrentState != ChickenController.ChickenState.InCombat)
         {
-            Debug.LogWarning($"{gameObject.name}: Cannot apply concussion - not in combat mode!");
+            // Debug.LogWarning($"{gameObject.name}: Cannot apply concussion - not in combat mode!");
             return;
         }
         

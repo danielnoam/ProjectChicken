@@ -11,7 +11,7 @@ public class SOLevelStage : ScriptableObject
     
     [Header("Stage Settings")]
     [SerializeField] private StageType stageType;
-    [ShowIf("stageType", StageType.Checkpoint)] 
+    [ShowIf("IsTimeBasedStage")] 
     [SerializeField, Min(0.1f)] private float stageDuration = 5;
     [EndIf]
     [ShowIf("stageType", StageType.EnemyWave)]
@@ -36,8 +36,7 @@ public class SOLevelStage : ScriptableObject
 
     public StageType StageType => stageType;
     
-    public float StageDuration => stageType == StageType.Checkpoint ? stageDuration : 0f;
-    
+    public float StageDuration => stageDuration;
     public int WaveScore => stageType == StageType.EnemyWave ? waveScore : 0;
     public SerializedDictionary<ChickenController, int> EnemyWave => enemyWave;
     public float EnemyStageOffset => enemyStageOffset;
@@ -52,6 +51,9 @@ public class SOLevelStage : ScriptableObject
     public bool AllowPlayerAim => allowPlayerAim;
     public bool AllowPlayerShooting => allowPlayerShooting;
     public float PlayerStageOffset => playerStageOffset;
+    
+    
+    public bool IsTimeBasedStage => stageType is StageType.Checkpoint or StageType.Intro or StageType.Outro;
 
 
 

@@ -160,7 +160,7 @@ public class ChickenLookAtBehavior : MonoBehaviour
                 // Re-apply if significantly different
                 if (angleDifference > 45f)
                 {
-                    Debug.LogWarning($"{gameObject.name}: Rotation overridden by another script!");
+                    // Debug.LogWarning($"{gameObject.name}: Rotation overridden by another script!");
                     HandleLookAtPlayer();
                 }
             }

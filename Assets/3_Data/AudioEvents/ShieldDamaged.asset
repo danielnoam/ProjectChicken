@@ -10,19 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f091914f821aeddd7b3676db7383e3d7, type: 3}
-  m_Name: ChickenDamage
+  m_Name: ShieldDamaged
   m_EditorClassIdentifier: 
   clips:
-  - {fileID: 8300000, guid: c46036d38704e5f4eae242b746b0487a, type: 3}
-  - {fileID: 8300000, guid: 899755d75e34ecb42b9fc48d8e44079c, type: 3}
-  - {fileID: 8300000, guid: 16bbadb3b95fec0429ff63f51326c9b8, type: 3}
-  - {fileID: 8300000, guid: 607ec3874254a204dada28669346d6fd, type: 3}
+  - {fileID: 8300000, guid: b7a9b635067ab0141b7e8891594808bc, type: 3}
+  - {fileID: 8300000, guid: bfb9850c6b00776448f66e0217319e31, type: 3}
+  - {fileID: 8300000, guid: 070521f594da8ad4f8575315c02b65ff, type: 3}
+  - {fileID: 8300000, guid: 7df1bdb0a6af8d44fb58ba4c985edf46, type: 3}
+  - {fileID: 8300000, guid: bd9c8da351e4bfa4181b38ca8fbebbbb, type: 3}
   mixerGroup: {fileID: -8308305412286519963, guid: 77db4088ae7ef521a93687acac7e30ed, type: 2}
   volume:
-    minValue: 0.5
-    maxValue: 0.5
+    minValue: 0.35
+    maxValue: 0.35
   pitch:
-    minValue: 1.2
+    minValue: 0.8
     maxValue: 1.5
   stereoPan: 0
   spatialBlend: 1

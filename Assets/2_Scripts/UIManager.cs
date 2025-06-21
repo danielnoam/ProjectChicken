@@ -19,7 +19,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float healthAnimationDuration = 0.5f;
     
     [Header("Shield")]
-    [SerializeField] private float shieldAnimationDuration = 0.2f;
+    [SerializeField] private float shieldPunchDuration = 0.2f;
     [SerializeField] private float shieldPunchStrength = 0.5f;
     
     [Header("Currency")]
@@ -70,8 +70,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI scoreText;
     
     [Header("Scene References")] 
-    [SerializeField, Scene(Flag.Editable)] private LevelManager levelManager;
-    [SerializeField, Scene(Flag.Editable)] private RailPlayer player;
+    [SerializeField] private LevelManager levelManager;
+    [SerializeField] private RailPlayer player;
 
     
     private Dictionary<Image, bool> _healthIcons;
@@ -86,14 +86,6 @@ public class UIManager : MonoBehaviour
     private int _previousPlayerCurrency;
     private int _playerCurrency;
     
-    private void OnValidate()
-    {
-                
-        this.ValidateRefs();
-        
-        if (!Application.isPlaying) return;
-
-    }
 
     private void Awake()
     {
@@ -243,7 +235,10 @@ public class UIManager : MonoBehaviour
     {
         playerShieldText.text = $"{currentShield:F0}%";
 
-        Tween.PunchScale(playerShieldIcon.transform, strength: Vector3.one * shieldPunchStrength, duration: shieldAnimationDuration);
+        if (currentShield >= player.MaxShieldHealth)
+        {
+            Tween.PunchScale(playerShieldIcon.transform, strength: Vector3.one * shieldPunchStrength, duration: shieldPunchDuration);
+        }
     }
 
     private void OnSpecialWeaponSwitched(SOWeapon previousWeapon, SOWeapon newWeapon)
@@ -306,10 +301,6 @@ public class UIManager : MonoBehaviour
     
     private void OnUpdateCurrency(int newCurrency)
     {
-        
-
-        
-        
         int currencyDifferance = newCurrency - _previousPlayerCurrency;
         if (currencyDifferance >= bigCurrencyDifference)
         {
@@ -330,9 +321,6 @@ public class UIManager : MonoBehaviour
                     .OnComplete(() => _previousPlayerCurrency = newCurrency)
                 ;
         }
-
-
-        
     }
     
     private void OnDodgeCooldownUpdated(float cooldown)
