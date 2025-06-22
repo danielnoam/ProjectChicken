@@ -14,7 +14,7 @@ public abstract class MenuElement : MonoBehaviour
     [SerializeField] private Color labelColorWhenSelected = Color.white;
     [SerializeField] private Transform cameraLookAtPoint;
     [SerializeField] private TextMeshProUGUI label;
-    [SerializeField] private CanvasGroup labelCanvasGroup;
+    [SerializeField] protected CanvasGroup labelCanvasGroup;
     [SerializeField, Child(Flag.Optional)] private CinemachineCamera interactionCamera;
     [SerializeField, Parent] protected MainMenuController mainMenuController;
     [SerializeField, Parent] protected AudioSource audioSource;
@@ -44,7 +44,7 @@ public abstract class MenuElement : MonoBehaviour
         ToggleLabel(false);
     }
     
-    private void ToggleLabel(bool state)
+    protected void ToggleLabel(bool state)
     {
         if (labelCanvasGroup) labelCanvasGroup.alpha = state ? 1 : labelAlphaWhenDeselected;
         if (label) label.color = state ? labelColorWhenSelected : _startLabelColor;
@@ -75,11 +75,6 @@ public abstract class MenuElement : MonoBehaviour
     public void OnMouseEnter()
     {
         mainMenuController?.MouseEnteredElement(this);
-    }
-    
-    public void OnMouseExit()
-    {
-        mainMenuController?.MouseExitedElement(this);
     }
     
     public void OnMouseDown()

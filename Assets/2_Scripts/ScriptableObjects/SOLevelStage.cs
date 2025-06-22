@@ -32,8 +32,8 @@ public class SOLevelStage : ScriptableObject
     [SerializeField] private bool allowPlayerAim = true;
     [SerializeField] private bool allowPlayerShooting = true;
     [SerializeField] private float playerStageOffset;
+    [SerializeField, ShowIf("IsGameplayStage")] private bool showPlayerKeybinds;
     
-
     public StageType StageType => stageType;
     
     public float StageDuration => stageDuration;
@@ -51,9 +51,11 @@ public class SOLevelStage : ScriptableObject
     public bool AllowPlayerAim => allowPlayerAim;
     public bool AllowPlayerShooting => allowPlayerShooting;
     public float PlayerStageOffset => playerStageOffset;
+    public bool ShowPlayerKeybinds => showPlayerKeybinds;
     
     
     public bool IsTimeBasedStage => stageType is StageType.Checkpoint or StageType.Intro or StageType.Outro;
+    public bool IsGameplayStage => stageType is StageType.EnemyWave or StageType.Checkpoint;
 
 
 

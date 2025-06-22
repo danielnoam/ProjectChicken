@@ -4,12 +4,18 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+
+
 [RequireComponent(typeof(AudioSource))]
 public class MainMenuController : MonoBehaviour
 {
 
     [Header("Menu Settings")]
+    [SerializeField] private LaunchMissionMode launchMissionMode;
     [SerializeField] private MenuElement[] menuElements;
+    
+    
+    [Header("References")]
     [SerializeField] private Transform defaultCameraLookAtPoint;
     [SerializeField, Self] private AudioSource audioSource;
     
@@ -20,6 +26,7 @@ public class MainMenuController : MonoBehaviour
     private MenuElement _currentMenuElement;
     
     public Transform DefaultCameraLookAtPoint => defaultCameraLookAtPoint ? defaultCameraLookAtPoint : transform;
+    public LaunchMissionMode LaunchMissionMode => launchMissionMode;
     public Action<MenuElement> OnElementSelected;
     public Action<MenuElement> OnElementDeselected;
     public Action<MenuElement> OnElementInteracted;
@@ -59,10 +66,7 @@ public class MainMenuController : MonoBehaviour
         {
             if (!_isInteracting)
             {
-                _currentMenuElement.Deselect();
-                OnElementDeselected?.Invoke(_currentMenuElement);
-                _previousMenuElementIndex = _currentMenuElementIndex;
-                _currentMenuElement = null;
+               DisableSelection();
             }
             else
             {
@@ -85,12 +89,7 @@ public class MainMenuController : MonoBehaviour
             return;
         }
 
-        if (_currentMenuElement)
-        {
-            _currentMenuElement.Deselect();
-            OnElementDeselected?.Invoke(_currentMenuElement);
-            _previousMenuElementIndex = _currentMenuElementIndex;
-        }
+        DisableSelection();
 
         _currentMenuElementIndex = index;
         _currentMenuElement = menuElements[index];
@@ -126,6 +125,16 @@ public class MainMenuController : MonoBehaviour
         SelectMenuElement(previousIndex);
     }
     
+    private void DisableSelection()
+    {
+        if (!_currentMenuElement) return;
+        
+        _currentMenuElement.Deselect();
+        OnElementDeselected?.Invoke(_currentMenuElement);
+        _previousMenuElementIndex = _currentMenuElementIndex;
+        _currentMenuElement = null;
+    }
+    
     private void InteractWithElement(MenuElement element)
     {
         if (_isInteracting) return;
@@ -154,19 +163,6 @@ public class MainMenuController : MonoBehaviour
         if (_isInteracting || _currentMenuElement == element) return;
         
         SelectMenuElement(Array.IndexOf(menuElements, element));
-    }
-    
-    public void MouseExitedElement(MenuElement element)
-    {
-        // if (_isInteracting || _currentMenuElement != element) return;
-        //
-        // if (_currentMenuElementIndex == Array.IndexOf(menuElements, element))
-        // {
-        //     _currentMenuElement.Deselect();
-        //     OnElementDeselected?.Invoke(_currentMenuElement);
-        //     _currentMenuElement = null;
-        //     _previousMenuElementIndex = _currentMenuElementIndex;
-        // }
     }
     
     public void MousePressedElement (MenuElement element)

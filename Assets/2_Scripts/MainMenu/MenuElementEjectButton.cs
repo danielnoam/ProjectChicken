@@ -5,10 +5,14 @@ public class MenuElementEjectButton : MenuElement
 {
     
     [Header("Button Press Animation")]
-    [SerializeField] private float animationDuration = 0.75f;
-    [SerializeField] protected Ease animationEase = Ease.Default;
-    [SerializeField] private Vector3 buttonPressedPosition = new Vector3(0, -0.5f, 0);
     [SerializeField] private float delayBeforeQuit = 0.5f;
+    [SerializeField] private float animationDuration = 0.75f;
+    [SerializeField] private Vector3 buttonPressedPosition = new Vector3(0, -0.5f, 0);
+    [SerializeField] protected Ease animationEase = Ease.Default;
+
+    
+    
+    [Header("References")]
     [SerializeField] private SOAudioEvent buttonPressedSfx;
     [SerializeField] private Transform buttonTransform;
     

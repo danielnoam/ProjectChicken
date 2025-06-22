@@ -73,6 +73,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI playerShieldText;
     [SerializeField] private TextMeshProUGUI playerCurrencyText;
     [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI keybindsText;
     
     [Header("Scene References")] 
     [SerializeField] private LevelManager levelManager;
@@ -83,6 +84,7 @@ public class UIManager : MonoBehaviour
     private Color _secondaryWeaponStartColor;
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
+    private Sequence _keybindsSequence;
     private Sequence _hudSequence;
     private Sequence _heatBarSequence;
     private Sequence _scoreSequence;
@@ -121,7 +123,6 @@ public class UIManager : MonoBehaviour
         
         PrimeTweenConfig.warnEndValueEqualsCurrent = false;
         SetUpUI();
-        ToggleHUD(false);
     }
     
 
@@ -232,6 +233,11 @@ public class UIManager : MonoBehaviour
         {
             OnScoreChanged(0);
         }
+        
+        
+        // Hide ui elements
+        ToggleHUD(false);
+        ToggleKeybinds(false);
     }
 
     #endregion SetUp -----------------------------------------------------------------------------------
@@ -245,15 +251,19 @@ public class UIManager : MonoBehaviour
         {
             case StageType.Intro:
                 FadeHUD(false);
+                FadeKeybinds(false);
                 break;
             case StageType.Outro:
                 FadeHUD(false);
+                FadeKeybinds(false);
                 break;
             case StageType.Checkpoint:
                 FadeHUD(true);
+                FadeKeybinds(stage.ShowPlayerKeybinds);
                 break;
             case StageType.EnemyWave:
                 FadeHUD(true);
+                FadeKeybinds(stage.ShowPlayerKeybinds);
                 break;
         }
     }
@@ -263,8 +273,8 @@ public class UIManager : MonoBehaviour
         
         switch (fadeIn)
         {
-            case true when Mathf.Approximately(hudGroup.alpha, 1):
-            case false when Mathf.Approximately(hudGroup.alpha, 0):
+            case true when hudGroup.alpha >= 1:
+            case false when hudGroup.alpha <= 0:
                 return;
         }
 
@@ -279,10 +289,37 @@ public class UIManager : MonoBehaviour
             ;
     
     }
+    
+    private void FadeKeybinds(bool fadeIn)
+    {
+        switch (fadeIn)
+        {
+            case true when keybindsText.alpha >= 1:
+            case false when keybindsText.alpha <= 0:
+                return;
+        }
+
+
+        float startValue = fadeIn ? 0 : 1;
+        float endValue = fadeIn ? 1 : 0;
+        
+        
+        if (_keybindsSequence.isAlive) _keybindsSequence.Stop();
+        _keybindsSequence = Sequence.Create()
+                
+                .Group(Tween.Alpha(keybindsText, startValue, endValue, hudFadeDuration))
+            ;
+    
+    }
 
     private void ToggleHUD(bool state)
     {
         hudGroup.alpha = state ? 1f : 0;
+    }
+    
+    private void ToggleKeybinds(bool state)
+    {
+        keybindsText.alpha = state ? 1f : 0;
     }
 
     #endregion HUD --------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -8,18 +8,28 @@ using UnityEngine.UI;
 public class MenuElementLevelSelection : MenuElement
 {
     [Header("Level Selection")]
+    [SerializeField] private SOLevel[] levels;
+    
+    [Header("References")]
+    [SerializeField] private MenuElementLaunchLever launchLever;
     [SerializeField] private CanvasGroup levelsInfoCanvasGroup;
     [SerializeField] private Transform levelGfxParent;
     [SerializeField] private Transform levelButtonParent;
     [SerializeField] private TextMeshProUGUI levelNameText;
     [SerializeField] private TextMeshProUGUI levelDescriptionText;
     [SerializeField] private Button levelButtonPrefab;
-    [SerializeField] private SOLevel[] levels;
     
     
     private readonly Dictionary<SOLevel, GameObject> _levelGfxs = new Dictionary<SOLevel, GameObject>();
+    private SOLevel _showLevelInfo;
+    private SOLevel _previousLevelInfo;
     private SOLevel _selectedLevel;
-    private SOLevel _previousSelectedLevel;
+    private Button _selectedLevelButton;
+    
+    public SOLevel SelectedLevel => _selectedLevel;
+    public event Action OnLevelSelected;
+    public event Action OnLevelDeselected;
+    
     
     protected override void OnSelected()
     {
@@ -48,7 +58,7 @@ public class MenuElementLevelSelection : MenuElement
             if (levelButtonPrefab)
             {
                 Button button = Instantiate(levelButtonPrefab, levelButtonParent);
-                button.onClick.AddListener(() => level.LoadLevel());
+                button.onClick.AddListener(() => SelectLevel(level, button));
                 button.GetComponentInChildren<TextMeshProUGUI>().text = level.LevelName;
                 button.gameObject.name = $"Button{level.LevelName}";
                 EventTrigger eventTrigger = button.GetComponent<EventTrigger>();
@@ -56,12 +66,12 @@ public class MenuElementLevelSelection : MenuElement
                 {
                     EventTrigger.Entry entry = new EventTrigger.Entry();
                     entry.eventID = EventTriggerType.PointerEnter;
-                    entry.callback.AddListener((eventData) => SelectLevel(level));
+                    entry.callback.AddListener((eventData) => ShowLevelInfo(level));
                     eventTrigger.triggers.Add(entry);
                     
                     EventTrigger.Entry entry2 = new EventTrigger.Entry();
                     entry2.eventID = EventTriggerType.PointerExit;
-                    entry2.callback.AddListener((eventData) => DeselectLevel(level));
+                    entry2.callback.AddListener((eventData) => HideLevelInfo(level));
                     eventTrigger.triggers.Add(entry2);
                 }
             }
@@ -76,38 +86,39 @@ public class MenuElementLevelSelection : MenuElement
     protected override void OnInteract()
     {
         ToggleLevelCanvas(true);
-        SelectLevel(levels[0]);
+
+        ShowLevelInfo(_selectedLevel ? _selectedLevel : levels[0]);
     }
     
     protected override void OnFinishedInteraction()
     {
         ToggleLevelCanvas(false);
-        DeselectLevel(_selectedLevel);
-        _selectedLevel = null;
+        HideLevelInfo(_showLevelInfo);
+        _showLevelInfo = null;
     }
     
     protected override void OnStopInteraction()
     {
         ToggleLevelCanvas(false);
-        DeselectLevel(_selectedLevel);
-        _selectedLevel = null;
+        HideLevelInfo(_showLevelInfo);
+        _showLevelInfo = null;
     }
     
     
-    private void SelectLevel(SOLevel level)
+    private void ShowLevelInfo(SOLevel level)
     {
         if (!level) return;
         
         
         // Disable selected level
-        if (_selectedLevel)
+        if (_showLevelInfo)
         {
-            _previousSelectedLevel = _selectedLevel;
-            _levelGfxs[_previousSelectedLevel].SetActive(false);
+            _previousLevelInfo = _showLevelInfo;
+            _levelGfxs[_previousLevelInfo].SetActive(false);
         }
 
         // Set the level
-        _selectedLevel = level;
+        _showLevelInfo = level;
         
         // Set the level name and description
         levelNameText.text = level.LevelName;
@@ -117,15 +128,74 @@ public class MenuElementLevelSelection : MenuElement
         _levelGfxs[level].SetActive(true);
     }
     
-    private void DeselectLevel(SOLevel level)
+    private void HideLevelInfo(SOLevel level)
     {
         if (!level) return;
 
-        _levelGfxs[_selectedLevel].SetActive(false);
+        if (_selectedLevel)
+        {
+            if (_selectedLevel == level)
+            {
+                return;    
+            }
+            else
+            {
+                ShowLevelInfo(_selectedLevel);
+                return;
+            }
+            
+        }
+        
+        _levelGfxs[_showLevelInfo].SetActive(false);
         levelNameText.text = "";
         levelDescriptionText.text = "";
     }
     
+    
+    private void SelectLevel(SOLevel level, Button button)
+    {
+        if (!level) return;
+        
+        if (level == _selectedLevel)
+        {
+            DeselectLevel();
+            return;
+        }
+        
+        DeselectLevel();
+        _selectedLevel = level;
+        _selectedLevelButton = button;
+        _selectedLevelButton.image.color = Color.blue;
+        
+        OnLevelSelected?.Invoke();
+        
+        
+        switch (mainMenuController.LaunchMissionMode)
+        {
+            case LaunchMissionMode.None:
+                LoadSelectedLevel();
+                break;
+            case LaunchMissionMode.Manual:
+                break;
+            case LaunchMissionMode.Auto:
+                FinishedInteraction();
+                launchLever.Launch();
+                break;
+            
+        }
+
+
+    }
+    
+    private void DeselectLevel()
+    {
+        if (!_selectedLevel) return;
+        
+        _selectedLevel = null;
+        _selectedLevelButton.image.color = Color.white;
+        _selectedLevelButton = null;
+        OnLevelDeselected?.Invoke();
+    }
     
 
     private void ToggleLevelCanvas(bool state)
@@ -136,4 +206,12 @@ public class MenuElementLevelSelection : MenuElement
         levelsInfoCanvasGroup.interactable = state;
         levelsInfoCanvasGroup.blocksRaycasts = state;
     }
+    
+    private void LoadSelectedLevel()
+    {
+        if (!_selectedLevel) return;
+
+        _selectedLevel.LoadLevel();
+    }
+
 }
