@@ -13,6 +13,7 @@ public class UIManager : MonoBehaviour
 {
     [Foldout("Effects")]
     [Header("General")]
+    [SerializeField] private float hudFadeDuration = 1f;
     [SerializeField] private Color cooldownIconColor = Color.grey;
     
     [Header("Health")]
@@ -58,6 +59,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Sprite heartIcon;
     
     [Header("Child References")] 
+    [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
     [SerializeField] private Transform playerHealthHolder;
     [SerializeField] private Image playerShieldIcon;
     [SerializeField] private Image playerWeaponIcon;
@@ -78,6 +80,7 @@ public class UIManager : MonoBehaviour
     private Color _secondaryWeaponStartColor;
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
+    private Sequence _hudSequence;
     private Sequence _heatBarSequence;
     private Sequence _scoreSequence;
     private Sequence _playerCurrencySequence;
@@ -85,12 +88,27 @@ public class UIManager : MonoBehaviour
     private int _score;
     private int _previousPlayerCurrency;
     private int _playerCurrency;
-    
+
+
+    private void OnValidate()
+    {
+        if (!levelManager)
+        {
+            levelManager = FindFirstObjectByType<LevelManager>();
+        }
+        
+        
+        if (!player)
+        {
+            player = FindFirstObjectByType<RailPlayer>();
+        }
+    }
 
     private void Awake()
     {
         PrimeTweenConfig.warnEndValueEqualsCurrent = false;
         SetUpUI();
+        ToggleHUD(false);
     }
 
     private void OnEnable()
@@ -113,6 +131,7 @@ public class UIManager : MonoBehaviour
         if (levelManager)
         {
             levelManager.OnScoreChanged += OnScoreChanged;
+            levelManager.OnStageChanged += OnStageChanged;
         }
     }
 
@@ -136,14 +155,22 @@ public class UIManager : MonoBehaviour
         if (levelManager)
         {
             levelManager.OnScoreChanged -= OnScoreChanged;
+            levelManager.OnStageChanged -= OnStageChanged;
         }
     }
+
+
 
     private void Update()
     {
         scoreText.text = _score.ToString($"D{scoreDigits}"); // Shows right now up to a million
         playerCurrencyText.text = _playerCurrency.ToString();
     }
+
+
+
+
+    #region SetUp -----------------------------------------------------------------------------------
 
     private void SetUpUI()
     {
@@ -192,6 +219,60 @@ public class UIManager : MonoBehaviour
             OnScoreChanged(0);
         }
     }
+
+    #endregion SetUp -----------------------------------------------------------------------------------
+
+
+    #region HUD --------------------------------------------------------------------------------
+
+    private void OnStageChanged(SOLevelStage stage)
+    {
+        switch (stage.StageType)
+        {
+            case StageType.Intro:
+                FadeHUD(false);
+                break;
+            case StageType.Outro:
+                FadeHUD(false);
+                break;
+            case StageType.Checkpoint:
+                FadeHUD(true);
+                break;
+            case StageType.EnemyWave:
+                FadeHUD(true);
+                break;
+        }
+    }
+    
+    private void FadeHUD(bool fadeIn)
+    {
+        
+        switch (fadeIn)
+        {
+            case true when Mathf.Approximately(hudGroup.alpha, 1):
+            case false when Mathf.Approximately(hudGroup.alpha, 0):
+                return;
+        }
+
+        float startValue = fadeIn ? 0 : 1;
+        float endValue = fadeIn ? 1 : 0;
+        
+        
+        if (_hudSequence.isAlive) _hudSequence.Stop();
+        _hudSequence = Sequence.Create()
+                
+                .Group(Tween.Alpha(hudGroup, startValue, endValue, hudFadeDuration))
+            ;
+    
+    }
+
+    private void ToggleHUD(bool state)
+    {
+        hudGroup.alpha = state ? 1f : 0;
+    }
+
+    #endregion HUD --------------------------------------------------------------------------------
+    
 
     #region Player UI ----------------------------------------------------------------------------------
 
@@ -341,6 +422,7 @@ public class UIManager : MonoBehaviour
 
     #endregion Player UI ----------------------------------------------------------------------------------
 
+    
     #region Level UI ----------------------------------------------------------------------------------
 
     private void OnScoreChanged(int newScore)

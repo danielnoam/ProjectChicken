@@ -21,8 +21,14 @@ public class EnemyWaveManager : MonoBehaviour
     public event Action<int> OnEnemyDeath;
 
 
+    private void OnValidate()
+    {
+        if (!levelManager)
+        {
+            levelManager = FindFirstObjectByType<LevelManager>();
+        }
+    }
 
-    
     private void Awake()
     {
         if (!Instance || Instance == this)

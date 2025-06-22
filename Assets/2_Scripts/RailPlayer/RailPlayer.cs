@@ -81,9 +81,17 @@ public class RailPlayer : MonoBehaviour
     public event Action<float> OnDodgeCooldownUpdated;
 
 
-    
-    
-    private void OnValidate() { this.ValidateRefs(); }
+
+
+    private void OnValidate()
+    {
+        this.ValidateRefs();
+        
+        if (!levelManager)
+        {
+            levelManager = FindFirstObjectByType<LevelManager>();
+        }
+    }
 
     private void Awake()
     {

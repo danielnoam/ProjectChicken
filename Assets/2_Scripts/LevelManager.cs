@@ -31,8 +31,8 @@ public class LevelManager : MonoBehaviour
     [Header("References")]
     [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private Transform currentPositionOnPath;
-    [SerializeField, Scene(Flag.Editable)] private EnemyWaveManager enemyWaveManager;
-    [SerializeField, Scene(Flag.Editable)] private RailPlayer player;
+    [SerializeField] private EnemyWaveManager enemyWaveManager;
+    [SerializeField] private RailPlayer player;
 
 
 
@@ -60,7 +60,17 @@ public class LevelManager : MonoBehaviour
 
     private void OnValidate()
     {
-        this.ValidateRefs();
+
+        if (!player)
+        {
+            player = FindFirstObjectByType<RailPlayer>();
+        }
+
+        if (!enemyWaveManager)
+        {
+            enemyWaveManager = FindFirstObjectByType<EnemyWaveManager>();
+        }
+        
         
         
         if (Application.isPlaying) return;
