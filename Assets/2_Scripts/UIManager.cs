@@ -11,6 +11,9 @@ using VInspector;
 
 public class UIManager : MonoBehaviour
 {
+    public static UIManager Instance { get; private set; }
+    
+    
     [Foldout("Effects")]
     [Header("General")]
     [SerializeField] private float hudFadeDuration = 1f;
@@ -106,10 +109,21 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
+        if (!Instance || Instance == this)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+        
         PrimeTweenConfig.warnEndValueEqualsCurrent = false;
         SetUpUI();
         ToggleHUD(false);
     }
+    
 
     private void OnEnable()
     {
