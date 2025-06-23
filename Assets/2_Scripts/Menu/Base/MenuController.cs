@@ -7,17 +7,18 @@ using UnityEngine.InputSystem;
 
 
 [RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(MenuInput))]
 public class MenuController : MonoBehaviour
 {
 
     [Header("Menu Settings")]
-
     [SerializeField] private MenuElement[] menuElements;
     
     
     [Header("References")]
     [SerializeField] private Transform defaultCameraLookAtPoint;
-    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
+    [SerializeField, Self] private AudioSource audioSource;
+    [SerializeField, Self] private MenuInput menuInput;
     
     
     private bool _isInteracting;
@@ -31,14 +32,40 @@ public class MenuController : MonoBehaviour
     public Action<MenuElement> OnElementInteracted;
     public Action<MenuElement> OnElementFinishedInteraction;
 
-
-
-
-    private void Update()
+    private void OnValidate()
     {
-
-        HandleInput();
+        this.ValidateRefs();
     }
+
+    private void OnEnable()
+    {
+        menuInput.OnNavigateAction += OnNavigate;
+        menuInput.OnSubmitAction += OnSubmit;
+        menuInput.OnCancelAction += OnCancel;
+    }
+
+    private void OnDisable()
+    {
+        menuInput.OnNavigateAction -= OnNavigate;
+        menuInput.OnSubmitAction -= OnSubmit;
+        menuInput.OnCancelAction -= OnCancel;
+    }
+
+    
+        
+    #region Menu SetUp ------------------------------------------------------------------------------------------------------------
+    
+    [ContextMenu("Find All Menu Elements")]
+    private void FindAllMenuElements()
+    {
+        if (menuElements.Length > 0)
+        {
+            menuElements = Array.Empty<MenuElement>();
+        }
+        menuElements = GetComponentsInChildren<MenuElement>();
+    }
+
+    #endregion Menu SetUp ------------------------------------------------------------------------------------------------------------
     
 
     #region Element Selection ----------------------------------------------------------------------------------------------------
@@ -188,34 +215,43 @@ public class MenuController : MonoBehaviour
         SelectMenuElement(Array.IndexOf(menuElements, element));
     }
     
-    private void HandleInput()
+    private void OnNavigate(InputAction.CallbackContext context)
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            SelectPreviousMenuElement();
-
-        } 
+        if (!context.performed) return;
         
-        if (Input.GetKeyDown(KeyCode.Q))
+        
+        if (context.ReadValue<Vector2>().y > 0 || context.ReadValue<Vector2>().x < 0)
         {
             SelectNextMenuElement();
         }
-        
-
-        if (Input.GetKeyDown(KeyCode.Space))
+        else if (context.ReadValue<Vector2>().y < 0 || context.ReadValue<Vector2>().x > 0)
         {
-            if (_currentMenuElement)
-            {
-                InteractWithElement(_currentMenuElement);
-            }
-            else
-            {
-                SelectMenuElement(0);
-            }
-
+            SelectPreviousMenuElement();
         }
+
+    }
+    
+    private void OnSubmit(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
         
-        if (Input.GetKeyDown(KeyCode.Escape) && _currentMenuElement)
+        
+        if (_currentMenuElement)
+        {
+            InteractWithElement(_currentMenuElement);
+        }
+        else
+        {
+            SelectMenuElement(0);
+        }
+    }
+    
+    private void OnCancel(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+
+
+        if (_currentMenuElement)
         {
             if (!_isInteracting)
             {
@@ -226,25 +262,13 @@ public class MenuController : MonoBehaviour
                 StopInteraction(_currentMenuElement);
             }
         }
+
     }
+
+    
 
 
     #endregion Input -------------------------------------------------------------------------------------------------------------------
-    
-    
-    #region Menu SetUp ------------------------------------------------------------------------------------------------------------
-    
-    [ContextMenu("Find All Menu Elements")]
-    private void FindAllMenuElements()
-    {
-        if (menuElements.Length > 0)
-        {
-            menuElements = Array.Empty<MenuElement>();
-        }
-        menuElements = GetComponentsInChildren<MenuElement>();
-    }
-
-    #endregion Menu SetUp ------------------------------------------------------------------------------------------------------------
     
 
 }

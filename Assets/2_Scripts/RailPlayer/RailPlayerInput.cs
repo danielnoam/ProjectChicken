@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using VInspector;
 
-[RequireComponent(typeof(PlayerInput))]
-public class RailPlayerInput : MonoBehaviour
+
+public class RailPlayerInput : InputReaderBase
 {
-    [Header("Input Settings")] 
+    [Header("Cursor Settings")] 
     [SerializeField] private bool autoHideCursor = true;
     
     [Header("Aim Settings")]
@@ -19,13 +19,9 @@ public class RailPlayerInput : MonoBehaviour
     [SerializeField] private bool doubleTapToDodge = true;
     [SerializeField, ShowIf("doubleTapToDodge")] private float doubleTapTime = 0.3f;[EndIf]
     
-    [Header("References")]
-    [SerializeField, Self] private PlayerInput playerInput;
-
     
     
     private InputActionMap _playerActionMap;
-    private InputActionMap _uiActionMap;
     private InputAction _moveAction;
     private InputAction _lookAction;
     private InputAction _attackAction;
@@ -50,17 +46,16 @@ public class RailPlayerInput : MonoBehaviour
     
     
     
-    private void OnValidate() { this.ValidateRefs(); }
+
 
     private void Awake()
     {
         
         _playerActionMap = playerInput.actions.FindActionMap("Player");
-        _uiActionMap = playerInput.actions.FindActionMap("UI");
         
-        if (_playerActionMap == null || _uiActionMap == null)
+        if (_playerActionMap == null)
         {
-            Debug.LogError("Player or UI Action Map not found. Please check the action maps in the Player Input component.");
+            Debug.LogError("Player Map not found. Please check the action maps in the Player Input component.");
             return;
         }
         
@@ -197,28 +192,6 @@ public class RailPlayerInput : MonoBehaviour
 
     #endregion Cursor --------------------------------------------------------------------------------------
 
-
-    #region Helpers --------------------------------------------------------------------------------------
-
-    private void SubscribeToAction(InputAction action, Action<InputAction.CallbackContext> callback)
-    {
-        if (action == null) return;
-        
-        action.performed += callback;
-        action.started += callback;
-        action.canceled += callback;
-    }
     
-    private void UnsubscribeFromAction(InputAction action, Action<InputAction.CallbackContext> callback)
-    {
-        if (action == null) return;
-        
-        action.performed -= callback;
-        action.started -= callback;
-        action.canceled -= callback;
-    }
-    
-
-    #endregion Helpers --------------------------------------------------------------------------------------
 
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPEffects.Components;
 using TMPro;
 using UnityEngine;
@@ -10,8 +9,7 @@ using UnityEngine.UI;
 
 public class MenuElementLevelSelection : MenuElement
 {
-
-
+    
     [Header("Level Selection")]
     [SerializeField] private LaunchMissionMode launchMissionMode;
     [SerializeField] private SOLevel[] levels;
@@ -32,7 +30,6 @@ public class MenuElementLevelSelection : MenuElement
     private readonly List<LevelUIData> _levelUIData = new List<LevelUIData>();
     private Coroutine _writerDelayRoutine;
     private LevelUIData _currentlyShownLevel;
-    private LevelUIData _previouslyShownLevel;
     private LevelUIData _selectedLevel;
 
     
@@ -142,24 +139,16 @@ public class MenuElementLevelSelection : MenuElement
         }
     }
     
+
+    #region Level Info ---------------------------------------------------------------------------------
+
+    
     private void ShowLevelInfo(LevelUIData levelUI)
     {
-        if (!levelUI?.soLevel) return;
+        if (!levelUI?.soLevel || _currentlyShownLevel == levelUI) return;
         
-        // Hide previously shown level
-        if (_currentlyShownLevel != null && _currentlyShownLevel != levelUI)
-        {
-            _previouslyShownLevel = _currentlyShownLevel;
-            if (_previouslyShownLevel.levelGfx)
-            {
-                _previouslyShownLevel.levelGfx.SetActive(false);
-            }
-        }
-
-        // Set the current level
         _currentlyShownLevel = levelUI;
-        
-        // Update UI text
+
         levelNameText.text = levelUI.soLevel.LevelName;
         levelDescriptionText.text = levelUI.soLevel.LevelDescription;
         switch (levelUI.soLevel.LevelDifficulty)
@@ -189,41 +178,84 @@ public class MenuElementLevelSelection : MenuElement
         }
         _writerDelayRoutine = StartCoroutine(StartWritersWithDelay());
 
-        // Show the level graphics
-        if (levelUI.levelGfx)
-        {
-            levelUI.levelGfx.SetActive(true);
-        }
+
+        SetActiveLevelGraphics(levelUI);
     }
-    
+
     private void HideLevelInfo(LevelUIData levelUI)
     {
         if (!levelUI?.soLevel) return;
 
-        // Don't hide if this is the selected level
-        if (_selectedLevel != null && _selectedLevel == levelUI)
+        if (_selectedLevel != null)
         {
-            return;
+            if (_selectedLevel == levelUI)
+            {
+                // Don't hide if this is the selected level
+                return;
+            }
+            else
+            {
+                // If we have a selected level, show that instead
+                _currentlyShownLevel = null;
+                ShowLevelInfo(_selectedLevel);
+                return;
+            }
         }
         
-        // If we have a selected level, show that instead
-        if (_selectedLevel != null && _selectedLevel != levelUI)
-        {
-            ShowLevelInfo(_selectedLevel);
-            return;
-        }
-        
-        // Hide the graphics and clear text
-        if (_currentlyShownLevel?.levelGfx)
-        {
-            _currentlyShownLevel.levelGfx.SetActive(false);
-        }
-        
+        _currentlyShownLevel = null;
+        SetActiveLevelGraphics(null);
         levelNameText.text = "";
         levelDescriptionText.text = "";
         levelDifficultyText.text = "";
     }
+
+
+    private void SetActiveLevelGraphics(LevelUIData activeLevel)
+    {
+        // First, hide all level graphics
+        foreach (var levelData in _levelUIData)
+        {
+            if (levelData.levelGfx)
+            {
+                levelData.levelGfx.SetActive(false);
+            }
+        }
+        
+        // Then show only the active one
+        if (activeLevel?.levelGfx)
+        {
+            activeLevel.levelGfx.SetActive(true);
+        }
+    }
     
+    
+    private void ToggleLevelCanvas(bool state)
+    {
+        if (!levelsSelectionCanvas) return;
+        
+        levelsSelectionCanvas.alpha = state ? 1 : 0;
+        levelsSelectionCanvas.interactable = state;
+        levelsSelectionCanvas.blocksRaycasts = state;
+    }
+    
+    private IEnumerator StartWritersWithDelay()
+    {
+        levelDifficultyWriter.ResetWriter();
+        levelDescriptionWriter.ResetWriter();
+        levelNameWriter.RestartWriter();
+    
+        yield return new WaitForSeconds(0.2f);
+        levelDifficultyWriter.RestartWriter();
+    
+        yield return new WaitForSeconds(0.2f);
+        levelDescriptionWriter.RestartWriter();
+    }
+
+    #endregion Level Info ---------------------------------------------------------------------------------
+
+
+    #region Level Selection ---------------------------------------------------------------------------------
+
     private void SelectLevel(LevelUIData levelUI)
     {
         if (!levelUI?.soLevel) return;
@@ -255,6 +287,9 @@ public class MenuElementLevelSelection : MenuElement
                 break;
             case LaunchMissionMode.Manual:
                 break;
+            case LaunchMissionMode.ManualAutoExit:
+                FinishedInteraction();
+                break;
             case LaunchMissionMode.Auto:
                 FinishedInteraction();
                 launchLever?.Launch();
@@ -262,6 +297,7 @@ public class MenuElementLevelSelection : MenuElement
         }
     }
     
+
     private void DeselectLevel()
     {
         if (_selectedLevel == null) return;
@@ -275,28 +311,9 @@ public class MenuElementLevelSelection : MenuElement
         _selectedLevel = null;
         OnLevelDeselected?.Invoke();
     }
-
-    private void ToggleLevelCanvas(bool state)
-    {
-        if (!levelsSelectionCanvas) return;
-        
-        levelsSelectionCanvas.alpha = state ? 1 : 0;
-        levelsSelectionCanvas.interactable = state;
-        levelsSelectionCanvas.blocksRaycasts = state;
-    }
     
-    private IEnumerator StartWritersWithDelay()
-    {
-        levelDifficultyWriter.ResetWriter();
-        levelDescriptionWriter.ResetWriter();
-        levelNameWriter.RestartWriter();
     
-        yield return new WaitForSeconds(0.2f);
-        levelDifficultyWriter.RestartWriter();
-    
-        yield return new WaitForSeconds(0.2f);
-        levelDescriptionWriter.RestartWriter();
-    }
+    #endregion Level Selection ---------------------------------------------------------------------------------
 
 
 }

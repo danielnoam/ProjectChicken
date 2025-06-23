@@ -2,5 +2,6 @@
 {
     None,
     Auto,
-    Manual
+    Manual,
+    ManualAutoExit
 }
