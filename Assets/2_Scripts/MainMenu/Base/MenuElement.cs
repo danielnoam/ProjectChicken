@@ -9,20 +9,26 @@ public abstract class MenuElement : MonoBehaviour
 {
     
     [Header("Element Settings")]
+    [SerializeField] private bool canSelect = true;
     [SerializeField] private string labelText;
     [SerializeField, Range(0, 1)] private float labelAlphaWhenDeselected = 0.25f;
     [SerializeField] private Color labelColorWhenSelected = Color.white;
-    [SerializeField] private Transform cameraLookAtPoint;
     [SerializeField] private TextMeshProUGUI label;
     [SerializeField] protected CanvasGroup labelCanvasGroup;
-    [SerializeField, Child(Flag.Optional)] private CinemachineCamera interactionCamera;
-    [SerializeField, Parent] protected MainMenuController mainMenuController;
-    [SerializeField, Parent] protected AudioSource audioSource;
     
+    [Header("Camera Settings")]
+    [SerializeField] private Vector3 targetOffset;
+    [SerializeField, Child(Flag.Optional) ] private CinemachineCamera interactionCamera;
+    
+    
+    [SerializeField, Parent, HideInInspector] protected MenuController menuController;
+    [SerializeField, Parent, HideInInspector] protected AudioSource audioSource;
 
     private Color _startLabelColor;
-    public Transform CameraLookAtPoint => cameraLookAtPoint ? cameraLookAtPoint : transform;
+    public bool CanSelect => canSelect;
+    public Transform CameraLookAtPoint => transform;
     public CinemachineCamera InteractionCamera => interactionCamera;
+    public Vector2 TargetOffset => targetOffset;
 
     private void OnValidate()
     {
@@ -44,10 +50,38 @@ public abstract class MenuElement : MonoBehaviour
         ToggleLabel(false);
     }
     
-    protected void ToggleLabel(bool state)
+    private void ToggleLabel(bool state)
     {
-        if (labelCanvasGroup) labelCanvasGroup.alpha = state ? 1 : labelAlphaWhenDeselected;
-        if (label) label.color = state ? labelColorWhenSelected : _startLabelColor;
+        if (labelCanvasGroup) 
+        {
+            if (!canSelect)
+            {
+                labelCanvasGroup.alpha = 0;
+            }
+            else
+            {
+                labelCanvasGroup.alpha = state ? 1 : labelAlphaWhenDeselected;
+            }
+
+        }
+    
+        if (label)
+        {
+            if (!canSelect)
+            {
+                label.color = _startLabelColor;
+            }
+            else
+            {
+                label.color = state ? labelColorWhenSelected : _startLabelColor;
+            }
+        }
+    }
+    
+    protected void ToggleCanSelect(bool state, bool labelState)
+    {
+        canSelect = state;
+        ToggleLabel(labelState);
     }
     
     public void Deselect()
@@ -58,12 +92,16 @@ public abstract class MenuElement : MonoBehaviour
 
     public void Select()
     {
+        if (!canSelect) return;
+        
         ToggleLabel(true);
         OnSelected();
     }
 
     public void Interact()
     {
+        if (!canSelect) return;
+        
         OnInteract();
     }
     
@@ -71,20 +109,21 @@ public abstract class MenuElement : MonoBehaviour
     {
         OnStopInteraction();
     }
+    
 
     public void OnMouseEnter()
     {
-        mainMenuController?.MouseEnteredElement(this);
+        menuController?.MouseEnteredElement(this);
     }
     
     public void OnMouseDown()
     {
-        mainMenuController?.MousePressedElement(this);
+        menuController?.MousePressedElement(this);
     }
 
     protected void FinishedInteraction()
     {
-        mainMenuController?.InteractionFinished(this);
+        menuController?.InteractionFinished(this);
         OnFinishedInteraction();
     }
     

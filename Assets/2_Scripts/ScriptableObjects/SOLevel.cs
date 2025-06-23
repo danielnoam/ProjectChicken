@@ -8,6 +8,7 @@ public class SOLevel : ScriptableObject
 {
     [Header("Level Settings")]
     [SerializeField] private string levelName;
+    [SerializeField] private LevelDifficulty levelDifficulty;
     [SerializeField, Multiline(3)] private string levelDescription;
     [SerializeField] private GameObject levelGfxPrefab;
     [SerializeField] private SceneField levelScene;
@@ -15,6 +16,7 @@ public class SOLevel : ScriptableObject
 
     public string LevelName => levelName;
     public string LevelDescription => levelDescription;
+    public LevelDifficulty LevelDifficulty => levelDifficulty;
 
     
     

@@ -20,7 +20,6 @@ public class MenuElementLaunchLever : MenuElement
     
     private Sequence _leverPressSequence;
     private Vector3 _leverStartRot;
-    private Collider _collider;
     
 
     protected override void OnSelected()
@@ -39,9 +38,7 @@ public class MenuElementLaunchLever : MenuElement
 
         levelSelection.OnLevelSelected += OnLevelSelected;
         levelSelection.OnLevelDeselected += OnLevelDeselected;
-        _collider = GetComponent<SphereCollider>();
-        _collider.enabled = false;
-        labelCanvasGroup.alpha = 0f;
+        ToggleCanSelect(false, false);
     }
 
     protected override void OnInteract()
@@ -73,21 +70,19 @@ public class MenuElementLaunchLever : MenuElement
     
     private void OnLevelSelected()
     {
-        _collider.enabled = true;
-        ToggleLabel(false);
+        ToggleCanSelect(true, false);
     }
     
     private void OnLevelDeselected()
     {
-        _collider.enabled = false;
-        labelCanvasGroup.alpha = 0f;
+        ToggleCanSelect(false, false);
     }
 
     public void Launch()
     {
         if (_leverPressSequence.isAlive) _leverPressSequence.Stop();
 
-        float delayBeforeAnimation = mainMenuController.LaunchMissionMode == LaunchMissionMode.Auto ? 1.5f : 0f;
+        float delayBeforeAnimation = menuController.LaunchMissionMode == LaunchMissionMode.Auto ? 1.5f : 0f;
         
         _leverPressSequence = Sequence.Create()
                 .Group(Tween.LocalRotation(leverPivotTransform,startDelay: delayBeforeAnimation, startValue: _leverStartRot,endValue: leverPressedRotation, duration: animationDuration, ease: animationEase))

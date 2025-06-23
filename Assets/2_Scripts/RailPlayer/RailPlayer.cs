@@ -263,12 +263,8 @@ public class RailPlayer : MonoBehaviour
 
     private void StartShieldRegen()
     {
-        
-        if (_regenShieldCoroutine == null)
-        {
-            _regenShieldCoroutine = StartCoroutine(RegenShieldRoutine());
-        }
-        
+        _regenShieldCoroutine ??= StartCoroutine(RegenShieldRoutine());
+
         _damagedCooldown = 0;
     }
     
