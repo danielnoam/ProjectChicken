@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPEffects.Components;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,26 +10,34 @@ using UnityEngine.UI;
 
 public class MenuElementLevelSelection : MenuElement
 {
+
+
     [Header("Level Selection")]
+    [SerializeField] private LaunchMissionMode launchMissionMode;
     [SerializeField] private SOLevel[] levels;
     
     [Header("References")]
     [SerializeField] private MenuElementLaunchLever launchLever;
-    [SerializeField] private CanvasGroup levelsInfoCanvasGroup;
+    [SerializeField] private CanvasGroup levelsSelectionCanvas;
     [SerializeField] private Transform levelGfxParent;
     [SerializeField] private Transform levelButtonParent;
     [SerializeField] private TextMeshProUGUI levelNameText;
     [SerializeField] private TextMeshProUGUI levelDifficultyText;
     [SerializeField] private TextMeshProUGUI levelDescriptionText;
+    [SerializeField] private TMPWriter levelNameWriter;
+    [SerializeField] private TMPWriter levelDifficultyWriter;
+    [SerializeField] private TMPWriter levelDescriptionWriter;
     [SerializeField] private Button levelButtonPrefab;
-    
 
     private readonly List<LevelUIData> _levelUIData = new List<LevelUIData>();
+    private Coroutine _writerDelayRoutine;
     private LevelUIData _currentlyShownLevel;
     private LevelUIData _previouslyShownLevel;
     private LevelUIData _selectedLevel;
+
     
     public SOLevel SelectedLevel => _selectedLevel?.soLevel;
+    public LaunchMissionMode LaunchMissionMode => launchMissionMode;
     public event Action OnLevelSelected;
     public event Action OnLevelDeselected;
     
@@ -88,17 +98,27 @@ public class MenuElementLevelSelection : MenuElement
             }
         }
         
+        levelNameText.text = "";
+        levelDescriptionText.text = "";
+        levelDifficultyText.text = "";
         ToggleLevelCanvas(false);
     }
     
     protected override void OnInteract()
     {
         ToggleLevelCanvas(true);
-
-        // var levelToShow = _selectedLevel ?? _levelUIData.FirstOrDefault();
+        
         if (_selectedLevel != null)
         {
             ShowLevelInfo(_selectedLevel);
+        }
+        else
+        {
+            if (_writerDelayRoutine != null)
+            {
+                StopCoroutine(_writerDelayRoutine);
+            }
+            _writerDelayRoutine = StartCoroutine(StartWritersWithDelay());
         }
     }
     
@@ -151,17 +171,23 @@ public class MenuElementLevelSelection : MenuElement
                 levelDifficultyText.text = "Tutorial";
                 break;
             case LevelDifficulty.Easy:
-                levelDifficultyText.text = "*";
+                levelDifficultyText.text = "Easy";
                 break;
             case LevelDifficulty.Medium:
-                levelDifficultyText.text = "**";
+                levelDifficultyText.text = "Medium";
                 break;
             case LevelDifficulty.Hard:
-                levelDifficultyText.text = "***";
+                levelDifficultyText.text = "Hard";
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
+        
+        if (_writerDelayRoutine != null)
+        {
+            StopCoroutine(_writerDelayRoutine);
+        }
+        _writerDelayRoutine = StartCoroutine(StartWritersWithDelay());
 
         // Show the level graphics
         if (levelUI.levelGfx)
@@ -222,16 +248,16 @@ public class MenuElementLevelSelection : MenuElement
         OnLevelSelected?.Invoke();
         
         // Handle launch mode
-        switch (menuController.LaunchMissionMode)
+        switch (launchMissionMode)
         {
             case LaunchMissionMode.None:
-                _selectedLevel.soLevel?.LoadLevel();
+                _selectedLevel?.soLevel?.LoadLevel();
                 break;
             case LaunchMissionMode.Manual:
                 break;
             case LaunchMissionMode.Auto:
                 FinishedInteraction();
-                launchLever.Launch();
+                launchLever?.Launch();
                 break;
         }
     }
@@ -252,11 +278,25 @@ public class MenuElementLevelSelection : MenuElement
 
     private void ToggleLevelCanvas(bool state)
     {
-        if (!levelsInfoCanvasGroup) return;
+        if (!levelsSelectionCanvas) return;
         
-        levelsInfoCanvasGroup.alpha = state ? 1 : 0;
-        levelsInfoCanvasGroup.interactable = state;
-        levelsInfoCanvasGroup.blocksRaycasts = state;
+        levelsSelectionCanvas.alpha = state ? 1 : 0;
+        levelsSelectionCanvas.interactable = state;
+        levelsSelectionCanvas.blocksRaycasts = state;
     }
     
+    private IEnumerator StartWritersWithDelay()
+    {
+        levelDifficultyWriter.ResetWriter();
+        levelDescriptionWriter.ResetWriter();
+        levelNameWriter.RestartWriter();
+    
+        yield return new WaitForSeconds(0.2f);
+        levelDifficultyWriter.RestartWriter();
+    
+        yield return new WaitForSeconds(0.2f);
+        levelDescriptionWriter.RestartWriter();
+    }
+
+
 }

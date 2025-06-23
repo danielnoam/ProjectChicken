@@ -11,13 +11,13 @@ public class MenuController : MonoBehaviour
 {
 
     [Header("Menu Settings")]
-    [SerializeField] private LaunchMissionMode launchMissionMode;
+
     [SerializeField] private MenuElement[] menuElements;
     
     
     [Header("References")]
     [SerializeField] private Transform defaultCameraLookAtPoint;
-    [SerializeField, Self] private AudioSource audioSource;
+    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     
     
     private bool _isInteracting;
@@ -26,7 +26,6 @@ public class MenuController : MonoBehaviour
     private MenuElement _currentMenuElement;
     
     public Transform DefaultCameraLookAtPoint => defaultCameraLookAtPoint ? defaultCameraLookAtPoint : transform;
-    public LaunchMissionMode LaunchMissionMode => launchMissionMode;
     public Action<MenuElement> OnElementSelected;
     public Action<MenuElement> OnElementDeselected;
     public Action<MenuElement> OnElementInteracted;
