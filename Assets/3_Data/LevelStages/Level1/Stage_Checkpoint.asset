@@ -10,28 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_EnemyWave5
+  m_Name: Stage_Checkpoint
   m_EditorClassIdentifier: 
-  stageType: 1
-  stageDuration: 15
+  stageType: 0
+  stageDuration: 3
   enemyPositionOffset: 0
   delayBeforeNextStage: 1
   waveScore: 1000
   enemyWave:
-    serializedKvps:
-    - Key: {fileID: 745806696497487914, guid: 6c00b75d8a669d04395aeb4d7c57f138, type: 3}
-      Value: 10
-      index: 0
-      isKeyRepeated: 0
-      isKeyNull: 0
-    - Key: {fileID: 745806696497487914, guid: be5fc6bbe7807ab04a3f8869e0b6ad02, type: 3}
-      Value: 5
-      index: 1
-      isKeyRepeated: 0
-      isKeyNull: 0
+    serializedKvps: []
     dividerPos: 0.33
   formationSettings:
-    formationType: 4
+    formationType: 0
     formationPosition: 0
     formationCount: 1
     vShapeCount: 10
@@ -40,7 +30,7 @@ MonoBehaviour:
     circleCount: 12
     gridSize: {x: 5, y: 3}
     gridFillsBoundary: 1
-  pathFollowSpeed: 5
+  pathFollowSpeed: 14
   upAxis: 1
   forwardAxis: 2
   alignmentMode: 1
@@ -48,4 +38,4 @@ MonoBehaviour:
   allowPlayerAim: 1
   allowPlayerShooting: 1
   playerPositionOffset: 0
-  showPlayerKeybinds: 0
+  showPlayerKeybinds: 1

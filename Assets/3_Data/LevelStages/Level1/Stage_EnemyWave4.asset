@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_EnemyWave2
+  m_Name: Stage_EnemyWave4
   m_EditorClassIdentifier: 
   stageType: 1
   stageDuration: 15
@@ -24,20 +24,15 @@ MonoBehaviour:
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
-    - Key: {fileID: 745806696497487914, guid: be5fc6bbe7807ab04a3f8869e0b6ad02, type: 3}
-      Value: 5
-      index: 1
-      isKeyRepeated: 0
-      isKeyNull: 0
     dividerPos: 0.33
   formationSettings:
-    formationType: 1
+    formationType: 3
     formationPosition: 0
-    formationCount: 1
-    vShapeCount: 10
-    squareSize: 4
+    formationCount: 2
+    vShapeCount: 7
+    squareSize: 5
     triangleRows: 4
-    circleCount: 12
+    circleCount: 8
     gridSize: {x: 5, y: 3}
     gridFillsBoundary: 1
   pathFollowSpeed: 5
@@ -48,4 +43,4 @@ MonoBehaviour:
   allowPlayerAim: 1
   allowPlayerShooting: 1
   playerPositionOffset: 0
-  showPlayerKeybinds: 0
+  showPlayerKeybinds: 1

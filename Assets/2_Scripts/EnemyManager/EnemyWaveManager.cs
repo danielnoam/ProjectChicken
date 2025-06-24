@@ -1,22 +1,23 @@
 using System;
 using KBCore.Refs;
 using UnityEngine;
-
-
-
+using VInspector;
 
 
 public class EnemyWaveManager : MonoBehaviour
 {
     public static EnemyWaveManager Instance { get; private set; }
     
+    [Header("Debug")]
+    [SerializeField,ReadOnly] private int enemyCount;
+    [SerializeField,ReadOnly] private SOLevelStage currentStage;
+    
     [Header("References")]
-    [SerializeField] private LevelManager levelManager;
     [SerializeField] private Transform enemyHolder;
+    [SerializeField] private LevelManager levelManager;
 
 
-    private SOLevelStage _currentStage;
-    private int _enemyCount;
+
     public event Action<int> OnEnemyWaveCleared;
     public event Action<int> OnEnemyDeath;
 
@@ -55,7 +56,6 @@ public class EnemyWaveManager : MonoBehaviour
         {
             if (child.TryGetComponent<ChickenController>(out var enemy))
             {
-                enemy.OnDeath -= OnEnemyDeath;
                 enemy.OnDeath -= UpdateEnemyCount;
             }
         }
@@ -71,7 +71,7 @@ public class EnemyWaveManager : MonoBehaviour
     {
         if (!stage) return;
 
-        _currentStage = stage;
+        currentStage = stage;
         
         if (stage.StageType == StageType.EnemyWave)
         {
@@ -88,13 +88,14 @@ public class EnemyWaveManager : MonoBehaviour
     
     private void UpdateEnemyCount(int enemyScore)
     {
-        if (_currentStage && _currentStage.IsTimeBasedStage) return;
+        if (currentStage && currentStage.IsTimeBasedStage) return;
         
-        _enemyCount--;
+        enemyCount--;
+        OnEnemyDeath?.Invoke(enemyScore);
         
-        if (_enemyCount <= 0)
+        if (enemyCount <= 0)
         {
-            OnEnemyWaveCleared?.Invoke(_currentStage.WaveScore);
+            OnEnemyWaveCleared?.Invoke(currentStage.WaveScore);
         }
     }
     
@@ -128,7 +129,7 @@ public class EnemyWaveManager : MonoBehaviour
             }
         }
         
-        _enemyCount = totalEnemiesSpawned;
+        enemyCount = totalEnemiesSpawned;
     }
     
     
@@ -140,7 +141,6 @@ public class EnemyWaveManager : MonoBehaviour
         var enemyInstance = Instantiate(enemyPrefab, enemyHolder);
         enemyInstance.transform.localPosition = Vector3.zero;
         enemyInstance.transform.localRotation = Quaternion.identity;
-        enemyInstance.OnDeath += OnEnemyDeath;
         enemyInstance.OnDeath += UpdateEnemyCount;
     }
     
@@ -154,7 +154,7 @@ public class EnemyWaveManager : MonoBehaviour
             }
         }
         
-        _enemyCount = 0;
+        enemyCount = 0;
     }
 
     #endregion Enemy Spawning --------------------------------------------------------------------------------------

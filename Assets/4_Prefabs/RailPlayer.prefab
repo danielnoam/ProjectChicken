@@ -15,7 +15,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8445288471549559756
 Transform:
   m_ObjectHideFlags: 0
@@ -47,7 +47,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4913251172318160832
 Transform:
   m_ObjectHideFlags: 0
@@ -80,7 +80,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2591645915025464599
 Transform:
   m_ObjectHideFlags: 0
@@ -1035,13 +1035,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9e45040352c29448ef258dd725fd76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  autoHideCursor: 1
+  hideCursor: 1
+  playerInput: {fileID: 8027271115035412187}
   invertY: 0
   invertX: 0
   allowFreeformDodge: 0
   doubleTapToDodge: 1
   doubleTapTime: 0.3
-  playerInput: {fileID: 8027271115035412187}
 --- !u!114 &7233717465822237952
 MonoBehaviour:
   m_ObjectHideFlags: 0

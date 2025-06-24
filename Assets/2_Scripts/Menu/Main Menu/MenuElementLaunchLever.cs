@@ -1,4 +1,5 @@
 using System;
+using KBCore.Refs;
 using PrimeTween;
 using UnityEngine;
 
@@ -16,18 +17,18 @@ public class MenuElementLaunchLever : MenuElement
     [SerializeField] private Color emissionColorOff = Color.black;
     [SerializeField] private float pulseSpeed = 2f;
     [SerializeField] private float stateLerpSpeed = 5f;
+    [SerializeField] private SOAudioEvent leverPressedSfx;
     
     [Header("References")]
     [SerializeField] private MenuElementLevelSelection levelSelection;
-    [SerializeField] private SOAudioEvent leverPressedSfx;
     [SerializeField] private Transform leverPivotTransform;
     [SerializeField] private Renderer selectedLevelLight;
 
     
+    private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
     private Sequence _leverPressSequence;
     private Vector3 _leverStartRot;
     private Material _selectedLevelMaterial;
-    private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
     private Color _currentEmissionColor;
     
 

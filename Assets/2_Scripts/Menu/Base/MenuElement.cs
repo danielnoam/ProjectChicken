@@ -14,7 +14,9 @@ public abstract class MenuElement : MonoBehaviour
     [SerializeField, Range(0, 1)] private float labelAlphaWhenDeselected = 0.25f;
     [SerializeField] private Color labelColorWhenSelected = Color.white;
     [SerializeField] private TextMeshProUGUI label;
-    [SerializeField] protected CanvasGroup labelCanvasGroup;
+    [SerializeField] private CanvasGroup labelCanvasGroup;
+    [SerializeField] private SOAudioEvent selectSfx;
+    [SerializeField] private SOAudioEvent interactSfx;
     
     [Header("Camera Settings")]
     [SerializeField] private Vector3 targetOffset;
@@ -41,7 +43,54 @@ public abstract class MenuElement : MonoBehaviour
         SetUp();
         OnSetUp();
     }
+    
+    public void Deselect()
+    {
+        ToggleLabel(false);
+        OnDeselected();
+    }
 
+    public void Select()
+    {
+        if (!canSelect) return;
+        
+        selectSfx?.Play(audioSource);
+        ToggleLabel(true);
+        OnSelected();
+    }
+
+    public void Interact()
+    {
+        if (!canSelect) return;
+        
+        interactSfx?.Play(audioSource);
+        OnInteract();
+    }
+    
+    protected void FinishedInteraction()
+    {
+        menuController?.InteractionFinished(this);
+        OnFinishedInteraction();
+    }
+    
+    public void StopInteraction()
+    {
+        OnStopInteraction();
+    }
+
+    
+
+    public void OnMouseEnter()
+    {
+        menuController?.MouseEnteredElement(this);
+    }
+    
+    public void OnMouseDown()
+    {
+        menuController?.MousePressedElement(this);
+    }
+    
+    
     private void SetUp()
     {
         if (label) label.text = labelText;
@@ -82,49 +131,6 @@ public abstract class MenuElement : MonoBehaviour
     {
         canSelect = state;
         ToggleLabel(labelState);
-    }
-    
-    public void Deselect()
-    {
-        ToggleLabel(false);
-        OnDeselected();
-    }
-
-    public void Select()
-    {
-        if (!canSelect) return;
-        
-        ToggleLabel(true);
-        OnSelected();
-    }
-
-    public void Interact()
-    {
-        if (!canSelect) return;
-        
-        OnInteract();
-    }
-    
-    public void StopInteraction()
-    {
-        OnStopInteraction();
-    }
-    
-
-    public void OnMouseEnter()
-    {
-        menuController?.MouseEnteredElement(this);
-    }
-    
-    public void OnMouseDown()
-    {
-        menuController?.MousePressedElement(this);
-    }
-
-    protected void FinishedInteraction()
-    {
-        menuController?.InteractionFinished(this);
-        OnFinishedInteraction();
     }
     
     

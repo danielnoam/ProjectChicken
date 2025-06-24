@@ -247,6 +247,8 @@ public class UIManager : MonoBehaviour
 
     private void OnStageChanged(SOLevelStage stage)
     {
+        if (!stage) return;
+        
         switch (stage.StageType)
         {
             case StageType.Intro:

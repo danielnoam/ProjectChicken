@@ -9,32 +9,21 @@ public class RailPlayerAiming : MonoBehaviour
 {
     [Header("Aiming Settings")]
     [SerializeField] private float aimSpeed = 15f;
+    [SerializeField, Min(0)] private float lookOffsetStrength = 35f;
+    [SerializeField, Min(0)] private float lookOffsetSmoothing = 1.4f;
+
+    [Header("Auto Center Settings")]
     [SerializeField] private bool autoCenter = true;
     [EnableIf("autoCenter")]
     [SerializeField, Min(0)] private float autoCenterDelay = 5f;
     [SerializeField, Min(0)] private float autoCenterSpeed = 1f;
     [EndIf]
-
-    
-    [Header("Look Offset")]
-    [SerializeField] private bool useLookOffset = true;
-    [EnableIf("useLookOffset")]
-    [SerializeField, Min(0)] private float lookOffsetStrength = 35f;
-    [SerializeField, Min(0)] private float lookOffsetSmoothing = 1.4f;
-    [EndIf]
-    
-    [Header("Movement Offset")]
-    [SerializeField] private bool useMovementOffset = true;
-    [EnableIf("useMovementOffset")]
-    [SerializeField, Min(0)] private float movementOffsetStrength = 11f;
-    [SerializeField, Min(0)] private float movementOffsetSmoothing = 5f;
-    [EndIf]
     
     [Header("References")]
-    [SerializeField, Self] private RailPlayer player;
-    [SerializeField, Self] private RailPlayerInput playerInput;
-    [SerializeField, Self] private RailPlayerMovement playerMovement;
     [SerializeField] private Transform crosshair;
+    [SerializeField, Self, HideInInspector] private RailPlayer player;
+    [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
+    [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
 
 
     private Vector2 _movementInput;
@@ -49,7 +38,7 @@ public class RailPlayerAiming : MonoBehaviour
     private float _noInputTimer;
     private float CrosshairBoundaryX => LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.x : 25f;
     private float CrosshairBoundaryY => LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.y :  15f;
-    private bool AllowAiming => LevelManager.Instance ? LevelManager.Instance.CurrentStage.AllowPlayerAim : true;
+    private bool AllowAiming => !LevelManager.Instance || !LevelManager.Instance.CurrentStage || LevelManager.Instance.CurrentStage.AllowPlayerAim;
     
     
     private void OnValidate() { this.ValidateRefs(); }
@@ -65,19 +54,16 @@ public class RailPlayerAiming : MonoBehaviour
     private void OnEnable()
     {
         playerInput.OnProcessedLookEvent += OnProcessedLook;
-        playerInput.OnMoveEvent += OnMove;
     }
     
     private void OnDisable()
     {
         playerInput.OnProcessedLookEvent -= OnProcessedLook;
-        playerInput.OnMoveEvent -= OnMove;
     }
 
     private void Update()
     {
         HandleSplineRotation();
-        HandleMovementOffset();
         HandleLookOffset();
         HandleAutoCenter();
         UpdateAimPosition();
@@ -106,40 +92,11 @@ public class RailPlayerAiming : MonoBehaviour
             _splineRotation = Quaternion.Slerp(_splineRotation, targetSplineRotation, player.SplineRotationSpeed * Time.deltaTime);
         }
     }
-    
-    
-
-    private void HandleMovementOffset()
-    {
-        if (!useMovementOffset)
-        {
-            _movementOffset = Vector3.zero;
-            return;
-        }
-    
-        bool hasMovementInput = _movementInput.magnitude > 0.01f;
-    
-        if (hasMovementInput)
-        {
-            Vector3 targetOffset = new Vector3(
-                _movementInput.x * movementOffsetStrength,
-                _movementInput.y * movementOffsetStrength,
-                0
-            );
         
-            _movementOffset = Vector3.Lerp(_movementOffset, targetOffset, movementOffsetSmoothing * Time.deltaTime);
-        }
-    }
-    
-
     
     private void HandleLookOffset()
     {
-        if (!useLookOffset)
-        {
-            _lookOffset = Vector3.Lerp(_lookOffset, Vector3.zero, lookOffsetSmoothing * Time.deltaTime);
-            return;
-        }
+        _lookOffset = Vector3.Lerp(_lookOffset, Vector3.zero, lookOffsetSmoothing * Time.deltaTime);
 
         bool hasLookInput = _lookInput.magnitude > 0.01f;
 
@@ -233,17 +190,7 @@ public class RailPlayerAiming : MonoBehaviour
             // Start centering after the delay has passed
             if (_noInputTimer >= autoCenterDelay)
             {
-                // Auto-center look offset if it's enabled
-                if (useLookOffset)
-                {
-                    _lookOffset = Vector3.Lerp(_lookOffset, Vector3.zero, autoCenterSpeed * Time.deltaTime);
-                }
-            
-                // Auto-center movement offset if it's enabled
-                if (useMovementOffset)
-                {
-                    _movementOffset = Vector3.Lerp(_movementOffset, Vector3.zero, autoCenterSpeed * Time.deltaTime);
-                }
+                _lookOffset = Vector3.Lerp(_lookOffset, Vector3.zero, autoCenterSpeed * Time.deltaTime);
             }
         }
     }
@@ -260,13 +207,7 @@ public class RailPlayerAiming : MonoBehaviour
         
         _lookInput = processedLookInput;
     }
-
-    private void OnMove(InputAction.CallbackContext context)
-    {
-        if (!AllowAiming) return;
-        
-        _movementInput = context.ReadValue<Vector2>();
-    }
+    
 
     #endregion Input --------------------------------------------------------------------------------------------------------
 

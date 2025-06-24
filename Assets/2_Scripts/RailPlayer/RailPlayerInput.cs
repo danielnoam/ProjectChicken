@@ -7,9 +7,6 @@ using VInspector;
 
 public class RailPlayerInput : InputReaderBase
 {
-    [Header("Cursor Settings")] 
-    [SerializeField] private bool autoHideCursor = true;
-    
     [Header("Aim Settings")]
     [SerializeField] private bool invertY;
     [SerializeField] private bool invertX;
@@ -48,8 +45,9 @@ public class RailPlayerInput : InputReaderBase
     
 
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         
         _playerActionMap = playerInput.actions.FindActionMap("Player");
         
@@ -66,13 +64,6 @@ public class RailPlayerInput : InputReaderBase
         _dodgeLeftAction = _playerActionMap.FindAction("DodgeLeft");
         _dodgeRightAction = _playerActionMap.FindAction("DodgeRight");
         _dodgeFreeformAction = _playerActionMap.FindAction("DodgeFreeform");
-        
-        
-        if (autoHideCursor)
-        {
-            ToggleCursorVisibility();
-        }
-        
     }
 
     private void OnEnable()
@@ -171,27 +162,7 @@ public class RailPlayerInput : InputReaderBase
     
 
     #endregion Input Events --------------------------------------------------------------------------------------
-
-
-    #region Cursor --------------------------------------------------------------------------------------
-
-    [Button]
-    private void ToggleCursorVisibility()
-    {
-        if (Cursor.visible)
-        {
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = false;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-    }
-
-    #endregion Cursor --------------------------------------------------------------------------------------
-
+    
     
 
 }

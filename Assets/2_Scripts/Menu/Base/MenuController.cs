@@ -17,8 +17,8 @@ public class MenuController : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private Transform defaultCameraLookAtPoint;
-    [SerializeField, Self] private AudioSource audioSource;
-    [SerializeField, Self] private MenuInput menuInput;
+    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
+    [SerializeField, Self, HideInInspector] private MenuInput menuInput;
     
     
     private bool _isInteracting;

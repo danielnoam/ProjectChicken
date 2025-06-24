@@ -38,11 +38,11 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField] private SOAudioEvent dodgeSfx;
     
     [Header("References")] 
-    [SerializeField, Self] private RailPlayer player;
-    [SerializeField, Self] private RailPlayerAiming playerAiming;
-    [SerializeField, Self] private RailPlayerInput playerInput;
-    [SerializeField, Self] private Rigidbody playerRigidbody;
-    [SerializeField, Self] private AudioSource audioSource;
+    [SerializeField, Self, HideInInspector] private RailPlayer player;
+    [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
+    [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
+    [SerializeField, Self, HideInInspector] private Rigidbody playerRigidbody;
+    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     [SerializeField] private Transform shipModel;
 
     private float _horizontalInput;
@@ -62,7 +62,7 @@ public class RailPlayerMovement : MonoBehaviour
 
     private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
     private float MovementBoundaryY => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
-    private bool AllowMovement => LevelManager.Instance.CurrentStage.AllowPlayerMovement;
+    private bool AllowMovement => !LevelManager.Instance || !LevelManager.Instance.CurrentStage || LevelManager.Instance.CurrentStage.AllowPlayerMovement;
 
     public float MaxDodgeCooldown => dodgeCooldown;
     public bool IsDodging => _isDodging;

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using KBCore.Refs;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Splines;
 using VInspector;
 
@@ -207,6 +208,8 @@ public class LevelManager : MonoBehaviour
 
         SOLevelStage newStage = levelStages[newStageIndex];
         
+        if (!newStage) return;
+        
         if (debugStageLevel) Debug.Log("Set stage to: " + newStage.name);
         
         currentStageIndex = newStageIndex;
@@ -217,7 +220,15 @@ public class LevelManager : MonoBehaviour
         
         if (newStage.IsTimeBasedStage)
         {
-            SetNextStage(newStage.StageDuration);
+            if (newStage.StageType == StageType.Outro)
+            {
+                StartCoroutine(ReturnToMainMenu(newStage.StageDuration));
+            }
+            else
+            {
+                SetNextStage(newStage.StageDuration);
+            }
+
         }
 
     }
@@ -232,6 +243,13 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         SetStage(newStateIndex);
+    }
+
+    private IEnumerator ReturnToMainMenu(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
+        SceneManager.LoadScene("MainMenu");
     }
 
     private void OnEnemyWaveCleared(int scoreWorth)

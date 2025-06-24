@@ -23,7 +23,8 @@ public class ChickenController : MonoBehaviour
         InCombat,
         Concussed,
         ReturningToSlot,
-        Idle
+        Idle,
+        Dead
     }
     
     [Header("Settings")]
@@ -113,7 +114,7 @@ public class ChickenController : MonoBehaviour
     private void OnDestroy()
     {
         // Ensure the slot is released
-        if (formationBehavior != null)
+        if (formationBehavior)
         {
             formationBehavior.ReleaseSlot();
         }
@@ -122,7 +123,7 @@ public class ChickenController : MonoBehaviour
     private void Update()
     {
         // Update debug info
-        hasSlot = formationBehavior != null && formationBehavior.HasAssignedSlot;
+        hasSlot = formationBehavior && formationBehavior.HasAssignedSlot;
         isInCombat = currentState == ChickenState.InCombat;
     }
 
@@ -210,6 +211,7 @@ public class ChickenController : MonoBehaviour
     
     public void TakeDamage(float damage)
     {
+        if (currentState == ChickenState.Dead || _currentHealth <= 0) return;
         
         _currentHealth -= damage;
         _currentHealth = Mathf.Max(_currentHealth, 0); // Ensure health doesn't go below 0
@@ -229,11 +231,10 @@ public class ChickenController : MonoBehaviour
     
     private void Die()
     {
+        currentState = ChickenState.Dead;
         
-        if (formationBehavior != null)
-            formationBehavior.ReleaseSlot();
-
-
+        if (formationBehavior) formationBehavior.ReleaseSlot();
+        
         // Drop a loot resource if available
         if (lootTable)
         {
@@ -247,6 +248,7 @@ public class ChickenController : MonoBehaviour
         
         // Trigger death event
         OnDeath?.Invoke(scoreValue);
+        Debug.Log(gameObject.name);
         
         // Destroy or pool the chicken
         Destroy(gameObject);
@@ -258,7 +260,7 @@ public class ChickenController : MonoBehaviour
     public void Heal(float healAmount)
     {
         _currentHealth += healAmount;
-        _currentHealth = Mathf.Min(_currentHealth, maxHealth); // Don't exceed max health
+        _currentHealth = Mathf.Min(_currentHealth, maxHealth);
         
         OnHealthChanged?.Invoke(_currentHealth);
     }

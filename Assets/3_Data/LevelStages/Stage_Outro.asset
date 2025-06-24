@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_Checkpoint
+  m_Name: Stage_Outro
   m_EditorClassIdentifier: 
-  stageType: 0
-  stageDuration: 3
+  stageType: 3
+  stageDuration: 5
   enemyPositionOffset: 0
   delayBeforeNextStage: 1
   waveScore: 1000
@@ -30,12 +30,12 @@ MonoBehaviour:
     circleCount: 12
     gridSize: {x: 5, y: 3}
     gridFillsBoundary: 1
-  pathFollowSpeed: 14
+  pathFollowSpeed: 55
   upAxis: 1
   forwardAxis: 2
   alignmentMode: 1
-  allowPlayerMovement: 1
-  allowPlayerAim: 1
-  allowPlayerShooting: 1
+  allowPlayerMovement: 0
+  allowPlayerAim: 0
+  allowPlayerShooting: 0
   playerPositionOffset: 0
-  showPlayerKeybinds: 1
+  showPlayerKeybinds: 0

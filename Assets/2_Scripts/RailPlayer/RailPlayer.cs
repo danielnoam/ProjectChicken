@@ -44,12 +44,12 @@ public class RailPlayer : MonoBehaviour
     [SerializeField] private SOAudioEvent deathSfx;
     
     [Header("References")]
-    [SerializeField, Self] private RailPlayerInput playerInput;
-    [SerializeField, Self] private RailPlayerAiming playerAiming;
-    [SerializeField, Self] private RailPlayerWeaponSystem playerWeapon;
-    [SerializeField, Self] private RailPlayerMovement playerMovement;
-    [SerializeField, Self] private AudioSource audioSource;
     [SerializeField] private LevelManager levelManager;
+    [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
+    [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
+    [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
+    [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
+    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
 
     
     // Private fields

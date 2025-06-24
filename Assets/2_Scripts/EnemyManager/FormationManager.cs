@@ -221,23 +221,17 @@ public class FormationManager : MonoBehaviour
         // Notify all chickens about formation change
         if (notifyChickens && Application.isPlaying)
         {
-            //Debug.Log($"FormationManager: Formation changed to {currentFormationSettings.FormationType} with {formationSlots.Count} slots");
-            NotifyFormationChanged();
+            OnFormationChanged?.Invoke();
+        
+            // Also find all chickens directly and notify them
+            var allChickens = FindObjectsByType<ChickenFollowFormation>(FindObjectsSortMode.None);
+            foreach (var chicken in allChickens)
+            {
+                chicken.OnFormationChangedNotification();
+            }
         }
     }
     
-    // Notify all chickens that formation has changed
-    private void NotifyFormationChanged()
-    {
-        OnFormationChanged?.Invoke();
-        
-        // Also find all chickens directly and notify them
-        var allChickens = FindObjectsByType<ChickenFollowFormation>(FindObjectsSortMode.None);
-        foreach (var chicken in allChickens)
-        {
-            chicken.OnFormationChangedNotification();
-        }
-    }
     
     private void GenerateFormationInstance(FormationInstance formation)
     {

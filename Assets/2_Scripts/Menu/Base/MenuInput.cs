@@ -30,8 +30,11 @@ public class MenuInput : InputReaderBase
     public event Action<InputAction.CallbackContext> OnTrackedDevicePositionAction;
     public event Action<InputAction.CallbackContext> OnTrackedDeviceOrientationAction;
     
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        
+        
         _uiActionMap = playerInput.actions.FindActionMap("UI");
         
         if (_uiActionMap == null)

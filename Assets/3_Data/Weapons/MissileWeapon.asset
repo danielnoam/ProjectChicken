@@ -20,7 +20,7 @@ MonoBehaviour:
   heatPerShot: 35
   timeLimit: 10
   ammoLimit: 5
-  damage: 0
+  damage: 55
   fireRate: 1
   maxTargets: 1
   targetCheckRadius: 4
@@ -78,8 +78,8 @@ MonoBehaviour:
     - rid: 2319611325492494602
       type: {class: BehaviorExplodeOnImpact, ns: , asm: Assembly-CSharp}
       data:
-        minRadius: 2
-        maxRadius: 7
+        minRadius: 7
+        maxRadius: 9
         maxDamage: 45
         maxForce: 45
         stunChance: 25
