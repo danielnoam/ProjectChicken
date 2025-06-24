@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
+  m_Name: Stage_EnemyWave3
+  m_EditorClassIdentifier: 
+  stageType: 1
+  stageDuration: 15
+  enemyPositionOffset: 0
+  delayBeforeNextStage: 1
+  waveScore: 1000
+  enemyWave:
+    serializedKvps:
+    - Key: {fileID: 745806696497487914, guid: 6c00b75d8a669d04395aeb4d7c57f138, type: 3}
+      Value: 20
+      index: 0
+      isKeyRepeated: 0
+      isKeyNull: 0
+    dividerPos: 0.33
+  formationSettings:
+    formationType: 3
+    formationPosition: 0
+    formationCount: 1
+    vShapeCount: 7
+    squareSize: 5
+    triangleRows: 4
+    circleCount: 12
+    gridSize: {x: 5, y: 3}
+    gridFillsBoundary: 1
+  pathFollowSpeed: 5
+  upAxis: 1
+  forwardAxis: 2
+  alignmentMode: 1
+  allowPlayerMovement: 1
+  allowPlayerAim: 1
+  allowPlayerShooting: 1
+  playerPositionOffset: 0
+  showPlayerKeybinds: 1

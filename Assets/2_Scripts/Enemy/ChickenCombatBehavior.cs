@@ -30,16 +30,15 @@ public class ChickenCombatBehavior : MonoBehaviour
     [SerializeField, Self] private Rigidbody rb;
     
     // Concussion state
-    private float concussTimer = 0f;
-    private Vector3 concussVelocity;
+    private float _concussTimer;
+    private Vector3 _concussVelocity;
     
     // Hover state
-    private Vector3 hoverTarget;
-    private Vector3 noiseOffset;
-    private float hoverStartTime;
+    private Vector3 _hoverTarget;
+    private Vector3 _noiseOffset;
+    private float _hoverStartTime;
     
     // Events
-    public event System.Action OnDamaged;
     public event System.Action OnConcussionStart;
     public event System.Action OnConcussionEnd;
     public event System.Action OnHoverStart;
@@ -52,7 +51,7 @@ public class ChickenCombatBehavior : MonoBehaviour
     private void Awake()
     {
         // Initialize random noise offset for unique wiggle pattern
-        noiseOffset = new Vector3(
+        _noiseOffset = new Vector3(
             Random.Range(0f, 100f),
             Random.Range(0f, 100f),
             Random.Range(0f, 100f)
@@ -111,7 +110,7 @@ public class ChickenCombatBehavior : MonoBehaviour
     private void StartHovering()
     {
         isHovering = true;
-        hoverStartTime = Time.time;
+        _hoverStartTime = Time.time;
         UpdateHoverTarget();
         OnHoverStart?.Invoke();
     }
@@ -127,7 +126,7 @@ public class ChickenCombatBehavior : MonoBehaviour
         if (formationBehavior != null)
         {
             Vector3 slotPosition = formationBehavior.GetTargetSlotPosition;
-            hoverTarget = slotPosition + Vector3.up * hoverHeight;
+            _hoverTarget = slotPosition + Vector3.up * hoverHeight;
         }
     }
     
@@ -145,7 +144,7 @@ public class ChickenCombatBehavior : MonoBehaviour
             UpdateHoverTarget();
         }
         
-        currentConcussTimer = concussTimer;
+        currentConcussTimer = _concussTimer;
     }
     
     private void FixedUpdate()
@@ -168,16 +167,16 @@ public class ChickenCombatBehavior : MonoBehaviour
     // Handle hovering physics with wiggle
     private void HandleHoverPhysics()
     {
-        float time = Time.time - hoverStartTime;
+        float time = Time.time - _hoverStartTime;
         
         // Generate random wiggle using Perlin noise
         Vector3 wiggle = new Vector3(
-            (Mathf.PerlinNoise((time + noiseOffset.x) * wiggleSpeed, 0f) - 0.5f) * 2f,
-            (Mathf.PerlinNoise((time + noiseOffset.y) * wiggleSpeed, 10f) - 0.5f) * 2f,
-            (Mathf.PerlinNoise((time + noiseOffset.z) * wiggleSpeed, 20f) - 0.5f) * 2f
+            (Mathf.PerlinNoise((time + _noiseOffset.x) * wiggleSpeed, 0f) - 0.5f) * 2f,
+            (Mathf.PerlinNoise((time + _noiseOffset.y) * wiggleSpeed, 10f) - 0.5f) * 2f,
+            (Mathf.PerlinNoise((time + _noiseOffset.z) * wiggleSpeed, 20f) - 0.5f) * 2f
         ) * wiggleAmount;
         
-        Vector3 targetPosition = hoverTarget + wiggle;
+        Vector3 targetPosition = _hoverTarget + wiggle;
         Vector3 direction = targetPosition - transform.position;
         
         // Apply hover force
@@ -192,13 +191,13 @@ public class ChickenCombatBehavior : MonoBehaviour
     // Handle physics while concussed
     private void HandleConcussedPhysics()
     {
-        concussTimer -= Time.fixedDeltaTime;
+        _concussTimer -= Time.fixedDeltaTime;
         
         // Apply floating physics
-        rb.linearVelocity = concussVelocity;
-        concussVelocity *= (1f - concussFloatDrag * Time.fixedDeltaTime);
+        rb.linearVelocity = _concussVelocity;
+        _concussVelocity *= (1f - concussFloatDrag * Time.fixedDeltaTime);
         
-        if (concussTimer <= 0f)
+        if (_concussTimer <= 0f)
         {
             ExitConcussState();
         }
@@ -214,8 +213,8 @@ public class ChickenCombatBehavior : MonoBehaviour
         }
         
         chickenController.SetState(ChickenController.ChickenState.Concussed);
-        concussTimer = concussTime;
-        concussVelocity = rb.linearVelocity; // Preserve current velocity
+        _concussTimer = concussTime;
+        _concussVelocity = rb.linearVelocity; // Preserve current velocity
     }
     
     // Exit concussion and return to slot
@@ -242,7 +241,7 @@ public class ChickenCombatBehavior : MonoBehaviour
         if (chickenController.CurrentState == ChickenController.ChickenState.Concussed)
         {
             // Apply force while concussed
-            concussVelocity += direction * force;
+            _concussVelocity += direction * force;
         }
         else if (chickenController.CurrentState == ChickenController.ChickenState.InCombat)
         {
@@ -281,9 +280,9 @@ public class ChickenCombatBehavior : MonoBehaviour
                 if (isHovering)
                 {
                     Gizmos.color = new Color(0, 1, 0, 0.3f);
-                    Gizmos.DrawWireSphere(hoverTarget, 0.5f);
+                    Gizmos.DrawWireSphere(_hoverTarget, 0.5f);
                     Gizmos.color = Color.green;
-                    Gizmos.DrawLine(slotPos, hoverTarget);
+                    Gizmos.DrawLine(slotPos, _hoverTarget);
                 }
             }
             
@@ -295,7 +294,7 @@ public class ChickenCombatBehavior : MonoBehaviour
                 
                 #if UNITY_EDITOR
                 Vector3 labelPos = transform.position + Vector3.up * 1.5f;
-                UnityEditor.Handles.Label(labelPos, $"Concussed: {concussTimer:F1}s");
+                UnityEditor.Handles.Label(labelPos, $"Concussed: {_concussTimer:F1}s");
                 #endif
             }
             

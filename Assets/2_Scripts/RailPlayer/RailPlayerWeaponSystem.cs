@@ -42,11 +42,11 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField] private SOAudioEvent weaponHeatResetSfx;
     
     [Header("References")]
-    [SerializeField, Self] private RailPlayer player;
-    [SerializeField, Self] private RailPlayerInput playerInput;
-    [SerializeField, Self] private RailPlayerAiming playerAiming;
-    [SerializeField, Self] private RailPlayerMovement playerMovement;
-    [SerializeField, Self] private AudioSource audioSource;
+    [SerializeField, Self, HideInInspector] private RailPlayer player;
+    [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
+    [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
+    [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
+    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     
     
 
@@ -64,7 +64,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private float _specialWeaponFireRateCooldown;
     private float _specialWeaponTime;
     private float _specialWeaponAmmo;
-    private bool AllowShooting => LevelManager.Instance ? LevelManager.Instance.CurrentStage.AllowPlayerShooting : true;
+    private bool AllowShooting => player.IsAlive() && (!LevelManager.Instance || !LevelManager.Instance.CurrentStage ||
+                                                       LevelManager.Instance.CurrentStage.AllowPlayerShooting);
     
     
     public bool IsOverHeated => _isOverHeated;

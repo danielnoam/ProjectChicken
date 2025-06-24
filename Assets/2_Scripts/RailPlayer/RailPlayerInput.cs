@@ -4,28 +4,15 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using VInspector;
 
-[RequireComponent(typeof(PlayerInput))]
-public class RailPlayerInput : MonoBehaviour
-{
-    [Header("Input Settings")] 
-    [SerializeField] private bool autoHideCursor = true;
-    
-    [Header("Aim Settings")]
-    [SerializeField] private bool invertY;
-    [SerializeField] private bool invertX;
-    
-    [Header("Dodge Settings")]
-    [SerializeField] private bool allowFreeformDodge;
-    [SerializeField] private bool doubleTapToDodge = true;
-    [SerializeField, ShowIf("doubleTapToDodge")] private float doubleTapTime = 0.3f;[EndIf]
-    
-    [Header("References")]
-    [SerializeField, Self] private PlayerInput playerInput;
 
-    
-    
+public class RailPlayerInput : InputReaderBase
+{
+
+    [Header("Control Settings")]
+    [SerializeField] private ControlSchemeSettings keyboardMouseScheme = new ControlSchemeSettings(false, false, 0.1f, 0.3f, true, 4f, 3f, 3f, 0.3f, false, true, 0.3f);
+    [SerializeField] private ControlSchemeSettings gamepadScheme = new ControlSchemeSettings(false, false, 2f, 0.3f, true, 4f, 3f, 0.5f, 0.5f, true, false, 0.3f);
+
     private InputActionMap _playerActionMap;
-    private InputActionMap _uiActionMap;
     private InputAction _moveAction;
     private InputAction _lookAction;
     private InputAction _attackAction;
@@ -35,8 +22,10 @@ public class RailPlayerInput : MonoBehaviour
     private InputAction _dodgeFreeformAction;
     private float _lastMoveLeftTime;
     private float _lastMoveRightTime;
-    
-    
+
+
+
+    public ControlSchemeSettings CurrentControlScheme { get; private set; } = new ControlSchemeSettings();
     public event Action<InputAction.CallbackContext> OnMoveEvent;
     public event Action<InputAction.CallbackContext> OnLookEvent;
     public event Action<InputAction.CallbackContext> OnAttackEvent;
@@ -46,21 +35,19 @@ public class RailPlayerInput : MonoBehaviour
     public event Action<InputAction.CallbackContext> OnDodgeFreeformEvent;
     public event Action<Vector2> OnProcessedLookEvent;
 
+    
 
     
     
-    
-    private void OnValidate() { this.ValidateRefs(); }
-
-    private void Awake()
+    protected override void Awake()
     {
-        
+        base.Awake();
+
         _playerActionMap = playerInput.actions.FindActionMap("Player");
-        _uiActionMap = playerInput.actions.FindActionMap("UI");
         
-        if (_playerActionMap == null || _uiActionMap == null)
+        if (_playerActionMap == null)
         {
-            Debug.LogError("Player or UI Action Map not found. Please check the action maps in the Player Input component.");
+            Debug.LogError("Player Map not found. Please check the action maps in the Player Input component.");
             return;
         }
         
@@ -72,13 +59,10 @@ public class RailPlayerInput : MonoBehaviour
         _dodgeRightAction = _playerActionMap.FindAction("DodgeRight");
         _dodgeFreeformAction = _playerActionMap.FindAction("DodgeFreeform");
         
-        
-        if (autoHideCursor)
-        {
-            ToggleCursorVisibility();
-        }
-        
+
+        CurrentControlScheme.SetControlSchemeSettings(keyboardMouseScheme);
     }
+
 
     private void OnEnable()
     {
@@ -89,8 +73,12 @@ public class RailPlayerInput : MonoBehaviour
         SubscribeToAction(_dodgeLeftAction, OnDodgeLeft);
         SubscribeToAction(_dodgeRightAction, OnDodgeRight);
         SubscribeToAction(_dodgeFreeformAction, OnDodgeFreeform);
+        playerInput.onDeviceRegained += OnDeviceRegained;
+        playerInput.onDeviceLost += OnDeviceLost;
+        playerInput.onControlsChanged += OnControlsChanged;
     }
     
+
     private void OnDisable()
     {
         UnsubscribeFromAction(_moveAction, OnMove);
@@ -100,10 +88,53 @@ public class RailPlayerInput : MonoBehaviour
         UnsubscribeFromAction(_dodgeLeftAction, OnDodgeLeft);
         UnsubscribeFromAction(_dodgeRightAction, OnDodgeRight);
         UnsubscribeFromAction(_dodgeFreeformAction, OnDodgeFreeform);
+        playerInput.onDeviceRegained -= OnDeviceRegained;
+        playerInput.onDeviceLost -= OnDeviceLost;
+        playerInput.onControlsChanged -= OnControlsChanged;
     }
-
+    
     
 
+
+    #region Control Scheme --------------------------------------------------------------------------
+    
+    private void OnDeviceRegained(PlayerInput input)
+    {
+        UpdateControlScheme(input);
+    }
+
+    private void OnDeviceLost(PlayerInput input)
+    {
+        UpdateControlScheme(input);
+    }
+
+    private void OnControlsChanged(PlayerInput input)
+    {
+        UpdateControlScheme(input);
+    }
+    
+    
+    private void UpdateControlScheme(PlayerInput input)
+    {
+        string currentScheme = input.currentControlScheme;
+        Debug.Log($"Control scheme changed to: {currentScheme}");
+        
+        
+        switch (currentScheme)
+        {
+            case "Keyboard&Mouse":
+                CurrentControlScheme = keyboardMouseScheme;
+                break;
+            case "Gamepad":
+                CurrentControlScheme = gamepadScheme;
+                break;
+        }
+    }
+    
+
+    #endregion Control Scheme  --------------------------------------------------------------------------
+    
+    
 
     #region Input Events --------------------------------------------------------------------------------------
     
@@ -113,11 +144,11 @@ public class RailPlayerInput : MonoBehaviour
         OnMoveEvent?.Invoke(context);
         
         // Double-tap dodge logic
-        if (doubleTapToDodge && context.started)
+        if (CurrentControlScheme.doubleTapToDodge && context.started)
         {
             if (context.ReadValue<Vector2>().x < 0)   // Left movement 
             {
-                if (Time.time - _lastMoveLeftTime < doubleTapTime)
+                if (Time.time - _lastMoveLeftTime < CurrentControlScheme.doubleTapTime)
                 {
                     OnDodgeLeftEvent?.Invoke(context);
                 }
@@ -125,7 +156,7 @@ public class RailPlayerInput : MonoBehaviour
             }
             else if (context.ReadValue<Vector2>().x > 0)   // Right movement 
             {
-                if (Time.time - _lastMoveRightTime < doubleTapTime)
+                if (Time.time - _lastMoveRightTime < CurrentControlScheme.doubleTapTime)
                 {
                     OnDodgeRightEvent?.Invoke(context);
                 }
@@ -140,8 +171,8 @@ public class RailPlayerInput : MonoBehaviour
     
         
         Vector2 processedLookDelta = new Vector2(
-            invertX ? -lookDelta.x : lookDelta.x,
-            invertY ? -lookDelta.y : lookDelta.y
+            CurrentControlScheme.invertX ? -lookDelta.x : lookDelta.x,
+            CurrentControlScheme.invertY ? -lookDelta.y : lookDelta.y
         );
         
         OnLookEvent?.Invoke(context);                    
@@ -170,55 +201,13 @@ public class RailPlayerInput : MonoBehaviour
     
     public void OnDodgeFreeform(InputAction.CallbackContext context)
     {
-        if (!allowFreeformDodge) return;
+        if (!CurrentControlScheme.allowFreeformDodge) return;
         OnDodgeFreeformEvent?.Invoke(context);
     }
     
 
     #endregion Input Events --------------------------------------------------------------------------------------
-
-
-    #region Cursor --------------------------------------------------------------------------------------
-
-    [Button]
-    private void ToggleCursorVisibility()
-    {
-        if (Cursor.visible)
-        {
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = false;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-    }
-
-    #endregion Cursor --------------------------------------------------------------------------------------
-
-
-    #region Helpers --------------------------------------------------------------------------------------
-
-    private void SubscribeToAction(InputAction action, Action<InputAction.CallbackContext> callback)
-    {
-        if (action == null) return;
-        
-        action.performed += callback;
-        action.started += callback;
-        action.canceled += callback;
-    }
     
-    private void UnsubscribeFromAction(InputAction action, Action<InputAction.CallbackContext> callback)
-    {
-        if (action == null) return;
-        
-        action.performed -= callback;
-        action.started -= callback;
-        action.canceled -= callback;
-    }
     
-
-    #endregion Helpers --------------------------------------------------------------------------------------
 
 }

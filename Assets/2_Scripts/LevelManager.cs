@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using KBCore.Refs;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Splines;
 using VInspector;
 
@@ -31,8 +32,8 @@ public class LevelManager : MonoBehaviour
     [Header("References")]
     [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private Transform currentPositionOnPath;
-    [SerializeField, Scene(Flag.Editable)] private EnemyWaveManager enemyWaveManager;
-    [SerializeField, Scene(Flag.Editable)] private RailPlayer player;
+    [SerializeField] private EnemyWaveManager enemyWaveManager;
+    [SerializeField] private RailPlayer player;
 
 
 
@@ -60,7 +61,17 @@ public class LevelManager : MonoBehaviour
 
     private void OnValidate()
     {
-        this.ValidateRefs();
+
+        if (!player)
+        {
+            player = FindFirstObjectByType<RailPlayer>();
+        }
+
+        if (!enemyWaveManager)
+        {
+            enemyWaveManager = FindFirstObjectByType<EnemyWaveManager>();
+        }
+        
         
         
         if (Application.isPlaying) return;
@@ -197,6 +208,8 @@ public class LevelManager : MonoBehaviour
 
         SOLevelStage newStage = levelStages[newStageIndex];
         
+        if (!newStage) return;
+        
         if (debugStageLevel) Debug.Log("Set stage to: " + newStage.name);
         
         currentStageIndex = newStageIndex;
@@ -207,7 +220,15 @@ public class LevelManager : MonoBehaviour
         
         if (newStage.IsTimeBasedStage)
         {
-            SetNextStage(newStage.StageDuration);
+            if (newStage.StageType == StageType.Outro)
+            {
+                StartCoroutine(ReturnToMainMenu(newStage.StageDuration));
+            }
+            else
+            {
+                SetNextStage(newStage.StageDuration);
+            }
+
         }
 
     }
@@ -222,6 +243,13 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         SetStage(newStateIndex);
+    }
+
+    private IEnumerator ReturnToMainMenu(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
+        SceneManager.LoadScene("MainMenu");
     }
 
     private void OnEnemyWaveCleared(int scoreWorth)
@@ -489,14 +517,14 @@ public class LevelManager : MonoBehaviour
     private void UpdatePlayerAndEnemyPositions(float currentT)
     {
         // Calculate player position
-        float playerStageOffset = CurrentStage ? CurrentStage.PlayerStageOffset : 0f;
+        float playerStageOffset = CurrentStage ? CurrentStage.PlayerPositionOffset : 0f;
         float playerOffsetNormalized = (playerOffset + playerStageOffset) / SplineLength;
         float playerT = (currentT + playerOffsetNormalized) % 1.0f;
         if (playerT < 0) playerT += 1.0f;
         PlayerPosition = splineContainer.EvaluatePosition(playerT);
 
         // Calculate enemy position
-        float enemyStageOffset = CurrentStage ? CurrentStage.EnemyStageOffset : 0f;
+        float enemyStageOffset = CurrentStage ? CurrentStage.EnemyPositionOffset : 0f;
         float enemyOffsetNormalized = (enemyOffset + enemyStageOffset) / SplineLength;
         float enemyT = (currentT + enemyOffsetNormalized) % 1.0f;
         if (enemyT < 0) enemyT += 1.0f;

@@ -11,8 +11,12 @@ using VInspector;
 
 public class UIManager : MonoBehaviour
 {
+    public static UIManager Instance { get; private set; }
+    
+    
     [Foldout("Effects")]
     [Header("General")]
+    [SerializeField] private float hudFadeDuration = 1f;
     [SerializeField] private Color cooldownIconColor = Color.grey;
     
     [Header("Health")]
@@ -58,6 +62,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Sprite heartIcon;
     
     [Header("Child References")] 
+    [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
     [SerializeField] private Transform playerHealthHolder;
     [SerializeField] private Image playerShieldIcon;
     [SerializeField] private Image playerWeaponIcon;
@@ -68,6 +73,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI playerShieldText;
     [SerializeField] private TextMeshProUGUI playerCurrencyText;
     [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI keybindsText;
     
     [Header("Scene References")] 
     [SerializeField] private LevelManager levelManager;
@@ -78,6 +84,8 @@ public class UIManager : MonoBehaviour
     private Color _secondaryWeaponStartColor;
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
+    private Sequence _keybindsSequence;
+    private Sequence _hudSequence;
     private Sequence _heatBarSequence;
     private Sequence _scoreSequence;
     private Sequence _playerCurrencySequence;
@@ -85,13 +93,38 @@ public class UIManager : MonoBehaviour
     private int _score;
     private int _previousPlayerCurrency;
     private int _playerCurrency;
-    
+
+
+    private void OnValidate()
+    {
+        if (!levelManager)
+        {
+            levelManager = FindFirstObjectByType<LevelManager>();
+        }
+        
+        
+        if (!player)
+        {
+            player = FindFirstObjectByType<RailPlayer>();
+        }
+    }
 
     private void Awake()
     {
+        if (!Instance || Instance == this)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+        
         PrimeTweenConfig.warnEndValueEqualsCurrent = false;
         SetUpUI();
     }
+    
 
     private void OnEnable()
     {
@@ -113,6 +146,7 @@ public class UIManager : MonoBehaviour
         if (levelManager)
         {
             levelManager.OnScoreChanged += OnScoreChanged;
+            levelManager.OnStageChanged += OnStageChanged;
         }
     }
 
@@ -136,14 +170,22 @@ public class UIManager : MonoBehaviour
         if (levelManager)
         {
             levelManager.OnScoreChanged -= OnScoreChanged;
+            levelManager.OnStageChanged -= OnStageChanged;
         }
     }
+
+
 
     private void Update()
     {
         scoreText.text = _score.ToString($"D{scoreDigits}"); // Shows right now up to a million
         playerCurrencyText.text = _playerCurrency.ToString();
     }
+
+
+
+
+    #region SetUp -----------------------------------------------------------------------------------
 
     private void SetUpUI()
     {
@@ -191,7 +233,99 @@ public class UIManager : MonoBehaviour
         {
             OnScoreChanged(0);
         }
+        
+        
+        // Hide ui elements
+        ToggleHUD(false);
+        ToggleKeybinds(false);
     }
+
+    #endregion SetUp -----------------------------------------------------------------------------------
+
+
+    #region HUD --------------------------------------------------------------------------------
+
+    private void OnStageChanged(SOLevelStage stage)
+    {
+        if (!stage) return;
+        
+        switch (stage.StageType)
+        {
+            case StageType.Intro:
+                FadeHUD(false);
+                FadeKeybinds(false);
+                break;
+            case StageType.Outro:
+                FadeHUD(false);
+                FadeKeybinds(false);
+                break;
+            case StageType.Checkpoint:
+                FadeHUD(true);
+                FadeKeybinds(stage.ShowPlayerKeybinds);
+                break;
+            case StageType.EnemyWave:
+                FadeHUD(true);
+                FadeKeybinds(stage.ShowPlayerKeybinds);
+                break;
+        }
+    }
+    
+    private void FadeHUD(bool fadeIn)
+    {
+        
+        switch (fadeIn)
+        {
+            case true when hudGroup.alpha >= 1:
+            case false when hudGroup.alpha <= 0:
+                return;
+        }
+
+        float startValue = fadeIn ? 0 : 1;
+        float endValue = fadeIn ? 1 : 0;
+        
+        
+        if (_hudSequence.isAlive) _hudSequence.Stop();
+        _hudSequence = Sequence.Create()
+                
+                .Group(Tween.Alpha(hudGroup, startValue, endValue, hudFadeDuration))
+            ;
+    
+    }
+    
+    private void FadeKeybinds(bool fadeIn)
+    {
+        switch (fadeIn)
+        {
+            case true when keybindsText.alpha >= 1:
+            case false when keybindsText.alpha <= 0:
+                return;
+        }
+
+
+        float startValue = fadeIn ? 0 : 1;
+        float endValue = fadeIn ? 1 : 0;
+        
+        
+        if (_keybindsSequence.isAlive) _keybindsSequence.Stop();
+        _keybindsSequence = Sequence.Create()
+                
+                .Group(Tween.Alpha(keybindsText, startValue, endValue, hudFadeDuration))
+            ;
+    
+    }
+
+    private void ToggleHUD(bool state)
+    {
+        hudGroup.alpha = state ? 1f : 0;
+    }
+    
+    private void ToggleKeybinds(bool state)
+    {
+        keybindsText.alpha = state ? 1f : 0;
+    }
+
+    #endregion HUD --------------------------------------------------------------------------------
+    
 
     #region Player UI ----------------------------------------------------------------------------------
 
@@ -341,6 +475,7 @@ public class UIManager : MonoBehaviour
 
     #endregion Player UI ----------------------------------------------------------------------------------
 
+    
     #region Level UI ----------------------------------------------------------------------------------
 
     private void OnScoreChanged(int newScore)
@@ -352,7 +487,7 @@ public class UIManager : MonoBehaviour
             _scoreSequence = Sequence.Create()
                 
                     .Group(Tween.Custom(startValue: _previousScore, endValue: newScore, duration: scoreAnimationDuration, onValueChange: value => _score = value.ToInt()))
-                    .Chain(Tween.PunchScale(scoreText.transform, strength: Vector3.one * scorePunchStrength, duration: scoreAnimationDuration))
+                    .Chain(Tween.PunchScale(scoreText.transform, strength: Vector3.one * scorePunchStrength, duration: scorePunchDuration))
                     .OnComplete(() => _previousScore = newScore)
                 ;
         }
