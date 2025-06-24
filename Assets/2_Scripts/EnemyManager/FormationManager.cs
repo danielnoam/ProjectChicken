@@ -148,14 +148,6 @@ public class FormationManager : MonoBehaviour
         HandleSplineRotation();
     }
 
-    private void OnDrawGizmos()
-    {
-        if (!showGizmos) return;
-        DrawBoundary();
-        DrawFormationSlots();
-        DrawFormationInfo();
-    }
-
     #endregion
 
     #region Spline Rotation
@@ -1124,8 +1116,18 @@ public class FormationManager : MonoBehaviour
 
     #endregion
 
+    
+#if UNITY_EDITOR
+    
     #region Gizmo Drawing
 
+    private void OnDrawGizmos()
+    {
+        if (!showGizmos) return;
+        DrawBoundary();
+        DrawFormationSlots();
+        DrawFormationInfo();
+    }
     private void DrawBoundary()
     {
         if (!levelManager) return;
@@ -1359,4 +1361,7 @@ public class FormationManager : MonoBehaviour
     }
 
     #endregion
+    
+#endif
+
 }

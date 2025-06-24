@@ -6,7 +6,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using PrimeTween;
-using VHierarchy.Libs;
 using VInspector;
 
 public class UIManager : MonoBehaviour
@@ -441,7 +440,7 @@ public class UIManager : MonoBehaviour
             if (_playerCurrencySequence.isAlive) _playerCurrencySequence.Stop();
             _playerCurrencySequence = Sequence.Create()
                 
-                    .Group(Tween.Custom(startValue: _previousPlayerCurrency, endValue: newCurrency, duration: currencyAnimationDuration, onValueChange: value => _playerCurrency = value.ToInt()))
+                    .Group(Tween.Custom(startValue: _previousPlayerCurrency, endValue: newCurrency, duration: currencyAnimationDuration, onValueChange: value => _playerCurrency = Mathf.RoundToInt(value)))
                     .Chain(Tween.PunchScale(playerCurrencyIcon.transform, strength: Vector3.one * currencyPunchStrength, duration: currencyPunchDuration))
                     .OnComplete(() => _previousPlayerCurrency = newCurrency)
                 ;
@@ -451,7 +450,7 @@ public class UIManager : MonoBehaviour
             if (_playerCurrencySequence.isAlive) _playerCurrencySequence.Stop();
             _playerCurrencySequence = Sequence.Create()
                 
-                    .Group(Tween.Custom(startValue: _previousPlayerCurrency, endValue: newCurrency, duration: currencyAnimationDuration, onValueChange: value => _playerCurrency = value.ToInt()))
+                    .Group(Tween.Custom(startValue: _previousPlayerCurrency, endValue: newCurrency, duration: currencyAnimationDuration, onValueChange: value => _playerCurrency = Mathf.RoundToInt(value)))
                     .OnComplete(() => _previousPlayerCurrency = newCurrency)
                 ;
         }
@@ -486,7 +485,7 @@ public class UIManager : MonoBehaviour
             if (_scoreSequence.isAlive) _scoreSequence.Stop();
             _scoreSequence = Sequence.Create()
                 
-                    .Group(Tween.Custom(startValue: _previousScore, endValue: newScore, duration: scoreAnimationDuration, onValueChange: value => _score = value.ToInt()))
+                    .Group(Tween.Custom(startValue: _previousScore, endValue: newScore, duration: scoreAnimationDuration, onValueChange: value => _score = Mathf.RoundToInt(value)))
                     .Chain(Tween.PunchScale(scoreText.transform, strength: Vector3.one * scorePunchStrength, duration: scorePunchDuration))
                     .OnComplete(() => _previousScore = newScore)
                 ;
@@ -496,7 +495,7 @@ public class UIManager : MonoBehaviour
             if (_scoreSequence.isAlive) _scoreSequence.Stop();
             _scoreSequence = Sequence.Create()
                 
-                    .Group(Tween.Custom(startValue: _previousScore, endValue: newScore, duration: scoreAnimationDuration, onValueChange: value => _score = value.ToInt()))
+                    .Group(Tween.Custom(startValue: _previousScore, endValue: newScore, duration: scoreAnimationDuration, onValueChange: value => _score = Mathf.RoundToInt(value)))
                     .OnComplete(() => _previousScore = newScore)
                 ;
         }
