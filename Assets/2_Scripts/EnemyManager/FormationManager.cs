@@ -162,7 +162,7 @@ public class FormationManager : MonoBehaviour
 
     private void HandleSplineRotation()
     {
-        if (!LevelManager.Instance)
+        if (!levelManager)
         {
             _splineRotation = Quaternion.identity;
             return;
@@ -179,7 +179,7 @@ public class FormationManager : MonoBehaviour
 
     private Vector3 GetSplineDirection()
     {
-        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.CurrentPositionOnPath.position);
+        return !levelManager ? Vector3.forward : levelManager.GetDirectionOnSpline(levelManager.CurrentPositionOnPath.position);
     }
 
     #endregion
@@ -565,7 +565,7 @@ public class FormationManager : MonoBehaviour
         int columns = Mathf.Max(1, _currentFormationSettings.GridSize.x);
         int rows = Mathf.Max(1, _currentFormationSettings.GridSize.y);
 
-        if (_currentFormationSettings.GridFillsBoundary && LevelManager.Instance)
+        if (_currentFormationSettings.GridFillsBoundary && levelManager)
         {
             Vector2 boundary = GetFormationBoundary();
             
@@ -640,7 +640,7 @@ public class FormationManager : MonoBehaviour
     
     private void ApplyBoundaryConstraintsAtPosition(FormationInstance formation)
     {
-        if (!LevelManager.Instance) return;
+        if (!levelManager) return;
         
         Vector2 boundary = GetFormationBoundary();
         
@@ -771,7 +771,7 @@ public class FormationManager : MonoBehaviour
     
     private void ApplyFormationPosition(FormationInstance formation)
     {
-        if (!LevelManager.Instance) return;
+        if (!levelManager) return;
 
         if (_currentFormationSettings.IsGridFillingBoundary)
         {
@@ -981,9 +981,9 @@ public class FormationManager : MonoBehaviour
 
     private Vector2 GetFormationBoundary()
     {
-        if (!LevelManager.Instance) return new Vector2(50f, 30f);
+        if (!levelManager) return new Vector2(50f, 30f);
         
-        Vector2 crosshairBoundary = LevelManager.Instance.EnemyBoundary * 2f;
+        Vector2 crosshairBoundary = levelManager.EnemyBoundary * 2f;
         
         return new Vector2(
             Mathf.Max(1f, crosshairBoundary.x - (boundaryOffset * 2f)),
@@ -1134,7 +1134,7 @@ public class FormationManager : MonoBehaviour
 
     private void DrawBoundary()
     {
-        if (!LevelManager.Instance) return;
+        if (!levelManager) return;
         
         bool isWithinBounds = true;
         if (_formationSlots.Count > 0)
@@ -1344,14 +1344,14 @@ public class FormationManager : MonoBehaviour
         {
             Vector3 successPos = baseInfoPos + Vector3.up * (lineHeight * lineIndex);
             UnityEditor.Handles.color = Color.green;
-            UnityEditor.Handles.Label(successPos, "✓ Formations auto-fitted to boundary");
+            UnityEditor.Handles.Label(successPos, "Formations auto-fitted to boundary");
             UnityEditor.Handles.color = Color.white;
         }
         else if (_currentFormationSettings.FormationType == FormationType.VShape)
         {
             Vector3 successPos = baseInfoPos + Vector3.up * (lineHeight * lineIndex);
             UnityEditor.Handles.color = Color.green;
-            UnityEditor.Handles.Label(successPos, "✓ V-Shape positioned at bottom boundary");
+            UnityEditor.Handles.Label(successPos, "V-Shape positioned at bottom boundary");
             UnityEditor.Handles.color = Color.white;
         }
     }
