@@ -14,18 +14,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageType: 2
   stageDuration: 3
+  enemyPositionOffset: 0
+  delayBeforeNextStage: 1
   waveScore: 1000
   enemyWave:
     serializedKvps: []
     dividerPos: 0.33
-  enemyStageOffset: 0
-  delayBeforeNextStage: 1
+  formationSettings:
+    formationType: 0
+    formationPosition: 0
+    formationCount: 1
+    vShapeCount: 10
+    squareSize: 4
+    triangleRows: 4
+    circleCount: 12
+    gridSize: {x: 5, y: 3}
+    gridFillsBoundary: 1
   pathFollowSpeed: 25
   upAxis: 1
   forwardAxis: 2
   alignmentMode: 1
-  allowPlayerMovement: 1
+  allowPlayerMovement: 0
   allowPlayerAim: 1
   allowPlayerShooting: 1
-  playerStageOffset: 0
+  playerPositionOffset: 0
   showPlayerKeybinds: 1

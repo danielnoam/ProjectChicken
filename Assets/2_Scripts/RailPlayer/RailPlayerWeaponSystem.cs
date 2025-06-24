@@ -64,7 +64,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private float _specialWeaponFireRateCooldown;
     private float _specialWeaponTime;
     private float _specialWeaponAmmo;
-    private bool AllowShooting => !LevelManager.Instance || !LevelManager.Instance.CurrentStage || LevelManager.Instance.CurrentStage.AllowPlayerShooting;
+    private bool AllowShooting => player.IsAlive() && (!LevelManager.Instance || !LevelManager.Instance.CurrentStage ||
+                                                       LevelManager.Instance.CurrentStage.AllowPlayerShooting);
     
     
     public bool IsOverHeated => _isOverHeated;

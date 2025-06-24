@@ -62,7 +62,8 @@ public class RailPlayerMovement : MonoBehaviour
 
     private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
     private float MovementBoundaryY => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
-    private bool AllowMovement => !LevelManager.Instance || !LevelManager.Instance.CurrentStage || LevelManager.Instance.CurrentStage.AllowPlayerMovement;
+    private bool AllowMovement => player.IsAlive() && (!LevelManager.Instance || !LevelManager.Instance.CurrentStage ||
+                                                       LevelManager.Instance.CurrentStage.AllowPlayerMovement);
 
     public float MaxDodgeCooldown => dodgeCooldown;
     public bool IsDodging => _isDodging;

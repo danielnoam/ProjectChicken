@@ -248,7 +248,6 @@ public class ChickenController : MonoBehaviour
         
         // Trigger death event
         OnDeath?.Invoke(scoreValue);
-        Debug.Log(gameObject.name);
         
         // Destroy or pool the chicken
         Destroy(gameObject);
