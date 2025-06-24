@@ -19,7 +19,7 @@ public class SOLevelStage : ScriptableObject
     [EndIf]
     
     [Header("Path Settings")]
-    [SerializeField] private float pathFollowSpeed = 3f;
+    [SerializeField] private float pathFollowSpeed = 5f;
     [SerializeField] private SplineComponent.AlignAxis upAxis = SplineComponent.AlignAxis.YAxis;
     [SerializeField] private SplineComponent.AlignAxis forwardAxis = SplineComponent.AlignAxis.ZAxis;
     [SerializeField] private SplineAnimate.AlignmentMode alignmentMode = SplineAnimate.AlignmentMode.SplineElement;

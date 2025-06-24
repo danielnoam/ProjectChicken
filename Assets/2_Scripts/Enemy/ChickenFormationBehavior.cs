@@ -26,7 +26,7 @@ public class ChickenFormationBehavior : MonoBehaviour
     // References
     [SerializeField,Self] private ChickenController chickenController; 
     private FormationManager _formationManager;
-    private FormationManager.FormationSlot _assignedSlot;
+    private FormationSlot _assignedSlot;
    
     [SerializeField, Self] private Rigidbody rb;
     

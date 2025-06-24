@@ -3,67 +3,48 @@ using System.Collections.Generic;
 using UnityEngine;
 using VInspector;
 
+
+[Serializable]
+public class FormationSlot
+{
+    public Vector3 localPosition;
+    public bool isOccupied;
+    public GameObject occupant;
+    public int formationIndex;
+
+    public FormationSlot(Vector3 position, int index = 0)
+    {
+        localPosition = position;
+        isOccupied = false;
+        occupant = null;
+        formationIndex = index;
+    }
+}
+    
+    
+[Serializable]
+public class FormationInstance
+{
+    public List<FormationSlot> slots = new List<FormationSlot>();
+    public Vector2 positionOffset = Vector2.zero;
+    public float spacingMultiplier = 1f;
+    public int index;
+    public Bounds bounds;
+        
+    public FormationInstance(int idx)
+    {
+        index = idx;
+    }
+}
+
+
 // FormationManager: Handles enemy formations for a chicken invaders-style game
-// Now includes notification system for formation changes and per-stage formation settings
 public class FormationManager : MonoBehaviour
 {
-    
-    
-    #region  Classes
-    
-    [Serializable]
-    public class FormationSlot
-    {
-        public Vector3 localPosition;
-        public bool isOccupied;
-        public GameObject occupant;
-        public int formationIndex;
-
-        public FormationSlot(Vector3 position, int index = 0)
-        {
-            localPosition = position;
-            isOccupied = false;
-            occupant = null;
-            formationIndex = index;
-        }
-    }
-    
-    [Serializable]
-    public struct FormationStatistics
-    {
-        public FormationType formationType;
-        public int totalSlots;
-        public int occupiedSlots;
-        public int availableSlots;
-        public float spacingMultiplier;
-        public bool isWithinBounds;
-        public Vector2 positionOffset;
-        public Bounds formationBounds;
-        public int activeFormations;
-    }
-    
-    [Serializable]
-    public class FormationInstance
-    {
-        public List<FormationSlot> slots = new List<FormationSlot>();
-        public Vector2 positionOffset = Vector2.zero;
-        public float spacingMultiplier = 1f;
-        public int index;
-        public Bounds bounds;
-        
-        public FormationInstance(int idx)
-        {
-            index = idx;
-        }
-    }
-
-    #endregion
-    
 
     #region Inspector Fields
 
     [Header("Formation Settings")]
-    [SerializeField] private bool autoUpdateFormation = true;
     [SerializeField, Range(0f, 1f)] private float boundaryPadding = 0.1f;
     [Tooltip("Minimum separation between formation instances as a percentage of formation size.")]
     [SerializeField][Range(0.1f, 2f)] private float formationSeparation = 1.2f;
@@ -94,64 +75,53 @@ public class FormationManager : MonoBehaviour
         Color.cyan, Color.magenta, Color.yellow, Color.blue, Color.green,
         Color.red, new Color(1f, 0.5f, 0f), new Color(0.5f, 0f, 1f), new Color(0f, 1f, 0.5f), Color.white
     };
+    
+    [Header("References")]
+    [SerializeField] private LevelManager levelManager;
 
     #endregion
 
     
-    #region Private Fields
+    #region Private Fields && Properties
 
     private readonly List<FormationSlot> _formationSlots = new List<FormationSlot>();
     private readonly List<FormationInstance> _formations = new List<FormationInstance>();
-    private FormationType _lastFormationType;
-    private int _lastFormationCount = 1;
-    private Vector3 _formationCenter;
     private float _currentSpacingMultiplier = 1f;
     private Quaternion _splineRotation = Quaternion.identity;
     private FormationSettings _currentFormationSettings = new FormationSettings();
-
-    #endregion
-
+    private Vector3 FormationCenter => levelManager ? levelManager.EnemyPosition : Vector3.zero;
     
-    #region Properties
-
     public List<FormationSlot> FormationSlots => _formationSlots;
-    public Vector3 FormationWorldCenter
-    {
-        get
-        {
-            var offset = _formations.Count > 0 ? _formations[0].positionOffset : Vector2.zero;
-            return _formationCenter + (_splineRotation * new Vector3(offset.x, offset.y, 0));
-        }
-    }
-    public FormationSettings CurrentFormationSettings => _currentFormationSettings;
     public static event Action OnFormationChanged;
 
     #endregion
+    
 
     
     
     #region Unity Lifecycle
 
-    private void Start()
+    private void OnValidate()
     {
-        GenerateFormations(true);
-        _lastFormationType = _currentFormationSettings.FormationType;
-        _lastFormationCount = _currentFormationSettings.FormationCount;
+        if (!levelManager)
+        {
+            levelManager = FindFirstObjectByType<LevelManager>();
+        }
     }
-    
+
     private void OnEnable()
     {
-        if (LevelManager.Instance)
+        if (levelManager)
         {
-            LevelManager.Instance.OnStageChanged += OnStageChanged;
+            levelManager.OnStageChanged += OnStageChanged;
         }
     }
 
     private void OnDisable()
     {
-        if (LevelManager.Instance)
+        if (levelManager)
         {
-            LevelManager.Instance.OnStageChanged -= OnStageChanged;
+            levelManager.OnStageChanged -= OnStageChanged;
         }
     }
     
@@ -168,8 +138,6 @@ public class FormationManager : MonoBehaviour
         {
             // Update to new settings
             _currentFormationSettings = new FormationSettings(newSettings);
-            
-            Debug.Log($"FormationManager: Stage changed to {newStage.name}, updating formation to {_currentFormationSettings.FormationType}");
             GenerateFormations(true);
         }
     }
@@ -178,52 +146,11 @@ public class FormationManager : MonoBehaviour
     private void Update()
     {
         HandleSplineRotation();
-        UpdateFormationCenter();
-
-        bool needsRegeneration = false;
-        
-        if (autoUpdateFormation && _lastFormationType != _currentFormationSettings.FormationType)
-        {
-            needsRegeneration = true;
-            _lastFormationType = _currentFormationSettings.FormationType;
-        }
-        
-        if (_lastFormationCount != _currentFormationSettings.FormationCount)
-        {
-            needsRegeneration = true;
-            _lastFormationCount = _currentFormationSettings.FormationCount;
-        }
-        
-        if (needsRegeneration)
-        {
-            GenerateFormations(true); // Notify on runtime changes
-        }
-        
-        // Runtime boundary check - useful if boundary size changes
-        if (Application.isPlaying && constrainToBoundary && _formationSlots.Count > 0)
-        {
-            // Only check periodically for performance
-            if (Time.frameCount % 30 == 0) // Check every 30 frames
-            {
-                foreach (var formation in _formations)
-                {
-                    if (!IsFormationInstanceWithinBounds(formation))
-                    {
-                        GenerateFormations(true); // Notify on boundary adjustments
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     private void OnDrawGizmos()
     {
         if (!showGizmos) return;
-
-        HandleSplineRotation();
-        UpdateFormationCenter();
-        
         DrawBoundary();
         DrawFormationSlots();
         DrawFormationInfo();
@@ -265,7 +192,7 @@ public class FormationManager : MonoBehaviour
         List<GameObject> previousOccupants = new List<GameObject>();
         foreach (var slot in _formationSlots)
         {
-            if (slot.isOccupied && slot.occupant != null)
+            if (slot.isOccupied && slot.occupant)
             {
                 previousOccupants.Add(slot.occupant);
             }
@@ -518,7 +445,7 @@ public class FormationManager : MonoBehaviour
         foreach (var slot in formation.slots)
         {
             Vector3 worldPos = GetSlotWorldPosition(slot);
-            Vector3 localPos = Quaternion.Inverse(_splineRotation) * (worldPos - _formationCenter);
+            Vector3 localPos = Quaternion.Inverse(_splineRotation) * (worldPos - FormationCenter);
             
             if (Mathf.Abs(localPos.x) > boundary.x * 0.5f || Mathf.Abs(localPos.y) > boundary.y * 0.5f)
             {
@@ -561,7 +488,7 @@ public class FormationManager : MonoBehaviour
             AddSlot(formation, new Vector3(xPos, yPos, 0));
         }
         
-        // Normalize so lowest point is at y=0
+        // Normalize so the lowest point is at y=0
         if (formation.slots.Count > 0)
         {
             float minY = float.MaxValue;
@@ -739,7 +666,7 @@ public class FormationManager : MonoBehaviour
             foreach (var slot in formation.slots)
             {
                 Vector3 worldPos = GetSlotWorldPosition(slot);
-                Vector3 localPos = Quaternion.Inverse(_splineRotation) * (worldPos - _formationCenter);
+                Vector3 localPos = Quaternion.Inverse(_splineRotation) * (worldPos - FormationCenter);
                 
                 float exceedX = Mathf.Abs(localPos.x) - (boundary.x * 0.5f);
                 float exceedY = Mathf.Abs(localPos.y) - (boundary.y * 0.5f);
@@ -980,7 +907,7 @@ public class FormationManager : MonoBehaviour
     
     public bool OccupySpecificSlot(FormationSlot slot, GameObject occupant)
     {
-        if (slot != null && !slot.isOccupied)
+        if (slot is { isOccupied: false })
         {
             slot.isOccupied = true;
             slot.occupant = occupant;
@@ -1034,10 +961,10 @@ public class FormationManager : MonoBehaviour
         
         if (formationInstance == null)
         {
-            return _formationCenter + slot.localPosition;
+            return FormationCenter + slot.localPosition;
         }
         
-        Vector3 worldPosition = _formationCenter;
+        Vector3 worldPosition = FormationCenter;
         Vector3 rotatedOffset = _splineRotation * new Vector3(formationInstance.positionOffset.x, formationInstance.positionOffset.y, 0);
         worldPosition += rotatedOffset;
         worldPosition += _splineRotation * slot.localPosition;
@@ -1051,12 +978,6 @@ public class FormationManager : MonoBehaviour
     
     
     #region Helper Methods
-
-    private void UpdateFormationCenter()
-    {
-        if (!LevelManager.Instance) return;
-        _formationCenter = LevelManager.Instance.EnemyPosition;
-    }
 
     private Vector2 GetFormationBoundary()
     {
@@ -1087,7 +1008,7 @@ public class FormationManager : MonoBehaviour
     
     public Bounds GetFormationWorldBounds()
     {
-        if (_formationSlots.Count == 0) return new Bounds(_formationCenter, Vector3.zero);
+        if (_formationSlots.Count == 0) return new Bounds(FormationCenter, Vector3.zero);
         
         Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
         Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
@@ -1206,18 +1127,6 @@ public class FormationManager : MonoBehaviour
         GenerateFormations(true);
     }
     
-    [Button]
-    private void DebugPositionSpace()
-    {
-        Debug.Log($"=== Position Space Debug ===");
-        Debug.Log($"Current Formation: {_currentFormationSettings.FormationType}");
-        Debug.Log($"Formation Position: {_currentFormationSettings.FormationPosition}");
-        Debug.Log($"Formation Count: {_currentFormationSettings.FormationCount}");
-        Debug.Log($"Boundary is rotated: {_splineRotation.eulerAngles}");
-        Debug.Log($"Formation world center: {FormationWorldCenter}");
-        Debug.Log($"Boundary center: {_formationCenter}");
-        Debug.Log($"Active Formations: {_formations.Count}");
-    }
 
     #endregion
 
@@ -1246,7 +1155,7 @@ public class FormationManager : MonoBehaviour
             Gizmos.color = Color.gray;
         }
         
-        Vector3 boundaryCenter = _formationCenter;
+        Vector3 boundaryCenter = FormationCenter;
         Vector2 formationBoundary = GetFormationBoundary();
         
         Vector3 boundarySize = new Vector3(formationBoundary.x, formationBoundary.y, 0.1f);
@@ -1276,9 +1185,6 @@ public class FormationManager : MonoBehaviour
         Gizmos.DrawLine(worldCorners[1], worldCorners[3]);
         
         #if UNITY_EDITOR
-        Vector3 planeLabel = boundaryCenter + (_splineRotation * Vector3.up * (boundarySize.y * 0.5f + 1f));
-        UnityEditor.Handles.Label(planeLabel, "2D Boundary Plane");
-        
         if (showGizmos && _currentFormationSettings.FormationPosition != FormationPosition.Center)
         {
             UnityEditor.Handles.color = new Color(1f, 1f, 0f, 0.05f);
@@ -1297,7 +1203,7 @@ public class FormationManager : MonoBehaviour
             {
                 var bounds = formation.bounds;
                 Vector3 boundsSize = new Vector3(bounds.size.x, bounds.size.y, 0.1f);
-                Vector3 formationWorldCenter = _formationCenter;
+                Vector3 formationWorldCenter = FormationCenter;
                 
                 formationWorldCenter += _splineRotation * new Vector3(formation.positionOffset.x, formation.positionOffset.y, 0);
 
@@ -1334,7 +1240,7 @@ public class FormationManager : MonoBehaviour
         {
             Vector3 worldPos = GetSlotWorldPosition(slot);
             
-            Vector3 localPos = Quaternion.Inverse(_splineRotation) * (worldPos - _formationCenter);
+            Vector3 localPos = Quaternion.Inverse(_splineRotation) * (worldPos - FormationCenter);
             
             bool slotInBounds = Mathf.Abs(localPos.x) <= boundary.x * 0.5f && 
                                Mathf.Abs(localPos.y) <= boundary.y * 0.5f;
@@ -1355,7 +1261,7 @@ public class FormationManager : MonoBehaviour
             if (_formations.Count > 1 && slot.formationIndex < _formations.Count)
             {
                 var formation = _formations[slot.formationIndex];
-                Vector3 formationWorldCenter = _formationCenter;
+                Vector3 formationWorldCenter = FormationCenter;
                 
                 formationWorldCenter += _splineRotation * new Vector3(formation.positionOffset.x, formation.positionOffset.y, 0);
                 
@@ -1366,9 +1272,9 @@ public class FormationManager : MonoBehaviour
 
         Gizmos.color = Color.cyan;
         Vector3 forwardDirection = _splineRotation * Vector3.forward;
-        Gizmos.DrawRay(_formationCenter, forwardDirection * 3f);
+        Gizmos.DrawRay(FormationCenter, forwardDirection * 3f);
         
-        Vector3 arrowTip = _formationCenter + forwardDirection * 3f;
+        Vector3 arrowTip = FormationCenter + forwardDirection * 3f;
         Vector3 arrowLeft = arrowTip - (_splineRotation * (Vector3.forward * 0.5f + Vector3.left * 0.3f));
         Vector3 arrowRight = arrowTip - (_splineRotation * (Vector3.forward * 0.5f + Vector3.right * 0.3f));
         
@@ -1378,35 +1284,36 @@ public class FormationManager : MonoBehaviour
 
     private void DrawFormationInfo()
     {
-        #if UNITY_EDITOR
-        Vector3 baseInfoPos = _formationCenter;
+        Vector2 boundary = GetFormationBoundary();
+        Vector3 baseInfoPos = FormationCenter + Vector3.up * (boundary.y * 0.5f + 1f); // Start above boundary
+        float lineHeight = 1f;
+        int lineIndex = 0;
 
         if (constrainToBoundary && _currentSpacingMultiplier < 1f)
         {
-            Vector3 infoPos = baseInfoPos + Vector3.up * 5f;
+            Vector3 infoPos = baseInfoPos + Vector3.up * (lineHeight * lineIndex++);
             UnityEditor.Handles.Label(infoPos, $"Spacing: {(_currentSpacingMultiplier * 100f):F0}% (Auto-adjusted)");
         }
 
         if (_currentFormationSettings.FormationType == FormationType.Grid && _currentFormationSettings.GridFillsBoundary && _formationSlots.Count > 0)
         {
-            Vector3 gridInfoPos = baseInfoPos + Vector3.up * 6f;
+            Vector3 gridInfoPos = baseInfoPos + Vector3.up * (lineHeight * lineIndex++);
             UnityEditor.Handles.Label(gridInfoPos, $"Grid: {_currentFormationSettings.GridSize.x}x{_currentFormationSettings.GridSize.y} = {_currentFormationSettings.GridSize.x * _currentFormationSettings.GridSize.y} slots");
         }
         
         if (_currentFormationSettings.FormationType == FormationType.VShape && _formations.Count > 0)
         {
-            Vector3 vInfoPos = baseInfoPos + Vector3.up * 6f;
+            Vector3 vInfoPos = baseInfoPos + Vector3.up * (lineHeight * lineIndex++);
             UnityEditor.Handles.Label(vInfoPos, $"V-Shape: {_currentFormationSettings.VShapeCount} slots (Auto-positioned at bottom)");
         }
 
         if (_formations.Count > 1)
         {
-            Vector3 countInfoPos = baseInfoPos + Vector3.up * 7f;
+            Vector3 countInfoPos = baseInfoPos + Vector3.up * (lineHeight * lineIndex++);
             UnityEditor.Handles.Label(countInfoPos, $"Active Formations: {_formations.Count}");
         }
         
-        Vector2 boundary = GetFormationBoundary();
-        Vector3 boundaryInfoPos = _formationCenter + Vector3.down * (boundary.y * 0.5f + 2f);
+        Vector3 boundaryInfoPos = baseInfoPos + Vector3.up * (lineHeight * lineIndex++);
         UnityEditor.Handles.Label(boundaryInfoPos, $"Formation Boundary: {boundary.x:F1} x {boundary.y:F1}");
         
         bool allWithinBounds = true;
@@ -1416,7 +1323,7 @@ public class FormationManager : MonoBehaviour
             foreach (var slot in formation.slots)
             {
                 Vector3 worldPos = GetSlotWorldPosition(slot);
-                Vector3 localPos = Quaternion.Inverse(_splineRotation) * (worldPos - _formationCenter);
+                Vector3 localPos = Quaternion.Inverse(_splineRotation) * (worldPos - FormationCenter);
                 
                 if (Mathf.Abs(localPos.x) > boundary.x * 0.5f || Mathf.Abs(localPos.y) > boundary.y * 0.5f)
                 {
@@ -1428,26 +1335,25 @@ public class FormationManager : MonoBehaviour
         
         if (!allWithinBounds)
         {
-            Vector3 warningPos = _formationCenter + Vector3.up * (boundary.y * 0.5f + 3f);
+            Vector3 warningPos = baseInfoPos + Vector3.up * (lineHeight * lineIndex);
             UnityEditor.Handles.color = Color.red;
             UnityEditor.Handles.Label(warningPos, $"⚠ {totalSlotsOutside} SLOTS OUTSIDE BOUNDS!");
             UnityEditor.Handles.color = Color.white;
         }
         else if (constrainToBoundary && _currentSpacingMultiplier < 0.99f)
         {
-            Vector3 successPos = _formationCenter + Vector3.up * (boundary.y * 0.5f + 2f);
+            Vector3 successPos = baseInfoPos + Vector3.up * (lineHeight * lineIndex);
             UnityEditor.Handles.color = Color.green;
             UnityEditor.Handles.Label(successPos, "✓ Formations auto-fitted to boundary");
             UnityEditor.Handles.color = Color.white;
         }
         else if (_currentFormationSettings.FormationType == FormationType.VShape)
         {
-            Vector3 successPos = _formationCenter + Vector3.up * (boundary.y * 0.5f + 2f);
+            Vector3 successPos = baseInfoPos + Vector3.up * (lineHeight * lineIndex);
             UnityEditor.Handles.color = Color.green;
             UnityEditor.Handles.Label(successPos, "✓ V-Shape positioned at bottom boundary");
             UnityEditor.Handles.color = Color.white;
         }
-        #endif
     }
     
     private Color GetFormationColor(int index)

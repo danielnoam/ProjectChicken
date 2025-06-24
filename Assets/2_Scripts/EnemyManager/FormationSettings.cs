@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VInspector;
 
 
 public enum FormationType
@@ -30,21 +31,18 @@ public enum FormationPosition
 [Serializable]
 public class FormationSettings
 {
-    [Header("Formation Type")]
     [SerializeField] private FormationType formationType;
     [Tooltip("Where the formation center should be positioned within the boundary. V-Shape formations ignore this and always position at bottom.")]
-    [SerializeField] private FormationPosition formationPosition;
+    [SerializeField, HideIf("formationType", FormationType.VShape)] private FormationPosition formationPosition;[EndIf]
     [Tooltip("Number of formation instances to spawn. Grid and V-Shape formations always use 1.")]
-    [SerializeField][Range(1, 10)] private int formationCount;
-    
-    [Header("Formation Parameters")]
+    [SerializeField,Range(1, 10), HideIf("IsVShapeOrGrid")] private int formationCount;[EndIf]
     [Tooltip("Number of slots in the V-Shape formation. Should be odd for symmetry.")]
-    [SerializeField, Min(3)] private int vShapeCount;
-    [SerializeField, Min(2)] private int squareSize;
-    [SerializeField, Min(3)] private int triangleRows;
-    [SerializeField, Min(8)] private int circleCount;
-    [SerializeField] private Vector2Int gridSize;
-    [SerializeField] private bool gridFillsBoundary;
+    [SerializeField, Min(3), ShowIf("formationType", FormationType.VShape)] private int vShapeCount;[EndIf]
+    [SerializeField, Min(2), ShowIf("formationType", FormationType.Square2D)] private int squareSize;[EndIf]
+    [SerializeField, Min(3), ShowIf("formationType", FormationType.Triangle2D)] private int triangleRows;[EndIf]
+    [SerializeField, Min(8), ShowIf("formationType", FormationType.Circle)] private int circleCount;[EndIf]
+    [SerializeField, ShowIf("formationType", FormationType.Grid)] private Vector2Int gridSize;[EndIf]
+    [SerializeField, ShowIf("formationType", FormationType.Grid)] private bool gridFillsBoundary;[EndIf]
     
 
     
@@ -59,13 +57,14 @@ public class FormationSettings
     public bool GridFillsBoundary => gridFillsBoundary;
     public int FormationCount => formationCount;
     public bool IsGridFillingBoundary => FormationType == FormationType.Grid && GridFillsBoundary;
+    public bool IsVShapeOrGrid => FormationType is FormationType.VShape or FormationType.Grid;
     
     // Constructor with default values
     public FormationSettings()
     {
         formationType = FormationType.VShape;
         formationPosition = FormationPosition.Center;
-        vShapeCount = 19;
+        vShapeCount = 10;
         squareSize = 4;
         triangleRows = 4;
         circleCount = 12;

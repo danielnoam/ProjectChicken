@@ -59,7 +59,7 @@ public class ChickenFollowFormation : MonoBehaviour
     
     // Internal References
     private FormationManager _formationManager;
-    private FormationManager.FormationSlot _assignedSlot;
+    private FormationSlot _assignedSlot;
     private Rigidbody _rb;
     private Transform _playerTransform;
     
