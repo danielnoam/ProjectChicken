@@ -485,7 +485,7 @@ public class UIManager : MonoBehaviour
             _scoreSequence = Sequence.Create()
                 
                     .Group(Tween.Custom(startValue: _previousScore, endValue: newScore, duration: scoreAnimationDuration, onValueChange: value => _score = value.ToInt()))
-                    .Chain(Tween.PunchScale(scoreText.transform, strength: Vector3.one * scorePunchStrength, duration: scoreAnimationDuration))
+                    .Chain(Tween.PunchScale(scoreText.transform, strength: Vector3.one * scorePunchStrength, duration: scorePunchDuration))
                     .OnComplete(() => _previousScore = newScore)
                 ;
         }

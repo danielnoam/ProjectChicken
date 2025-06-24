@@ -13,10 +13,8 @@ public class ChickenFormationBehavior : MonoBehaviour
     [SerializeField] private AnimationCurve movementCurve = null; // Optional: custom movement curve
     [SerializeField] private float arrivalThreshold = 0.5f; // Distance to consider "arrived"
     [SerializeField] private float maxWaitTime = 5f; // Max time to wait for formation
-    [SerializeField] private float slotCheckInterval = 2f; // Check for open slots every X seconds
     
     [Header("Combat Movement")]
-    [SerializeField] private float followStrength = 10f; // How strongly to follow slot in combat
     [SerializeField] private float damping = 5f; // Damping for smooth movement
     [SerializeField] private float followLerpSpeed = 2f; // Lerp speed when following
     [SerializeField] private float positionDeadZone = 0.1f; // Stop micro-adjusting when this close
@@ -27,26 +25,26 @@ public class ChickenFormationBehavior : MonoBehaviour
     
     // References
     [SerializeField,Self] private ChickenController chickenController; 
-    private FormationManager formationManager;
-    private FormationManager.FormationSlot assignedSlot;
+    private FormationManager _formationManager;
+    private FormationSlot _assignedSlot;
    
     [SerializeField, Self] private Rigidbody rb;
     
     // Movement tracking
-    private Vector3 initialPosition;
-    private float moveTimer = 0f;
-    private float actualArrivalTime = 0f;
-    private bool hasArrivedAtSlotOnce = false;
-    private float waitTimer = 0f;
+    private Vector3 _initialPosition;
+    private float _moveTimer = 0f;
+    private float _actualArrivalTime = 0f;
+    private bool _hasArrivedAtSlotOnce = false;
+    private float _waitTimer = 0f;
     
     // Events
     public event System.Action OnArrivedAtSlot;
     public event System.Action OnSlotReleased;
     
     // Properties
-    public bool HasAssignedSlot => assignedSlot != null;
-    public Vector3 GetTargetSlotPosition => assignedSlot != null && formationManager != null ? 
-        formationManager.GetSlotWorldPosition(assignedSlot) : transform.position;
+    public bool HasAssignedSlot => _assignedSlot != null;
+    public Vector3 GetTargetSlotPosition => _assignedSlot != null && _formationManager != null ? 
+        _formationManager.GetSlotWorldPosition(_assignedSlot) : transform.position;
     
     private void OnValidate()
     {
@@ -55,8 +53,8 @@ public class ChickenFormationBehavior : MonoBehaviour
     private void Awake()
     {
         // Find FormationManager
-        formationManager = FindFirstObjectByType<FormationManager>();
-        if (formationManager == null)
+        _formationManager = FindFirstObjectByType<FormationManager>();
+        if (_formationManager == null)
         {
             Debug.LogError($"{gameObject.name}: FormationManager not found!");
         }
@@ -89,7 +87,7 @@ public class ChickenFormationBehavior : MonoBehaviour
     
     private void Start()
     {
-        if (formationManager != null)
+        if (_formationManager != null)
         {
             StartCoroutine(WaitForFormationAndAssign());
         }
@@ -109,7 +107,7 @@ public class ChickenFormationBehavior : MonoBehaviour
                 break;
                 
             case ChickenController.ChickenState.WaitingForFormation:
-                waitTimer = 0f;
+                _waitTimer = 0f;
                 StartCoroutine(WaitForFormationAndAssign());
                 break;
         }
@@ -119,9 +117,9 @@ public class ChickenFormationBehavior : MonoBehaviour
     private IEnumerator WaitForFormationAndAssign()
     {
         while (chickenController.CurrentState == ChickenController.ChickenState.WaitingForFormation && 
-               waitTimer < maxWaitTime)
+               _waitTimer < maxWaitTime)
         {
-            if (formationManager.FormationSlots != null && formationManager.FormationSlots.Count > 0)
+            if (_formationManager.FormationSlots != null && _formationManager.FormationSlots.Count > 0)
             {
                 if (TryAssignToSlot())
                 {
@@ -136,7 +134,7 @@ public class ChickenFormationBehavior : MonoBehaviour
                 }
             }
             
-            waitTimer += Time.deltaTime;
+            _waitTimer += Time.deltaTime;
             yield return null;
         }
         
@@ -150,42 +148,42 @@ public class ChickenFormationBehavior : MonoBehaviour
     // Try to get a formation slot
     private bool TryAssignToSlot()
     {
-        assignedSlot = formationManager.TryOccupySlot(gameObject);
+        _assignedSlot = _formationManager.TryOccupySlot(gameObject);
         
-        if (assignedSlot == null)
+        if (_assignedSlot == null)
         {
             // Try nearest slot
-            var nearestSlot = formationManager.GetNearestAvailableSlot(transform.position);
-            if (nearestSlot != null && formationManager.OccupySpecificSlot(nearestSlot, gameObject))
+            var nearestSlot = _formationManager.GetNearestAvailableSlot(transform.position);
+            if (nearestSlot != null && _formationManager.OccupySpecificSlot(nearestSlot, gameObject))
             {
-                assignedSlot = nearestSlot;
+                _assignedSlot = nearestSlot;
             }
         }
         
-        hasAssignedSlot = assignedSlot != null;
-        assignedSlotInfo = assignedSlot != null ? $"Slot {assignedSlot.formationIndex}" : "None";
+        hasAssignedSlot = _assignedSlot != null;
+        assignedSlotInfo = _assignedSlot != null ? $"Slot {_assignedSlot.formationIndex}" : "None";
         
-        return assignedSlot != null;
+        return _assignedSlot != null;
     }
     
     // Start moving to assigned slot
     private void StartMovingToSlot()
     {
-        if (assignedSlot == null) return;
+        if (_assignedSlot == null) return;
         
-        initialPosition = transform.position;
-        moveTimer = 0f;
-        actualArrivalTime = initialSpeed + Random.Range(0f, arrivalTimeVariance);
+        _initialPosition = transform.position;
+        _moveTimer = 0f;
+        _actualArrivalTime = initialSpeed + Random.Range(0f, arrivalTimeVariance);
     }
     
     // Start returning to slot after concussion
     private void StartReturningToSlot()
     {
-        if (assignedSlot == null) return;
+        if (_assignedSlot == null) return;
         
-        initialPosition = transform.position;
-        moveTimer = 0f;
-        actualArrivalTime = initialSpeed / 2f; // Return faster
+        _initialPosition = transform.position;
+        _moveTimer = 0f;
+        _actualArrivalTime = initialSpeed / 2f; // Return faster
     }
     
     // Release current slot
@@ -194,10 +192,10 @@ public class ChickenFormationBehavior : MonoBehaviour
         // Don't release if concussed
         if (chickenController.IsConcussed) return;
         
-        if (assignedSlot != null && formationManager != null)
+        if (_assignedSlot != null && _formationManager != null)
         {
-            formationManager.ReleaseSlot(assignedSlot);
-            assignedSlot = null;
+            _formationManager.ReleaseSlot(_assignedSlot);
+            _assignedSlot = null;
             hasAssignedSlot = false;
             assignedSlotInfo = "None";
             OnSlotReleased?.Invoke();
@@ -211,7 +209,7 @@ public class ChickenFormationBehavior : MonoBehaviour
         if (chickenController.IsConcussed) return;
         
         ReleaseSlot();
-        hasArrivedAtSlotOnce = false;
+        _hasArrivedAtSlotOnce = false;
         chickenController.SetState(ChickenController.ChickenState.WaitingForFormation);
     }
     
@@ -230,9 +228,9 @@ public class ChickenFormationBehavior : MonoBehaviour
     {
         if (!HasAssignedSlot && 
             (chickenController.IsIdle || chickenController.IsAtSpawnPoint) && 
-            formationManager != null)
+            _formationManager != null)
         {
-            var availableSlots = formationManager.GetAvailableSlots();
+            var availableSlots = _formationManager.GetAvailableSlots();
             if (availableSlots.Count > 0 && TryAssignToSlot())
             {
                 chickenController.SetState(ChickenController.ChickenState.MovingToSlot);
@@ -261,18 +259,18 @@ public class ChickenFormationBehavior : MonoBehaviour
     // Move to slot for first time
     private void MoveTowardsSlot()
     {
-        if (assignedSlot == null) return;
+        if (_assignedSlot == null) return;
         
-        Vector3 targetPosition = formationManager.GetSlotWorldPosition(assignedSlot);
-        moveTimer += Time.fixedDeltaTime;
-        float t = moveTimer / actualArrivalTime;
+        Vector3 targetPosition = _formationManager.GetSlotWorldPosition(_assignedSlot);
+        _moveTimer += Time.fixedDeltaTime;
+        float t = _moveTimer / _actualArrivalTime;
         
         if (t >= 1f)
         {
             t = 1f;
-            if (!hasArrivedAtSlotOnce)
+            if (!_hasArrivedAtSlotOnce)
             {
-                hasArrivedAtSlotOnce = true;
+                _hasArrivedAtSlotOnce = true;
                 chickenController.SetState(ChickenController.ChickenState.InCombat);
                 OnArrivedAtSlot?.Invoke();
             }
@@ -282,14 +280,14 @@ public class ChickenFormationBehavior : MonoBehaviour
         float easedT = movementCurve != null && movementCurve.length > 0 ? 
             movementCurve.Evaluate(t) : EaseOutCubic(t);
         
-        Vector3 desiredPosition = Vector3.Lerp(initialPosition, targetPosition, easedT);
+        Vector3 desiredPosition = Vector3.Lerp(_initialPosition, targetPosition, easedT);
         Vector3 velocity = (desiredPosition - transform.position) / Time.fixedDeltaTime;
         rb.linearVelocity = velocity;
         
         // Check early arrival
-        if (Vector3.Distance(transform.position, targetPosition) < arrivalThreshold && !hasArrivedAtSlotOnce)
+        if (Vector3.Distance(transform.position, targetPosition) < arrivalThreshold && !_hasArrivedAtSlotOnce)
         {
-            hasArrivedAtSlotOnce = true;
+            _hasArrivedAtSlotOnce = true;
             chickenController.SetState(ChickenController.ChickenState.InCombat);
             OnArrivedAtSlot?.Invoke();
         }
@@ -298,9 +296,9 @@ public class ChickenFormationBehavior : MonoBehaviour
     // Follow slot position during combat
     private void FollowSlotInCombat()
     {
-        if (assignedSlot == null) return;
+        if (_assignedSlot == null) return;
         
-        Vector3 targetPosition = formationManager.GetSlotWorldPosition(assignedSlot);
+        Vector3 targetPosition = _formationManager.GetSlotWorldPosition(_assignedSlot);
         float distanceToSlot = Vector3.Distance(transform.position, targetPosition);
         
         // Stop micro-adjustments
@@ -319,11 +317,11 @@ public class ChickenFormationBehavior : MonoBehaviour
     // Return to slot quickly after concussion
     private void MoveTowardsSlotFast()
     {
-        if (assignedSlot == null) return;
+        if (_assignedSlot == null) return;
         
-        Vector3 targetPosition = formationManager.GetSlotWorldPosition(assignedSlot);
-        moveTimer += Time.fixedDeltaTime;
-        float t = moveTimer / actualArrivalTime;
+        Vector3 targetPosition = _formationManager.GetSlotWorldPosition(_assignedSlot);
+        _moveTimer += Time.fixedDeltaTime;
+        float t = _moveTimer / _actualArrivalTime;
         
         if (t >= 1f || Vector3.Distance(transform.position, targetPosition) < arrivalThreshold)
         {
@@ -333,7 +331,7 @@ public class ChickenFormationBehavior : MonoBehaviour
         float easedT = movementCurve != null && movementCurve.length > 0 ? 
             movementCurve.Evaluate(t) : EaseOutCubic(t);
         
-        Vector3 desiredPosition = Vector3.Lerp(initialPosition, targetPosition, easedT);
+        Vector3 desiredPosition = Vector3.Lerp(_initialPosition, targetPosition, easedT);
         Vector3 velocity = (desiredPosition - transform.position) / Time.fixedDeltaTime;
         rb.linearVelocity = velocity;
     }
@@ -346,15 +344,15 @@ public class ChickenFormationBehavior : MonoBehaviour
     // Get distance to assigned slot
     public float GetDistanceToSlot()
     {
-        if (assignedSlot == null || formationManager == null) return float.MaxValue;
-        return Vector3.Distance(transform.position, formationManager.GetSlotWorldPosition(assignedSlot));
+        if (_assignedSlot == null || _formationManager == null) return float.MaxValue;
+        return Vector3.Distance(transform.position, _formationManager.GetSlotWorldPosition(_assignedSlot));
     }
     
     private void OnDrawGizmos()
     {
-        if (assignedSlot != null && formationManager != null)
+        if (_assignedSlot != null && _formationManager != null)
         {
-            Vector3 slotPosition = formationManager.GetSlotWorldPosition(assignedSlot);
+            Vector3 slotPosition = _formationManager.GetSlotWorldPosition(_assignedSlot);
             
             // Color based on state
             switch (chickenController.CurrentState)

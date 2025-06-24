@@ -26,7 +26,6 @@ public class ChickenFollowFormation : MonoBehaviour
     
     [Header("Formation Settings")]
     [SerializeField] private float arrivalThreshold = 0.5f; // Distance to consider "arrived" at slot
-    [SerializeField] private float followStrength = 10f; // How strongly to follow slot when in formation
     [SerializeField] private float damping = 5f; // Damping for smooth movement
     [SerializeField] private float maxWaitTime = 5f; // Max time to wait for formation
     [SerializeField] private float slotCheckInterval = 2f; // Check for open slots every X seconds when idle
@@ -59,10 +58,10 @@ public class ChickenFollowFormation : MonoBehaviour
     [SerializeField, ReadOnly] private string currentState = "None";
     
     // Internal References
-    private FormationManager formationManager;
-    private FormationManager.FormationSlot assignedSlot;
-    private Rigidbody rb;
-    private Transform playerTransform;
+    private FormationManager _formationManager;
+    private FormationSlot _assignedSlot;
+    private Rigidbody _rb;
+    private Transform _playerTransform;
     
     // State Management
     public enum ChickenState
@@ -77,25 +76,25 @@ public class ChickenFollowFormation : MonoBehaviour
         Idle
     }
     
-    private ChickenState state = ChickenState.WaitingForFormation;
-    private bool hasArrivedAtSlotOnce = false; // Track if chicken has ever arrived at slot
+    private ChickenState _state = ChickenState.WaitingForFormation;
+    private bool _hasArrivedAtSlotOnce = false; // Track if chicken has ever arrived at slot
     
     // Timers and counters
-    private float concussTimer = 0f;
-    private float waitTimer = 0f;
-    private float nextSlotCheckTime = 0f;
+    private float _concussTimer = 0f;
+    private float _waitTimer = 0f;
+    private float _nextSlotCheckTime = 0f;
     
     // Movement Variables
-    private Vector3 initialPosition;
-    private Vector3 spawnPointTargetPosition;
-    private float moveTimer = 0f;
-    private float actualArrivalTime = 0f; // Actual time to arrive (with variance)
-    private Vector3 idleStartPosition;
-    private float idleTime = 0f;
-    private bool hasPerformedFirstRotation = false;
+    private Vector3 _initialPosition;
+    private Vector3 _spawnPointTargetPosition;
+    private float _moveTimer = 0f;
+    private float _actualArrivalTime = 0f; // Actual time to arrive (with variance)
+    private Vector3 _idleStartPosition;
+    private float _idleTime = 0f;
+    private bool _hasPerformedFirstRotation = false;
     
     // Concussion variables
-    private Vector3 concussVelocity;
+    private Vector3 _concussVelocity;
     
     private void OnEnable()
     {
@@ -111,15 +110,15 @@ public class ChickenFollowFormation : MonoBehaviour
     
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
+        _rb = GetComponent<Rigidbody>();
         
         // Configure rigidbody for space movement
-        rb.useGravity = false;
-        rb.linearDamping = 1f;
-        rb.angularDamping = 2f;
+        _rb.useGravity = false;
+        _rb.linearDamping = 1f;
+        _rb.angularDamping = 2f;
         
         // IMPORTANT: Freeze rotation on rigidbody to prevent physics from interfering
-        rb.freezeRotation = true;
+        _rb.freezeRotation = true;
         
         // Find player transform
         FindPlayer();
@@ -145,7 +144,7 @@ public class ChickenFollowFormation : MonoBehaviour
         // First check if player override is set
         if (playerOverride != null)
         {
-            playerTransform = playerOverride;
+            _playerTransform = playerOverride;
             playerFound = true;
             currentPlayerName = playerOverride.name;
             //Debug.Log($"{gameObject.name}: Using player override - {playerOverride.name}");
@@ -156,7 +155,7 @@ public class ChickenFollowFormation : MonoBehaviour
         GameObject playerObject = GameObject.FindGameObjectWithTag(playerTag);
         if (playerObject != null)
         {
-            playerTransform = playerObject.transform;
+            _playerTransform = playerObject.transform;
             playerFound = true;
             currentPlayerName = playerObject.name;
             //Debug.Log($"{gameObject.name}: Found player by tag '{playerTag}' - {playerObject.name}");
@@ -174,7 +173,7 @@ public class ChickenFollowFormation : MonoBehaviour
                         playerObject = GameObject.FindGameObjectWithTag(tag);
                         if (playerObject != null)
                         {
-                            playerTransform = playerObject.transform;
+                            _playerTransform = playerObject.transform;
                             playerFound = true;
                             currentPlayerName = playerObject.name;
                             //Debug.LogWarning($"{gameObject.name}: Player not found with tag '{playerTag}', but found with tag '{tag}'. Consider updating playerTag setting.");
@@ -197,15 +196,15 @@ public class ChickenFollowFormation : MonoBehaviour
     private void Start()
     {
         // Validate player setup
-        if (lookAtPlayer && playerTransform == null)
+        if (lookAtPlayer && _playerTransform == null)
         {
             //Debug.LogError($"{gameObject.name}: lookAtPlayer is enabled but no player found! Check player tag or assign playerOverride.");
         }
         
         // Find FormationManager
-        formationManager = FindObjectOfType<FormationManager>();
+        _formationManager = FindFirstObjectByType<FormationManager>();
         
-        if (formationManager == null)
+        if (_formationManager == null)
         {
             //Debug.LogError("FormationManager not found! Chicken will not be able to join formation.");
             // Move to spawn point if available
@@ -222,10 +221,10 @@ public class ChickenFollowFormation : MonoBehaviour
         }
         
         // Double-check rigidbody rotation is frozen
-        if (rb != null && !rb.freezeRotation)
+        if (_rb != null && !_rb.freezeRotation)
         {
             //Debug.LogWarning($"{gameObject.name}: Rigidbody rotation was not frozen. Freezing it now to prevent physics interference.");
-            rb.freezeRotation = true;
+            _rb.freezeRotation = true;
         }
         
         // Check for Animator that might override rotation
@@ -241,17 +240,17 @@ public class ChickenFollowFormation : MonoBehaviour
     
     private void SetState(ChickenState newState)
     {
-        state = newState;
+        _state = newState;
         currentState = newState.ToString();
     }
     
     private IEnumerator WaitForFormationAndAssign()
     {
         // Wait for formation to be generated
-        while (state == ChickenState.WaitingForFormation && waitTimer < maxWaitTime)
+        while (_state == ChickenState.WaitingForFormation && _waitTimer < maxWaitTime)
         {
             // Check if formations are available
-            if (formationManager.FormationSlots != null && formationManager.FormationSlots.Count > 0)
+            if (_formationManager.FormationSlots != null && _formationManager.FormationSlots.Count > 0)
             {
                 //Debug.Log($"Formations ready! Total slots: {formationManager.FormationSlots.Count}");
                 
@@ -259,11 +258,11 @@ public class ChickenFollowFormation : MonoBehaviour
                 if (TryAssignToSlot())
                 {
                     SetState(ChickenState.MovingToSlot);
-                    initialPosition = transform.position;
-                    moveTimer = 0f; // Reset timer
+                    _initialPosition = transform.position;
+                    _moveTimer = 0f; // Reset timer
                     
                     // Calculate actual arrival time with random variance
-                    actualArrivalTime = initialSpeed + Random.Range(0f, arrivalTimeVariance);
+                    _actualArrivalTime = initialSpeed + Random.Range(0f, arrivalTimeVariance);
                     
                     //Debug.Log($"{gameObject.name} successfully assigned to formation! Arrival time: {actualArrivalTime:F2}s");
                     yield break;
@@ -277,12 +276,12 @@ public class ChickenFollowFormation : MonoBehaviour
                 }
             }
             
-            waitTimer += Time.deltaTime;
+            _waitTimer += Time.deltaTime;
             yield return null;
         }
         
         // If we're here and still waiting, formation generation timed out
-        if (state == ChickenState.WaitingForFormation)
+        if (_state == ChickenState.WaitingForFormation)
         {
             //Debug.LogWarning($"{gameObject.name} timed out waiting for formation generation! Moving to spawn point.");
             SetState(ChickenState.MovingToSpawnPoint);
@@ -301,7 +300,7 @@ public class ChickenFollowFormation : MonoBehaviour
     public void OnFormationChangedNotification()
     {
         // Don't reset if in concuss state - keep the slot
-        if (state == ChickenState.Concussed)
+        if (_state == ChickenState.Concussed)
         {
             //Debug.Log($"{gameObject.name} is concussed, keeping slot assignment during formation change");
             return;
@@ -312,10 +311,10 @@ public class ChickenFollowFormation : MonoBehaviour
         
         // Reset states
         SetState(ChickenState.WaitingForFormation);
-        hasArrivedAtSlotOnce = false;
-        moveTimer = 0f;
-        actualArrivalTime = 0f;
-        waitTimer = 0f;
+        _hasArrivedAtSlotOnce = false;
+        _moveTimer = 0f;
+        _actualArrivalTime = 0f;
+        _waitTimer = 0f;
         
         // Stop all coroutines
         StopAllCoroutines();
@@ -331,25 +330,25 @@ public class ChickenFollowFormation : MonoBehaviour
             //Debug.LogWarning($"{gameObject.name} can't move to spawn point - no spawn point assigned!");
             // Just idle in place
             SetState(ChickenState.Idle);
-            idleStartPosition = transform.position;
-            idleTime = 0f;
-            nextSlotCheckTime = Time.time + slotCheckInterval;
+            _idleStartPosition = transform.position;
+            _idleTime = 0f;
+            _nextSlotCheckTime = Time.time + slotCheckInterval;
             StartCoroutine(IdleAndCheckForSlots());
             return;
         }
         
-        initialPosition = transform.position;
-        moveTimer = 0f;
+        _initialPosition = transform.position;
+        _moveTimer = 0f;
         
         // Calculate target position at spawn point
         if (randomizeSpawnOffset)
         {
             Vector2 randomCircle = Random.insideUnitCircle * spawnPointRadius;
-            spawnPointTargetPosition = spawnPoint.position + new Vector3(randomCircle.x, 0, randomCircle.y);
+            _spawnPointTargetPosition = spawnPoint.position + new Vector3(randomCircle.x, 0, randomCircle.y);
         }
         else
         {
-            spawnPointTargetPosition = spawnPoint.position;
+            _spawnPointTargetPosition = spawnPoint.position;
         }
         
         //Debug.Log($"{gameObject.name} moving to spawn point at {spawnPointTargetPosition}");
@@ -359,25 +358,25 @@ public class ChickenFollowFormation : MonoBehaviour
     {
         //Debug.Log($"{gameObject.name} entering idle state, will check for slots every {slotCheckInterval} seconds.");
         
-        while (state == ChickenState.Idle || state == ChickenState.AtSpawnPoint)
+        while (_state == ChickenState.Idle || _state == ChickenState.AtSpawnPoint)
         {
             // Wait until next check time
             yield return new WaitForSeconds(slotCheckInterval);
             
             // Check if formations exist and have available slots
-            if (formationManager != null && formationManager.FormationSlots != null && formationManager.FormationSlots.Count > 0)
+            if (_formationManager != null && _formationManager.FormationSlots != null && _formationManager.FormationSlots.Count > 0)
             {
-                var availableSlots = formationManager.GetAvailableSlots();
+                var availableSlots = _formationManager.GetAvailableSlots();
                // Debug.Log($"{gameObject.name} checking for slots... Available: {availableSlots.Count}");
                 
                 if (availableSlots.Count > 0 && TryAssignToSlot())
                 {
                     SetState(ChickenState.MovingToSlot);
-                    initialPosition = transform.position;
-                    moveTimer = 0f; // Reset timer
+                    _initialPosition = transform.position;
+                    _moveTimer = 0f; // Reset timer
                     
                     // Calculate actual arrival time with random variance
-                    actualArrivalTime = initialSpeed + Random.Range(0f, arrivalTimeVariance);
+                    _actualArrivalTime = initialSpeed + Random.Range(0f, arrivalTimeVariance);
                     
                     //Debug.Log($"{gameObject.name} found an open slot! Moving to formation in {actualArrivalTime:F2}s.");
                     yield break;
@@ -389,23 +388,23 @@ public class ChickenFollowFormation : MonoBehaviour
     private bool TryAssignToSlot()
     {
         // First, log current formation state
-        var availableSlots = formationManager.GetAvailableSlots();
+        var availableSlots = _formationManager.GetAvailableSlots();
         //Debug.Log($"Attempting to assign {gameObject.name}. Available slots: {availableSlots.Count} / {formationManager.FormationSlots.Count}");
         
         // Method 1: Try to get any available slot
-        assignedSlot = formationManager.TryOccupySlot(gameObject);
+        _assignedSlot = _formationManager.TryOccupySlot(gameObject);
         
-        if (assignedSlot != null)
+        if (_assignedSlot != null)
         {
             //Debug.Log($"{gameObject.name} assigned to slot at position {assignedSlot.localPosition} (index: {assignedSlot.formationIndex})");
             return true;
         }
         
         // Method 2: Find nearest available slot and occupy it
-        var nearestSlot = formationManager.GetNearestAvailableSlot(transform.position);
-        if (nearestSlot != null && formationManager.OccupySpecificSlot(nearestSlot, gameObject))
+        var nearestSlot = _formationManager.GetNearestAvailableSlot(transform.position);
+        if (nearestSlot != null && _formationManager.OccupySpecificSlot(nearestSlot, gameObject))
         {
-            assignedSlot = nearestSlot;
+            _assignedSlot = nearestSlot;
             //Debug.Log($"{gameObject.name} assigned to nearest slot at position {nearestSlot.localPosition} (index: {nearestSlot.formationIndex})");
             return true;
         }
@@ -416,22 +415,22 @@ public class ChickenFollowFormation : MonoBehaviour
     private void Update()
     {
         // Handle rotation to face player (separate from physics movement)
-        if (lookAtPlayer && playerTransform != null && state != ChickenState.Concussed)
+        if (lookAtPlayer && _playerTransform != null && _state != ChickenState.Concussed)
         {
             HandleLookAtPlayer();
         }
-        else if (lookAtPlayer && playerTransform == null)
+        else if (lookAtPlayer && _playerTransform == null)
         {
             // Try to find player again if it's missing
             FindPlayer();
-            if (playerTransform == null && Time.frameCount % 300 == 0) // Log every 5 seconds
+            if (_playerTransform == null && Time.frameCount % 300 == 0) // Log every 5 seconds
             {
                 //Debug.LogWarning($"{gameObject.name}: lookAtPlayer is enabled but no player found!");
             }
         }
         
         // Handle concussed rotation
-        if (state == ChickenState.Concussed && enableConcussRotation)
+        if (_state == ChickenState.Concussed && enableConcussRotation)
         {
             // Slowly rotate while concussed
             transform.Rotate(Vector3.up, concussRotationSpeed * Time.deltaTime);
@@ -441,10 +440,10 @@ public class ChickenFollowFormation : MonoBehaviour
     private void LateUpdate()
     {
         // Double-check rotation in LateUpdate to override any other scripts that might be changing rotation
-        if (lookAtPlayer && playerTransform != null && state != ChickenState.Concussed)
+        if (lookAtPlayer && _playerTransform != null && _state != ChickenState.Concussed)
         {
             // Only re-apply if rotation has changed significantly (indicating another script modified it)
-            Vector3 directionToPlayer = playerTransform.position - transform.position;
+            Vector3 directionToPlayer = _playerTransform.position - transform.position;
             if (lockYRotationOnly)
             {
                 directionToPlayer.y = 0;
@@ -456,7 +455,7 @@ public class ChickenFollowFormation : MonoBehaviour
                 float angleDifference = Quaternion.Angle(transform.rotation, expectedRotation);
                 
                 // If rotation is way off what we expect, something else changed it
-                if (angleDifference > 45f && hasPerformedFirstRotation)
+                if (angleDifference > 45f && _hasPerformedFirstRotation)
                 {
                     //Debug.LogWarning($"{gameObject.name}: Rotation was changed by another script! Expected angle difference: {angleDifference:F1}°. Re-applying player look rotation.");
                     HandleLookAtPlayer();
@@ -468,7 +467,7 @@ public class ChickenFollowFormation : MonoBehaviour
     private void HandleLookAtPlayer()
     {
         // Calculate world space direction to player (ignoring any parent transforms)
-        Vector3 worldPlayerPos = playerTransform.position;
+        Vector3 worldPlayerPos = _playerTransform.position;
         Vector3 worldChickenPos = transform.position;
         Vector3 directionToPlayer = worldPlayerPos - worldChickenPos;
         
@@ -484,10 +483,10 @@ public class ChickenFollowFormation : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer, Vector3.up);
             
             // Check if this is the first rotation and instant rotation is enabled
-            if (!hasPerformedFirstRotation && instantFirstRotation)
+            if (!_hasPerformedFirstRotation && instantFirstRotation)
             {
                 transform.rotation = targetRotation;
-                hasPerformedFirstRotation = true;
+                _hasPerformedFirstRotation = true;
                 //Debug.Log($"{gameObject.name} - Instant first rotation to face player at {worldPlayerPos}");
             }
             else
@@ -501,18 +500,18 @@ public class ChickenFollowFormation : MonoBehaviour
     private void FixedUpdate()
     {
         // State machine for physics updates
-        switch (state)
+        switch (_state)
         {
             case ChickenState.WaitingForFormation:
                 // Handled by coroutine
                 break;
                 
             case ChickenState.MovingToSpawnPoint:
-                MoveTowardsPosition(spawnPointTargetPosition, spawnPointSpeed, () => {
+                MoveTowardsPosition(_spawnPointTargetPosition, spawnPointSpeed, () => {
                     SetState(ChickenState.AtSpawnPoint);
-                    idleStartPosition = transform.position;
-                    idleTime = 0f;
-                    nextSlotCheckTime = Time.time + slotCheckInterval;
+                    _idleStartPosition = transform.position;
+                    _idleTime = 0f;
+                    _nextSlotCheckTime = Time.time + slotCheckInterval;
                     //Debug.Log($"{gameObject.name} arrived at spawn point");
                     StartCoroutine(IdleAndCheckForSlots());
                 });
@@ -524,17 +523,17 @@ public class ChickenFollowFormation : MonoBehaviour
                 break;
                 
             case ChickenState.MovingToSlot:
-                if (assignedSlot != null)
+                if (_assignedSlot != null)
                 {
-                    Vector3 targetPosition = formationManager.GetSlotWorldPosition(assignedSlot);
+                    Vector3 targetPosition = _formationManager.GetSlotWorldPosition(_assignedSlot);
                     MoveTowardsSlot(targetPosition);
                 }
                 break;
                 
             case ChickenState.InCombat:
-                if (assignedSlot != null)
+                if (_assignedSlot != null)
                 {
-                    Vector3 targetPosition = formationManager.GetSlotWorldPosition(assignedSlot);
+                    Vector3 targetPosition = _formationManager.GetSlotWorldPosition(_assignedSlot);
                     FollowSlotPosition(targetPosition);
                     
                     // Check if knocked out of range
@@ -551,9 +550,9 @@ public class ChickenFollowFormation : MonoBehaviour
                 break;
                 
             case ChickenState.ReturningToSlot:
-                if (assignedSlot != null)
+                if (_assignedSlot != null)
                 {
-                    Vector3 targetPosition = formationManager.GetSlotWorldPosition(assignedSlot);
+                    Vector3 targetPosition = _formationManager.GetSlotWorldPosition(_assignedSlot);
                     MoveTowardsSlotFast(targetPosition);
                 }
                 break;
@@ -565,36 +564,36 @@ public class ChickenFollowFormation : MonoBehaviour
         // Simple idle behavior with optional wobble
         if (enableIdleMovement)
         {
-            idleTime += Time.fixedDeltaTime;
+            _idleTime += Time.fixedDeltaTime;
             
             // Create a subtle wobble effect
-            float wobbleX = Mathf.Sin(idleTime * idleWobbleSpeed) * idleWobbleAmount;
-            float wobbleY = Mathf.Cos(idleTime * idleWobbleSpeed * 0.7f) * idleWobbleAmount * 0.5f;
+            float wobbleX = Mathf.Sin(_idleTime * idleWobbleSpeed) * idleWobbleAmount;
+            float wobbleY = Mathf.Cos(_idleTime * idleWobbleSpeed * 0.7f) * idleWobbleAmount * 0.5f;
             
             Vector3 wobbleOffset = new Vector3(wobbleX, wobbleY, 0);
-            Vector3 targetIdlePosition = idleStartPosition + wobbleOffset;
+            Vector3 targetIdlePosition = _idleStartPosition + wobbleOffset;
             
             // Smoothly move to wobble position
-            rb.linearVelocity = (targetIdlePosition - transform.position) * 2f;
+            _rb.linearVelocity = (targetIdlePosition - transform.position) * 2f;
         }
         else
         {
             // Just slow down if idle movement is disabled
-            rb.linearVelocity *= 0.95f;
+            _rb.linearVelocity *= 0.95f;
         }
     }
     
     private void HandleConcussedState()
     {
         // Update concuss timer
-        concussTimer -= Time.fixedDeltaTime;
+        _concussTimer -= Time.fixedDeltaTime;
         
         // Apply floating physics with drag
-        rb.linearVelocity = concussVelocity;
-        concussVelocity *= (1f - concussFloatDrag * Time.fixedDeltaTime);
+        _rb.linearVelocity = _concussVelocity;
+        _concussVelocity *= (1f - concussFloatDrag * Time.fixedDeltaTime);
         
         // Check if concuss time is over
-        if (concussTimer <= 0f)
+        if (_concussTimer <= 0f)
         {
             ExitConcussState();
         }
@@ -602,15 +601,15 @@ public class ChickenFollowFormation : MonoBehaviour
     
     private void EnterConcussState()
     {
-        if (state != ChickenState.InCombat || !hasArrivedAtSlotOnce)
+        if (_state != ChickenState.InCombat || !_hasArrivedAtSlotOnce)
         {
             //Debug.LogWarning($"{gameObject.name} tried to enter concuss state but wasn't in combat or hasn't arrived at slot once!");
             return;
         }
         
         SetState(ChickenState.Concussed);
-        concussTimer = concussTime;
-        concussVelocity = rb.linearVelocity; // Preserve current velocity
+        _concussTimer = concussTime;
+        _concussVelocity = _rb.linearVelocity; // Preserve current velocity
         
         //Debug.Log($"{gameObject.name} entered concuss state! Will recover in {concussTime} seconds");
     }
@@ -618,19 +617,19 @@ public class ChickenFollowFormation : MonoBehaviour
     private void ExitConcussState()
     {
         SetState(ChickenState.ReturningToSlot);
-        moveTimer = 0f;
-        initialPosition = transform.position;
+        _moveTimer = 0f;
+        _initialPosition = transform.position;
         
         // Calculate faster return time (half the initial speed = twice as fast)
-        actualArrivalTime = initialSpeed / 2f;
+        _actualArrivalTime = initialSpeed / 2f;
         
         //Debug.Log($"{gameObject.name} exiting concuss state, returning to slot at double speed!");
     }
     
     private void MoveTowardsPosition(Vector3 targetPosition, float speed, System.Action onArrival)
     {
-        moveTimer += Time.fixedDeltaTime;
-        float t = moveTimer / speed;
+        _moveTimer += Time.fixedDeltaTime;
+        float t = _moveTimer / speed;
         
         if (t >= 1f)
         {
@@ -643,11 +642,11 @@ public class ChickenFollowFormation : MonoBehaviour
             movementCurve.Evaluate(t) : EaseOutCubic(t);
         
         // Smooth interpolation to target position
-        Vector3 desiredPosition = Vector3.Lerp(initialPosition, targetPosition, easedT);
+        Vector3 desiredPosition = Vector3.Lerp(_initialPosition, targetPosition, easedT);
         Vector3 velocity = (desiredPosition - transform.position) / Time.fixedDeltaTime;
         
         // Apply velocity through rigidbody
-        rb.linearVelocity = velocity;
+        _rb.linearVelocity = velocity;
         
         // Check if close enough to consider arrived
         float distanceToTarget = Vector3.Distance(transform.position, targetPosition);
@@ -659,16 +658,16 @@ public class ChickenFollowFormation : MonoBehaviour
     
     private void MoveTowardsSlot(Vector3 targetPosition)
     {
-        moveTimer += Time.fixedDeltaTime;
-        float t = moveTimer / actualArrivalTime;
+        _moveTimer += Time.fixedDeltaTime;
+        float t = _moveTimer / _actualArrivalTime;
         
         if (t >= 1f)
         {
             // Arrived at slot
             t = 1f;
-            if (!hasArrivedAtSlotOnce)
+            if (!_hasArrivedAtSlotOnce)
             {
-                hasArrivedAtSlotOnce = true;
+                _hasArrivedAtSlotOnce = true;
                 SetState(ChickenState.InCombat);
                 //Debug.Log($"{gameObject.name} arrived at formation slot for the first time - entering combat mode!");
             }
@@ -679,17 +678,17 @@ public class ChickenFollowFormation : MonoBehaviour
             movementCurve.Evaluate(t) : EaseOutCubic(t);
         
         // Smooth interpolation to slot position with easing
-        Vector3 desiredPosition = Vector3.Lerp(initialPosition, targetPosition, easedT);
+        Vector3 desiredPosition = Vector3.Lerp(_initialPosition, targetPosition, easedT);
         Vector3 velocity = (desiredPosition - transform.position) / Time.fixedDeltaTime;
         
         // Apply velocity through rigidbody
-        rb.linearVelocity = velocity;
+        _rb.linearVelocity = velocity;
         
         // Check if close enough to consider arrived (even if timer hasn't finished)
         float distanceToSlot = Vector3.Distance(transform.position, targetPosition);
-        if (distanceToSlot < arrivalThreshold && !hasArrivedAtSlotOnce)
+        if (distanceToSlot < arrivalThreshold && !_hasArrivedAtSlotOnce)
         {
-            hasArrivedAtSlotOnce = true;
+            _hasArrivedAtSlotOnce = true;
             SetState(ChickenState.InCombat);
             //Debug.Log($"{gameObject.name} arrived at formation slot (early arrival) - entering combat mode!");
         }
@@ -697,8 +696,8 @@ public class ChickenFollowFormation : MonoBehaviour
     
     private void MoveTowardsSlotFast(Vector3 targetPosition)
     {
-        moveTimer += Time.fixedDeltaTime;
-        float t = moveTimer / actualArrivalTime; // actualArrivalTime is already halved in ExitConcussState
+        _moveTimer += Time.fixedDeltaTime;
+        float t = _moveTimer / _actualArrivalTime; // actualArrivalTime is already halved in ExitConcussState
         
         if (t >= 1f)
         {
@@ -713,11 +712,11 @@ public class ChickenFollowFormation : MonoBehaviour
             movementCurve.Evaluate(t) : EaseOutCubic(t);
         
         // Smooth interpolation to slot position with easing
-        Vector3 desiredPosition = Vector3.Lerp(initialPosition, targetPosition, easedT);
+        Vector3 desiredPosition = Vector3.Lerp(_initialPosition, targetPosition, easedT);
         Vector3 velocity = (desiredPosition - transform.position) / Time.fixedDeltaTime;
         
         // Apply velocity through rigidbody
-        rb.linearVelocity = velocity;
+        _rb.linearVelocity = velocity;
         
         // Check if close enough to consider arrived
         float distanceToSlot = Vector3.Distance(transform.position, targetPosition);
@@ -743,7 +742,7 @@ public class ChickenFollowFormation : MonoBehaviour
         if (distanceToSlot < positionDeadZone)
         {
             // Greatly reduce velocity when very close to prevent micro-adjustments
-            rb.linearVelocity *= 0.5f;
+            _rb.linearVelocity *= 0.5f;
             return;
         }
         
@@ -754,21 +753,21 @@ public class ChickenFollowFormation : MonoBehaviour
         Vector3 desiredVelocity = (smoothedPosition - transform.position) / Time.fixedDeltaTime;
         
         // Apply damping for extra smoothness
-        rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, desiredVelocity, damping * Time.fixedDeltaTime);
+        _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, desiredVelocity, damping * Time.fixedDeltaTime);
     }
     
     // Call this when the chicken gets hit by a concussive weapon
     public void ApplyConcussion(Vector3 force)
     {
         // Only apply concussion if in combat mode
-        if (state != ChickenState.InCombat)
+        if (_state != ChickenState.InCombat)
         {
             //Debug.LogWarning($"{gameObject.name} can't be concussed - not in combat mode! Current state: {state}");
             return;
         }
         
         // Apply the force
-        rb.AddForce(force, ForceMode.Impulse);
+        _rb.AddForce(force, ForceMode.Impulse);
         
         // The actual concussion state will be triggered by distance check in FixedUpdate
         //Debug.Log($"{gameObject.name} was hit by concussive force!");
@@ -797,17 +796,17 @@ public class ChickenFollowFormation : MonoBehaviour
     private void ReleaseSlot()
     {
         // Don't release slot if concussed - we keep the slot reservation
-        if (state == ChickenState.Concussed)
+        if (_state == ChickenState.Concussed)
         {
             //Debug.Log($"{gameObject.name} is concussed - keeping slot reservation");
             return;
         }
         
-        if (assignedSlot != null && formationManager != null)
+        if (_assignedSlot != null && _formationManager != null)
         {
-            formationManager.ReleaseSlot(assignedSlot);
+            _formationManager.ReleaseSlot(_assignedSlot);
             //Debug.Log($"{gameObject.name} released its formation slot");
-            assignedSlot = null;
+            _assignedSlot = null;
         }
         
         // Stop any ongoing coroutines
@@ -818,7 +817,7 @@ public class ChickenFollowFormation : MonoBehaviour
     public void ForceReassignSlot()
     {
         // Don't reassign if concussed
-        if (state == ChickenState.Concussed)
+        if (_state == ChickenState.Concussed)
         {
             //Debug.LogWarning($"{gameObject.name} is concussed - cannot force reassign!");
             return;
@@ -826,23 +825,23 @@ public class ChickenFollowFormation : MonoBehaviour
         
         ReleaseSlot();
         SetState(ChickenState.WaitingForFormation);
-        hasArrivedAtSlotOnce = false;
-        moveTimer = 0f;
-        actualArrivalTime = 0f;
-        waitTimer = 0f;
+        _hasArrivedAtSlotOnce = false;
+        _moveTimer = 0f;
+        _actualArrivalTime = 0f;
+        _waitTimer = 0f;
         StartCoroutine(WaitForFormationAndAssign());
     }
     
     // Call this to notify when a slot becomes available (optional optimization)
     public void NotifySlotAvailable()
     {
-        if (state == ChickenState.Idle || state == ChickenState.AtSpawnPoint)
+        if (_state == ChickenState.Idle || _state == ChickenState.AtSpawnPoint)
         {
             //Debug.Log($"{gameObject.name} notified of available slot, attempting assignment...");
             StopAllCoroutines();
             SetState(ChickenState.WaitingForFormation);
-            moveTimer = 0f;
-            actualArrivalTime = 0f;
+            _moveTimer = 0f;
+            _actualArrivalTime = 0f;
             StartCoroutine(WaitForFormationAndAssign());
         }
     }
@@ -851,7 +850,7 @@ public class ChickenFollowFormation : MonoBehaviour
     // when a slot becomes available (more efficient than constant checking)
     public static void NotifyAllIdleChickens()
     {
-        var idleChickens = FindObjectsOfType<ChickenFollowFormation>();
+        var idleChickens = FindObjectsByType<ChickenFollowFormation>(FindObjectsSortMode.None);
         foreach (var chicken in idleChickens)
         {
             if (chicken.IsIdle || chicken.IsAtSpawnPoint)
@@ -864,7 +863,7 @@ public class ChickenFollowFormation : MonoBehaviour
     // Public method to update player reference at runtime
     public void SetPlayerTransform(Transform newPlayer)
     {
-        playerTransform = newPlayer;
+        _playerTransform = newPlayer;
         if (newPlayer == null)
         {
             playerFound = false;
@@ -897,20 +896,20 @@ public class ChickenFollowFormation : MonoBehaviour
             Gizmos.color = new Color(0, 1, 1, 0.3f); // Cyan
             Gizmos.DrawWireSphere(spawnPoint.position, spawnPointRadius);
             
-            if (state == ChickenState.MovingToSpawnPoint || state == ChickenState.AtSpawnPoint)
+            if (_state == ChickenState.MovingToSpawnPoint || _state == ChickenState.AtSpawnPoint)
             {
                 Gizmos.color = Color.cyan;
-                Gizmos.DrawLine(transform.position, spawnPointTargetPosition);
-                Gizmos.DrawSphere(spawnPointTargetPosition, 0.3f);
+                Gizmos.DrawLine(transform.position, _spawnPointTargetPosition);
+                Gizmos.DrawSphere(_spawnPointTargetPosition, 0.3f);
             }
         }
         
-        if (assignedSlot != null && formationManager != null)
+        if (_assignedSlot != null && _formationManager != null)
         {
-            Vector3 slotPosition = formationManager.GetSlotWorldPosition(assignedSlot);
+            Vector3 slotPosition = _formationManager.GetSlotWorldPosition(_assignedSlot);
             
             // Draw line to target slot
-            switch (state)
+            switch (_state)
             {
                 case ChickenState.MovingToSlot:
                     Gizmos.color = Color.yellow;
@@ -936,42 +935,42 @@ public class ChickenFollowFormation : MonoBehaviour
             Gizmos.DrawWireSphere(slotPosition, 0.5f);
             
             // Draw concuss range
-            if (state == ChickenState.InCombat || state == ChickenState.Concussed)
+            if (_state == ChickenState.InCombat || _state == ChickenState.Concussed)
             {
                 Gizmos.color = new Color(1, 0, 0, 0.2f);
                 Gizmos.DrawWireSphere(slotPosition, concussRange);
             }
             
             // Draw dead zone
-            if (state == ChickenState.InCombat)
+            if (_state == ChickenState.InCombat)
             {
                 Gizmos.color = new Color(0, 1, 0, 0.3f);
                 Gizmos.DrawWireSphere(slotPosition, positionDeadZone);
             }
             
             // Show movement progress
-            if ((state == ChickenState.MovingToSlot || state == ChickenState.ReturningToSlot) && actualArrivalTime > 0)
+            if ((_state == ChickenState.MovingToSlot || _state == ChickenState.ReturningToSlot) && _actualArrivalTime > 0)
             {
                 #if UNITY_EDITOR
-                float progress = moveTimer / actualArrivalTime;
+                float progress = _moveTimer / _actualArrivalTime;
                 Vector3 labelPos = transform.position + Vector3.up * 2f;
                 UnityEditor.Handles.Label(labelPos, $"Progress: {(progress * 100f):F0}%");
                 #endif
             }
             
             // Show concussion timer
-            if (state == ChickenState.Concussed)
+            if (_state == ChickenState.Concussed)
             {
                 Gizmos.color = Color.red;
                 Gizmos.DrawWireSphere(transform.position, 1f);
                 
                 #if UNITY_EDITOR
                 Vector3 labelPos = transform.position + Vector3.up * 1.5f;
-                UnityEditor.Handles.Label(labelPos, $"Concussed: {concussTimer:F1}s");
+                UnityEditor.Handles.Label(labelPos, $"Concussed: {_concussTimer:F1}s");
                 #endif
             }
         }
-        else if (state == ChickenState.Idle || state == ChickenState.AtSpawnPoint)
+        else if (_state == ChickenState.Idle || _state == ChickenState.AtSpawnPoint)
         {
             // Show idle state
             Gizmos.color = new Color(1f, 0.5f, 0f); // Orange
@@ -979,11 +978,11 @@ public class ChickenFollowFormation : MonoBehaviour
             
             #if UNITY_EDITOR
             Vector3 labelPos = transform.position + Vector3.up * 1.5f;
-            string stateText = state == ChickenState.AtSpawnPoint ? "AT SPAWN POINT" : "IDLE";
-            UnityEditor.Handles.Label(labelPos, $"{stateText} (next check: {(nextSlotCheckTime - Time.time):F1}s)");
+            string stateText = _state == ChickenState.AtSpawnPoint ? "AT SPAWN POINT" : "IDLE";
+            UnityEditor.Handles.Label(labelPos, $"{stateText} (next check: {(_nextSlotCheckTime - Time.time):F1}s)");
             #endif
         }
-        else if (state == ChickenState.WaitingForFormation)
+        else if (_state == ChickenState.WaitingForFormation)
         {
             // Show waiting state
             Gizmos.color = Color.yellow;
@@ -991,10 +990,10 @@ public class ChickenFollowFormation : MonoBehaviour
         }
         
         // Draw line to player if looking at player
-        if (lookAtPlayer && playerTransform != null && state != ChickenState.Concussed)
+        if (lookAtPlayer && _playerTransform != null && _state != ChickenState.Concussed)
         {
             Gizmos.color = new Color(1f, 0f, 1f, 0.3f); // Magenta with transparency
-            Gizmos.DrawLine(transform.position, playerTransform.position);
+            Gizmos.DrawLine(transform.position, _playerTransform.position);
         }
     }
     
@@ -1004,16 +1003,16 @@ public class ChickenFollowFormation : MonoBehaviour
     {
         Debug.Log($"=== {gameObject.name} Rotation Debug ===");
         Debug.Log($"Look At Player Enabled: {lookAtPlayer}");
-        Debug.Log($"Player Transform: {(playerTransform != null ? playerTransform.name : "NULL")}");
-        if (playerTransform != null)
+        Debug.Log($"Player Transform: {(_playerTransform != null ? _playerTransform.name : "NULL")}");
+        if (_playerTransform != null)
         {
-            Debug.Log($"Player Position: {playerTransform.position}");
+            Debug.Log($"Player Position: {_playerTransform.position}");
             Debug.Log($"Chicken Position: {transform.position}");
-            Debug.Log($"Direction to Player: {(playerTransform.position - transform.position).normalized}");
+            Debug.Log($"Direction to Player: {(_playerTransform.position - transform.position).normalized}");
         }
         Debug.Log($"Current Rotation: {transform.rotation.eulerAngles}");
-        Debug.Log($"Rigidbody Freeze Rotation: {rb.freezeRotation}");
-        Debug.Log($"Is Concussed: {state == ChickenState.Concussed}");
+        Debug.Log($"Rigidbody Freeze Rotation: {_rb.freezeRotation}");
+        Debug.Log($"Is Concussed: {_state == ChickenState.Concussed}");
         
         // Check for animator
         Animator animator = GetComponent<Animator>();
@@ -1034,13 +1033,13 @@ public class ChickenFollowFormation : MonoBehaviour
     [Button]
     private void ForceImmediateLookAtPlayer()
     {
-        if (playerTransform == null)
+        if (_playerTransform == null)
         {
             Debug.LogError("No player transform set!");
             return;
         }
         
-        Vector3 directionToPlayer = playerTransform.position - transform.position;
+        Vector3 directionToPlayer = _playerTransform.position - transform.position;
         if (lockYRotationOnly)
         {
             directionToPlayer.y = 0;
@@ -1050,7 +1049,7 @@ public class ChickenFollowFormation : MonoBehaviour
         {
             Quaternion previousRotation = transform.rotation;
             transform.rotation = Quaternion.LookRotation(directionToPlayer, Vector3.up);
-            hasPerformedFirstRotation = true; // Mark as performed
+            _hasPerformedFirstRotation = true; // Mark as performed
             Debug.Log($"Forced rotation to face player. Previous: {previousRotation.eulerAngles}, New: {transform.rotation.eulerAngles}");
             
             // Also test if rotation "sticks"
@@ -1078,15 +1077,15 @@ public class ChickenFollowFormation : MonoBehaviour
     private void DebugCurrentState()
     {
         Debug.Log($"=== {gameObject.name} State Debug ===");
-        Debug.Log($"Current State: {state}");
-        Debug.Log($"Has Arrived At Slot Once: {hasArrivedAtSlotOnce}");
-        Debug.Log($"Assigned Slot: {(assignedSlot != null ? "Yes" : "No")}");
+        Debug.Log($"Current State: {_state}");
+        Debug.Log($"Has Arrived At Slot Once: {_hasArrivedAtSlotOnce}");
+        Debug.Log($"Assigned Slot: {(_assignedSlot != null ? "Yes" : "No")}");
         Debug.Log($"Spawn Point: {(spawnPoint != null ? spawnPoint.name : "NULL")}");
-        Debug.Log($"Concuss Timer: {concussTimer:F2}");
+        Debug.Log($"Concuss Timer: {_concussTimer:F2}");
         
-        if (assignedSlot != null && formationManager != null)
+        if (_assignedSlot != null && _formationManager != null)
         {
-            Vector3 slotPos = formationManager.GetSlotWorldPosition(assignedSlot);
+            Vector3 slotPos = _formationManager.GetSlotWorldPosition(_assignedSlot);
             float distance = Vector3.Distance(transform.position, slotPos);
             Debug.Log($"Distance to Slot: {distance:F2} (Concuss Range: {concussRange})");
         }
@@ -1095,27 +1094,27 @@ public class ChickenFollowFormation : MonoBehaviour
     [Button]
     private void TestEnterConcussState()
     {
-        if (state == ChickenState.InCombat)
+        if (_state == ChickenState.InCombat)
         {
             // Simulate being knocked away from slot
-            Vector3 knockbackForce = (transform.position - formationManager.GetSlotWorldPosition(assignedSlot)).normalized * 10f;
+            Vector3 knockbackForce = (transform.position - _formationManager.GetSlotWorldPosition(_assignedSlot)).normalized * 10f;
             ApplyConcussion(knockbackForce);
         }
         else
         {
-            Debug.LogWarning($"Can't test concuss - chicken must be in combat mode! Current state: {state}");
+            Debug.LogWarning($"Can't test concuss - chicken must be in combat mode! Current state: {_state}");
         }
     }
     
     // Public properties
-    public bool IsInFormation => state == ChickenState.InCombat;
-    public bool HasAssignedSlot => assignedSlot != null;
-    public bool IsWaitingForSlot => state == ChickenState.WaitingForFormation;
-    public bool IsIdle => state == ChickenState.Idle;
-    public bool IsAtSpawnPoint => state == ChickenState.AtSpawnPoint;
-    public bool IsConcussed => state == ChickenState.Concussed;
-    public bool IsInCombatMode => state == ChickenState.InCombat;
-    public ChickenState CurrentState => state;
-    public Vector3 GetTargetSlotPosition => assignedSlot != null ? formationManager.GetSlotWorldPosition(assignedSlot) : transform.position;
-    public Transform CurrentPlayerTarget => playerTransform;
+    public bool IsInFormation => _state == ChickenState.InCombat;
+    public bool HasAssignedSlot => _assignedSlot != null;
+    public bool IsWaitingForSlot => _state == ChickenState.WaitingForFormation;
+    public bool IsIdle => _state == ChickenState.Idle;
+    public bool IsAtSpawnPoint => _state == ChickenState.AtSpawnPoint;
+    public bool IsConcussed => _state == ChickenState.Concussed;
+    public bool IsInCombatMode => _state == ChickenState.InCombat;
+    public ChickenState CurrentState => _state;
+    public Vector3 GetTargetSlotPosition => _assignedSlot != null ? _formationManager.GetSlotWorldPosition(_assignedSlot) : transform.position;
+    public Transform CurrentPlayerTarget => _playerTransform;
 }
