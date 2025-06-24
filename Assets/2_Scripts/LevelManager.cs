@@ -499,14 +499,14 @@ public class LevelManager : MonoBehaviour
     private void UpdatePlayerAndEnemyPositions(float currentT)
     {
         // Calculate player position
-        float playerStageOffset = CurrentStage ? CurrentStage.PlayerStageOffset : 0f;
+        float playerStageOffset = CurrentStage ? CurrentStage.PlayerPositionOffset : 0f;
         float playerOffsetNormalized = (playerOffset + playerStageOffset) / SplineLength;
         float playerT = (currentT + playerOffsetNormalized) % 1.0f;
         if (playerT < 0) playerT += 1.0f;
         PlayerPosition = splineContainer.EvaluatePosition(playerT);
 
         // Calculate enemy position
-        float enemyStageOffset = CurrentStage ? CurrentStage.EnemyStageOffset : 0f;
+        float enemyStageOffset = CurrentStage ? CurrentStage.EnemyPositionOffset : 0f;
         float enemyOffsetNormalized = (enemyOffset + enemyStageOffset) / SplineLength;
         float enemyT = (currentT + enemyOffsetNormalized) % 1.0f;
         if (enemyT < 0) enemyT += 1.0f;
