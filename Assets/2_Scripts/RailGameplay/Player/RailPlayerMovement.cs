@@ -355,12 +355,12 @@ public class RailPlayerMovement : MonoBehaviour
         
         if (_dodgeCooldownTimer <= 0f && !_isDodging)
         {
+            OnDodge?.Invoke();
             _dodgeDirection = Vector3.left;
             _dodgeTimeCounter = 0f;
             _isDodging = true;
                 
             PlayDodgeRollAnimation();
-            OnDodge?.Invoke();
         }
     }
     
@@ -370,12 +370,12 @@ public class RailPlayerMovement : MonoBehaviour
         
         if (_dodgeCooldownTimer <= 0f && !_isDodging)
         {
+            OnDodge?.Invoke();
             _dodgeDirection = Vector3.right;
             _dodgeTimeCounter = 0f;
             _isDodging = true;
                 
             PlayDodgeRollAnimation();
-            OnDodge?.Invoke();
         }
     }
     

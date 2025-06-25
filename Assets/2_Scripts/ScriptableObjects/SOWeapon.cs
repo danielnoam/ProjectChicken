@@ -33,9 +33,8 @@ public class SOWeapon : ScriptableObject
     
     [ShowIf("weaponType", WeaponType.Hitscan)]
     [Header("Hitscan Settings")]
-    [SerializeField, Min(0)] private float pushForce = 5f;
-    [SerializeField, Min(0)] private float stunTime;
     [SerializeField] private LayerMask hitLayers = -1;
+    [SerializeReference] private List<HitscanBehaviorBase> hitscanBehaviors = new List<HitscanBehaviorBase>();
     [EndIf]
 
     
@@ -167,6 +166,12 @@ public class SOWeapon : ScriptableObject
         
         // Play spawn effect
         PlayFireEffect(startPosition, Quaternion.identity);
+        
+        foreach (var behavior in hitscanBehaviors)
+        {
+            behavior.OnBehaviorStart(this, owner);
+        }
+
 
         // Get enemy target
         if (maxTargets == 1)
@@ -175,12 +180,15 @@ public class SOWeapon : ScriptableObject
             
             if (enemy)
             {
+
+                foreach (var behavior in hitscanBehaviors)
+                {
+                    behavior.OnBehaviorHit(this, owner, enemy);
+                }
+                
                 // Apply damage
                 enemy.TakeDamage(damage);
-            
-                enemy.ApplyConcussion(stunTime);
-
-                enemy.ApplyForce(startPosition, pushForce);
+                
             
                 // Play impact effect
                 PlayImpactEffect(enemy.transform.position, Quaternion.identity);
@@ -208,17 +216,24 @@ public class SOWeapon : ScriptableObject
             {
                 if (target)
                 {
+                    
+                    foreach (var behavior in hitscanBehaviors)
+                    {
+                        behavior.OnBehaviorHit(this, owner, target);
+                    }
+                    
                     // Apply damage
                     target.TakeDamage(damage);
-                
-                    target.ApplyConcussion(stunTime);
-
-                    target.ApplyForce(startPosition, pushForce);
                 
                     // Play impact effect
                     PlayImpactEffect(target.transform.position, Quaternion.identity);
                 }
             }
+        }
+        
+        foreach (var behavior in hitscanBehaviors)
+        {
+            behavior.OnBehaviorEnd(this, owner);
         }
     }
 

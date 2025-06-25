@@ -465,7 +465,7 @@ public class RailPlayer : MonoBehaviour
     
     public ChickenController GetTarget(float radius)
     {
-        return playerAiming.GetEnemyTarget(radius);
+        return playerAiming.CurrentAimLockTarget ? playerAiming.CurrentAimLockTarget : playerAiming.GetEnemyTarget(radius);
     }
     
     public ChickenController[] GetAllTargets(int maxTargets, float radius)

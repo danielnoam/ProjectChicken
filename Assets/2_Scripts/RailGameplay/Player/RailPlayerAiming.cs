@@ -373,6 +373,7 @@ public class RailPlayerAiming : MonoBehaviour
     
     public ChickenController GetEnemyTarget(float radius)
     {
+        
         Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
         Collider[] hitColliders = Physics.OverlapSphere(_crosshairWorldPosition, radius);
         
@@ -465,7 +466,6 @@ public class RailPlayerAiming : MonoBehaviour
         return LevelManager.Instance.EnemyPosition;
     }
     
-    // Public methods to check aim lock state
     public bool IsAimLocked => _isAimLocked;
     public ChickenController CurrentAimLockTarget => _currentAimLockTarget;
     public float AimLockCooldownRemaining => _aimLockCooldownTimer;

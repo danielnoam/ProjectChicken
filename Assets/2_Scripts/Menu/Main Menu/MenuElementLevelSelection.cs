@@ -22,9 +22,11 @@ public class MenuElementLevelSelection : MenuElement
     [SerializeField] private TextMeshProUGUI levelNameText;
     [SerializeField] private TextMeshProUGUI levelDifficultyText;
     [SerializeField] private TextMeshProUGUI levelDescriptionText;
+    [SerializeField] private TextMeshProUGUI levelBestScoreText;
     [SerializeField] private TMPWriter levelNameWriter;
     [SerializeField] private TMPWriter levelDifficultyWriter;
     [SerializeField] private TMPWriter levelDescriptionWriter;
+    [SerializeField] private TMPWriter levelBestScoreWriter;
     [SerializeField] private Button levelButtonPrefab;
 
     private readonly List<LevelUIData> _levelUIData = new List<LevelUIData>();
@@ -76,13 +78,17 @@ public class MenuElementLevelSelection : MenuElement
                 EventTrigger eventTrigger = levelButton.GetComponent<EventTrigger>();
                 if (eventTrigger)
                 {
-                    EventTrigger.Entry entry = new EventTrigger.Entry();
-                    entry.eventID = EventTriggerType.PointerEnter;
+                    EventTrigger.Entry entry = new EventTrigger.Entry
+                    {
+                        eventID = EventTriggerType.PointerEnter
+                    };
                     entry.callback.AddListener((eventData) => ShowLevelInfo(uiData));
                     eventTrigger.triggers.Add(entry);
                     
-                    EventTrigger.Entry entry2 = new EventTrigger.Entry();
-                    entry2.eventID = EventTriggerType.PointerExit;
+                    EventTrigger.Entry entry2 = new EventTrigger.Entry
+                    {
+                        eventID = EventTriggerType.PointerExit
+                    };
                     entry2.callback.AddListener((eventData) => HideLevelInfo(uiData));
                     eventTrigger.triggers.Add(entry2);
                 }
@@ -98,6 +104,7 @@ public class MenuElementLevelSelection : MenuElement
         levelNameText.text = "";
         levelDescriptionText.text = "";
         levelDifficultyText.text = "";
+        levelBestScoreText.text = "";
         ToggleLevelCanvas(false);
     }
     
@@ -151,6 +158,7 @@ public class MenuElementLevelSelection : MenuElement
 
         levelNameText.text = levelUI.soLevel.LevelName;
         levelDescriptionText.text = levelUI.soLevel.LevelDescription;
+        levelBestScoreText.text = $"Best Score: \n{levelUI.bestScore:D7}";
         switch (levelUI.soLevel.LevelDifficulty)
         {
             case LevelDifficulty.None:
@@ -207,6 +215,7 @@ public class MenuElementLevelSelection : MenuElement
         levelNameText.text = "";
         levelDescriptionText.text = "";
         levelDifficultyText.text = "";
+        levelBestScoreText.text = "";
     }
 
 
@@ -243,6 +252,7 @@ public class MenuElementLevelSelection : MenuElement
         levelDifficultyWriter.ResetWriter();
         levelDescriptionWriter.ResetWriter();
         levelNameWriter.RestartWriter();
+        levelBestScoreWriter.RestartWriter();
     
         yield return new WaitForSeconds(0.2f);
         levelDifficultyWriter.RestartWriter();
