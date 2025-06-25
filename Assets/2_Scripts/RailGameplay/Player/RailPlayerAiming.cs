@@ -25,6 +25,7 @@ public class RailPlayerAiming : MonoBehaviour
     [EndIf]
     
     [Header("References")]
+    [SerializeField] private Transform crosshairsHolder;
     [SerializeField] private Transform crosshair;
     [SerializeField] private Transform smallCrosshair;
     [SerializeField] private Transform targetCrosshair;
@@ -33,6 +34,7 @@ public class RailPlayerAiming : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
 
 
+    private bool _allowAiming = true;
     private float _noInputTimer;
     private Vector2 _processedLookInput;
     private Vector2 _normalizedCrosshairPosition;
@@ -42,10 +44,8 @@ public class RailPlayerAiming : MonoBehaviour
     private ChickenController _currentAimLockTarget;
     private bool _isAimLocked;
     private float _aimLockCooldownTimer;
-    private float CrosshairBoundaryX => LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.x : 25f;
-    private float CrosshairBoundaryY => LevelManager.Instance ? LevelManager.Instance.EnemyBoundary.y : 15f;
-    private bool AllowAiming => player.IsAlive() && (!LevelManager.Instance || !LevelManager.Instance.CurrentStage ||
-                                                     LevelManager.Instance.CurrentStage.AllowPlayerAim);
+    private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundary.x : 25f;
+    private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundary.y : 15f;
     
     
     
@@ -62,11 +62,22 @@ public class RailPlayerAiming : MonoBehaviour
     private void OnEnable()
     {
         playerInput.OnProcessedLookEvent += OnProcessedLook;
+
+        if (player.LevelManager)
+        {
+            player.LevelManager.OnStageChanged += OnStageChanged;
+        }
+
     }
     
     private void OnDisable()
     {
         playerInput.OnProcessedLookEvent -= OnProcessedLook;
+
+        if (player.LevelManager)
+        {
+            player.LevelManager.OnStageChanged -= OnStageChanged;
+        }
     }
 
     private void Update()
@@ -83,7 +94,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void OnProcessedLook(Vector2 processedLookInput)
     {
-        if (!AllowAiming) return;
+        if (!_allowAiming || !player.IsAlive()) return;
         _processedLookInput = processedLookInput;
     }
 
@@ -159,6 +170,17 @@ public class RailPlayerAiming : MonoBehaviour
         // Store the final processed input delta for debugging
         _processedLookInput = inputDelta;
     }
+    
+    private void OnStageChanged(SOLevelStage stage)
+    {
+        if (!stage) return;
+        
+        _allowAiming = stage.AllowPlayerAim;
+        if (crosshairsHolder)
+        {
+            crosshairsHolder.gameObject.SetActive(stage.AllowPlayerAim);
+        }
+    }
 
     #endregion Input Processing --------------------------------------------------------------------------------------------------------
 
@@ -167,7 +189,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void HandleAimLock()
     {
-        if (!playerInput.CurrentControlScheme.aimLock || !AllowAiming)
+        if (!playerInput.CurrentControlScheme.aimLock || !_allowAiming || !player.IsAlive())
         {
             if (_isAimLocked)
             {
@@ -262,7 +284,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void HandleSplineRotation()
     {
-        if (!player.AlignToSplineDirection || !LevelManager.Instance)
+        if (!player.AlignToSplineDirection || !player.LevelManager)
         {
             _splineRotation = Quaternion.identity;
             return;
@@ -302,7 +324,7 @@ public class RailPlayerAiming : MonoBehaviour
         _aimDirection = Vector3.Lerp(_aimDirection, (_crosshairWorldPosition - transform.position).normalized, crosshairFollowSpeed * Time.deltaTime);
 
         // Update crosshair visual
-        if (crosshair)
+        if (crosshair && _allowAiming)
         {
             crosshair.position = Vector3.Lerp(crosshair.position, _crosshairWorldPosition, crosshairFollowSpeed * Time.deltaTime);
             crosshair.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
@@ -457,13 +479,13 @@ public class RailPlayerAiming : MonoBehaviour
     
     private Vector3 GetSplineDirection()
     {
-        return !LevelManager.Instance ? Vector3.forward : LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.CurrentPositionOnPath.position);
+        return !player.LevelManager ? Vector3.forward : player.LevelManager.GetDirectionOnSpline(player.LevelManager.CurrentPositionOnPath.position);
     }
     
     private Vector3 GetCrosshairSplinePosition()
     {
-        if (!LevelManager.Instance) return transform.position;
-        return LevelManager.Instance.EnemyPosition;
+        if (!player.LevelManager) return transform.position;
+        return player.LevelManager.EnemyPosition;
     }
     
     public bool IsAimLocked => _isAimLocked;
@@ -479,7 +501,7 @@ public class RailPlayerAiming : MonoBehaviour
     private void OnDrawGizmos()
     {
         // Draw boundaries from spline position 
-        if (LevelManager.Instance)
+        if (player.LevelManager)
         {
             Gizmos.color = Color.blue;
             Vector3 crosshairSplinePosition = GetCrosshairSplinePosition();

@@ -45,6 +45,7 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     [SerializeField] private Transform shipModel;
 
+
     private float _horizontalInput;
     private float _verticalInput;
     private Quaternion _velocityRotation = Quaternion.identity;
@@ -60,10 +61,10 @@ public class RailPlayerMovement : MonoBehaviour
     private Vector3 _dodgeDirection;
     private Tween _dodgeTween;
 
-    private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
-    private float MovementBoundaryY => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
-    private bool AllowMovement => player.IsAlive() && (!LevelManager.Instance || !LevelManager.Instance.CurrentStage ||
-                                                       LevelManager.Instance.CurrentStage.AllowPlayerMovement);
+    private float MovementBoundaryX => player.LevelManager ? player.LevelManager.PlayerBoundary.x : 10f;
+    private float MovementBoundaryY => player.LevelManager ? player.LevelManager.PlayerBoundary.y : 6f;
+    private bool AllowMovement => player.IsAlive() && (!player.LevelManager || !player.LevelManager.CurrentStage ||
+                                                       player.LevelManager.CurrentStage.AllowPlayerMovement);
 
     public float MaxDodgeCooldown => dodgeCooldown;
     public bool IsDodging => _isDodging;
@@ -84,6 +85,7 @@ public class RailPlayerMovement : MonoBehaviour
         playerInput.OnDodgeLeftEvent += OnDodgeLeft;
         playerInput.OnDodgeRightEvent += OnDodgeRight;
         playerInput.OnDodgeFreeformEvent += OnDodgeFreeform;
+        
     }
     
     private void OnDisable()
@@ -113,7 +115,7 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void HandleMovement()
     {
-        if (LevelManager.Instance)
+        if (player.LevelManager)
         {
             SplineBasedMovement();
         }
@@ -127,7 +129,7 @@ public class RailPlayerMovement : MonoBehaviour
     private void SplineBasedMovement()
     {
         
-        Vector3 playerSplinePosition = LevelManager.Instance.PlayerPosition;
+        Vector3 playerSplinePosition = player.LevelManager.PlayerPosition;
         
         // Calculate current offset from spline in local space
         Vector3 worldOffset = transform.position - playerSplinePosition;
@@ -206,9 +208,9 @@ public class RailPlayerMovement : MonoBehaviour
     private void HandleSplineRotation()
     {
         // Get spline rotation
-        if (LevelManager.Instance && player.AlignToSplineDirection)
+        if (player.LevelManager && player.AlignToSplineDirection)
         {
-            Vector3 splineDirection = LevelManager.Instance.GetDirectionOnSpline(LevelManager.Instance.CurrentPositionOnPath.position);
+            Vector3 splineDirection = player.LevelManager.GetDirectionOnSpline(player.LevelManager.CurrentPositionOnPath.position);
             Quaternion targetSplineRotation = Quaternion.LookRotation(splineDirection, Vector3.up);
         
             // Smoothly rotate towards the spline direction
@@ -404,9 +406,9 @@ public class RailPlayerMovement : MonoBehaviour
     private void OnDrawGizmos()
     {
         // Draw boundaries from the actual player position on spline (with pathOffset)
-        if (LevelManager.Instance)
+        if (player.LevelManager)
         {
-            Vector3 playerSplinePosition = LevelManager.Instance.PlayerPosition;
+            Vector3 playerSplinePosition = player.LevelManager.PlayerPosition;
             
             // Create boundary corners in local spline space, then transform to world space
             Vector3[] localCorners = new Vector3[]

@@ -45,6 +45,8 @@ public class RailPlayer : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private LevelManager levelManager;
+    [SerializeField] private Transform followCameraTarget;
+    [SerializeField] private Transform introCameraTarget;
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
@@ -61,6 +63,7 @@ public class RailPlayer : MonoBehaviour
     private Coroutine _regenShieldCoroutine;
     
     // Public properties
+    public LevelManager LevelManager => levelManager;
     public bool AlignToSplineDirection => alignToSplineDirection;
     public float SplineRotationSpeed => splineRotationSpeed;
     public int MaxHealth => maxHealth;
@@ -69,6 +72,7 @@ public class RailPlayer : MonoBehaviour
     public event Action OnDeath;
     public event Action<int> OnHealthChanged;
     public event Action<float> OnShieldChanged;
+    public event Action<SOWeapon> OnWeaponUsed;
     public event Action<SOWeapon,SOWeapon> OnSpecialWeaponSwitched;
     public event Action<SOWeapon,float> OnBaseWeaponCooldownUpdated;
     public event Action<SOWeapon,float> OnSpecialWeaponCooldownUpdated;
@@ -95,12 +99,13 @@ public class RailPlayer : MonoBehaviour
 
     private void Awake()
     {
-        SetUpPlayer();
+        SetupPlayer();
     }
     
 
     private void OnEnable()
     {
+        playerWeapon.OnWeaponUsed += OnWeaponUsed;
         playerWeapon.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
         playerWeapon.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
         playerWeapon.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
@@ -110,10 +115,12 @@ public class RailPlayer : MonoBehaviour
         playerMovement.OnDodge += OnDodge;
         playerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
         levelManager.OnBonusThresholdReached += OnMillionScoreReached;
+        levelManager.OnStageChanged += OnStageChanged;
     }
 
     private void OnDisable()
     {
+        playerWeapon.OnWeaponUsed -= OnWeaponUsed;
         playerWeapon.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
         playerWeapon.OnBaseWeaponCooldownUpdated -= OnBaseWeaponCooldownUpdated;
         playerWeapon.OnSpecialWeaponCooldownUpdated -= OnSpecialWeaponCooldownUpdated;
@@ -123,8 +130,10 @@ public class RailPlayer : MonoBehaviour
         playerMovement.OnDodge -= OnDodge;
         playerMovement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
         levelManager.OnBonusThresholdReached -= OnMillionScoreReached;
+        levelManager.OnStageChanged -= OnStageChanged;
     }
     
+
     private void Update()
     {
         CheckDamageCooldown();
@@ -132,10 +141,25 @@ public class RailPlayer : MonoBehaviour
         UpdateMagnetizedResources();
     }
 
-    private void SetUpPlayer()
+    private void SetupPlayer()
     {
+        _currentCurrency = SaveManager.GetCurrency();
         _currentHealth = maxHealth;
         _currentShieldHealth = maxShieldHealth;
+        
+        OnCurrencyChanged?.Invoke(_currentCurrency);
+        OnHealthChanged?.Invoke(_currentHealth);
+        OnShieldChanged?.Invoke(_currentShieldHealth);
+    }
+    
+    private void OnStageChanged(SOLevelStage stage)
+    {
+        if (!stage) return;
+
+        if (stage.StageType == StageType.Outro)
+        {
+            SaveManager.UpdatePlayerProgress(_currentCurrency);
+        }
     }
     
     
@@ -472,6 +496,19 @@ public class RailPlayer : MonoBehaviour
     {
         return playerAiming.GetEnemyTargets(maxTargets, radius);
     }
+    
+    public Transform GetFollowCameraTarget()
+    {
+        return followCameraTarget;
+    }
+    
+    public Transform GetIntroCameraTarget()
+    {
+        return introCameraTarget;
+    }
+    
+    
+    
 
     #endregion Helper Methods --------------------------------------------------------------------------------------
 

@@ -37,6 +37,11 @@ public class MenuController : MonoBehaviour
         this.ValidateRefs();
     }
 
+    private void Awake()
+    {
+        SaveManager.Initialize();
+    }
+
     private void OnEnable()
     {
         menuInput.OnNavigateAction += OnNavigate;

@@ -64,8 +64,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private float _specialWeaponFireRateCooldown;
     private float _specialWeaponTime;
     private float _specialWeaponAmmo;
-    private bool AllowShooting => player.IsAlive() && (!LevelManager.Instance || !LevelManager.Instance.CurrentStage ||
-                                                       LevelManager.Instance.CurrentStage.AllowPlayerShooting);
+    private bool AllowShooting => player.IsAlive() && (!player.LevelManager || !player.LevelManager.CurrentStage ||
+                                                       player.LevelManager.CurrentStage.AllowPlayerShooting);
     
     
     public bool IsOverHeated => _isOverHeated;
@@ -75,8 +75,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public float MaxWeaponHeat => maxHeat;
     public float SpecialWeaponTime => _specialWeaponTime;
     public float SpecialWeaponAmmo => _specialWeaponAmmo;
-    
-    
+
+    public event Action<SOWeapon> OnWeaponUsed;
     public event Action<SOWeapon,SOWeapon> OnSpecialWeaponSwitched;
     public event Action<SOWeapon,float> OnBaseWeaponCooldownUpdated;
     public event Action<SOWeapon,float> OnSpecialWeaponCooldownUpdated;
@@ -85,10 +85,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public event Action OnWeaponHeatReset;
 
     
-    
-    
-    
-
     private void OnValidate() { this.ValidateRefs(); }
 
     private void Awake()
@@ -239,6 +235,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         
         
         weapon.Fire(player, weaponInfo.projectileSpawnPoints);
+        OnWeaponUsed?.Invoke(weapon);
         
     }
 

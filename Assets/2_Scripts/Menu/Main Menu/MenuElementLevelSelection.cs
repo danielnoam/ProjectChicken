@@ -68,7 +68,7 @@ public class MenuElementLevelSelection : MenuElement
                 levelButton.gameObject.name = $"Button{level.LevelName}";
                 
                 // Create the UI element container
-                var uiData = new LevelUIData(level, levelGfx, levelButton);
+                var uiData = new LevelUIData(level, levelGfx, levelButton, SaveManager.GetLevelProgress(level.GetScenePath()));
                 _levelUIData.Add(uiData);
                 
                 // Set up button click event
@@ -92,12 +92,20 @@ public class MenuElementLevelSelection : MenuElement
                     entry2.callback.AddListener((eventData) => HideLevelInfo(uiData));
                     eventTrigger.triggers.Add(entry2);
                 }
-            }
-            else
-            {
-                // If no button prefab, still create UI elements for consistency
-                var uiData = new LevelUIData(level, levelGfx, null);
-                _levelUIData.Add(uiData);
+                
+                
+                // check if all needed levels are completed
+                if (level.IsLocked)
+                {
+                    if (level.LevelsToComplete.Count == 0 || level.LevelsToComplete == null) continue;
+                    foreach (var neededLevel in level.LevelsToComplete)
+                    {
+                        var neededLevelProgress = SaveManager.GetLevelProgress(neededLevel.GetScenePath());
+                        if (neededLevelProgress.isCompleted) continue;
+                        levelButton.interactable = false;
+                        break;
+                    }
+                }
             }
         }
         
@@ -157,8 +165,28 @@ public class MenuElementLevelSelection : MenuElement
         _currentlyShownLevel = levelUI;
 
         levelNameText.text = levelUI.soLevel.LevelName;
-        levelDescriptionText.text = levelUI.soLevel.LevelDescription;
-        levelBestScoreText.text = $"Best Score: \n{levelUI.bestScore:D7}";
+
+
+        if (levelUI.levelButton.interactable)
+        {
+            levelDescriptionText.text = levelUI.soLevel.LevelDescription;
+
+            levelBestScoreText.text = levelUI.isCompleted ? $"Best Score: \n{levelUI.bestScore:D7}" : $"";
+        }
+        else
+        {
+            levelBestScoreText.text = $"";
+            levelDescriptionText.text = $"Complete these levels to unlock:";
+            
+            foreach (var level in levelUI.soLevel.LevelsToComplete)
+            {
+                levelDescriptionText.text += $"\n {level.name}" ;
+            }
+
+        }
+
+        
+        
         switch (levelUI.soLevel.LevelDifficulty)
         {
             case LevelDifficulty.None:

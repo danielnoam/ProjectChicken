@@ -43,11 +43,6 @@ public class ChickenFollowFormation : MonoBehaviour
     [SerializeField] private bool instantFirstRotation = true; // Instantly face player when first spawning
     [SerializeField] private bool lockYRotationOnly = true; // Only rotate on Y axis (typical for top-down games)
     [SerializeField] private string playerTag = "Player"; // Tag to find player
-    [SerializeField] private Transform playerOverride = null; // Optional: manually assign player transform
-    
-    [Header("Rotation Debug")]
-    [SerializeField, ReadOnly] private bool playerFound = false;
-    [SerializeField, ReadOnly] private string currentPlayerName = "None";
     
     [Header("Idle Behavior")]
     [SerializeField] private bool enableIdleMovement = true; // Enable subtle movement while idle
@@ -141,23 +136,12 @@ public class ChickenFollowFormation : MonoBehaviour
     
     private void FindPlayer()
     {
-        // First check if player override is set
-        if (playerOverride != null)
-        {
-            _playerTransform = playerOverride;
-            playerFound = true;
-            currentPlayerName = playerOverride.name;
-            //Debug.Log($"{gameObject.name}: Using player override - {playerOverride.name}");
-            return;
-        }
         
         // Try to find player by tag
         GameObject playerObject = GameObject.FindGameObjectWithTag(playerTag);
-        if (playerObject != null)
+        if (playerObject)
         {
             _playerTransform = playerObject.transform;
-            playerFound = true;
-            currentPlayerName = playerObject.name;
             //Debug.Log($"{gameObject.name}: Found player by tag '{playerTag}' - {playerObject.name}");
         }
         else
@@ -171,11 +155,9 @@ public class ChickenFollowFormation : MonoBehaviour
                     try
                     {
                         playerObject = GameObject.FindGameObjectWithTag(tag);
-                        if (playerObject != null)
+                        if (playerObject)
                         {
                             _playerTransform = playerObject.transform;
-                            playerFound = true;
-                            currentPlayerName = playerObject.name;
                             //Debug.LogWarning($"{gameObject.name}: Player not found with tag '{playerTag}', but found with tag '{tag}'. Consider updating playerTag setting.");
                             return;
                         }
@@ -186,9 +168,6 @@ public class ChickenFollowFormation : MonoBehaviour
                     }
                 }
             }
-            
-            playerFound = false;
-            currentPlayerName = "None";
             //Debug.LogError($"{gameObject.name}: Player with tag '{playerTag}' not found! Chicken won't be able to look at player. Make sure player GameObject has the correct tag or assign playerOverride manually.");
         }
     }
@@ -863,29 +842,11 @@ public class ChickenFollowFormation : MonoBehaviour
     // Public method to update player reference at runtime
     public void SetPlayerTransform(Transform newPlayer)
     {
+        if (!newPlayer) return;
+        
         _playerTransform = newPlayer;
-        if (newPlayer == null)
-        {
-            playerFound = false;
-            currentPlayerName = "None";
-            //Debug.LogWarning($"{gameObject.name}: Player transform set to null!");
-        }
-        else
-        {
-            playerFound = true;
-            currentPlayerName = newPlayer.name;
-            //Debug.Log($"{gameObject.name}: Player transform updated to {newPlayer.name}");
-        }
-    }
-    
-    // Debug visualization
-    private void OnValidate()
-    {
-        // Update player reference if override changed in inspector
-        if (Application.isPlaying && playerOverride != null)
-        {
-            SetPlayerTransform(playerOverride);
-        }
+
+        //Debug.Log($"{gameObject.name}: Player transform updated to {newPlayer.name}");
     }
     
     private void OnDrawGizmos()

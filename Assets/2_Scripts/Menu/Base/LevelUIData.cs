@@ -8,16 +8,14 @@ public class LevelUIData
     public GameObject levelGfx;
     public Button levelButton;
     public int bestScore;
-    public bool isUnlocked;
     public bool isCompleted;
     
-    public LevelUIData (SOLevel level, GameObject gfx, Button button, bool completed = false, bool unlocked  = true, int bestScore = 0)
+    public LevelUIData (SOLevel level, GameObject gfx, Button button, LevelProgress progress)
     {
         soLevel = level;
         levelGfx = gfx;
         levelButton = button;
-        isCompleted = completed;
-        isUnlocked = unlocked;
-        this.bestScore = bestScore;
+        isCompleted = progress.isCompleted;
+        bestScore = progress.GetTopScore();
     }
 }

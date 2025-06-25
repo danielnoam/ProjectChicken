@@ -107,6 +107,7 @@ public class LevelManager : MonoBehaviour
             return;
         }
         
+        SaveManager.Initialize();
         SetUpSpline();
     }
 
@@ -223,6 +224,7 @@ public class LevelManager : MonoBehaviour
             if (newStage.StageType == StageType.Outro)
             {
                 StartCoroutine(ReturnToMainMenu(newStage.StageDuration));
+                SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, Score);
             }
             else
             {
