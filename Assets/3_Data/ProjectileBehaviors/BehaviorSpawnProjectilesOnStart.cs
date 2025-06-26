@@ -1,9 +1,9 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
+
+
 
 
 public class BehaviorSpawnProjectilesOnStart : ProjectileBehaviorBase
@@ -30,7 +30,8 @@ public class BehaviorSpawnProjectilesOnStart : ProjectileBehaviorBase
         {
             Vector3 spawnPosition = projectile.transform.position;
             
-            if (target && _spawnedProjectiles < maxProjectiles)
+            
+            if (target && target != projectile.Target && _spawnedProjectiles < maxProjectiles)
             {
                 float angle = (360f / maxProjectiles) * _spawnedProjectiles * Mathf.Deg2Rad;
         

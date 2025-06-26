@@ -47,6 +47,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Color heatedBarColor = Color.red;
     [SerializeField] private Color normalBarColor = Color.white;
     
+    [Header("Overheat MiniGame")]
+    [SerializeField] private float miniGameAnimationDuration = 0.2f;
+    [SerializeField] private float miniGamePunchDuration = 0.2f;
+    [SerializeField] private float miniGamePunchStrength = 0.2f;
+    [SerializeField] private Color miniGameActiveColor = Color.blue;
+    [SerializeField] private Color miniGameInactiveColor = Color.clear;
+    
     [Header("Score")]
     [SerializeField] private float scoreAnimationDuration = 0.2f;
     [SerializeField] private float scorePunchDuration = 0.2f;
@@ -68,6 +75,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image playerSecondaryWeaponIcon;
     [SerializeField] private Image playerCurrencyIcon;
     [SerializeField] private Image playerHeatBar;
+    [SerializeField] private Image playerMiniGameWindow;
     [SerializeField] private Image playerDodgeIcon;
     [SerializeField] private TextMeshProUGUI playerShieldText;
     [SerializeField] private TextMeshProUGUI playerCurrencyText;
@@ -92,6 +100,7 @@ public class UIManager : MonoBehaviour
     private int _score;
     private int _previousPlayerCurrency;
     private int _playerCurrency;
+    private float _overheatBarHeight;
 
 
     private void OnValidate()
@@ -138,6 +147,7 @@ public class UIManager : MonoBehaviour
             player.OnWeaponHeatUpdated += OnWeaponHeatUpdated;
             player.OnWeaponOverheated += OnWeaponOverheated;
             player.OnWeaponHeatReset += OnWeaponHeatReset;
+            player.OnWeaponHeatMiniGameWindowCreated += OnWeaponHeatMiniGameWindowCreated;
             player.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
             player.OnDodge += OnDodge;
         }
@@ -162,6 +172,7 @@ public class UIManager : MonoBehaviour
             player.OnWeaponHeatUpdated -= OnWeaponHeatUpdated;
             player.OnWeaponOverheated -= OnWeaponOverheated;
             player.OnWeaponHeatReset -= OnWeaponHeatReset;
+            player.OnWeaponHeatMiniGameWindowCreated -= OnWeaponHeatMiniGameWindowCreated;
             player.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
             player.OnDodge -= OnDodge;
         }
@@ -206,8 +217,10 @@ public class UIManager : MonoBehaviour
                 
                 _healthIcons[healthObject] = false; // Initially set to false
             }
-            
 
+
+            _overheatBarHeight = playerHeatBar.rectTransform.sizeDelta.y;
+            playerMiniGameWindow.color = Color.clear;
             _weaponStartColor = playerWeaponIcon.color;
             _secondaryWeaponStartColor = playerSecondaryWeaponIcon.color;
             playerSecondaryWeaponIcon.sprite = player.GetCurrentBaseWeapon().WeaponIcon;
@@ -421,15 +434,53 @@ public class UIManager : MonoBehaviour
 
             ;
     }
+
+
+
+    private void OnWeaponHeatMiniGameWindowCreated(float regenTime, float windowDuration, float windowStartTime)
+    {
+        float normalizedWindowSize = Mathf.Clamp01(windowDuration / regenTime);
+        float windowHeight = _overheatBarHeight * normalizedWindowSize;
+
+        // Set the size of the mini-game window
+        playerMiniGameWindow.rectTransform.sizeDelta = new Vector2(
+            playerMiniGameWindow.rectTransform.sizeDelta.x, 
+            windowHeight
+        );
+
+        // Calculate the position based on windowStartTime
+        // Since the heat bar fills from bottom (0) to top (1), and the timing counts down from regenTime to 0,
+        // we need to invert the position calculation
+        float normalizedEndPosition = Mathf.Clamp01((windowStartTime - windowDuration) / regenTime);
+    
+        // Calculate the center position of the window (halfway between start and end)
+        float windowCenterPosition = normalizedEndPosition + (normalizedWindowSize * 0.5f);
+    
+        // Calculate the Y offset from center of the heat bar
+        // Map from 0-1 range to the actual pixel range of the heat bar
+        float yOffset = (windowCenterPosition - 0.5f) * _overheatBarHeight;
+
+        // Set the anchored position
+        playerMiniGameWindow.rectTransform.anchoredPosition = new Vector2(
+            playerMiniGameWindow.rectTransform.anchoredPosition.x,
+            yOffset
+        );
+    }
+    
     
     private void OnWeaponOverheated()
     {
         Tween.PunchScale(playerHeatBar.transform, strength: Vector3.one * heatBarPunchStrength, duration: heatBarPunchDuration);
+        
+        Tween.PunchScale(playerMiniGameWindow.transform, strength: Vector3.one * miniGamePunchStrength, duration: miniGamePunchDuration);
+        Tween.Color(playerMiniGameWindow, startValue: playerMiniGameWindow.color, endValue: miniGameActiveColor, miniGameAnimationDuration);
     }
     
     private void OnWeaponHeatReset()
     {
         Tween.PunchScale(playerHeatBar.transform, strength: Vector3.one * heatBarPunchStrength, duration: heatBarPunchDuration);
+        
+        Tween.Color(playerMiniGameWindow, startValue: playerMiniGameWindow.color, endValue: miniGameInactiveColor, miniGameAnimationDuration);
     }
     
     private void OnUpdateCurrency(int newCurrency)

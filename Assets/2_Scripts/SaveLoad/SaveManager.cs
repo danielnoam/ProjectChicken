@@ -32,7 +32,7 @@ public static class SaveManager
         LoadPlayerData();
         _initialized = true;
         
-        Debug.Log($"SaveManager initialized. Save path: {_playerDataPath}");
+        // Debug.Log($"SaveManager initialized. Save path: {_playerDataPath}");
         
         #if UNITY_EDITOR
         // Subscribe to play mode state changes to uninitialize when exiting play mode
@@ -93,7 +93,7 @@ public static class SaveManager
             {
                 string jsonData = File.ReadAllText(_playerDataPath);
                 _playerData = JsonUtility.FromJson<PlayerSaveData>(jsonData);
-                Debug.Log("Game loaded successfully!");
+                // Debug.Log("Game loaded successfully!");
             }
             else
             {

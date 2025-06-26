@@ -79,6 +79,7 @@ public class RailPlayer : MonoBehaviour
     public event Action<float> OnWeaponHeatUpdated;
     public event Action OnWeaponOverheated;
     public event Action OnWeaponHeatReset;
+    public event Action<float,float, float> OnWeaponHeatMiniGameWindowCreated;
     public event Action<Resource> OnResourceCollected;
     public event Action<int> OnCurrencyChanged;
     public event Action OnDodge;
@@ -112,6 +113,7 @@ public class RailPlayer : MonoBehaviour
         playerWeapon.OnWeaponHeatUpdated += OnWeaponHeatUpdated;
         playerWeapon.OnWeaponOverheated += OnWeaponOverheated;
         playerWeapon.OnWeaponHeatReset += OnWeaponHeatReset;
+        playerWeapon.OnWeaponHeatMiniGameWindowCreated += OnWeaponHeatMiniGameWindowCreated;
         playerMovement.OnDodge += OnDodge;
         playerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
         levelManager.OnBonusThresholdReached += OnMillionScoreReached;
@@ -127,6 +129,7 @@ public class RailPlayer : MonoBehaviour
         playerWeapon.OnWeaponHeatUpdated -= OnWeaponHeatUpdated;
         playerWeapon.OnWeaponOverheated -= OnWeaponOverheated;
         playerWeapon.OnWeaponHeatReset -= OnWeaponHeatReset;
+        playerWeapon.OnWeaponHeatMiniGameWindowCreated -= OnWeaponHeatMiniGameWindowCreated;
         playerMovement.OnDodge -= OnDodge;
         playerMovement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
         levelManager.OnBonusThresholdReached -= OnMillionScoreReached;

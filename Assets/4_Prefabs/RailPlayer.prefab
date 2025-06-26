@@ -1777,12 +1777,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allowBaseWeaponWithSpecialWeapon: 1
   specialWeaponsArePermanent: 1
+  weaponSwitchSfx: {fileID: 0}
+  weaponOverheatSfx: {fileID: 11400000, guid: 7ad50aeb9c2a07149856f950872b5fd4, type: 2}
+  weaponHeatResetSfx: {fileID: 11400000, guid: 561cd25779a5fb64cb6612dd49a39b31, type: 2}
   maxHeat: 100
-  overHeatCooldown: 3
   timeBeforeRegen: 1
   heatRegenRate: 15
   switchingWeaponsResetsHeat: 1
+  overHeatCooldown: 3
+  overHeatMiniGame: 1
+  randomizeWindow: 1
+  windowPositionRange: {x: 0.25, y: 0.75}
+  windowSizeRange: {x: 0.1, y: 0.3}
+  miniGameWindowPosition: 0.23
+  miniGameWindow: 0.415
   dodgeReleasesHeat: 1
+  releaseHeatWhileOverheated: 1
   heatReleased: 25
   baseWeapon: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
   weapons:
@@ -1825,9 +1835,6 @@ MonoBehaviour:
       isKeyRepeated: 0
       isKeyNull: 0
     dividerPos: 0.33
-  weaponSwitchSfx: {fileID: 0}
-  weaponOverheatSfx: {fileID: 11400000, guid: 7ad50aeb9c2a07149856f950872b5fd4, type: 2}
-  weaponHeatResetSfx: {fileID: 11400000, guid: 561cd25779a5fb64cb6612dd49a39b31, type: 2}
   player: {fileID: 2233603387570671912}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
