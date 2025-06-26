@@ -25,6 +25,7 @@ public class RailPlayerAiming : MonoBehaviour
     [EndIf]
     
     [Header("References")]
+    [SerializeField] private Transform reticleWorldPosition;
     [SerializeField] private Transform reticlesHolder;
     [SerializeField] private Transform activeReticle;
     [SerializeField] private Transform smallReticle;
@@ -38,17 +39,17 @@ public class RailPlayerAiming : MonoBehaviour
     private bool _allowAiming = true;
     private float _noInputTimer;
     private Vector2 _processedLookInput;
-    private Vector2 _normalizedCrosshairPosition;
+    private Vector2 _normalizedReticlePosition;
     private Vector3 _aimDirection;
-    private Vector3 _crosshairWorldPosition;
     private Quaternion _splineRotation = Quaternion.identity;
     private ChickenController _currentAimLockTarget;
     private bool _isAimLocked;
     private float _aimLockCooldownTimer;
     private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundary.x : 25f;
     private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundary.y : 15f;
-    
-    
+
+    public Transform ReticleWorldPosition => reticleWorldPosition;
+    public Vector2 NormalizedReticlePosition => _normalizedReticlePosition;
     
     private void OnValidate() { this.ValidateRefs(); }
 
@@ -170,8 +171,8 @@ public class RailPlayerAiming : MonoBehaviour
         
         // Apply edge slowdown to prevent wall sliding
         Vector2 edgeDistance = new Vector2(
-            1f - Mathf.Abs(_normalizedCrosshairPosition.x),
-            1f - Mathf.Abs(_normalizedCrosshairPosition.y)
+            1f - Mathf.Abs(_normalizedReticlePosition.x),
+            1f - Mathf.Abs(_normalizedReticlePosition.y)
         );
     
         Vector2 edgeMultiplier = new Vector2(
@@ -183,9 +184,9 @@ public class RailPlayerAiming : MonoBehaviour
         inputDelta.y *= edgeMultiplier.y;
     
         // Update normalized position
-        _normalizedCrosshairPosition += inputDelta * Time.deltaTime;
-        _normalizedCrosshairPosition.x = Mathf.Clamp(_normalizedCrosshairPosition.x, -1f, 1f);
-        _normalizedCrosshairPosition.y = Mathf.Clamp(_normalizedCrosshairPosition.y, -1f, 1f);
+        _normalizedReticlePosition += inputDelta * Time.deltaTime;
+        _normalizedReticlePosition.x = Mathf.Clamp(_normalizedReticlePosition.x, -1f, 1f);
+        _normalizedReticlePosition.y = Mathf.Clamp(_normalizedReticlePosition.y, -1f, 1f);
     
         // Store the final processed input delta for debugging
         _processedLookInput = inputDelta;
@@ -246,7 +247,7 @@ public class RailPlayerAiming : MonoBehaviour
         }
         
         // Check if target is still within range
-        float distanceToTarget = Vector3.Distance(_crosshairWorldPosition, _currentAimLockTarget.transform.position);
+        float distanceToTarget = Vector3.Distance(reticleWorldPosition.position, _currentAimLockTarget.transform.position);
         if (distanceToTarget > playerInput.CurrentControlScheme.aimLockRadius * 1.2f) // Add some hysteresis to prevent flickering
         {
             BreakAimLock();
@@ -272,8 +273,8 @@ public class RailPlayerAiming : MonoBehaviour
         );
         
         // Lerp towards target position
-        _normalizedCrosshairPosition = Vector2.Lerp(
-            _normalizedCrosshairPosition,
+        _normalizedReticlePosition = Vector2.Lerp(
+            _normalizedReticlePosition,
             targetNormalizedPosition,
             playerInput.CurrentControlScheme.lockAimSpeed * Time.deltaTime
         );
@@ -315,8 +316,8 @@ public class RailPlayerAiming : MonoBehaviour
 
         // Convert normalized position (-1 to 1) to world position within boundaries
         Vector3 localOffset = new Vector3(
-            _normalizedCrosshairPosition.x * CrosshairBoundaryX,
-            _normalizedCrosshairPosition.y * CrosshairBoundaryY,
+            _normalizedReticlePosition.x * CrosshairBoundaryX,
+            _normalizedReticlePosition.y * CrosshairBoundaryY,
             0
         );
 
@@ -327,10 +328,10 @@ public class RailPlayerAiming : MonoBehaviour
         }
 
         // Calculate final world position
-        _crosshairWorldPosition = boundaryCenter + localOffset;
+        reticleWorldPosition.position = boundaryCenter + localOffset;
        
         // Update aim direction with smoothing
-        _aimDirection = Vector3.Lerp(_aimDirection, (_crosshairWorldPosition - transform.position).normalized, reticleFollowSpeed * Time.deltaTime);
+        _aimDirection = Vector3.Lerp(_aimDirection, (reticleWorldPosition.position - transform.position).normalized, reticleFollowSpeed * Time.deltaTime);
     }
     
     private void HandleAutoCenter()
@@ -351,8 +352,8 @@ public class RailPlayerAiming : MonoBehaviour
             if (_noInputTimer >= autoCenterDelay)
             {
                 // Return to center in normalized space for smooth, consistent centering
-                _normalizedCrosshairPosition = Vector2.Lerp(
-                    _normalizedCrosshairPosition, 
+                _normalizedReticlePosition = Vector2.Lerp(
+                    _normalizedReticlePosition, 
                     Vector2.zero, 
                     autoCenterSpeed * Time.deltaTime
                 );
@@ -370,7 +371,7 @@ public class RailPlayerAiming : MonoBehaviour
 
         if (activeReticle)
         {
-            activeReticle.position = Vector3.Lerp(activeReticle.position, _crosshairWorldPosition, reticleFollowSpeed * Time.deltaTime);
+            activeReticle.position = Vector3.Lerp(activeReticle.position, reticleWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
             activeReticle.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
             
             Vector3 activeReticleSize;
@@ -389,14 +390,14 @@ public class RailPlayerAiming : MonoBehaviour
         
         if (smallReticle)
         {
-            Vector3 smallReticlePosition = Vector3.Lerp(transform.position, _crosshairWorldPosition, smallReticleRange);
+            Vector3 smallReticlePosition = Vector3.Lerp(transform.position, reticleWorldPosition.position, smallReticleRange);
             smallReticle.position = Vector3.Lerp(smallReticle.position, smallReticlePosition, reticleFollowSpeed * Time.deltaTime);
             smallReticle.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
         }
 
         if (targetReticle)
         {
-            targetReticle.position = Vector3.Lerp(targetReticle.position, _crosshairWorldPosition, reticleFollowSpeed * Time.deltaTime);
+            targetReticle.position = Vector3.Lerp(targetReticle.position, reticleWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
             targetReticle.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
             Vector3 targetReticleSize = _currentAimLockTarget ? (Vector3.one * 2) : Vector3.one; 
             targetReticle.localScale = Vector3.Lerp(targetReticle.localScale, targetReticleSize, reticleGrowSpeed * Time.deltaTime);
@@ -437,13 +438,13 @@ public class RailPlayerAiming : MonoBehaviour
     {
         
         Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
-        Collider[] hitColliders = Physics.OverlapSphere(_crosshairWorldPosition, radius);
+        Collider[] hitColliders = Physics.OverlapSphere(reticleWorldPosition.position, radius);
         
         foreach (Collider hitCollider in hitColliders)
         {
             if (hitCollider.TryGetComponent(out ChickenController enemy))
             {
-                float distance = Vector3.Distance(_crosshairWorldPosition, enemy.transform.position);
+                float distance = Vector3.Distance(reticleWorldPosition.position, enemy.transform.position);
                 enemyDistances[enemy] = distance;
             }
         }
@@ -471,13 +472,13 @@ public class RailPlayerAiming : MonoBehaviour
     public ChickenController[] GetEnemyTargets(int maxTargets, float radius)
     {
         Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
-        Collider[] hitColliders = Physics.OverlapSphere(_crosshairWorldPosition, radius);
+        Collider[] hitColliders = Physics.OverlapSphere(reticleWorldPosition.position, radius);
         
         foreach (Collider hitCollider in hitColliders)
         {
             if (hitCollider.TryGetComponent(out ChickenController enemy))
             {
-                float distance = Vector3.Distance(_crosshairWorldPosition, enemy.transform.position);
+                float distance = Vector3.Distance(reticleWorldPosition.position, enemy.transform.position);
                 enemyDistances[enemy] = distance;
             }
         }
@@ -504,13 +505,13 @@ public class RailPlayerAiming : MonoBehaviour
     {
         if (convergenceMultiplier == 0f)
         {
-            Vector3 parallelDirection = (_crosshairWorldPosition - transform.position).normalized;
+            Vector3 parallelDirection = (reticleWorldPosition.position - transform.position).normalized;
             return parallelDirection;
         }
         else
         {
-            Vector3 baseCrosshairDirection = (_crosshairWorldPosition - transform.position).normalized;
-            float crosshairDistance = Vector3.Distance(transform.position, _crosshairWorldPosition);
+            Vector3 baseCrosshairDirection = (reticleWorldPosition.position - transform.position).normalized;
+            float crosshairDistance = Vector3.Distance(transform.position, reticleWorldPosition.position);
             Vector3 convergencePoint = transform.position + (baseCrosshairDirection * (crosshairDistance * convergenceMultiplier));
         
             return (convergencePoint - position).normalized;
@@ -572,7 +573,7 @@ public class RailPlayerAiming : MonoBehaviour
                 
                 if (Application.isPlaying)
                 {
-                    string debugText = $"Normalized Position: ({_normalizedCrosshairPosition.x:F2}, {_normalizedCrosshairPosition.y:F2})";
+                    string debugText = $"Normalized Position: ({_normalizedReticlePosition.x:F2}, {_normalizedReticlePosition.y:F2})";
                     if (_isAimLocked && _currentAimLockTarget)
                     {
                         debugText += $"\nAim Locked: {_currentAimLockTarget.name}";
@@ -598,7 +599,7 @@ public class RailPlayerAiming : MonoBehaviour
             if (playerInput.CurrentControlScheme.aimLock)
             {
                 Gizmos.color = _isAimLocked ? Color.green : Color.yellow;
-                Gizmos.DrawWireSphere(_crosshairWorldPosition, playerInput.CurrentControlScheme.aimLockRadius);
+                Gizmos.DrawWireSphere(reticleWorldPosition.position, playerInput.CurrentControlScheme.aimLockRadius);
             }
         }
     }

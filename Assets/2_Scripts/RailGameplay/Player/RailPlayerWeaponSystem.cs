@@ -18,11 +18,13 @@ public class WeaponInfo
 public class RailPlayerWeaponSystem : MonoBehaviour
 {
     
-    [Header("Weapon System Settings")]
+    [Header("Weapons Settings")]
     [Tooltip("If true, the player can use the base weapon even with a special weapon, using a different button.")]
     [SerializeField] private bool allowBaseWeaponWithSpecialWeapon = true;
-    [Tooltip("Special weapons are permanent, and don't change after limit reached (heat,ammom,time)")]
+    [Tooltip("Special weapons are permanent, and don't change after limit reached (heat, ammo, time)")]
     [SerializeField] private bool specialWeaponsArePermanent = true;
+    [SerializeField] private SOWeapon baseWeapon;
+    [SerializeField] private SerializedDictionary<SOWeapon, WeaponInfo> weapons = new SerializedDictionary<SOWeapon, WeaponInfo>();
     
     [Foldout("Heat System")]
     [SerializeField, Min(0f)] private float maxHeat = 100f;
@@ -54,10 +56,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Min(0f)] private float heatReleased = 25f;
     [EndIf]
     [EndFoldout]
-    
-    [Header("Weapons")]
-    [SerializeField] private SOWeapon baseWeapon;
-    [SerializeField] private SerializedDictionary<SOWeapon, WeaponInfo> weapons = new SerializedDictionary<SOWeapon, WeaponInfo>();
+
     
     [Header("References")]
     [SerializeField] private SOAudioEvent weaponSwitchSfx;
@@ -83,6 +82,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private bool _overHeated; 
     private bool _overHeatedCooldown;
     private bool _inMiniGameWindow;
+    private bool _miniGameAttempted;
     private float _lastFireTimer;
     private float _currentHeat;
     private float _baseWeaponFireRateCooldown;
@@ -109,6 +109,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public event Action OnWeaponOverheated;
     public event Action OnWeaponHeatReset;
     public event Action<float,float, float> OnWeaponHeatMiniGameWindowCreated;
+    public event Action OnWeaponHeatMiniGameSucceeded;
+    public event Action OnWeaponHeatMiniGameFailed;
 
     
     private void OnValidate() 
@@ -383,13 +385,14 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             StopCoroutine(_overHeatCooldownRoutine);
         }
-        
+    
         _overHeatCooldownRoutine = StartCoroutine(OverHeatCooldownRoutine());
         _currentHeat = maxHeat;
         _lastFireTimer = timeBeforeRegen;
         _overHeated = true;
         _overHeatedCooldown = false;
         _inMiniGameWindow = false;
+        _miniGameAttempted = false;
         weaponOverheatSfx?.Play(audioSource);
         OnWeaponOverheated?.Invoke();
     }
@@ -405,6 +408,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _overHeated = false;
         _overHeatedCooldown = false;
         _inMiniGameWindow = false;
+        _miniGameAttempted = false;
         _currentHeat = 0;
         _lastFireTimer = 0;
         weaponHeatResetSfx?.Play(audioSource);
@@ -414,18 +418,25 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void HeatMiniGameSucceeded()
     {
-        if (!overHeatMiniGame) return;
+        if (!overHeatMiniGame || _miniGameAttempted) return;
         
+        _miniGameAttempted = true;
+        _attackInputHeld = false;
         weaponHeatMiniGameSuccess?.Play(audioSource);
+        OnWeaponHeatMiniGameSucceeded?.Invoke();
         ResetHeat();
+
     }
     
     private void HeatMiniGameFailed()
     {
-        if (!overHeatMiniGame) return;
+        if (!overHeatMiniGame || _miniGameAttempted) return;
 
+        _miniGameAttempted = true;
+        _attackInputHeld = false;
         weaponHeatMiniGameFail?.Play(audioSource);
         _currentHeat += failHeat;
+        OnWeaponHeatMiniGameFailed?.Invoke();
         if (_currentHeat >= maxHeat)
         {
             SetOverheating();
@@ -436,69 +447,76 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private IEnumerator OverHeatCooldownRoutine()
     {
         float cooldownTime = overHeatCooldown * 0.4f;
-        float regenTime = overHeatCooldown * 0.6f;
-        float regenRate = maxHeat / regenTime;
-        float currentRegenTime = regenTime;
+        float baseRegenTime = overHeatCooldown * 0.6f;
+        _currentHeat = maxHeat;
+        float heatToRegenerate = _currentHeat;
+        if (heatToRegenerate <= 0.1f)
+        {
+            ResetHeat();
+            yield break;
+        }
+        float actualRegenTime = Mathf.Max(0.1f, (heatToRegenerate / maxHeat) * baseRegenTime);
+        float regenRate = heatToRegenerate / actualRegenTime;
         float miniGameDuration;
         float miniGameStartTime;
 
-        
         if (!randomizeWindow)
         {
-            // Calculate when the mini-game should start based on position
-             miniGameDuration = regenTime * miniGameWindow;
-             miniGameStartTime = regenTime * (1f - miniGameWindowPosition);
+            miniGameDuration = actualRegenTime * miniGameWindow;
+            miniGameStartTime = actualRegenTime * (1f - miniGameWindowPosition);
         }
         else
         {
-            // Randomize window size and position using the defined ranges
             float randomWindowSize = UnityEngine.Random.Range(windowSizeRange.x, windowSizeRange.y);
             float randomWindowPosition = UnityEngine.Random.Range(windowPositionRange.x, windowPositionRange.y);
-    
-            miniGameDuration = regenTime * randomWindowSize;
-            miniGameStartTime = regenTime * (1f - randomWindowPosition);
+
+            miniGameDuration = actualRegenTime * randomWindowSize;
+            miniGameStartTime = actualRegenTime * (1f - randomWindowPosition);
         }
         
         float miniGameEndTime = miniGameStartTime - miniGameDuration;
         if (miniGameEndTime < 0)
         {
-            miniGameDuration = miniGameStartTime; // Clamp duration to fit within regen phase
+            miniGameDuration = miniGameStartTime;
         }
 
         if (overHeatMiniGame)
         {
-            OnWeaponHeatMiniGameWindowCreated?.Invoke(regenTime,miniGameDuration, miniGameStartTime);
+            OnWeaponHeatMiniGameWindowCreated?.Invoke(actualRegenTime, miniGameDuration, miniGameStartTime);
         }
         
-        // Initial cooldown phase
+        // Cooldown phase
         while (cooldownTime > 0)
         {
             cooldownTime -= Time.deltaTime;
             yield return null;
         }
-    
-        // Regeneration phase
-        while (currentRegenTime > 0 || _currentHeat > 0)
+
+        // Regen phase
+        while (_currentHeat > 0)
         {
             _overHeated = false;
             _overHeatedCooldown = true;
 
-            // Check if mini-game should be active
             if (overHeatMiniGame && _overHeatedCooldown)
             {
-                // Mini-game is active when we're within the mini-game window
-                bool miniGameActive = currentRegenTime <= miniGameStartTime && 
-                                      currentRegenTime > (miniGameStartTime - miniGameDuration);
-            
-                _inMiniGameWindow = miniGameActive;
-            }
+                // Prevent division by zero
+                if (heatToRegenerate > 0)
+                {
+                    float heatPercentage = _currentHeat / heatToRegenerate;
+                    float currentTimeEquivalent = heatPercentage * actualRegenTime;
         
-            currentRegenTime -= Time.deltaTime;
+                    bool miniGameActive = currentTimeEquivalent <= miniGameStartTime && 
+                                          currentTimeEquivalent > (miniGameStartTime - miniGameDuration);
+                    _inMiniGameWindow = miniGameActive;
+                }
+            }
+
             _currentHeat -= regenRate * Time.deltaTime;
             OnWeaponHeatUpdated?.Invoke(_currentHeat);
             yield return null;
         }
-    
+
         ResetHeat();
     }
 

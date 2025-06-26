@@ -17,6 +17,7 @@ public class MenuController : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private Transform defaultCameraLookAtPoint;
+    [SerializeField] private SOAudioEvent menuLoopSfx;
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     [SerializeField, Self, HideInInspector] private MenuInput menuInput;
     
@@ -40,6 +41,11 @@ public class MenuController : MonoBehaviour
     private void Awake()
     {
         SaveManager.Initialize();
+    }
+
+    private void Start()
+    {
+        menuLoopSfx?.Play(audioSource);
     }
 
     private void OnEnable()

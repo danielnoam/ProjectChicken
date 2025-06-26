@@ -148,6 +148,8 @@ public class UIManager : MonoBehaviour
             player.OnWeaponOverheated += OnWeaponOverheated;
             player.OnWeaponHeatReset += OnWeaponHeatReset;
             player.OnWeaponHeatMiniGameWindowCreated += OnWeaponHeatMiniGameWindowCreated;
+            player.OnWeaponHeatMiniGameSucceeded += OnOnWeaponHeatMiniGameSucceeded;
+            player.OnWeaponHeatMiniGameFailed += OnOnWeaponHeatMiniGameFailed;
             player.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
             player.OnDodge += OnDodge;
         }
@@ -158,6 +160,7 @@ public class UIManager : MonoBehaviour
             levelManager.OnStageChanged += OnStageChanged;
         }
     }
+
 
     private void OnDisable()
     {
@@ -433,6 +436,17 @@ public class UIManager : MonoBehaviour
                 .Group(Tween.UIFillAmount(playerHeatBar, startValue: playerHeatBar.fillAmount, endValue: fillAmount, heatBarAnimationDuration))
 
             ;
+    }
+    
+    
+    private void OnOnWeaponHeatMiniGameFailed()
+    {
+        Tween.Color(playerMiniGameWindow, startValue: playerMiniGameWindow.color, endValue: miniGameInactiveColor, miniGameAnimationDuration);
+    }
+
+    private void OnOnWeaponHeatMiniGameSucceeded()
+    {
+        Tween.Color(playerMiniGameWindow, startValue: playerMiniGameWindow.color, endValue: miniGameInactiveColor, miniGameAnimationDuration);
     }
 
 

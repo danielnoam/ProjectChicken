@@ -10,26 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f091914f821aeddd7b3676db7383e3d7, type: 3}
-  m_Name: HeatBarReset
+  m_Name: ShipInterior
   m_EditorClassIdentifier: 
   clips:
-  - {fileID: 8300000, guid: c11530f89cb651a4bab7a5bca9dcbcc7, type: 3}
-  - {fileID: 8300000, guid: 6fde20383af5e1c45bae4e4b817a3cb2, type: 3}
-  - {fileID: 8300000, guid: d1892ed9e2c7fbc4baa82983f76f9ddf, type: 3}
+  - {fileID: 8300000, guid: fa7850b5ef8b4874ebe78ed479f49d2d, type: 3}
   mixerGroup: {fileID: -8308305412286519963, guid: 77db4088ae7ef521a93687acac7e30ed, type: 2}
   volume:
-    minValue: 0.1
-    maxValue: 0.1
+    minValue: 0.25
+    maxValue: 0.25
   pitch:
-    minValue: 1.2
-    maxValue: 1.5
+    minValue: 0.8
+    maxValue: 1.2
   stereoPan: 0
   spatialBlend: 1
   reverbZoneMix: 1
   bypassEffects: 0
   bypassListenerEffects: 0
   bypassReverbZones: 0
-  loop: 0
+  loop: 1
   set3DSettings: 1
   dopplerLevel: 1
   spread: 0

@@ -547,7 +547,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7239159908269156373}
   m_Layer: 6
-  m_Name: FollowCameraTarget
+  m_Name: PlayerBackPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -562,7 +562,7 @@ Transform:
   m_GameObject: {fileID: 2440519371583176229}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -40}
+  m_LocalPosition: {x: 0, y: 0, z: -60}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -861,6 +861,37 @@ Transform:
   - {fileID: 7505649629923921561}
   - {fileID: 3385265377747687933}
   m_Father: {fileID: 5369474610807630919}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3266443374714374232
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1803020878917030007}
+  m_Layer: 0
+  m_Name: ReticleWorldPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1803020878917030007
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3266443374714374232}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 72.32347, y: 0, z: -151.07472}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8474555558549935190}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3268326099539182593
 GameObject:
@@ -1288,6 +1319,7 @@ Transform:
   - {fileID: 8445288471549559756}
   - {fileID: 2591645915025464599}
   - {fileID: 5369474610807630919}
+  - {fileID: 1803020878917030007}
   - {fileID: 7239159908269156373}
   - {fileID: 8469364165154082126}
   m_Father: {fileID: 0}
@@ -1559,6 +1591,8 @@ MonoBehaviour:
   magnetMoveSpeed: 18
   alignToSplineDirection: 1
   splineRotationSpeed: 5
+  followCameraTarget: {fileID: 7239159908269156373}
+  introCameraTarget: {fileID: 8469364165154082126}
   healthDamageSfx: {fileID: 0}
   healthHealedSfx: {fileID: 0}
   shieldDamageSfx: {fileID: 11400000, guid: d2d3e99fb5af65241a4debcb6162257a, type: 2}
@@ -1567,8 +1601,6 @@ MonoBehaviour:
   shieldDepletedSfx: {fileID: 11400000, guid: 37b968dd3a5328b478e0c33c3645f263, type: 2}
   deathSfx: {fileID: 0}
   levelManager: {fileID: 0}
-  followCameraTarget: {fileID: 7239159908269156373}
-  introCameraTarget: {fileID: 8469364165154082126}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
   playerWeapon: {fileID: 3423310960035294283}
@@ -1702,7 +1734,7 @@ MonoBehaviour:
     useUnscaledTime: 0
     _useFixedUpdate: 0
     _updateType: 0
-  dodgeSfx: {fileID: 0}
+  dodgeSfx: {fileID: 11400000, guid: 41d0672bb20c66843bc6a4a21c7d49ca, type: 2}
   player: {fileID: 2233603387570671912}
   playerAiming: {fileID: 890854243081262160}
   playerInput: {fileID: 8438971806570489096}
@@ -1755,6 +1787,7 @@ MonoBehaviour:
   autoCenter: 1
   autoCenterDelay: 5
   autoCenterSpeed: 1
+  reticleWorldPosition: {fileID: 1803020878917030007}
   reticlesHolder: {fileID: 5369474610807630919}
   activeReticle: {fileID: 6174838063405869257}
   smallReticle: {fileID: 1492098597299508689}
@@ -1777,23 +1810,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allowBaseWeaponWithSpecialWeapon: 1
   specialWeaponsArePermanent: 1
-  weaponSwitchSfx: {fileID: 0}
-  weaponOverheatSfx: {fileID: 11400000, guid: 7ad50aeb9c2a07149856f950872b5fd4, type: 2}
-  weaponHeatResetSfx: {fileID: 11400000, guid: 561cd25779a5fb64cb6612dd49a39b31, type: 2}
-  maxHeat: 100
-  timeBeforeRegen: 1
-  heatRegenRate: 15
-  switchingWeaponsResetsHeat: 1
-  overHeatCooldown: 3
-  overHeatMiniGame: 1
-  randomizeWindow: 1
-  windowPositionRange: {x: 0.25, y: 0.75}
-  windowSizeRange: {x: 0.1, y: 0.3}
-  miniGameWindowPosition: 0.23
-  miniGameWindow: 0.415
-  dodgeReleasesHeat: 1
-  releaseHeatWhileOverheated: 1
-  heatReleased: 25
   baseWeapon: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
   weapons:
     serializedKvps:
@@ -1835,6 +1851,26 @@ MonoBehaviour:
       isKeyRepeated: 0
       isKeyNull: 0
     dividerPos: 0.33
+  maxHeat: 100
+  timeBeforeRegen: 1
+  heatRegenRate: 15
+  switchingWeaponsResetsHeat: 1
+  overHeatCooldown: 3
+  overHeatMiniGame: 1
+  failHeat: 50
+  randomizeWindow: 1
+  windowPositionRange: {x: 0.25, y: 0.75}
+  windowSizeRange: {x: 0.1, y: 0.2}
+  miniGameWindowPosition: 0.23
+  miniGameWindow: 0.415
+  dodgeReleasesHeat: 1
+  releaseHeatWhileOverheated: 1
+  heatReleased: 25
+  weaponSwitchSfx: {fileID: 0}
+  weaponOverheatSfx: {fileID: 11400000, guid: 7ad50aeb9c2a07149856f950872b5fd4, type: 2}
+  weaponHeatResetSfx: {fileID: 11400000, guid: 561cd25779a5fb64cb6612dd49a39b31, type: 2}
+  weaponHeatMiniGameSuccess: {fileID: 11400000, guid: 561cd25779a5fb64cb6612dd49a39b31, type: 2}
+  weaponHeatMiniGameFail: {fileID: 11400000, guid: 7ad50aeb9c2a07149856f950872b5fd4, type: 2}
   player: {fileID: 2233603387570671912}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
@@ -2882,7 +2918,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8469364165154082126}
   m_Layer: 6
-  m_Name: IntroCameraTarget
+  m_Name: PlayerForwardPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2897,7 +2933,7 @@ Transform:
   m_GameObject: {fileID: 8802662561648209402}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 7.98, z: 69.8}
+  m_LocalPosition: {x: 0, y: 8, z: 70}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

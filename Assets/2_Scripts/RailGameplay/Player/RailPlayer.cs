@@ -34,7 +34,9 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
     [EndIf]
     
-    [Header("SFXs")]
+    [Header("References")]
+    [SerializeField] private Transform followCameraTarget;
+    [SerializeField] private Transform introCameraTarget;
     [SerializeField] private SOAudioEvent healthDamageSfx;
     [SerializeField] private SOAudioEvent healthHealedSfx;
     [SerializeField] private SOAudioEvent shieldDamageSfx;
@@ -42,11 +44,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField] private SOAudioEvent shieldRegeneratedSfx;
     [SerializeField] private SOAudioEvent shieldDepletedSfx;
     [SerializeField] private SOAudioEvent deathSfx;
-    
-    [Header("References")]
     [SerializeField] private LevelManager levelManager;
-    [SerializeField] private Transform followCameraTarget;
-    [SerializeField] private Transform introCameraTarget;
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
@@ -80,6 +78,8 @@ public class RailPlayer : MonoBehaviour
     public event Action OnWeaponOverheated;
     public event Action OnWeaponHeatReset;
     public event Action<float,float, float> OnWeaponHeatMiniGameWindowCreated;
+    public event Action OnWeaponHeatMiniGameSucceeded;
+    public event Action OnWeaponHeatMiniGameFailed;
     public event Action<Resource> OnResourceCollected;
     public event Action<int> OnCurrencyChanged;
     public event Action OnDodge;
@@ -114,6 +114,8 @@ public class RailPlayer : MonoBehaviour
         playerWeapon.OnWeaponOverheated += OnWeaponOverheated;
         playerWeapon.OnWeaponHeatReset += OnWeaponHeatReset;
         playerWeapon.OnWeaponHeatMiniGameWindowCreated += OnWeaponHeatMiniGameWindowCreated;
+        playerWeapon.OnWeaponHeatMiniGameSucceeded +=  OnWeaponHeatMiniGameSucceeded;
+        playerWeapon.OnWeaponHeatMiniGameFailed += OnWeaponHeatMiniGameFailed;
         playerMovement.OnDodge += OnDodge;
         playerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
         levelManager.OnBonusThresholdReached += OnMillionScoreReached;
@@ -499,7 +501,11 @@ public class RailPlayer : MonoBehaviour
     {
         return playerAiming.GetEnemyTargets(maxTargets, radius);
     }
-    
+
+    public Vector2 GetNormalizedReticlePosition()
+    {
+        return playerAiming.NormalizedReticlePosition;
+    }
     public Transform GetFollowCameraTarget()
     {
         return followCameraTarget;
@@ -508,6 +514,11 @@ public class RailPlayer : MonoBehaviour
     public Transform GetIntroCameraTarget()
     {
         return introCameraTarget;
+    }
+
+    public Transform GetReticleTarget()
+    {
+        return playerAiming.ReticleWorldPosition;
     }
     
     

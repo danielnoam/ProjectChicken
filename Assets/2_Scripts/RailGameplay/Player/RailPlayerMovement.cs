@@ -34,10 +34,8 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Min(0)] private TweenSettings dodgeTweenSettings = new TweenSettings(1.2f, Ease.Custom);
     [EndIf]
     
-    [Header("SFXs")]
-    [SerializeField] private SOAudioEvent dodgeSfx;
-    
     [Header("References")] 
+    [SerializeField] private SOAudioEvent dodgeSfx;
     [SerializeField, Self, HideInInspector] private RailPlayer player;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
@@ -279,20 +277,21 @@ public class RailPlayerMovement : MonoBehaviour
     private void UpdateDodgeState()
     {
         if (!enableDodging) return;
-        
+    
         // Check if we are currently dodging
         if (_isDodging && _dodgeTimeCounter <= dodgeTime)
         {
             _dodgeTimeCounter += Time.deltaTime;
-            
+        
             // Reset dodge if we exceed the dodge time
             if (_dodgeTimeCounter >= dodgeTime)
             {
                 _isDodging = false;
                 _dodgeCooldownTimer = dodgeCooldown;
+                _currentDodgeRoll = 0f;
             }
         }
-        
+    
         // Check cooldown
         if (!_isDodging && _dodgeCooldownTimer > 0f)
         {
@@ -307,7 +306,7 @@ public class RailPlayerMovement : MonoBehaviour
         if (_dodgeTween.isAlive) _dodgeTween.Stop();
 
         // Calculate target roll
-        float startRoll = _currentDodgeRoll;
+        float startRoll = 0;
         float targetRoll = startRoll + (-_dodgeDirection.x * dodgeRollAmount);
         
         // Play dodge sound effect
