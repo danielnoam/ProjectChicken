@@ -9,8 +9,8 @@ public class RailPlayerInput : InputReaderBase
 {
 
     [Header("Control Settings")]
-    [SerializeField] private ControlSchemeSettings keyboardMouseScheme = new ControlSchemeSettings(false, false, 0.1f, 0.3f, true, 4f, 3f, 3f, 0.3f, false, true, 0.3f);
-    [SerializeField] private ControlSchemeSettings gamepadScheme = new ControlSchemeSettings(false, false, 2f, 0.3f, true, 4f, 3f, 0.5f, 0.5f, true, false, 0.3f);
+    [SerializeField] private ControlSchemeSettings keyboardMouseScheme = new ControlSchemeSettings(false, false, 0.1f, 0.3f, AnimationCurve.Linear(0, 0, 1, 1),true, 4f, 3f, 3f, 0.3f, false, true, 0.3f);
+    [SerializeField] private ControlSchemeSettings gamepadScheme = new ControlSchemeSettings(false, false, 2f, 0.3f, AnimationCurve.Linear(0, 0, 1, 1),true, 4f, 3f, 0.5f, 0.5f, true, false, 0.3f);
 
     private InputActionMap _playerActionMap;
     private InputAction _moveAction;
@@ -25,6 +25,7 @@ public class RailPlayerInput : InputReaderBase
 
 
 
+    public bool IsCurrentDeviceGamepad { get; private set; } = false;
     public ControlSchemeSettings CurrentControlScheme { get; private set; } = new ControlSchemeSettings();
     public event Action<InputAction.CallbackContext> OnMoveEvent;
     public event Action<InputAction.CallbackContext> OnLookEvent;
@@ -61,6 +62,7 @@ public class RailPlayerInput : InputReaderBase
         
 
         CurrentControlScheme.SetControlSchemeSettings(keyboardMouseScheme);
+        IsCurrentDeviceGamepad = false;
     }
 
 
@@ -124,9 +126,11 @@ public class RailPlayerInput : InputReaderBase
         {
             case "Keyboard&Mouse":
                 CurrentControlScheme = keyboardMouseScheme;
+                IsCurrentDeviceGamepad = false;
                 break;
             case "Gamepad":
                 CurrentControlScheme = gamepadScheme;
+                IsCurrentDeviceGamepad = true;
                 break;
         }
     }

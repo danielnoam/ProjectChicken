@@ -6,7 +6,6 @@ using VInspector;
 public class RailPlayerAiming : MonoBehaviour
 {
     [Header("Aim Settings")]
-    [SerializeField, Tooltip("Controls how input magnitude maps to sensitivity")] private AnimationCurve magnitudeToSensitivityCurve = AnimationCurve.Linear(0, 0, 1, 1);
     [SerializeField, Min(0.1f), Tooltip("Base speed multiplier for reticle movement")] private float baseSensitivity = 1f;
     [SerializeField, Range(0f, 1f), Tooltip("Reduces sensitivity near boundaries to prevent wall sliding (1 = no slowdown, 0 = full slowdown)")] private float edgeSlowdown = 0.3f;
     [SerializeField, Tooltip("Use screen-relative input for consistent feel across different resolutions")] private bool useScreenSpaceInput;
@@ -15,6 +14,7 @@ public class RailPlayerAiming : MonoBehaviour
     [Header("Reticles")]
     [SerializeField, Tooltip("How fast the reticle smoothly moves to its target position")] private float reticleFollowSpeed = 25f;
     [SerializeField] private float reticleGrowSpeed = 5f;
+    [SerializeField] private float reticleSizeMultiplier = 2f;
     [SerializeField, Range(0f, 1f)] private float smallReticleRange = 0.8f;
     
     [Header("Auto Center")]
@@ -119,6 +119,8 @@ public class RailPlayerAiming : MonoBehaviour
         _processedLookInput = processedLookInput;
     }
 
+    private Vector2 _lastSmoothedInput;
+    
     private void ProcessAimingInput()
     {
         // Skip normal input processing if aim lock is active and controlling the reticle
@@ -135,7 +137,17 @@ public class RailPlayerAiming : MonoBehaviour
         }
 
         Vector2 inputDelta = _processedLookInput;
-    
+        
+        
+        // Apply input smoothing for gamepads to reduce jitter
+        if (playerInput.IsCurrentDeviceGamepad)
+        {
+            float smoothingStrength = 0.15f; // Adjust between 0.1-0.3 (higher = more smooth but less responsive)
+            inputDelta = Vector2.Lerp(_lastSmoothedInput, inputDelta, 1f - smoothingStrength);
+            _lastSmoothedInput = inputDelta;
+        }
+
+        // Don't use screen space input for controllers
         if (useScreenSpaceInput)
         {
             // Convert to screen-relative movement for consistent feel across resolutions
@@ -147,48 +159,47 @@ public class RailPlayerAiming : MonoBehaviour
         
         float rawInputMagnitude = Mathf.Clamp01(inputDelta.magnitude);
         
-        // Apply dead zone
-        if (inputDelta.magnitude < playerInput.CurrentControlScheme.deadZone)
+        // Apply dead zone with proper radial dead zone for controllers
+        float deadZone = playerInput.CurrentControlScheme.deadZone;
+        if (inputDelta.magnitude < deadZone)
         {
             inputDelta = Vector2.zero;
         }
         else
         {
-            // Normalize past dead zone
-            float normalizedMagnitude = (inputDelta.magnitude - playerInput.CurrentControlScheme.deadZone) / (1f - playerInput.CurrentControlScheme.deadZone);
-            inputDelta = inputDelta.normalized * normalizedMagnitude;
+            // Scale input to remove dead zone properly
+            float scaledMagnitude = (inputDelta.magnitude - deadZone) / (1f - deadZone);
+            inputDelta = inputDelta.normalized * scaledMagnitude;
         }
         
-    
         // Apply magnitude to sensitivity curve for 1:1 movement feel
         if (inputDelta.magnitude > 0)
         {
             float originalMagnitude = inputDelta.magnitude;
-            float curvedSensitivity = magnitudeToSensitivityCurve.Evaluate(rawInputMagnitude );
+            float curvedSensitivity = playerInput.CurrentControlScheme.magnitudeToSensitivityCurve.Evaluate(rawInputMagnitude);
             inputDelta = inputDelta.normalized * (originalMagnitude * curvedSensitivity * baseSensitivity * playerInput.CurrentControlScheme.aimSensitivity);
         }
-    
         
         // Apply edge slowdown to prevent wall sliding
         Vector2 edgeDistance = new Vector2(
             1f - Mathf.Abs(_normalizedReticlePosition.x),
             1f - Mathf.Abs(_normalizedReticlePosition.y)
         );
-    
+
         Vector2 edgeMultiplier = new Vector2(
             Mathf.Lerp(edgeSlowdown, 1f, edgeDistance.x),
             Mathf.Lerp(edgeSlowdown, 1f, edgeDistance.y)
         );
-    
+
         inputDelta.x *= edgeMultiplier.x;
         inputDelta.y *= edgeMultiplier.y;
-    
+
         // Update normalized position
         _normalizedReticlePosition += inputDelta * Time.deltaTime;
         _normalizedReticlePosition.x = Mathf.Clamp(_normalizedReticlePosition.x, -1f, 1f);
         _normalizedReticlePosition.y = Mathf.Clamp(_normalizedReticlePosition.y, -1f, 1f);
-    
-        // Store the final processed input delta for debugging
+
+        // Store the final processed input delta
         _processedLookInput = inputDelta;
     }
 
@@ -382,7 +393,7 @@ public class RailPlayerAiming : MonoBehaviour
             }
             else
             {
-                activeReticleSize = _currentAimLockTarget ? (Vector3.one / 2) : Vector3.one; 
+                activeReticleSize = _currentAimLockTarget ? (Vector3.one / reticleSizeMultiplier) : Vector3.one; 
             }
 
             activeReticle.localScale = Vector3.Lerp(activeReticle.localScale, activeReticleSize, reticleGrowSpeed * Time.deltaTime);
@@ -399,7 +410,7 @@ public class RailPlayerAiming : MonoBehaviour
         {
             targetReticle.position = Vector3.Lerp(targetReticle.position, reticleWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
             targetReticle.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
-            Vector3 targetReticleSize = _currentAimLockTarget ? (Vector3.one * 2) : Vector3.one; 
+            Vector3 targetReticleSize = _currentAimLockTarget ? (Vector3.one * reticleSizeMultiplier) : Vector3.one; 
             targetReticle.localScale = Vector3.Lerp(targetReticle.localScale, targetReticleSize, reticleGrowSpeed * Time.deltaTime);
         }
     }

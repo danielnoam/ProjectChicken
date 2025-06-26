@@ -287,44 +287,38 @@ public class UIManager : MonoBehaviour
     
     private void FadeHUD(bool fadeIn)
     {
-        
+        if (_hudSequence.isAlive) _hudSequence.Stop();
         switch (fadeIn)
         {
             case true when hudGroup.alpha >= 1:
             case false when hudGroup.alpha <= 0:
                 return;
         }
-
-        float startValue = fadeIn ? 0 : 1;
+        
         float endValue = fadeIn ? 1 : 0;
         
         
-        if (_hudSequence.isAlive) _hudSequence.Stop();
         _hudSequence = Sequence.Create()
-                
-                .Group(Tween.Alpha(hudGroup, startValue, endValue, hudFadeDuration))
+                .Group(Tween.Alpha(hudGroup, hudGroup.alpha, endValue, hudFadeDuration))
             ;
     
     }
     
     private void FadeKeybinds(bool fadeIn)
     {
+        if (_keybindsSequence.isAlive) _keybindsSequence.Stop();
+        
         switch (fadeIn)
         {
             case true when keybindsText.alpha >= 1:
             case false when keybindsText.alpha <= 0:
                 return;
         }
-
-
-        float startValue = fadeIn ? 0 : 1;
+        
         float endValue = fadeIn ? 1 : 0;
         
-        
-        if (_keybindsSequence.isAlive) _keybindsSequence.Stop();
         _keybindsSequence = Sequence.Create()
-                
-                .Group(Tween.Alpha(keybindsText, startValue, endValue, hudFadeDuration))
+                .Group(Tween.Alpha(keybindsText, keybindsText.alpha, endValue, hudFadeDuration))
             ;
     
     }

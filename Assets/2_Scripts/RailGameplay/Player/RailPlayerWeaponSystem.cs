@@ -52,7 +52,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [Header("Dodge")]
     [SerializeField] private bool dodgeReleasesHeat = true;
     [ShowIf("dodgeReleasesHeat")]
-    [SerializeField] private bool releaseHeatWhileOverheated = true;
     [SerializeField, Min(0f)] private float heatReleased = 25f;
     [EndIf]
     [EndFoldout]
@@ -96,10 +95,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public bool IsOverHeated => _overHeated || _overHeatedCooldown;
     public SOWeapon BaseWeapon => baseWeapon;
     public SOWeapon CurrentSpecialWeapon => _currentSpecialWeapon;
-    public float CurrentHeat => _currentHeat;
     public float MaxWeaponHeat => maxHeat;
-    public float SpecialWeaponTime => _specialWeaponTime;
-    public float SpecialWeaponAmmo => _specialWeaponAmmo;
 
     public event Action<SOWeapon> OnWeaponUsed;
     public event Action<SOWeapon,SOWeapon,WeaponInfo> OnSpecialWeaponSwitched;
@@ -161,7 +157,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         playerInput.OnAttackEvent -= OnAttack;
         playerInput.OnAttack2Event -= OnAttack2;
-        playerMovement.OnDodge -= OnDodge;
+        if (playerMovement) playerMovement.OnDodge -= OnDodge;
     }
 
 
@@ -522,9 +518,16 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     private void OnDodge()
     {
-        if (_overHeated ||!dodgeReleasesHeat || _currentHeat == 0) return;
+        if (!dodgeReleasesHeat || _currentHeat <= 0 || _overHeated) return;
         
-        if (_overHeatedCooldown && !releaseHeatWhileOverheated) return;
+        // if (_overHeatedCooldown)
+        // { 
+        //     if (overHeatMiniGame && _inMiniGameWindow)
+        //     {
+        //         HeatMiniGameSucceeded();
+        //         return;
+        //     }
+        // }
         
         _currentHeat -= heatReleased;
         

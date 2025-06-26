@@ -222,7 +222,7 @@ public class CameraManager : MonoBehaviour
         float downDuration = duration * 0.7f;
         
         _fovSequence = Sequence.Create()
-                .Group(Tween.Custom(startValue: followCamera.Lens.FieldOfView, endValue: _defaultFov + fovGainOnDodge, duration: upDuration, (value) => { followCamera.Lens.FieldOfView = value; }))
+                .Group(Tween.Custom(startValue: followCamera.Lens.FieldOfView, endValue: _defaultFov + fovGainOnDodge, duration: upDuration, (value) => { followCamera.Lens.FieldOfView = value; }, Ease.InSine))
                 .Chain(Tween.Custom(startValue: _defaultFov + fovGainOnDodge, endValue: _defaultFov, duration: downDuration, (value) => { followCamera.Lens.FieldOfView = value; }, Ease.OutBack))
             ;
     }
