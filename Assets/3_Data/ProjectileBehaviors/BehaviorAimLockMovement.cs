@@ -7,6 +7,8 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     [SerializeField, Min(0)] private float straightPhaseDuration = 0.5f;
     [SerializeField, Min(0)] private float bendPhaseDuration = 0.3f;
     [SerializeField, Min(0)] private float targetPhaseDuration = 2f;
+    [SerializeField] private bool recheckTarget = true;
+    [SerializeField] private float recheckRadius = 10f;
 
     
     private float _startTime;
@@ -18,6 +20,7 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     private Vector3 _bendPhaseStartPosition;
     private Vector3 _targetPhaseStartPosition;
     private bool _hasTarget;
+    private bool _recheckedTarget;
     
     private enum MovementPhase
     {
@@ -92,7 +95,7 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     
     
     
-        private MovementPhase GetCurrentPhase(float elapsedTime)
+    private MovementPhase GetCurrentPhase(float elapsedTime)
     {
         if (elapsedTime < straightPhaseDuration)
         {
@@ -161,6 +164,14 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
             Vector3 movement = blendedDirection * (moveSpeed * Time.fixedDeltaTime);
             return projectile.Rigidbody.position + movement;
         }
+        else if (recheckTarget && !_recheckedTarget)
+        {
+            // Check for target again if it's not set
+            _hasTarget = owner.GetTarget(recheckRadius);
+            _recheckedTarget = true;
+            _startTime = Time.time;
+            return projectile.Rigidbody.position;
+        } 
         else
         {
             // No target - continue with  direction

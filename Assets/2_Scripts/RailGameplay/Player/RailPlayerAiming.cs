@@ -7,15 +7,15 @@ public class RailPlayerAiming : MonoBehaviour
 {
     [Header("Aim Settings")]
     [SerializeField, Tooltip("Controls how input magnitude maps to sensitivity")] private AnimationCurve magnitudeToSensitivityCurve = AnimationCurve.Linear(0, 0, 1, 1);
-    [SerializeField, Min(0.1f), Tooltip("Base speed multiplier for crosshair movement")] private float baseSensitivity = 1f;
+    [SerializeField, Min(0.1f), Tooltip("Base speed multiplier for reticle movement")] private float baseSensitivity = 1f;
     [SerializeField, Range(0f, 1f), Tooltip("Reduces sensitivity near boundaries to prevent wall sliding (1 = no slowdown, 0 = full slowdown)")] private float edgeSlowdown = 0.3f;
     [SerializeField, Tooltip("Use screen-relative input for consistent feel across different resolutions")] private bool useScreenSpaceInput;
     [SerializeField, ShowIf("useScreenSpaceInput"), Tooltip("Screen pixel equivalent for mouse movement normalization")] private Vector2 screenSensitivity = new Vector2(800f, 600f);[EndIf]
     
-    [Header("Crosshairs")]
-    [SerializeField, Tooltip("How fast the crosshair smoothly moves to its target position")] private float crosshairFollowSpeed = 25f;
-    [SerializeField] private float crosshairsGrowSpeed = 5f;
-    [SerializeField, Range(0f, 1f)] private float smallCrosshairRange = 0.8f;
+    [Header("Reticles")]
+    [SerializeField, Tooltip("How fast the reticle smoothly moves to its target position")] private float reticleFollowSpeed = 25f;
+    [SerializeField] private float reticleGrowSpeed = 5f;
+    [SerializeField, Range(0f, 1f)] private float smallReticleRange = 0.8f;
     
     [Header("Auto Center")]
     [SerializeField] private bool autoCenter = true;
@@ -25,13 +25,14 @@ public class RailPlayerAiming : MonoBehaviour
     [EndIf]
     
     [Header("References")]
-    [SerializeField] private Transform crosshairsHolder;
-    [SerializeField] private Transform crosshair;
-    [SerializeField] private Transform smallCrosshair;
-    [SerializeField] private Transform targetCrosshair;
+    [SerializeField] private Transform reticlesHolder;
+    [SerializeField] private Transform activeReticle;
+    [SerializeField] private Transform smallReticle;
+    [SerializeField] private Transform targetReticle;
     [SerializeField, Self, HideInInspector] private RailPlayer player;
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
+    [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
 
 
     private bool _allowAiming = true;
@@ -53,7 +54,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void Start()
     {
-        if (crosshair)
+        if (activeReticle)
         {
             UpdateAimPosition();
         }
@@ -62,6 +63,7 @@ public class RailPlayerAiming : MonoBehaviour
     private void OnEnable()
     {
         playerInput.OnProcessedLookEvent += OnProcessedLook;
+        playerWeapon.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
 
         if (player.LevelManager)
         {
@@ -73,12 +75,14 @@ public class RailPlayerAiming : MonoBehaviour
     private void OnDisable()
     {
         playerInput.OnProcessedLookEvent -= OnProcessedLook;
+        playerWeapon.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
 
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged -= OnStageChanged;
         }
     }
+    
 
     private void Update()
     {
@@ -87,6 +91,22 @@ public class RailPlayerAiming : MonoBehaviour
         ProcessAimingInput();
         HandleAutoCenter();
         UpdateAimPosition();
+        UpdateReticlesPosition();
+    }
+    
+    private void OnStageChanged(SOLevelStage stage)
+    {
+        if (!stage) return;
+        
+        _allowAiming = stage.AllowPlayerAim;
+        ToggleReticle(stage.AllowPlayerAim);
+    }
+    
+    private void OnSpecialWeaponSwitched(SOWeapon oldWeapon, SOWeapon newWeapon, WeaponInfo newWeaponInfo)
+    {
+        if (!newWeapon || newWeaponInfo == null) return;
+        
+        ChangeActiveReticle(newWeaponInfo.weaponReticle);
     }
     
 
@@ -100,7 +120,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void ProcessAimingInput()
     {
-        // Skip normal input processing if aim lock is active and controlling the crosshair
+        // Skip normal input processing if aim lock is active and controlling the reticle
         if (_isAimLocked && _processedLookInput.magnitude <= playerInput.CurrentControlScheme.lockAimStrength)
         {
             _processedLookInput = Vector2.zero;
@@ -170,17 +190,6 @@ public class RailPlayerAiming : MonoBehaviour
         // Store the final processed input delta for debugging
         _processedLookInput = inputDelta;
     }
-    
-    private void OnStageChanged(SOLevelStage stage)
-    {
-        if (!stage) return;
-        
-        _allowAiming = stage.AllowPlayerAim;
-        if (crosshairsHolder)
-        {
-            crosshairsHolder.gameObject.SetActive(stage.AllowPlayerAim);
-        }
-    }
 
     #endregion Input Processing --------------------------------------------------------------------------------------------------------
 
@@ -244,10 +253,10 @@ public class RailPlayerAiming : MonoBehaviour
             return;
         }
         
-        // Move crosshair towards target
+        // Move reticle towards target
         Vector3 targetWorldPosition = _currentAimLockTarget.transform.position;
         
-        // Convert target world position to normalized crosshair position
+        // Convert target world position to normalized reticle position
         Vector3 boundaryCenter = GetCrosshairSplinePosition();
         Vector3 localTargetOffset = targetWorldPosition - boundaryCenter;
         
@@ -290,7 +299,7 @@ public class RailPlayerAiming : MonoBehaviour
             return;
         }
 
-        // Get the spline direction at the crosshair position
+        // Get the spline direction at the reticle position
         Vector3 splineForward = GetSplineDirection();
         
         if (splineForward != Vector3.zero)
@@ -321,44 +330,7 @@ public class RailPlayerAiming : MonoBehaviour
         _crosshairWorldPosition = boundaryCenter + localOffset;
        
         // Update aim direction with smoothing
-        _aimDirection = Vector3.Lerp(_aimDirection, (_crosshairWorldPosition - transform.position).normalized, crosshairFollowSpeed * Time.deltaTime);
-
-        // Update crosshair visual
-        if (crosshair && _allowAiming)
-        {
-            crosshair.position = Vector3.Lerp(crosshair.position, _crosshairWorldPosition, crosshairFollowSpeed * Time.deltaTime);
-            crosshair.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
-            
-            if (smallCrosshair)
-            {
-                // Place the second crosshair between transform and the first crosshair
-                Vector3 secondCrosshairPosition = Vector3.Lerp(transform.position, _crosshairWorldPosition, smallCrosshairRange);
-                smallCrosshair.position = Vector3.Lerp(smallCrosshair.position, secondCrosshairPosition, crosshairFollowSpeed * Time.deltaTime);
-                smallCrosshair.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
-            }
-
-            if (targetCrosshair)
-            {
-                // Place the third crosshair between transform and the first crosshair
-                Vector3 targetCrosshairSize = _currentAimLockTarget ? (Vector3.one * 2) : Vector3.one; 
-                targetCrosshair.localScale = Vector3.Lerp(targetCrosshair.localScale, targetCrosshairSize, crosshairsGrowSpeed * Time.deltaTime);
-                targetCrosshair.position = crosshair.position;
-                targetCrosshair.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
-
-                Vector3 crosshairSize;
-
-                if (_noInputTimer <= 0)
-                {
-                    crosshairSize = Vector3.one * 1.5f;
-                }
-                else
-                {
-                    crosshairSize = _currentAimLockTarget ? (Vector3.one / 2) : Vector3.one; 
-                }
-
-                crosshair.localScale = Vector3.Lerp(crosshair.localScale, crosshairSize, crosshairsGrowSpeed * Time.deltaTime);
-            }
-        }
+        _aimDirection = Vector3.Lerp(_aimDirection, (_crosshairWorldPosition - transform.position).normalized, reticleFollowSpeed * Time.deltaTime);
     }
     
     private void HandleAutoCenter()
@@ -390,6 +362,74 @@ public class RailPlayerAiming : MonoBehaviour
 
     #endregion Aiming --------------------------------------------------------------------------------------------------------
 
+    #region Reticle -----------------------------------------------------------------------------------------------
+
+    private void UpdateReticlesPosition()
+    {
+        if (!_allowAiming) return;
+
+        if (activeReticle)
+        {
+            activeReticle.position = Vector3.Lerp(activeReticle.position, _crosshairWorldPosition, reticleFollowSpeed * Time.deltaTime);
+            activeReticle.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
+            
+            Vector3 activeReticleSize;
+
+            if (_noInputTimer <= 0)
+            {
+                activeReticleSize = Vector3.one * 1.5f;
+            }
+            else
+            {
+                activeReticleSize = _currentAimLockTarget ? (Vector3.one / 2) : Vector3.one; 
+            }
+
+            activeReticle.localScale = Vector3.Lerp(activeReticle.localScale, activeReticleSize, reticleGrowSpeed * Time.deltaTime);
+        }
+        
+        if (smallReticle)
+        {
+            Vector3 smallReticlePosition = Vector3.Lerp(transform.position, _crosshairWorldPosition, smallReticleRange);
+            smallReticle.position = Vector3.Lerp(smallReticle.position, smallReticlePosition, reticleFollowSpeed * Time.deltaTime);
+            smallReticle.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
+        }
+
+        if (targetReticle)
+        {
+            targetReticle.position = Vector3.Lerp(targetReticle.position, _crosshairWorldPosition, reticleFollowSpeed * Time.deltaTime);
+            targetReticle.rotation = player.AlignToSplineDirection ? _splineRotation : Quaternion.identity;
+            Vector3 targetReticleSize = _currentAimLockTarget ? (Vector3.one * 2) : Vector3.one; 
+            targetReticle.localScale = Vector3.Lerp(targetReticle.localScale, targetReticleSize, reticleGrowSpeed * Time.deltaTime);
+        }
+    }
+    
+    private void ChangeActiveReticle(Transform newReticle)
+    {
+        if (newReticle == activeReticle || !newReticle) return;
+        
+        if (activeReticle)
+        {
+            activeReticle.gameObject.SetActive(false);
+        }
+        
+        activeReticle = newReticle;
+
+
+        if (activeReticle)
+        {
+            activeReticle.gameObject.SetActive(true);
+        }
+    }
+    
+    private void ToggleReticle(bool state)
+    {
+        if (!reticlesHolder) return;
+        
+        reticlesHolder.gameObject.SetActive(state);
+    }
+
+    #endregion Reticle -----------------------------------------------------------------------------------------------
+    
     
     #region Helper Methods -------------------------------------------------------------------------
     

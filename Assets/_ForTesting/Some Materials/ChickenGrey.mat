@@ -23,14 +23,14 @@ Material:
   m_Name: ChickenGrey
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 2100000, guid: 7f3350828cf6c0e42ad502e3ece4f87f, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_ModifiedSerializedProperties: 16
   m_ValidKeywords:
   - _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 1999
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses:
@@ -42,6 +42,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Metallic: 0.23
+    - _QueueOffset: -1
     - _ReceiveShadows: 1
     - _Smoothness: 0.294
     - _SmoothnessTextureChannel: 1

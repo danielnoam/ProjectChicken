@@ -68,11 +68,11 @@ public class MenuElementLevelSelection : MenuElement
                 levelButton.gameObject.name = $"Button{level.LevelName}";
                 
                 // Create the UI element container
-                var uiData = new LevelUIData(level, levelGfx, levelButton, SaveManager.GetLevelProgress(level.GetScenePath()));
-                _levelUIData.Add(uiData);
+                var levelUIData = new LevelUIData(level, levelGfx, levelButton, SaveManager.GetLevelProgress(level.GetScenePath()));
+                _levelUIData.Add(levelUIData);
                 
                 // Set up button click event
-                levelButton.onClick.AddListener(() => SelectLevel(uiData));
+                levelButton.onClick.AddListener(() => SelectLevel(levelUIData));
                 
                 // Set up hover events
                 EventTrigger eventTrigger = levelButton.GetComponent<EventTrigger>();
@@ -82,30 +82,20 @@ public class MenuElementLevelSelection : MenuElement
                     {
                         eventID = EventTriggerType.PointerEnter
                     };
-                    entry.callback.AddListener((eventData) => ShowLevelInfo(uiData));
+                    entry.callback.AddListener((eventData) => ShowLevelInfo(levelUIData));
                     eventTrigger.triggers.Add(entry);
                     
                     EventTrigger.Entry entry2 = new EventTrigger.Entry
                     {
                         eventID = EventTriggerType.PointerExit
                     };
-                    entry2.callback.AddListener((eventData) => HideLevelInfo(uiData));
+                    entry2.callback.AddListener((eventData) => HideLevelInfo(levelUIData));
                     eventTrigger.triggers.Add(entry2);
                 }
                 
                 
-                // check if all needed levels are completed
-                if (level.IsLocked)
-                {
-                    if (level.LevelsToComplete.Count == 0 || level.LevelsToComplete == null) continue;
-                    foreach (var neededLevel in level.LevelsToComplete)
-                    {
-                        var neededLevelProgress = SaveManager.GetLevelProgress(neededLevel.GetScenePath());
-                        if (neededLevelProgress.isCompleted) continue;
-                        levelButton.interactable = false;
-                        break;
-                    }
-                }
+                // check if there are needed levels
+                levelUIData.UpdateLevelUIState();
             }
         }
         

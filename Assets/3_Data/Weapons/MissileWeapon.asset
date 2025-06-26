@@ -31,11 +31,11 @@ MonoBehaviour:
   - rid: 2319611325492494601
   - rid: 2319611325492494602
   - rid: 4758515269536055580
-  pushForce: 5
-  stunTime: 0
+  - rid: 2319611688567439447
   hitLayers:
     serializedVersion: 2
     m_Bits: 4294967295
+  hitscanBehaviors: []
   fireSound: {fileID: 11400000, guid: 65200ec152ef8d74fb474ec1f37a6549, type: 2}
   fireEffectPrefab: {fileID: 0}
   impactSound: {fileID: 11400000, guid: ca5580e59bab65b42a64c5ca5924a136, type: 2}
@@ -84,6 +84,30 @@ MonoBehaviour:
         maxForce: 45
         stunChance: 25
         maxStunTime: 2
+    - rid: 2319611688567439447
+      type: {class: BehaviorSpawnProjectilesOnStart, ns: , asm: Assembly-CSharp}
+      data:
+        targetRadius: 10
+        spawnRadius: 1
+        maxProjectiles: 5
+        projectileDamage: 25
+        projectilePrefab: {fileID: 6825391653092111716, guid: a68a7f88b92bbe947afd6a143f8e5792, type: 3}
+        projectileBehaviors:
+        - rid: 2319611688567439448
+        - rid: 2319611688567439449
+    - rid: 2319611688567439448
+      type: {class: BehaviorAimLockMovement, ns: , asm: Assembly-CSharp}
+      data:
+        moveSpeed: 50
+        straightPhaseDuration: 0.005
+        bendPhaseDuration: 0.02
+        targetPhaseDuration: 3
+        recheckTarget: 1
+        recheckRadius: 10
+    - rid: 2319611688567439449
+      type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        pushForce: 10
     - rid: 4758515269536055580
       type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
       data:

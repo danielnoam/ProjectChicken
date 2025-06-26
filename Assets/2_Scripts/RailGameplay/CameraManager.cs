@@ -157,7 +157,6 @@ public class CameraManager : MonoBehaviour
     {
         if (!weapon) return;
         
-        
         ShakeCamera(CinemachineImpulseDefinition.ImpulseShapes.Recoil, 0.3f, 0.1f);
     }
 }

@@ -73,7 +73,7 @@ public class RailPlayer : MonoBehaviour
     public event Action<int> OnHealthChanged;
     public event Action<float> OnShieldChanged;
     public event Action<SOWeapon> OnWeaponUsed;
-    public event Action<SOWeapon,SOWeapon> OnSpecialWeaponSwitched;
+    public event Action<SOWeapon,SOWeapon,WeaponInfo> OnSpecialWeaponSwitched;
     public event Action<SOWeapon,float> OnBaseWeaponCooldownUpdated;
     public event Action<SOWeapon,float> OnSpecialWeaponCooldownUpdated;
     public event Action<float> OnWeaponHeatUpdated;

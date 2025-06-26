@@ -221,7 +221,7 @@ public class UIManager : MonoBehaviour
             // Update 
             OnUpdateHealth(player.MaxHealth);
             OnUpdateShield(player.MaxShieldHealth);
-            OnSpecialWeaponSwitched(null,null);
+            OnSpecialWeaponSwitched(null,null, null);
             OnWeaponHeatUpdated(0);
             OnUpdateCurrency(player.CurrentCurrency);
             OnDodgeCooldownUpdated(player.GetDodgeMaxCooldown());
@@ -374,7 +374,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private void OnSpecialWeaponSwitched(SOWeapon previousWeapon, SOWeapon newWeapon)
+    private void OnSpecialWeaponSwitched(SOWeapon previousWeapon, SOWeapon newWeapon, WeaponInfo newWeaponInfo)
     {
         if (newWeapon)
         {

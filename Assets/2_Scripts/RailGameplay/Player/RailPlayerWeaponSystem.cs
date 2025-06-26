@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Core.Attributes;
 using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -12,6 +11,7 @@ using VInspector;
 public class WeaponInfo
 {
     public Transform weaponGfx;
+    public Transform weaponReticle;
     public Transform[] projectileSpawnPoints;
 }
 
@@ -77,7 +77,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public float SpecialWeaponAmmo => _specialWeaponAmmo;
 
     public event Action<SOWeapon> OnWeaponUsed;
-    public event Action<SOWeapon,SOWeapon> OnSpecialWeaponSwitched;
+    public event Action<SOWeapon,SOWeapon,WeaponInfo> OnSpecialWeaponSwitched;
     public event Action<SOWeapon,float> OnBaseWeaponCooldownUpdated;
     public event Action<SOWeapon,float> OnSpecialWeaponCooldownUpdated;
     public event Action<float> OnWeaponHeatUpdated;
@@ -413,7 +413,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             }
             
             OnSpecialWeaponCooldownUpdated?.Invoke(newWeapon,_specialWeaponFireRateCooldown);
-            OnSpecialWeaponSwitched?.Invoke(_previousSpecialWeapon,newWeapon);
+            OnSpecialWeaponSwitched?.Invoke(_previousSpecialWeapon,newWeapon, weaponInfo);
         }
     }
 

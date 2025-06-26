@@ -116,6 +116,32 @@ public class PlayerProjectile : MonoBehaviour
         ApplySpawnBehaviors(this, player);
     }
     
+    public void SetUpMiniProjectile(List<ProjectileBehaviorBase> projectileBehaviors,float damage, SOWeapon weapon, RailPlayer player, ChickenController target)
+    {
+        if (IsInitialized) return;
+    
+        // Set up the projectile
+        Weapon = weapon;
+        Owner = player;
+    
+        // Create unique behavior instances for this projectile
+        ProjectileSpecificBehaviors = CreateUniqueBehaviorInstances(projectileBehaviors);
+        
+        Lifetime = weapon.ProjectileLifetime;
+        Damage = damage;
+        StartDirection = player.GetAimDirectionFromBarrelPosition(transform.position, weapon.ConvergenceMultiplier);
+        rigidBody.rotation = Quaternion.LookRotation(StartDirection);
+        Target = target;
+        IsInitialized = true;
+    
+        // Play the fire effect
+        weapon.PlayFireEffect(transform.position, Quaternion.identity, AudioSource);
+        
+        // Apply custom behaviors on spawn
+        ApplySpawnBehaviors(this, player);
+    }
+    
+    
     private List<ProjectileBehaviorBase> CreateUniqueBehaviorInstances(List<ProjectileBehaviorBase> originalBehaviors)
     {
         List<ProjectileBehaviorBase> uniqueBehaviors = new List<ProjectileBehaviorBase>();
