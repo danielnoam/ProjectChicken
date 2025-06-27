@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 using UnityEngine;
 using VInspector;
 
@@ -33,7 +34,6 @@ public class SOWeapon : ScriptableObject
     
     [ShowIf("weaponType", WeaponType.Hitscan)]
     [Header("Hitscan Settings")]
-    [SerializeField] private LayerMask hitLayers = -1;
     [SerializeReference] private List<HitscanBehaviorBase> hitscanBehaviors = new List<HitscanBehaviorBase>();
     [EndIf]
 
@@ -41,10 +41,20 @@ public class SOWeapon : ScriptableObject
     [Header("Fire Effect")]
     [SerializeField] private SOAudioEvent fireSound;
     [SerializeField] private ParticleSystem fireEffectPrefab;
+    [SerializeField] private bool shakeCameraOnFire;
+    [ShowIf("shakeCameraOnFire")]
+    [SerializeField] private CameraShakeSettings fireShakeSettings;
+    [EndIf]
     
     [Header("Impact Effect")]
     [SerializeField] private SOAudioEvent impactSound;
     [SerializeField] private ParticleSystem impactEffectPrefab;
+    [SerializeField] private bool shakeCameraOnImpact;
+    [ShowIf("shakeCameraOnImpact")]
+    [SerializeField] private CameraShakeSettings impactShakeSettings;
+    [EndIf]
+    
+
 
     public string WeaponName => weaponName;
     public string WeaponDescription => weaponDescription;
@@ -254,6 +264,12 @@ public class SOWeapon : ScriptableObject
         {
             impactSound.PlayAtPoint(position);
         }
+
+        if (shakeCameraOnImpact)
+        {
+            CameraManager.Instance?.ShakeCamera(impactShakeSettings.impulseShape, impactShakeSettings.intensity, impactShakeSettings.duration);
+        }
+
     }
     
     
@@ -274,9 +290,15 @@ public class SOWeapon : ScriptableObject
             {
                 fireSound.PlayAtPoint(position);
             }
-
+        }
+        
+        if (shakeCameraOnFire)
+        {
+            CameraManager.Instance?.ShakeCamera(fireShakeSettings.impulseShape, fireShakeSettings.intensity, fireShakeSettings.duration);
         }
     }
+    
+
 
     #endregion Effects ---------------------------------------------------------------------------------
     

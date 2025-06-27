@@ -59,21 +59,24 @@ public class RailPlayer : MonoBehaviour
     private float _currentShieldHealth;
     private float _damagedCooldown;
     private Coroutine _regenShieldCoroutine;
+    private Quaternion _playerSplineRotation = Quaternion.identity;
+    private Quaternion _aimSplineRotation = Quaternion.identity;
     
     // Public properties
     public LevelManager LevelManager => levelManager;
+    public Quaternion PlayerSplineRotation => _playerSplineRotation;
+    public Quaternion AimSplineRotation => _aimSplineRotation;
     public bool AlignToSplineDirection => alignToSplineDirection;
-    public float SplineRotationSpeed => splineRotationSpeed;
     public int MaxHealth => maxHealth;
     public float MaxShieldHealth => maxShieldHealth;
     public int CurrentCurrency => _currentCurrency;
     public event Action OnDeath;
     public event Action<int> OnHealthChanged;
     public event Action<float> OnShieldChanged;
-    public event Action<SOWeapon> OnWeaponUsed;
-    public event Action<SOWeapon,SOWeapon,WeaponInfo> OnSpecialWeaponSwitched;
-    public event Action<SOWeapon,float> OnBaseWeaponCooldownUpdated;
-    public event Action<SOWeapon,float> OnSpecialWeaponCooldownUpdated;
+    public event Action<WeaponInfo> OnWeaponFired;
+    public event Action<WeaponInfo,WeaponInfo> OnSpecialWeaponSwitched;
+    public event Action<WeaponInfo,float> OnBaseWeaponCooldownUpdated;
+    public event Action<WeaponInfo,float> OnSpecialWeaponCooldownUpdated;
     public event Action<float> OnWeaponHeatUpdated;
     public event Action OnWeaponOverheated;
     public event Action OnWeaponHeatReset;
@@ -106,7 +109,7 @@ public class RailPlayer : MonoBehaviour
 
     private void OnEnable()
     {
-        playerWeapon.OnWeaponUsed += OnWeaponUsed;
+        playerWeapon.OnWeaponFired += OnWeaponFired;
         playerWeapon.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
         playerWeapon.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
         playerWeapon.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
@@ -124,7 +127,7 @@ public class RailPlayer : MonoBehaviour
 
     private void OnDisable()
     {
-        playerWeapon.OnWeaponUsed -= OnWeaponUsed;
+        playerWeapon.OnWeaponFired -= OnWeaponFired;
         playerWeapon.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
         playerWeapon.OnBaseWeaponCooldownUpdated -= OnBaseWeaponCooldownUpdated;
         playerWeapon.OnSpecialWeaponCooldownUpdated -= OnSpecialWeaponCooldownUpdated;
@@ -141,6 +144,7 @@ public class RailPlayer : MonoBehaviour
 
     private void Update()
     {
+        GetSplineRotations();
         CheckDamageCooldown();
         CheckResourcesInRange();
         UpdateMagnetizedResources();
@@ -427,7 +431,7 @@ public class RailPlayer : MonoBehaviour
                 HealShield(resource.ShieldWorth);
                 break;
             case ResourceType.SpecialWeapon:
-                playerWeapon.SelectSpecialWeapon(resource.Weapon);
+                playerWeapon.SetSpecialWeapon(resource.Weapon);
                 break;
             default:
                 Debug.LogWarning($"Unknown resource type: {resource.ResourceType}");
@@ -476,14 +480,14 @@ public class RailPlayer : MonoBehaviour
         return playerMovement.MaxDodgeCooldown;
     }
     
-    public SOWeapon GetCurrentBaseWeapon()
+    public WeaponInfo GetCurrentBaseWeapon()
     {
-        return playerWeapon.BaseWeapon;
+        return playerWeapon.BaseWeaponInfo;
     }
     
-    public SOWeapon GetCurrentSpecialWeapon()
+    public WeaponInfo GetCurrentSpecialWeapon()
     {
-        return playerWeapon.CurrentSpecialWeapon;
+        return playerWeapon.CurrentSpecialWeaponInfo;
     }
     
     public Vector3 GetAimDirectionFromBarrelPosition(Vector3 barrelPosition, float convergenceMultiplier = 0f)
@@ -518,11 +522,34 @@ public class RailPlayer : MonoBehaviour
 
     public Transform GetReticleTarget()
     {
-        return playerAiming.ReticleWorldPosition;
+        return playerAiming.AimWorldPosition;
     }
     
-    
-    
+    private void GetSplineRotations()
+    {
+        if (!alignToSplineDirection || !levelManager)
+        {
+            _playerSplineRotation = Quaternion.identity;
+            _aimSplineRotation = Quaternion.identity;
+            return;
+        }
+
+        // Player spline rotation - for movement (uses player position)
+        Vector3 playerSplineDirection = levelManager.GetDirectionOnSpline(levelManager.CurrentPositionOnPath.position);
+        if (playerSplineDirection != Vector3.zero)
+        {
+            Quaternion targetPlayerRotation = Quaternion.LookRotation(playerSplineDirection, Vector3.up);
+            _playerSplineRotation = Quaternion.Slerp(_playerSplineRotation, targetPlayerRotation, splineRotationSpeed * Time.deltaTime);
+        }
+
+        // Aim spline rotation - for aiming (uses enemy/crosshair position)
+        Vector3 aimSplineDirection = levelManager.GetDirectionOnSpline(levelManager.EnemyPosition);
+        if (aimSplineDirection != Vector3.zero)
+        {
+            Quaternion targetAimRotation = Quaternion.LookRotation(aimSplineDirection, Vector3.up);
+            _aimSplineRotation = Quaternion.Slerp(_aimSplineRotation, targetAimRotation, splineRotationSpeed * Time.deltaTime);
+        }
+    }
 
     #endregion Helper Methods --------------------------------------------------------------------------------------
 

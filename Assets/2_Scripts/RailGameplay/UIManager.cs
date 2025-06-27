@@ -132,7 +132,25 @@ public class UIManager : MonoBehaviour
         PrimeTweenConfig.warnEndValueEqualsCurrent = false;
         SetUpUI();
     }
-    
+
+    private void Start()
+    {
+        if (player)
+        {
+            OnUpdateHealth(player.MaxHealth);
+            OnUpdateShield(player.MaxShieldHealth);
+            OnSpecialWeaponSwitched(null, null);
+            OnWeaponHeatUpdated(0);
+            OnUpdateCurrency(player.CurrentCurrency);
+            OnDodgeCooldownUpdated(player.GetDodgeMaxCooldown());
+        }
+        
+        if (levelManager)
+        {
+            OnScoreChanged(0);
+        }
+    }
+
 
     private void OnEnable()
     {
@@ -202,58 +220,39 @@ public class UIManager : MonoBehaviour
 
     private void SetUpUI()
     {
-        if (player)
-        {
-            // Clear existing health icons if any
-            foreach (Transform child in playerHealthHolder)
-            {
-                Destroy(child.gameObject);
-            }
+        if (!player) return;
         
-            // Create new icons and cache references
-            _healthIcons = new Dictionary<Image, bool>();
-            for (int health = 0; health < player.MaxHealth; health++)
-            {
-                var healthObject = Instantiate(playerIconPrefab, playerHealthHolder);
-                healthObject.name = $"HealthIcon{health}";
-                healthObject.sprite = heartIcon;
+        // Clear existing health icons if any
+        foreach (Transform child in playerHealthHolder)
+        {
+            Destroy(child.gameObject);
+        }
+        
+        // Create new icons and cache references
+        _healthIcons = new Dictionary<Image, bool>();
+        for (int health = 0; health < player.MaxHealth; health++)
+        {
+            var healthObject = Instantiate(playerIconPrefab, playerHealthHolder);
+            healthObject.name = $"HealthIcon{health}";
+            healthObject.sprite = heartIcon;
                 
-                _healthIcons[healthObject] = false; // Initially set to false
-            }
-
-
-            _overheatBarHeight = playerHeatBar.rectTransform.sizeDelta.y;
-            playerMiniGameWindow.color = Color.clear;
-            _weaponStartColor = playerWeaponIcon.color;
-            _secondaryWeaponStartColor = playerSecondaryWeaponIcon.color;
-            playerSecondaryWeaponIcon.sprite = player.GetCurrentBaseWeapon().WeaponIcon;
-            playerSecondaryWeaponIcon.gameObject.SetActive(false);
-            _dodgeStartColor = playerDodgeIcon.color;
-            _previousScore = 0;
-            _score = 0;
-            _previousPlayerCurrency = 0;
-            _playerCurrency = 0;
+            _healthIcons[healthObject] = false; 
+        }
             
-            // Update 
-            OnUpdateHealth(player.MaxHealth);
-            OnUpdateShield(player.MaxShieldHealth);
-            OnSpecialWeaponSwitched(null,null, null);
-            OnWeaponHeatUpdated(0);
-            OnUpdateCurrency(player.CurrentCurrency);
-            OnDodgeCooldownUpdated(player.GetDodgeMaxCooldown());
-        }
+        _overheatBarHeight = playerHeatBar.rectTransform.sizeDelta.y;
+        playerMiniGameWindow.color = miniGameInactiveColor;
+        _weaponStartColor = playerWeaponIcon.color;
+        _secondaryWeaponStartColor = playerSecondaryWeaponIcon.color;
+        _dodgeStartColor = playerDodgeIcon.color;
+        _previousScore = 0;
+        _score = 0;
+        _previousPlayerCurrency = 0;
+        _playerCurrency = 0;
 
-        
-        if (levelManager)
-        {
-            OnScoreChanged(0);
-        }
-        
-        
-        // Hide ui elements
         ToggleHUD(false);
         ToggleKeybinds(false);
     }
+    
 
     #endregion SetUp -----------------------------------------------------------------------------------
 
@@ -384,32 +383,32 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private void OnSpecialWeaponSwitched(SOWeapon previousWeapon, SOWeapon newWeapon, WeaponInfo newWeaponInfo)
+    private void OnSpecialWeaponSwitched(WeaponInfo previousWeaponInfo, WeaponInfo newWeaponInfo)
     {
-        if (newWeapon)
+        if (newWeaponInfo != null)
         {
-            playerWeaponIcon.sprite = newWeapon.WeaponIcon;
+            playerWeaponIcon.sprite = newWeaponInfo.weaponData.WeaponIcon;
             playerSecondaryWeaponIcon.gameObject.SetActive(true);
             Tween.PunchScale(playerWeaponIcon.transform, strength: Vector3.one * weaponPunchStrength, duration: weaponAnimationDuration);
         }
         else
         {
-            playerWeaponIcon.sprite = player.GetCurrentBaseWeapon().WeaponIcon;
+            if (player.GetCurrentBaseWeapon() != null) playerSecondaryWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
             playerSecondaryWeaponIcon.gameObject.SetActive(false);
         }
     }
 
-    private void OnSpecialWeaponCooldownUpdated(SOWeapon specialWeapon, float cooldown)
+    private void OnSpecialWeaponCooldownUpdated(WeaponInfo specialWeaponInfo, float cooldown)
     {
-        float fillAmount = 1f - (cooldown / specialWeapon.FireRate);
+        float fillAmount = 1f - (cooldown / specialWeaponInfo.weaponData.FireRate);
         playerWeaponIcon.color = Color.Lerp(cooldownIconColor, _weaponStartColor, fillAmount);
     }
     
-    private void OnBaseWeaponCooldownUpdated(SOWeapon baseWeapon, float cooldown)
+    private void OnBaseWeaponCooldownUpdated(WeaponInfo baseWeaponInfo, float cooldown)
     {
-        float fillAmount = 1f - (cooldown / baseWeapon.FireRate);
+        float fillAmount = 1f - (cooldown / baseWeaponInfo.weaponData.FireRate);
         
-        if (player.GetCurrentSpecialWeapon())
+        if (player.GetCurrentSpecialWeapon() != null)
         {
             playerSecondaryWeaponIcon.color = Color.Lerp(Color.clear, _secondaryWeaponStartColor, fillAmount);
         }

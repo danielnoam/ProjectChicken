@@ -8,6 +8,8 @@ using Random = UnityEngine.Random;
 
 public class CameraManager : MonoBehaviour
 {
+    public static CameraManager Instance { get; private set; }
+    
     [Header("Follow Camera Settings")]
     [SerializeField] private float fovGainOnDodge = 5f;
     [Foldout("Position Offset Settings")]
@@ -66,6 +68,16 @@ public class CameraManager : MonoBehaviour
 
     private void Awake()
     {
+        if (!Instance || Instance == this)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+        
         _defaultFov = followCamera.Lens.FieldOfView;
     }
 
@@ -81,7 +93,6 @@ public class CameraManager : MonoBehaviour
             player.OnDodge += OnPlayerDodge;
             player.OnHealthChanged += OnHealthChanged;
             player.OnShieldChanged += OnShieldChanged;
-            player.OnWeaponUsed += OnWeaponUsed;
             followCamera.Target.TrackingTarget = player.GetFollowCameraTarget();
             followCamera.Target.LookAtTarget = player.GetReticleTarget();
             introCamera.Target.TrackingTarget = player.GetIntroCameraTarget(); 
@@ -102,7 +113,6 @@ public class CameraManager : MonoBehaviour
             player.OnDodge -= OnPlayerDodge;
             player.OnHealthChanged -= OnHealthChanged;
             player.OnShieldChanged -= OnShieldChanged;
-            player.OnWeaponUsed -= OnWeaponUsed;
             introCamera.Target.TrackingTarget = null;
             introCamera.Target.LookAtTarget = null;
         }
@@ -113,6 +123,8 @@ public class CameraManager : MonoBehaviour
         UpdateDynamicCameraOffset();
         UpdateDynamicRotationOffset();
     }
+    
+    
 
     #region Camera Control -----------------------------------------------------------------------------------------------
 
@@ -131,10 +143,12 @@ public class CameraManager : MonoBehaviour
 
     #endregion Camera Control -----------------------------------------------------------------------------------------------
 
+    
+    
     #region Camera Effects ------------------------------------------------------------------------------------------------
     
     [Button]
-    private void ShakeCamera(CinemachineImpulseDefinition.ImpulseShapes impulseShape, float intensity = 3f, float duration = 0.5f)
+    public void ShakeCamera(CinemachineImpulseDefinition.ImpulseShapes impulseShape, float intensity, float duration)
     {
         if (!impulseSource) return;
         
@@ -243,12 +257,6 @@ public class CameraManager : MonoBehaviour
         }
     }
     
-    private void OnWeaponUsed(SOWeapon weapon)
-    {
-        if (!weapon) return;
-        
-        ShakeCamera(CinemachineImpulseDefinition.ImpulseShapes.Recoil, 0.3f, 0.1f);
-    }
 
     #endregion Events ---------------------------------------------------------------------------------------------------------
 

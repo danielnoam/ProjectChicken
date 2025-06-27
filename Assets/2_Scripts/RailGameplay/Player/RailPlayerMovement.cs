@@ -10,18 +10,17 @@ using VInspector;
 public class RailPlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField, Min(0)] private float maxMoveSpeed = 15f;
-    [SerializeField, Min(0.1f)] private float acceleration = 10f;
-    [SerializeField, Min(0.1f)] private float deceleration = 5f;
-    [SerializeField, Min(0)] private float pathFollowSpeed = 5f;
+    [SerializeField, Min(0)] private float maxMoveSpeed = 35f;
+    [SerializeField, Min(0.1f)] private float acceleration = 5f;
+    [SerializeField, Min(0.1f)] private float deceleration = 3f;
+    [SerializeField, Min(0)] private float pathFollowSpeed = 1000f;
     
     [Header("Rotation Settings")]
-    [SerializeField, Min(0)] private float rollSpeed = 22f;
+    [SerializeField, Min(0)] private float rollSpeed = 5f;
     [SerializeField, Min(0)] private float maxRollAmount = 30f;
     [SerializeField, Min(0)] private float pitchYawSpeed = 22f;
     [SerializeField, Min(0)] private float maxPitchAngle = 30f;
     [SerializeField, Min(0)] private float maxYawAngle = 45f;
-    [SerializeField, Min(0)] private float pathRotationSpeed = 5f;
 
     
     [Header("Dodge Settings")]
@@ -47,9 +46,7 @@ public class RailPlayerMovement : MonoBehaviour
     private float _horizontalInput;
     private float _verticalInput;
     private Quaternion _velocityRotation = Quaternion.identity;
-    private Quaternion _splineRotation = Quaternion.identity;
     private Quaternion _aimRotation = Quaternion.identity;
-    private Vector3 _currentMoveVelocity = Vector3.zero;
     private Vector3 _targetOffsetFromSpline = Vector3.zero;
     private Vector3 _currentOffsetFromSpline = Vector3.zero;
     private bool _isDodging;
@@ -97,41 +94,26 @@ public class RailPlayerMovement : MonoBehaviour
     private void Update()
     {
         UpdateDodgeState();
-        HandleMovementAndAimRotation();
+        HandleShipModelMovementAndRotation();
     }
 
     private void FixedUpdate()
     {
-        HandleSplineRotation();
-        HandleMovement();
+        HandleMovementAndRotation();
     }
     
     
 
     #region Movement --------------------------------------------------------------------------------------
+    
 
-
-    private void HandleMovement()
+    private void HandleMovementAndRotation()
     {
-        if (player.LevelManager)
-        {
-            SplineBasedMovement();
-        }
-        else
-        {
-            NonSplineMovement();    
-        }
-    }
-
-
-    private void SplineBasedMovement()
-    {
-        
         Vector3 playerSplinePosition = player.LevelManager.PlayerPosition;
         
         // Calculate current offset from spline in local space
         Vector3 worldOffset = transform.position - playerSplinePosition;
-        _currentOffsetFromSpline = Quaternion.Inverse(_splineRotation) * worldOffset;
+        _currentOffsetFromSpline = Quaternion.Inverse(player.PlayerSplineRotation) * worldOffset;
         
         // Handle input movement or dodging
         if (!_isDodging)
@@ -170,7 +152,7 @@ public class RailPlayerMovement : MonoBehaviour
         }
         
         // Calculate the desired world position (spline position and offset)
-        Vector3 desiredWorldPosition = playerSplinePosition + (_splineRotation * _currentOffsetFromSpline);
+        Vector3 desiredWorldPosition = playerSplinePosition + (player.PlayerSplineRotation * _currentOffsetFromSpline);
         
         // Calculate velocity to reach the desired position
         Vector3 positionDifference = desiredWorldPosition - transform.position;
@@ -181,49 +163,12 @@ public class RailPlayerMovement : MonoBehaviour
         
         // Set the rigidbody velocity
         playerRigidbody.linearVelocity = positionDifference.normalized * Mathf.Min(effectiveFollowSpeed, distanceToDesired / Time.fixedDeltaTime);
+        playerRigidbody.rotation = player.PlayerSplineRotation;
     }
     
     
     
-    private void NonSplineMovement()
-    {
-        Vector3 inputDirection = new Vector3(_horizontalInput, _verticalInput, 0);
-        Vector3 targetMoveVelocity = inputDirection.normalized * maxMoveSpeed;
-        float targetAcceleration = inputDirection != Vector3.zero ? acceleration : deceleration;
-        
-        
-        _currentMoveVelocity = Vector3.Lerp(_currentMoveVelocity, targetMoveVelocity, targetAcceleration * Time.fixedDeltaTime);
-        playerRigidbody.linearVelocity = _currentMoveVelocity;
-    }
-    
-    
-    #endregion Movement  --------------------------------------------------------------------------------------
-
-    
-    
-    #region Rotation  --------------------------------------------------------------------------------------
-
-    private void HandleSplineRotation()
-    {
-        // Get spline rotation
-        if (player.LevelManager && player.AlignToSplineDirection)
-        {
-            Vector3 splineDirection = player.LevelManager.GetDirectionOnSpline(player.LevelManager.CurrentPositionOnPath.position);
-            Quaternion targetSplineRotation = Quaternion.LookRotation(splineDirection, Vector3.up);
-        
-            // Smoothly rotate towards the spline direction
-            _splineRotation = Quaternion.Slerp(_splineRotation, targetSplineRotation, pathRotationSpeed * Time.fixedDeltaTime);
-        }
-        else
-        {
-            _splineRotation = Quaternion.identity;
-        }
-
-        // Apply the rotation to the rigidbody
-        playerRigidbody.rotation = _splineRotation;
-    }
-    
-    private void HandleMovementAndAimRotation()
+    private void HandleShipModelMovementAndRotation()
     {
         if (!shipModel) return;
     
@@ -244,7 +189,7 @@ public class RailPlayerMovement : MonoBehaviour
         if (playerAiming)
         {
             Vector3 aimDirection = playerAiming.GetAimDirection();
-            Vector3 localAimDirection = Quaternion.Inverse(_splineRotation) * aimDirection;
+            Vector3 localAimDirection = Quaternion.Inverse(player.PlayerSplineRotation) * aimDirection;
         
             float yawAngle = Mathf.Atan2(localAimDirection.x, localAimDirection.z) * Mathf.Rad2Deg;
             float pitchAngle = -Mathf.Asin(Mathf.Clamp(localAimDirection.y, -1f, 1f)) * Mathf.Rad2Deg;
@@ -267,10 +212,11 @@ public class RailPlayerMovement : MonoBehaviour
         shipModel.localRotation = Quaternion.Euler(finalEuler);
     }
     
-
-    #endregion Rotation  --------------------------------------------------------------------------------------
     
-   
+    #endregion Movement  --------------------------------------------------------------------------------------
+
+    
+    
 
     #region Dodge --------------------------------------------------------------------------------------
 
@@ -422,7 +368,7 @@ public class RailPlayerMovement : MonoBehaviour
             Vector3[] worldCorners = new Vector3[4];
             for (int i = 0; i < 4; i++)
             {
-                worldCorners[i] = playerSplinePosition + (_splineRotation * localCorners[i]);
+                worldCorners[i] = playerSplinePosition + (player.PlayerSplineRotation * localCorners[i]);
             }
 
             Gizmos.color = Color.blue;
@@ -433,7 +379,7 @@ public class RailPlayerMovement : MonoBehaviour
                 Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
             }
             
-            UnityEditor.Handles.Label(playerSplinePosition + (_splineRotation * Vector3.up * (MovementBoundaryY + 0.5f)), "Player Boundaries");
+            UnityEditor.Handles.Label(playerSplinePosition + (player.PlayerSplineRotation * Vector3.up * (MovementBoundaryY + 0.5f)), "Player Boundaries");
         }
     }
 
