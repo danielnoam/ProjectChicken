@@ -77,6 +77,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image playerHeatBar;
     [SerializeField] private Image playerMiniGameWindow;
     [SerializeField] private Image playerDodgeIcon;
+    [SerializeField] private TextMeshProUGUI heatBarText;
     [SerializeField] private TextMeshProUGUI playerShieldText;
     [SerializeField] private TextMeshProUGUI playerCurrencyText;
     [SerializeField] private TextMeshProUGUI scoreText;
@@ -91,6 +92,7 @@ public class UIManager : MonoBehaviour
     private Color _secondaryWeaponStartColor;
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
+    private Color _heatBarTextStartColor;
     private Sequence _keybindsSequence;
     private Sequence _hudSequence;
     private Sequence _heatBarSequence;
@@ -248,6 +250,7 @@ public class UIManager : MonoBehaviour
         _weaponStartColor = playerWeaponIcon.color;
         _secondaryWeaponStartColor = playerSecondaryWeaponIcon.color;
         _dodgeStartColor = playerDodgeIcon.color;
+        _heatBarTextStartColor = heatBarText.color;
         _previousScore = 0;
         _score = 0;
         _previousPlayerCurrency = 0;
@@ -387,12 +390,12 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private void OnSpecialWeaponSwitched(WeaponInfo previousWeaponInfo, WeaponInfo newWeaponInfo)
+    private void OnSpecialWeaponSwitched(WeaponInstance previousWeaponInstance, WeaponInstance newWeaponInstance)
     {
-        if (newWeaponInfo != null)
+        if (newWeaponInstance != null)
         {
-            playerWeaponIcon.sprite = newWeaponInfo.weaponData.WeaponIcon;
-            playerSecondaryWeaponIcon.gameObject.SetActive(true);
+            playerWeaponIcon.sprite = newWeaponInstance.weaponData.WeaponIcon;
+            Tween.Alpha(playerSecondaryWeaponIcon, endValue: 1f, duration: weaponAnimationDuration);
             Tween.PunchScale(playerWeaponIcon.transform, strength: Vector3.one * weaponPunchStrength, duration: weaponAnimationDuration);
         }
         else
@@ -402,42 +405,45 @@ public class UIManager : MonoBehaviour
                 playerWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
                playerSecondaryWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
             }
-            playerSecondaryWeaponIcon.gameObject.SetActive(false);
+            Tween.Alpha(playerSecondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
         }
     }
     
         
-    private void OnSpecialWeaponDisabled(WeaponInfo weapon)
+    private void OnSpecialWeaponDisabled(WeaponInstance weapon)
     {
         if (player.GetCurrentBaseWeapon() != null) playerWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
-        playerSecondaryWeaponIcon.gameObject.SetActive(false);
+        Tween.Alpha(playerSecondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
+
     }
 
-    private void OnBaseWeaponSwitched(WeaponInfo weapon)
+    private void OnBaseWeaponSwitched(WeaponInstance weapon)
     {
         if (weapon == null) return;
         
         if (player.HasSpecialWeapon())
         {
             playerSecondaryWeaponIcon.sprite = weapon.weaponData.WeaponIcon;
-            playerSecondaryWeaponIcon.gameObject.SetActive(true);
+            Tween.Alpha(playerSecondaryWeaponIcon, endValue: 1f, duration: weaponAnimationDuration);
         }
         else
         {
             playerWeaponIcon.sprite = weapon.weaponData.WeaponIcon;
-            playerSecondaryWeaponIcon.gameObject.SetActive(false);
+            Tween.Alpha(playerSecondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
         }
     }
 
-    private void OnSpecialWeaponCooldownUpdated(WeaponInfo specialWeaponInfo, float cooldown)
+    private void OnSpecialWeaponCooldownUpdated(WeaponInstance specialWeaponInstance, float cooldown)
     {
-        float fillAmount = 1f - (cooldown / specialWeaponInfo.weaponData.FireRate);
+        if (specialWeaponInstance == null) return;
+        
+        float fillAmount = 1f - (cooldown / specialWeaponInstance.weaponData.FireRate);
         playerWeaponIcon.color = Color.Lerp(cooldownIconColor, _weaponStartColor, fillAmount);
     }
     
-    private void OnBaseWeaponCooldownUpdated(WeaponInfo baseWeaponInfo, float cooldown)
+    private void OnBaseWeaponCooldownUpdated(WeaponInstance baseWeaponInstance, float cooldown)
     {
-        float fillAmount = 1f - (cooldown / baseWeaponInfo.weaponData.FireRate);
+        float fillAmount = 1f - (cooldown / baseWeaponInstance.weaponData.FireRate);
         
         if (player.GetCurrentSpecialWeapon() != null)
         {
@@ -451,14 +457,19 @@ public class UIManager : MonoBehaviour
     
     private void OnWeaponHeatUpdated(float heat)
     {
+        heatBarText.text = $"{heat:F0}%";
+        
         float fillAmount = heat / player.GetMaxWeaponHeat();
-        Color fillColor = Color.Lerp(normalBarColor, heatedBarColor, fillAmount);
+        Color barFillColor = Color.Lerp(normalBarColor, heatedBarColor, fillAmount);
+        Color textFillColor = Color.Lerp(_heatBarTextStartColor, heatedBarColor,fillAmount);
+        float textAlpha = fillAmount < 0.3f ? 0f : Mathf.Lerp(0f, 1f, (fillAmount - 0.3f) / 0.7f);
         
         if (_heatBarSequence.isAlive) _heatBarSequence.Stop();
         _heatBarSequence = Sequence.Create()
-                .Group(Tween.Color(playerHeatBar, startValue: playerHeatBar.color, endValue: fillColor, heatBarAnimationDuration))
+                .Group(Tween.Color(heatBarText, startValue: heatBarText.color, endValue: textFillColor, heatBarAnimationDuration))
+                .Group(Tween.Alpha(heatBarText, startValue: heatBarText.color.a, endValue: textAlpha, heatBarAnimationDuration))
+                .Group(Tween.Color(playerHeatBar, startValue: playerHeatBar.color, endValue: barFillColor, heatBarAnimationDuration))
                 .Group(Tween.UIFillAmount(playerHeatBar, startValue: playerHeatBar.fillAmount, endValue: fillAmount, heatBarAnimationDuration))
-
             ;
     }
     
@@ -508,6 +519,8 @@ public class UIManager : MonoBehaviour
     
     private void OnWeaponOverheated()
     {
+        Tween.PunchScale(heatBarText.transform, strength: Vector3.one * heatBarPunchStrength, duration: heatBarPunchDuration);
+        
         Tween.PunchScale(playerHeatBar.transform, strength: Vector3.one * heatBarPunchStrength, duration: heatBarPunchDuration);
         
         Tween.PunchScale(playerMiniGameWindow.transform, strength: Vector3.one * miniGamePunchStrength, duration: miniGamePunchDuration);

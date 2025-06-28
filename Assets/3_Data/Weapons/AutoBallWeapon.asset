@@ -31,15 +31,21 @@ MonoBehaviour:
   - rid: 3357952825749667913
   - rid: 3357952728375754824
   - rid: 3357952757002403913
-  pushForce: 5
-  stunTime: 0
-  hitLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
+  hitscanBehaviors: []
   fireSound: {fileID: 11400000, guid: 5eb27489a8552824ea06fe214befbe72, type: 2}
   fireEffectPrefab: {fileID: 0}
+  shakeCameraOnFire: 0
+  fireShakeSettings:
+    impulseShape: 2
+    intensity: 1
+    duration: 0.3
   impactSound: {fileID: 11400000, guid: ca5580e59bab65b42a64c5ca5924a136, type: 2}
   impactEffectPrefab: {fileID: 0}
+  shakeCameraOnImpact: 0
+  impactShakeSettings:
+    impulseShape: 2
+    intensity: 1
+    duration: 0.3
   references:
     version: 2
     RefIds:
@@ -59,3 +65,6 @@ MonoBehaviour:
         straightPhaseDuration: 0.01
         bendPhaseDuration: 0.01
         targetPhaseDuration: 3
+        recheckTarget: 0
+        recheckCount: 3
+        recheckRadius: 10

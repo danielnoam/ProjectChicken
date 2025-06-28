@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Editor
 {
 #if UNITY_EDITOR
-[CustomPropertyDrawer(typeof(WeaponInfo))]
+[CustomPropertyDrawer(typeof(WeaponInstance))]
 public class WeaponInfoPropertyDrawer : PropertyDrawer
 {
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

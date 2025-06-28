@@ -71,12 +71,12 @@ public class RailPlayer : MonoBehaviour
     public event Action OnDeath;
     public event Action<int> OnHealthChanged;
     public event Action<float> OnShieldChanged;
-    public event Action<WeaponInfo> OnWeaponFired;
-    public event Action<WeaponInfo,WeaponInfo> OnSpecialWeaponSwitched;
-    public event Action<WeaponInfo,float> OnBaseWeaponCooldownUpdated;
-    public event Action<WeaponInfo,float> OnSpecialWeaponCooldownUpdated;
-    public event Action<WeaponInfo> OnSpecialWeaponDisabled;
-    public event Action<WeaponInfo> OnBaseWeaponSwitched;
+    public event Action<WeaponInstance> OnWeaponFired;
+    public event Action<WeaponInstance,WeaponInstance> OnSpecialWeaponSwitched;
+    public event Action<WeaponInstance,float> OnBaseWeaponCooldownUpdated;
+    public event Action<WeaponInstance,float> OnSpecialWeaponCooldownUpdated;
+    public event Action<WeaponInstance> OnSpecialWeaponDisabled;
+    public event Action<WeaponInstance> OnBaseWeaponSwitched;
     public event Action<float> OnWeaponHeatUpdated;
     public event Action OnWeaponOverheated;
     public event Action OnWeaponHeatReset;
@@ -479,14 +479,14 @@ public class RailPlayer : MonoBehaviour
         return playerMovement.MaxDodgeCooldown;
     }
     
-    public WeaponInfo GetCurrentBaseWeapon()
+    public WeaponInstance GetCurrentBaseWeapon()
     {
-        return playerWeapon.BaseWeaponInfo;
+        return playerWeapon.BaseWeaponInstance;
     }
     
-    public WeaponInfo GetCurrentSpecialWeapon()
+    public WeaponInstance GetCurrentSpecialWeapon()
     {
-        return playerWeapon.CurrentSpecialWeaponInfo;
+        return playerWeapon.CurrentSpecialWeaponInstance;
     }
     
     public Vector3 GetAimDirectionFromBarrelPosition(Vector3 barrelPosition, float convergenceMultiplier = 0f)
@@ -526,7 +526,7 @@ public class RailPlayer : MonoBehaviour
 
     public bool HasSpecialWeapon()
     {
-        return playerWeapon.CurrentSpecialWeaponInfo != null;
+        return playerWeapon.CurrentSpecialWeaponInstance != null;
     }
     
     private void GetSplineRotations()
