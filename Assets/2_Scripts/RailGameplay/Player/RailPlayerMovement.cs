@@ -113,7 +113,7 @@ public class RailPlayerMovement : MonoBehaviour
         
         // Calculate current offset from spline in local space
         Vector3 worldOffset = transform.position - playerSplinePosition;
-        _currentOffsetFromSpline = Quaternion.Inverse(player.PlayerSplineRotation) * worldOffset;
+        _currentOffsetFromSpline = Quaternion.Inverse(player.SplineRotation) * worldOffset;
         
         // Handle input movement or dodging
         if (!_isDodging)
@@ -152,7 +152,7 @@ public class RailPlayerMovement : MonoBehaviour
         }
         
         // Calculate the desired world position (spline position and offset)
-        Vector3 desiredWorldPosition = playerSplinePosition + (player.PlayerSplineRotation * _currentOffsetFromSpline);
+        Vector3 desiredWorldPosition = playerSplinePosition + (player.SplineRotation * _currentOffsetFromSpline);
         
         // Calculate velocity to reach the desired position
         Vector3 positionDifference = desiredWorldPosition - transform.position;
@@ -163,7 +163,7 @@ public class RailPlayerMovement : MonoBehaviour
         
         // Set the rigidbody velocity
         playerRigidbody.linearVelocity = positionDifference.normalized * Mathf.Min(effectiveFollowSpeed, distanceToDesired / Time.fixedDeltaTime);
-        playerRigidbody.rotation = player.PlayerSplineRotation;
+        playerRigidbody.rotation = player.SplineRotation;
     }
     
     
@@ -189,7 +189,7 @@ public class RailPlayerMovement : MonoBehaviour
         if (playerAiming)
         {
             Vector3 aimDirection = playerAiming.GetAimDirection();
-            Vector3 localAimDirection = Quaternion.Inverse(player.PlayerSplineRotation) * aimDirection;
+            Vector3 localAimDirection = Quaternion.Inverse(player.SplineRotation) * aimDirection;
         
             float yawAngle = Mathf.Atan2(localAimDirection.x, localAimDirection.z) * Mathf.Rad2Deg;
             float pitchAngle = -Mathf.Asin(Mathf.Clamp(localAimDirection.y, -1f, 1f)) * Mathf.Rad2Deg;
@@ -215,7 +215,6 @@ public class RailPlayerMovement : MonoBehaviour
     
     #endregion Movement  --------------------------------------------------------------------------------------
 
-    
     
 
     #region Dodge --------------------------------------------------------------------------------------
@@ -368,7 +367,7 @@ public class RailPlayerMovement : MonoBehaviour
             Vector3[] worldCorners = new Vector3[4];
             for (int i = 0; i < 4; i++)
             {
-                worldCorners[i] = playerSplinePosition + (player.PlayerSplineRotation * localCorners[i]);
+                worldCorners[i] = playerSplinePosition + (player.SplineRotation * localCorners[i]);
             }
 
             Gizmos.color = Color.blue;
@@ -379,7 +378,7 @@ public class RailPlayerMovement : MonoBehaviour
                 Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
             }
             
-            UnityEditor.Handles.Label(playerSplinePosition + (player.PlayerSplineRotation * Vector3.up * (MovementBoundaryY + 0.5f)), "Player Boundaries");
+            UnityEditor.Handles.Label(playerSplinePosition + (player.SplineRotation * Vector3.up * (MovementBoundaryY + 0.5f)), "Player Boundaries");
         }
     }
 

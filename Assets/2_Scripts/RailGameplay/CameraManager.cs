@@ -11,22 +11,22 @@ public class CameraManager : MonoBehaviour
     public static CameraManager Instance { get; private set; }
     
     [Header("Follow Camera Settings")]
-    [SerializeField] private float fovGainOnDodge = 5f;
+    [SerializeField] private float fovGainOnDodge = 10f;
     [Foldout("Position Offset Settings")]
     [SerializeField] private bool useDynamicPositionOffset = true;
     [SerializeField] private Vector3 positionOffsetRange = new Vector3(10f, 5f, 1f);
     [SerializeField] private Vector3 positionThreshold = new Vector3(0.2f, 0.2f, 0.2f);
-    [SerializeField] private float positionOffsetSmoothness = 5f;
-    [SerializeField] private bool invertPositionX = true;
-    [SerializeField] private bool invertPositionY = true;
+    [SerializeField] private float positionOffsetSmoothness = 2f;
+    [SerializeField] private bool invertPositionX;
+    [SerializeField] private bool invertPositionY;
     [EndFoldout]
     [Foldout("Rotation Offset Settings")]
     [SerializeField] private bool useDynamicRotationOffset = true;
     [SerializeField] private Vector2 rotationOffsetRange = new Vector2(15f, 10f);
     [SerializeField] private Vector2 rotationThreshold = new Vector2(0.15f, 0.15f);
-    [SerializeField] private float rotationSmoothness = 3f;
-    [SerializeField] private bool invertRotationX = false;
-    [SerializeField] private bool invertRotationY = false;
+    [SerializeField] private float rotationSmoothness = 2f;
+    [SerializeField] private bool invertRotationX;
+    [SerializeField] private bool invertRotationY = true;
     [EndFoldout]
 
     [Header("References")]

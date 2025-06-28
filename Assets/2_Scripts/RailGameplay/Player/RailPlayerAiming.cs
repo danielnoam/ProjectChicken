@@ -38,8 +38,14 @@ public class RailPlayerAiming : MonoBehaviour
     private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundary.x : 25f;
     private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundary.y : 15f;
 
+    
+    public bool IsAimLocked => _isAimLocked;
+    public ChickenController CurrentAimLockTarget => _currentAimLockTarget;
     public Transform AimWorldPosition => aimWorldPosition;
     public Vector2 NormalizedReticlePosition => _normalizedReticlePosition;
+
+    
+    
     
     private void OnValidate() { this.ValidateRefs(); }
     
@@ -241,13 +247,13 @@ public class RailPlayerAiming : MonoBehaviour
         Vector3 targetWorldPosition = _currentAimLockTarget.transform.position;
         
         // Convert target world position to normalized reticle position
-        Vector3 boundaryCenter = GetCrosshairSplinePosition();
+        Vector3 boundaryCenter = GetReticleSplinePosition();
         Vector3 localTargetOffset = targetWorldPosition - boundaryCenter;
         
         // Apply inverse spline rotation if enabled
         if (player.AlignToSplineDirection)
         {
-            localTargetOffset = Quaternion.Inverse(player.AimSplineRotation) * localTargetOffset;
+            localTargetOffset = Quaternion.Inverse(player.SplineRotation) * localTargetOffset;
         }
         
         Vector2 targetNormalizedPosition = new Vector2(
@@ -278,7 +284,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void UpdateAimPosition()
     {
-        Vector3 boundaryCenter = GetCrosshairSplinePosition();
+        Vector3 boundaryCenter = GetReticleSplinePosition();
 
         // Convert normalized position (-1 to 1) to world position within boundaries
         Vector3 localOffset = new Vector3(
@@ -290,7 +296,7 @@ public class RailPlayerAiming : MonoBehaviour
         // Apply spline rotation if enabled
         if (player.AlignToSplineDirection)
         {
-            localOffset = player.AimSplineRotation * localOffset;
+            localOffset = player.SplineRotation * localOffset;
         }
 
         // Calculate final world position
@@ -416,20 +422,12 @@ public class RailPlayerAiming : MonoBehaviour
         }
     }
     
-    private Vector3 GetSplineDirection()
+    
+    private Vector3 GetReticleSplinePosition()
     {
-        return !player.LevelManager ? Vector3.forward : player.LevelManager.GetDirectionOnSpline(player.LevelManager.CurrentPositionOnPath.position);
+        return !player.LevelManager ? transform.position : player.LevelManager.EnemyPosition;
     }
     
-    private Vector3 GetCrosshairSplinePosition()
-    {
-        if (!player.LevelManager) return transform.position;
-        return player.LevelManager.EnemyPosition;
-    }
-    
-    public bool IsAimLocked => _isAimLocked;
-    public ChickenController CurrentAimLockTarget => _currentAimLockTarget;
-    public float AimLockCooldownRemaining => _aimLockCooldownTimer;
 
     #endregion Helper Methods -------------------------------------------------------------------------
 
@@ -443,7 +441,7 @@ public class RailPlayerAiming : MonoBehaviour
         if (player.LevelManager)
         {
             Gizmos.color = Color.blue;
-            Vector3 crosshairSplinePosition = GetCrosshairSplinePosition();
+            Vector3 crosshairSplinePosition = GetReticleSplinePosition();
             
             if (player && player.AlignToSplineDirection)
             {
@@ -459,7 +457,7 @@ public class RailPlayerAiming : MonoBehaviour
                 Vector3[] worldCorners = new Vector3[4];
                 for (int i = 0; i < 4; i++)
                 {
-                    worldCorners[i] = crosshairSplinePosition + (player.AimSplineRotation * localCorners[i]);
+                    worldCorners[i] = crosshairSplinePosition + (player.SplineRotation * localCorners[i]);
                 }
                 
                 for (int i = 0; i < 4; i++)
@@ -483,7 +481,7 @@ public class RailPlayerAiming : MonoBehaviour
 
                     debugText += $"\nCrosshair Boundaries";
                 
-                    UnityEditor.Handles.Label(crosshairSplinePosition + (player.AimSplineRotation * Vector3.up * (CrosshairBoundaryY + 0.5f)), debugText);
+                    UnityEditor.Handles.Label(crosshairSplinePosition + (player.SplineRotation * Vector3.up * (CrosshairBoundaryY + 0.5f)), debugText);
                 }
             }
             else

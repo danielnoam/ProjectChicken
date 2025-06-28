@@ -3,9 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using KBCore.Refs;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VInspector;
+
+
+
+
 
 [Serializable]
 public class WeaponInfo
@@ -16,18 +21,35 @@ public class WeaponInfo
     public Transform[] weaponBarrels;
 
 
+    private Tween _reticleTween;
+
     public void OnWeaponSelected()
     {
         weaponGfx?.gameObject.SetActive(true);
-        weaponReticle?.gameObject.SetActive(true);
+        ToggleWeaponReticle(true);
     }
 
     public void OnWeaponDeselected()
     {
         weaponGfx?.gameObject.SetActive(false);
-        weaponReticle?.gameObject.SetActive(false);
+        ToggleWeaponReticle(false);
+    }
+
+    public void ToggleWeaponReticle(bool state)
+    {
+
+        if (_reticleTween.isAlive) _reticleTween.Stop();
+        
+        _reticleTween = TweenReticleSize(weaponReticle, state ? 0f :  1f);
+    }
+    
+    private Tween TweenReticleSize(Transform reticle, float sizeMultiplier)
+    {
+        return Tween.Scale(reticle, Vector3.one * sizeMultiplier, 0.5f, Ease.InOutBack);
     }
 }
+
+
 
 public class RailPlayerWeaponSystem : MonoBehaviour
 {
@@ -73,6 +95,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     
     [Header("References")]
+    [SerializeField] private Transform reticleHolder;
     [SerializeField] private Transform smallReticle;
     [SerializeField] private Transform targetReticle;
     [SerializeField] private SOAudioEvent weaponSwitchSfx;
@@ -578,37 +601,27 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private void UpdateReticlesPosition()
     {
         if (!_allowShooting) return;
+        
 
-        if (_currentSpecialWeaponInfo != null && _currentSpecialWeaponInfo.weaponReticle)
+        if (reticleHolder)
         {
-            _currentSpecialWeaponInfo.weaponReticle.position = Vector3.Lerp(_currentSpecialWeaponInfo.weaponReticle.position, playerAiming.AimWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
-            _currentSpecialWeaponInfo.weaponReticle.rotation = player.AlignToSplineDirection ? player.AimSplineRotation : Quaternion.identity;
+            reticleHolder.position = Vector3.Lerp(reticleHolder.position, playerAiming.AimWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
+            reticleHolder.rotation = player.AlignToSplineDirection ? player.SplineRotation : Quaternion.identity;
         }
-        else
+        
+        if (targetReticle)
         {
-            if (_baseWeaponInfo != null && _baseWeaponInfo.weaponReticle)
-            {
-                _baseWeaponInfo.weaponReticle.position = Vector3.Lerp(_baseWeaponInfo.weaponReticle.position, playerAiming.AimWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
-                _baseWeaponInfo.weaponReticle.rotation = player.AlignToSplineDirection ? player.AimSplineRotation : Quaternion.identity;
-            }
+            Vector3 targetReticleSize = playerAiming.CurrentAimLockTarget ? (Vector3.one * reticleSizeMultiplier) : Vector3.one * 0.75f; 
+            targetReticle.localScale = Vector3.Lerp(targetReticle.localScale, targetReticleSize, reticleGrowSpeed * Time.deltaTime);
         }
-
         
         if (smallReticle)
         {
             Vector3 smallReticlePosition = Vector3.Lerp(transform.position, playerAiming.AimWorldPosition.position, smallReticleRange);
             smallReticle.position = Vector3.Lerp(smallReticle.position, smallReticlePosition, reticleFollowSpeed * Time.deltaTime);
-            smallReticle.rotation = player.AlignToSplineDirection ? player.AimSplineRotation : Quaternion.identity;
-        }
-
-        if (targetReticle)
-        {
-            targetReticle.position = Vector3.Lerp(targetReticle.position, playerAiming.AimWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
-            targetReticle.rotation = player.AlignToSplineDirection ? player.AimSplineRotation : Quaternion.identity;
-            Vector3 targetReticleSize = playerAiming.CurrentAimLockTarget ? (Vector3.one * reticleSizeMultiplier) : Vector3.one; 
-            targetReticle.localScale = Vector3.Lerp(targetReticle.localScale, targetReticleSize, reticleGrowSpeed * Time.deltaTime);
         }
     }
+    
     
 
     #endregion Weapon Reticle -----------------------------------------------------------------------------------------------
@@ -642,6 +655,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
         if (switchingWeaponsResetsHeat) ResetHeat();
         newWeapon.OnWeaponSelected();
+        _baseWeaponInfo.ToggleWeaponReticle(false);
             
         weaponSwitchSfx?.Play(audioSource);
         OnSpecialWeaponCooldownUpdated?.Invoke(newWeapon,_specialWeaponFireRateCooldown);
@@ -666,9 +680,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         if (!Application.isPlaying || _currentSpecialWeaponInfo == null) return;
         
-        _currentSpecialWeaponInfo.OnWeaponDeselected();
+        _currentSpecialWeaponInfo?.OnWeaponDeselected();
         _previousSpecialWeaponInfo = _currentSpecialWeaponInfo;
         _currentSpecialWeaponInfo = null;
+        _baseWeaponInfo.ToggleWeaponReticle(true);
         OnSpecialWeaponDisabled?.Invoke(_previousSpecialWeaponInfo);
     }
     
@@ -753,6 +768,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             {
                 SetSpecialWeapon(weapon);
             }
+        }
+        else if (Input.GetKeyDown(KeyCode.F4))
+        {
+            DisableSpecialWeapon();
         }
     }
 

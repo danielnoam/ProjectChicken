@@ -59,13 +59,11 @@ public class RailPlayer : MonoBehaviour
     private float _currentShieldHealth;
     private float _damagedCooldown;
     private Coroutine _regenShieldCoroutine;
-    private Quaternion _playerSplineRotation = Quaternion.identity;
-    private Quaternion _aimSplineRotation = Quaternion.identity;
+    private Quaternion _splineRotation = Quaternion.identity;
     
     // Public properties
     public LevelManager LevelManager => levelManager;
-    public Quaternion PlayerSplineRotation => _playerSplineRotation;
-    public Quaternion AimSplineRotation => _aimSplineRotation;
+    public Quaternion SplineRotation => _splineRotation;
     public bool AlignToSplineDirection => alignToSplineDirection;
     public int MaxHealth => maxHealth;
     public float MaxShieldHealth => maxShieldHealth;
@@ -77,6 +75,8 @@ public class RailPlayer : MonoBehaviour
     public event Action<WeaponInfo,WeaponInfo> OnSpecialWeaponSwitched;
     public event Action<WeaponInfo,float> OnBaseWeaponCooldownUpdated;
     public event Action<WeaponInfo,float> OnSpecialWeaponCooldownUpdated;
+    public event Action<WeaponInfo> OnSpecialWeaponDisabled;
+    public event Action<WeaponInfo> OnBaseWeaponSwitched;
     public event Action<float> OnWeaponHeatUpdated;
     public event Action OnWeaponOverheated;
     public event Action OnWeaponHeatReset;
@@ -119,6 +119,8 @@ public class RailPlayer : MonoBehaviour
         playerWeapon.OnWeaponHeatMiniGameWindowCreated += OnWeaponHeatMiniGameWindowCreated;
         playerWeapon.OnWeaponHeatMiniGameSucceeded +=  OnWeaponHeatMiniGameSucceeded;
         playerWeapon.OnWeaponHeatMiniGameFailed += OnWeaponHeatMiniGameFailed;
+        playerWeapon.OnSpecialWeaponDisabled += OnSpecialWeaponDisabled;
+        playerWeapon.OnBaseWeaponSwitched += OnBaseWeaponSwitched;
         playerMovement.OnDodge += OnDodge;
         playerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
         levelManager.OnBonusThresholdReached += OnMillionScoreReached;
@@ -253,9 +255,6 @@ public class RailPlayer : MonoBehaviour
         deathSfx?.Play(audioSource);
         
         OnDeath?.Invoke();
-        
-        
-        Debug.Log("Player has died!");
     }
 
     #endregion Damage ----------------------------------------------------------------------
@@ -524,30 +523,27 @@ public class RailPlayer : MonoBehaviour
     {
         return playerAiming.AimWorldPosition;
     }
+
+    public bool HasSpecialWeapon()
+    {
+        return playerWeapon.CurrentSpecialWeaponInfo != null;
+    }
     
     private void GetSplineRotations()
     {
         if (!alignToSplineDirection || !levelManager)
         {
-            _playerSplineRotation = Quaternion.identity;
-            _aimSplineRotation = Quaternion.identity;
+            _splineRotation = Quaternion.identity;
             return;
         }
+        
 
-        // Player spline rotation - for movement (uses player position)
-        Vector3 playerSplineDirection = levelManager.GetDirectionOnSpline(levelManager.CurrentPositionOnPath.position);
-        if (playerSplineDirection != Vector3.zero)
+        Vector3 splineForward = levelManager.GetDirectionOnSpline(levelManager.CurrentPositionOnPath.position);
+        
+        if (splineForward != Vector3.zero)
         {
-            Quaternion targetPlayerRotation = Quaternion.LookRotation(playerSplineDirection, Vector3.up);
-            _playerSplineRotation = Quaternion.Slerp(_playerSplineRotation, targetPlayerRotation, splineRotationSpeed * Time.deltaTime);
-        }
-
-        // Aim spline rotation - for aiming (uses enemy/crosshair position)
-        Vector3 aimSplineDirection = levelManager.GetDirectionOnSpline(levelManager.EnemyPosition);
-        if (aimSplineDirection != Vector3.zero)
-        {
-            Quaternion targetAimRotation = Quaternion.LookRotation(aimSplineDirection, Vector3.up);
-            _aimSplineRotation = Quaternion.Slerp(_aimSplineRotation, targetAimRotation, splineRotationSpeed * Time.deltaTime);
+            Quaternion targetSplineRotation = Quaternion.LookRotation(splineForward, Vector3.up);
+            _splineRotation = Quaternion.Slerp(_splineRotation, targetSplineRotation, splineRotationSpeed * Time.deltaTime);
         }
     }
 

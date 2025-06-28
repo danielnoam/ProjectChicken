@@ -15,7 +15,7 @@ public class UIManager : MonoBehaviour
     
     [Foldout("Effects")]
     [Header("General")]
-    [SerializeField] private float hudFadeDuration = 1f;
+    [SerializeField] private float hudFadeDuration = 3f;
     [SerializeField] private Color cooldownIconColor = Color.grey;
     
     [Header("Health")]
@@ -26,7 +26,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float shieldPunchStrength = 0.5f;
     
     [Header("Currency")]
-    [SerializeField] private float currencyAnimationDuration = 0.2f;
+    [SerializeField] private float currencyAnimationDuration = 0.7f;
     [SerializeField] private float currencyPunchDuration = 0.2f;
     [SerializeField] private float currencyPunchStrength = 0.2f;
     [SerializeField, Min(0), Tooltip("The difference between the previous currency and the current currency that must be reached to trigger a big currency animation")] 
@@ -49,7 +49,7 @@ public class UIManager : MonoBehaviour
     
     [Header("Overheat MiniGame")]
     [SerializeField] private float miniGameAnimationDuration = 0.2f;
-    [SerializeField] private float miniGamePunchDuration = 0.2f;
+    [SerializeField] private float miniGamePunchDuration = 0.3f;
     [SerializeField] private float miniGamePunchStrength = 0.2f;
     [SerializeField] private Color miniGameActiveColor = Color.blue;
     [SerializeField] private Color miniGameInactiveColor = Color.clear;
@@ -162,6 +162,8 @@ public class UIManager : MonoBehaviour
             player.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
             player.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
             player.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
+            player.OnBaseWeaponSwitched += OnBaseWeaponSwitched;
+            player.OnSpecialWeaponDisabled += OnSpecialWeaponDisabled;
             player.OnWeaponHeatUpdated += OnWeaponHeatUpdated;
             player.OnWeaponOverheated += OnWeaponOverheated;
             player.OnWeaponHeatReset += OnWeaponHeatReset;
@@ -194,6 +196,8 @@ public class UIManager : MonoBehaviour
             player.OnWeaponOverheated -= OnWeaponOverheated;
             player.OnWeaponHeatReset -= OnWeaponHeatReset;
             player.OnWeaponHeatMiniGameWindowCreated -= OnWeaponHeatMiniGameWindowCreated;
+            player.OnBaseWeaponSwitched -= OnBaseWeaponSwitched;
+            player.OnSpecialWeaponDisabled -= OnSpecialWeaponDisabled;
             player.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
             player.OnDodge -= OnDodge;
         }
@@ -204,7 +208,7 @@ public class UIManager : MonoBehaviour
             levelManager.OnStageChanged -= OnStageChanged;
         }
     }
-
+    
 
 
     private void Update()
@@ -393,7 +397,34 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            if (player.GetCurrentBaseWeapon() != null) playerSecondaryWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
+            if (player.GetCurrentBaseWeapon() != null)
+            {
+                playerWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
+               playerSecondaryWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
+            }
+            playerSecondaryWeaponIcon.gameObject.SetActive(false);
+        }
+    }
+    
+        
+    private void OnSpecialWeaponDisabled(WeaponInfo weapon)
+    {
+        if (player.GetCurrentBaseWeapon() != null) playerWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
+        playerSecondaryWeaponIcon.gameObject.SetActive(false);
+    }
+
+    private void OnBaseWeaponSwitched(WeaponInfo weapon)
+    {
+        if (weapon == null) return;
+        
+        if (player.HasSpecialWeapon())
+        {
+            playerSecondaryWeaponIcon.sprite = weapon.weaponData.WeaponIcon;
+            playerSecondaryWeaponIcon.gameObject.SetActive(true);
+        }
+        else
+        {
+            playerWeaponIcon.sprite = weapon.weaponData.WeaponIcon;
             playerSecondaryWeaponIcon.gameObject.SetActive(false);
         }
     }
@@ -489,6 +520,7 @@ public class UIManager : MonoBehaviour
         
         Tween.Color(playerMiniGameWindow, startValue: playerMiniGameWindow.color, endValue: miniGameInactiveColor, miniGameAnimationDuration);
     }
+
     
     private void OnUpdateCurrency(int newCurrency)
     {
