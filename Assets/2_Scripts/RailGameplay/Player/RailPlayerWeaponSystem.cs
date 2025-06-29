@@ -196,13 +196,24 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private void OnStageChanged(SOLevelStage stage)
     {
         if (!stage) return;
-        
+    
         _allowShooting = stage.AllowPlayerShooting;
 
         if (_allowShooting)
         {
-            _currentSpecialWeaponInstance?.ToggleWeaponReticle(true);
-            _baseWeaponInstance?.ToggleWeaponReticle(true);
+            // Only show special weapon reticle if there's a special weapon active
+            if (_currentSpecialWeaponInstance != null)
+            {
+                _currentSpecialWeaponInstance.ToggleWeaponReticle(true);
+                // Make sure base weapon reticle is hidden when special weapon is active
+                _baseWeaponInstance?.ToggleWeaponReticle(false);
+            }
+            else
+            {
+                // Only show base weapon reticle if no special weapon is active
+                _baseWeaponInstance?.ToggleWeaponReticle(true);
+            }
+        
             targetReticle.gameObject.SetActive(true);
         }
         else
@@ -211,7 +222,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             _baseWeaponInstance?.ToggleWeaponReticle(false);
             targetReticle.gameObject.SetActive(false);
         }
-
     }
 
 
@@ -263,8 +273,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             
             OnWeaponHeatUpdated?.Invoke(_currentHeat);
         }
-            
-            
+
+
+        _currentSpecialWeaponInstance?.ToggleWeaponReticle(false);
         UseWeapon(_baseWeaponInstance);
         _baseWeaponFireRateCooldown = _baseWeaponInstance.weaponData.FireRate;
         OnBaseWeaponCooldownUpdated?.Invoke(_baseWeaponInstance,_baseWeaponFireRateCooldown);
@@ -334,21 +345,23 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 break;
         }
             
+        _baseWeaponInstance?.ToggleWeaponReticle(false);
         UseWeapon(_currentSpecialWeaponInstance);
         _specialWeaponFireRateCooldown = _currentSpecialWeaponInstance.weaponData.FireRate;
         OnSpecialWeaponCooldownUpdated?.Invoke(CurrentSpecialWeaponInstance,_specialWeaponFireRateCooldown);
     }
     
     
+
     private void UseWeapon(WeaponInstance weaponInstance)
     {
         if (weaponInstance == null) return;
-        
-        
+    
         weaponInstance.weaponData.Fire(player, weaponInstance.weaponBarrels);
-        weaponInstance.OnWeaponUsed();
-        OnWeaponFired?.Invoke(weaponInstance);
         
+        weaponInstance.OnWeaponUsed();
+    
+        OnWeaponFired?.Invoke(weaponInstance);
     }
 
     #endregion Weapon Usage ----------------------------------------------------------------------------------------------------
@@ -609,7 +622,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         
         if (targetReticle)
         {
-            Vector3 targetReticleSize = playerAiming.CurrentAimLockTarget ? (Vector3.one * reticleSizeMultiplier) : Vector3.one * 0.75f; 
+            Vector3 targetReticleSize = playerAiming.CurrentAimLockTarget ? (Vector3.one * reticleSizeMultiplier) : Vector3.one * 0.60f; 
             targetReticle.localScale = Vector3.Lerp(targetReticle.localScale, targetReticleSize, reticleGrowSpeed * Time.deltaTime);
         }
         
@@ -630,7 +643,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void SetSpecialWeapon(WeaponInstance newWeapon)
     {
-        if (newWeapon == null) return;
+        if (newWeapon == null || _currentSpecialWeaponInstance == newWeapon) return;
         
         // Disable the previous special Weapon if it is active
         if (_currentSpecialWeaponInstance != null)

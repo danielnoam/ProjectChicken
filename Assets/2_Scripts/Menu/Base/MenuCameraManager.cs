@@ -4,6 +4,7 @@ using PrimeTween;
 using Unity.Cinemachine;
 using UnityEngine;
 
+[SelectionBase]
 public class MenuCameraManager : MonoBehaviour
 {
 

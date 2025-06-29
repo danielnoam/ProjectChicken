@@ -4,10 +4,9 @@ using Unity.Cinemachine;
 [AddComponentMenu("Cinemachine/Extensions/Rotation Offset Extension")]
 [SaveDuringPlay]
 [DisallowMultipleComponent]
-[CameraPipeline(CinemachineCore.Stage.Finalize)]
+[CameraPipeline(CinemachineCore.Stage.Aim)] // Changed from Finalize to Aim
 public class CinemachineRotationOffsetExtension : CinemachineExtension
 {
-
     [Tooltip("Additional rotation offset to apply (in euler angles)")]
     public Vector3 RotationOffset = Vector3.zero;
 
@@ -40,8 +39,8 @@ public class CinemachineRotationOffsetExtension : CinemachineExtension
 
     protected override void PostPipelineStageCallback(CinemachineVirtualCameraBase vcam, CinemachineCore.Stage stage, ref CameraState state, float deltaTime)
     {
-        // Apply the rotation offset at the Finalize stage (after all other processing)
-        if (stage == CinemachineCore.Stage.Finalize)
+        // Apply the rotation offset at the Aim stage (before blending)
+        if (stage == CinemachineCore.Stage.Aim)
         {
             Quaternion rotationOffset = Quaternion.Euler(RotationOffset);
             state.RawOrientation = state.RawOrientation * rotationOffset;

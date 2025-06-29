@@ -2,6 +2,7 @@ using System;
 using KBCore.Refs;
 using UnityEngine;
 using VInspector;
+using PrimeTween;
 
 [System.Serializable]
 public class WeaponChance 
@@ -19,16 +20,16 @@ public class WeaponChance
 }
 
 
+[SelectionBase]
 [RequireComponent(typeof(AudioSource))]
 public class Resource : MonoBehaviour
 {
-
-
     [Header("General Settings")]
-    [Tooltip("Time before the resource destroys itself (0 = unlimited time)"), SerializeField, Min(0)] private float lifetime = 10f;
-    [SerializeField, Min(0)] private float rotationSpeed = 55f;
-    [SerializeField] private float pathFollowSpeed = 8f;
-    [SerializeField, Min(0.1f)] private float transitionSmoothness = 5f;
+    [Tooltip("Time before the resource destroys itself (0 = unlimited time)"), SerializeField, Min(0)] private float lifetime = 20f;
+    [SerializeField, Min(0)] private float rotationSpeed = 45f;
+    [SerializeField, Min(0.1f)] private float acceleration = 12f;
+    [SerializeField, Min(0.1f)] private float deceleration = 4f;
+    [SerializeField] private float magnetizedSpeed = 20f;
     
     [Header("Resource Settings")]
     [SerializeField] private int scoreWorth = 50;
@@ -43,16 +44,23 @@ public class Resource : MonoBehaviour
     [SerializeField] private ParticleSystem spawnEffect;
     [SerializeField] private SOAudioEvent collectionSfx;
     [SerializeField] private ParticleSystem collectionEffect;
+    [SerializeField] private float spawnGrowDuration = 1f;
+    [SerializeField] private float magnetizedPunchStrength = 1f;
+    [SerializeField] private float magnetizedPunchDuration = 0.5f;
     
     [Header("References")]
     [SerializeField, Self] private AudioSource audioSource;
     
-    private float _currentLifetime;
+
+    private Transform _playerTransform;
     private bool _isMagnetized;
-    private float _currentMovementSpeed;
-    private float _targetMovementSpeed;
-    private Vector3 _splineOffset;
+    private float _currentLifetime;
+    private float _currentMagnetizedSpeed;
+    private float _targetMagnetizedSpeed;
     private Vector3 _rotationAxis;
+    private Tween _scaleTween;
+    private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
+    private float MovementBoundaryY => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
     
     public ResourceType ResourceType => resourceType;
     public int ScoreWorth => scoreWorth;
@@ -85,10 +93,10 @@ public class Resource : MonoBehaviour
     private void Update()
     {
         Rotate();
-        UpdateMovementSpeed();
-        MoveAlongSpline();
+        HandleMovement();
         CheckLifetime();
     }
+    
     
 
     #region State Management ---------------------------------------------------------------------------------------
@@ -104,34 +112,40 @@ public class Resource : MonoBehaviour
         }
     }
 
-    public void SetMagnetized(float magnetizedSpeed)
+    public void SetMagnetized(Transform playerTransform, float magnetDistanceRange)
     {
         _isMagnetized = true;
-        _targetMovementSpeed = magnetizedSpeed;
+        _playerTransform = playerTransform;
+        _targetMagnetizedSpeed = magnetizedSpeed;
+    
+        // Play magnetized punch effect
+        if (_scaleTween.isAlive) _scaleTween.Stop();
+        transform.localScale = Vector3.one;
+        _scaleTween = Tween.PunchScale(transform, Vector3.one * magnetizedPunchStrength, duration: magnetizedPunchDuration);
     }
     
     
     public void ReleaseFromMagnetization()
     {
         _isMagnetized = false;
-        _targetMovementSpeed = pathFollowSpeed;
+        _playerTransform = null;
+        _targetMagnetizedSpeed = 0f;
     }
     
     public void ResourceCollected()
     {
-        
         PlayCollectionEffects();
-
         Destroy(gameObject);
     }
     
     private void Initialize()
     {
-        
         _currentLifetime = lifetime;
         _isMagnetized = false;
-        _currentMovementSpeed = pathFollowSpeed;
-        _targetMovementSpeed = pathFollowSpeed;
+        _playerTransform = null;
+        _currentMagnetizedSpeed = 0f;
+        _targetMagnetizedSpeed = 0f;
+        
         _rotationAxis = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized;
         
         if (resourceType == ResourceType.SpecialWeapon && weaponChances.Length > 0)
@@ -139,7 +153,9 @@ public class Resource : MonoBehaviour
             Weapon = SelectRandomWeapon();
         }
         
-        GetSplineOffset();
+        // Check if spawn position is outside boundary and move inside if needed
+        CheckAndMoveToBoundary();
+        
         PlaySpawnEffects();
     }
 
@@ -154,63 +170,101 @@ public class Resource : MonoBehaviour
         if (rotationSpeed <= 0f) return;
         
         transform.Rotate(_rotationAxis, rotationSpeed * Time.deltaTime, Space.Self);
-        
     }
     
-    private void UpdateMovementSpeed()
-    {
-        _currentMovementSpeed = Mathf.Lerp(_currentMovementSpeed, _targetMovementSpeed, transitionSmoothness * Time.deltaTime);
-    }
-    
-    private void MoveAlongSpline()
-    {
-        if (_isMagnetized) return;
 
-        if (LevelManager.Instance)
-        {
-            // Get the spline direction at the current position
-            Vector3 splineDirection = GetSplineDirectionAtCurrentPosition();
+
+    private void CheckAndMoveToBoundary()
+    {
+        if (!LevelManager.Instance) return;
         
-            // Move in the opposite direction of the spline flow
-            Vector3 movementDirection = -splineDirection;
-            
-            // Use the current speed (which may be lerping) instead of pathFollowSpeed directly
-            transform.position += movementDirection * (_currentMovementSpeed * Time.deltaTime);
+        Vector3 constrainedPosition = ConstrainToBoundary(transform.position);
+        
+        // Only move if the position was actually constrained
+        if (Vector3.Distance(transform.position, constrainedPosition) > 0.01f)
+        {
+            transform.position = constrainedPosition;
+            Debug.Log($"Resource moved from boundary violation: {gameObject.name}");
         }
     }
-    
-    public void MoveTowardsPlayer(Vector3 playerPosition)
+
+    private Vector3 ConstrainToBoundary(Vector3 proposedPosition)
     {
-        Vector3 direction = (playerPosition - transform.position).normalized;
-        transform.position += direction * (_currentMovementSpeed * Time.deltaTime);
-    }
-    
-    private Vector3 GetSplineDirectionAtCurrentPosition()
-    {
-        if (!LevelManager.Instance) return Vector3.forward;
+        if (!LevelManager.Instance) return proposedPosition;
+
+        // Use the same reference point as the player: CurrentPositionOnPath.position
+        Vector3 splineReferencePosition = LevelManager.Instance.CurrentPositionOnPath.position;
         
-    
-        // Get the current T value on the spline based on our current position
-        float currentT = LevelManager.Instance.GetCurrentSplineT(transform.position);
-    
-        // Get the tangent (direction) at this point on the spline
-        Vector3 tangent = LevelManager.Instance.EvaluateTangentOnSpline(currentT);
-    
-        return tangent;
-    }
-    
-    private void GetSplineOffset()
-    {
-        if (LevelManager.Instance && LevelManager.Instance.CurrentPositionOnPath)
+        // Calculate the spline rotation the same way the player does
+        Vector3 splineForward = LevelManager.Instance.GetSplineTangentAtPosition(splineReferencePosition);
+        Quaternion splineRotation = splineForward != Vector3.zero ? 
+            Quaternion.LookRotation(splineForward, Vector3.up) : Quaternion.identity;
+
+        // Calculate the current offset from the player's spline position in local space
+        // Use PlayerPosition as reference (same as player movement code)
+        Vector3 playerSplinePosition = LevelManager.Instance.PlayerPosition;
+        Vector3 worldOffset = proposedPosition - playerSplinePosition;
+        Vector3 localOffset = Quaternion.Inverse(splineRotation) * worldOffset;
+
+        // Store original offset for debugging
+        Vector3 originalLocalOffset = localOffset;
+        
+        // Only clamp the X and Y components (lateral movement), preserve Z
+        float originalZ = localOffset.z;
+        localOffset.x = Mathf.Clamp(localOffset.x, -MovementBoundaryX, MovementBoundaryX);
+        localOffset.y = Mathf.Clamp(localOffset.y, -MovementBoundaryY, MovementBoundaryY);
+        localOffset.z = originalZ; // Preserve the forward/backward offset
+
+        // Convert the clamped offset back to world space
+        Vector3 constrainedWorldPosition = playerSplinePosition + (splineRotation * localOffset);
+
+        // Debug info when clamping occurs
+        if (Mathf.Abs(originalLocalOffset.x - localOffset.x) > 0.01f || Mathf.Abs(originalLocalOffset.y - localOffset.y) > 0.01f)
         {
-            _splineOffset = LevelManager.Instance.CurrentPositionOnPath.position - transform.position;
+            Debug.Log($"Resource boundary clamping: {gameObject.name} - Original local offset: {originalLocalOffset}, Clamped: {localOffset}");
+        }
+
+        return constrainedWorldPosition;
+    }
+
+    private void HandleMovement()
+    {
+        // Update magnetized speed
+        if (_isMagnetized)
+        {
+            _currentMagnetizedSpeed = Mathf.Lerp(_currentMagnetizedSpeed, _targetMagnetizedSpeed, acceleration * Time.deltaTime);
+        }
+        else if (_currentMagnetizedSpeed > 0f)
+        {
+            _currentMagnetizedSpeed = Mathf.Lerp(_currentMagnetizedSpeed, 0f, deceleration * Time.deltaTime);
+            if (_currentMagnetizedSpeed <= 0.1f)
+            {
+                _currentMagnetizedSpeed = 0f;
+            }
+        }
+
+        // Move towards player if magnetized
+        if (_currentMagnetizedSpeed > 0f && _playerTransform)
+        {
+            Vector3 playerDirection = (_playerTransform.position - transform.position).normalized;
+            Vector3 proposedPosition = transform.position + playerDirection * (_currentMagnetizedSpeed * Time.deltaTime);
+            
+            // Constrain the proposed position to boundary
+            Vector3 constrainedPosition = ConstrainToBoundary(proposedPosition);
+            transform.position = constrainedPosition;
         }
         else
         {
-            _splineOffset = Vector3.zero;
+            // Even when not magnetized, make sure we stay within bounds
+            // This handles cases where the resource might drift due to physics or other factors
+            Vector3 constrainedPosition = ConstrainToBoundary(transform.position);
+            if (Vector3.Distance(transform.position, constrainedPosition) > 0.01f)
+            {
+                transform.position = constrainedPosition;
+            }
         }
     }
-    
+
 
     #endregion Movement ---------------------------------------------------------------------------------------
     
@@ -230,6 +284,9 @@ public class Resource : MonoBehaviour
         {
             Instantiate(spawnEffect, transform.position, Quaternion.identity);
         }
+        
+        if (_scaleTween.isAlive) _scaleTween.Stop();
+        _scaleTween = Tween.Scale(transform, startValue: Vector3.zero, endValue:Vector3.one, duration: spawnGrowDuration, ease: Ease.InOutBounce);
     }
     
     private void PlayCollectionEffects()
@@ -391,6 +448,6 @@ public class Resource : MonoBehaviour
     
     
     #endregion Weapon Selection ---------------------------------------------------------------------------------------
-
+    
     
 }

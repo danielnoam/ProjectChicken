@@ -8,6 +8,8 @@ using UnityEngine.UI;
 using PrimeTween;
 using VInspector;
 
+
+[SelectionBase]
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }

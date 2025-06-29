@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
-
+[SelectionBase]
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(MenuInput))]
 public class MenuController : MonoBehaviour

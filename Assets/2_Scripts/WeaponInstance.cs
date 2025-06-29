@@ -11,14 +11,12 @@ public class WeaponInstance
     public Transform[] weaponBarrels;
     private Tween _reticleTween;
 
-    public void OnWeaponSelected()
-    {
-        weaponGfx?.gameObject.SetActive(true);
-        ToggleWeaponReticle(true);
-    }
+
     
     public void ToggleWeaponReticle(bool state)
     {
+        if (Mathf.Approximately(weaponReticle.localScale.x, (state ? 1f : 0f))) return;
+        
         if (_reticleTween.isAlive) _reticleTween.Stop();
         _reticleTween = TweenReticleSize(state ? 1f :  0f, 0.5f);
     }
@@ -26,6 +24,12 @@ public class WeaponInstance
 
     #region Events --------------------------------------------------------------------------------------
 
+    public void OnWeaponSelected()
+    {
+        weaponGfx?.gameObject.SetActive(true);
+        ToggleWeaponReticle(true);
+    }
+    
     public void OnWeaponDeselected()
     {
         weaponGfx?.gameObject.SetActive(false);
@@ -40,6 +44,8 @@ public class WeaponInstance
 
     public void OnWeaponOverheat()
     {
+        if (Mathf.Approximately(weaponReticle.localScale.x, 0f)) return;
+        
         if (_reticleTween.isAlive) _reticleTween.Stop();
         _reticleTween = PunchReticleSize(1f, 0.3f);
     }

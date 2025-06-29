@@ -27,7 +27,6 @@ public class RailPlayer : MonoBehaviour
     [Header("Resource Collection")]
     [SerializeField, Min(0)] private float resourceCollectionRadius = 2f;
     [SerializeField ,Min(0)] private float magnetRadius = 5f;
-    [SerializeField, Min(0)] private float magnetMoveSpeed = 5f;
     
     [Header("Path Following")]
     [SerializeField] private bool alignToSplineDirection = true;
@@ -368,7 +367,7 @@ public class RailPlayer : MonoBehaviour
                 if (resource && !_resourcesInRange.Contains(resource))
                 {
                     _resourcesInRange.Add(resource);
-                    resource.SetMagnetized(magnetMoveSpeed);
+                    resource.SetMagnetized(transform, magnetRadius);
                 }
             }
         }
@@ -377,8 +376,7 @@ public class RailPlayer : MonoBehaviour
         for (int i = _resourcesInRange.Count - 1; i >= 0; i--)
         {
             bool isWithinRange = Vector3.Distance(transform.position, _resourcesInRange[i].transform.position) <= magnetRadius;
-            bool isBehindPlayer = LevelManager.Instance.GetPositionOnSpline(transform.position) > LevelManager.Instance.GetPositionOnSpline(_resourcesInRange[i].transform.position);
-            if (!_resourcesInRange[i] || !isWithinRange  || isBehindPlayer)
+            if (!_resourcesInRange[i] || !isWithinRange)
             {
                 if (!_resourcesInRange[i]) continue;
                 
@@ -398,12 +396,6 @@ public class RailPlayer : MonoBehaviour
         {
             var resource = _resourcesInRange[i];
             if (!resource) continue;
-
-            // Move the resource towards the player if within magnet radius
-            if (Vector3.Distance(transform.position, resource.transform.position) <= magnetRadius)
-            {
-                resource.MoveTowardsPlayer(transform.position);
-            }
         
             // Check if the resource is within the collection radius
             if (Vector3.Distance(transform.position, resource.transform.position) <= resourceCollectionRadius)
@@ -538,7 +530,7 @@ public class RailPlayer : MonoBehaviour
         }
         
 
-        Vector3 splineForward = levelManager.GetDirectionOnSpline(levelManager.CurrentPositionOnPath.position);
+        Vector3 splineForward = levelManager.GetSplineTangentAtPosition(levelManager.CurrentPositionOnPath.position);
         
         if (splineForward != Vector3.zero)
         {

@@ -6,6 +6,7 @@ using UnityEngine;
 using VInspector;
 using Random = UnityEngine.Random;
 
+[SelectionBase]
 public class CameraManager : MonoBehaviour
 {
     public static CameraManager Instance { get; private set; }
@@ -132,6 +133,12 @@ public class CameraManager : MonoBehaviour
     {
         if (!cam) return;
         
+        if (cam == followCamera && followCameraRotateExtenstion)
+        {
+            followCameraRotateExtenstion.SetRotationOffset(Vector3.zero);
+            _currentRotationOffset = Vector2.zero;
+        }
+        
         followCamera.Priority = 0;
         introCamera.Priority = 0;
         outroCamera.Priority = 0;
@@ -198,7 +205,6 @@ public class CameraManager : MonoBehaviour
     }
     
     #endregion Camera Effects ------------------------------------------------------------------------------------------------
-
     
     
     #region Events ---------------------------------------------------------------------------------------------------------

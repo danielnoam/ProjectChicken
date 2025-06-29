@@ -283,10 +283,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c1fcc4f70b9fd2218d4d520733ce59a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifetime: 20
+  lifetime: 60
   rotationSpeed: 45
-  pathFollowSpeed: 8
-  transitionSmoothness: 3
+  acceleration: 12
+  deceleration: 4
+  magnetizedSpeed: 25
   scoreWorth: 50
   resourceType: 0
   currencyWorth: 1
@@ -297,4 +298,7 @@ MonoBehaviour:
   spawnEffect: {fileID: 0}
   collectionSfx: {fileID: 11400000, guid: 2cd4f70089f86f84aba38d1deb14b0e8, type: 2}
   collectionEffect: {fileID: 0}
+  spawnGrowDuration: 1
+  magnetizedPunchStrength: 1
+  magnetizedPunchDuration: 0.5
   audioSource: {fileID: 6884096628715778134}

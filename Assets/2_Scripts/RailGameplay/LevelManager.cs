@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using KBCore.Refs;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Splines;
@@ -8,7 +9,7 @@ using VInspector;
 
 
 
-
+[SelectionBase]
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance { get; private set; }
@@ -294,7 +295,7 @@ public class LevelManager : MonoBehaviour
     {
         if (!splineContainer || !currentPositionOnPath || !CurrentStage) return;
 
-        float currentT = GetCurrentSplineT(currentPositionOnPath.position);
+        float currentT = GetSplineParameter(currentPositionOnPath.position);
         
         // Lerp the current speed towards the target speed
         float targetSpeed = CurrentStage.PathFollowSpeed;
@@ -326,6 +327,23 @@ public class LevelManager : MonoBehaviour
 
         // Update player and enemy positions
         UpdatePlayerAndEnemyPositions(newT);
+    }
+    
+    private void UpdatePlayerAndEnemyPositions(float currentT)
+    {
+        // Calculate player position
+        float playerStageOffset = CurrentStage ? CurrentStage.PlayerPositionOffset : 0f;
+        float playerOffsetNormalized = (playerOffset + playerStageOffset) / SplineLength;
+        float playerT = (currentT + playerOffsetNormalized) % 1.0f;
+        if (playerT < 0) playerT += 1.0f;
+        PlayerPosition = splineContainer.EvaluatePosition(playerT);
+
+        // Calculate enemy position
+        float enemyStageOffset = CurrentStage ? CurrentStage.EnemyPositionOffset : 0f;
+        float enemyOffsetNormalized = (enemyOffset + enemyStageOffset) / SplineLength;
+        float enemyT = (currentT + enemyOffsetNormalized) % 1.0f;
+        if (enemyT < 0) enemyT += 1.0f;
+        EnemyPosition = splineContainer.EvaluatePosition(enemyT);
     }
     
     #endregion Spline Positinoning ---------------------------------------------------------------------------------
@@ -373,7 +391,7 @@ public class LevelManager : MonoBehaviour
     
     #region Helper ---------------------------------------------------------------------------------------------
 
-    public float GetCurrentSplineT(Vector3 point)
+    public float GetSplineParameter(Vector3 point)
     {
         if (!currentPositionOnPath || !splineContainer) return 0f;
 
@@ -381,7 +399,7 @@ public class LevelManager : MonoBehaviour
         return t;
     }
     
-    public Vector3 EvaluateTangentOnSpline(float t)
+    public Vector3 GetSplineTangent(float t)
     {
         if (!splineContainer) return Vector3.forward;
 
@@ -392,13 +410,13 @@ public class LevelManager : MonoBehaviour
         return tangent.normalized;
     }
     
-    public Vector3 GetDirectionOnSpline(Vector3 point)
+    public Vector3 GetSplineTangentAtPosition(Vector3 point)
     {
         if (!splineContainer) return Vector3.forward;
     
         // Get the current position and a slightly ahead position to calculate a direction
         Vector3 currentPos = point;
-        float currentT = GetCurrentSplineT(point);
+        float currentT = GetSplineParameter(point);
     
         // Sample a small step ahead on the spline to get a direction
         float stepSize = 0.01f; // Small step forward
@@ -409,20 +427,14 @@ public class LevelManager : MonoBehaviour
         return direction.magnitude > 0.001f ? direction : Vector3.forward;
     }
     
-    public float GetPositionOnSpline(Vector3 position)
+    public Vector3 GetClosestPointOnSpline(Vector3 worldPosition)
     {
-        if (!splineContainer) return 0f;
-
-        // Get the current T value on the spline based on the position
-        SplineUtility.GetNearestPoint(splineContainer.Spline, position, out var nearestPoint, out var positionAlongSpline);
-        
-        // Normalize the position along the spline to a value between 0 and 1
-        float normalizedPosition = positionAlongSpline / SplineLength;
-        return Mathf.Clamp01(normalizedPosition);
+        if (!splineContainer) return worldPosition;
+        SplineUtility.GetNearestPoint(splineContainer.Spline, worldPosition, out float3 nearestPoint, out float t);
+        return nearestPoint;
     }
     
-    
-    private Quaternion GetAlignedRotation(Vector3 splineTangent, Vector3 splineUp)
+    public Quaternion GetAlignedRotation(Vector3 splineTangent, Vector3 splineUp)
     {
         if (!CurrentStage) return Quaternion.identity;
 
@@ -463,7 +475,7 @@ public class LevelManager : MonoBehaviour
         return Quaternion.LookRotation(forward, up);
     }
 
-    private Vector3 GetAxisVector(Vector3 splineVector, SplineComponent.AlignAxis axis)
+    public Vector3 GetAxisVector(Vector3 splineVector, SplineComponent.AlignAxis axis)
     {
         Vector3 normalized = splineVector.normalized;
     
@@ -486,12 +498,11 @@ public class LevelManager : MonoBehaviour
         }
     }
     
-    private Vector3 GetMovementDirection(float currentT)
+    public Vector3 GetMovementDirection(float currentT)
     {
         if (!CurrentStage) return Vector3.forward;
     
         Vector3 splineTangent = splineContainer.EvaluateTangent(currentT);
-        Vector3 splineUp = splineContainer.EvaluateUpVector(currentT);
     
         switch (CurrentStage.AlignmentMode)
         {
@@ -515,27 +526,21 @@ public class LevelManager : MonoBehaviour
                 return splineTangent.normalized;
         }
     }
-
-    private void UpdatePlayerAndEnemyPositions(float currentT)
+    
+    public Vector3 GetSplineUpVector(float t)
     {
-        // Calculate player position
-        float playerStageOffset = CurrentStage ? CurrentStage.PlayerPositionOffset : 0f;
-        float playerOffsetNormalized = (playerOffset + playerStageOffset) / SplineLength;
-        float playerT = (currentT + playerOffsetNormalized) % 1.0f;
-        if (playerT < 0) playerT += 1.0f;
-        PlayerPosition = splineContainer.EvaluatePosition(playerT);
-
-        // Calculate enemy position
-        float enemyStageOffset = CurrentStage ? CurrentStage.EnemyPositionOffset : 0f;
-        float enemyOffsetNormalized = (enemyOffset + enemyStageOffset) / SplineLength;
-        float enemyT = (currentT + enemyOffsetNormalized) % 1.0f;
-        if (enemyT < 0) enemyT += 1.0f;
-        EnemyPosition = splineContainer.EvaluatePosition(enemyT);
+        if (!splineContainer) return Vector3.up;
+        return splineContainer.EvaluateUpVector(t);
     }
     
+    public Vector3 GetSplinePosition(float t)
+    {
+        if (!splineContainer) return Vector3.zero;
+        return splineContainer.EvaluatePosition(t);
+    }
     
     #endregion Helper ---------------------------------------------------------------------------------------------
-    
+
     
     
     #region Editor -----------------------------------------------------------------------------------------------
