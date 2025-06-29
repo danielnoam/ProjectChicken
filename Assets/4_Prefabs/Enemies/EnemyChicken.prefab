@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 8387795123847547033}
   - component: {fileID: 3460422942991614325}
   - component: {fileID: 7994237744549321368}
+  - component: {fileID: 2268706927551293013}
   m_Layer: 3
   m_Name: EnemyChicken
   m_TagString: Enemy
@@ -37,6 +38,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4816923827771401683}
   - {fileID: 7701586414820034552}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -342,6 +344,72 @@ MonoBehaviour:
   playerFound: 0
   currentPlayerName: None
   chickenController: {fileID: 745806696497487914}
+--- !u!114 &2268706927551293013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761269833103634017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 795ee7102bab47b4aafe69dbd9849486, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableAttacking: 1
+  attackRange: 80
+  minAttackCooldown: 5
+  currentAttackCooldown: 8
+  maxAttackCooldown: 10
+  firstAttackDelay: 1
+  firstAttackDelayVariance: 4
+  accurateShotChance: 15
+  inaccuracyRadius: 30
+  eggProjectilePrefab: {fileID: 2910271167061673307, guid: 6c123908f2916c449a315c79c13f0ce0, type: 3}
+  projectileSpeed: 60
+  firePoint: {fileID: 4816923827771401683}
+  projectileDamage: 10
+  attackSfx: {fileID: 0}
+  muzzleFlashVFX: {fileID: 0}
+  nextAttackTime: 0
+  currentCooldown: 0
+  canAttack: 0
+  distanceToPlayer: 0
+  isFirstAttack: 1
+  chickenController: {fileID: 745806696497487914}
+  audioSource: {fileID: 6802418863010759001}
+  projectileManager: {fileID: 0}
+--- !u!1 &2480365785142260913
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4816923827771401683}
+  m_Layer: 3
+  m_Name: Fire Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4816923827771401683
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2480365785142260913}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.81, z: 0.82}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3640276846923883925}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6596445950258930125
 GameObject:
   m_ObjectHideFlags: 0

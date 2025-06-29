@@ -77,8 +77,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2201409f3a268ec4facd993593460610, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelManager: {fileID: 0}
+  enemyCount: 0
+  currentStage: {fileID: 0}
   enemyHolder: {fileID: 5166719617397303585}
+  levelManager: {fileID: 0}
 --- !u!114 &7872471331430467191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -91,27 +93,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ffbeef71da710542a84b84ff7a8e19f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentFormation: 1
-  autoUpdateFormation: 1
-  formationCount: 1
-  formationPosition: 1
   boundaryPadding: 0
   formationSeparation: 1.2
   boundaryOffset: 2
   splineRotationSpeed: 5
-  vShapeCount: 19
-  squareSize: 4
-  triangleRows: 5
-  circleCount: 15
-  gridSize: {x: 6, y: 6}
-  gridFillsBoundary: 1
   horizontalSpacing: 5
   verticalSpacing: 5
   circleRadius: 5
   constrainToBoundary: 1
-  optimizeBoundaryUsage: 1
   minSpacingMultiplier: 0.1
-  maxSpacingMultiplier: 4
   vShapeBottomPadding: 5
   showGizmos: 1
   openSlotColor: {r: 0, g: 1, b: 0, a: 1}
@@ -129,3 +119,4 @@ MonoBehaviour:
   - {r: 0.5, g: 0, b: 1, a: 1}
   - {r: 0, g: 1, b: 0.5, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
+  levelManager: {fileID: 0}
