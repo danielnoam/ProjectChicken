@@ -55,14 +55,20 @@ public class MenuElementEjectButton : MenuElement
 
     protected override void OnFinishedInteraction()
     {
+        
+#if  UNITY_EDITOR
         if (Application.isEditor)
         {
             UnityEditor.EditorApplication.isPlaying = false;
+            return;
+            
         }
-        else
-        {
-            Application.Quit();
-        }
+#endif
+
+        
+        
+        
+        Application.Quit();
     }
     
     protected override void OnStopInteraction()

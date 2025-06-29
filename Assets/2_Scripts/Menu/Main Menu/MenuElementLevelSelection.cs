@@ -22,9 +22,11 @@ public class MenuElementLevelSelection : MenuElement
     [SerializeField] private TextMeshProUGUI levelNameText;
     [SerializeField] private TextMeshProUGUI levelDifficultyText;
     [SerializeField] private TextMeshProUGUI levelDescriptionText;
+    [SerializeField] private TextMeshProUGUI levelBestScoreText;
     [SerializeField] private TMPWriter levelNameWriter;
     [SerializeField] private TMPWriter levelDifficultyWriter;
     [SerializeField] private TMPWriter levelDescriptionWriter;
+    [SerializeField] private TMPWriter levelBestScoreWriter;
     [SerializeField] private Button levelButtonPrefab;
 
     private readonly List<LevelUIData> _levelUIData = new List<LevelUIData>();
@@ -66,38 +68,41 @@ public class MenuElementLevelSelection : MenuElement
                 levelButton.gameObject.name = $"Button{level.LevelName}";
                 
                 // Create the UI element container
-                var uiData = new LevelUIData(level, levelGfx, levelButton);
-                _levelUIData.Add(uiData);
+                var levelUIData = new LevelUIData(level, levelGfx, levelButton, SaveManager.GetLevelProgress(level.GetScenePath()));
+                _levelUIData.Add(levelUIData);
                 
                 // Set up button click event
-                levelButton.onClick.AddListener(() => SelectLevel(uiData));
+                levelButton.onClick.AddListener(() => SelectLevel(levelUIData));
                 
                 // Set up hover events
                 EventTrigger eventTrigger = levelButton.GetComponent<EventTrigger>();
                 if (eventTrigger)
                 {
-                    EventTrigger.Entry entry = new EventTrigger.Entry();
-                    entry.eventID = EventTriggerType.PointerEnter;
-                    entry.callback.AddListener((eventData) => ShowLevelInfo(uiData));
+                    EventTrigger.Entry entry = new EventTrigger.Entry
+                    {
+                        eventID = EventTriggerType.PointerEnter
+                    };
+                    entry.callback.AddListener((eventData) => ShowLevelInfo(levelUIData));
                     eventTrigger.triggers.Add(entry);
                     
-                    EventTrigger.Entry entry2 = new EventTrigger.Entry();
-                    entry2.eventID = EventTriggerType.PointerExit;
-                    entry2.callback.AddListener((eventData) => HideLevelInfo(uiData));
+                    EventTrigger.Entry entry2 = new EventTrigger.Entry
+                    {
+                        eventID = EventTriggerType.PointerExit
+                    };
+                    entry2.callback.AddListener((eventData) => HideLevelInfo(levelUIData));
                     eventTrigger.triggers.Add(entry2);
                 }
-            }
-            else
-            {
-                // If no button prefab, still create UI elements for consistency
-                var uiData = new LevelUIData(level, levelGfx, null);
-                _levelUIData.Add(uiData);
+                
+                
+                // check if there are needed levels
+                levelUIData.UpdateLevelUIState();
             }
         }
         
         levelNameText.text = "";
         levelDescriptionText.text = "";
         levelDifficultyText.text = "";
+        levelBestScoreText.text = "";
         ToggleLevelCanvas(false);
     }
     
@@ -150,7 +155,28 @@ public class MenuElementLevelSelection : MenuElement
         _currentlyShownLevel = levelUI;
 
         levelNameText.text = levelUI.soLevel.LevelName;
-        levelDescriptionText.text = levelUI.soLevel.LevelDescription;
+
+
+        if (levelUI.levelButton.interactable)
+        {
+            levelDescriptionText.text = levelUI.soLevel.LevelDescription;
+
+            levelBestScoreText.text = levelUI.isCompleted ? $"Best Score: \n{levelUI.bestScore:D7}" : $"";
+        }
+        else
+        {
+            levelBestScoreText.text = $"";
+            levelDescriptionText.text = $"Complete these levels to unlock:";
+            
+            foreach (var level in levelUI.soLevel.LevelsToComplete)
+            {
+                levelDescriptionText.text += $"\n {level.name}" ;
+            }
+
+        }
+
+        
+        
         switch (levelUI.soLevel.LevelDifficulty)
         {
             case LevelDifficulty.None:
@@ -207,6 +233,7 @@ public class MenuElementLevelSelection : MenuElement
         levelNameText.text = "";
         levelDescriptionText.text = "";
         levelDifficultyText.text = "";
+        levelBestScoreText.text = "";
     }
 
 
@@ -243,6 +270,7 @@ public class MenuElementLevelSelection : MenuElement
         levelDifficultyWriter.ResetWriter();
         levelDescriptionWriter.ResetWriter();
         levelNameWriter.RestartWriter();
+        levelBestScoreWriter.RestartWriter();
     
         yield return new WaitForSeconds(0.2f);
         levelDifficultyWriter.RestartWriter();

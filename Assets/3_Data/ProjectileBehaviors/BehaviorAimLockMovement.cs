@@ -7,10 +7,12 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     [SerializeField, Min(0)] private float straightPhaseDuration = 0.5f;
     [SerializeField, Min(0)] private float bendPhaseDuration = 0.3f;
     [SerializeField, Min(0)] private float targetPhaseDuration = 2f;
+    [SerializeField] private bool recheckTarget = true;
+    [SerializeField] private int recheckCount = 3;
+    [SerializeField] private float recheckRadius = 10f;
 
     
     private float _startTime;
-    private Vector3 _startPosition;
     private Vector3 _targetPosition;
     private Vector3 _lastTargetDirection;
     private Vector3 _randomBendDirection;
@@ -18,6 +20,9 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     private Vector3 _bendPhaseStartPosition;
     private Vector3 _targetPhaseStartPosition;
     private bool _hasTarget;
+    private int _recheckedTarget;
+    private ChickenController _lastTarget;
+    private ChickenController _currentTarget;
     
     private enum MovementPhase
     {
@@ -28,26 +33,7 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     
     public override void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
-        _startTime = Time.time;
-        _startPosition = projectile.transform.position;
-        _currentDirection = projectile.StartDirection.normalized;
-        _lastTargetDirection = _currentDirection;
-        _hasTarget = projectile.Target;
-        
-        if (_hasTarget)
-        {
-            _targetPosition = projectile.Target.transform.position;
-        }
-        
-        // Generate random bend direction (perpendicular to current direction for more natural curve)
-        Vector3 perpendicular = Vector3.Cross(_currentDirection, Vector3.up);
-        if (perpendicular.magnitude < 0.1f) // Handle case where direction is parallel to up
-        {
-            perpendicular = Vector3.Cross(_currentDirection, Vector3.forward);
-        }
-        
-        float randomAngle = UnityEngine.Random.Range(-90f, 90f);
-        _randomBendDirection = Quaternion.AngleAxis(randomAngle, _currentDirection) * perpendicular.normalized;
+        InitializeMovement(projectile);
     }
 
     public override void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner)
@@ -91,8 +77,52 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     }
     
     
+
+    private void InitializeMovement(PlayerProjectile projectile)
+    {
+        _startTime = Time.time;
+        _currentDirection = projectile.StartDirection.normalized;
+        _lastTargetDirection = _currentDirection;
+        
+        if (_currentTarget)
+        {
+            _hasTarget = true;
+            _lastTarget = _currentTarget;
+        }
+        else
+        {
+            _hasTarget = projectile.Target;
+            _lastTarget = projectile.Target;
+            _currentTarget = projectile.Target;
+        }
+        
+        // Reset phase positions
+        _bendPhaseStartPosition = Vector3.zero;
+        _targetPhaseStartPosition = Vector3.zero;
+        
+        if (_hasTarget && _currentTarget)
+        {
+            _targetPosition = _currentTarget.transform.position;
+        }
+        
+        // Generate new random bend direction
+        GenerateRandomBendDirection();
+    }
     
-        private MovementPhase GetCurrentPhase(float elapsedTime)
+
+    private void GenerateRandomBendDirection()
+    {
+        Vector3 perpendicular = Vector3.Cross(_currentDirection, Vector3.up);
+        if (perpendicular.magnitude < 0.1f)
+        {
+            perpendicular = Vector3.Cross(_currentDirection, Vector3.forward);
+        }
+        
+        float randomAngle = UnityEngine.Random.Range(-90f, 90f);
+        _randomBendDirection = Quaternion.AngleAxis(randomAngle, _currentDirection) * perpendicular.normalized;
+    }
+    
+    private MovementPhase GetCurrentPhase(float elapsedTime)
     {
         if (elapsedTime < straightPhaseDuration)
         {
@@ -143,10 +173,10 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
             _targetPhaseStartPosition = projectile.transform.position;
         }
         
-        if (_hasTarget && projectile.Target)
+        if (_hasTarget && _currentTarget)
         {
             // Update target position in case it moved
-            _targetPosition = projectile.Target.transform.position;
+            _targetPosition = _currentTarget.transform.position;
             _lastTargetDirection = (_targetPosition - projectile.transform.position).normalized;
             
             float targetProgress = (elapsedTime - straightPhaseDuration - bendPhaseDuration) / targetPhaseDuration;
@@ -161,9 +191,28 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
             Vector3 movement = blendedDirection * (moveSpeed * Time.fixedDeltaTime);
             return projectile.Rigidbody.position + movement;
         }
+        else if (recheckTarget && _recheckedTarget < recheckCount)
+        {
+            // Check for target again if it's not set
+            ChickenController newTarget = owner.GetTarget(recheckRadius);
+            if (newTarget)
+            {
+                _currentTarget = newTarget;
+                _hasTarget = true;
+                _lastTarget = newTarget;
+                _recheckedTarget = 0;
+                InitializeMovement(projectile);
+                return projectile.Rigidbody.position; 
+            }
+            else
+            {
+                _recheckedTarget += 1;
+                return projectile.Rigidbody.position;
+            }
+        } 
         else
         {
-            // No target - continue with  direction
+            // continue with last direction
             Vector3 movement = _lastTargetDirection * (moveSpeed * Time.fixedDeltaTime);
             return projectile.Rigidbody.position + movement;
         }
