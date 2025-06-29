@@ -31,12 +31,12 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
         TowardTarget
     }
     
-    public override void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner)
+    public override void OnSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
         InitializeMovement(projectile);
     }
 
-    public override void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner)
+    public override void OnMovement(PlayerProjectile projectile, RailPlayer owner)
     {
         float elapsedTime = Time.time - _startTime;
         MovementPhase currentPhase = GetCurrentPhase(elapsedTime);
@@ -61,17 +61,17 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     }
     
 
-    public override void OnBehaviorCollision(PlayerProjectile projectile, RailPlayer owner , ChickenController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner , ChickenController collision)
     {
 
     }
 
-    public override void OnBehaviorDestroy(PlayerProjectile projectile, RailPlayer owner )
+    public override void OnDestroy(PlayerProjectile projectile, RailPlayer owner )
     {
 
     }
 
-    public override void OnBehaviorDrawGizmos(PlayerProjectile projectile, RailPlayer owner )
+    public override void OnDrawGizmos(PlayerProjectile projectile, RailPlayer owner )
     {
 
     }

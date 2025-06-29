@@ -6,10 +6,10 @@ using UnityEngine;
 
 public abstract class ProjectileBehaviorBase
 {
-    public abstract void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner);
-    public abstract void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner);
-    public abstract void OnBehaviorCollision(PlayerProjectile projectile,RailPlayer owner, ChickenController collision);
-    public abstract void OnBehaviorDestroy(PlayerProjectile projectile, RailPlayer owner);
-    public abstract void OnBehaviorDrawGizmos(PlayerProjectile projectile, RailPlayer owner);
+    public abstract void OnSpawn(PlayerProjectile projectile, RailPlayer owner);
+    public abstract void OnMovement(PlayerProjectile projectile, RailPlayer owner);
+    public abstract void OnCollision(PlayerProjectile projectile,RailPlayer owner, ChickenController collision);
+    public abstract void OnDestroy(PlayerProjectile projectile, RailPlayer owner);
+    public abstract void OnDrawGizmos(PlayerProjectile projectile, RailPlayer owner);
 }
 

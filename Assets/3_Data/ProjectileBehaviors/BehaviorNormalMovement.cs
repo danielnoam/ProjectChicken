@@ -21,9 +21,8 @@ public class BehaviorNormalMovement : ProjectileBehaviorBase
     private float _previousDistanceToTarget;
     private bool _hasPassedTarget;
 
-    public override void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner)
+    public override void OnSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
-        // Initialize properties
         _startTime = Time.time;
         
         if (useAimAssist && projectile.Target)
@@ -33,23 +32,23 @@ public class BehaviorNormalMovement : ProjectileBehaviorBase
         }
     }
 
-    public override void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner)
+    public override void OnMovement(PlayerProjectile projectile, RailPlayer owner)
     {
 
         Vector3 moveDirection = projectile.StartDirection;
         float currentMoveSpeed = moveSpeed;
         
-        // Handle speed stagger
+
         if (useSpeedStagger)
         {
             float normalizedStaggerTime = (Time.time - _startTime) / speedStaggerTime;
             currentMoveSpeed = moveSpeed * staggerSpeedCurve.Evaluate(normalizedStaggerTime);
         }
         
-        // Handle aim assist
+
         if (useAimAssist && projectile.Target && !_hasPassedTarget)
         {
-            // Check if we passed the target
+
             float currentDistance = Vector3.Distance(projectile.transform.position, projectile.Target.transform.position);
             if (currentDistance > _previousDistanceToTarget)
             {
@@ -57,7 +56,6 @@ public class BehaviorNormalMovement : ProjectileBehaviorBase
             }
             else
             {
-                // Calculate aim-assisted direction
                 Vector3 targetDirection = (projectile.Target.transform.position - projectile.transform.position).normalized;
                 moveDirection = Vector3.Lerp(projectile.StartDirection, targetDirection, aimAssistStrength / 100f);
                 
@@ -67,11 +65,10 @@ public class BehaviorNormalMovement : ProjectileBehaviorBase
             _previousDistanceToTarget = currentDistance;
         }
         
-        // Apply movement
         projectile.Rigidbody?.MovePosition(projectile.Rigidbody.position + moveDirection * (currentMoveSpeed * Time.fixedDeltaTime));
     }
 
-    public override void OnBehaviorCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision) { }
-    public override void OnBehaviorDestroy(PlayerProjectile projectile, RailPlayer owner) { }
-    public override void OnBehaviorDrawGizmos(PlayerProjectile projectile, RailPlayer owner) { }
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision) { }
+    public override void OnDestroy(PlayerProjectile projectile, RailPlayer owner) { }
+    public override void OnDrawGizmos(PlayerProjectile projectile, RailPlayer owner) { }
 }

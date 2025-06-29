@@ -6,9 +6,9 @@ using UnityEngine;
 
 public abstract class HitscanBehaviorBase
 {
-    public abstract void OnBehaviorStart(SOWeapon weapon, RailPlayer owner, ChickenController target = null);
-    public abstract void OnBehaviorHit(SOWeapon weapon,RailPlayer owner, ChickenController collision);
-    public abstract void OnBehaviorEnd(SOWeapon weapon, RailPlayer owner, ChickenController target = null);
-    public abstract void OnBehaviorDrawGizmos(SOWeapon weapon, RailPlayer owner, ChickenController target = null);
+    public abstract void OnStart(SOWeapon weapon, RailPlayer owner, ChickenController target = null);
+    public abstract void OnHit(SOWeapon weapon,RailPlayer owner, ChickenController collision);
+    public abstract void OnEnd(SOWeapon weapon, RailPlayer owner, ChickenController target = null);
+    public abstract void OnDrawGizmos(SOWeapon weapon, RailPlayer owner, ChickenController target = null);
 }
 

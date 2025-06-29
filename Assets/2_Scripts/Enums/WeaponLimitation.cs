@@ -1,4 +1,4 @@
-﻿public enum WeaponLimitationType
+﻿public enum WeaponLimitation
 {
     None,
     HeatBased,

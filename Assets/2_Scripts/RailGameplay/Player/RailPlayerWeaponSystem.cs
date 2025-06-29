@@ -245,7 +245,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         if (_baseWeaponInstance == null || !(_baseWeaponFireRateCooldown <= 0)) return;
         
-        if (_baseWeaponInstance.weaponData.WeaponLimitationType == WeaponLimitationType.HeatBased)
+        if (_baseWeaponInstance.weaponData.WeaponLimitation == WeaponLimitation.HeatBased)
         {
             if (IsOverHeated)
             { 
@@ -286,12 +286,12 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (_currentSpecialWeaponInstance == null || !(_specialWeaponFireRateCooldown <= 0)) return;
         
         
-        switch (_currentSpecialWeaponInstance.weaponData.WeaponLimitationType)
+        switch (_currentSpecialWeaponInstance.weaponData.WeaponLimitation)
         {
-            case WeaponLimitationType.AmmoBased when _specialWeaponAmmo > 0:
+            case WeaponLimitation.AmmoBased when _specialWeaponAmmo > 0:
                 _specialWeaponAmmo -= 1;
                 break;
-            case WeaponLimitationType.AmmoBased when _specialWeaponAmmo <= 0:
+            case WeaponLimitation.AmmoBased when _specialWeaponAmmo <= 0:
             {
                 if (!specialWeaponsArePermanent)
                 {
@@ -299,14 +299,14 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 }
                 return;
             }
-            case WeaponLimitationType.TimeBased when _specialWeaponTime <= 0:
+            case WeaponLimitation.TimeBased when _specialWeaponTime <= 0:
                     
                 if (!specialWeaponsArePermanent)
                 {
                     DisableSpecialWeapon();
                 }
                 return;
-            case WeaponLimitationType.HeatBased:
+            case WeaponLimitation.HeatBased:
             {
 
                 if (IsOverHeated)
@@ -415,7 +415,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void UpdateWeaponTime()
     {
-        if (_currentSpecialWeaponInstance != null && _currentSpecialWeaponInstance.weaponData.WeaponLimitationType == WeaponLimitationType.TimeBased)
+        if (_currentSpecialWeaponInstance != null && _currentSpecialWeaponInstance.weaponData.WeaponLimitation == WeaponLimitation.TimeBased)
         {
 
             if (_specialWeaponTime > 0)
@@ -616,7 +616,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         if (reticleHolder)
         {
-            reticleHolder.position = Vector3.Lerp(reticleHolder.position, playerAiming.AimWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
+            reticleHolder.position = Vector3.Lerp(reticleHolder.position,playerAiming.AimWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
             reticleHolder.rotation = player.AlignToSplineDirection ? player.SplineRotation : Quaternion.identity;
         }
         
@@ -655,12 +655,12 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         // Set the new Weapon
         _currentSpecialWeaponInstance = newWeapon;
         _specialWeaponFireRateCooldown = 0;
-        switch (newWeapon.weaponData.WeaponLimitationType)
+        switch (newWeapon.weaponData.WeaponLimitation)
         {
-            case WeaponLimitationType.AmmoBased:
+            case WeaponLimitation.AmmoBased:
                 _specialWeaponAmmo = newWeapon.weaponData.AmmoLimit;
                 break;
-            case WeaponLimitationType.TimeBased:
+            case WeaponLimitation.TimeBased:
                 _specialWeaponTime = newWeapon.weaponData.TimeLimit;
                 break;
         }

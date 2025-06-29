@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Unity.Cinemachine;
 using UnityEngine;
 using VInspector;
-
 
 
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Scriptable Objects/New Weapon")]
@@ -14,10 +12,10 @@ public class SOWeapon : ScriptableObject
     [SerializeField] private string weaponDescription = "A Weapon";
     [SerializeField] private Sprite weaponWeaponIcon;
     [SerializeField] private WeaponType weaponType = WeaponType.Projectile;
-    [SerializeField] private WeaponLimitationType weaponLimitationType = WeaponLimitationType.None;
-    [SerializeField, Min(0), ShowIf("weaponLimitationType", WeaponLimitationType.HeatBased)] private float heatPerShot = 1f;[EndIf]
-    [SerializeField, Min(0), ShowIf("weaponLimitationType", WeaponLimitationType.TimeBased)] private float timeLimit = 10f;[EndIf]
-    [SerializeField, Min(0), ShowIf("weaponLimitationType", WeaponLimitationType.AmmoBased)] private float ammoLimit = 3f;[EndIf]
+    [SerializeField] private WeaponLimitation weaponLimitation = global::WeaponLimitation.None;
+    [SerializeField, Min(0), ShowIf("weaponLimitation", global::WeaponLimitation.HeatBased)] private float heatPerShot = 1f;[EndIf]
+    [SerializeField, Min(0), ShowIf("weaponLimitation", global::WeaponLimitation.TimeBased)] private float timeLimit = 10f;[EndIf]
+    [SerializeField, Min(0), ShowIf("weaponLimitation", global::WeaponLimitation.AmmoBased)] private float ammoLimit = 3f;[EndIf]
     [SerializeField, Min(0)] private float damage = 10f;
     [SerializeField, Min(0)] private float fireRate = 1f;
     [SerializeField, Min(0), Tooltip("0 = Means infinite targets")] private int maxTargets = 1;
@@ -59,7 +57,7 @@ public class SOWeapon : ScriptableObject
     public string WeaponName => weaponName;
     public string WeaponDescription => weaponDescription;
     public Sprite WeaponIcon => weaponWeaponIcon;
-    public WeaponLimitationType WeaponLimitationType => weaponLimitationType;
+    public WeaponLimitation WeaponLimitation => weaponLimitation;
     public WeaponType WeaponType => weaponType;
     public float Damage => damage;
     public float FireRate => fireRate;
@@ -107,45 +105,34 @@ public class SOWeapon : ScriptableObject
     {
         if (!playerProjectilePrefab) return;
         
-        
-        if (maxTargets == 1) // If we only want to target one enemy
+        if (maxTargets == 1)
         {
             SpawnProjectile(owner, position, owner.GetTarget(targetCheckRadius));
             
         } 
-        else // If we want to target multiple enemies
+        else
         {
-
-            // Create a list of enemies
-            ChickenController[] enemies = Array.Empty<ChickenController>();
-            
-            // Get the right number of targets
-            if (maxTargets <= 0)
+            ChickenController[] enemies = maxTargets switch
             {
-                enemies = owner.GetAllTargets(999, targetCheckRadius);
-            } 
-            else if (maxTargets > 1)
-            {
-                enemies = owner.GetAllTargets(maxTargets, targetCheckRadius);
-            }
+                0 => owner.GetAllTargets(999, targetCheckRadius),
+                > 1 => owner.GetAllTargets(maxTargets, targetCheckRadius),
+                _ => Array.Empty<ChickenController>()
+            };
 
-            
-            // Attack all enemies in the list
             if (enemies.Length > 0)
             {
-                foreach (ChickenController target in enemies)
+                foreach (ChickenController enemy in enemies)
                 {
-                    if (target)
+                    if (enemy)
                     {
-                        SpawnProjectile(owner, position, target);
+                        SpawnProjectile(owner, position, enemy);
                     }
                 }
             }
-            else // If no enemies were found, just spawn a projectile without a target
+            else
             {
                 SpawnProjectile(owner, position, null);
             }
-
         }
         
     }
@@ -153,13 +140,8 @@ public class SOWeapon : ScriptableObject
     
     private void SpawnProjectile(RailPlayer owner, Vector3 spawnPosition, ChickenController target)
     {
-        // Instantiate the base projectile
         PlayerProjectile projectile = Instantiate(playerProjectilePrefab, spawnPosition, Quaternion.identity);
-        
-        
-        // Initialize the projectile
         projectile.SetUpProjectile(this, owner, target);
-        
     }
     
 
@@ -173,77 +155,52 @@ public class SOWeapon : ScriptableObject
 
     private void Hitscan(RailPlayer owner, Vector3 startPosition)
     {
-        
-        // Play spawn effect
         PlayFireEffect(startPosition, Quaternion.identity);
         
         foreach (var behavior in hitscanBehaviors)
         {
-            behavior.OnBehaviorStart(this, owner);
+            behavior.OnStart(this, owner);
         }
 
-
-        // Get enemy target
+        
         if (maxTargets == 1)
         {
             ChickenController enemy = owner.GetTarget(targetCheckRadius);
             
             if (enemy)
             {
-
                 foreach (var behavior in hitscanBehaviors)
                 {
-                    behavior.OnBehaviorHit(this, owner, enemy);
+                    behavior.OnHit(this, owner, enemy);
                 }
                 
-                // Apply damage
                 enemy.TakeDamage(damage);
-                
-            
-                // Play impact effect
                 PlayImpactEffect(enemy.transform.position, Quaternion.identity);
             }
         } 
         else
         {
-
-            // Create a list of enemies
-            ChickenController[] enemies = Array.Empty<ChickenController>();
-            
-            // Get the right number of targets
-            if (maxTargets <= 0)
+            ChickenController[] enemies = maxTargets switch
             {
-                enemies = owner.GetAllTargets(999, targetCheckRadius);
-            } 
-            else if (maxTargets > 1)
+                0 => owner.GetAllTargets(999, targetCheckRadius),
+                > 1 => owner.GetAllTargets(maxTargets, targetCheckRadius),
+                _ => Array.Empty<ChickenController>()
+            };
+            foreach (ChickenController enemy in enemies)
             {
-                enemies = owner.GetAllTargets(maxTargets, targetCheckRadius);
-            }
-
-            
-            // Attack all enemies in the list
-            foreach (ChickenController target in enemies)
-            {
-                if (target)
+                if (!enemy) continue;
+                foreach (var behavior in hitscanBehaviors)
                 {
-                    
-                    foreach (var behavior in hitscanBehaviors)
-                    {
-                        behavior.OnBehaviorHit(this, owner, target);
-                    }
-                    
-                    // Apply damage
-                    target.TakeDamage(damage);
-                
-                    // Play impact effect
-                    PlayImpactEffect(target.transform.position, Quaternion.identity);
+                    behavior.OnHit(this, owner, enemy);
                 }
+                enemy.TakeDamage(damage);
+                PlayImpactEffect(enemy.transform.position, Quaternion.identity);
             }
         }
         
         foreach (var behavior in hitscanBehaviors)
         {
-            behavior.OnBehaviorEnd(this, owner);
+            behavior.OnEnd(this, owner);
         }
     }
 

@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 108d4100b9f6ed44893c1bf888d0db7a, type: 3}
-  m_Name: MissileWeapon
+  m_Name: MissileWeaponBase
   m_EditorClassIdentifier: 
   weaponName: Missile Weapon
   weaponDescription: Boom goes the chicken!
   weaponWeaponIcon: {fileID: 21300000, guid: 54157cd17f3265ed9b800bef9c472a94, type: 3}
   weaponType: 0
-  weaponLimitationType: 1
+  weaponLimitation: 1
   heatPerShot: 35
   timeLimit: 10
   ammoLimit: 5
-  damage: 55
+  damage: 35
   fireRate: 1
   maxTargets: 1
   targetCheckRadius: 4
@@ -31,7 +31,6 @@ MonoBehaviour:
   - rid: 2319611325492494601
   - rid: 2319611325492494602
   - rid: 4758515269536055580
-  - rid: 2319611688567439447
   hitscanBehaviors: []
   fireSound: {fileID: 11400000, guid: 65200ec152ef8d74fb474ec1f37a6549, type: 2}
   fireEffectPrefab: {fileID: 0}
@@ -91,31 +90,6 @@ MonoBehaviour:
         maxForce: 45
         stunChance: 25
         maxStunTime: 2
-    - rid: 2319611688567439447
-      type: {class: BehaviorSpawnProjectilesOnStart, ns: , asm: Assembly-CSharp}
-      data:
-        targetRadius: 10
-        spawnRadius: 1
-        maxProjectiles: 5
-        projectileDamage: 25
-        projectilePrefab: {fileID: 6825391653092111716, guid: a68a7f88b92bbe947afd6a143f8e5792, type: 3}
-        projectileBehaviors:
-        - rid: 2319611688567439448
-        - rid: 2319611688567439449
-    - rid: 2319611688567439448
-      type: {class: BehaviorAimLockMovement, ns: , asm: Assembly-CSharp}
-      data:
-        moveSpeed: 50
-        straightPhaseDuration: 0.005
-        bendPhaseDuration: 0.02
-        targetPhaseDuration: 3
-        recheckTarget: 1
-        recheckCount: 3
-        recheckRadius: 10
-    - rid: 2319611688567439449
-      type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
-      data:
-        pushForce: 10
     - rid: 4758515269536055580
       type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
       data:

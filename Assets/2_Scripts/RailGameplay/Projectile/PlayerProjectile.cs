@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using KBCore.Refs;
 using UnityEngine;
 
@@ -9,30 +10,29 @@ public class PlayerProjectile : MonoBehaviour
 {
     
     [Header("References")]
-    [SerializeField, Self] private AudioSource audioSource;
-    [SerializeField, Self] private Rigidbody rigidBody;
+    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
+    [SerializeField, Self, HideInInspector] private Rigidbody rigidBody;
+    private RailPlayer _owner;
+    private float _lifetime;
+    private bool _isInitialized;
+    private List<ProjectileBehaviorBase> _projectileBehaviors;
     
     
     public SOWeapon Weapon { get; private set; }
-    public RailPlayer Owner { get; private set;  }
     public ChickenController Target { get; private set;  }
     public Vector3 StartDirection { get; private set; }
-    public float Damage { get; private set; }
-    public float Lifetime { get; private set; }
-    public bool IsInitialized { get; private set; }
-
-    public List<ProjectileBehaviorBase> ProjectileSpecificBehaviors { get; private set; }
-    
-    public AudioSource AudioSource => audioSource;
     public Rigidbody Rigidbody => rigidBody;
 
 
-    private void OnValidate() { this.ValidateRefs(); }
+    private void OnValidate()
+    {
+        this.ValidateRefs();
+    }
     
 
     private void Update()
     {
-        if (!IsInitialized) return;
+        if (!_isInitialized) return;
         
         CheckLiftTime();
     }
@@ -40,37 +40,35 @@ public class PlayerProjectile : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!IsInitialized) return;
+        if (!_isInitialized) return;
         
-        ApplyMovementBehaviors(this, Owner);
+        foreach (var behavior in _projectileBehaviors)
+        {
+            behavior.OnMovement(this, _owner);
+        }
     }
 
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!IsInitialized) return;
+        if (!_isInitialized) return;
         
         if (other.TryGetComponent(out ChickenController collision))
         {
-            // Apply custom behaviors on collision
-            ApplyCollisionBehaviors(this, Owner, collision);
-        
-            // Play impact effect
-            Weapon?.PlayImpactEffect(transform.position, Quaternion.identity);
-        
-            // Apply damage to the enemy object
-            collision.TakeDamage(Damage);
-        
-        
-            // Destroy the projectile on impact
+            Weapon.PlayImpactEffect(transform.position, Quaternion.identity);
+            collision.TakeDamage(Weapon.Damage);
+            foreach (var behavior in _projectileBehaviors)
+            {
+                behavior.OnCollision(this, _owner, collision);
+            }
             DestroyProjectile();
         }
     }
     
     private void CheckLiftTime()
     {
-        Lifetime -= Time.deltaTime;
-        if (Lifetime <= 0f)
+        _lifetime -= Time.deltaTime;
+        if (_lifetime <= 0f)
         {
             DestroyProjectile();
         }
@@ -79,10 +77,11 @@ public class PlayerProjectile : MonoBehaviour
     
     private void DestroyProjectile()
     {
-        // Apply custom behaviors on destroy
-        ApplyDestroyBehaviors(this, Owner);
-        
-        // Destroy the projectile object
+        foreach (var behavior in _projectileBehaviors)
+        {
+            behavior.OnDestroy(this, _owner);
+        }
+        _isInitialized = false;
         Destroy(gameObject);
     }
 
@@ -93,77 +92,56 @@ public class PlayerProjectile : MonoBehaviour
 
     public void SetUpProjectile(SOWeapon weapon, RailPlayer player, ChickenController target)
     {
-        if (IsInitialized) return;
-    
-        // Set up the projectile
-        Weapon = weapon;
-        Owner = player;
-    
-        // Create unique behavior instances for this projectile
-        ProjectileSpecificBehaviors = CreateUniqueBehaviorInstances(weapon.ProjectileBehaviors);
+        if (_isInitialized) return;
         
-        Lifetime = weapon.ProjectileLifetime;
-        Damage = weapon.Damage;
+        Weapon = weapon;
+        _owner = player;
+        _projectileBehaviors = CreateUniqueBehaviorInstances(weapon.ProjectileBehaviors);
+        _lifetime = weapon.ProjectileLifetime;
         StartDirection = player.GetAimDirectionFromBarrelPosition(transform.position, weapon.ConvergenceMultiplier);
         rigidBody.rotation = Quaternion.LookRotation(StartDirection);
         Target = target;
-        IsInitialized = true;
-    
-        // Play the fire effect
-        weapon.PlayFireEffect(transform.position, Quaternion.identity, AudioSource);
+        weapon.PlayFireEffect(transform.position, Quaternion.identity, audioSource);
+        foreach (var behavior in _projectileBehaviors)
+        {
+            behavior.OnSpawn(this, _owner);
+        }
         
-        // Apply custom behaviors on spawn
-        ApplySpawnBehaviors(this, player);
+        _isInitialized = true;
     }
     
-    public void SetUpMiniProjectile(List<ProjectileBehaviorBase> projectileBehaviors,float damage, SOWeapon weapon, RailPlayer player, ChickenController target)
+    public void SetUpMiniProjectile(List<ProjectileBehaviorBase> projectileBehaviors, SOWeapon weapon, RailPlayer player, ChickenController target)
     {
-        if (IsInitialized) return;
-    
-        // Set up the projectile
+        if (_isInitialized) return;
+
         Weapon = weapon;
-        Owner = player;
-    
-        // Create unique behavior instances for this projectile
-        ProjectileSpecificBehaviors = CreateUniqueBehaviorInstances(projectileBehaviors);
-        
-        Lifetime = weapon.ProjectileLifetime;
-        Damage = damage;
+        _owner = player;
+        _projectileBehaviors = CreateUniqueBehaviorInstances(projectileBehaviors);
+        _lifetime = weapon.ProjectileLifetime;
         StartDirection = player.GetAimDirectionFromBarrelPosition(transform.position, weapon.ConvergenceMultiplier);
         rigidBody.rotation = Quaternion.LookRotation(StartDirection);
         Target = target;
-        IsInitialized = true;
-    
-        // Play the fire effect
-        weapon.PlayFireEffect(transform.position, Quaternion.identity, AudioSource);
+        weapon.PlayFireEffect(transform.position, Quaternion.identity, audioSource);
+        foreach (var behavior in _projectileBehaviors)
+        {
+            behavior.OnSpawn(this, _owner);
+        }
         
-        // Apply custom behaviors on spawn
-        ApplySpawnBehaviors(this, player);
+        _isInitialized = true;
     }
     
     
     private List<ProjectileBehaviorBase> CreateUniqueBehaviorInstances(List<ProjectileBehaviorBase> originalBehaviors)
     {
-        List<ProjectileBehaviorBase> uniqueBehaviors = new List<ProjectileBehaviorBase>();
-    
-        foreach (ProjectileBehaviorBase originalBehavior in originalBehaviors)
-        {
-            // Create a copy of the behavior for this specific projectile
-            ProjectileBehaviorBase behaviorCopy = CreateBehaviorCopy(originalBehavior);
-            uniqueBehaviors.Add(behaviorCopy);
-        }
-    
-        return uniqueBehaviors;
+        return originalBehaviors.Select(CreateBehaviorCopy).ToList();
     }
 
     private ProjectileBehaviorBase CreateBehaviorCopy(ProjectileBehaviorBase original)
     {
-        // Use reflection to create a new instance of the behavior type
-        System.Type behaviorType = original.GetType();
-        ProjectileBehaviorBase copy = (ProjectileBehaviorBase)System.Activator.CreateInstance(behaviorType);
-    
-        // Copy serialized fields from original to copy using reflection
-        System.Reflection.FieldInfo[] fields = behaviorType.GetFields(
+        var behaviorType = original.GetType();
+        var copy = (ProjectileBehaviorBase)Activator.CreateInstance(behaviorType);
+        
+        var fields = behaviorType.GetFields(
             System.Reflection.BindingFlags.NonPublic | 
             System.Reflection.BindingFlags.Public | 
             System.Reflection.BindingFlags.Instance
@@ -171,64 +149,14 @@ public class PlayerProjectile : MonoBehaviour
     
         foreach (var field in fields)
         {
-            // Skip fields that shouldn't be copied
             if (field.IsNotSerialized || field.IsStatic || field.IsLiteral) continue;
-        
-            // Copy the field value
             field.SetValue(copy, field.GetValue(original));
         }
     
         return copy;
     }
 
-    #endregion
-
-    
-    
-    #region Projectile Behaviors Calls ---------------------------------------------------------------
-
-    private void ApplySpawnBehaviors(PlayerProjectile projectile, RailPlayer owner )
-    {
-        foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
-        {
-            behavior.OnBehaviorSpawn(projectile, owner);
-        }
-    }
-    
-    
-    private void ApplyMovementBehaviors(PlayerProjectile projectile, RailPlayer owner)
-    {
-        foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
-        {
-            behavior.OnBehaviorMovement(projectile, owner);
-        }
-    }
-    
-    private void ApplyCollisionBehaviors(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
-    {
-        foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
-        {
-            behavior.OnBehaviorCollision(projectile, owner, collision);
-        }
-    }
-    
-    private void ApplyDestroyBehaviors(PlayerProjectile projectile, RailPlayer owner)
-    {
-        foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
-        {
-            behavior.OnBehaviorDestroy(projectile, owner);
-        }
-    }
-    
-    private void ApplyDrawGizmoBehaviors(PlayerProjectile projectile, RailPlayer owner)
-    {
-        foreach (ProjectileBehaviorBase behavior in ProjectileSpecificBehaviors)
-        {
-            behavior.OnBehaviorDrawGizmos(projectile, owner);
-        }
-    }
-
-    #endregion Projectile Behaviors Calls ---------------------------------------------------------------
+    #endregion SetUp -------------------------------------------------------------------------
     
     
     
@@ -238,12 +166,18 @@ public class PlayerProjectile : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        
-        if (Application.isPlaying && IsInitialized)
+        if (Application.isPlaying && _isInitialized)
         {
-            ApplyDrawGizmoBehaviors(this, Owner);
+            ApplyDrawGizmoBehaviors(this, _owner);
         }
-
+    }
+    
+    private void ApplyDrawGizmoBehaviors(PlayerProjectile projectile, RailPlayer owner)
+    {
+        foreach (ProjectileBehaviorBase behavior in _projectileBehaviors)
+        {
+            behavior.OnDrawGizmos(projectile, owner);
+        }
     }
 
 

@@ -11,7 +11,6 @@ public class BehaviorSpawnProjectilesOnStart : ProjectileBehaviorBase
     [SerializeField] private float targetRadius = 10f;
     [SerializeField] private float spawnRadius = 1f;
     [SerializeField] private int maxProjectiles = 3;
-    [SerializeField] private float projectileDamage = 10f;
     [SerializeField] private PlayerProjectile projectilePrefab;
     [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors;
 
@@ -19,7 +18,7 @@ public class BehaviorSpawnProjectilesOnStart : ProjectileBehaviorBase
     private List<ChickenController> _targets;
     private int _spawnedProjectiles;
 
-    public override void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner)
+    public override void OnSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
         _targets = new List<ChickenController>();
         _spawnedProjectiles = 0;
@@ -47,22 +46,22 @@ public class BehaviorSpawnProjectilesOnStart : ProjectileBehaviorBase
 
     }
 
-    public override void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner)
+    public override void OnMovement(PlayerProjectile projectile, RailPlayer owner)
     {
 
     }
 
-    public override void OnBehaviorCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
     {
 
     }
 
-    public override void OnBehaviorDestroy(PlayerProjectile projectile, RailPlayer owner)
+    public override void OnDestroy(PlayerProjectile projectile, RailPlayer owner)
     {
 
     }
 
-    public override void OnBehaviorDrawGizmos(PlayerProjectile projectile, RailPlayer owner)
+    public override void OnDrawGizmos(PlayerProjectile projectile, RailPlayer owner)
     {
 
     }
@@ -71,7 +70,7 @@ public class BehaviorSpawnProjectilesOnStart : ProjectileBehaviorBase
     {
         GameObject spawnedObj = Object.Instantiate(projectilePrefab.gameObject, spawnPosition, Quaternion.identity);
         PlayerProjectile miniProjectile = spawnedObj.GetComponent<PlayerProjectile>();
-        miniProjectile.SetUpMiniProjectile(projectileBehaviors, projectileDamage, projectile.Weapon, owner, target);
+        miniProjectile.SetUpMiniProjectile(projectileBehaviors, projectile.Weapon, owner, target);
     }
     
 }

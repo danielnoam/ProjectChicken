@@ -14,17 +14,17 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
     
     
 
-    public override void OnBehaviorSpawn(PlayerProjectile projectile, RailPlayer owner)
+    public override void OnSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
 
     }
 
-    public override void OnBehaviorMovement(PlayerProjectile projectile, RailPlayer owner )
+    public override void OnMovement(PlayerProjectile projectile, RailPlayer owner )
     {
 
     }
 
-    public override void OnBehaviorCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
     {
         // Get the collision point position
         Vector3 explosionCenter = collision.transform.position;
@@ -64,12 +64,12 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
         }
     }
 
-    public override void OnBehaviorDestroy(PlayerProjectile projectile, RailPlayer owner )
+    public override void OnDestroy(PlayerProjectile projectile, RailPlayer owner )
     {
 
     }
 
-    public override void OnBehaviorDrawGizmos(PlayerProjectile projectile, RailPlayer owner)
+    public override void OnDrawGizmos(PlayerProjectile projectile, RailPlayer owner)
     {
         // Draw the explosion radius spheres
         Gizmos.color = Color.red;

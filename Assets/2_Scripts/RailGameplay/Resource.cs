@@ -200,25 +200,24 @@ public class Resource : MonoBehaviour
         Quaternion splineRotation = splineForward != Vector3.zero ? 
             Quaternion.LookRotation(splineForward, Vector3.up) : Quaternion.identity;
 
-        // Calculate the current offset from the player's spline position in local space
-        // Use PlayerPosition as reference (same as player movement code)
+
         Vector3 playerSplinePosition = LevelManager.Instance.PlayerPosition;
         Vector3 worldOffset = proposedPosition - playerSplinePosition;
         Vector3 localOffset = Quaternion.Inverse(splineRotation) * worldOffset;
 
-        // Store original offset for debugging
+
         Vector3 originalLocalOffset = localOffset;
         
-        // Only clamp the X and Y components (lateral movement), preserve Z
+
         float originalZ = localOffset.z;
         localOffset.x = Mathf.Clamp(localOffset.x, -MovementBoundaryX, MovementBoundaryX);
         localOffset.y = Mathf.Clamp(localOffset.y, -MovementBoundaryY, MovementBoundaryY);
-        localOffset.z = originalZ; // Preserve the forward/backward offset
+        localOffset.z = originalZ; 
 
-        // Convert the clamped offset back to world space
+
         Vector3 constrainedWorldPosition = playerSplinePosition + (splineRotation * localOffset);
 
-        // Debug info when clamping occurs
+
         if (Mathf.Abs(originalLocalOffset.x - localOffset.x) > 0.01f || Mathf.Abs(originalLocalOffset.y - localOffset.y) > 0.01f)
         {
             Debug.Log($"Resource boundary clamping: {gameObject.name} - Original local offset: {originalLocalOffset}, Clamped: {localOffset}");
@@ -229,7 +228,6 @@ public class Resource : MonoBehaviour
 
     private void HandleMovement()
     {
-        // Update magnetized speed
         if (_isMagnetized)
         {
             _currentMagnetizedSpeed = Mathf.Lerp(_currentMagnetizedSpeed, _targetMagnetizedSpeed, acceleration * Time.deltaTime);
@@ -242,21 +240,16 @@ public class Resource : MonoBehaviour
                 _currentMagnetizedSpeed = 0f;
             }
         }
-
-        // Move towards player if magnetized
+        
         if (_currentMagnetizedSpeed > 0f && _playerTransform)
         {
             Vector3 playerDirection = (_playerTransform.position - transform.position).normalized;
             Vector3 proposedPosition = transform.position + playerDirection * (_currentMagnetizedSpeed * Time.deltaTime);
-            
-            // Constrain the proposed position to boundary
             Vector3 constrainedPosition = ConstrainToBoundary(proposedPosition);
             transform.position = constrainedPosition;
         }
         else
         {
-            // Even when not magnetized, make sure we stay within bounds
-            // This handles cases where the resource might drift due to physics or other factors
             Vector3 constrainedPosition = ConstrainToBoundary(transform.position);
             if (Vector3.Distance(transform.position, constrainedPosition) > 0.01f)
             {

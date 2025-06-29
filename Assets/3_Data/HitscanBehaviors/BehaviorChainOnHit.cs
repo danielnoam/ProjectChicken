@@ -22,12 +22,12 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
 
     private List<ChickenController> targetsToHit;
     
-    public override void OnBehaviorStart(SOWeapon weapon, RailPlayer owner, ChickenController target = null)
+    public override void OnStart(SOWeapon weapon, RailPlayer owner, ChickenController target = null)
     {
         targetsToHit = new List<ChickenController>();
     }
 
-    public override void OnBehaviorHit(SOWeapon weapon, RailPlayer owner, ChickenController target)
+    public override void OnHit(SOWeapon weapon, RailPlayer owner, ChickenController target)
     {
         // Hit the initial target
         if (target)
@@ -47,12 +47,12 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
     }
     
 
-    public override void OnBehaviorEnd(SOWeapon weapon, RailPlayer owner, ChickenController target = null)
+    public override void OnEnd(SOWeapon weapon, RailPlayer owner, ChickenController target = null)
     {
         
     }
 
-    public override void OnBehaviorDrawGizmos(SOWeapon weapon, RailPlayer owner, ChickenController target = null)
+    public override void OnDrawGizmos(SOWeapon weapon, RailPlayer owner, ChickenController target = null)
     {
 
     }
