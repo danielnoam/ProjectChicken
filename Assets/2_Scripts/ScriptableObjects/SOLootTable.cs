@@ -17,7 +17,7 @@ public class ResourceChance
     }
 }
 
-[CreateAssetMenu(fileName = "New LootTable", menuName = "Scriptable Objects/New LootTable")]
+[CreateAssetMenu(fileName = "New LootTable", menuName = "Scriptable Objects/New Loot Table")]
 public class SOLootTable : ScriptableObject
 {
     [Header("Loot Table")]

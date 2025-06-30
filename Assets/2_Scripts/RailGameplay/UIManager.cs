@@ -65,6 +65,9 @@ public class UIManager : MonoBehaviour
     [SerializeField, Min(0), Tooltip("How many 0 is the score made out of")] private int scoreDigits = 7;
     [EndFoldout]
     
+    [Header("Wave Title")]
+    [SerializeField] private float waveTitleAnimationDuration = 0.2f;
+    
     [Header("Asset References")] 
     [SerializeField] private Image playerIconPrefab;
     [SerializeField] private Sprite heartIcon;
@@ -84,6 +87,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI playerCurrencyText;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI keybindsText;
+    [SerializeField] private TextMeshProUGUI waveTitleText;
     
     [Header("Scene References")] 
     [SerializeField] private LevelManager levelManager;
@@ -100,6 +104,7 @@ public class UIManager : MonoBehaviour
     private Sequence _heatBarSequence;
     private Sequence _scoreSequence;
     private Sequence _playerCurrencySequence;
+    private Sequence _waveTitleSequence;
     private int _previousScore;
     private int _score;
     private int _previousPlayerCurrency;
@@ -291,8 +296,11 @@ public class UIManager : MonoBehaviour
                 FadeKeybinds(stage.ShowPlayerKeybinds);
                 break;
         }
+        
+        UpdateStageTitle(stage.StageTitle);
     }
     
+
     private void FadeHUD(bool fadeIn)
     {
         if (_hudSequence.isAlive) _hudSequence.Stop();
@@ -604,7 +612,25 @@ public class UIManager : MonoBehaviour
                     .OnComplete(() => _previousScore = newScore)
                 ;
         }
+    }
+    
+    private void UpdateStageTitle(string title)
+    {
+        waveTitleText.text = title;
         
+        if (waveTitleText.text == "" && waveTitleText.alpha <= 0)
+        {
+            return;
+        } 
+        else if (waveTitleText.text != "" && waveTitleText.alpha >= 1)
+        {
+            return;
+        }
+
+        _waveTitleSequence = Sequence.Create()
+                .Group(Tween.Alpha(waveTitleText, 1, waveTitleAnimationDuration/0.7f))
+                .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.3f))
+            ;
 
     }
 

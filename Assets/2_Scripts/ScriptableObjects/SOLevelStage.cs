@@ -6,10 +6,13 @@ using VInspector;
 public class SOLevelStage : ScriptableObject
 {
     [Header("Stage Settings")]
+    [SerializeField] string stageTitle = "";
     [SerializeField] private StageType stageType;
+    
     [ShowIf("IsTimeBasedStage")] 
     [SerializeField, Min(0.1f)] private float stageDuration = 5;
     [EndIf]
+    
     [ShowIf("stageType", StageType.EnemyWave)]
     [SerializeField] private float enemyPositionOffset;
     [SerializeField, Min(0)] private float delayBeforeNextStage = 1f;
@@ -38,6 +41,7 @@ public class SOLevelStage : ScriptableObject
     public StageType StageType => stageType;
     public float StageDuration => stageDuration;
     public int WaveScore => stageType == StageType.EnemyWave ? waveScore : 0;
+    public string StageTitle => stageTitle;
     public SerializedDictionary<ChickenController, int> EnemyWave => enemyWave;
     public float EnemyPositionOffset => enemyPositionOffset;
     public float DelayBeforeNextStage => delayBeforeNextStage;

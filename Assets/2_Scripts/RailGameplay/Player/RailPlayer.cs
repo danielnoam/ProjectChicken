@@ -25,8 +25,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Min(0)] private float shieldRegenRate = 5f;
     
     [Header("Resource Collection")]
-    [SerializeField, Min(0)] private float resourceCollectionRadius = 2f;
-    [SerializeField ,Min(0)] private float magnetRadius = 5f;
+    [SerializeField ,Min(0)] private float magnetRadius = 17f;
     
     [Header("Path Following")]
     [SerializeField] private bool alignToSplineDirection = true;
@@ -51,16 +50,17 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
 
     
-    // Private fields
-    private readonly List<Resource> _resourcesInRange = new List<Resource>();
+
+
     private int _currentHealth;
     private int _currentCurrency;
     private float _currentShieldHealth;
     private float _damagedCooldown;
     private Coroutine _regenShieldCoroutine;
     private Quaternion _splineRotation = Quaternion.identity;
-    
-    // Public properties
+    private readonly List<Resource> _resourcesInRange = new List<Resource>();
+    private readonly Dictionary<ResourceType, Action<Resource>> _collectionActions = new Dictionary<ResourceType, Action<Resource>>();
+
     public LevelManager LevelManager => levelManager;
     public Quaternion SplineRotation => _splineRotation;
     public bool AlignToSplineDirection => alignToSplineDirection;
@@ -102,6 +102,11 @@ public class RailPlayer : MonoBehaviour
 
     private void Awake()
     {
+        _collectionActions.Add(ResourceType.Currency, (resource) => UpdateCurrency(resource.CurrencyWorth) );
+        _collectionActions.Add(ResourceType.HealthPack, (resource) => HealHealth(resource.HealthWorth));
+        _collectionActions.Add(ResourceType.ShieldPack, (resource) => HealShield(resource.ShieldWorth));
+        _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => playerWeapon.SetSpecialWeapon(resource.Weapon));
+        
         SetupPlayer();
     }
     
@@ -148,19 +153,19 @@ public class RailPlayer : MonoBehaviour
         GetSplineRotations();
         CheckDamageCooldown();
         CheckResourcesInRange();
-        UpdateMagnetizedResources();
     }
-
-    private void SetupPlayer()
+    
+    
+    private void OnTriggerEnter(Collider other)
     {
-        _currentCurrency = SaveManager.GetCurrency();
-        _currentHealth = maxHealth;
-        _currentShieldHealth = maxShieldHealth;
-        
-        OnCurrencyChanged?.Invoke(_currentCurrency);
-        OnHealthChanged?.Invoke(_currentHealth);
-        OnShieldChanged?.Invoke(_currentShieldHealth);
+        if (!IsAlive()) return;
+
+        if (other.TryGetComponent(out Resource resource))
+        {
+            CollectResource(resource);
+        }
     }
+    
     
     private void OnStageChanged(SOLevelStage stage)
     {
@@ -172,7 +177,16 @@ public class RailPlayer : MonoBehaviour
         }
     }
     
-    
+    private void SetupPlayer()
+    {
+        _currentCurrency = SaveManager.GetCurrency();
+        _currentHealth = maxHealth;
+        _currentShieldHealth = maxShieldHealth;
+        
+        OnCurrencyChanged?.Invoke(_currentCurrency);
+        OnHealthChanged?.Invoke(_currentHealth);
+        OnShieldChanged?.Invoke(_currentShieldHealth);
+    }
     
 
     #region Damage ---------------------------------------------------------------------- 
@@ -352,55 +366,51 @@ public class RailPlayer : MonoBehaviour
     #endregion Healing ----------------------------------------------------------------------
 
     
+    #region Curreny --------------------------------------------------------------------------------
+
+    [Button]
+    private void UpdateCurrency(int amount)
+    {
+        _currentCurrency += amount;
+        OnCurrencyChanged?.Invoke(_currentCurrency);
+    }
+
+    #endregion Curreny --------------------------------------------------------------------------------
+    
+    
     #region Resource Collection --------------------------------------------------------------------------------------
 
     private void CheckResourcesInRange()
     {
         if (!IsAlive()) return;
         
-        // Find all resources in range
         Collider[] colliders = Physics.OverlapSphere(transform.position, magnetRadius);
         foreach (var col in colliders)
         {
             if (col.TryGetComponent(out Resource resource))
             {
-                if (resource && !_resourcesInRange.Contains(resource))
-                {
-                    _resourcesInRange.Add(resource);
-                    resource.SetMagnetized(transform, magnetRadius);
-                }
+                if (!resource || _resourcesInRange.Contains(resource)) continue;
+                _resourcesInRange.Add(resource);
+                resource.SetMagnetized(transform);
             }
         }
-
-        // Remove resources that are no longer in range
-        for (int i = _resourcesInRange.Count - 1; i >= 0; i--)
-        {
-            bool isWithinRange = Vector3.Distance(transform.position, _resourcesInRange[i].transform.position) <= magnetRadius;
-            if (!_resourcesInRange[i] || !isWithinRange)
-            {
-                if (!_resourcesInRange[i]) continue;
-                
-                _resourcesInRange[i].ReleaseFromMagnetization();
-                _resourcesInRange.RemoveAt(i);
-            }
-        }
-
-    }
-    
-    private void UpdateMagnetizedResources()
-    {
-        if (_resourcesInRange.Count == 0 || !IsAlive()) return;
-    
-        // Iterate through all resources in range
+        
         for (int i = _resourcesInRange.Count - 1; i >= 0; i--)
         {
             var resource = _resourcesInRange[i];
-            if (!resource) continue;
-        
-            // Check if the resource is within the collection radius
-            if (Vector3.Distance(transform.position, resource.transform.position) <= resourceCollectionRadius)
+            
+            if (!resource)
             {
-                CollectResource(resource);
+                _resourcesInRange.RemoveAt(i);
+                continue;
+            }
+    
+
+            var distance = Vector3.Distance(transform.position, resource.transform.position);
+            if (distance > magnetRadius)
+            {
+                resource.ReleaseFromMagnetization();
+                _resourcesInRange.RemoveAt(i);
             }
         }
     }
@@ -410,23 +420,9 @@ public class RailPlayer : MonoBehaviour
     {
         if (!resource) return;
         
-        switch (resource.ResourceType)
+        if (_collectionActions.TryGetValue(resource.ResourceType, out var action))
         {
-            case ResourceType.Currency:
-                UpdateCurrency(resource.CurrencyWorth);
-                break;
-            case ResourceType.HealthPack:
-                HealHealth(resource.HealthWorth);
-                break;
-            case ResourceType.ShieldPack:
-                HealShield(resource.ShieldWorth);
-                break;
-            case ResourceType.SpecialWeapon:
-                playerWeapon.SetSpecialWeapon(resource.Weapon);
-                break;
-            default:
-                Debug.LogWarning($"Unknown resource type: {resource.ResourceType}");
-                break;
+            action(resource);
         }
         
         _resourcesInRange.Remove(resource);
@@ -434,12 +430,6 @@ public class RailPlayer : MonoBehaviour
         OnResourceCollected?.Invoke(resource);
     }
     
-    [Button]
-    private void UpdateCurrency(int amount)
-    {
-        _currentCurrency += amount;
-        OnCurrencyChanged?.Invoke(_currentCurrency);
-    }
 
     #endregion Resource Collection --------------------------------------------------------------------------------------
     
@@ -550,12 +540,6 @@ public class RailPlayer : MonoBehaviour
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
-        
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, resourceCollectionRadius);
-        UnityEditor.Handles.Label(transform.position + (Vector3.up * resourceCollectionRadius), "Resource Collection Radius");
-
-        
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, magnetRadius);
         UnityEditor.Handles.Label(transform.position + (Vector3.up * magnetRadius), "Magnet Radius");

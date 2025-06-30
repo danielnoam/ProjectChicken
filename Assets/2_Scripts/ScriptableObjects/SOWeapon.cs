@@ -18,7 +18,7 @@ public class SOWeapon : ScriptableObject
     [SerializeField, Min(0), ShowIf("weaponLimitation", global::WeaponLimitation.AmmoBased)] private float ammoLimit = 3f;[EndIf]
     [SerializeField, Min(0)] private float damage = 10f;
     [SerializeField, Min(0)] private float fireRate = 1f;
-    [SerializeField, Min(0), Tooltip("0 = Means infinite targets")] private int maxTargets = 1;
+    [SerializeField, Min(0), Tooltip("0 = Infinite targets")] private int maxTargets = 1;
     [SerializeField, Min(0.1f)] private float targetCheckRadius = 3f;
 
     

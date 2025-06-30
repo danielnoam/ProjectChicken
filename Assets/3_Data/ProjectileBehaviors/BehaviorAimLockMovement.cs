@@ -83,6 +83,8 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
         _startTime = Time.time;
         _currentDirection = projectile.StartDirection.normalized;
         _lastTargetDirection = _currentDirection;
+        _bendPhaseStartPosition = Vector3.zero;
+        _targetPhaseStartPosition = Vector3.zero;
         
         if (_currentTarget)
         {
@@ -95,17 +97,14 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
             _lastTarget = projectile.Target;
             _currentTarget = projectile.Target;
         }
-        
-        // Reset phase positions
-        _bendPhaseStartPosition = Vector3.zero;
-        _targetPhaseStartPosition = Vector3.zero;
+
         
         if (_hasTarget && _currentTarget)
         {
             _targetPosition = _currentTarget.transform.position;
         }
         
-        // Generate new random bend direction
+
         GenerateRandomBendDirection();
     }
     

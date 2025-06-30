@@ -26,10 +26,10 @@ public class RailPlayerMovement : MonoBehaviour
     [Header("Dodge Settings")]
     [SerializeField] private bool enableDodging = true;
     [EnableIf("enableDodging")]
-    [SerializeField, Min(0)] private float dodgeMoveSpeed = 20f;
-    [SerializeField, Min(0)] private float dodgeTime = 0.2f;
-    [SerializeField, Min(0)] private float dodgeCooldown = 1.5f;
-    [SerializeField, Min(0)] private float dodgeRollAmount = 720f;
+    [SerializeField, Min(0)] private float dodgeMoveSpeed = 65f;
+    [SerializeField, Min(0)] private float dodgeTime = 0.4f;
+    [SerializeField, Min(0)] private float dodgeCooldown = 0.45f;
+    [SerializeField, Min(0)] private float dodgeRollAmount = 360f;
     [SerializeField, Min(0)] private TweenSettings dodgeTweenSettings = new TweenSettings(1.2f, Ease.Custom);
     [EndIf]
     
@@ -94,12 +94,12 @@ public class RailPlayerMovement : MonoBehaviour
     private void Update()
     {
         UpdateDodgeState();
-        HandleShipModelMovementAndRotation();
+        HandleShipModelAndRotation();
     }
 
     private void FixedUpdate()
     {
-        HandleMovementAndRotation();
+        HandleSplineFollowing();
     }
     
     
@@ -107,7 +107,7 @@ public class RailPlayerMovement : MonoBehaviour
     #region Movement --------------------------------------------------------------------------------------
     
 
-    private void HandleMovementAndRotation()
+    private void HandleSplineFollowing()
     {
         Vector3 playerSplinePosition = player.LevelManager.PlayerPosition;
         
@@ -168,7 +168,7 @@ public class RailPlayerMovement : MonoBehaviour
     
     
     
-    private void HandleShipModelMovementAndRotation()
+    private void HandleShipModelAndRotation()
     {
         if (!shipModel) return;
     

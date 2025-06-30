@@ -77,10 +77,8 @@ public class LevelManager : MonoBehaviour
         
         if (Application.isPlaying) return;
         
-        // Update Current Position on Path position if it exists based on the startOffset offset
         if (currentPositionOnPath && splineContainer && splineContainer.Splines.Count > 0)
         {
-            // Calculate spline length first
             var tempSplinePath = new SplinePath<Spline>(splineContainer.Splines);
             float tempSplineLength = tempSplinePath.GetLength();
         
