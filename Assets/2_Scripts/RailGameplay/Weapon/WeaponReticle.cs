@@ -23,9 +23,11 @@ public class WeaponReticle : MonoBehaviour
     private static readonly int EmissionEnabled = Shader.PropertyToID("_EmissionEnabled");
     private static readonly int BaseColor = Shader.PropertyToID("_BaseColor"); 
     private bool _isVisible;
+    private float _maxStrength;
 
     private void Awake()
     {
+        _maxStrength = emissionStrength;
         GetMaterialsFromRenderers();
         Hide();
     }
@@ -74,7 +76,7 @@ public class WeaponReticle : MonoBehaviour
 
     private void UpdateMaterialsEmissionStrength(float strength)
     {
-        strength = Mathf.Clamp01(strength);
+        strength = Mathf.Clamp(strength, 0, _maxStrength);
         foreach (Material mat in _reticleMaterials)
         {
             if (mat)

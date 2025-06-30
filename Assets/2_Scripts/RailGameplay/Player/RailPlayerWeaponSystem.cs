@@ -139,15 +139,17 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     private void Awake()
     {
+        overheatText.alpha = 0;
+        _allowShooting = true;
+    }
+
+    private void Start()
+    {
         if (weapons.Count >= 0)
         {
             SetUpBaseWeapon(weapons[0]);
         }
-
-        overheatText.alpha = 0;
-        _allowShooting = true;
     }
-    
 
     private void OnEnable()
     {
@@ -187,15 +189,14 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     private void OnStageChanged(SOLevelStage stage)
     {
-        if (!stage) return;
-    
-        _allowShooting = stage.AllowPlayerShooting;
+        _allowShooting = !stage || stage.AllowPlayerShooting;
 
         if (_allowShooting)
         {
             targetReticle.Show();
             smallReticle.Show();
             reticleHolder.gameObject.SetActive(true);
+            _activeWeaponInstance?.OnWeaponSelected();
 
         }
         else
@@ -203,6 +204,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             targetReticle.Hide();
             smallReticle.Hide();
             reticleHolder.gameObject.SetActive(false);
+            _activeWeaponInstance?.OnWeaponDeselected();
         }
     }
 
@@ -654,7 +656,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 break;
         }
         if (switchingWeaponsResetsHeat) ResetHeat();
-        _activeWeaponInstance.OnWeaponDeselected();
+        _activeWeaponInstance?.OnWeaponDeselected();
         _activeWeaponInstance = newWeapon;
         _activeWeaponInstance.OnWeaponSelected();
         weaponSwitchSfx?.Play(audioSource);

@@ -126,20 +126,20 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
         
         foreach (Collider hitCollider in hitColliders)
         {
-            // Check if collider is still valid
             if (!hitCollider) continue;
             
-            ChickenController chickenEnemy = hitCollider.GetComponent<ChickenController>();
             
-            // Skip if not a valid enemy, already hit, or destroyed
-            if (!chickenEnemy || excludeTargets.Contains(chickenEnemy)) continue;
-            
-            float distance = Vector3.Distance(fromPosition, chickenEnemy.transform.position);
-            
-            if (distance < closestDistance)
+            if (hitCollider.TryGetComponent(out ChickenController chickenEnemy))
             {
-                closestDistance = distance;
-                closestTarget = chickenEnemy;
+                if (!chickenEnemy || excludeTargets.Contains(chickenEnemy)) continue;
+            
+                float distance = Vector3.Distance(fromPosition, chickenEnemy.transform.position);
+            
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestTarget = chickenEnemy;
+                }
             }
         }
         
