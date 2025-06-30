@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BehaviorAimLockMovement : ProjectileBehaviorBase
@@ -193,7 +194,7 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
         else if (recheckTarget && _recheckedTarget < recheckCount)
         {
             // Check for target again if it's not set
-            ChickenController newTarget = owner.GetTarget(recheckRadius);
+            ChickenController newTarget = GetTarget(projectile.transform.position,recheckRadius);
             if (newTarget)
             {
                 _currentTarget = newTarget;
@@ -215,5 +216,69 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
             Vector3 movement = _lastTargetDirection * (moveSpeed * Time.fixedDeltaTime);
             return projectile.Rigidbody.position + movement;
         }
+    }
+    
+    
+    
+    public ChickenController[] GetTargets(Vector3 position,int maxTargets, float radius)
+    {
+        Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
+        Collider[] hitColliders = Physics.OverlapSphere(position, radius);
+        
+        foreach (Collider hitCollider in hitColliders)
+        {
+            if (hitCollider.TryGetComponent(out ChickenController enemy))
+            {
+                float distance = Vector3.Distance(position, enemy.transform.position);
+                enemyDistances[enemy] = distance;
+            }
+        }
+        
+        List<ChickenController> sortedEnemies = new List<ChickenController>(enemyDistances.Keys);
+        sortedEnemies.Sort((a, b) => enemyDistances[a].CompareTo(enemyDistances[b]));
+        
+        int targetCount = Mathf.Min(maxTargets, sortedEnemies.Count);
+        ChickenController[] targets = new ChickenController[targetCount];
+        for (int i = 0; i < targetCount; i++)
+        {
+            targets[i] = sortedEnemies[i];
+        }
+        
+        return targets;
+    }
+    
+    public ChickenController GetTarget(Vector3 position, float radius)
+    {
+        
+        Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
+        Collider[] hitColliders = Physics.OverlapSphere(position, radius);
+        
+        foreach (Collider hitCollider in hitColliders)
+        {
+            if (hitCollider.TryGetComponent(out ChickenController enemy))
+            {
+                float distance = Vector3.Distance(position, enemy.transform.position);
+                enemyDistances[enemy] = distance;
+            }
+        }
+        
+        if (enemyDistances.Count > 0)
+        {
+            ChickenController closestEnemy = null;
+            float minDistance = float.MaxValue;
+            
+            foreach (var kvp in enemyDistances)
+            {
+                if (kvp.Value < minDistance)
+                {
+                    minDistance = kvp.Value;
+                    closestEnemy = kvp.Key;
+                }
+            }
+            
+            return closestEnemy;
+        }
+        
+        return null; 
     }
 }

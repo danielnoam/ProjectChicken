@@ -101,4 +101,21 @@ public class FormationSettings
                a.GridSize == b.GridSize &&
                a.GridFillsBoundary == b.GridFillsBoundary;
     }
+
+
+    public void SetNextFormationType()
+    {
+        int nextFormation = ((int)formationType + 1) % Enum.GetValues(typeof(FormationType)).Length;
+        formationType = (FormationType)nextFormation;
+        if (formationType == FormationType.VShape)
+        {
+            formationPosition = FormationPosition.BottomCenter;
+        }
+        
+        if (formationType != FormationType.VShape && formationType != FormationType.Grid)
+        {
+            formationPosition = (FormationPosition)UnityEngine.Random.Range(0, Enum.GetValues(typeof(FormationPosition)).Length - 1);
+        }
+        
+    }
 }

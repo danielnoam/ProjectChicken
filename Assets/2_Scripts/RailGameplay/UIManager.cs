@@ -32,7 +32,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float currencyPunchDuration = 0.2f;
     [SerializeField] private float currencyPunchStrength = 0.2f;
     [SerializeField, Min(0), Tooltip("The difference between the previous currency and the current currency that must be reached to trigger a big currency animation")] 
-    private int bigCurrencyDifference = 5;
+    private int bigCurrencyDifference = 4;
     
     [Header("Dodge")]
     [SerializeField] private float dodgeAnimationDuration = 0.2f;
@@ -151,7 +151,7 @@ public class UIManager : MonoBehaviour
             OnSpecialWeaponSwitched(null, null);
             OnWeaponHeatUpdated(0);
             OnUpdateCurrency(player.CurrentCurrency);
-            OnDodgeCooldownUpdated(player.GetDodgeMaxCooldown());
+            OnDodgeCooldownUpdated(0);
         }
         
         if (levelManager)

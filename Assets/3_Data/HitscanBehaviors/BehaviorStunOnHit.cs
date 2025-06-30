@@ -16,9 +16,8 @@ public class BehaviorStunOnHit : HitscanBehaviorBase
 
     public override void OnHit(SOWeapon weapon, RailPlayer owner, ChickenController target)
     {
-        // Check if the stun should be applied based on chance
         if (UnityEngine.Random.Range(0f, 100f) > stunChance) return;
-        target.ApplyConcussion(stunDuration);
+        target?.ApplyConcussion(stunDuration);
     }
 
     public override void OnEnd(SOWeapon weapon, RailPlayer owner,ChickenController target = null)

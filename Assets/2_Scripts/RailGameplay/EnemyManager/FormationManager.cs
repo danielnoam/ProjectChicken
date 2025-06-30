@@ -222,6 +222,7 @@ public class FormationManager : MonoBehaviour
                 chicken.OnFormationChangedNotification();
             }
         }
+        
     }
     
     
@@ -1061,10 +1062,7 @@ public class FormationManager : MonoBehaviour
     [Button]
     private void ChangeFormation()
     {
-        // Note: This is for editor testing only - in game, formations are controlled by stages
-        int nextFormation = ((int)_currentFormationSettings.FormationType + 1) % Enum.GetValues(typeof(FormationType)).Length;
-        var newSettings = new FormationSettings(_currentFormationSettings);
-        // This would require a way to modify FormationSettings, which might need additional methods
+        _currentFormationSettings.SetNextFormationType();
         GenerateFormations(true);
     }
 
@@ -1073,45 +1071,7 @@ public class FormationManager : MonoBehaviour
     {
         GenerateFormations(true);
     }
-
-    [Button]
-    private void RandomizePosition()
-    {
-        if (_currentFormationSettings.FormationType == FormationType.VShape)
-        {
-            Debug.Log("V-Shape formations always position at bottom - randomization has no effect.");
-            GenerateFormations(true);
-            return;
-        }
-        
-        if (_formationSlots.Count > 0)
-        {
-            // For testing only - create a temporary position change
-            GenerateFormations(true);
-        }
-    }
-
-    [Button]
-    private void CyclePosition()
-    {
-        if (_currentFormationSettings.FormationType == FormationType.VShape)
-        {
-            Debug.Log("V-Shape formations always position at bottom - position cycling has no effect.");
-            return;
-        }
-        
-        // For testing only - formations are now controlled by stages
-        if (_formationSlots.Count > 0)
-        {
-            GenerateFormations(true);
-        }
-    }
-
-    [Button]
-    private void RecalculateBoundaryConstraints()
-    {
-        GenerateFormations(true);
-    }
+    
     
 
     #endregion

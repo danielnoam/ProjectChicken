@@ -2117,6 +2117,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8474555558549935190}
   - component: {fileID: 8177767816080453902}
+  - component: {fileID: 8387317160008831367}
   - component: {fileID: 7652548364264720769}
   - component: {fileID: 8027271115035412187}
   - component: {fileID: 6276024430624118950}
@@ -2179,6 +2180,103 @@ Rigidbody:
   m_Interpolate: 2
   m_Constraints: 0
   m_CollisionDetection: 1
+--- !u!82 &8387317160008831367
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042140183398147502}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!82 &7652548364264720769
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2431,7 +2529,7 @@ MonoBehaviour:
   playerAiming: {fileID: 890854243081262160}
   playerWeapon: {fileID: 3423310960035294283}
   playerMovement: {fileID: 7233717465822237952}
-  audioSource: {fileID: 7652548364264720769}
+  audioSource: {fileID: 8387317160008831367}
 --- !u!114 &8438971806570489096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2639,7 +2737,7 @@ MonoBehaviour:
   playerAiming: {fileID: 890854243081262160}
   playerInput: {fileID: 8438971806570489096}
   playerRigidbody: {fileID: 8177767816080453902}
-  audioSource: {fileID: 7652548364264720769}
+  audioSource: {fileID: 8387317160008831367}
   shipModel: {fileID: 5119365439155976064}
 --- !u!114 &890854243081262160
 MonoBehaviour:
@@ -2711,7 +2809,7 @@ MonoBehaviour:
   overHeatMiniGame: 1
   failHeat: 50
   randomizeWindow: 1
-  windowPositionRange: {x: 0.25, y: 0.75}
+  windowPositionRange: {x: 0.25, y: 0.65}
   windowSizeRange: {x: 0.1, y: 0.2}
   miniGameWindowPosition: 0.23
   miniGameWindow: 0.415
@@ -2734,7 +2832,7 @@ MonoBehaviour:
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
   playerMovement: {fileID: 7233717465822237952}
-  audioSource: {fileID: 7652548364264720769}
+  audioSource: {fileID: 8387317160008831367}
 --- !u!1 &5214599697061486050
 GameObject:
   m_ObjectHideFlags: 0
@@ -4363,7 +4461,7 @@ MonoBehaviour:
   - {fileID: 219285135356931742}
   - {fileID: 4208656679078098340}
   - {fileID: 6724299620791783669}
-  pulseEmission: 1
+  pulseEmission: 0
   pulseSpeed: 3
   pulseMin: 0.3
 --- !u!1 &8456286350761355761
