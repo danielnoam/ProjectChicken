@@ -504,6 +504,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2072634995185843995}
+  - component: {fileID: 2456777011304124103}
   m_Layer: 7
   m_Name: XReticle
   m_TagString: Untagged
@@ -531,6 +532,29 @@ Transform:
   - {fileID: 5934898279825074087}
   m_Father: {fileID: 5369474610807630919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2456777011304124103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1469337419846519585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8a1ac04dd8f1d84c977b7d01d74870e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emissionStrength: 1
+  emissionAffectsAlpha: 1
+  reticleRenderers:
+  - {fileID: 5022044165417545323}
+  - {fileID: 4317489346689356038}
+  - {fileID: 7628995704809813630}
+  - {fileID: 3558174509910864628}
+  - {fileID: 1228446762727484811}
+  pulseEmission: 0
+  pulseSpeed: 3
+  pulseMin: 0.3
 --- !u!1 &1506644416565149069
 GameObject:
   m_ObjectHideFlags: 0
@@ -866,7 +890,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8addb75ad37fbc1489cd882e25b28b89, type: 2}
+  - {fileID: 2100000, guid: 8381b8cd54d780c4485baf122961951f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1241,7 +1265,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8addb75ad37fbc1489cd882e25b28b89, type: 2}
+  - {fileID: 2100000, guid: 8381b8cd54d780c4485baf122961951f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1272,6 +1296,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6174838063405869257}
+  - component: {fileID: 942245884214204724}
   m_Layer: 7
   m_Name: CrossReticle
   m_TagString: Untagged
@@ -1298,6 +1323,28 @@ Transform:
   - {fileID: 3385265377747687933}
   m_Father: {fileID: 5369474610807630919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &942245884214204724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3149249986635875231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8a1ac04dd8f1d84c977b7d01d74870e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emissionStrength: 1
+  emissionAffectsAlpha: 1
+  reticleRenderers:
+  - {fileID: 3954000043469550707}
+  - {fileID: 3701714565008483880}
+  - {fileID: 2267080844491920373}
+  - {fileID: 8642202346870350222}
+  pulseEmission: 0
+  pulseSpeed: 3
+  pulseMin: 0.3
 --- !u!1 &3266443374714374232
 GameObject:
   m_ObjectHideFlags: 0
@@ -1945,7 +1992,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8addb75ad37fbc1489cd882e25b28b89, type: 2}
+  - {fileID: 2100000, guid: 8381b8cd54d780c4485baf122961951f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2636,23 +2683,23 @@ MonoBehaviour:
   weapons:
   - weaponData: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
     weaponGfx: {fileID: 4913251172318160832}
-    weaponReticle: {fileID: 6174838063405869257}
+    weaponReticle: {fileID: 942245884214204724}
     weaponBarrels:
     - {fileID: 3537693180872267810}
     - {fileID: 2538473021605918491}
   - weaponData: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
     weaponGfx: {fileID: 8445288471549559756}
-    weaponReticle: {fileID: 3790990538868093353}
+    weaponReticle: {fileID: 4800777414530687514}
     weaponBarrels:
     - {fileID: 8658125663898116613}
   - weaponData: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
     weaponGfx: {fileID: 2591645915025464599}
-    weaponReticle: {fileID: 1655734070457128625}
+    weaponReticle: {fileID: 7452997770777450716}
     weaponBarrels:
     - {fileID: 188962324070582139}
   - weaponData: {fileID: 11400000, guid: 0b9da28535a5fb944b9dfa31864911a7, type: 2}
     weaponGfx: {fileID: 4913251172318160832}
-    weaponReticle: {fileID: 2072634995185843995}
+    weaponReticle: {fileID: 2456777011304124103}
     weaponBarrels:
     - {fileID: 3537693180872267810}
     - {fileID: 2538473021605918491}
@@ -2675,8 +2722,8 @@ MonoBehaviour:
   reticleSizeMultiplier: 2.5
   smallReticleRange: 0.8
   reticleHolder: {fileID: 5369474610807630919}
-  smallReticle: {fileID: 1492098597299508689}
-  targetReticle: {fileID: 9176107525415905054}
+  smallReticle: {fileID: 616774479908057375}
+  targetReticle: {fileID: 5521281316630439350}
   overheatText: {fileID: 2869069841515162540}
   weaponSwitchSfx: {fileID: 0}
   weaponOverheatSfx: {fileID: 11400000, guid: 7ad50aeb9c2a07149856f950872b5fd4, type: 2}
@@ -3096,7 +3143,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8addb75ad37fbc1489cd882e25b28b89, type: 2}
+  - {fileID: 2100000, guid: 8381b8cd54d780c4485baf122961951f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3388,7 +3435,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8addb75ad37fbc1489cd882e25b28b89, type: 2}
+  - {fileID: 2100000, guid: 8381b8cd54d780c4485baf122961951f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3935,7 +3982,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8addb75ad37fbc1489cd882e25b28b89, type: 2}
+  - {fileID: 2100000, guid: 8381b8cd54d780c4485baf122961951f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4021,7 +4068,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8addb75ad37fbc1489cd882e25b28b89, type: 2}
+  - {fileID: 2100000, guid: 8381b8cd54d780c4485baf122961951f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4262,7 +4309,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9176107525415905054}
-  - component: {fileID: 8017477789266483695}
+  - component: {fileID: 5521281316630439350}
   m_Layer: 7
   m_Name: TargetReticle
   m_TagString: Untagged
@@ -4293,7 +4340,7 @@ Transform:
   - {fileID: 9007440082179790824}
   m_Father: {fileID: 5369474610807630919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8017477789266483695
+--- !u!114 &5521281316630439350
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4302,11 +4349,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 8399613674000869028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96f06850b221d8444a841767949fc9a1, type: 3}
+  m_Script: {fileID: 11500000, guid: a8a1ac04dd8f1d84c977b7d01d74870e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
-  pulseEmission: 0
+  emissionAffectsAlpha: 1
   reticleRenderers:
   - {fileID: 8026457023098140983}
   - {fileID: 8993276472557018972}
@@ -4316,6 +4363,9 @@ MonoBehaviour:
   - {fileID: 219285135356931742}
   - {fileID: 4208656679078098340}
   - {fileID: 6724299620791783669}
+  pulseEmission: 1
+  pulseSpeed: 3
+  pulseMin: 0.3
 --- !u!1 &8456286350761355761
 GameObject:
   m_ObjectHideFlags: 0
@@ -4325,6 +4375,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1492098597299508689}
+  - component: {fileID: 616774479908057375}
   m_Layer: 7
   m_Name: SmallReticle
   m_TagString: Untagged
@@ -4351,6 +4402,28 @@ Transform:
   - {fileID: 2742805388429881188}
   m_Father: {fileID: 5369474610807630919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &616774479908057375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8456286350761355761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8a1ac04dd8f1d84c977b7d01d74870e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emissionStrength: 1
+  emissionAffectsAlpha: 1
+  reticleRenderers:
+  - {fileID: 3902147638072278002}
+  - {fileID: 3824027771685916316}
+  - {fileID: 8388988659736310039}
+  - {fileID: 3392263837340499893}
+  pulseEmission: 0
+  pulseSpeed: 3
+  pulseMin: 0.3
 --- !u!1 &8599118151109767702
 GameObject:
   m_ObjectHideFlags: 0
@@ -4360,6 +4433,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3790990538868093353}
+  - component: {fileID: 4800777414530687514}
   m_Layer: 7
   m_Name: SquereReticle
   m_TagString: Untagged
@@ -4386,6 +4460,28 @@ Transform:
   - {fileID: 8265641016216794607}
   m_Father: {fileID: 5369474610807630919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4800777414530687514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8599118151109767702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8a1ac04dd8f1d84c977b7d01d74870e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emissionStrength: 1
+  emissionAffectsAlpha: 1
+  reticleRenderers:
+  - {fileID: 1445691226714708908}
+  - {fileID: 6187236964504006385}
+  - {fileID: 4135655409000580243}
+  - {fileID: 1744674984524784899}
+  pulseEmission: 0
+  pulseSpeed: 3
+  pulseMin: 0.3
 --- !u!1 &8680117356106722540
 GameObject:
   m_ObjectHideFlags: 0
@@ -4567,6 +4663,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1655734070457128625}
+  - component: {fileID: 7452997770777450716}
   m_Layer: 7
   m_Name: OctagramReticle
   m_TagString: Untagged
@@ -4597,6 +4694,32 @@ Transform:
   - {fileID: 6946000909653881720}
   m_Father: {fileID: 5369474610807630919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7452997770777450716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8774861632234324580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8a1ac04dd8f1d84c977b7d01d74870e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emissionStrength: 1
+  emissionAffectsAlpha: 1
+  reticleRenderers:
+  - {fileID: 2797940402119788746}
+  - {fileID: 3149968215603376845}
+  - {fileID: 6302925664342323395}
+  - {fileID: 2330167674463673751}
+  - {fileID: 6937918753933677518}
+  - {fileID: 7022256400578633095}
+  - {fileID: 6675292182593283073}
+  - {fileID: 6317577960617544784}
+  pulseEmission: 0
+  pulseSpeed: 3
+  pulseMin: 0.3
 --- !u!1 &8802662561648209402
 GameObject:
   m_ObjectHideFlags: 0
@@ -4692,7 +4815,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8addb75ad37fbc1489cd882e25b28b89, type: 2}
+  - {fileID: 2100000, guid: 8381b8cd54d780c4485baf122961951f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

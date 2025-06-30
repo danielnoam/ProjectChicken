@@ -8,8 +8,8 @@ Shader "Custom/URP/DoublePassShader"
 
         
         [Header(Emission Settings)][Space(10)]
-        [HDR] _EmissionColor ("Emission Color (HDR)", Color) = (1,1,1,1)
         [Toggle] _EmissionEnabled ("Enable Emission", Float) = 1.0
+        [HDR] _EmissionColor ("Emission Color", Color) = (1,1,1,1)
         _EmissionStrength ("Emission Strength", Range(0, 1)) = 1.0
     }
     

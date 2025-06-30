@@ -57,211 +57,34 @@ public class SOWeapon : ScriptableObject
     public string WeaponName => weaponName;
     public string WeaponDescription => weaponDescription;
     public Sprite WeaponIcon => weaponWeaponIcon;
+    
+    
     public WeaponLimitation WeaponLimitation => weaponLimitation;
     public WeaponType WeaponType => weaponType;
     public float Damage => damage;
     public float FireRate => fireRate;
+    public int MaxTargets => maxTargets;
+    public float TargetCheckRadius => targetCheckRadius;
+    
+    
     public float ConvergenceMultiplier => convergenceMultiplier;
     public float TimeLimit => timeLimit;
     public float AmmoLimit => ammoLimit;
     public float HeatPerShot => heatPerShot;
     public float ProjectileLifetime => projectileLifetime;
     public  List<ProjectileBehaviorBase> ProjectileBehaviors => projectileBehaviors;
+    public PlayerProjectile PlayerProjectilePrefab => playerProjectilePrefab;
+    public List<HitscanBehaviorBase> HitscanBehaviors => hitscanBehaviors;
     
-
+    public SOAudioEvent FireSound => fireSound;
+    public ParticleSystem FireEffectPrefab => fireEffectPrefab;
+    public bool ShakeCameraOnFire => shakeCameraOnFire;
+    public CameraShakeSettings FireShakeSettings => fireShakeSettings;
+    public SOAudioEvent ImpactSound => impactSound;
+    public ParticleSystem ImpactEffectPrefab => impactEffectPrefab;
+    public bool ShakeCameraOnImpact => shakeCameraOnImpact;
+    public CameraShakeSettings ImpactShakeSettings => impactShakeSettings;
     
-    
-    public void Fire(RailPlayer owner, Transform[] barrelPositions)
-    {
-        switch (weaponType)
-        {
-            case WeaponType.Projectile:
-
-                foreach (var barrelPosition in barrelPositions)
-                {
-                    CreateProjectile(owner, barrelPosition.position);
-                }
-
-                break;
-            case WeaponType.Hitscan:
-                
-                foreach (var barrelPosition in barrelPositions)
-                {
-                    Hitscan(owner, barrelPosition.position);
-                }
-
-                break;
-        }
-    }
-    
-    
-
-
-    #region Projectile  ---------------------------------------------------------------------------------
-
-    
-
-    private void CreateProjectile(RailPlayer owner, Vector3 position)
-    {
-        if (!playerProjectilePrefab) return;
-        
-        if (maxTargets == 1)
-        {
-            SpawnProjectile(owner, position, owner.GetTarget(targetCheckRadius));
-            
-        } 
-        else
-        {
-            ChickenController[] enemies = maxTargets switch
-            {
-                0 => owner.GetAllTargets(999, targetCheckRadius),
-                > 1 => owner.GetAllTargets(maxTargets, targetCheckRadius),
-                _ => Array.Empty<ChickenController>()
-            };
-
-            if (enemies.Length > 0)
-            {
-                foreach (ChickenController enemy in enemies)
-                {
-                    if (enemy)
-                    {
-                        SpawnProjectile(owner, position, enemy);
-                    }
-                }
-            }
-            else
-            {
-                SpawnProjectile(owner, position, null);
-            }
-        }
-        
-    }
-    
-    
-    private void SpawnProjectile(RailPlayer owner, Vector3 spawnPosition, ChickenController target)
-    {
-        PlayerProjectile projectile = Instantiate(playerProjectilePrefab, spawnPosition, Quaternion.identity);
-        projectile.SetUpProjectile(this, owner, target);
-    }
-    
-
-    
-
-    #endregion Projectile  ---------------------------------------------------------------------------------
-
-    
-
-    #region Hitscan ----------------------------------------------------------------------------------
-
-    private void Hitscan(RailPlayer owner, Vector3 startPosition)
-    {
-        PlayFireEffect(startPosition, Quaternion.identity);
-        
-        foreach (var behavior in hitscanBehaviors)
-        {
-            behavior.OnStart(this, owner);
-        }
-
-        
-        if (maxTargets == 1)
-        {
-            ChickenController enemy = owner.GetTarget(targetCheckRadius);
-            
-            if (enemy)
-            {
-                foreach (var behavior in hitscanBehaviors)
-                {
-                    behavior.OnHit(this, owner, enemy);
-                }
-                
-                enemy.TakeDamage(damage);
-                PlayImpactEffect(enemy.transform.position, Quaternion.identity);
-            }
-        } 
-        else
-        {
-            ChickenController[] enemies = maxTargets switch
-            {
-                0 => owner.GetAllTargets(999, targetCheckRadius),
-                > 1 => owner.GetAllTargets(maxTargets, targetCheckRadius),
-                _ => Array.Empty<ChickenController>()
-            };
-            foreach (ChickenController enemy in enemies)
-            {
-                if (!enemy) continue;
-                foreach (var behavior in hitscanBehaviors)
-                {
-                    behavior.OnHit(this, owner, enemy);
-                }
-                enemy.TakeDamage(damage);
-                PlayImpactEffect(enemy.transform.position, Quaternion.identity);
-            }
-        }
-        
-        foreach (var behavior in hitscanBehaviors)
-        {
-            behavior.OnEnd(this, owner);
-        }
-    }
-
-    #endregion Hitscan ----------------------------------------------------------------------------------
-
-
-    
-    #region Effects ---------------------------------------------------------------------------------
-
-    public void PlayImpactEffect(Vector3 position, Quaternion rotation)
-    {
-        if (impactEffectPrefab)
-        {
-            Instantiate(impactEffectPrefab, position, rotation);
-        }
-        
-        if (impactSound)
-        {
-            impactSound.PlayAtPoint(position);
-        }
-
-        if (shakeCameraOnImpact)
-        {
-            CameraManager.Instance?.ShakeCamera(impactShakeSettings.impulseShape, impactShakeSettings.intensity, impactShakeSettings.duration);
-        }
-
-    }
-    
-    
-    public void PlayFireEffect(Vector3 position, Quaternion rotation, AudioSource audioSource = null)
-    {
-        if (fireEffectPrefab)
-        {
-            Instantiate(fireEffectPrefab, position, rotation);
-        }
-        
-        if (fireSound)
-        {
-            if (audioSource)
-            {
-                fireSound.Play(audioSource);
-            }
-            else
-            {
-                fireSound.PlayAtPoint(position);
-            }
-        }
-        
-        if (shakeCameraOnFire)
-        {
-            CameraManager.Instance?.ShakeCamera(fireShakeSettings.impulseShape, fireShakeSettings.intensity, fireShakeSettings.duration);
-        }
-    }
-    
-
-
-    #endregion Effects ---------------------------------------------------------------------------------
-    
-
-
-
 
     
 

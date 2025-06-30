@@ -113,7 +113,7 @@ public class RailPlayer : MonoBehaviour
 
     private void OnEnable()
     {
-        playerWeapon.OnWeaponFired += OnWeaponFired;
+        playerWeapon.OnWeaponUsed += OnWeaponFired;
         playerWeapon.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
         playerWeapon.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
         playerWeapon.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
@@ -133,7 +133,7 @@ public class RailPlayer : MonoBehaviour
 
     private void OnDisable()
     {
-        playerWeapon.OnWeaponFired -= OnWeaponFired;
+        playerWeapon.OnWeaponUsed -= OnWeaponFired;
         playerWeapon.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
         playerWeapon.OnBaseWeaponCooldownUpdated -= OnBaseWeaponCooldownUpdated;
         playerWeapon.OnSpecialWeaponCooldownUpdated -= OnSpecialWeaponCooldownUpdated;

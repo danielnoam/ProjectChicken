@@ -1,13 +1,16 @@
-Shader "Custom/URP/EnemyStencilWriter"
+Shader "Custom/URP/StencilWriter"
 {
     Properties
     {
+        [Header(Base Settings)][Space(10)]
         [MainTexture] _BaseMap ("Base Map", 2D) = "white" {}
         [MainColor] _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
         _Smoothness ("Smoothness", Range(0.0, 1.0)) = 0.5
         _Metallic ("Metallic", Range(0.0, 1.0)) = 0.0
         _BumpMap ("Normal Map", 2D) = "bump" {}
         _BumpScale ("Normal Scale", Float) = 1.0
+        
+        [Header(Emission Settings)][Space(10)]
         [HDR] _EmissionColor ("Emission Color", Color) = (0, 0, 0)
     }
 

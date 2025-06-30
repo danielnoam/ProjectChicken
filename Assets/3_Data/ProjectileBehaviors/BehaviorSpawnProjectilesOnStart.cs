@@ -70,7 +70,7 @@ public class BehaviorSpawnProjectilesOnStart : ProjectileBehaviorBase
     {
         GameObject spawnedObj = Object.Instantiate(projectilePrefab.gameObject, spawnPosition, Quaternion.identity);
         PlayerProjectile miniProjectile = spawnedObj.GetComponent<PlayerProjectile>();
-        miniProjectile.SetUpMiniProjectile(projectileBehaviors, projectile.Weapon, owner, target);
+        miniProjectile.SetUpMiniProjectile(projectileBehaviors, projectile.Weapon, owner, projectile.WeaponInstance,target);
     }
     
 }

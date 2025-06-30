@@ -13,12 +13,14 @@ public class PlayerProjectile : MonoBehaviour
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     [SerializeField, Self, HideInInspector] private Rigidbody rigidBody;
     private RailPlayer _owner;
+
     private float _lifetime;
     private bool _isInitialized;
     private List<ProjectileBehaviorBase> _projectileBehaviors;
     
     
     public SOWeapon Weapon { get; private set; }
+    public WeaponInstance WeaponInstance { get; private set; }
     public ChickenController Target { get; private set;  }
     public Vector3 StartDirection { get; private set; }
     public Rigidbody Rigidbody => rigidBody;
@@ -55,7 +57,7 @@ public class PlayerProjectile : MonoBehaviour
         
         if (other.TryGetComponent(out ChickenController collision))
         {
-            Weapon.PlayImpactEffect(transform.position, Quaternion.identity);
+            WeaponInstance.PlayImpactEffect(transform.position, Quaternion.identity);
             collision.TakeDamage(Weapon.Damage);
             foreach (var behavior in _projectileBehaviors)
             {
@@ -90,7 +92,7 @@ public class PlayerProjectile : MonoBehaviour
 
     #region SetUp -------------------------------------------------------------------------
 
-    public void SetUpProjectile(SOWeapon weapon, RailPlayer player, ChickenController target)
+    public void SetUpProjectile(SOWeapon weapon, RailPlayer player, WeaponInstance weaponInstance, ChickenController target)
     {
         if (_isInitialized) return;
         
@@ -101,7 +103,8 @@ public class PlayerProjectile : MonoBehaviour
         StartDirection = player.GetAimDirectionFromBarrelPosition(transform.position, weapon.ConvergenceMultiplier);
         rigidBody.rotation = Quaternion.LookRotation(StartDirection);
         Target = target;
-        weapon.PlayFireEffect(transform.position, Quaternion.identity, audioSource);
+        WeaponInstance = weaponInstance;
+        weaponInstance.PlayFireEffect(transform.position, Quaternion.identity, audioSource);
         foreach (var behavior in _projectileBehaviors)
         {
             behavior.OnSpawn(this, _owner);
@@ -110,7 +113,7 @@ public class PlayerProjectile : MonoBehaviour
         _isInitialized = true;
     }
     
-    public void SetUpMiniProjectile(List<ProjectileBehaviorBase> projectileBehaviors, SOWeapon weapon, RailPlayer player, ChickenController target)
+    public void SetUpMiniProjectile(List<ProjectileBehaviorBase> projectileBehaviors, SOWeapon weapon, RailPlayer player, WeaponInstance weaponInstance, ChickenController target)
     {
         if (_isInitialized) return;
 
@@ -121,7 +124,8 @@ public class PlayerProjectile : MonoBehaviour
         StartDirection = player.GetAimDirectionFromBarrelPosition(transform.position, weapon.ConvergenceMultiplier);
         rigidBody.rotation = Quaternion.LookRotation(StartDirection);
         Target = target;
-        weapon.PlayFireEffect(transform.position, Quaternion.identity, audioSource);
+        WeaponInstance = weaponInstance;
+        weaponInstance.PlayFireEffect(transform.position, Quaternion.identity, audioSource);
         foreach (var behavior in _projectileBehaviors)
         {
             behavior.OnSpawn(this, _owner);

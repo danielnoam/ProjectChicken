@@ -56,8 +56,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private Transform reticleHolder;
-    [SerializeField] private Transform smallReticle;
-    [SerializeField] private Transform targetReticle;
+    [SerializeField] private WeaponReticle smallReticle;
+    [SerializeField] private WeaponReticle targetReticle;
     [SerializeField] private TextMeshPro overheatText;
     [SerializeField] private SOAudioEvent weaponSwitchSfx;
     [SerializeField] private SOAudioEvent weaponOverheatSfx;
@@ -74,6 +74,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private bool _allowShooting;
     private bool _attackInputHeld;
     private bool _attack2InputHeld;
+    private WeaponInstance _activeWeaponInstance;
     private WeaponInstance _baseWeaponInstance;
     private WeaponInstance _currentSpecialWeaponInstance;
     private WeaponInstance _previousSpecialWeaponInstance;
@@ -96,7 +97,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public WeaponInstance CurrentSpecialWeaponInstance => _currentSpecialWeaponInstance;
 
 
-    public event Action<WeaponInstance> OnWeaponFired;
+    public event Action<WeaponInstance> OnWeaponUsed;
     public event Action<WeaponInstance,WeaponInstance> OnSpecialWeaponSwitched;
     public event Action<WeaponInstance> OnSpecialWeaponDisabled;
     public event Action<WeaponInstance> OnBaseWeaponSwitched;
@@ -108,13 +109,13 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public event Action<float,float, float> OnWeaponHeatMiniGameWindowCreated;
     public event Action OnWeaponHeatMiniGameSucceeded;
     public event Action OnWeaponHeatMiniGameFailed;
+    
 
     
     private void OnValidate() 
     { 
         this.ValidateRefs();
-    
-        // Clamp window ranges between 0 and 1
+        
         windowPositionRange = new Vector2(
             Mathf.Clamp01(windowPositionRange.x), 
             Mathf.Clamp01(windowPositionRange.y)
@@ -124,8 +125,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             Mathf.Clamp01(windowSizeRange.x), 
             Mathf.Clamp01(windowSizeRange.y)
         );
-    
-        // Ensure x is always less than or equal to y
+        
         if (windowPositionRange.x > windowPositionRange.y)
         {
             windowPositionRange = new Vector2(windowPositionRange.y, windowPositionRange.x);
@@ -141,15 +141,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         if (weapons.Count >= 0)
         {
-            _baseWeaponFireRateCooldown = 0;
-            _baseWeaponInstance = weapons[0];
-            _baseWeaponInstance.OnWeaponSelected();
-            OnBaseWeaponSwitched?.Invoke(_baseWeaponInstance);
-
-            foreach (var weapon in weapons)
-            {
-                weapon.weaponReticle.localScale = Vector3.zero;
-            }
+            SetUpBaseWeapon(weapons[0]);
         }
 
         overheatText.alpha = 0;
@@ -201,26 +193,16 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         if (_allowShooting)
         {
-            // Only show special weapon reticle if there's a special weapon active
-            if (_currentSpecialWeaponInstance != null)
-            {
-                _currentSpecialWeaponInstance.ToggleWeaponReticle(true);
-                // Make sure base weapon reticle is hidden when special weapon is active
-                _baseWeaponInstance?.ToggleWeaponReticle(false);
-            }
-            else
-            {
-                // Only show base weapon reticle if no special weapon is active
-                _baseWeaponInstance?.ToggleWeaponReticle(true);
-            }
-        
-            targetReticle.gameObject.SetActive(true);
+            targetReticle.Show();
+            smallReticle.Show();
+            reticleHolder.gameObject.SetActive(true);
+
         }
         else
         {
-            _currentSpecialWeaponInstance?.ToggleWeaponReticle(false);
-            _baseWeaponInstance?.ToggleWeaponReticle(false);
-            targetReticle.gameObject.SetActive(false);
+            targetReticle.Hide();
+            smallReticle.Hide();
+            reticleHolder.gameObject.SetActive(false);
         }
     }
 
@@ -229,14 +211,14 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     private void FireActiveWeapon()
     {
-        // If there is a special weapon selected, use it
+        if (!_allowShooting) return;
+        
         if (_currentSpecialWeaponInstance != null)
         {
             FireSpecialWeapon();
         }
         else
         {
-            // If not, use the base weapon
             FireBaseWeapon();
         }
     }
@@ -274,9 +256,13 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             OnWeaponHeatUpdated?.Invoke(_currentHeat);
         }
 
-
-        _currentSpecialWeaponInstance?.ToggleWeaponReticle(false);
-        UseWeapon(_baseWeaponInstance);
+        if (_activeWeaponInstance != _baseWeaponInstance)
+        {
+            _activeWeaponInstance?.OnWeaponDeselected();
+            _activeWeaponInstance = _baseWeaponInstance;
+            _activeWeaponInstance.OnWeaponSelected();
+        }
+        UseWeapon(_activeWeaponInstance);
         _baseWeaponFireRateCooldown = _baseWeaponInstance.weaponData.FireRate;
         OnBaseWeaponCooldownUpdated?.Invoke(_baseWeaponInstance,_baseWeaponFireRateCooldown);
     }
@@ -344,9 +330,14 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             }
                 break;
         }
-            
-        _baseWeaponInstance?.ToggleWeaponReticle(false);
-        UseWeapon(_currentSpecialWeaponInstance);
+
+        if (_activeWeaponInstance != _currentSpecialWeaponInstance)
+        {
+            _activeWeaponInstance?.OnWeaponDeselected();
+            _activeWeaponInstance = _currentSpecialWeaponInstance;
+            _activeWeaponInstance.OnWeaponSelected();
+        }
+        UseWeapon(_activeWeaponInstance);
         _specialWeaponFireRateCooldown = _currentSpecialWeaponInstance.weaponData.FireRate;
         OnSpecialWeaponCooldownUpdated?.Invoke(CurrentSpecialWeaponInstance,_specialWeaponFireRateCooldown);
     }
@@ -356,12 +347,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private void UseWeapon(WeaponInstance weaponInstance)
     {
         if (weaponInstance == null) return;
-    
-        weaponInstance.weaponData.Fire(player, weaponInstance.weaponBarrels);
         
-        weaponInstance.OnWeaponUsed();
+        weaponInstance.OnWeaponUsed(player, weaponInstance.weaponBarrels);
     
-        OnWeaponFired?.Invoke(weaponInstance);
+        OnWeaponUsed?.Invoke(weaponInstance);
     }
 
     #endregion Weapon Usage ----------------------------------------------------------------------------------------------------
@@ -623,13 +612,13 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (targetReticle)
         {
             Vector3 targetReticleSize = playerAiming.CurrentAimLockTarget ? (Vector3.one * reticleSizeMultiplier) : Vector3.one * 0.60f; 
-            targetReticle.localScale = Vector3.Lerp(targetReticle.localScale, targetReticleSize, reticleGrowSpeed * Time.deltaTime);
+            targetReticle.transform.localScale = Vector3.Lerp(targetReticle.transform.localScale, targetReticleSize, reticleGrowSpeed * Time.deltaTime);
         }
         
         if (smallReticle)
         {
             Vector3 smallReticlePosition = Vector3.Lerp(transform.position, playerAiming.AimWorldPosition.position, smallReticleRange);
-            smallReticle.position = Vector3.Lerp(smallReticle.position, smallReticlePosition, reticleFollowSpeed * Time.deltaTime);
+            smallReticle.transform.position = Vector3.Lerp(smallReticle.transform.position, smallReticlePosition, reticleFollowSpeed * Time.deltaTime);
         }
     }
     
@@ -638,7 +627,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     #endregion Weapon Reticle -----------------------------------------------------------------------------------------------
     
     
-    #region Special Weapon Management --------------------------------------------------------------------------------------
+    #region Weapon Management --------------------------------------------------------------------------------------
     
     
     private void SetSpecialWeapon(WeaponInstance newWeapon)
@@ -665,9 +654,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 break;
         }
         if (switchingWeaponsResetsHeat) ResetHeat();
-        newWeapon.OnWeaponSelected();
-        _baseWeaponInstance.ToggleWeaponReticle(false);
-            
+        _activeWeaponInstance.OnWeaponDeselected();
+        _activeWeaponInstance = newWeapon;
+        _activeWeaponInstance.OnWeaponSelected();
         weaponSwitchSfx?.Play(audioSource);
         OnSpecialWeaponCooldownUpdated?.Invoke(newWeapon,_specialWeaponFireRateCooldown);
         OnSpecialWeaponSwitched?.Invoke(_previousSpecialWeaponInstance, newWeapon);
@@ -684,6 +673,19 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             break;
         }
     }
+    
+    private void SetUpBaseWeapon(WeaponInstance weapon)
+    {
+        _baseWeaponFireRateCooldown = 0;
+        _baseWeaponInstance = weapon;
+        OnBaseWeaponSwitched?.Invoke(_baseWeaponInstance);
+
+        if (_activeWeaponInstance == null)
+        {
+            _activeWeaponInstance = _baseWeaponInstance;
+            _activeWeaponInstance.OnWeaponSelected();
+        }
+    }
 
     
     [Button]
@@ -691,15 +693,20 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         if (!Application.isPlaying || _currentSpecialWeaponInstance == null) return;
         
-        _currentSpecialWeaponInstance?.OnWeaponDeselected();
+        _currentSpecialWeaponInstance.OnWeaponDeselected();
         _previousSpecialWeaponInstance = _currentSpecialWeaponInstance;
         _currentSpecialWeaponInstance = null;
-        _baseWeaponInstance.ToggleWeaponReticle(true);
         OnSpecialWeaponDisabled?.Invoke(_previousSpecialWeaponInstance);
+
+        if (_baseWeaponInstance != null)
+        {
+            _activeWeaponInstance = _baseWeaponInstance;
+            _activeWeaponInstance.OnWeaponSelected();
+        }
     }
     
 
-    #endregion Special Weapon Management --------------------------------------------------------------------------------------
+    #endregion Weapon Management --------------------------------------------------------------------------------------
 
 
     #region Input Handling --------------------------------------------------------------------------------------
@@ -790,3 +797,5 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     
 }
+
+

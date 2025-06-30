@@ -90,7 +90,7 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
             // Check if current target is still valid before playing effect
             if (currentTarget)
             {
-                weapon.PlayImpactEffect(currentTarget.transform.position, Quaternion.identity);
+                // weapon.PlayImpactEffect(currentTarget.transform.position, Quaternion.identity);
             }
             
             currentTarget = nextTarget;
