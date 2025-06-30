@@ -5,6 +5,7 @@ using UnityEngine;
 using PrimeTween;
 using Unity.Cinemachine;
 
+[SelectionBase]
 public abstract class MenuElement : MonoBehaviour
 {
     

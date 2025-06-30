@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using CustomAttribute;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VInspector;
 
 
 [CreateAssetMenu(fileName = "New Level", menuName = "Scriptable Objects/New Level")]
@@ -13,11 +15,16 @@ public class SOLevel : ScriptableObject
     [SerializeField] private GameObject levelGfxPrefab;
     [SerializeField] private SceneField levelScene;
 
-
+    
+    [Header("Level Unlock")]
+    [SerializeField] private bool isLocked;
+    [SerializeField, ShowIf("isLocked")] private List<SOLevel> levelsToComplete = new List<SOLevel>();
+    
     public string LevelName => levelName;
     public string LevelDescription => levelDescription;
     public LevelDifficulty LevelDifficulty => levelDifficulty;
-
+    public bool IsLocked => isLocked;
+    public List<SOLevel> LevelsToComplete => levelsToComplete;
     
     
     public void LoadLevel()
@@ -36,5 +43,10 @@ public class SOLevel : ScriptableObject
         levelGfx.SetActive(false);
         
         return levelGfx;
+    }
+    
+    public string GetScenePath()
+    {
+        return levelScene.ScenePath;
     }
 }

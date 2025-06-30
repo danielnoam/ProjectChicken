@@ -7,7 +7,6 @@ using UnityEngine.Audio;
 using VInspector;
 using Random = UnityEngine.Random;
 
-
 [CreateAssetMenu(fileName = "New AudioEvent", menuName = "Scriptable Objects/New Audio Event")]
 public class SOAudioEvent : ScriptableObject
 {

@@ -255,10 +255,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   arrivalThreshold: 0.5
   maxWaitTime: 5
-  slotCheckInterval: 2
-  followStrength: 13
   damping: 5
-  followLerpSpeed: 2
+  followLerpSpeed: 10
   positionDeadZone: 0.1
   hasAssignedSlot: 0
   assignedSlotInfo: None
@@ -443,7 +441,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: c9bda6e08f839dc7fa1fee2989a0705c, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 4226fa7824271d4628a957cad0d23ec2, type: 2}
+      objectReference: {fileID: 2100000, guid: 6653c84a3f706d147acdad72574c1b4a, type: 2}
     - target: {fileID: 919132149155446097, guid: c9bda6e08f839dc7fa1fee2989a0705c, type: 3}
       propertyPath: m_Name
       value: ChickenProxy02
