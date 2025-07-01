@@ -35,12 +35,12 @@ public class WeaponInstance
 
     public void OnAimLocked(float size = 0.5f)
     {
-        weaponReticle?.TweenReticleSize(size, 0.3f);
+        weaponReticle?.EnableAimLock(size, 0.3f);
     }
     
-    public void OnAimUnlocked(float size = 1f)
+    public void OnAimUnlocked(float duration = 0.3f)
     {
-        weaponReticle?.TweenReticleSize(size, 0.3f);
+        weaponReticle?.DisableAimLock(duration);
     }
     
     

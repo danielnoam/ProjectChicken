@@ -28,16 +28,17 @@ public class RailPlayerAiming : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
 
 
+    private bool _isAimLocked;
     private bool _allowAiming;
     private float _noInputTimer;
     private Vector2 _processedLookInput;
     private Vector2 _normalizedReticlePosition;
     private Vector3 _aimDirection;
     private ChickenController _currentAimLockTarget;
-    private bool _isAimLocked;
     private float _aimLockCooldownTimer;
     private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundary.x : 25f;
     private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundary.y : 15f;
+    
 
     
     
@@ -109,14 +110,14 @@ public class RailPlayerAiming : MonoBehaviour
     private void ProcessAimingInput()
     {
         // Skip normal input processing if aim lock is active and controlling the reticle
-        if (_isAimLocked && _processedLookInput.magnitude <= playerInput.CurrentControlScheme.lockAimStrength)
+        if (_isAimLocked && _processedLookInput.magnitude <= playerInput.CurrentControlScheme.aimLockStrength)
         {
             _processedLookInput = Vector2.zero;
             return;
         }
         
         // If we have strong enough input while aim locked, break the aim lock
-        if (_isAimLocked && _processedLookInput.magnitude > playerInput.CurrentControlScheme.lockAimStrength)
+        if (_isAimLocked && _processedLookInput.magnitude > playerInput.CurrentControlScheme.aimLockStrength)
         {
             BreakAimLock();
         }
@@ -204,86 +205,79 @@ public class RailPlayerAiming : MonoBehaviour
             return;
         }
         
-        // Update cooldown timer
+
         if (_aimLockCooldownTimer > 0)
         {
             _aimLockCooldownTimer -= Time.deltaTime;
         }
         
-        // Check if we should start aim lock
-        if (!_isAimLocked && _aimLockCooldownTimer <= 0 && _noInputTimer > 0.1f) // Small delay to avoid instant lock
-        {
-            TryStartAimLock();
-        }
-        
-        // Handle active aim lock
+                
         if (_isAimLocked)
         {
-            HandleActiveAimLock();
+            if (!_currentAimLockTarget || !_currentAimLockTarget.gameObject.activeInHierarchy)
+            {
+                BreakAimLock();
+                return;
+            }
+        
+            float distanceToTarget = Vector3.Distance(aimWorldPosition.position, _currentAimLockTarget.transform.position);
+            if (distanceToTarget > playerInput.CurrentControlScheme.aimLockRadius * 1.5f)
+            {
+                BreakAimLock();
+                return;
+            }
+        
+
+            Vector3 targetWorldPosition = _currentAimLockTarget.transform.position;
+            Vector3 boundaryCenter = GetReticleSplinePosition();
+            Vector3 localTargetOffset = targetWorldPosition - boundaryCenter;
+            if (player.AlignToSplineDirection)
+            {
+                localTargetOffset = Quaternion.Inverse(player.SplineRotation) * localTargetOffset;
+            }
+        
+            Vector2 targetNormalizedPosition = new Vector2(
+                Mathf.Clamp(localTargetOffset.x / CrosshairBoundaryX, -1f, 1f),
+                Mathf.Clamp(localTargetOffset.y / CrosshairBoundaryY, -1f, 1f)
+            );
+        
+            _normalizedReticlePosition = Vector2.Lerp(
+                _normalizedReticlePosition,
+                targetNormalizedPosition,
+                playerInput.CurrentControlScheme.aimLockSpeed * Time.deltaTime
+            );
+        }
+        
+        
+        if (!_isAimLocked && _aimLockCooldownTimer <= 0 && _noInputTimer > 0.1f)
+        {
+            TryAimLock();
         }
     }
     
-    private void TryStartAimLock()
+    private void TryAimLock()
     {
-        ChickenController target = GetEnemyTarget(playerInput.CurrentControlScheme.aimLockRadius);
-        if (target)
+        if (_isAimLocked) return;
+        
+        ChickenController newTarget = GetEnemyTarget(playerInput.CurrentControlScheme.aimLockRadius);
+        if (newTarget && _currentAimLockTarget != newTarget)
         {
-            _currentAimLockTarget = target;
+            _currentAimLockTarget = newTarget;
             _isAimLocked = true;
-            OnAimLockStateChange?.Invoke(_isAimLocked, _currentAimLockTarget);
+            OnAimLockStateChange?.Invoke(true, newTarget);
         }
-    }
-    
-    private void HandleActiveAimLock()
-    {
-        // Check if target is still valid
-        if (!_currentAimLockTarget || !_currentAimLockTarget.gameObject.activeInHierarchy)
-        {
-            BreakAimLock();
-            return;
-        }
-        
-        // Check if target is still within range
-        float distanceToTarget = Vector3.Distance(aimWorldPosition.position, _currentAimLockTarget.transform.position);
-        if (distanceToTarget > playerInput.CurrentControlScheme.aimLockRadius * 1.2f) // Add some hysteresis to prevent flickering
-        {
-            BreakAimLock();
-            return;
-        }
-        
-        // Move reticle towards target
-        Vector3 targetWorldPosition = _currentAimLockTarget.transform.position;
-        
-        // Convert target world position to normalized reticle position
-        Vector3 boundaryCenter = GetReticleSplinePosition();
-        Vector3 localTargetOffset = targetWorldPosition - boundaryCenter;
-        
-        // Apply inverse spline rotation if enabled
-        if (player.AlignToSplineDirection)
-        {
-            localTargetOffset = Quaternion.Inverse(player.SplineRotation) * localTargetOffset;
-        }
-        
-        Vector2 targetNormalizedPosition = new Vector2(
-            Mathf.Clamp(localTargetOffset.x / CrosshairBoundaryX, -1f, 1f),
-            Mathf.Clamp(localTargetOffset.y / CrosshairBoundaryY, -1f, 1f)
-        );
-        
-        // Lerp towards target position
-        _normalizedReticlePosition = Vector2.Lerp(
-            _normalizedReticlePosition,
-            targetNormalizedPosition,
-            playerInput.CurrentControlScheme.lockAimSpeed * Time.deltaTime
-        );
     }
     
     private void BreakAimLock()
     {
+        if (!_isAimLocked) return;
+        
         _isAimLocked = false;
         _currentAimLockTarget = null;
-        _aimLockCooldownTimer = playerInput.CurrentControlScheme.lockAimCooldown;
-        OnAimLockStateChange?.Invoke(_isAimLocked, _currentAimLockTarget);
+        _aimLockCooldownTimer = playerInput.CurrentControlScheme.aimLockCooldown;
+        OnAimLockStateChange?.Invoke(false, null);
     }
+    
 
     #endregion Aim Lock --------------------------------------------------------------------------------------------------------
 

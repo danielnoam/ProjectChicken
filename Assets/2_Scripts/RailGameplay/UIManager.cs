@@ -521,6 +521,9 @@ public class UIManager : MonoBehaviour
             playerMiniGameWindow.rectTransform.anchoredPosition.x,
             yOffset
         );
+        
+        Tween.PunchScale(playerMiniGameWindow.transform, strength: Vector3.one * miniGamePunchStrength, duration: miniGamePunchDuration);
+        Tween.Color(playerMiniGameWindow, startValue: playerMiniGameWindow.color, endValue: miniGameActiveColor, miniGameAnimationDuration);
     }
     
     
@@ -530,8 +533,6 @@ public class UIManager : MonoBehaviour
         
         Tween.PunchScale(playerHeatBar.transform, strength: Vector3.one * heatBarPunchStrength, duration: heatBarPunchDuration);
         
-        Tween.PunchScale(playerMiniGameWindow.transform, strength: Vector3.one * miniGamePunchStrength, duration: miniGamePunchDuration);
-        Tween.Color(playerMiniGameWindow, startValue: playerMiniGameWindow.color, endValue: miniGameActiveColor, miniGameAnimationDuration);
     }
     
     private void OnWeaponHeatReset()

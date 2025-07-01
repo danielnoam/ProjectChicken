@@ -15,9 +15,9 @@ public class ControlSchemeSettings
     [Header("Aim Lock")]
     public bool aimLock;
     public float aimLockRadius;
-    [Min(0)] public float lockAimSpeed;
-    [Min(0)] public float lockAimStrength;
-    [Min(0)] public float lockAimCooldown;
+    [Min(0)] public float aimLockSpeed;
+    [Min(0)] public float aimLockStrength;
+    [Min(0)] public float aimLockCooldown;
     
     [Header("Dodge")]
     public bool allowFreeformDodge;
@@ -25,7 +25,7 @@ public class ControlSchemeSettings
     [Min(0.1f), ShowIf("doubleTapToDodge")] public float doubleTapTime;
 
     public ControlSchemeSettings(bool invertY, bool invertX, float aimSensitivity, float deadZone,AnimationCurve magnitudeToSensitivityCurve,
-        bool aimLock, float aimLockRadius, float lockAimSpeed, float lockAimStrength, float lockAimCooldown,
+        bool aimLock, float aimLockRadius, float aimLockSpeed, float aimLockStrength, float aimLockCooldown,
         bool allowFreeformDodge, bool doubleTapToDodge, float doubleTapTime)
     {
         this.invertY = invertY;
@@ -35,9 +35,9 @@ public class ControlSchemeSettings
         this.magnitudeToSensitivityCurve = magnitudeToSensitivityCurve;
         this.aimLock = aimLock;
         this.aimLockRadius = aimLockRadius;
-        this.lockAimSpeed = lockAimSpeed;
-        this.lockAimStrength = lockAimStrength;
-        this.lockAimCooldown = lockAimCooldown;
+        this.aimLockSpeed = aimLockSpeed;
+        this.aimLockStrength = aimLockStrength;
+        this.aimLockCooldown = aimLockCooldown;
         this.allowFreeformDodge = allowFreeformDodge;
         this.doubleTapToDodge = doubleTapToDodge;
         this.doubleTapTime = doubleTapTime;
@@ -57,9 +57,9 @@ public class ControlSchemeSettings
         this.magnitudeToSensitivityCurve = settings.magnitudeToSensitivityCurve;
         this.aimLock = settings.aimLock;
         this.aimLockRadius = settings.aimLockRadius;
-        this.lockAimSpeed = settings.lockAimSpeed;
-        this.lockAimStrength = settings.lockAimStrength;
-        this.lockAimCooldown = settings.lockAimCooldown;
+        this.aimLockSpeed = settings.aimLockSpeed;
+        this.aimLockStrength = settings.aimLockStrength;
+        this.aimLockCooldown = settings.aimLockCooldown;
         this.allowFreeformDodge = settings.allowFreeformDodge;
         this.doubleTapToDodge = settings.doubleTapToDodge;
         this.doubleTapTime = settings.doubleTapTime;

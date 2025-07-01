@@ -17,17 +17,23 @@ public class WeaponReticle : MonoBehaviour
     [SerializeField, Range(0.1f, 0.9f)] private float pulseMin = 0.3f;
 
     
+
+    private bool _isVisible;
+    private bool _isAimLocked;
+    private float _maxStrength;
+    private float _baseSize;
     private Tween _reticleTween;
     private readonly List<Material> _reticleMaterials = new List<Material>();
     private static readonly int EmissionStrength = Shader.PropertyToID("_EmissionStrength");
     private static readonly int EmissionEnabled = Shader.PropertyToID("_EmissionEnabled");
     private static readonly int BaseColor = Shader.PropertyToID("_BaseColor"); 
-    private bool _isVisible;
-    private float _maxStrength;
+    private float DefaultSize => _isAimLocked ? _baseSize / 2 : _baseSize;
+
 
     private void Awake()
     {
         _maxStrength = emissionStrength;
+        _baseSize = transform.localScale.x;
         GetMaterialsFromRenderers();
         Hide();
     }
@@ -47,7 +53,7 @@ public class WeaponReticle : MonoBehaviour
     public void Show()
     {
         _isVisible = true;
-        TweenReticleSize(1f, 0.5f);
+        TweenReticleSize(DefaultSize, 0.5f);
     }
     
     public void Hide()
@@ -56,6 +62,33 @@ public class WeaponReticle : MonoBehaviour
         TweenReticleSize(0f, 0.5f);
     }
     
+    
+    public void EnableAimLock(float size, float duration)
+    {
+        if (_isAimLocked) return;
+        
+        _isAimLocked = true;
+        if (_isVisible)
+        {
+            TweenReticleSize(size, duration);
+        }
+    }
+    
+    public void DisableAimLock(float duration)
+    {
+        if (!_isAimLocked) return;
+
+        _isAimLocked = false;
+        if (_isVisible)
+        {
+            TweenReticleSize(DefaultSize, duration);
+        }
+    }
+    
+    public void ForceChangeBaseSize(float size)
+    {
+        _baseSize = size;
+    }
     
     
 
@@ -138,10 +171,9 @@ public class WeaponReticle : MonoBehaviour
     
     public void TweenReticleSize(float size, float duration) 
     {
-        if (Mathf.Approximately(size, 0) && Mathf.Approximately(transform.localScale.x, 0)) return;
-        if (Mathf.Approximately(size, 1) && Mathf.Approximately(transform.localScale.x, 1)) return;
+        if (Mathf.Approximately(transform.localScale.x, size)) return;
         
-        if (Mathf.Approximately(size, 1f))
+        if (size >= _baseSize)
         {
             UpdateMaterialsAlpha(1f);
         }
@@ -163,7 +195,7 @@ public class WeaponReticle : MonoBehaviour
         
         if (_reticleTween.isAlive) _reticleTween.Stop();
         
-        transform.localScale = Vector3.one;
+        transform.localScale = Vector3.one * DefaultSize;
         _reticleTween = Tween.PunchScale(transform,Vector3.one * strength, duration: duration);
         
     }

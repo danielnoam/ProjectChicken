@@ -2,9 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using KBCore.Refs;
-using TMPro;
 using UnityEngine;
 using VInspector;
+
+
+
+
 
 [SelectionBase]
 [RequireComponent(typeof(RailPlayerInput))]
@@ -16,15 +19,16 @@ public class RailPlayer : MonoBehaviour
 
     [Header("Health")]
     [SerializeField, Min(0)] private int maxHealth = 3;
+    [SerializeField] private bool dodgingGivesInvincibility = true;
     [SerializeField] private bool receiveHealthOnBonusThreshold = true;
     
     [Header("Shield")]
     [SerializeField, Min(0)] private float maxShieldHealth = 100f;
-    [SerializeField, Min(0)] private float shieldRegenCooldown = 4f;
-    [SerializeField, Min(0)] private float shieldRegenRate = 5f;
+    [SerializeField, Min(0)] private float shieldRegenCooldown = 3f;
+    [SerializeField, Min(0)] private float shieldRegenRate = 15f;
     
     [Header("Resource Collection")]
-    [SerializeField ,Min(0)] private float magnetRadius = 17f;
+    [SerializeField ,Min(0)] private float magnetRadius = 14f;
     
     [Header("Path Following")]
     [SerializeField] private bool alignToSplineDirection = true;
@@ -155,11 +159,12 @@ public class RailPlayer : MonoBehaviour
     #region Damage ---------------------------------------------------------------------- 
 
     [Button]
-    private void TakeDamage(float damage)
+    public void TakeDamage(float damage)
     {
-        if (damage <= 0 || !IsAlive()) return;
+        if (damage <= 0 || !IsAlive() || (dodgingGivesInvincibility && IsDodging())) return;
         
         StopShieldRegen();
+        
             
         if (HasShield())
         {
@@ -192,7 +197,7 @@ public class RailPlayer : MonoBehaviour
     
     private void DamageHealth()
     {
-        if (!IsAlive() || IsDodging()) return;
+        if (!IsAlive()) return;
 
         _currentHealth -= 1;
         if (_currentHealth <= 0)
