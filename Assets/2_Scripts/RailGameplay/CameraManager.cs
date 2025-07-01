@@ -91,7 +91,7 @@ public class CameraManager : MonoBehaviour
 
         if (player)
         {
-            player.OnDodge += OnPlayerDodge;
+            player.PlayerMovement.OnDodge += OnPlayerDodge;
             player.OnHealthChanged += OnHealthChanged;
             player.OnShieldChanged += OnShieldChanged;
             followCamera.Target.TrackingTarget = player.GetFollowCameraTarget();
@@ -111,7 +111,7 @@ public class CameraManager : MonoBehaviour
         
         if (player)
         {
-            player.OnDodge -= OnPlayerDodge;
+            player.PlayerMovement.OnDodge -= OnPlayerDodge;
             player.OnHealthChanged -= OnHealthChanged;
             player.OnShieldChanged -= OnShieldChanged;
             introCamera.Target.TrackingTarget = null;

@@ -34,13 +34,13 @@ public class RailPlayerMovement : MonoBehaviour
     [EndIf]
     
     [Header("References")] 
+    [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
+    [SerializeField] private Transform shipModel;
     [SerializeField] private SOAudioEvent dodgeSfx;
     [SerializeField, Self, HideInInspector] private RailPlayer player;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private Rigidbody playerRigidbody;
-    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
-    [SerializeField] private Transform shipModel;
 
 
     private float _horizontalInput;

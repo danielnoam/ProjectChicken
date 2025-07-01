@@ -7,7 +7,6 @@ using UnityEngine;
 using VInspector;
 
 [SelectionBase]
-[RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(RailPlayerInput))]
 [RequireComponent(typeof(RailPlayerMovement))]
 [RequireComponent(typeof(RailPlayerAiming))]
@@ -33,6 +32,7 @@ public class RailPlayer : MonoBehaviour
     [EndIf]
     
     [Header("References")]
+    [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
     [SerializeField] private Transform followCameraTarget;
     [SerializeField] private Transform introCameraTarget;
     [SerializeField] private SOAudioEvent healthDamageSfx;
@@ -47,7 +47,6 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
-    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
 
     
 
@@ -61,31 +60,19 @@ public class RailPlayer : MonoBehaviour
     private readonly List<Resource> _resourcesInRange = new List<Resource>();
     private readonly Dictionary<ResourceType, Action<Resource>> _collectionActions = new Dictionary<ResourceType, Action<Resource>>();
 
+    public RailPlayerAiming PlayerAiming => playerAiming;
+    public RailPlayerWeaponSystem PlayerWeapon => playerWeapon;
+    public RailPlayerMovement PlayerMovement => playerMovement;
     public LevelManager LevelManager => levelManager;
     public Quaternion SplineRotation => _splineRotation;
     public bool AlignToSplineDirection => alignToSplineDirection;
     public int MaxHealth => maxHealth;
     public float MaxShieldHealth => maxShieldHealth;
-    public int CurrentCurrency => _currentCurrency;
     public event Action OnDeath;
     public event Action<int> OnHealthChanged;
     public event Action<float> OnShieldChanged;
-    public event Action<WeaponInstance> OnWeaponFired;
-    public event Action<WeaponInstance,WeaponInstance> OnSpecialWeaponSwitched;
-    public event Action<WeaponInstance,float> OnBaseWeaponCooldownUpdated;
-    public event Action<WeaponInstance,float> OnSpecialWeaponCooldownUpdated;
-    public event Action<WeaponInstance> OnSpecialWeaponDisabled;
-    public event Action<WeaponInstance> OnBaseWeaponSwitched;
-    public event Action<float> OnWeaponHeatUpdated;
-    public event Action OnWeaponOverheated;
-    public event Action OnWeaponHeatReset;
-    public event Action<float,float, float> OnWeaponHeatMiniGameWindowCreated;
-    public event Action OnWeaponHeatMiniGameSucceeded;
-    public event Action OnWeaponHeatMiniGameFailed;
     public event Action<Resource> OnResourceCollected;
     public event Action<int> OnCurrencyChanged;
-    public event Action OnDodge;
-    public event Action<float> OnDodgeCooldownUpdated;
 
 
 
@@ -113,36 +100,12 @@ public class RailPlayer : MonoBehaviour
 
     private void OnEnable()
     {
-        playerWeapon.OnWeaponUsed += OnWeaponFired;
-        playerWeapon.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
-        playerWeapon.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
-        playerWeapon.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
-        playerWeapon.OnWeaponHeatUpdated += OnWeaponHeatUpdated;
-        playerWeapon.OnWeaponOverheated += OnWeaponOverheated;
-        playerWeapon.OnWeaponHeatReset += OnWeaponHeatReset;
-        playerWeapon.OnWeaponHeatMiniGameWindowCreated += OnWeaponHeatMiniGameWindowCreated;
-        playerWeapon.OnWeaponHeatMiniGameSucceeded +=  OnWeaponHeatMiniGameSucceeded;
-        playerWeapon.OnWeaponHeatMiniGameFailed += OnWeaponHeatMiniGameFailed;
-        playerWeapon.OnSpecialWeaponDisabled += OnSpecialWeaponDisabled;
-        playerWeapon.OnBaseWeaponSwitched += OnBaseWeaponSwitched;
-        playerMovement.OnDodge += OnDodge;
-        playerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
         levelManager.OnBonusThresholdReached += OnMillionScoreReached;
         levelManager.OnStageChanged += OnStageChanged;
     }
 
     private void OnDisable()
     {
-        playerWeapon.OnWeaponUsed -= OnWeaponFired;
-        playerWeapon.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
-        playerWeapon.OnBaseWeaponCooldownUpdated -= OnBaseWeaponCooldownUpdated;
-        playerWeapon.OnSpecialWeaponCooldownUpdated -= OnSpecialWeaponCooldownUpdated;
-        playerWeapon.OnWeaponHeatUpdated -= OnWeaponHeatUpdated;
-        playerWeapon.OnWeaponOverheated -= OnWeaponOverheated;
-        playerWeapon.OnWeaponHeatReset -= OnWeaponHeatReset;
-        playerWeapon.OnWeaponHeatMiniGameWindowCreated -= OnWeaponHeatMiniGameWindowCreated;
-        playerMovement.OnDodge -= OnDodge;
-        playerMovement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
         levelManager.OnBonusThresholdReached -= OnMillionScoreReached;
         levelManager.OnStageChanged -= OnStageChanged;
     }

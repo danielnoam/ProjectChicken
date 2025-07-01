@@ -33,9 +33,14 @@ public class WeaponInstance
         weaponReticle?.PunchReticleSize(1f, 0.3f);
     }
 
-    public void OnAimLocked()
+    public void OnAimLocked(float size = 0.5f)
     {
-        weaponReticle?.TweenReticleSize(0.25f, 0.3f);
+        weaponReticle?.TweenReticleSize(size, 0.3f);
+    }
+    
+    public void OnAimUnlocked(float size = 1f)
+    {
+        weaponReticle?.TweenReticleSize(size, 0.3f);
     }
     
     

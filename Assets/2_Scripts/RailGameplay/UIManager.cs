@@ -146,11 +146,8 @@ public class UIManager : MonoBehaviour
     {
         if (player)
         {
-            OnUpdateHealth(player.MaxHealth);
-            OnUpdateShield(player.MaxShieldHealth);
             OnSpecialWeaponSwitched(null, null);
             OnWeaponHeatUpdated(0);
-            OnUpdateCurrency(player.CurrentCurrency);
             OnDodgeCooldownUpdated(0);
         }
         
@@ -168,19 +165,19 @@ public class UIManager : MonoBehaviour
             player.OnHealthChanged += OnUpdateHealth;
             player.OnShieldChanged += OnUpdateShield;
             player.OnCurrencyChanged += OnUpdateCurrency;
-            player.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
-            player.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
-            player.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
-            player.OnBaseWeaponSwitched += OnBaseWeaponSwitched;
-            player.OnSpecialWeaponDisabled += OnSpecialWeaponDisabled;
-            player.OnWeaponHeatUpdated += OnWeaponHeatUpdated;
-            player.OnWeaponOverheated += OnWeaponOverheated;
-            player.OnWeaponHeatReset += OnWeaponHeatReset;
-            player.OnWeaponHeatMiniGameWindowCreated += OnWeaponHeatMiniGameWindowCreated;
-            player.OnWeaponHeatMiniGameSucceeded += OnOnWeaponHeatMiniGameSucceeded;
-            player.OnWeaponHeatMiniGameFailed += OnOnWeaponHeatMiniGameFailed;
-            player.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
-            player.OnDodge += OnDodge;
+            player.PlayerWeapon.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
+            player.PlayerWeapon.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
+            player.PlayerWeapon.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
+            player.PlayerWeapon.OnBaseWeaponSwitched += OnBaseWeaponSwitched;
+            player.PlayerWeapon.OnSpecialWeaponDisabled += OnSpecialWeaponDisabled;
+            player.PlayerWeapon.OnWeaponHeatUpdated += OnWeaponHeatUpdated;
+            player.PlayerWeapon.OnWeaponOverheated += OnWeaponOverheated;
+            player.PlayerWeapon.OnWeaponHeatReset += OnWeaponHeatReset;
+            player.PlayerWeapon.OnWeaponHeatMiniGameWindowCreated += OnWeaponHeatMiniGameWindowCreated;
+            player.PlayerWeapon.OnWeaponHeatMiniGameSucceeded += OnOnWeaponHeatMiniGameSucceeded;
+            player.PlayerWeapon.OnWeaponHeatMiniGameFailed += OnOnWeaponHeatMiniGameFailed;
+            player.PlayerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
+            player.PlayerMovement.OnDodge += OnDodge;
         }
 
         if (levelManager)
@@ -198,17 +195,17 @@ public class UIManager : MonoBehaviour
             player.OnHealthChanged -= OnUpdateHealth;
             player.OnShieldChanged -= OnUpdateShield;
             player.OnCurrencyChanged -= OnUpdateCurrency;
-            player.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
-            player.OnSpecialWeaponCooldownUpdated -= OnSpecialWeaponCooldownUpdated;
-            player.OnBaseWeaponCooldownUpdated -= OnBaseWeaponCooldownUpdated;
-            player.OnWeaponHeatUpdated -= OnWeaponHeatUpdated;
-            player.OnWeaponOverheated -= OnWeaponOverheated;
-            player.OnWeaponHeatReset -= OnWeaponHeatReset;
-            player.OnWeaponHeatMiniGameWindowCreated -= OnWeaponHeatMiniGameWindowCreated;
-            player.OnBaseWeaponSwitched -= OnBaseWeaponSwitched;
-            player.OnSpecialWeaponDisabled -= OnSpecialWeaponDisabled;
-            player.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
-            player.OnDodge -= OnDodge;
+            player.PlayerWeapon.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
+            player.PlayerWeapon.OnSpecialWeaponCooldownUpdated -= OnSpecialWeaponCooldownUpdated;
+            player.PlayerWeapon.OnBaseWeaponCooldownUpdated -= OnBaseWeaponCooldownUpdated;
+            player.PlayerWeapon.OnWeaponHeatUpdated -= OnWeaponHeatUpdated;
+            player.PlayerWeapon.OnWeaponOverheated -= OnWeaponOverheated;
+            player.PlayerWeapon.OnWeaponHeatReset -= OnWeaponHeatReset;
+            player.PlayerWeapon.OnWeaponHeatMiniGameWindowCreated -= OnWeaponHeatMiniGameWindowCreated;
+            player.PlayerWeapon.OnBaseWeaponSwitched -= OnBaseWeaponSwitched;
+            player.PlayerWeapon.OnSpecialWeaponDisabled -= OnSpecialWeaponDisabled;
+            player.PlayerMovement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
+            player.PlayerMovement.OnDodge -= OnDodge;
         }
         
         if (levelManager)

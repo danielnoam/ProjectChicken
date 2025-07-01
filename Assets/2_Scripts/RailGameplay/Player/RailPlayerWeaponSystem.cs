@@ -47,17 +47,19 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [EndIf]
     [EndFoldout]
     
-    [Header("Reticles")]
+    [Foldout("Reticles")]
     [SerializeField, Tooltip("How fast the reticle position smoothly moves to its target position")] private float reticleFollowSpeed = 25f;
-    [SerializeField] private float reticleGrowSpeed = 5f;
-    [SerializeField] private float reticleSizeMultiplier = 2f;
-    [SerializeField, Range(0f, 1f)] private float smallReticleRange = 0.8f;
+    [SerializeField] private float reticleGrowSpeed = 0.6f;
+    [SerializeField] private float reticleSizeMultiplier = 2.5f;
+    [SerializeField, Range(0f, 1f)] private float rangingReticlesRange = 0.8f;
+    [SerializeField] private Transform reticleHolder;
+    [SerializeField] private WeaponReticle targetReticle;
+    [SerializeField] private List<WeaponReticle> rangingReticles;
+    [EndFoldout]
 
     
     [Header("References")]
-    [SerializeField] private Transform reticleHolder;
-    [SerializeField] private WeaponReticle smallReticle;
-    [SerializeField] private WeaponReticle targetReticle;
+    [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
     [SerializeField] private TextMeshPro overheatText;
     [SerializeField] private SOAudioEvent weaponSwitchSfx;
     [SerializeField] private SOAudioEvent weaponOverheatSfx;
@@ -68,7 +70,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
-    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
 
 
     private bool _allowShooting;
@@ -149,6 +150,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             SetUpBaseWeapon(weapons[0]);
         }
+        targetReticle.Show();
+        ToggleRangeReticles(true);
     }
 
     private void OnEnable()
@@ -156,6 +159,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         playerInput.OnAttackEvent += OnAttack;
         playerInput.OnAttack2Event += OnAttack2;
         playerMovement.OnDodge += OnDodge;
+        playerAiming.OnAimLockStateChange += OnAimLock;
         
         if (player.LevelManager)
         {
@@ -168,6 +172,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         playerInput.OnAttackEvent -= OnAttack;
         playerInput.OnAttack2Event -= OnAttack2;
         playerMovement.OnDodge -= OnDodge;
+        playerAiming.OnAimLockStateChange -= OnAimLock;
         
         
         if (player.LevelManager)
@@ -175,36 +180,52 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             player.LevelManager.OnStageChanged -= OnStageChanged;
         }
     }
-    
-    
+
+
     private void Update()
     {
         CheckAttackInputs();
         UpdateFireRateCooldown();
         UpdateHeatRegeneration();
         UpdateWeaponTime();
-        UpdateReticlesPosition();
+        UpdateReticlesPositions();
     }
     
 
     private void OnStageChanged(SOLevelStage stage)
     {
-        _allowShooting = !stage || stage.AllowPlayerShooting;
+        if (!stage) return;
+        
+        _allowShooting = stage.AllowPlayerShooting;
 
         if (_allowShooting)
         {
             targetReticle.Show();
-            smallReticle.Show();
-            reticleHolder.gameObject.SetActive(true);
+            ToggleRangeReticles(true);
             _activeWeaponInstance?.OnWeaponSelected();
 
         }
         else
         {
             targetReticle.Hide();
-            smallReticle.Hide();
-            reticleHolder.gameObject.SetActive(false);
+            ToggleRangeReticles(false);
             _activeWeaponInstance?.OnWeaponDeselected();
+        }
+    }
+    
+    private void OnAimLock(bool state, ChickenController target)
+    {
+        if (!_allowShooting) return;
+
+        if (state)
+        {
+            targetReticle?.TweenReticleSize(reticleSizeMultiplier, reticleGrowSpeed);
+            _activeWeaponInstance?.OnAimLocked();
+        }
+        else
+        {
+            targetReticle?.TweenReticleSize(0.5f, reticleGrowSpeed);
+            _activeWeaponInstance?.OnAimUnlocked();
         }
     }
 
@@ -437,15 +458,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _inMiniGameWindow = false;
         _miniGameAttempted = false;
         weaponOverheatSfx?.Play(audioSource);
-
-        if (_currentSpecialWeaponInstance != null)
-        {
-            _currentSpecialWeaponInstance.OnWeaponOverheat();
-        }
-        else
-        {
-            _baseWeaponInstance?.OnWeaponOverheat();
-        }
+        _currentSpecialWeaponInstance?.OnWeaponOverheat();
         
         Sequence.Create()
             .Group(Tween.PunchScale(overheatText.transform, strength:Vector3.one * 0.3f, duration:0.6f))
@@ -600,7 +613,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     #region Weapon Reticle -----------------------------------------------------------------------------------------------
 
-    private void UpdateReticlesPosition()
+    private void UpdateReticlesPositions()
     {
         if (!_allowShooting) return;
         
@@ -610,17 +623,34 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             reticleHolder.position = Vector3.Lerp(reticleHolder.position,playerAiming.AimWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
             reticleHolder.rotation = player.AlignToSplineDirection ? player.SplineRotation : Quaternion.identity;
         }
+
         
-        if (targetReticle)
+        if (rangingReticles.Count <= 0) return;
+        
+        foreach (var reticle in rangingReticles)
         {
-            Vector3 targetReticleSize = playerAiming.CurrentAimLockTarget ? (Vector3.one * reticleSizeMultiplier) : Vector3.one * 0.60f; 
-            targetReticle.transform.localScale = Vector3.Lerp(targetReticle.transform.localScale, targetReticleSize, reticleGrowSpeed * Time.deltaTime);
+            if (!reticle) continue;
+
+            Vector3 reticlePosition = Vector3.Lerp(transform.position, playerAiming.AimWorldPosition.position, rangingReticlesRange * (rangingReticles.IndexOf(reticle) + 1));
+            reticle.transform.position = Vector3.Lerp(reticle.transform.position, reticlePosition, reticleFollowSpeed * Time.deltaTime);
         }
+    }
+
+
+    private void ToggleRangeReticles(bool state)
+    {
+        if (rangingReticles.Count <= 0) return;
         
-        if (smallReticle)
+        foreach (var reticle in rangingReticles.Where(reticle => reticle))
         {
-            Vector3 smallReticlePosition = Vector3.Lerp(transform.position, playerAiming.AimWorldPosition.position, smallReticleRange);
-            smallReticle.transform.position = Vector3.Lerp(smallReticle.transform.position, smallReticlePosition, reticleFollowSpeed * Time.deltaTime);
+            if (state)
+            {
+                reticle.Show();
+            }
+            else
+            {
+                reticle.Hide();
+            }
         }
     }
     

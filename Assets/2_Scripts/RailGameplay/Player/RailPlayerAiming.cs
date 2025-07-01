@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using KBCore.Refs;
 using UnityEngine;
@@ -27,7 +28,7 @@ public class RailPlayerAiming : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
 
 
-    private bool _allowAiming = true;
+    private bool _allowAiming;
     private float _noInputTimer;
     private Vector2 _processedLookInput;
     private Vector2 _normalizedReticlePosition;
@@ -39,16 +40,22 @@ public class RailPlayerAiming : MonoBehaviour
     private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundary.y : 15f;
 
     
-    public bool IsAimLocked => _isAimLocked;
-    public ChickenController CurrentAimLockTarget => _currentAimLockTarget;
+    
     public Transform AimWorldPosition => aimWorldPosition;
     public Vector2 NormalizedReticlePosition => _normalizedReticlePosition;
+    public ChickenController CurrentAimLockTarget => _currentAimLockTarget;
+    
+    public event Action<bool, ChickenController> OnAimLockStateChange; 
 
     
     
     
     private void OnValidate() { this.ValidateRefs(); }
-    
+
+    private void Awake()
+    {
+        _allowAiming = true;
+    }
 
     private void OnEnable()
     {
@@ -223,6 +230,7 @@ public class RailPlayerAiming : MonoBehaviour
         {
             _currentAimLockTarget = target;
             _isAimLocked = true;
+            OnAimLockStateChange?.Invoke(_isAimLocked, _currentAimLockTarget);
         }
     }
     
@@ -274,6 +282,7 @@ public class RailPlayerAiming : MonoBehaviour
         _isAimLocked = false;
         _currentAimLockTarget = null;
         _aimLockCooldownTimer = playerInput.CurrentControlScheme.lockAimCooldown;
+        OnAimLockStateChange?.Invoke(_isAimLocked, _currentAimLockTarget);
     }
 
     #endregion Aim Lock --------------------------------------------------------------------------------------------------------
