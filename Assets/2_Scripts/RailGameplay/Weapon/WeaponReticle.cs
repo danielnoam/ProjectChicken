@@ -68,7 +68,7 @@ public class WeaponReticle : MonoBehaviour
     }
     
     
-    public void EnableAimLock(float duration)
+    public void EnableAimLockSize(float duration)
     {
         if (_isAimLocked) return;
         
@@ -79,7 +79,7 @@ public class WeaponReticle : MonoBehaviour
         }
     }
     
-    public void DisableAimLock(float duration)
+    public void DisableAimLockSize(float duration)
     {
         if (!_isAimLocked) return;
 
@@ -199,14 +199,14 @@ public class WeaponReticle : MonoBehaviour
             });
     }
 
-    public void PunchReticleSize(float strength, float duration)
+    public void PunchReticleSize(float strength, float duration, float delay = 0f)
     {
         if (!_isVisible) return;
         
         if (_reticleTween.isAlive) _reticleTween.Stop();
         
         transform.localScale = Vector3.one * DefaultSize;
-        _reticleTween = Tween.PunchScale(transform,Vector3.one * strength, duration: duration);
+        _reticleTween = Tween.PunchScale(transform,Vector3.one * strength, startDelay: delay, duration: duration);
         
     }
 

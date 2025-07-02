@@ -2296,7 +2296,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4403260633566778937}
   m_LocalRotation: {x: -0.017249031, y: 0.017137174, z: -0.20780985, w: 0.97786695}
-  m_LocalPosition: {x: 0, y: 0, z: -0.0031814575}
+  m_LocalPosition: {x: 0, y: 0, z: -4.49786}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2304,7 +2304,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: -1.525, y: 2.333, z: -24.026}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 4.87, y: 5.43}
+  m_AnchoredPosition: {x: 4.6869183, y: 5.310246}
   m_SizeDelta: {x: 20, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &4879585106343364316
@@ -3202,12 +3202,15 @@ MonoBehaviour:
   miniGameWindow: 0.415
   dodgeReleasesHeat: 1
   heatReleased: 25
-  reticleFollowSpeed: 25
-  reticlesSizeDuration: 0.6
-  reticlesAimLockSize: 2.5
+  targetReticleAimLockSize: 2.5
+  targetReticleAimLockDuration: 0.6
+  targetReticleOverheatPunchStrength: 1
+  targetReticlePunchStrength: 0.2
+  targetReticlePunchDuration: 0.3
   useRangingReticles: 0
   rangingReticlesAmount: 2
   rangingReticlesRange: 0.6
+  reticlesFollowSpeed: 25
   audioSource: {fileID: 1022034889576220707}
   reticleHolder: {fileID: 5369474610807630919}
   targetReticle: {fileID: 5521281316630439350}
@@ -5307,7 +5310,7 @@ Transform:
   m_GameObject: {fileID: 8136183787569594031}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 45}
+  m_LocalPosition: {x: 0, y: 0, z: 55}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

@@ -14,7 +14,7 @@ using VInspector;
 public class RailPlayerWeaponSystem : MonoBehaviour
 {
     [Header("Weapons Settings")]
-    [Tooltip("If true, the player can use the base weapon even with a special weapon, using a different button.")]
+    [Tooltip("If true, the player can use the base weapon with a special weapon, using a different button.")]
     [SerializeField] private bool allowBaseWeaponWithSpecialWeapon = true;
     [Tooltip("Special weapons are permanent, and don't change after limit reached (heat, ammo, time)")]
     [SerializeField] private bool specialWeaponsArePermanent = true;
@@ -49,8 +49,11 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [EndFoldout]
     
     [Foldout("Reticles")]
-    [SerializeField] private float targetReticleAimLockDuration = 0.6f;
     [SerializeField] private float targetReticleAimLockSize = 2.5f;
+    [SerializeField] private float targetReticleAimLockDuration = 0.6f;
+    [SerializeField] private float targetReticleOverheatPunchStrength = 1f;
+    [SerializeField] private float targetReticlePunchStrength = 0.2f;
+    [SerializeField] private float targetReticlePunchDuration = 0.3f;
     [SerializeField] private bool useRangingReticles;
     [ShowIf("useRangingReticles")]
     [SerializeField, Min(1)] private int rangingReticlesAmount = 2;
@@ -260,12 +263,12 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         if (state)
         {
-            targetReticle?.EnableAimLock(targetReticleAimLockDuration);
+            targetReticle?.EnableAimLockSize(targetReticleAimLockDuration);
             _activeWeaponInstance?.OnAimLocked();
         }
         else
         {
-            targetReticle?.DisableAimLock(targetReticleAimLockDuration);
+            targetReticle?.DisableAimLockSize(targetReticleAimLockDuration);
             _activeWeaponInstance?.OnAimUnlocked();
         }
     }
@@ -413,7 +416,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (weaponInstance == null) return;
         
         weaponInstance.OnWeaponUsed(player, weaponInstance.weaponBarrels);
-        targetReticle?.PunchReticleSize(0.2f, 0.5f);
+        targetReticle?.PunchReticleSize(targetReticlePunchStrength, targetReticlePunchDuration);
     
         OnWeaponUsed?.Invoke(weaponInstance);
     }
@@ -501,6 +504,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (overHeatResetsGame) _miniGameAttempted = false;
         weaponOverheatSfx?.Play(audioSource);
         _currentSpecialWeaponInstance?.OnWeaponOverheat();
+        targetReticle?.PunchReticleSize(targetReticleOverheatPunchStrength, targetReticlePunchDuration);
         
         Sequence.Create()
             .Group(Tween.PunchScale(overheatText.transform, strength:Vector3.one * 0.3f, duration:0.6f))

@@ -22,7 +22,7 @@ namespace Editor
             EditorGUI.BeginProperty(position, label, property);
 
             // Get the weapon and chance properties
-            var weaponProperty = property.FindPropertyRelative("weapon");
+            var weaponProperty = property.FindPropertyRelative("weaponData");
             var chanceProperty = property.FindPropertyRelative("chance");
             var isLockedProperty = property.FindPropertyRelative("isLocked");
 

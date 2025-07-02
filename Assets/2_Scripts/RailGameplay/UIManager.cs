@@ -162,6 +162,7 @@ public class UIManager : MonoBehaviour
     {
         if (player)
         {
+            player.OnDeath += OnDeath;
             player.OnHealthChanged += OnUpdateHealth;
             player.OnShieldChanged += OnUpdateShield;
             player.OnCurrencyChanged += OnUpdateCurrency;
@@ -192,6 +193,7 @@ public class UIManager : MonoBehaviour
     {
         if (player)
         {
+            player.OnDeath -= OnDeath;
             player.OnHealthChanged -= OnUpdateHealth;
             player.OnShieldChanged -= OnUpdateShield;
             player.OnCurrencyChanged -= OnUpdateCurrency;
@@ -351,6 +353,12 @@ public class UIManager : MonoBehaviour
 
     #region Player UI ----------------------------------------------------------------------------------
 
+
+    private void OnDeath()
+    {
+        FadeHUD(false);
+    }
+    
     private void OnUpdateHealth(int currentHealth)
     {
         int index = 0;

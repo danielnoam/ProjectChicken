@@ -68,6 +68,9 @@ public class SaveManager : MonoBehaviour
         }
         
         Initialize();
+        
+        // Delete it for now so we reset to default settings
+        DeleteSettingsDataAndFile();
     }
     
     
@@ -277,8 +280,6 @@ public class SaveManager : MonoBehaviour
     #endregion File Handling ----------------------------------------------------------------------------------------------------------------------------
     
     
-    
-    
     #region Data Update Methods ----------------------------------------------------------------------------------------------------------------------
     
     public static void UpdateLevelProgress(string scenePath, int score, bool completed = true)
@@ -374,8 +375,6 @@ public class SaveManager : MonoBehaviour
     }
     
     #endregion Progress Getters ----------------------------------------------------------------------------------------------------------------------
-
-
     
     
 #if UNITY_EDITOR

@@ -228,7 +228,7 @@ MonoBehaviour:
   Target:
     TrackingTarget: {fileID: 0}
     LookAtTarget: {fileID: 0}
-    CustomLookAtTarget: 0
+    CustomLookAtTarget: 1
   Lens:
     FieldOfView: 60.000004
     OrthographicSize: 5
@@ -469,6 +469,8 @@ MonoBehaviour:
   rotationSmoothness: 2
   invertRotationX: 0
   invertRotationY: 1
+  changePositions: 1
+  changePositionEvery: 1.5
   followCamera: {fileID: 5184551184866118152}
   introCamera: {fileID: 2581970083502225265}
   outroCamera: {fileID: 5170202138966820100}
@@ -622,7 +624,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TrackerSettings:
     BindingMode: 4
-    PositionDamping: {x: 0, y: 0, z: 0}
+    PositionDamping: {x: 2, y: 2, z: 2}
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1

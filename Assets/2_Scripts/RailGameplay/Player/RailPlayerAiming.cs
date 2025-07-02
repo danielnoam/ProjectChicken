@@ -56,6 +56,11 @@ public class RailPlayerAiming : MonoBehaviour
     private void Awake()
     {
         _allowAiming = true;
+        
+        // Take the aim world position out of the player's transform so when the player moves it will not affect the position setting of the aim position
+        // Don't change for now.
+        // The aim world position is also used in the player weapon system to hold the reticles
+        if (aimWorldPosition) aimWorldPosition.SetParent(null);
     }
 
     private void OnEnable()
@@ -179,7 +184,7 @@ public class RailPlayerAiming : MonoBehaviour
             }
         
             float distanceToTarget = Vector3.Distance(aimWorldPosition.position, _currentAimLockTarget.transform.position);
-            if (distanceToTarget > playerInput.CurrentControlScheme.aimLockRadius * 1.5f)
+            if (distanceToTarget > playerInput.CurrentControlScheme.aimLockRadius * 2.5f)
             {
                 BreakAimLock();
                 return;
@@ -226,13 +231,13 @@ public class RailPlayerAiming : MonoBehaviour
         }
     }
     
-    private void BreakAimLock()
+    private void BreakAimLock(bool playerBrockAimLock = false)
     {
         if (!_isAimLocked) return;
         
         _isAimLocked = false;
         _currentAimLockTarget = null;
-        _aimLockCooldownTimer = playerInput.CurrentControlScheme.aimLockCooldown;
+        _aimLockCooldownTimer = !playerBrockAimLock ? playerInput.CurrentControlScheme.aimLockCooldown : playerInput.CurrentControlScheme.aimLockCooldown*2;
         OnAimLockStateChange?.Invoke(false, null);
     }
     
@@ -269,7 +274,7 @@ public class RailPlayerAiming : MonoBehaviour
         
         if (_isAimLocked && _processedLookInput.magnitude > playerInput.CurrentControlScheme.aimLockStrength)
         {
-            BreakAimLock();
+            BreakAimLock(playerBrockAimLock: true);
         }
 
         Vector2 inputDelta = _processedLookInput;

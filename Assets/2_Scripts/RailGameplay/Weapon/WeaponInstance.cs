@@ -24,23 +24,23 @@ public class WeaponInstance
 
     public void OnWeaponUsed(RailPlayer owner, Transform[] barrelPositions)
     {
-        weaponReticle?.PunchReticleSize(0.25f, 0.3f);
+        weaponReticle?.PunchReticleSize(0.25f, 0.5f, 0.03f);
         FireWeapon(owner, barrelPositions);
     }
 
     public void OnWeaponOverheat()
     {
-        weaponReticle?.PunchReticleSize(1f, 0.3f);
+        weaponReticle?.PunchReticleSize(1f, 0.5f, 0.03f);
     }
 
     public void OnAimLocked()
     {
-        weaponReticle?.EnableAimLock(0.3f);
+        weaponReticle?.EnableAimLockSize(0.4f);
     }
     
-    public void OnAimUnlocked(float duration = 0.3f)
+    public void OnAimUnlocked(float duration = 0.4f)
     {
-        weaponReticle?.DisableAimLock(duration);
+        weaponReticle?.DisableAimLockSize(duration);
     }
     
     
