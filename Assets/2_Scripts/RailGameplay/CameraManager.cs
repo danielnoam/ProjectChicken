@@ -273,7 +273,7 @@ public class CameraManager : MonoBehaviour
     {
         if (!player) return Vector2.zero;
 
-        return player.GetNormalizedReticlePosition();
+        return player.PlayerAiming.NormalizedAimPosition;
     }
     
     private Vector3 CalculateDynamicOffset(Vector2 normalizedAimPosition)

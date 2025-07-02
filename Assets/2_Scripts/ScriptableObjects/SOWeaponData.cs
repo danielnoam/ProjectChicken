@@ -5,17 +5,17 @@ using VInspector;
 
 
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Scriptable Objects/New Weapon")]
-public class SOWeapon : ScriptableObject
+public class SOWeaponData : ScriptableObject
 {
     [Header("Weapon Settings")]
     [SerializeField] private string weaponName = "New Weapon";
     [SerializeField] private string weaponDescription = "A Weapon";
     [SerializeField] private Sprite weaponWeaponIcon;
     [SerializeField] private WeaponType weaponType = WeaponType.Projectile;
-    [SerializeField] private WeaponLimitation weaponLimitation = global::WeaponLimitation.None;
-    [SerializeField, Min(0), ShowIf("weaponLimitation", global::WeaponLimitation.HeatBased)] private float heatPerShot = 1f;[EndIf]
-    [SerializeField, Min(0), ShowIf("weaponLimitation", global::WeaponLimitation.TimeBased)] private float timeLimit = 10f;[EndIf]
-    [SerializeField, Min(0), ShowIf("weaponLimitation", global::WeaponLimitation.AmmoBased)] private float ammoLimit = 3f;[EndIf]
+    [SerializeField] private WeaponLimitation weaponLimitation = WeaponLimitation.None;
+    [SerializeField, Min(0), ShowIf("weaponLimitation", WeaponLimitation.HeatBased)] private float heatPerShot = 1f;[EndIf]
+    [SerializeField, Min(0), ShowIf("weaponLimitation", WeaponLimitation.TimeBased)] private float timeLimit = 10f;[EndIf]
+    [SerializeField, Min(0), ShowIf("weaponLimitation", WeaponLimitation.AmmoBased)] private float ammoLimit = 3f;[EndIf]
     [SerializeField, Min(0)] private float damage = 10f;
     [SerializeField, Min(0)] private float fireRate = 1f;
     [SerializeField, Min(0), Tooltip("0 = Infinite targets")] private int maxTargets = 1;
@@ -26,7 +26,6 @@ public class SOWeapon : ScriptableObject
     [Header("Projectile Settings")]
     [SerializeField] private PlayerProjectile playerProjectilePrefab;
     [SerializeField, Min(0)] private float projectileLifetime = 5f;
-    [SerializeField, Tooltip("Controls where projectiles converge: 0 = parallel, 1 = at crosshair, 0.5 = halfway to crosshair")] private float convergenceMultiplier = 1f;
     [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>();
     [EndIf]
     
@@ -67,7 +66,6 @@ public class SOWeapon : ScriptableObject
     public float TargetCheckRadius => targetCheckRadius;
     
     
-    public float ConvergenceMultiplier => convergenceMultiplier;
     public float TimeLimit => timeLimit;
     public float AmmoLimit => ammoLimit;
     public float HeatPerShot => heatPerShot;

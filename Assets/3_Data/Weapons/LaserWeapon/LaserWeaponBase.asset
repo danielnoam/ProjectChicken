@@ -26,7 +26,7 @@ MonoBehaviour:
   targetCheckRadius: 4
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
   projectileLifetime: 2
-  convergenceMultiplier: 1.2
+  convergenceMultiplier: 2
   projectileBehaviors:
   - rid: 3357952732499804233
   - rid: 3357952728375754824
@@ -57,7 +57,7 @@ MonoBehaviour:
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
       data:
         moveSpeed: 100
-        useAimAssist: 1
+        useAimAssist: 0
         aimAssistStrength: 45
         useSpeedStagger: 1
         speedStaggerTime: 0.1

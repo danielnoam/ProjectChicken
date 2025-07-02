@@ -32,7 +32,7 @@ public class RailPlayerAiming : MonoBehaviour
     private bool _allowAiming;
     private float _noInputTimer;
     private Vector2 _processedLookInput;
-    private Vector2 _normalizedReticlePosition;
+    private Vector2 _normalizedAimPosition;
     private Vector3 _aimDirection;
     private ChickenController _currentAimLockTarget;
     private float _aimLockCooldownTimer;
@@ -43,7 +43,7 @@ public class RailPlayerAiming : MonoBehaviour
     
     
     public Transform AimWorldPosition => aimWorldPosition;
-    public Vector2 NormalizedReticlePosition => _normalizedReticlePosition;
+    public Vector2 NormalizedAimPosition => _normalizedAimPosition;
     public ChickenController CurrentAimLockTarget => _currentAimLockTarget;
     
     public event Action<bool, ChickenController> OnAimLockStateChange; 
@@ -168,8 +168,8 @@ public class RailPlayerAiming : MonoBehaviour
         
         // Apply edge slowdown to prevent wall sliding
         Vector2 edgeDistance = new Vector2(
-            1f - Mathf.Abs(_normalizedReticlePosition.x),
-            1f - Mathf.Abs(_normalizedReticlePosition.y)
+            1f - Mathf.Abs(_normalizedAimPosition.x),
+            1f - Mathf.Abs(_normalizedAimPosition.y)
         );
 
         Vector2 edgeMultiplier = new Vector2(
@@ -181,9 +181,9 @@ public class RailPlayerAiming : MonoBehaviour
         inputDelta.y *= edgeMultiplier.y;
 
         // Update normalized position
-        _normalizedReticlePosition += inputDelta * Time.deltaTime;
-        _normalizedReticlePosition.x = Mathf.Clamp(_normalizedReticlePosition.x, -1f, 1f);
-        _normalizedReticlePosition.y = Mathf.Clamp(_normalizedReticlePosition.y, -1f, 1f);
+        _normalizedAimPosition += inputDelta * Time.deltaTime;
+        _normalizedAimPosition.x = Mathf.Clamp(_normalizedAimPosition.x, -1f, 1f);
+        _normalizedAimPosition.y = Mathf.Clamp(_normalizedAimPosition.y, -1f, 1f);
 
         // Store the final processed input delta
         _processedLookInput = inputDelta;
@@ -229,7 +229,7 @@ public class RailPlayerAiming : MonoBehaviour
         
 
             Vector3 targetWorldPosition = _currentAimLockTarget.transform.position;
-            Vector3 boundaryCenter = GetReticleSplinePosition();
+            Vector3 boundaryCenter = GetEnemySplinePosition();
             Vector3 localTargetOffset = targetWorldPosition - boundaryCenter;
             if (player.AlignToSplineDirection)
             {
@@ -241,8 +241,8 @@ public class RailPlayerAiming : MonoBehaviour
                 Mathf.Clamp(localTargetOffset.y / CrosshairBoundaryY, -1f, 1f)
             );
         
-            _normalizedReticlePosition = Vector2.Lerp(
-                _normalizedReticlePosition,
+            _normalizedAimPosition = Vector2.Lerp(
+                _normalizedAimPosition,
                 targetNormalizedPosition,
                 playerInput.CurrentControlScheme.aimLockSpeed * Time.deltaTime
             );
@@ -287,12 +287,12 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void UpdateAimPosition()
     {
-        Vector3 boundaryCenter = GetReticleSplinePosition();
+        Vector3 boundaryCenter = GetEnemySplinePosition();
 
         // Convert normalized position (-1 to 1) to world position within boundaries
         Vector3 localOffset = new Vector3(
-            _normalizedReticlePosition.x * CrosshairBoundaryX,
-            _normalizedReticlePosition.y * CrosshairBoundaryY,
+            _normalizedAimPosition.x * CrosshairBoundaryX,
+            _normalizedAimPosition.y * CrosshairBoundaryY,
             0
         );
 
@@ -327,8 +327,8 @@ public class RailPlayerAiming : MonoBehaviour
             if (_noInputTimer >= autoCenterDelay)
             {
                 // Return to center in normalized space for smooth, consistent centering
-                _normalizedReticlePosition = Vector2.Lerp(
-                    _normalizedReticlePosition, 
+                _normalizedAimPosition = Vector2.Lerp(
+                    _normalizedAimPosition, 
                     Vector2.zero, 
                     autoCenterSpeed * Time.deltaTime
                 );
@@ -407,26 +407,8 @@ public class RailPlayerAiming : MonoBehaviour
     {
         return _aimDirection;
     }
-    
-    public Vector3 GetAimDirectionFromBarrelPosition(Vector3 position, float convergenceMultiplier = 0f)
-    {
-        if (convergenceMultiplier == 0f)
-        {
-            Vector3 parallelDirection = (aimWorldPosition.position - transform.position).normalized;
-            return parallelDirection;
-        }
-        else
-        {
-            Vector3 baseCrosshairDirection = (aimWorldPosition.position - transform.position).normalized;
-            float crosshairDistance = Vector3.Distance(transform.position, aimWorldPosition.position);
-            Vector3 convergencePoint = transform.position + (baseCrosshairDirection * (crosshairDistance * convergenceMultiplier));
-        
-            return (convergencePoint - position).normalized;
-        }
-    }
-    
-    
-    private Vector3 GetReticleSplinePosition()
+
+    private Vector3 GetEnemySplinePosition()
     {
         return !player.LevelManager ? transform.position : player.LevelManager.EnemyPosition;
     }
@@ -444,7 +426,7 @@ public class RailPlayerAiming : MonoBehaviour
         if (player.LevelManager)
         {
             Gizmos.color = Color.blue;
-            Vector3 crosshairSplinePosition = GetReticleSplinePosition();
+            Vector3 crosshairSplinePosition = GetEnemySplinePosition();
             
             if (player && player.AlignToSplineDirection)
             {
@@ -472,7 +454,7 @@ public class RailPlayerAiming : MonoBehaviour
                 
                 if (Application.isPlaying)
                 {
-                    string debugText = $"Normalized Position: ({_normalizedReticlePosition.x:F2}, {_normalizedReticlePosition.y:F2})";
+                    string debugText = $"Normalized Position: ({_normalizedAimPosition.x:F2}, {_normalizedAimPosition.y:F2})";
                     if (_isAimLocked && _currentAimLockTarget)
                     {
                         debugText += $"\nAim Locked: {_currentAimLockTarget.name}";

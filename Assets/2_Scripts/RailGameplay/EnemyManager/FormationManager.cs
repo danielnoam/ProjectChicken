@@ -42,6 +42,9 @@ public class FormationInstance
 public class FormationManager : MonoBehaviour
 {
 
+    public static FormationManager Instance { get; private set; }
+    
+    
     #region Inspector Fields
 
     [Header("Formation Settings")]
@@ -108,6 +111,21 @@ public class FormationManager : MonoBehaviour
             levelManager = FindFirstObjectByType<LevelManager>();
         }
     }
+
+
+    private void Awake()
+    {
+        if (!Instance || Instance == this)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+    
 
     private void OnEnable()
     {

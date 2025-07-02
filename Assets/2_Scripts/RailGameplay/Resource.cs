@@ -7,7 +7,7 @@ using PrimeTween;
 [System.Serializable]
 public class WeaponChance 
 {
-    public SOWeapon weapon;
+    public SOWeaponData weaponData;
     [Range(0, 100)] public int chance = 10;
     public bool isLocked;
     public string displayName;
@@ -15,7 +15,7 @@ public class WeaponChance
     public string GetDisplayName()
     {
         if (!string.IsNullOrEmpty(displayName)) return displayName;
-        return weapon ? weapon.name : "No Weapon";
+        return weaponData ? weaponData.name : "No Weapon";
     }
 }
 
@@ -76,7 +76,7 @@ public class Resource : MonoBehaviour
     public int HealthWorth => healthWorth;
     public int ShieldWorth => shieldWorth;
     public int CurrencyWorth => currencyWorth;
-    public SOWeapon Weapon { get; private set;}
+    public SOWeaponData WeaponData { get; private set;}
 
     
     
@@ -166,7 +166,7 @@ public class Resource : MonoBehaviour
         
         if (resourceType == ResourceType.SpecialWeapon && weaponChances.Length > 0)
         {
-            Weapon = SelectRandomWeapon();
+            WeaponData = SelectRandomWeapon();
         }
         
         Vector2 randomDir = UnityEngine.Random.insideUnitCircle.normalized;
@@ -337,7 +337,7 @@ public class Resource : MonoBehaviour
     #region Weapon Selection ---------------------------------------------------------------------------------------
     
     
-    private SOWeapon SelectRandomWeapon()
+    private SOWeaponData SelectRandomWeapon()
     {
         if (weaponChances.Length == 0) return null;
     
@@ -345,7 +345,7 @@ public class Resource : MonoBehaviour
         var validWeapons = new System.Collections.Generic.List<WeaponChance>();
         foreach (var weaponChance in weaponChances)
         {
-            if (weaponChance.weapon && weaponChance.chance > 0)
+            if (weaponChance.weaponData && weaponChance.chance > 0)
             {
                 validWeapons.Add(weaponChance);
             }
@@ -360,7 +360,7 @@ public class Resource : MonoBehaviour
             totalWeight += weaponChance.chance;
         }
     
-        if (totalWeight <= 0) return validWeapons[0].weapon;
+        if (totalWeight <= 0) return validWeapons[0].weaponData;
     
         // Select a random weapon based on weights
         int randomValue = UnityEngine.Random.Range(0, totalWeight + 1);
@@ -371,12 +371,12 @@ public class Resource : MonoBehaviour
             currentWeight += weaponChance.chance;
             if (randomValue <= currentWeight)
             {
-                return weaponChance.weapon;
+                return weaponChance.weaponData;
             }
         }
     
         // Fallback
-        return validWeapons[0].weapon;
+        return validWeapons[0].weaponData;
     }
     
 
@@ -391,7 +391,7 @@ public class Resource : MonoBehaviour
         foreach (var weaponChance in weaponChances)
         {
             // Only consider entries with valid weapons
-            if (weaponChance.weapon)
+            if (weaponChance.weaponData)
             {
                 if (weaponChance.isLocked)
                 {

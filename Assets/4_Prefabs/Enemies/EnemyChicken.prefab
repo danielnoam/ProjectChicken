@@ -88,10 +88,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 2.15
-  m_Height: 7.5
+  m_Radius: 2
+  m_Height: 7
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.26, z: 0}
 --- !u!82 &6802418863010759001
 AudioSource:
   m_ObjectHideFlags: 0
@@ -375,7 +375,6 @@ MonoBehaviour:
   currentCooldown: 0
   canAttack: 0
   distanceToPlayer: 0
-  isFirstAttack: 1
   chickenController: {fileID: 745806696497487914}
   audioSource: {fileID: 6802418863010759001}
   projectileManager: {fileID: 0}

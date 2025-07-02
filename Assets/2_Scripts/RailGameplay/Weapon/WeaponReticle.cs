@@ -34,8 +34,11 @@ public class WeaponReticle : MonoBehaviour
     {
         _maxStrength = emissionStrength;
         _baseSize = transform.localScale.x;
+        _isVisible = false;
+        transform.localScale = Vector3.zero;
+        
         GetMaterialsFromRenderers();
-        Hide();
+        UpdateMaterialsAlpha(0f);
     }
     
     private void Update()
@@ -169,7 +172,7 @@ public class WeaponReticle : MonoBehaviour
     
     #region Tweens -----------------------------------------------------------------------------------
     
-    public void TweenReticleSize(float size, float duration) 
+    private void TweenReticleSize(float size, float duration) 
     {
         if (Mathf.Approximately(transform.localScale.x, size)) return;
         

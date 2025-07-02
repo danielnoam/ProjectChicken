@@ -168,8 +168,21 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             SetUpBaseWeapon(weapons[0]);
         }
-        targetReticle?.Show();
-        ToggleRangeReticles(true);
+
+        
+        // Setup in a case there is no active level manager to set stage
+        if (!player.LevelManager)
+        {
+            targetReticle?.Show();
+            ToggleRangeReticles(true);
+            if (_activeWeaponInstance == null)
+            {
+                if (_currentSpecialWeaponInstance != null) _activeWeaponInstance = _currentSpecialWeaponInstance;
+                else if (_baseWeaponInstance != null) _activeWeaponInstance = _baseWeaponInstance;
+                
+                _activeWeaponInstance?.OnWeaponSelected();
+            }
+        }
     }
 
     private void OnEnable()
@@ -220,6 +233,12 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             targetReticle.Show();
             ToggleRangeReticles(true);
+            
+            if (_activeWeaponInstance == null)
+            {
+                if (_currentSpecialWeaponInstance != null) _activeWeaponInstance = _currentSpecialWeaponInstance;
+                else if (_baseWeaponInstance != null) _activeWeaponInstance = _baseWeaponInstance;
+            }
             _activeWeaponInstance?.OnWeaponSelected();
 
         }
@@ -745,11 +764,11 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     }
     
     
-    public void SetSpecialWeapon(SOWeapon newWeapon)
+    public void SetSpecialWeapon(SOWeaponData weaponData)
     {
-        if (!newWeapon) return;
+        if (!weaponData) return;
 
-        foreach (var weaponInfo in weapons.Where(weaponInfo => weaponInfo.weaponData == newWeapon))
+        foreach (var weaponInfo in weapons.Where(weaponInfo => weaponInfo.weaponData == weaponData))
         {
             SetSpecialWeapon(weaponInfo);
             break;
@@ -761,16 +780,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _baseWeaponFireRateCooldown = 0;
         _baseWeaponInstance = weapon;
         OnBaseWeaponSwitched?.Invoke(_baseWeaponInstance);
-
-        if (_activeWeaponInstance == null)
-        {
-            _activeWeaponInstance = _baseWeaponInstance;
-            _activeWeaponInstance.OnWeaponSelected();
-        }
     }
 
     
-    [Button]
     private void DisableSpecialWeapon()
     {
         if (!Application.isPlaying || _currentSpecialWeaponInstance == null) return;

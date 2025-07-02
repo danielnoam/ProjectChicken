@@ -9,23 +9,23 @@ public class BehaviorStunOnHit : HitscanBehaviorBase
 
     
     
-    public override void OnStart(SOWeapon weapon, RailPlayer owner,ChickenController target = null)
+    public override void OnStart(SOWeaponData weaponData, RailPlayer owner,ChickenController target = null)
     {
         
     }
 
-    public override void OnHit(SOWeapon weapon, RailPlayer owner, ChickenController target)
+    public override void OnHit(SOWeaponData weaponData, RailPlayer owner, ChickenController target)
     {
         if (UnityEngine.Random.Range(0f, 100f) > stunChance) return;
         target?.ApplyConcussion(stunDuration);
     }
 
-    public override void OnEnd(SOWeapon weapon, RailPlayer owner,ChickenController target = null)
+    public override void OnEnd(SOWeaponData weaponData, RailPlayer owner,ChickenController target = null)
     {
 
     }
 
-    public override void OnDrawGizmos(SOWeapon weapon, RailPlayer owner,ChickenController target = null)
+    public override void OnDrawGizmos(SOWeaponData weaponData, RailPlayer owner,ChickenController target = null)
     {
 
     }

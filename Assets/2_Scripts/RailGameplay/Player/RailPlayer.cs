@@ -96,7 +96,7 @@ public class RailPlayer : MonoBehaviour
         _collectionActions.Add(ResourceType.Currency, (resource) => UpdateCurrency(resource.CurrencyWorth) );
         _collectionActions.Add(ResourceType.HealthPack, (resource) => HealHealth(resource.HealthWorth));
         _collectionActions.Add(ResourceType.ShieldPack, (resource) => HealShield(resource.ShieldWorth));
-        _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => playerWeapon.SetSpecialWeapon(resource.Weapon));
+        _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => playerWeapon.SetSpecialWeapon(resource.WeaponData));
         
         SetupPlayer();
     }
@@ -439,11 +439,6 @@ public class RailPlayer : MonoBehaviour
         return playerWeapon.CurrentSpecialWeaponInstance;
     }
     
-    public Vector3 GetAimDirectionFromBarrelPosition(Vector3 barrelPosition, float convergenceMultiplier = 0f)
-    {
-        
-        return playerAiming.GetAimDirectionFromBarrelPosition(barrelPosition, convergenceMultiplier);
-    }
     
     public ChickenController GetTarget(float radius)
     {
@@ -454,11 +449,7 @@ public class RailPlayer : MonoBehaviour
     {
         return playerAiming.GetEnemyTargets(maxTargets, radius);
     }
-
-    public Vector2 GetNormalizedReticlePosition()
-    {
-        return playerAiming.NormalizedReticlePosition;
-    }
+    
     public Transform GetFollowCameraTarget()
     {
         return followCameraTarget;

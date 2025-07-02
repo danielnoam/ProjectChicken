@@ -4,7 +4,7 @@ using UnityEngine;
 [Serializable]
 public class WeaponInstance
 {
-    public SOWeapon weaponData;
+    public SOWeaponData weaponData;
     public Transform weaponGfx;
     public WeaponReticle weaponReticle;
     public Transform[] weaponBarrels;
@@ -183,6 +183,7 @@ public class WeaponInstance
     #endregion Hitscan ----------------------------------------------------------------------------------
 
 
+    
     #region Effects ---------------------------------------------------------------------------------------
 
     
