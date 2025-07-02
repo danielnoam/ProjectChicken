@@ -49,13 +49,13 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [EndFoldout]
     
     [Foldout("Reticles")]
-    [SerializeField, Tooltip("How fast the reticle position smoothly moves to its target position")] private float reticleFollowSpeed = 25f;
-    [SerializeField] private float reticlesSizeDuration = 0.6f;
-    [SerializeField] private float reticlesAimLockSize = 2.5f;
+    [SerializeField] private float targetReticleAimLockDuration = 0.6f;
+    [SerializeField] private float targetReticleAimLockSize = 2.5f;
     [SerializeField] private bool useRangingReticles;
     [ShowIf("useRangingReticles")]
     [SerializeField, Min(1)] private int rangingReticlesAmount = 2;
     [SerializeField, Range(0f, 1f)] private float rangingReticlesRange = 0.8f;
+    [SerializeField, Tooltip("How fast the reticle position smoothly moves to its target position")] private float reticlesFollowSpeed = 25f;
     [EndIf]
     [EndFoldout]
 
@@ -176,6 +176,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (!player.LevelManager)
         {
             targetReticle?.Show();
+            targetReticle?.ForceChangeAimLockSize(targetReticleAimLockSize);
             ToggleRangeReticles(true);
             if (_activeWeaponInstance == null)
             {
@@ -233,7 +234,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         if (_allowShooting)
         {
-            targetReticle.Show();
+            targetReticle?.Show();
+            targetReticle?.ForceChangeAimLockSize(targetReticleAimLockSize);
             ToggleRangeReticles(true);
             
             if (_activeWeaponInstance == null)
@@ -258,14 +260,12 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         if (state)
         {
-            targetReticle?.EnableAimLock(reticlesAimLockSize, reticlesSizeDuration);
-            EnableRangeReticlesAimLock(reticlesAimLockSize, reticlesSizeDuration);
+            targetReticle?.EnableAimLock(targetReticleAimLockDuration);
             _activeWeaponInstance?.OnAimLocked();
         }
         else
         {
-            targetReticle?.DisableAimLock(reticlesSizeDuration);
-            DisableRangeReticlesAimLock(reticlesSizeDuration);
+            targetReticle?.DisableAimLock(targetReticleAimLockDuration);
             _activeWeaponInstance?.OnAimUnlocked();
         }
     }
@@ -413,6 +413,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (weaponInstance == null) return;
         
         weaponInstance.OnWeaponUsed(player, weaponInstance.weaponBarrels);
+        targetReticle?.PunchReticleSize(0.2f, 0.5f);
     
         OnWeaponUsed?.Invoke(weaponInstance);
     }
@@ -668,7 +669,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
             var reticleIndex = _rangingReticles.IndexOf(reticle);
             var proportionalFactor = (float)(_rangingReticles.Count - reticleIndex) / _rangingReticles.Count;
-            var currentReticleFollowSpeed = reticleFollowSpeed / proportionalFactor;
+            var currentReticleFollowSpeed = reticlesFollowSpeed / proportionalFactor;
             var reticlePosition = Vector3.Lerp(transform.position, playerAiming.AimWorldPosition.position, rangingReticlesRange * proportionalFactor);
             reticle.transform.position = Vector3.Lerp(reticle.transform.position, reticlePosition, currentReticleFollowSpeed * Time.deltaTime);
         }
@@ -691,29 +692,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             }
         }
     }
-
-    private void EnableRangeReticlesAimLock(float size, float duration)
-    {
-        if (_rangingReticles.Count <= 0) return;
-
-        size = size / 0.8f;
-        
-        foreach (var reticle in _rangingReticles.Where(reticle => reticle))
-        {
-            var scaleFactor = Mathf.Pow(rangingReticlesRange, _rangingReticles.IndexOf(reticle) + 1);
-            reticle.EnableAimLock(size * scaleFactor, duration);
-        }
-    }
     
-    private void DisableRangeReticlesAimLock(float duration)
-    {
-        if (_rangingReticles.Count <= 0) return;
-
-        foreach (var reticle in _rangingReticles.Where(reticle => reticle))
-        {
-            reticle.DisableAimLock(duration);
-        }
-    }
+    
     
     
 

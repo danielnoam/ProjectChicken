@@ -22,18 +22,20 @@ public class WeaponReticle : MonoBehaviour
     private bool _isAimLocked;
     private float _maxStrength;
     private float _baseSize;
+    private float _aimLockSize;
     private Tween _reticleTween;
     private readonly List<Material> _reticleMaterials = new List<Material>();
     private static readonly int EmissionStrength = Shader.PropertyToID("_EmissionStrength");
     private static readonly int EmissionEnabled = Shader.PropertyToID("_EmissionEnabled");
     private static readonly int BaseColor = Shader.PropertyToID("_BaseColor"); 
-    private float DefaultSize => _isAimLocked ? _baseSize / 2 : _baseSize;
+    private float DefaultSize => _isAimLocked ? _aimLockSize : _baseSize;
 
 
     private void Awake()
     {
         _maxStrength = emissionStrength;
         _baseSize = transform.localScale.x;
+        _aimLockSize = _baseSize / 2;
         _isVisible = false;
         transform.localScale = Vector3.zero;
         
@@ -66,14 +68,14 @@ public class WeaponReticle : MonoBehaviour
     }
     
     
-    public void EnableAimLock(float size, float duration)
+    public void EnableAimLock(float duration)
     {
         if (_isAimLocked) return;
         
         _isAimLocked = true;
         if (_isVisible)
         {
-            TweenReticleSize(size, duration);
+            TweenReticleSize(_aimLockSize,duration);
         }
     }
     
@@ -84,13 +86,18 @@ public class WeaponReticle : MonoBehaviour
         _isAimLocked = false;
         if (_isVisible)
         {
-            TweenReticleSize(DefaultSize, duration);
+            TweenReticleSize(_baseSize, duration);
         }
     }
     
     public void ForceChangeBaseSize(float size)
     {
         _baseSize = size;
+    }
+    
+    public void ForceChangeAimLockSize(float size)
+    {
+        _aimLockSize = size;
     }
     
     
