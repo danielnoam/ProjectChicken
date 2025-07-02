@@ -8,9 +8,7 @@ using VInspector;
 public class RailPlayerInput : InputReaderBase
 {
 
-    [Header("Control Settings")]
-    [SerializeField] private ControlSchemeSettings keyboardMouseScheme = new ControlSchemeSettings(false, false, 0.1f, 0.3f, AnimationCurve.Linear(0, 0, 1, 1),true, 4f, 3f, 3f, 0.3f, false, true, 0.3f);
-    [SerializeField] private ControlSchemeSettings gamepadScheme = new ControlSchemeSettings(false, false, 2f, 0.3f, AnimationCurve.Linear(0, 0, 1, 1),true, 4f, 3f, 0.5f, 0.5f, true, false, 0.3f);
+
 
     private InputActionMap _playerActionMap;
     private InputAction _moveAction;
@@ -22,11 +20,14 @@ public class RailPlayerInput : InputReaderBase
     private InputAction _dodgeFreeformAction;
     private float _lastMoveLeftTime;
     private float _lastMoveRightTime;
+    private readonly ControlSchemeSettings keyboardMouseScheme = new ControlSchemeSettings();
+    private readonly ControlSchemeSettings gamepadScheme = new ControlSchemeSettings();
 
 
-
-    public bool IsCurrentDeviceGamepad { get; private set; } = false;
-    public ControlSchemeSettings CurrentControlScheme { get; private set; } = new ControlSchemeSettings();
+    public ControlSchemeSettings CurrentControlScheme { get; private set; }  = new ControlSchemeSettings();
+    public bool IsCurrentDeviceGamepad { get; private set; }
+    
+    
     public event Action<InputAction.CallbackContext> OnMoveEvent;
     public event Action<InputAction.CallbackContext> OnLookEvent;
     public event Action<InputAction.CallbackContext> OnAttackEvent;
@@ -61,8 +62,8 @@ public class RailPlayerInput : InputReaderBase
         _dodgeFreeformAction = _playerActionMap.FindAction("DodgeFreeform");
         
 
+        UpdateControlSchemeSettings();
         CurrentControlScheme.SetControlSchemeSettings(keyboardMouseScheme);
-        IsCurrentDeviceGamepad = false;
     }
 
 
@@ -78,6 +79,7 @@ public class RailPlayerInput : InputReaderBase
         playerInput.onDeviceRegained += OnDeviceRegained;
         playerInput.onDeviceLost += OnDeviceLost;
         playerInput.onControlsChanged += OnControlsChanged;
+        if (SaveManager.Instance) SaveManager.Instance.OnSettingsDataChanged += UpdateControlSchemeSettings;
     }
     
 
@@ -93,30 +95,28 @@ public class RailPlayerInput : InputReaderBase
         playerInput.onDeviceRegained -= OnDeviceRegained;
         playerInput.onDeviceLost -= OnDeviceLost;
         playerInput.onControlsChanged -= OnControlsChanged;
+        if (SaveManager.Instance) SaveManager.Instance.OnSettingsDataChanged -= UpdateControlSchemeSettings;
     }
     
     
 
-
-    #region Control Scheme --------------------------------------------------------------------------
-    
     private void OnDeviceRegained(PlayerInput input)
     {
-        UpdateControlScheme(input);
+        SetActiveControlScheme(input);
     }
 
     private void OnDeviceLost(PlayerInput input)
     {
-        UpdateControlScheme(input);
+        SetActiveControlScheme(input);
     }
 
     private void OnControlsChanged(PlayerInput input)
     {
-        UpdateControlScheme(input);
+        SetActiveControlScheme(input);
     }
     
     
-    private void UpdateControlScheme(PlayerInput input)
+    private void SetActiveControlScheme(PlayerInput input)
     {
         string currentScheme = input.currentControlScheme;
         Debug.Log($"Control scheme changed to: {currentScheme}");
@@ -135,15 +135,18 @@ public class RailPlayerInput : InputReaderBase
         }
     }
     
-
-    #endregion Control Scheme  --------------------------------------------------------------------------
-    
+    private void UpdateControlSchemeSettings()
+    {
+        keyboardMouseScheme.SetControlSchemeSettings(SaveManager.GetKeyboardControlScheme());
+        gamepadScheme.SetControlSchemeSettings(SaveManager.GetGamepadControlScheme());
+        CurrentControlScheme = IsCurrentDeviceGamepad ? gamepadScheme : keyboardMouseScheme;
+    }
     
 
     #region Input Events --------------------------------------------------------------------------------------
     
     
-    public void OnMove(InputAction.CallbackContext context)
+    private void OnMove(InputAction.CallbackContext context)
     {
         OnMoveEvent?.Invoke(context);
         
@@ -169,7 +172,7 @@ public class RailPlayerInput : InputReaderBase
         }
     }
     
-    public void OnLook(InputAction.CallbackContext context)
+    private void OnLook(InputAction.CallbackContext context)
     {
         Vector2 lookDelta = context.ReadValue<Vector2>();
     
@@ -183,27 +186,27 @@ public class RailPlayerInput : InputReaderBase
         OnProcessedLookEvent?.Invoke(processedLookDelta); 
     }
     
-    public void OnAttack(InputAction.CallbackContext context)
+    private void OnAttack(InputAction.CallbackContext context)
     {
         OnAttackEvent?.Invoke(context);
     }
     
-    public void OnAttack2(InputAction.CallbackContext context)
+    private void OnAttack2(InputAction.CallbackContext context)
     {
         OnAttack2Event?.Invoke(context);
     }
     
-    public void OnDodgeLeft(InputAction.CallbackContext context)
+    private void OnDodgeLeft(InputAction.CallbackContext context)
     {
         OnDodgeLeftEvent?.Invoke(context);
     }
     
-    public void OnDodgeRight(InputAction.CallbackContext context)
+    private void OnDodgeRight(InputAction.CallbackContext context)
     {
         OnDodgeRightEvent?.Invoke(context);
     }
     
-    public void OnDodgeFreeform(InputAction.CallbackContext context)
+    private void OnDodgeFreeform(InputAction.CallbackContext context)
     {
         if (!CurrentControlScheme.allowFreeformDodge) return;
         OnDodgeFreeformEvent?.Invoke(context);

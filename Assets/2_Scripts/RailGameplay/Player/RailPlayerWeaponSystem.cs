@@ -53,8 +53,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField] private float reticlesSizeDuration = 0.6f;
     [SerializeField] private float reticlesAimLockSize = 2.5f;
     [SerializeField] private bool useRangingReticles;
+    [ShowIf("useRangingReticles")]
     [SerializeField, Min(1)] private int rangingReticlesAmount = 2;
     [SerializeField, Range(0f, 1f)] private float rangingReticlesRange = 0.8f;
+    [EndIf]
     [EndFoldout]
 
     
@@ -219,7 +221,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         UpdateFireRateCooldown();
         UpdateHeatRegeneration();
         UpdateWeaponTime();
-        UpdateReticlesPositions();
+        UpdateRangeReticlesPositions();
     }
     
 
@@ -656,19 +658,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     #region Weapon Reticle -----------------------------------------------------------------------------------------------
 
-    private void UpdateReticlesPositions()
+    private void UpdateRangeReticlesPositions()
     {
-        if (!_allowShooting) return;
-        
-
-        if (reticleHolder)
-        {
-            reticleHolder.position = Vector3.Lerp(reticleHolder.position,playerAiming.AimWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
-            reticleHolder.rotation = player.AlignToSplineDirection ? player.SplineRotation : Quaternion.identity;
-        }
-
-        
-        if (_rangingReticles.Count <= 0) return;
+        if (!_allowShooting || _rangingReticles.Count <= 0) return;
         
         foreach (var reticle in _rangingReticles)
         {

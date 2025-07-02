@@ -188,7 +188,7 @@ public class RailPlayerMovement : MonoBehaviour
         // Aim rotation from aiming (only pitch and yaw)
         if (playerAiming)
         {
-            Vector3 aimDirection = playerAiming.GetAimDirection();
+            Vector3 aimDirection = playerAiming.AimDirection;
             Vector3 localAimDirection = Quaternion.Inverse(player.SplineRotation) * aimDirection;
         
             float yawAngle = Mathf.Atan2(localAimDirection.x, localAimDirection.z) * Mathf.Rad2Deg;

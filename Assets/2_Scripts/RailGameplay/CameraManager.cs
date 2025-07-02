@@ -95,10 +95,10 @@ public class CameraManager : MonoBehaviour
             player.OnHealthChanged += OnHealthChanged;
             player.OnShieldChanged += OnShieldChanged;
             followCamera.Target.TrackingTarget = player.GetFollowCameraTarget();
-            followCamera.Target.LookAtTarget = player.GetReticleTarget();
-            introCamera.Target.TrackingTarget = player.GetIntroCameraTarget(); 
+            followCamera.Target.LookAtTarget = player.PlayerAiming.AimWorldPosition;
+            introCamera.Target.TrackingTarget = player.GetRandomCameraPosition(); 
             introCamera.Target.LookAtTarget = player.transform;
-            outroCamera.Target.LookAtTarget = player.transform;
+            outroCamera.Target.LookAtTarget = player.transform; 
         }
     }
 
@@ -114,8 +114,12 @@ public class CameraManager : MonoBehaviour
             player.PlayerMovement.OnDodge -= OnPlayerDodge;
             player.OnHealthChanged -= OnHealthChanged;
             player.OnShieldChanged -= OnShieldChanged;
+            followCamera.Target.TrackingTarget = null;
+            followCamera.Target.LookAtTarget = null;
             introCamera.Target.TrackingTarget = null;
             introCamera.Target.LookAtTarget = null;
+            outroCamera.Target.LookAtTarget = null;
+
         }
     }
     

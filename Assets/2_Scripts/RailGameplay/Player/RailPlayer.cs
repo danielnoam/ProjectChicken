@@ -37,8 +37,8 @@ public class RailPlayer : MonoBehaviour
     
     [Header("References")]
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
+    [SerializeField] private Transform cameraPositions;
     [SerializeField] private Transform followCameraTarget;
-    [SerializeField] private Transform introCameraTarget;
     [SerializeField] private SOAudioEvent healthDamageSfx;
     [SerializeField] private SOAudioEvent healthHealedSfx;
     [SerializeField] private SOAudioEvent shieldDamageSfx;
@@ -419,26 +419,6 @@ public class RailPlayer : MonoBehaviour
         return playerMovement.IsDodging;
     }
     
-    public float GetMaxWeaponHeat()
-    {
-        return playerWeapon.MaxWeaponHeat;
-    }
-    
-    public float GetDodgeMaxCooldown()
-    {
-        return playerMovement.MaxDodgeCooldown;
-    }
-    
-    public WeaponInstance GetCurrentBaseWeapon()
-    {
-        return playerWeapon.BaseWeaponInstance;
-    }
-    
-    public WeaponInstance GetCurrentSpecialWeapon()
-    {
-        return playerWeapon.CurrentSpecialWeaponInstance;
-    }
-    
     
     public ChickenController GetTarget(float radius)
     {
@@ -455,20 +435,21 @@ public class RailPlayer : MonoBehaviour
         return followCameraTarget;
     }
     
-    public Transform GetIntroCameraTarget()
+    public Transform GetRandomCameraPosition()
     {
-        return introCameraTarget;
-    }
+        switch (cameraPositions.childCount)
+        {
+            case 0:
+                return null;
+            case 1:
+                cameraPositions.GetChild(1);
+                break;
+        }
 
-    public Transform GetReticleTarget()
-    {
-        return playerAiming.AimWorldPosition;
+        int randomIndex = UnityEngine.Random.Range(0, cameraPositions.childCount);
+        return cameraPositions.GetChild(randomIndex);
     }
-
-    public bool HasSpecialWeapon()
-    {
-        return playerWeapon.CurrentSpecialWeaponInstance != null;
-    }
+    
     
     private void GetSplineRotations()
     {
@@ -478,7 +459,6 @@ public class RailPlayer : MonoBehaviour
             return;
         }
         
-
         Vector3 splineForward = levelManager.GetSplineTangentAtPosition(levelManager.CurrentPositionOnPath.position);
         
         if (splineForward != Vector3.zero)

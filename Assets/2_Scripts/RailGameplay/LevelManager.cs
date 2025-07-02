@@ -106,7 +106,6 @@ public class LevelManager : MonoBehaviour
             return;
         }
         
-        SaveManager.Initialize();
         SetUpSpline();
     }
 

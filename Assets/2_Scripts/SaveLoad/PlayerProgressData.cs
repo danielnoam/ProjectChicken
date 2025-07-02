@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 
 [Serializable]
-public class PlayerSaveData
+public class PlayerProgressData
 {
     public int currency = 0;
     public List<LevelProgress> levelProgresses = new();

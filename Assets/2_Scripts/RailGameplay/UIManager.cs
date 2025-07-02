@@ -407,10 +407,10 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            if (player.GetCurrentBaseWeapon() != null)
+            if (player.PlayerWeapon.BaseWeaponInstance != null)
             {
-                playerWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
-               playerSecondaryWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
+                playerWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.weaponData.WeaponIcon;
+               playerSecondaryWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.weaponData.WeaponIcon;
             }
             Tween.Alpha(playerSecondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
         }
@@ -419,7 +419,7 @@ public class UIManager : MonoBehaviour
         
     private void OnSpecialWeaponDisabled(WeaponInstance weapon)
     {
-        if (player.GetCurrentBaseWeapon() != null) playerWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
+        if (player.PlayerWeapon.BaseWeaponInstance != null) playerWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.weaponData.WeaponIcon;
         Tween.Alpha(playerSecondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
 
     }
@@ -428,7 +428,7 @@ public class UIManager : MonoBehaviour
     {
         if (weapon == null) return;
         
-        if (player.HasSpecialWeapon())
+        if (player.PlayerWeapon.CurrentSpecialWeaponInstance != null)
         {
             playerSecondaryWeaponIcon.sprite = weapon.weaponData.WeaponIcon;
             Tween.Alpha(playerSecondaryWeaponIcon, endValue: 1f, duration: weaponAnimationDuration);
@@ -452,7 +452,7 @@ public class UIManager : MonoBehaviour
     {
         float fillAmount = 1f - (cooldown / baseWeaponInstance.weaponData.FireRate);
         
-        if (player.GetCurrentSpecialWeapon() != null)
+        if (player.PlayerWeapon.CurrentSpecialWeaponInstance != null)
         {
             playerSecondaryWeaponIcon.color = Color.Lerp(Color.clear, _secondaryWeaponStartColor, fillAmount);
         }
@@ -466,7 +466,7 @@ public class UIManager : MonoBehaviour
     {
         heatBarText.text = $"{heat:F0}%";
         
-        float fillAmount = heat / player.GetMaxWeaponHeat();
+        float fillAmount = heat / player.PlayerWeapon.MaxWeaponHeat;
         Color barFillColor = Color.Lerp(normalBarColor, heatedBarColor, fillAmount);
         Color textFillColor = Color.Lerp(_heatBarTextStartColor, heatedBarColor,fillAmount);
         float textAlpha = fillAmount < 0.3f ? 0f : Mathf.Lerp(0f, 1f, (fillAmount - 0.3f) / 0.7f);
@@ -569,7 +569,7 @@ public class UIManager : MonoBehaviour
     
     private void OnDodgeCooldownUpdated(float cooldown)
     {
-        float fillAmount = 1f - (cooldown / player.GetDodgeMaxCooldown());
+        float fillAmount = 1f - (cooldown / player.PlayerMovement.MaxDodgeCooldown);
         playerDodgeIcon.color = Color.Lerp(cooldownIconColor, _dodgeStartColor, fillAmount);
 
         if (Mathf.Approximately(fillAmount, 1f)) 

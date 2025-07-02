@@ -38,11 +38,6 @@ public class MenuController : MonoBehaviour
         this.ValidateRefs();
     }
 
-    private void Awake()
-    {
-        SaveManager.Initialize();
-    }
-
     private void Start()
     {
         menuLoopSfx?.Play(audioSource);
