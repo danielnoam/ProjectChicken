@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using VInspector;
 
 public class MenuElementLevelSelection : MenuElement
 {
@@ -14,7 +15,7 @@ public class MenuElementLevelSelection : MenuElement
     [SerializeField] private LaunchMissionMode launchMissionMode;
     [SerializeField] private SOLevel[] levels;
     
-    [Header("References")]
+    [Foldout("References")]
     [SerializeField] private MenuElementLaunchLever launchLever;
     [SerializeField] private CanvasGroup levelsSelectionCanvas;
     [SerializeField] private Transform levelGfxParent;
@@ -28,6 +29,7 @@ public class MenuElementLevelSelection : MenuElement
     [SerializeField] private TMPWriter levelDescriptionWriter;
     [SerializeField] private TMPWriter levelBestScoreWriter;
     [SerializeField] private Button levelButtonPrefab;
+    [EndFoldout]
 
     private readonly List<LevelUIData> _levelUIData = new List<LevelUIData>();
     private Coroutine _writerDelayRoutine;

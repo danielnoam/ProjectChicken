@@ -3,20 +3,25 @@ using KBCore.Refs;
 using PrimeTween;
 using Unity.Cinemachine;
 using UnityEngine;
+using VInspector;
 
 [SelectionBase]
+[RequireComponent(typeof(CinemachineImpulseSource))]
 public class MenuCameraManager : MonoBehaviour
 {
 
+    public static MenuCameraManager Instance { get; private set; }
+    
     [Header("Main Camera Settings")]
-    [SerializeField] private float lookAtDuration = 1f;
+    [SerializeField] private float lookAtDuration = 0.5f;
     [SerializeField] private Ease lookAtEase = Ease.Linear;
     
     [Header("References")]
     [SerializeField] private MenuController menuController;
     [SerializeField] private Transform cameraLookAtTarget;
-    [SerializeField, Child (Flag.Optional)] private CinemachineCamera defaultCamera;
-    [SerializeField, Child (Flag.Optional)] private CinemachineRotationComposer defaultCameraRotationComposer;
+    [SerializeField, Child (Flag.Optional), HideInInspector] private CinemachineCamera defaultCamera;
+    [SerializeField, Child (Flag.Optional), HideInInspector] private CinemachineRotationComposer defaultCameraRotationComposer;
+    [SerializeField, Self, HideInInspector] private CinemachineImpulseSource impulseSource;
 
 
 
@@ -40,9 +45,19 @@ public class MenuCameraManager : MonoBehaviour
     
     private void Awake()
     {
+        if (!Instance || Instance == this)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+        
+        
         _defaultTargetOffset = defaultCameraRotationComposer.TargetOffset;
         cameraLookAtTarget.position = menuController.DefaultCameraLookAtPoint.position;
-
     }
 
     private void OnEnable()
@@ -78,7 +93,7 @@ public class MenuCameraManager : MonoBehaviour
     {
         if (!element) return;
         
-        UpdateCameraTarget(element.CameraLookAtPoint.position,element.TargetOffset);
+        UpdateCameraTarget(element.CameraLookAtPoint.position,element.CameraLookAtOffset);
     }
     
     private void OnElementInteracted(MenuElement element)
@@ -123,8 +138,25 @@ public class MenuCameraManager : MonoBehaviour
 
             ;
     }
+    
+    
+    [Button]
+    public void ShakeCamera(CinemachineImpulseDefinition.ImpulseShapes impulseShape, float intensity, float duration)
+    {
+        if (!impulseSource) return;
+        
+        impulseSource.ImpulseDefinition.ImpulseShape = impulseShape;
+        impulseSource.ImpulseDefinition.ImpulseDuration = duration;
+        impulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f,1f),UnityEngine.Random.Range(-1f,1f),UnityEngine.Random.Range(-1f,1f));
+        impulseSource.GenerateImpulseWithForce(intensity);
+    }
 
 
+
+    
+    
+    
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
 
@@ -135,4 +167,7 @@ public class MenuCameraManager : MonoBehaviour
         }
 
     }
+#endif
+
+
 }

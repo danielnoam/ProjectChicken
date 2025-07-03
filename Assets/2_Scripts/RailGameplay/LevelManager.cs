@@ -228,8 +228,13 @@ public class LevelManager : MonoBehaviour
         
 
         SOLevelStage newStage = levelStages[newStageIndex];
-        
-        if (!newStage) return;
+
+        if (!newStage)
+        {
+            if (debugStageLevel) Debug.LogError("No stage found at index: " + newStageIndex);
+            SetNextStage();
+            return;
+        }
         
         if (debugStageLevel) Debug.Log("Set stage to: " + newStage.name);
         

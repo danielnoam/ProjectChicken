@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using PrimeTween;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -68,6 +69,8 @@ public class SaveManager : MonoBehaviour
         }
         
         Initialize();
+        
+        PrimeTweenConfig.warnEndValueEqualsCurrent = false;
         
         // Delete it for now so we reset to default settings
         DeleteSettingsDataAndFile();
