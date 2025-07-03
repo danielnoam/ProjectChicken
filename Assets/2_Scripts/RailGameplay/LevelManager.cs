@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using KBCore.Refs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -12,6 +13,8 @@ using VInspector;
 [SelectionBase]
 public class LevelManager : MonoBehaviour
 {
+
+
     public static LevelManager Instance { get; private set; }
     
     [Header("Path Settings")]
@@ -35,13 +38,13 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private Transform currentPositionOnPath;
     [SerializeField] private EnemyWaveManager enemyWaveManager;
     [SerializeField] private RailPlayer player;
-
-
+    
 
     private Coroutine _stageChangeCoroutine;
     private float _currentPathSpeed;
     private bool _settingStageFlag;
     private int _bonusThresholdCounter;
+    private SavePointInformation _currentSavePoint;
     
     public Vector3 PlayerPosition { get; private set; }
     public Vector3 EnemyPosition { get; private set; }
@@ -58,6 +61,7 @@ public class LevelManager : MonoBehaviour
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
     public event Action OnBonusThresholdReached;
+    public event Action<SavePointInformation> OnRestartFromSavePoint;
 
 
     private void OnValidate()
@@ -109,6 +113,7 @@ public class LevelManager : MonoBehaviour
         SetUpSpline();
     }
 
+
     private void Start()
     {
         StartLevel();
@@ -125,6 +130,7 @@ public class LevelManager : MonoBehaviour
         if (player)
         {
             player.OnResourceCollected += OnPlayerCollectedResource;
+            player.OnDeath += OnPlayerDeath;
         }
     }
     
@@ -139,6 +145,7 @@ public class LevelManager : MonoBehaviour
         if (player)
         {
             player.OnResourceCollected -= OnPlayerCollectedResource;
+            player.OnDeath -= OnPlayerDeath;
         }
     }
 
@@ -150,6 +157,21 @@ public class LevelManager : MonoBehaviour
 
     
     
+    private void OnEnemyWaveCleared(int scoreWorth)
+    {
+        if (!CurrentStage || CurrentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
+        
+        AddScore(scoreWorth);
+        
+        SetNextStage(CurrentStage.DelayBeforeNextStage);
+
+    }
+
+    private void OnPlayerDeath()
+    {
+        StartCoroutine(RestartSavePoint());
+    }
+
     
     
     #region Stage Management ---------------------------------------------------------------------------------
@@ -213,9 +235,11 @@ public class LevelManager : MonoBehaviour
         
         currentStageIndex = newStageIndex;
         CurrentStage = newStage;
+        UpdateReachedSavePoint(newStage);
         
         _settingStageFlag = false;
         OnStageChanged?.Invoke(newStage);
+
         
         if (newStage.IsTimeBasedStage)
         {
@@ -251,16 +275,38 @@ public class LevelManager : MonoBehaviour
         
         SceneManager.LoadScene("MainMenu");
     }
+    
 
-    private void OnEnemyWaveCleared(int scoreWorth)
+    private IEnumerator RestartSavePoint()
     {
-        if (!CurrentStage || CurrentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
+        if (_currentSavePoint == null) yield break;
         
-        AddScore(scoreWorth);
+        yield return new WaitForSeconds(5f);
         
-        SetNextStage(CurrentStage.DelayBeforeNextStage);
-
+        SetStage(_currentSavePoint.StageIndex);
+        Score = _currentSavePoint.Score;
+        OnScoreChanged?.Invoke(Score);
+        OnRestartFromSavePoint?.Invoke(_currentSavePoint);
     }
+
+    private void UpdateReachedSavePoint(SOLevelStage stage)
+    {
+        if (!stage || !stage.IsSavePointStage || _currentSavePoint != null && _currentSavePoint.StageIndex == currentStageIndex) return;
+
+        var playerSpecialWeapon = player.PlayerWeapon.CurrentSpecialWeaponInstance?.weaponData;
+        
+        var newSavePoint = new SavePointInformation(
+            currentStageIndex,
+            Score, 
+            player.CurrentHealth, 
+            player.CurrentShieldHealth, 
+            player.CurrentCurrency, 
+            playerSpecialWeapon
+            );
+            
+        _currentSavePoint = newSavePoint;
+    }
+
 
     #endregion Stage Management ---------------------------------------------------------------------------------
 

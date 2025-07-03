@@ -17,13 +17,16 @@ public class WeaponReticle : MonoBehaviour
     [SerializeField, Range(0.1f, 0.9f)] private float pulseMin = 0.3f;
 
     
+    [Header("References")]
+    [SerializeField] private Transform punchTransform;
 
     private bool _isVisible;
     private bool _isAimLocked;
     private float _maxStrength;
     private float _baseSize;
     private float _aimLockSize;
-    private Tween _reticleTween;
+    private Tween _sizeTween;
+    private Tween _punchTween;
     private readonly List<Material> _reticleMaterials = new List<Material>();
     private static readonly int EmissionStrength = Shader.PropertyToID("_EmissionStrength");
     private static readonly int EmissionEnabled = Shader.PropertyToID("_EmissionEnabled");
@@ -188,8 +191,8 @@ public class WeaponReticle : MonoBehaviour
             UpdateMaterialsAlpha(1f);
         }
         
-        if (_reticleTween.isAlive) _reticleTween.Stop();
-        _reticleTween = Tween.Scale(transform, endValue: Vector3.one * size, duration, Ease.InOutBack)
+        if (_sizeTween.isAlive) _sizeTween.Stop();
+        _sizeTween = Tween.Scale(transform, endValue: Vector3.one * size, duration, Ease.InOutBack)
             .OnComplete(() => 
             {
                 if (Mathf.Approximately(size, 0f))
@@ -203,10 +206,9 @@ public class WeaponReticle : MonoBehaviour
     {
         if (!_isVisible) return;
         
-        if (_reticleTween.isAlive) _reticleTween.Stop();
-        
-        transform.localScale = Vector3.one * DefaultSize;
-        _reticleTween = Tween.PunchScale(transform,Vector3.one * strength, startDelay: delay, duration: duration);
+        if (_punchTween.isAlive) _punchTween.Stop();
+        punchTransform.localScale = Vector3.one;
+        _punchTween = Tween.PunchScale(punchTransform,Vector3.one * strength, startDelay: delay, duration: duration);
         
     }
 

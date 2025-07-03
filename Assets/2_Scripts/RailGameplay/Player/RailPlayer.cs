@@ -72,6 +72,9 @@ public class RailPlayer : MonoBehaviour
     public bool AlignToSplineDirection => alignToSplineDirection;
     public int MaxHealth => maxHealth;
     public float MaxShieldHealth => maxShieldHealth;
+    public int CurrentHealth => _currentHealth;
+    public float CurrentShieldHealth => _currentShieldHealth;
+    public int CurrentCurrency => _currentCurrency;
     public event Action OnDeath;
     public event Action<int> OnHealthChanged;
     public event Action<float> OnShieldChanged;
@@ -106,12 +109,14 @@ public class RailPlayer : MonoBehaviour
     {
         levelManager.OnBonusThresholdReached += OnMillionScoreReached;
         levelManager.OnStageChanged += OnStageChanged;
+        levelManager.OnRestartFromSavePoint += OnRestartFromSavePoint;
     }
 
     private void OnDisable()
     {
         levelManager.OnBonusThresholdReached -= OnMillionScoreReached;
         levelManager.OnStageChanged -= OnStageChanged;
+        levelManager.OnRestartFromSavePoint -= OnRestartFromSavePoint;
     }
     
 
@@ -143,12 +148,27 @@ public class RailPlayer : MonoBehaviour
             SaveManager.UpdatePlayerProgress(_currentCurrency);
         }
     }
+
+    private void OnRestartFromSavePoint(SavePointInformation savePoint)
+    {
+        if (savePoint == null) return;
+        
+        _currentCurrency = savePoint.PlayerCurrency;
+        _currentHealth = savePoint.PlayerHealth;
+        _currentShieldHealth = savePoint.PlayerShield;
+        
+        
+        OnCurrencyChanged?.Invoke(_currentCurrency);
+        OnHealthChanged?.Invoke(_currentHealth);
+        OnShieldChanged?.Invoke(_currentShieldHealth);
+    }
     
     private void SetupPlayer()
     {
         _currentCurrency = SaveManager.GetCurrency();
         _currentHealth = maxHealth;
         _currentShieldHealth = maxShieldHealth;
+        
         
         OnCurrencyChanged?.Invoke(_currentCurrency);
         OnHealthChanged?.Invoke(_currentHealth);

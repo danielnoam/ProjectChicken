@@ -197,10 +197,12 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         playerInput.OnAttack2Event += OnAttack2;
         playerMovement.OnDodge += OnDodge;
         playerAiming.OnAimLockStateChange += OnAimLock;
+        player.OnDeath += OnDeath;
         
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged += OnStageChanged;
+            player.LevelManager.OnRestartFromSavePoint += OnRestartFromSavePoint;
         }
     }
     
@@ -210,11 +212,13 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         playerInput.OnAttack2Event -= OnAttack2;
         playerMovement.OnDodge -= OnDodge;
         playerAiming.OnAimLockStateChange -= OnAimLock;
+        player.OnDeath -= OnDeath;
         
         
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged -= OnStageChanged;
+            player.LevelManager.OnRestartFromSavePoint -= OnRestartFromSavePoint;
         }
     }
 
@@ -257,6 +261,20 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
     }
     
+    private void OnRestartFromSavePoint(SavePointInformation savePoint)
+    {
+        if (savePoint == null) return;
+
+        if (savePoint.PlayerSpecialWeapon)
+        {
+            SetSpecialWeapon(savePoint.PlayerSpecialWeapon);
+        }
+        else
+        {
+            ResetHeat();
+        }
+    }
+    
     private void OnAimLock(bool state, ChickenController target)
     {
         if (!_allowShooting) return;
@@ -271,6 +289,14 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             targetReticle?.DisableAimLockSize(targetReticleAimLockDuration);
             _activeWeaponInstance?.OnAimUnlocked();
         }
+    }
+    
+    private void OnDeath()
+    {
+        _allowShooting = false;
+        targetReticle?.Hide();
+        ToggleRangeReticles(false);
+        _activeWeaponInstance?.OnWeaponDeselected();
     }
 
 

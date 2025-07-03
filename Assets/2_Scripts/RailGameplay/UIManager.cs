@@ -261,6 +261,7 @@ public class UIManager : MonoBehaviour
         _secondaryWeaponStartColor = playerSecondaryWeaponIcon.color;
         _dodgeStartColor = playerDodgeIcon.color;
         _heatBarTextStartColor = heatBarText.color;
+        waveTitleText.alpha = 0f;
         _previousScore = 0;
         _score = 0;
         _previousPlayerCurrency = 0;
@@ -645,19 +646,13 @@ public class UIManager : MonoBehaviour
     {
         waveTitleText.text = title;
         
-        if (waveTitleText.text == "" && waveTitleText.alpha <= 0)
-        {
-            return;
-        } 
-        else if (waveTitleText.text != "" && waveTitleText.alpha >= 1)
-        {
-            return;
-        }
-
         if (_waveTitleSequence.isAlive) _waveTitleSequence.Stop();
+
+        waveTitleText.alpha = 0f;
+        
         _waveTitleSequence = Sequence.Create()
-                .Group(Tween.Alpha(waveTitleText, 1, waveTitleAnimationDuration/0.7f))
-                .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.3f))
+                .Group(Tween.Alpha(waveTitleText, startDelay: 0.5f, endValue: 1, duration:waveTitleAnimationDuration/0.6f))
+                .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.4f))
             ;
 
     }
