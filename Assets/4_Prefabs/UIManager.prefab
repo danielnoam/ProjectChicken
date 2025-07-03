@@ -716,6 +716,7 @@ MonoBehaviour:
   hudFadeDuration: 3
   cooldownIconColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
   healthAnimationDuration: 0.5
+  shieldAnimationDuration: 0.7
   shieldPunchDuration: 0.2
   shieldPunchStrength: 0.5
   currencyAnimationDuration: 0.7
@@ -743,7 +744,7 @@ MonoBehaviour:
   scoreDigits: 7
   waveTitleAnimationDuration: 1
   playerIconPrefab: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
-  heartIcon: {fileID: 21300000, guid: 289a6a26f1a86538dba134624b3bac36, type: 3}
+  heartIcon: {fileID: 21300000, guid: cca820cc05f6379488e0f8573353d38c, type: 3}
   hudGroup: {fileID: 6058153400321184074}
   playerHealthHolder: {fileID: 7206587545251318471}
   playerShieldIcon: {fileID: 8682517557666568211}
@@ -1860,7 +1861,7 @@ PrefabInstance:
     - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 02a988877f68625d8b0f53a00e163ce5, type: 3}
+      objectReference: {fileID: 21300000, guid: afba8dfe661d261429133620401a1699, type: 3}
     - target: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2114,7 +2115,7 @@ PrefabInstance:
     - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 289a6a26f1a86538dba134624b3bac36, type: 3}
+      objectReference: {fileID: 21300000, guid: cca820cc05f6379488e0f8573353d38c, type: 3}
     - target: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2224,7 +2225,7 @@ PrefabInstance:
     - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: d596c97ce3598243d8fb13eb03cd80cc, type: 3}
+      objectReference: {fileID: 21300000, guid: 076372112f6f1754089363710de20bbb, type: 3}
     - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Color.b
       value: 1
@@ -2361,7 +2362,7 @@ PrefabInstance:
     - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 289a6a26f1a86538dba134624b3bac36, type: 3}
+      objectReference: {fileID: 21300000, guid: cca820cc05f6379488e0f8573353d38c, type: 3}
     - target: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2467,7 +2468,7 @@ PrefabInstance:
     - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 289a6a26f1a86538dba134624b3bac36, type: 3}
+      objectReference: {fileID: 21300000, guid: cca820cc05f6379488e0f8573353d38c, type: 3}
     - target: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2573,7 +2574,7 @@ PrefabInstance:
     - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 6fce774351e964302b8fced386bbd8b0, type: 3}
+      objectReference: {fileID: 21300000, guid: 302ef6f2fa95ebe40a7ba67d5d8f9e48, type: 3}
     - target: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

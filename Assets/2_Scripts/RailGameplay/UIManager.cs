@@ -24,6 +24,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float healthAnimationDuration = 0.5f;
     
     [Header("Shield")]
+    [SerializeField] private float shieldAnimationDuration = 0.5f;
     [SerializeField] private float shieldPunchDuration = 0.2f;
     [SerializeField] private float shieldPunchStrength = 0.5f;
     
@@ -104,11 +105,13 @@ public class UIManager : MonoBehaviour
     private Sequence _heatBarSequence;
     private Sequence _scoreSequence;
     private Sequence _playerCurrencySequence;
+    private Sequence _playerShieldSequence;
     private Sequence _waveTitleSequence;
     private int _previousScore;
     private int _score;
     private int _previousPlayerCurrency;
     private int _playerCurrency;
+    private float _playerShield;
     private float _overheatBarHeight;
 
 
@@ -223,6 +226,7 @@ public class UIManager : MonoBehaviour
     {
         scoreText.text = _score.ToString($"D{scoreDigits}"); // Shows right now up to a million
         playerCurrencyText.text = _playerCurrency.ToString();
+        playerShieldText.text = $"{_playerShield:F0}%";
     }
 
 
@@ -261,6 +265,7 @@ public class UIManager : MonoBehaviour
         _score = 0;
         _previousPlayerCurrency = 0;
         _playerCurrency = 0;
+        _playerShield = 0f;
 
         ToggleHUD(false);
         ToggleKeybinds(false);
@@ -397,13 +402,29 @@ public class UIManager : MonoBehaviour
 
     private void OnUpdateShield(float currentShield)
     {
-        playerShieldText.text = $"{currentShield:F0}%";
-
-        if (currentShield >= player.MaxShieldHealth)
+        if (_playerShieldSequence.isAlive) _playerShieldSequence.Stop();
+        
+        if (currentShield < _playerShield)
+        {
+            _playerShieldSequence = Sequence.Create()
+                .Group(Tween.Custom(
+                    startValue: _playerShield, 
+                    endValue: currentShield,
+                    duration: shieldAnimationDuration,
+                    onValueChange: value => _playerShield = Mathf.RoundToInt(value)));
+        }
+        else
+        {
+            _playerShield = currentShield;
+        }
+        
+        if (currentShield >= player.MaxShieldHealth - 1)
         {
             Tween.PunchScale(playerShieldIcon.transform, strength: Vector3.one * shieldPunchStrength, duration: shieldPunchDuration);
         }
+
     }
+    
 
     private void OnSpecialWeaponSwitched(WeaponInstance previousWeaponInstance, WeaponInstance newWeaponInstance)
     {
@@ -633,6 +654,7 @@ public class UIManager : MonoBehaviour
             return;
         }
 
+        if (_waveTitleSequence.isAlive) _waveTitleSequence.Stop();
         _waveTitleSequence = Sequence.Create()
                 .Group(Tween.Alpha(waveTitleText, 1, waveTitleAnimationDuration/0.7f))
                 .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.3f))
