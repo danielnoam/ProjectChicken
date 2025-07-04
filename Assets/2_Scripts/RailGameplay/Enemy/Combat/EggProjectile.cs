@@ -93,11 +93,10 @@ public class EggProjectile : MonoBehaviour
         if (((1 << other.gameObject.layer) & hitLayers) == 0) return;
         
         // Check if we hit the player
-        RailPlayer player = other.GetComponentInParent<RailPlayer>();
-        if (player != null)
+        if (other.TryGetComponent(out RailPlayer player))
         {
             // Deal damage to player
-            DamagePlayer(player);
+            player.TakeDamage(currentDamage);
         }
         
         // Play impact effects
@@ -107,20 +106,6 @@ public class EggProjectile : MonoBehaviour
         Destroy(gameObject);
     }
     
-    private void DamagePlayer(RailPlayer player)
-    {
-        // Check if player implements IDamageable
-        IDamageable damageable = player.GetComponent<IDamageable>();
-        if (damageable != null)
-        {
-            damageable.TakeDamage(currentDamage);
-        }
-        else
-        {
-            // Fallback: Use SendMessage (less efficient but works)
-            player.SendMessage("TakeDamage", currentDamage, SendMessageOptions.DontRequireReceiver);
-        }
-    }
     
     private void PlayImpactEffects(Vector3 impactPoint)
     {

@@ -60,17 +60,13 @@ public class BehaviorSpawnProjectilesOnStart : ProjectileBehaviorBase
     {
 
     }
-
-    public override void OnDrawGizmos(PlayerProjectile projectile, RailPlayer owner)
-    {
-
-    }
+    
     
     private void SpawnProjectile(PlayerProjectile projectile, RailPlayer owner, Vector3 spawnPosition, ChickenController target)
     {
         GameObject spawnedObj = Object.Instantiate(projectilePrefab.gameObject, spawnPosition, Quaternion.identity);
         PlayerProjectile miniProjectile = spawnedObj.GetComponent<PlayerProjectile>();
-        miniProjectile.SetUpMiniProjectile(projectileBehaviors, projectile.Weapon, owner, projectile.WeaponInstance,target);
+        miniProjectile.SetUpProjectileWithCustomBehaviors(projectile.WeaponData, owner, projectile.WeaponInstance,target, projectileBehaviors);
     }
     
 }

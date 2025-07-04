@@ -68,14 +68,6 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
     {
 
     }
-
-    public override void OnDrawGizmos(PlayerProjectile projectile, RailPlayer owner)
-    {
-        // Draw the explosion radius spheres
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(projectile.transform.position, maxRadius);
-        Gizmos.DrawWireSphere(projectile.transform.position, minRadius);
-    }
     
     
     

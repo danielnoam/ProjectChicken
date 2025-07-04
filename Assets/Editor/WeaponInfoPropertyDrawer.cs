@@ -25,16 +25,16 @@ public class WeaponInfoPropertyDrawer : PropertyDrawer
         
         if (weaponDataProp.objectReferenceValue)
         {
-            SOWeapon weaponData = weaponDataProp.objectReferenceValue as SOWeapon;
-            if (weaponData && !string.IsNullOrEmpty(weaponData.WeaponName))
+            SOWeaponData weaponDataData = weaponDataProp.objectReferenceValue as SOWeaponData;
+            if (weaponDataData && !string.IsNullOrEmpty(weaponDataData.WeaponName))
             {
                 if (arrayIndex == 0)
                 {
-                    customLabel = weaponData.WeaponName + " (Base Weapon)";
+                    customLabel = weaponDataData.WeaponName + " (Base Weapon)";
                 }
                 else
                 {
-                    customLabel = weaponData.WeaponName + " (Special Weapon)";
+                    customLabel = weaponDataData.WeaponName + " (Special Weapon)";
                 }
             }
         }

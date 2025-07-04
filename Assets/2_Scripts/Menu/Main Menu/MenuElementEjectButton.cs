@@ -1,5 +1,6 @@
 using PrimeTween;
 using UnityEngine;
+using VInspector;
 
 public class MenuElementEjectButton : MenuElement
 {
@@ -9,8 +10,11 @@ public class MenuElementEjectButton : MenuElement
     [SerializeField] private float animationDuration = 0.75f;
     [SerializeField] private Vector3 buttonPressedPosition = new Vector3(0, -0.5f, 0);
     [SerializeField] protected Ease animationEase = Ease.Default;
+    
+    [Foldout("References")]
     [SerializeField] private SOAudioEvent buttonPressedSfx;
     [SerializeField] private Transform buttonTransform;
+    [EndFoldout]
     
     private Sequence _buttonPressSequence;
     private Vector3 _buttonStartPos;

@@ -48,6 +48,7 @@ public class SOLevelStage : ScriptableObject
     public FormationSettings FormationSettings => formationSettings;
     public bool IsTimeBasedStage => stageType is StageType.Checkpoint or StageType.Intro or StageType.Outro;
     public bool IsGameplayStage => stageType is StageType.EnemyWave or StageType.Checkpoint;
+    public bool IsSavePointStage => stageType is StageType.Intro or StageType.Checkpoint;
     
     
     // Spline properties

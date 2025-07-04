@@ -15,15 +15,19 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get; private set; }
     
     
-    [Foldout("Effects")]
+    [Foldout("UI")]
     [Header("General")]
     [SerializeField] private float hudFadeDuration = 3f;
     [SerializeField] private Color cooldownIconColor = Color.grey;
     
     [Header("Health")]
-    [SerializeField] private float healthAnimationDuration = 0.5f;
+    [SerializeField] private bool useTextForHealth;
+    [SerializeField] private float healthAnimationDuration = 0.7f;
+    [SerializeField] private float healthPunchDuration = 0.2f;
+    [SerializeField] private float healthPunchStrength = 0.5f;
     
     [Header("Shield")]
+    [SerializeField] private float shieldAnimationDuration = 0.7f;
     [SerializeField] private float shieldPunchDuration = 0.2f;
     [SerializeField] private float shieldPunchStrength = 0.5f;
     
@@ -63,14 +67,15 @@ public class UIManager : MonoBehaviour
     [SerializeField, Min(0), Tooltip("The difference between the previous score and the current score that must be reached to trigger a big score animation")] 
     private int bigScoreDifference = 200;
     [SerializeField, Min(0), Tooltip("How many 0 is the score made out of")] private int scoreDigits = 7;
-    [EndFoldout]
     
     [Header("Wave Title")]
     [SerializeField] private float waveTitleAnimationDuration = 0.2f;
+    [EndFoldout]
+    
+
     
     [Header("Asset References")] 
-    [SerializeField] private Image playerIconPrefab;
-    [SerializeField] private Sprite heartIcon;
+    [SerializeField] private Image healthIconPrefab;
     
     [Header("Child References")] 
     [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
@@ -82,6 +87,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image playerHeatBar;
     [SerializeField] private Image playerMiniGameWindow;
     [SerializeField] private Image playerDodgeIcon;
+    [SerializeField] private Image playerHealthIcon;
+    [SerializeField] private TextMeshProUGUI playerHealthText;
     [SerializeField] private TextMeshProUGUI heatBarText;
     [SerializeField] private TextMeshProUGUI playerShieldText;
     [SerializeField] private TextMeshProUGUI playerCurrencyText;
@@ -104,11 +111,14 @@ public class UIManager : MonoBehaviour
     private Sequence _heatBarSequence;
     private Sequence _scoreSequence;
     private Sequence _playerCurrencySequence;
+    private Sequence _playerShieldSequence;
     private Sequence _waveTitleSequence;
     private int _previousScore;
     private int _score;
     private int _previousPlayerCurrency;
     private int _playerCurrency;
+    private int _playerHealth;
+    private float _playerShield;
     private float _overheatBarHeight;
 
 
@@ -138,7 +148,6 @@ public class UIManager : MonoBehaviour
             return;
         }
         
-        PrimeTweenConfig.warnEndValueEqualsCurrent = false;
         SetUpUI();
     }
 
@@ -146,11 +155,8 @@ public class UIManager : MonoBehaviour
     {
         if (player)
         {
-            OnUpdateHealth(player.MaxHealth);
-            OnUpdateShield(player.MaxShieldHealth);
             OnSpecialWeaponSwitched(null, null);
             OnWeaponHeatUpdated(0);
-            OnUpdateCurrency(player.CurrentCurrency);
             OnDodgeCooldownUpdated(0);
         }
         
@@ -165,22 +171,23 @@ public class UIManager : MonoBehaviour
     {
         if (player)
         {
+            player.OnDeath += OnDeath;
             player.OnHealthChanged += OnUpdateHealth;
             player.OnShieldChanged += OnUpdateShield;
             player.OnCurrencyChanged += OnUpdateCurrency;
-            player.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
-            player.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
-            player.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
-            player.OnBaseWeaponSwitched += OnBaseWeaponSwitched;
-            player.OnSpecialWeaponDisabled += OnSpecialWeaponDisabled;
-            player.OnWeaponHeatUpdated += OnWeaponHeatUpdated;
-            player.OnWeaponOverheated += OnWeaponOverheated;
-            player.OnWeaponHeatReset += OnWeaponHeatReset;
-            player.OnWeaponHeatMiniGameWindowCreated += OnWeaponHeatMiniGameWindowCreated;
-            player.OnWeaponHeatMiniGameSucceeded += OnOnWeaponHeatMiniGameSucceeded;
-            player.OnWeaponHeatMiniGameFailed += OnOnWeaponHeatMiniGameFailed;
-            player.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
-            player.OnDodge += OnDodge;
+            player.PlayerWeapon.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
+            player.PlayerWeapon.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
+            player.PlayerWeapon.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
+            player.PlayerWeapon.OnBaseWeaponSwitched += OnBaseWeaponSwitched;
+            player.PlayerWeapon.OnSpecialWeaponDisabled += OnSpecialWeaponDisabled;
+            player.PlayerWeapon.OnWeaponHeatUpdated += OnWeaponHeatUpdated;
+            player.PlayerWeapon.OnWeaponOverheated += OnWeaponOverheated;
+            player.PlayerWeapon.OnWeaponHeatReset += OnWeaponHeatReset;
+            player.PlayerWeapon.OnWeaponHeatMiniGameWindowCreated += OnWeaponHeatMiniGameWindowCreated;
+            player.PlayerWeapon.OnWeaponHeatMiniGameSucceeded += OnOnWeaponHeatMiniGameSucceeded;
+            player.PlayerWeapon.OnWeaponHeatMiniGameFailed += OnOnWeaponHeatMiniGameFailed;
+            player.PlayerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
+            player.PlayerMovement.OnDodge += OnDodge;
         }
 
         if (levelManager)
@@ -195,20 +202,21 @@ public class UIManager : MonoBehaviour
     {
         if (player)
         {
+            player.OnDeath -= OnDeath;
             player.OnHealthChanged -= OnUpdateHealth;
             player.OnShieldChanged -= OnUpdateShield;
             player.OnCurrencyChanged -= OnUpdateCurrency;
-            player.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
-            player.OnSpecialWeaponCooldownUpdated -= OnSpecialWeaponCooldownUpdated;
-            player.OnBaseWeaponCooldownUpdated -= OnBaseWeaponCooldownUpdated;
-            player.OnWeaponHeatUpdated -= OnWeaponHeatUpdated;
-            player.OnWeaponOverheated -= OnWeaponOverheated;
-            player.OnWeaponHeatReset -= OnWeaponHeatReset;
-            player.OnWeaponHeatMiniGameWindowCreated -= OnWeaponHeatMiniGameWindowCreated;
-            player.OnBaseWeaponSwitched -= OnBaseWeaponSwitched;
-            player.OnSpecialWeaponDisabled -= OnSpecialWeaponDisabled;
-            player.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
-            player.OnDodge -= OnDodge;
+            player.PlayerWeapon.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
+            player.PlayerWeapon.OnSpecialWeaponCooldownUpdated -= OnSpecialWeaponCooldownUpdated;
+            player.PlayerWeapon.OnBaseWeaponCooldownUpdated -= OnBaseWeaponCooldownUpdated;
+            player.PlayerWeapon.OnWeaponHeatUpdated -= OnWeaponHeatUpdated;
+            player.PlayerWeapon.OnWeaponOverheated -= OnWeaponOverheated;
+            player.PlayerWeapon.OnWeaponHeatReset -= OnWeaponHeatReset;
+            player.PlayerWeapon.OnWeaponHeatMiniGameWindowCreated -= OnWeaponHeatMiniGameWindowCreated;
+            player.PlayerWeapon.OnBaseWeaponSwitched -= OnBaseWeaponSwitched;
+            player.PlayerWeapon.OnSpecialWeaponDisabled -= OnSpecialWeaponDisabled;
+            player.PlayerMovement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
+            player.PlayerMovement.OnDodge -= OnDodge;
         }
         
         if (levelManager)
@@ -222,7 +230,9 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        scoreText.text = _score.ToString($"D{scoreDigits}"); // Shows right now up to a million
+        scoreText.text = _score.ToString($"D{scoreDigits}");
+        if (playerHealthText) playerHealthText.text = _playerHealth.ToString();
+        playerShieldText.text = $"{_playerShield:F0}%";
         playerCurrencyText.text = _playerCurrency.ToString();
     }
 
@@ -235,21 +245,23 @@ public class UIManager : MonoBehaviour
     {
         if (!player) return;
         
-        // Clear existing health icons if any
-        foreach (Transform child in playerHealthHolder)
+
+        if (!useTextForHealth)
         {
-            Destroy(child.gameObject);
-        }
-        
-        // Create new icons and cache references
-        _healthIcons = new Dictionary<Image, bool>();
-        for (int health = 0; health < player.MaxHealth; health++)
-        {
-            var healthObject = Instantiate(playerIconPrefab, playerHealthHolder);
-            healthObject.name = $"HealthIcon{health}";
-            healthObject.sprite = heartIcon;
-                
-            _healthIcons[healthObject] = false; 
+            foreach (Transform child in playerHealthHolder)
+            {
+                Destroy(child.gameObject);
+            }
+            
+            _healthIcons = new Dictionary<Image, bool>();
+            for (int health = 0; health < player.MaxHealth; health++)
+            {
+                var healthObject = Instantiate(healthIconPrefab, playerHealthHolder);
+                _healthIcons[healthObject] = false; 
+            }
+
+            playerHealthIcon = null;
+            playerHealthText = null;
         }
             
         _overheatBarHeight = playerHeatBar.rectTransform.sizeDelta.y;
@@ -258,10 +270,12 @@ public class UIManager : MonoBehaviour
         _secondaryWeaponStartColor = playerSecondaryWeaponIcon.color;
         _dodgeStartColor = playerDodgeIcon.color;
         _heatBarTextStartColor = heatBarText.color;
+        waveTitleText.alpha = 0f;
         _previousScore = 0;
         _score = 0;
         _previousPlayerCurrency = 0;
         _playerCurrency = 0;
+        _playerShield = 0f;
 
         ToggleHUD(false);
         ToggleKeybinds(false);
@@ -354,51 +368,87 @@ public class UIManager : MonoBehaviour
 
     #region Player UI ----------------------------------------------------------------------------------
 
+
+    private void OnDeath()
+    {
+        FadeHUD(false);
+    }
+    
     private void OnUpdateHealth(int currentHealth)
     {
-        int index = 0;
-        foreach (var healthIcon in _healthIcons.Keys.ToList())
+        
+        if (!useTextForHealth)
         {
-            if (index < currentHealth) // If the heart is below the health you should see it
+            int index = 0;
+            foreach (var healthIcon in _healthIcons.Keys.ToList())
             {
-                if (!_healthIcons[healthIcon]) // If it's not shown, fade in
+                if (index < currentHealth) // If the heart is below the health you should see it
                 {
-                    _healthIcons[healthIcon] = true; // Set to true when shown
+                    if (!_healthIcons[healthIcon]) // If it's not shown, fade in
+                    {
+                        _healthIcons[healthIcon] = true; // Set to true when shown
                     
-                    float bounceUpDuration = (healthAnimationDuration * 0.8f)/1.5f;
-                    float bounceDownDuration = (healthAnimationDuration * 0.2f)/1.5f;
+                        float bounceUpDuration = healthAnimationDuration * 0.8f;
+                        float bounceDownDuration = healthAnimationDuration * 0.2f;
                     
-                    Sequence.Create()
-                        .Group(Tween.Alpha(healthIcon, endValue: 1f, duration: healthAnimationDuration))
-                        .Chain(Tween.Scale(healthIcon.transform, endValue: Vector3.one * 1.5f, bounceUpDuration, ease: Ease.InOutSine))
-                        .Chain(Tween.Scale(healthIcon.transform, endValue: Vector3.one, bounceDownDuration, ease: Ease.OutBounce))
-                    ;
+                        Sequence.Create()
+                            .Group(Tween.Alpha(healthIcon, endValue: 1f, duration: healthAnimationDuration / 0.5f))
+                            .Group(Tween.Scale(healthIcon.transform, endValue: Vector3.one * 1.4f, bounceUpDuration, ease: Ease.OutBounce))
+                            .Group(Tween.Scale(healthIcon.transform, endValue: Vector3.one, bounceDownDuration, ease: Ease.InOutSine ,startDelay: bounceUpDuration -0.05f))
+                            ;
+                    }
                 }
-            }
-            else // else hide it
-            {
-                if (_healthIcons[healthIcon]) // If it's shown, fade out
+                else // else hide it
                 {
-                    _healthIcons[healthIcon] = false; // Set to false when hidden
+                    if (_healthIcons[healthIcon]) // If it's shown, fade out
+                    {
+                        _healthIcons[healthIcon] = false; // Set to false when hidden
                     
-                    Tween.Alpha(healthIcon, endValue: 0f, duration: healthAnimationDuration);
-                    Tween.Scale(healthIcon.transform, endValue: Vector3.zero, healthAnimationDuration, ease: Ease.OutQuint);
+                        Tween.Alpha(healthIcon, endValue: 0f, duration: healthAnimationDuration);
+                        Tween.Scale(healthIcon.transform, endValue: Vector3.zero, healthAnimationDuration, ease: Ease.OutQuint);
+                    }
                 }
-            }
             
-            index++;
+                index++;
+            }
         }
+        else
+        {
+            if (_playerHealth != currentHealth)
+            {
+                Tween.PunchScale(playerHealthIcon.transform, strength: Vector3.one * healthPunchStrength, duration: healthPunchDuration);
+            }
+        }
+        
+        _playerHealth = currentHealth;
+
     }
 
     private void OnUpdateShield(float currentShield)
     {
-        playerShieldText.text = $"{currentShield:F0}%";
-
-        if (currentShield >= player.MaxShieldHealth)
+        if (_playerShieldSequence.isAlive) _playerShieldSequence.Stop();
+        
+        if (currentShield < _playerShield)
+        {
+            _playerShieldSequence = Sequence.Create()
+                .Group(Tween.Custom(
+                    startValue: _playerShield, 
+                    endValue: currentShield,
+                    duration: shieldAnimationDuration,
+                    onValueChange: value => _playerShield = Mathf.RoundToInt(value)));
+        }
+        else
+        {
+            _playerShield = currentShield;
+        }
+        
+        if (currentShield >= player.MaxShieldHealth - 1)
         {
             Tween.PunchScale(playerShieldIcon.transform, strength: Vector3.one * shieldPunchStrength, duration: shieldPunchDuration);
         }
+
     }
+    
 
     private void OnSpecialWeaponSwitched(WeaponInstance previousWeaponInstance, WeaponInstance newWeaponInstance)
     {
@@ -410,10 +460,10 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            if (player.GetCurrentBaseWeapon() != null)
+            if (player.PlayerWeapon.BaseWeaponInstance != null)
             {
-                playerWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
-               playerSecondaryWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
+                playerWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.weaponData.WeaponIcon;
+               playerSecondaryWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.weaponData.WeaponIcon;
             }
             Tween.Alpha(playerSecondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
         }
@@ -422,7 +472,7 @@ public class UIManager : MonoBehaviour
         
     private void OnSpecialWeaponDisabled(WeaponInstance weapon)
     {
-        if (player.GetCurrentBaseWeapon() != null) playerWeaponIcon.sprite = player.GetCurrentBaseWeapon().weaponData.WeaponIcon;
+        if (player.PlayerWeapon.BaseWeaponInstance != null) playerWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.weaponData.WeaponIcon;
         Tween.Alpha(playerSecondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
 
     }
@@ -431,7 +481,7 @@ public class UIManager : MonoBehaviour
     {
         if (weapon == null) return;
         
-        if (player.HasSpecialWeapon())
+        if (player.PlayerWeapon.CurrentSpecialWeaponInstance != null)
         {
             playerSecondaryWeaponIcon.sprite = weapon.weaponData.WeaponIcon;
             Tween.Alpha(playerSecondaryWeaponIcon, endValue: 1f, duration: weaponAnimationDuration);
@@ -455,7 +505,7 @@ public class UIManager : MonoBehaviour
     {
         float fillAmount = 1f - (cooldown / baseWeaponInstance.weaponData.FireRate);
         
-        if (player.GetCurrentSpecialWeapon() != null)
+        if (player.PlayerWeapon.CurrentSpecialWeaponInstance != null)
         {
             playerSecondaryWeaponIcon.color = Color.Lerp(Color.clear, _secondaryWeaponStartColor, fillAmount);
         }
@@ -469,7 +519,7 @@ public class UIManager : MonoBehaviour
     {
         heatBarText.text = $"{heat:F0}%";
         
-        float fillAmount = heat / player.GetMaxWeaponHeat();
+        float fillAmount = heat / player.PlayerWeapon.MaxWeaponHeat;
         Color barFillColor = Color.Lerp(normalBarColor, heatedBarColor, fillAmount);
         Color textFillColor = Color.Lerp(_heatBarTextStartColor, heatedBarColor,fillAmount);
         float textAlpha = fillAmount < 0.3f ? 0f : Mathf.Lerp(0f, 1f, (fillAmount - 0.3f) / 0.7f);
@@ -524,6 +574,9 @@ public class UIManager : MonoBehaviour
             playerMiniGameWindow.rectTransform.anchoredPosition.x,
             yOffset
         );
+        
+        Tween.PunchScale(playerMiniGameWindow.transform, strength: Vector3.one * miniGamePunchStrength, duration: miniGamePunchDuration);
+        Tween.Color(playerMiniGameWindow, startValue: playerMiniGameWindow.color, endValue: miniGameActiveColor, miniGameAnimationDuration);
     }
     
     
@@ -533,8 +586,6 @@ public class UIManager : MonoBehaviour
         
         Tween.PunchScale(playerHeatBar.transform, strength: Vector3.one * heatBarPunchStrength, duration: heatBarPunchDuration);
         
-        Tween.PunchScale(playerMiniGameWindow.transform, strength: Vector3.one * miniGamePunchStrength, duration: miniGamePunchDuration);
-        Tween.Color(playerMiniGameWindow, startValue: playerMiniGameWindow.color, endValue: miniGameActiveColor, miniGameAnimationDuration);
     }
     
     private void OnWeaponHeatReset()
@@ -571,7 +622,7 @@ public class UIManager : MonoBehaviour
     
     private void OnDodgeCooldownUpdated(float cooldown)
     {
-        float fillAmount = 1f - (cooldown / player.GetDodgeMaxCooldown());
+        float fillAmount = 1f - (cooldown / player.PlayerMovement.MaxDodgeCooldown);
         playerDodgeIcon.color = Color.Lerp(cooldownIconColor, _dodgeStartColor, fillAmount);
 
         if (Mathf.Approximately(fillAmount, 1f)) 
@@ -618,18 +669,13 @@ public class UIManager : MonoBehaviour
     {
         waveTitleText.text = title;
         
-        if (waveTitleText.text == "" && waveTitleText.alpha <= 0)
-        {
-            return;
-        } 
-        else if (waveTitleText.text != "" && waveTitleText.alpha >= 1)
-        {
-            return;
-        }
+        if (_waveTitleSequence.isAlive) _waveTitleSequence.Stop();
 
+        waveTitleText.alpha = 0f;
+        
         _waveTitleSequence = Sequence.Create()
-                .Group(Tween.Alpha(waveTitleText, 1, waveTitleAnimationDuration/0.7f))
-                .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.3f))
+                .Group(Tween.Alpha(waveTitleText, startDelay: 0.5f, endValue: 1, duration:waveTitleAnimationDuration/0.6f))
+                .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.4f))
             ;
 
     }

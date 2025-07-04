@@ -22,15 +22,14 @@ public class ProjectileManager : MonoBehaviour
     
     private void Awake()
     {
-        // Singleton setup
-        if (Instance == null)
+        if (!Instance || Instance == this)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
+            return;
         }
     }
     

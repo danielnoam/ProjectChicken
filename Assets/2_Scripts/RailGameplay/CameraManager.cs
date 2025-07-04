@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using KBCore.Refs;
 using PrimeTween;
 using Unity.Cinemachine;
@@ -29,6 +31,10 @@ public class CameraManager : MonoBehaviour
     [SerializeField] private bool invertRotationX;
     [SerializeField] private bool invertRotationY = true;
     [EndFoldout]
+    
+    [Header("Intro Camera Settings")]
+    [SerializeField] private bool changePositions = true;
+    [SerializeField, Min(1f)] private float changePositionEvery = 1.5f;
 
     [Header("References")]
     [SerializeField, Child(Flag.Editable)] private CinemachineCamera followCamera;
@@ -42,10 +48,11 @@ public class CameraManager : MonoBehaviour
     [SerializeField, Self, HideInInspector] private CinemachineImpulseSource impulseSource;
     
     private Sequence _fovSequence;
-    private float _defaultFov;
     private Vector3 _targetFollowOffset;
     private Vector3 _currentFollowOffset;
     private Vector2 _currentRotationOffset;
+    private Coroutine  _changePositionCoroutine;
+    private float _defaultFov;
 
     private void OnValidate()
     {
@@ -91,14 +98,14 @@ public class CameraManager : MonoBehaviour
 
         if (player)
         {
-            player.OnDodge += OnPlayerDodge;
+            player.PlayerMovement.OnDodge += OnPlayerDodge;
             player.OnHealthChanged += OnHealthChanged;
             player.OnShieldChanged += OnShieldChanged;
+            player.OnDeath += OnPlayerDeath;
             followCamera.Target.TrackingTarget = player.GetFollowCameraTarget();
-            followCamera.Target.LookAtTarget = player.GetReticleTarget();
-            introCamera.Target.TrackingTarget = player.GetIntroCameraTarget(); 
+            introCamera.Target.TrackingTarget = player.GetRandomCameraPosition(); 
             introCamera.Target.LookAtTarget = player.transform;
-            outroCamera.Target.LookAtTarget = player.transform;
+            outroCamera.Target.LookAtTarget = player.transform; 
         }
     }
 
@@ -111,11 +118,15 @@ public class CameraManager : MonoBehaviour
         
         if (player)
         {
-            player.OnDodge -= OnPlayerDodge;
+            player.PlayerMovement.OnDodge -= OnPlayerDodge;
             player.OnHealthChanged -= OnHealthChanged;
             player.OnShieldChanged -= OnShieldChanged;
+            player.OnDeath -= OnPlayerDeath;
+            followCamera.Target.TrackingTarget = null;
             introCamera.Target.TrackingTarget = null;
             introCamera.Target.LookAtTarget = null;
+            outroCamera.Target.LookAtTarget = null;
+
         }
     }
     
@@ -138,12 +149,38 @@ public class CameraManager : MonoBehaviour
             followCameraRotateExtenstion.SetRotationOffset(Vector3.zero);
             _currentRotationOffset = Vector2.zero;
         }
+
+        if (_changePositionCoroutine != null) StopCoroutine(_changePositionCoroutine);
         
         followCamera.Priority = 0;
         introCamera.Priority = 0;
         outroCamera.Priority = 0;
 
         cam.Priority = 10;
+
+        if (cam == introCamera && changePositions)
+        {
+            _changePositionCoroutine = StartCoroutine(ChangeCameraPosition(introCamera));
+        }
+    }
+    
+    private IEnumerator ChangeCameraPosition(CinemachineCamera cam)
+    {
+        if (!cam || !cam.isActiveAndEnabled) yield break;
+        
+        
+        yield return new WaitForSeconds(changePositionEvery);
+        
+        while (true)
+        {
+            if (!cam.IsLive || !changePositions) yield break;
+
+            var newTarget = player.GetRandomCameraPosition();
+            if (newTarget == cam.Target.TrackingTarget) newTarget = player.GetRandomCameraPosition();
+            cam.Target.TrackingTarget = newTarget;
+            
+            yield return new WaitForSeconds(changePositionEvery);
+        }
     }
     
 
@@ -164,6 +201,7 @@ public class CameraManager : MonoBehaviour
         impulseSource.DefaultVelocity = new Vector3(Random.Range(-1f,1f),Random.Range(-1f,1f),Random.Range(-1f,1f));
         impulseSource.GenerateImpulseWithForce(intensity);
     }
+    
     
     private void UpdateDynamicCameraOffset()
     {
@@ -263,6 +301,11 @@ public class CameraManager : MonoBehaviour
         }
     }
     
+    private void OnPlayerDeath()
+    {
+        SetActiveCamera(introCamera);
+    }
+    
 
     #endregion Events ---------------------------------------------------------------------------------------------------------
 
@@ -273,7 +316,7 @@ public class CameraManager : MonoBehaviour
     {
         if (!player) return Vector2.zero;
 
-        return player.GetNormalizedReticlePosition();
+        return player.PlayerAiming.NormalizedAimPosition;
     }
     
     private Vector3 CalculateDynamicOffset(Vector2 normalizedAimPosition)

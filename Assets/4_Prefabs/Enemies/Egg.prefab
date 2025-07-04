@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 1255394550993139635}
   - component: {fileID: 3677671700555491103}
   - component: {fileID: 4443819929358350129}
+  - component: {fileID: 2394912740973075874}
+  - component: {fileID: 3651195966718576247}
   m_Layer: 0
   m_Name: Egg
   m_TagString: Untagged
@@ -109,6 +111,42 @@ MonoBehaviour:
   currentSpeed: 0
   currentDamage: 0
   aliveTime: 0
+--- !u!114 &2394912740973075874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2910271167061673307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce55ca4a0def3ca4c9f08ba19a99d858, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineWidthRange: {x: 0, y: 3}
+  thinOutlineDistance: 80
+  thickOutlineDistance: 100
+  outline: {fileID: 3651195966718576247}
+  mainCamera: {fileID: 0}
+  distance: 0
+--- !u!114 &3651195966718576247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2910271167061673307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 3
+  outlineColor: {r: 1, g: 0.23523569, b: 0, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &3156470333088152380
 GameObject:
   m_ObjectHideFlags: 0

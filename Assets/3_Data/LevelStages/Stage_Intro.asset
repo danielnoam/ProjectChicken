@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
   m_Name: Stage_Intro
   m_EditorClassIdentifier: 
+  stageTitle: 
   stageType: 2
-  stageDuration: 3
+  stageDuration: 5
   enemyPositionOffset: 0
   delayBeforeNextStage: 1
   waveScore: 1000
@@ -30,7 +31,7 @@ MonoBehaviour:
     circleCount: 12
     gridSize: {x: 5, y: 3}
     gridFillsBoundary: 1
-  pathFollowSpeed: 25
+  pathFollowSpeed: 55
   upAxis: 1
   forwardAxis: 2
   alignmentMode: 1

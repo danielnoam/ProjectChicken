@@ -2,15 +2,17 @@ using System;
 using KBCore.Refs;
 using PrimeTween;
 using UnityEngine;
+using VInspector;
 
 public class MenuElementLaunchLever : MenuElement
 {
     
-    [Header("Lever Press Animation")]
+    [Header("Lever Press")]
     [SerializeField] private float delayBeforeLaunch = 0.5f;
     [SerializeField] private float animationDuration = 0.75f;
     [SerializeField] private Vector3 leverPressedRotation = new Vector3(55f, 0, 0);
-    [SerializeField] protected Ease animationEase = Ease.Default;
+    [SerializeField] private Ease animationEase = Ease.Default;
+    [SerializeField] private CameraShakeSettings  cameraShakeSettings;
     
     [Header("Emission Settings")]
     [SerializeField, ColorUsage(false, true)] private Color emissionColorOn = Color.white;
@@ -19,10 +21,11 @@ public class MenuElementLaunchLever : MenuElement
     [SerializeField] private float stateLerpSpeed = 5f;
     [SerializeField] private SOAudioEvent leverPressedSfx;
     
-    [Header("References")]
+    [Foldout("References")]
     [SerializeField] private MenuElementLevelSelection levelSelection;
     [SerializeField] private Transform leverPivotTransform;
     [SerializeField] private Renderer selectedLevelLight;
+    [EndFoldout]
 
     
     private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
@@ -45,8 +48,7 @@ public class MenuElementLaunchLever : MenuElement
     protected override void OnSetUp()
     {
         if (leverPivotTransform) _leverStartRot = leverPivotTransform.localEulerAngles;
-
-        // Set up the light material
+        
         if (selectedLevelLight)
         {
             _selectedLevelMaterial = selectedLevelLight.material;
@@ -56,7 +58,7 @@ public class MenuElementLaunchLever : MenuElement
         
         levelSelection.OnLevelSelected += OnLevelSelected;
         levelSelection.OnLevelDeselected += OnLevelDeselected;
-        ToggleCanSelect(false, false);
+        ToggleCanSelect(false);
     }
 
     protected override void OnInteract()
@@ -99,6 +101,8 @@ public class MenuElementLaunchLever : MenuElement
     public void Launch()
     {
         if (_leverPressSequence.isAlive) _leverPressSequence.Stop();
+        
+        MenuCameraManager.Instance?.ShakeCamera(cameraShakeSettings.impulseShape, cameraShakeSettings.intensity, cameraShakeSettings.duration);
 
         float delayBeforeAnimation = levelSelection.LaunchMissionMode == LaunchMissionMode.Auto ? 1.5f : 0f;
         

@@ -15,6 +15,7 @@ public class EnemyWaveManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform enemyHolder;
     [SerializeField] private LevelManager levelManager;
+    [SerializeField] private RailPlayer player;
 
 
 
@@ -27,6 +28,11 @@ public class EnemyWaveManager : MonoBehaviour
         if (!levelManager)
         {
             levelManager = FindFirstObjectByType<LevelManager>();
+        }
+        
+        if (!player)
+        {
+            player = FindFirstObjectByType<RailPlayer>();
         }
     }
 
@@ -47,11 +53,13 @@ public class EnemyWaveManager : MonoBehaviour
     private void OnEnable()
     {
         levelManager.OnStageChanged += OnStageChanged;
+        player.OnDeath += OnPlayerDeath;
     }
 
     private void OnDisable()
     {
         levelManager.OnStageChanged -= OnStageChanged;
+        player.OnDeath -= OnPlayerDeath;
         foreach (Transform child in enemyHolder)
         {
             if (child.TryGetComponent<ChickenController>(out var enemy))
@@ -60,11 +68,7 @@ public class EnemyWaveManager : MonoBehaviour
             }
         }
     }
-
-
-
-
-    #region Events --------------------------------------------------------------------------------------
+    
     
     
     private void OnStageChanged(SOLevelStage stage)
@@ -99,8 +103,11 @@ public class EnemyWaveManager : MonoBehaviour
         }
     }
     
-
-    #endregion Events --------------------------------------------------------------------------------------
+    private void OnPlayerDeath()
+    {
+        ClearEnemies();
+    }
+    
     
     
 

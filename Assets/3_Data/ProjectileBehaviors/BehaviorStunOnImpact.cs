@@ -29,9 +29,5 @@ public class BehaviorStunOnImpact : ProjectileBehaviorBase
     {
 
     }
-
-    public override void OnDrawGizmos(PlayerProjectile projectile, RailPlayer owner)
-    {
-
-    }
+    
 }

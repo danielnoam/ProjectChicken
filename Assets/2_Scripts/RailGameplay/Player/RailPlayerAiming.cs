@@ -1,13 +1,14 @@
+using System;
 using System.Collections.Generic;
 using KBCore.Refs;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using VInspector;
 
 public class RailPlayerAiming : MonoBehaviour
 {
     [Header("Aim Settings")]
     [SerializeField, Min(0.1f), Tooltip("Base speed multiplier for reticle movement")] private float baseSensitivity = 1f;
-    [SerializeField, Tooltip("How fast the aim position smoothly moves to its target position")] private float aimFollowSpeed = 25f;
     [SerializeField, Range(0f, 1f), Tooltip("Reduces sensitivity near boundaries to prevent wall sliding (1 = no slowdown, 0 = full slowdown)")] private float edgeSlowdown = 0.3f;
     [SerializeField, Tooltip("Use screen-relative input for consistent feel across different resolutions")] private bool useScreenSpaceInput;
     [SerializeField, ShowIf("useScreenSpaceInput"), Tooltip("Screen pixel equivalent for mouse movement normalization")] private Vector2 screenSensitivity = new Vector2(800f, 600f);[EndIf]
@@ -27,32 +28,46 @@ public class RailPlayerAiming : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
 
 
-    private bool _allowAiming = true;
+    private bool _isAimLocked;
+    private bool _allowAiming;
     private float _noInputTimer;
     private Vector2 _processedLookInput;
-    private Vector2 _normalizedReticlePosition;
+    private Vector2 _normalizedAimPosition;
     private Vector3 _aimDirection;
+    private Vector2 _lastSmoothedInput;
     private ChickenController _currentAimLockTarget;
-    private bool _isAimLocked;
     private float _aimLockCooldownTimer;
     private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundary.x : 25f;
     private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundary.y : 15f;
 
-    
-    public bool IsAimLocked => _isAimLocked;
-    public ChickenController CurrentAimLockTarget => _currentAimLockTarget;
+
+    public Vector3 AimDirection => _aimDirection;
     public Transform AimWorldPosition => aimWorldPosition;
-    public Vector2 NormalizedReticlePosition => _normalizedReticlePosition;
+    public Vector2 NormalizedAimPosition => _normalizedAimPosition;
+    public ChickenController CurrentAimLockTarget => _currentAimLockTarget;
+    
+    public event Action<bool, ChickenController> OnAimLockStateChange; 
 
     
     
     
     private void OnValidate() { this.ValidateRefs(); }
-    
+
+    private void Awake()
+    {
+        _allowAiming = true;
+        
+        // Take the aim world position out of the player's transform so when the player moves it will not affect the position setting of the aim position
+        // Don't change for now.
+        // The aim world position is also used in the player weapon system to hold the reticles
+        if (aimWorldPosition) aimWorldPosition.SetParent(null);
+    }
 
     private void OnEnable()
     {
         playerInput.OnProcessedLookEvent += OnProcessedLook;
+        playerInput.OnAttackEvent += OnAttack;
+        playerInput.OnAttack2Event += OnAttack2;
         
         if (player.LevelManager)
         {
@@ -60,9 +75,12 @@ public class RailPlayerAiming : MonoBehaviour
         }
     }
     
+
     private void OnDisable()
     {
         playerInput.OnProcessedLookEvent -= OnProcessedLook;
+        playerInput.OnAttackEvent -= OnAttack;
+        playerInput.OnAttack2Event -= OnAttack2;
         
         if (player.LevelManager)
         {
@@ -87,102 +105,55 @@ public class RailPlayerAiming : MonoBehaviour
         _allowAiming = stage.AllowPlayerAim;
     }
     
+        
+    #region Aiming --------------------------------------------------------------------------------------------------------
     
 
-    #region Input Processing --------------------------------------------------------------------------------------------------------
-
-    private void OnProcessedLook(Vector2 processedLookInput)
+    private void UpdateAimPosition()
     {
-        if (!_allowAiming || !player.IsAlive()) return;
-        _processedLookInput = processedLookInput;
-    }
+        Vector3 boundaryCenter = GetEnemySplinePosition();
+        
+        Vector3 localOffset = new Vector3(
+            _normalizedAimPosition.x * CrosshairBoundaryX,
+            _normalizedAimPosition.y * CrosshairBoundaryY,
+            0
+        );
 
-    private Vector2 _lastSmoothedInput;
+
+        if (player.AlignToSplineDirection)
+        {
+            localOffset = player.SplineRotation * localOffset;
+        }
+
+
+        aimWorldPosition.position = boundaryCenter + localOffset;
+        aimWorldPosition.rotation = player.AlignToSplineDirection ? player.SplineRotation : Quaternion.identity;
+        _aimDirection = (aimWorldPosition.position - transform.position).normalized;
+    }
     
-    private void ProcessAimingInput()
+    private void HandleAutoCenter()
     {
-        // Skip normal input processing if aim lock is active and controlling the reticle
-        if (_isAimLocked && _processedLookInput.magnitude <= playerInput.CurrentControlScheme.lockAimStrength)
+        if (!autoCenter || _isAimLocked) return;
+    
+        bool hasInput = _processedLookInput.magnitude > 0.01f;
+    
+        if (!hasInput)
         {
-            _processedLookInput = Vector2.zero;
-            return;
-        }
+            _noInputTimer += Time.deltaTime;
         
-        // If we have strong enough input while aim locked, break the aim lock
-        if (_isAimLocked && _processedLookInput.magnitude > playerInput.CurrentControlScheme.lockAimStrength)
-        {
-            BreakAimLock();
+            if (_noInputTimer >= autoCenterDelay)
+            {
+                _normalizedAimPosition = Vector2.Lerp(
+                    _normalizedAimPosition, 
+                    Vector2.zero, 
+                    autoCenterSpeed * Time.deltaTime
+                );
+            }
         }
-
-        Vector2 inputDelta = _processedLookInput;
-        
-        
-        // Apply input smoothing for gamepads to reduce jitter
-        if (playerInput.IsCurrentDeviceGamepad)
-        {
-            float smoothingStrength = 0.15f; // Adjust between 0.1-0.3 (higher = more smooth but less responsive)
-            inputDelta = Vector2.Lerp(_lastSmoothedInput, inputDelta, 1f - smoothingStrength);
-            _lastSmoothedInput = inputDelta;
-        }
-
-        // Don't use screen space input for controllers
-        if (useScreenSpaceInput)
-        {
-            // Convert to screen-relative movement for consistent feel across resolutions
-            inputDelta = new Vector2(
-                inputDelta.x * screenSensitivity.x / Screen.width,
-                inputDelta.y * screenSensitivity.y / Screen.height
-            );
-        }
-        
-        float rawInputMagnitude = Mathf.Clamp01(inputDelta.magnitude);
-        
-        // Apply dead zone with proper radial dead zone for controllers
-        float deadZone = playerInput.CurrentControlScheme.deadZone;
-        if (inputDelta.magnitude < deadZone)
-        {
-            inputDelta = Vector2.zero;
-        }
-        else
-        {
-            // Scale input to remove dead zone properly
-            float scaledMagnitude = (inputDelta.magnitude - deadZone) / (1f - deadZone);
-            inputDelta = inputDelta.normalized * scaledMagnitude;
-        }
-        
-        // Apply magnitude to sensitivity curve for 1:1 movement feel
-        if (inputDelta.magnitude > 0)
-        {
-            float originalMagnitude = inputDelta.magnitude;
-            float curvedSensitivity = playerInput.CurrentControlScheme.magnitudeToSensitivityCurve.Evaluate(rawInputMagnitude);
-            inputDelta = inputDelta.normalized * (originalMagnitude * curvedSensitivity * baseSensitivity * playerInput.CurrentControlScheme.aimSensitivity);
-        }
-        
-        // Apply edge slowdown to prevent wall sliding
-        Vector2 edgeDistance = new Vector2(
-            1f - Mathf.Abs(_normalizedReticlePosition.x),
-            1f - Mathf.Abs(_normalizedReticlePosition.y)
-        );
-
-        Vector2 edgeMultiplier = new Vector2(
-            Mathf.Lerp(edgeSlowdown, 1f, edgeDistance.x),
-            Mathf.Lerp(edgeSlowdown, 1f, edgeDistance.y)
-        );
-
-        inputDelta.x *= edgeMultiplier.x;
-        inputDelta.y *= edgeMultiplier.y;
-
-        // Update normalized position
-        _normalizedReticlePosition += inputDelta * Time.deltaTime;
-        _normalizedReticlePosition.x = Mathf.Clamp(_normalizedReticlePosition.x, -1f, 1f);
-        _normalizedReticlePosition.y = Mathf.Clamp(_normalizedReticlePosition.y, -1f, 1f);
-
-        // Store the final processed input delta
-        _processedLookInput = inputDelta;
     }
 
-    #endregion Input Processing --------------------------------------------------------------------------------------------------------
-
+    #endregion Aiming --------------------------------------------------------------------------------------------------------
+    
     
     #region Aim Lock --------------------------------------------------------------------------------------------------------
 
@@ -197,144 +168,175 @@ public class RailPlayerAiming : MonoBehaviour
             return;
         }
         
-        // Update cooldown timer
+
         if (_aimLockCooldownTimer > 0)
         {
             _aimLockCooldownTimer -= Time.deltaTime;
         }
         
-        // Check if we should start aim lock
-        if (!_isAimLocked && _aimLockCooldownTimer <= 0 && _noInputTimer > 0.1f) // Small delay to avoid instant lock
-        {
-            TryStartAimLock();
-        }
-        
-        // Handle active aim lock
+                
         if (_isAimLocked)
         {
-            HandleActiveAimLock();
+            if (!_currentAimLockTarget || !_currentAimLockTarget.gameObject.activeInHierarchy)
+            {
+                BreakAimLock();
+                return;
+            }
+        
+            float distanceToTarget = Vector3.Distance(aimWorldPosition.position, _currentAimLockTarget.transform.position);
+            if (distanceToTarget > playerInput.CurrentControlScheme.aimLockRadius * 2.5f)
+            {
+                BreakAimLock();
+                return;
+            }
+        
+
+            Vector3 targetWorldPosition = _currentAimLockTarget.transform.position;
+            Vector3 boundaryCenter = GetEnemySplinePosition();
+            Vector3 localTargetOffset = targetWorldPosition - boundaryCenter;
+            if (player.AlignToSplineDirection)
+            {
+                localTargetOffset = Quaternion.Inverse(player.SplineRotation) * localTargetOffset;
+            }
+        
+            Vector2 targetNormalizedPosition = new Vector2(
+                Mathf.Clamp(localTargetOffset.x / CrosshairBoundaryX, -1f, 1f),
+                Mathf.Clamp(localTargetOffset.y / CrosshairBoundaryY, -1f, 1f)
+            );
+        
+            _normalizedAimPosition = Vector2.Lerp(
+                _normalizedAimPosition,
+                targetNormalizedPosition,
+                playerInput.CurrentControlScheme.aimLockSpeed * Time.deltaTime
+            );
+        }
+        
+        
+        if (!_isAimLocked && _aimLockCooldownTimer <= 0 && _noInputTimer > 0.1f)
+        {
+            TryAimLock();
         }
     }
     
-    private void TryStartAimLock()
+    private void TryAimLock()
     {
-        ChickenController target = GetEnemyTarget(playerInput.CurrentControlScheme.aimLockRadius);
-        if (target)
+        if (_isAimLocked) return;
+        
+        ChickenController newTarget = GetEnemyTarget(playerInput.CurrentControlScheme.aimLockRadius);
+        if (newTarget && _currentAimLockTarget != newTarget)
         {
-            _currentAimLockTarget = target;
+            _currentAimLockTarget = newTarget;
             _isAimLocked = true;
+            OnAimLockStateChange?.Invoke(true, newTarget);
         }
     }
     
-    private void HandleActiveAimLock()
+    private void BreakAimLock(bool playerBrockAimLock = false)
     {
-        // Check if target is still valid
-        if (!_currentAimLockTarget || !_currentAimLockTarget.gameObject.activeInHierarchy)
-        {
-            BreakAimLock();
-            return;
-        }
+        if (!_isAimLocked) return;
         
-        // Check if target is still within range
-        float distanceToTarget = Vector3.Distance(aimWorldPosition.position, _currentAimLockTarget.transform.position);
-        if (distanceToTarget > playerInput.CurrentControlScheme.aimLockRadius * 1.2f) // Add some hysteresis to prevent flickering
-        {
-            BreakAimLock();
-            return;
-        }
-        
-        // Move reticle towards target
-        Vector3 targetWorldPosition = _currentAimLockTarget.transform.position;
-        
-        // Convert target world position to normalized reticle position
-        Vector3 boundaryCenter = GetReticleSplinePosition();
-        Vector3 localTargetOffset = targetWorldPosition - boundaryCenter;
-        
-        // Apply inverse spline rotation if enabled
-        if (player.AlignToSplineDirection)
-        {
-            localTargetOffset = Quaternion.Inverse(player.SplineRotation) * localTargetOffset;
-        }
-        
-        Vector2 targetNormalizedPosition = new Vector2(
-            Mathf.Clamp(localTargetOffset.x / CrosshairBoundaryX, -1f, 1f),
-            Mathf.Clamp(localTargetOffset.y / CrosshairBoundaryY, -1f, 1f)
-        );
-        
-        // Lerp towards target position
-        _normalizedReticlePosition = Vector2.Lerp(
-            _normalizedReticlePosition,
-            targetNormalizedPosition,
-            playerInput.CurrentControlScheme.lockAimSpeed * Time.deltaTime
-        );
-    }
-    
-    private void BreakAimLock()
-    {
         _isAimLocked = false;
         _currentAimLockTarget = null;
-        _aimLockCooldownTimer = playerInput.CurrentControlScheme.lockAimCooldown;
+        _aimLockCooldownTimer = !playerBrockAimLock ? playerInput.CurrentControlScheme.aimLockCooldown : playerInput.CurrentControlScheme.aimLockCooldown*2;
+        OnAimLockStateChange?.Invoke(false, null);
     }
+    
 
     #endregion Aim Lock --------------------------------------------------------------------------------------------------------
-
     
-    #region Aiming --------------------------------------------------------------------------------------------------------
     
+    #region Input Processing --------------------------------------------------------------------------------------------------------
 
-    private void UpdateAimPosition()
+    private void OnProcessedLook(Vector2 processedLookInput)
     {
-        Vector3 boundaryCenter = GetReticleSplinePosition();
-
-        // Convert normalized position (-1 to 1) to world position within boundaries
-        Vector3 localOffset = new Vector3(
-            _normalizedReticlePosition.x * CrosshairBoundaryX,
-            _normalizedReticlePosition.y * CrosshairBoundaryY,
-            0
-        );
-
-        // Apply spline rotation if enabled
-        if (player.AlignToSplineDirection)
-        {
-            localOffset = player.SplineRotation * localOffset;
-        }
-
-        // Calculate final world position
-        aimWorldPosition.position = boundaryCenter + localOffset;
-       
-        // Update aim direction with smoothing
-        _aimDirection = Vector3.Lerp(_aimDirection, (aimWorldPosition.position - transform.position).normalized, aimFollowSpeed * Time.deltaTime);
+        if (!_allowAiming || !player.IsAlive()) return;
+        _processedLookInput = processedLookInput;
+        _noInputTimer = 0f;
     }
     
-    private void HandleAutoCenter()
+    private void OnAttack2(InputAction.CallbackContext context)
     {
-        // Don't auto-center if aim lock is active
-        if (!autoCenter || _isAimLocked) return;
+        _noInputTimer = 0f;
+    }
+
+    private void OnAttack(InputAction.CallbackContext context)
+    {
+        _noInputTimer = 0f;
+    }
     
-        bool hasInput = _processedLookInput.magnitude > 0.01f;
-    
-        if (hasInput)
+    private void ProcessAimingInput()
+    {
+        if (_isAimLocked && _processedLookInput.magnitude <= playerInput.CurrentControlScheme.aimLockStrength)
         {
-            _noInputTimer = 0f;
+            _processedLookInput = Vector2.zero;
+            return;
+        }
+        
+        if (_isAimLocked && _processedLookInput.magnitude > playerInput.CurrentControlScheme.aimLockStrength)
+        {
+            BreakAimLock(playerBrockAimLock: true);
+        }
+
+        Vector2 inputDelta = _processedLookInput;
+        
+        
+        if (playerInput.IsCurrentDeviceGamepad)
+        {
+            float smoothingStrength = 0.15f;
+            inputDelta = Vector2.Lerp(_lastSmoothedInput, inputDelta, 1f - smoothingStrength);
+            _lastSmoothedInput = inputDelta;
+        }
+        
+        if (useScreenSpaceInput)
+        {
+
+            inputDelta = new Vector2(
+                inputDelta.x * screenSensitivity.x / Screen.width,
+                inputDelta.y * screenSensitivity.y / Screen.height
+            );
+        }
+        
+        float rawInputMagnitude = Mathf.Clamp01(inputDelta.magnitude);
+        float deadZone = playerInput.CurrentControlScheme.deadZone;
+        if (inputDelta.magnitude < deadZone)
+        {
+            inputDelta = Vector2.zero;
         }
         else
         {
-            _noInputTimer += Time.deltaTime;
-        
-            if (_noInputTimer >= autoCenterDelay)
-            {
-                // Return to center in normalized space for smooth, consistent centering
-                _normalizedReticlePosition = Vector2.Lerp(
-                    _normalizedReticlePosition, 
-                    Vector2.zero, 
-                    autoCenterSpeed * Time.deltaTime
-                );
-            }
+            float scaledMagnitude = (inputDelta.magnitude - deadZone) / (1f - deadZone);
+            inputDelta = inputDelta.normalized * scaledMagnitude;
         }
+        
+        if (inputDelta.magnitude > 0)
+        {
+            float originalMagnitude = inputDelta.magnitude;
+            float curvedSensitivity = playerInput.CurrentControlScheme.magnitudeToSensitivityCurve.Evaluate(rawInputMagnitude);
+            inputDelta = inputDelta.normalized * (originalMagnitude * curvedSensitivity * baseSensitivity * playerInput.CurrentControlScheme.aimSensitivity);
+        }
+        
+
+        Vector2 edgeDistance = new Vector2(
+            1f - Mathf.Abs(_normalizedAimPosition.x),
+            1f - Mathf.Abs(_normalizedAimPosition.y)
+        );
+
+        Vector2 edgeMultiplier = new Vector2(
+            Mathf.Lerp(edgeSlowdown, 1f, edgeDistance.x),
+            Mathf.Lerp(edgeSlowdown, 1f, edgeDistance.y)
+        );
+
+        
+        inputDelta.x *= edgeMultiplier.x;
+        inputDelta.y *= edgeMultiplier.y;
+        _normalizedAimPosition += inputDelta * Time.deltaTime;
+        _normalizedAimPosition.x = Mathf.Clamp(_normalizedAimPosition.x, -1f, 1f);
+        _normalizedAimPosition.y = Mathf.Clamp(_normalizedAimPosition.y, -1f, 1f);
+        _processedLookInput = inputDelta;
     }
 
-    #endregion Aiming --------------------------------------------------------------------------------------------------------
-    
+    #endregion Input Processing --------------------------------------------------------------------------------------------------------
+
     
     #region Helper Methods -------------------------------------------------------------------------
     
@@ -400,30 +402,8 @@ public class RailPlayerAiming : MonoBehaviour
         return targets;
     }
     
-    public Vector3 GetAimDirection()
-    {
-        return _aimDirection;
-    }
-    
-    public Vector3 GetAimDirectionFromBarrelPosition(Vector3 position, float convergenceMultiplier = 0f)
-    {
-        if (convergenceMultiplier == 0f)
-        {
-            Vector3 parallelDirection = (aimWorldPosition.position - transform.position).normalized;
-            return parallelDirection;
-        }
-        else
-        {
-            Vector3 baseCrosshairDirection = (aimWorldPosition.position - transform.position).normalized;
-            float crosshairDistance = Vector3.Distance(transform.position, aimWorldPosition.position);
-            Vector3 convergencePoint = transform.position + (baseCrosshairDirection * (crosshairDistance * convergenceMultiplier));
-        
-            return (convergencePoint - position).normalized;
-        }
-    }
-    
-    
-    private Vector3 GetReticleSplinePosition()
+
+    private Vector3 GetEnemySplinePosition()
     {
         return !player.LevelManager ? transform.position : player.LevelManager.EnemyPosition;
     }
@@ -441,7 +421,7 @@ public class RailPlayerAiming : MonoBehaviour
         if (player.LevelManager)
         {
             Gizmos.color = Color.blue;
-            Vector3 crosshairSplinePosition = GetReticleSplinePosition();
+            Vector3 crosshairSplinePosition = GetEnemySplinePosition();
             
             if (player && player.AlignToSplineDirection)
             {
@@ -469,7 +449,7 @@ public class RailPlayerAiming : MonoBehaviour
                 
                 if (Application.isPlaying)
                 {
-                    string debugText = $"Normalized Position: ({_normalizedReticlePosition.x:F2}, {_normalizedReticlePosition.y:F2})";
+                    string debugText = $"Normalized Position: ({_normalizedAimPosition.x:F2}, {_normalizedAimPosition.y:F2})";
                     if (_isAimLocked && _currentAimLockTarget)
                     {
                         debugText += $"\nAim Locked: {_currentAimLockTarget.name}";

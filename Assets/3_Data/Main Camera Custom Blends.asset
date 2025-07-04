@@ -23,15 +23,26 @@ MonoBehaviour:
         m_Curve: []
         m_PreInfinity: 0
         m_PostInfinity: 0
-        m_RotationOrder: 0
-  - From: IntroCamera
-    To: '**ANY CAMERA**'
+        m_RotationOrder: 4
+  - From: '**ANY CAMERA**'
+    To: OutroCamera
     Blend:
-      Style: 1
+      Style: 0
       Time: 1
       CustomCurve:
         serializedVersion: 2
         m_Curve: []
         m_PreInfinity: 0
         m_PostInfinity: 0
-        m_RotationOrder: 0
+        m_RotationOrder: 4
+  - From: IntroCamera
+    To: FollowCamera
+    Blend:
+      Style: 0
+      Time: 2
+      CustomCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 0
+        m_PostInfinity: 0
+        m_RotationOrder: 4

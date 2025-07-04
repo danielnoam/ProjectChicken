@@ -849,6 +849,7 @@ GameObject:
   - component: {fileID: 123263735}
   - component: {fileID: 123263737}
   - component: {fileID: 123263736}
+  - component: {fileID: 123263738}
   m_Layer: 0
   m_Name: LevelSelect
   m_TagString: Untagged
@@ -889,17 +890,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canSelect: 1
+  elementColor: {r: 0.44313726, g: 0.38039216, b: 1, a: 1}
+  visualElementsTweenDuration: 0.5
   labelText: Level Select
   labelAlphaWhenDeselected: 0.15
-  labelColorWhenSelected: {r: 0.44366732, g: 0.380503, b: 1, a: 1}
+  outlineWidthWhenSelected: 4
+  cameraLootAtOffset: {x: 0, y: 0.26, z: 0}
+  outline: {fileID: 123263738}
   label: {fileID: 1777322026}
   labelCanvasGroup: {fileID: 441421604}
   selectSfx: {fileID: 0}
   interactSfx: {fileID: 0}
-  targetOffset: {x: 0, y: 0.26, z: 0}
-  interactionCamera: {fileID: 39598603}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
+  interactionCamera: {fileID: 39598603}
   launchMissionMode: 3
   levels:
   - {fileID: 11400000, guid: 7a90b05c6dc6c924586812b940527746, type: 2}
@@ -938,6 +942,24 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.36
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &123263738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 123263734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &127166847
 GameObject:
   m_ObjectHideFlags: 0
@@ -1736,6 +1758,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1056502433}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &324375939
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1965749053527997895, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -167.0694
+      objectReference: {fileID: 0}
+    - target: {fileID: 1965749053527997895, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -67.02654
+      objectReference: {fileID: 0}
+    - target: {fileID: 1965749053527997895, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 79.48582
+      objectReference: {fileID: 0}
+    - target: {fileID: 1965749053527997895, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1965749053527997895, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1965749053527997895, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1965749053527997895, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1965749053527997895, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1965749053527997895, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1965749053527997895, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4513355000848114439, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
+      propertyPath: m_Name
+      value: SaveManager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e8ccf5d8dddfe464d9ec171523ce9e91, type: 3}
 --- !u!1 &382548876
 GameObject:
   m_ObjectHideFlags: 0
@@ -2014,6 +2093,7 @@ GameObject:
   - component: {fileID: 465575458}
   - component: {fileID: 465575459}
   - component: {fileID: 465575460}
+  - component: {fileID: 465575461}
   m_Layer: 0
   m_Name: LaunchLever
   m_TagString: Untagged
@@ -2072,21 +2152,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canSelect: 1
+  elementColor: {r: 0.2784314, g: 0.38039216, b: 1, a: 1}
+  visualElementsTweenDuration: 0.5
   labelText: 'Launch '
   labelAlphaWhenDeselected: 0.25
-  labelColorWhenSelected: {r: 0.27987415, g: 0.38160712, b: 1, a: 1}
+  outlineWidthWhenSelected: 4
+  cameraLootAtOffset: {x: -0.15, y: 0.2, z: 0}
+  outline: {fileID: 465575461}
   label: {fileID: 1543426502}
   labelCanvasGroup: {fileID: 710054016}
   selectSfx: {fileID: 0}
   interactSfx: {fileID: 0}
-  targetOffset: {x: -0.15, y: 0.2, z: 0}
-  interactionCamera: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
+  interactionCamera: {fileID: 0}
   delayBeforeLaunch: 0.25
   animationDuration: 0.75
   leverPressedRotation: {x: 55, y: 0, z: 0}
   animationEase: 4
+  cameraShakeSettings:
+    impulseShape: 4
+    intensity: 0.2
+    duration: 1
   emissionColorOn: {r: 16, g: 0, b: 0, a: 1}
   emissionColorOff: {r: 0, g: 0, b: 0, a: 1}
   pulseSpeed: 2
@@ -2095,6 +2182,24 @@ MonoBehaviour:
   levelSelection: {fileID: 123263736}
   leverPivotTransform: {fileID: 1861637240}
   selectedLevelLight: {fileID: 1658971584}
+--- !u!114 &465575461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 465575457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &494935715
 GameObject:
   m_ObjectHideFlags: 0
@@ -2810,6 +2915,7 @@ GameObject:
   - component: {fileID: 722571949}
   - component: {fileID: 722571950}
   - component: {fileID: 722571951}
+  - component: {fileID: 722571952}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -2921,6 +3027,30 @@ MonoBehaviour:
   AmplitudeGain: 0.5
   FrequencyGain: 0.3
   m_NoiseOffsets: {x: 0, y: 0, z: 0}
+--- !u!114 &722571952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 722571947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b2d199b96b516448144ab30fb26aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ApplyAfter: 2
+  ChannelMask: 1
+  Gain: 1
+  Use2DDistance: 0
+  UseCameraSpace: 1
+  SignalCombinationMode: 0
+  ReactionSettings:
+    m_SecondaryNoise: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    Duration: 1
+    m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1 &763194708
 GameObject:
   m_ObjectHideFlags: 0
@@ -4328,6 +4458,7 @@ GameObject:
   - component: {fileID: 1474582292}
   - component: {fileID: 1474582294}
   - component: {fileID: 1474582293}
+  - component: {fileID: 1474582295}
   m_Layer: 0
   m_Name: EjectButton
   m_TagString: Untagged
@@ -4365,17 +4496,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canSelect: 1
+  elementColor: {r: 1, g: 0.48235294, b: 0.48235294, a: 1}
+  visualElementsTweenDuration: 0.5
   labelText: Eject
   labelAlphaWhenDeselected: 0.15
-  labelColorWhenSelected: {r: 1, g: 0.48113197, b: 0.48113197, a: 1}
+  outlineWidthWhenSelected: 4
+  cameraLootAtOffset: {x: -0.65, y: 0.2, z: 0}
+  outline: {fileID: 1474582295}
   label: {fileID: 1535349279}
   labelCanvasGroup: {fileID: 1079558328}
   selectSfx: {fileID: 0}
   interactSfx: {fileID: 0}
-  targetOffset: {x: -0.65, y: 0.2, z: 0}
-  interactionCamera: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
+  interactionCamera: {fileID: 0}
   delayBeforeQuit: 0.25
   animationDuration: 0.75
   buttonPressedPosition: {x: 0, y: -0.05, z: 0}
@@ -4403,6 +4537,24 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.29
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1474582295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1474582291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &1491774888
 GameObject:
   m_ObjectHideFlags: 0
@@ -5270,6 +5422,7 @@ GameObject:
   - component: {fileID: 1606466666}
   - component: {fileID: 1606466668}
   - component: {fileID: 1606466669}
+  - component: {fileID: 1606466670}
   m_Layer: 0
   m_Name: ShopSign
   m_TagString: Untagged
@@ -5329,17 +5482,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canSelect: 1
+  elementColor: {r: 1, g: 0.99215686, b: 0.43529412, a: 1}
+  visualElementsTweenDuration: 0.5
   labelText: Shop
   labelAlphaWhenDeselected: 0.25
-  labelColorWhenSelected: {r: 1, g: 0.9919435, b: 0.43710685, a: 1}
+  outlineWidthWhenSelected: 4
+  cameraLootAtOffset: {x: -4.25, y: -0.5, z: 0}
+  outline: {fileID: 1606466670}
   label: {fileID: 662713973}
   labelCanvasGroup: {fileID: 1583208325}
   selectSfx: {fileID: 0}
   interactSfx: {fileID: 0}
-  targetOffset: {x: -4.25, y: -0.5, z: 0}
-  interactionCamera: {fileID: 2128919271}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
+  interactionCamera: {fileID: 2128919271}
+--- !u!114 &1606466670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606466665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &1658971582
 GameObject:
   m_ObjectHideFlags: 0
@@ -6067,6 +6241,7 @@ GameObject:
   - component: {fileID: 1938358605}
   - component: {fileID: 1938358607}
   - component: {fileID: 1938358606}
+  - component: {fileID: 1938358608}
   m_Layer: 0
   m_Name: OptionsScreen
   m_TagString: Untagged
@@ -6105,17 +6280,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canSelect: 1
+  elementColor: {r: 0.6627451, g: 1, b: 0.6, a: 1}
+  visualElementsTweenDuration: 0.5
   labelText: Options
   labelAlphaWhenDeselected: 0.15
-  labelColorWhenSelected: {r: 0.6617092, g: 1, b: 0.60062885, a: 1}
+  outlineWidthWhenSelected: 4
+  cameraLootAtOffset: {x: 0.65, y: 0.1, z: 0}
+  outline: {fileID: 1938358608}
   label: {fileID: 281214433}
   labelCanvasGroup: {fileID: 2105734948}
   selectSfx: {fileID: 0}
   interactSfx: {fileID: 0}
-  targetOffset: {x: 0.65, y: 0.1, z: 0}
-  interactionCamera: {fileID: 691996174}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
+  interactionCamera: {fileID: 691996174}
 --- !u!135 &1938358607
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -6137,6 +6315,24 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.36
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1938358608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1938358604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &1945110541
 GameObject:
   m_ObjectHideFlags: 0
@@ -6967,6 +7163,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2134933386}
   - component: {fileID: 2134933387}
+  - component: {fileID: 2134933388}
   m_Layer: 0
   m_Name: MenuCameraManager
   m_TagString: Untagged
@@ -7010,6 +7207,60 @@ MonoBehaviour:
   cameraLookAtTarget: {fileID: 964827403}
   defaultCamera: {fileID: 722571949}
   defaultCameraRotationComposer: {fileID: 722571950}
+  impulseSource: {fileID: 2134933388}
+--- !u!114 &2134933388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2134933385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ImpulseDefinition:
+    ImpulseChannel: 1
+    ImpulseShape: 2
+    CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ImpulseDuration: 0.2
+    ImpulseType: 0
+    DissipationRate: 0.25
+    RawSignal: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    RepeatMode: 0
+    Randomize: 1
+    TimeEnvelope:
+      AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      AttackTime: 0
+      SustainTime: 0.2
+      DecayTime: 0.7
+      ScaleWithImpact: 1
+      HoldForever: 0
+    ImpactRadius: 100
+    DirectionMode: 0
+    DissipationMode: 2
+    DissipationDistance: 100
+    PropagationSpeed: 343
+  DefaultVelocity: {x: 0, y: -1, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -7018,6 +7269,7 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 558234534}
   - {fileID: 1361232680}
+  - {fileID: 324375939}
   - {fileID: 31568394}
   - {fileID: 2134933386}
   - {fileID: 382548877}

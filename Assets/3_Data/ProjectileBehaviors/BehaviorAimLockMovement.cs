@@ -71,12 +71,6 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     {
 
     }
-
-    public override void OnDrawGizmos(PlayerProjectile projectile, RailPlayer owner )
-    {
-
-    }
-    
     
 
     private void InitializeMovement(PlayerProjectile projectile)

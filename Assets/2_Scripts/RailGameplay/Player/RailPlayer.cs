@@ -2,12 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using KBCore.Refs;
-using TMPro;
 using UnityEngine;
 using VInspector;
 
+
+
+
+
 [SelectionBase]
-[RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(RailPlayerInput))]
 [RequireComponent(typeof(RailPlayerMovement))]
 [RequireComponent(typeof(RailPlayerAiming))]
@@ -17,15 +19,16 @@ public class RailPlayer : MonoBehaviour
 
     [Header("Health")]
     [SerializeField, Min(0)] private int maxHealth = 3;
+    [SerializeField] private bool dodgingGivesInvincibility = true;
     [SerializeField] private bool receiveHealthOnBonusThreshold = true;
     
     [Header("Shield")]
     [SerializeField, Min(0)] private float maxShieldHealth = 100f;
-    [SerializeField, Min(0)] private float shieldRegenCooldown = 4f;
-    [SerializeField, Min(0)] private float shieldRegenRate = 5f;
+    [SerializeField, Min(0)] private float shieldRegenCooldown = 3f;
+    [SerializeField, Min(0)] private float shieldRegenRate = 15f;
     
     [Header("Resource Collection")]
-    [SerializeField ,Min(0)] private float magnetRadius = 17f;
+    [SerializeField ,Min(0)] private float magnetRadius = 14f;
     
     [Header("Path Following")]
     [SerializeField] private bool alignToSplineDirection = true;
@@ -33,8 +36,9 @@ public class RailPlayer : MonoBehaviour
     [EndIf]
     
     [Header("References")]
+    [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
+    [SerializeField] private Transform cameraPositions;
     [SerializeField] private Transform followCameraTarget;
-    [SerializeField] private Transform introCameraTarget;
     [SerializeField] private SOAudioEvent healthDamageSfx;
     [SerializeField] private SOAudioEvent healthHealedSfx;
     [SerializeField] private SOAudioEvent shieldDamageSfx;
@@ -47,7 +51,6 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
-    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
 
     
 
@@ -61,31 +64,22 @@ public class RailPlayer : MonoBehaviour
     private readonly List<Resource> _resourcesInRange = new List<Resource>();
     private readonly Dictionary<ResourceType, Action<Resource>> _collectionActions = new Dictionary<ResourceType, Action<Resource>>();
 
+    public RailPlayerAiming PlayerAiming => playerAiming;
+    public RailPlayerWeaponSystem PlayerWeapon => playerWeapon;
+    public RailPlayerMovement PlayerMovement => playerMovement;
     public LevelManager LevelManager => levelManager;
     public Quaternion SplineRotation => _splineRotation;
     public bool AlignToSplineDirection => alignToSplineDirection;
     public int MaxHealth => maxHealth;
     public float MaxShieldHealth => maxShieldHealth;
+    public int CurrentHealth => _currentHealth;
+    public float CurrentShieldHealth => _currentShieldHealth;
     public int CurrentCurrency => _currentCurrency;
     public event Action OnDeath;
     public event Action<int> OnHealthChanged;
     public event Action<float> OnShieldChanged;
-    public event Action<WeaponInstance> OnWeaponFired;
-    public event Action<WeaponInstance,WeaponInstance> OnSpecialWeaponSwitched;
-    public event Action<WeaponInstance,float> OnBaseWeaponCooldownUpdated;
-    public event Action<WeaponInstance,float> OnSpecialWeaponCooldownUpdated;
-    public event Action<WeaponInstance> OnSpecialWeaponDisabled;
-    public event Action<WeaponInstance> OnBaseWeaponSwitched;
-    public event Action<float> OnWeaponHeatUpdated;
-    public event Action OnWeaponOverheated;
-    public event Action OnWeaponHeatReset;
-    public event Action<float,float, float> OnWeaponHeatMiniGameWindowCreated;
-    public event Action OnWeaponHeatMiniGameSucceeded;
-    public event Action OnWeaponHeatMiniGameFailed;
     public event Action<Resource> OnResourceCollected;
     public event Action<int> OnCurrencyChanged;
-    public event Action OnDodge;
-    public event Action<float> OnDodgeCooldownUpdated;
 
 
 
@@ -105,7 +99,7 @@ public class RailPlayer : MonoBehaviour
         _collectionActions.Add(ResourceType.Currency, (resource) => UpdateCurrency(resource.CurrencyWorth) );
         _collectionActions.Add(ResourceType.HealthPack, (resource) => HealHealth(resource.HealthWorth));
         _collectionActions.Add(ResourceType.ShieldPack, (resource) => HealShield(resource.ShieldWorth));
-        _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => playerWeapon.SetSpecialWeapon(resource.Weapon));
+        _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => playerWeapon.SetSpecialWeapon(resource.WeaponData));
         
         SetupPlayer();
     }
@@ -113,38 +107,16 @@ public class RailPlayer : MonoBehaviour
 
     private void OnEnable()
     {
-        playerWeapon.OnWeaponUsed += OnWeaponFired;
-        playerWeapon.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
-        playerWeapon.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
-        playerWeapon.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
-        playerWeapon.OnWeaponHeatUpdated += OnWeaponHeatUpdated;
-        playerWeapon.OnWeaponOverheated += OnWeaponOverheated;
-        playerWeapon.OnWeaponHeatReset += OnWeaponHeatReset;
-        playerWeapon.OnWeaponHeatMiniGameWindowCreated += OnWeaponHeatMiniGameWindowCreated;
-        playerWeapon.OnWeaponHeatMiniGameSucceeded +=  OnWeaponHeatMiniGameSucceeded;
-        playerWeapon.OnWeaponHeatMiniGameFailed += OnWeaponHeatMiniGameFailed;
-        playerWeapon.OnSpecialWeaponDisabled += OnSpecialWeaponDisabled;
-        playerWeapon.OnBaseWeaponSwitched += OnBaseWeaponSwitched;
-        playerMovement.OnDodge += OnDodge;
-        playerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
         levelManager.OnBonusThresholdReached += OnMillionScoreReached;
         levelManager.OnStageChanged += OnStageChanged;
+        levelManager.OnRestartFromSavePoint += OnRestartFromSavePoint;
     }
 
     private void OnDisable()
     {
-        playerWeapon.OnWeaponUsed -= OnWeaponFired;
-        playerWeapon.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
-        playerWeapon.OnBaseWeaponCooldownUpdated -= OnBaseWeaponCooldownUpdated;
-        playerWeapon.OnSpecialWeaponCooldownUpdated -= OnSpecialWeaponCooldownUpdated;
-        playerWeapon.OnWeaponHeatUpdated -= OnWeaponHeatUpdated;
-        playerWeapon.OnWeaponOverheated -= OnWeaponOverheated;
-        playerWeapon.OnWeaponHeatReset -= OnWeaponHeatReset;
-        playerWeapon.OnWeaponHeatMiniGameWindowCreated -= OnWeaponHeatMiniGameWindowCreated;
-        playerMovement.OnDodge -= OnDodge;
-        playerMovement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
         levelManager.OnBonusThresholdReached -= OnMillionScoreReached;
         levelManager.OnStageChanged -= OnStageChanged;
+        levelManager.OnRestartFromSavePoint -= OnRestartFromSavePoint;
     }
     
 
@@ -176,12 +148,27 @@ public class RailPlayer : MonoBehaviour
             SaveManager.UpdatePlayerProgress(_currentCurrency);
         }
     }
+
+    private void OnRestartFromSavePoint(SavePointInformation savePoint)
+    {
+        if (savePoint == null) return;
+        
+        _currentCurrency = savePoint.PlayerCurrency;
+        _currentHealth = savePoint.PlayerHealth;
+        _currentShieldHealth = savePoint.PlayerShield;
+        
+        
+        OnCurrencyChanged?.Invoke(_currentCurrency);
+        OnHealthChanged?.Invoke(_currentHealth);
+        OnShieldChanged?.Invoke(_currentShieldHealth);
+    }
     
     private void SetupPlayer()
     {
         _currentCurrency = SaveManager.GetCurrency();
         _currentHealth = maxHealth;
         _currentShieldHealth = maxShieldHealth;
+        
         
         OnCurrencyChanged?.Invoke(_currentCurrency);
         OnHealthChanged?.Invoke(_currentHealth);
@@ -192,11 +179,12 @@ public class RailPlayer : MonoBehaviour
     #region Damage ---------------------------------------------------------------------- 
 
     [Button]
-    private void TakeDamage(float damage)
+    public void TakeDamage(float damage)
     {
-        if (damage <= 0 || !IsAlive()) return;
+        if (damage <= 0 || !IsAlive() || (dodgingGivesInvincibility && IsDodging())) return;
         
         StopShieldRegen();
+        
             
         if (HasShield())
         {
@@ -229,7 +217,7 @@ public class RailPlayer : MonoBehaviour
     
     private void DamageHealth()
     {
-        if (!IsAlive() || IsDodging()) return;
+        if (!IsAlive()) return;
 
         _currentHealth -= 1;
         if (_currentHealth <= 0)
@@ -451,31 +439,6 @@ public class RailPlayer : MonoBehaviour
         return playerMovement.IsDodging;
     }
     
-    public float GetMaxWeaponHeat()
-    {
-        return playerWeapon.MaxWeaponHeat;
-    }
-    
-    public float GetDodgeMaxCooldown()
-    {
-        return playerMovement.MaxDodgeCooldown;
-    }
-    
-    public WeaponInstance GetCurrentBaseWeapon()
-    {
-        return playerWeapon.BaseWeaponInstance;
-    }
-    
-    public WeaponInstance GetCurrentSpecialWeapon()
-    {
-        return playerWeapon.CurrentSpecialWeaponInstance;
-    }
-    
-    public Vector3 GetAimDirectionFromBarrelPosition(Vector3 barrelPosition, float convergenceMultiplier = 0f)
-    {
-        
-        return playerAiming.GetAimDirectionFromBarrelPosition(barrelPosition, convergenceMultiplier);
-    }
     
     public ChickenController GetTarget(float radius)
     {
@@ -486,30 +449,27 @@ public class RailPlayer : MonoBehaviour
     {
         return playerAiming.GetEnemyTargets(maxTargets, radius);
     }
-
-    public Vector2 GetNormalizedReticlePosition()
-    {
-        return playerAiming.NormalizedReticlePosition;
-    }
+    
     public Transform GetFollowCameraTarget()
     {
         return followCameraTarget;
     }
     
-    public Transform GetIntroCameraTarget()
+    public Transform GetRandomCameraPosition()
     {
-        return introCameraTarget;
-    }
+        switch (cameraPositions.childCount)
+        {
+            case 0:
+                return null;
+            case 1:
+                cameraPositions.GetChild(1);
+                break;
+        }
 
-    public Transform GetReticleTarget()
-    {
-        return playerAiming.AimWorldPosition;
+        int randomIndex = UnityEngine.Random.Range(0, cameraPositions.childCount);
+        return cameraPositions.GetChild(randomIndex);
     }
-
-    public bool HasSpecialWeapon()
-    {
-        return playerWeapon.CurrentSpecialWeaponInstance != null;
-    }
+    
     
     private void GetSplineRotations()
     {
@@ -519,7 +479,6 @@ public class RailPlayer : MonoBehaviour
             return;
         }
         
-
         Vector3 splineForward = levelManager.GetSplineTangentAtPosition(levelManager.CurrentPositionOnPath.position);
         
         if (splineForward != Vector3.zero)

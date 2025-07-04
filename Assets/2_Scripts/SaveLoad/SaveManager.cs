@@ -1,21 +1,82 @@
 using System;
 using System.IO;
+using PrimeTween;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VInspector;
 
-
-public static class SaveManager
+[DefaultExecutionOrder(-1)]
+[SelectionBase]
+public class SaveManager : MonoBehaviour
 {
-    private static PlayerSaveData _playerData;
-    private static string _playerDataPath;
-    private static bool _initialized = false;
+    public static SaveManager Instance { get; private set; }
+    
+    private static SettingsData _settingsData;
+    private static string _settingsDataPath;
+    private static PlayerProgressData _playerProgressData;
+    private static string _playerProgressDataPath;
+    private static bool _initialized;
+
+    
+    public event Action OnSettingsDataChanged;
+    
+    
+    [Header("Default Settings")]
+    [SerializeField] private ControlSchemeSettings defaultKeyboardMouseScheme = new (
+        false, 
+        false,
+        0.1f, 
+        0.3f, 
+        AnimationCurve.Linear(0, 0, 1, 1),
+        true,
+        4f,
+        3f,
+        0.5f,
+        0.5f,
+        true,
+        false,
+        0.3f);
+    
+    [SerializeField] private ControlSchemeSettings defaultGamepadScheme = new (
+        false,
+        false, 
+        2f, 
+        0.3f,
+        AnimationCurve.Linear(0, 0, 1, 1),
+        true, 
+        4f,
+        3f, 
+        0.5f, 
+        0.5f, 
+        true, 
+        false, 
+        0.3f);
     
     
 
-    #region SetUp ------------------------------------------------------------------------------------------------------------------------------------
-
+    private void Awake()
+    {
+        if (!Instance || Instance == this)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+        
+        Initialize();
+        
+        PrimeTweenConfig.warnEndValueEqualsCurrent = false;
+        
+        // Delete it for now so we reset to default settings
+        DeleteSettingsDataAndFile();
+    }
+    
+    
     private static void EnsureInitialized()
     {
         if (!_initialized)
@@ -24,59 +85,69 @@ public static class SaveManager
         }
     }
     
-    public static void Initialize()
+    private static void Initialize()
     {
         if (_initialized) return;
         
-        _playerDataPath = Path.Combine(Application.persistentDataPath, "PlayerSave.json");
-        LoadPlayerData();
-        _initialized = true;
+        _playerProgressDataPath = Path.Combine(Application.persistentDataPath, "PlayerProgress.json");
+        LoadPlayerProgressDataFromFile();
         
-        // Debug.Log($"SaveManager initialized. Save path: {_playerDataPath}");
+        _settingsDataPath = Path.Combine(Application.persistentDataPath, "Settings.json");
+        LoadSettingsDataFromFile();
+        _initialized = true;
+
+
+        SceneManager.activeSceneChanged += OnActiveSceneChanged;
         
         #if UNITY_EDITOR
         // Subscribe to play mode state changes to uninitialize when exiting play mode
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         #endif
     }
+
     
-    
-    
-    #if UNITY_EDITOR
-    // Force uninitialize in editor when exiting play mode
-    private static void ForceUninitialize()
+    private static void OnActiveSceneChanged(Scene previousActiveScene, Scene newActiveScene)
     {
-        _initialized = false;
-        _playerData = null;
-        _playerDataPath = null;
+
+        if (previousActiveScene.buildIndex == -1) return;
+        SaveAllDataToFiles();
+        Debug.Log("bla");
     }
     
-    private static void OnPlayModeStateChanged(PlayModeStateChange state)
+    
+    
+    private void OnApplicationQuit()
     {
-        if (state == PlayModeStateChange.ExitingPlayMode)
+        SaveAllDataToFiles();
+    }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus && Application.isMobilePlatform)
         {
-            ForceUninitialize();
-            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            SaveAllDataToFiles();
         }
     }
-    #endif
 
-    #endregion SetUp ------------------------------------------------------------------------------------------------------------------------------------
-    
-    
-    #region Player Data Handling ----------------------------------------------------------------------------------------------------------------------------
-    
-    
 
-    private static void SavePlayerData()
+    #region File Handling ----------------------------------------------------------------------------------------------------------------------------
+    
+    private static void SaveAllDataToFiles()
     {
-        if (!_initialized) return;
+        SavePlayerProgressDataToFile();
+        SaveSettingsDataToFile();
+    }
+
+    [Button]
+    private static void SavePlayerProgressDataToFile()
+    {
+        if (!Application.isPlaying || !_initialized) return;
         
         try
         {
-            string jsonData = JsonUtility.ToJson(_playerData, true);
-            File.WriteAllText(_playerDataPath, jsonData);
-            Debug.Log("Game saved successfully!");
+            string jsonData = JsonUtility.ToJson(_playerProgressData, true);
+            File.WriteAllText(_playerProgressDataPath, jsonData);
+            Debug.Log("Player progress saved successfully!");
         }
         catch (Exception e)
         {
@@ -85,67 +156,134 @@ public static class SaveManager
     }
     
 
-    private static void LoadPlayerData()
+
+    private static void LoadPlayerProgressDataFromFile()
     {
         try
         {
-            if (File.Exists(_playerDataPath))
+            if (File.Exists(_playerProgressDataPath))
             {
-                string jsonData = File.ReadAllText(_playerDataPath);
-                _playerData = JsonUtility.FromJson<PlayerSaveData>(jsonData);
+                string jsonData = File.ReadAllText(_playerProgressDataPath);
+                _playerProgressData = JsonUtility.FromJson<PlayerProgressData>(jsonData);
                 // Debug.Log("Game loaded successfully!");
             }
             else
             {
-                _playerData = new PlayerSaveData();
-                Debug.Log("No save file found. Created new save data.");
+                _playerProgressData = new PlayerProgressData();
+                Debug.Log("No player progress file found. Created new player progress data.");
             }
         }
         catch (Exception e)
         {
             Debug.LogError($"Failed to load game: {e.Message}");
-            _playerData = new PlayerSaveData();
+            _playerProgressData = new PlayerProgressData();
         }
     }
     
 
     
-    private static void DeletePlayerData()
+    [Button]
+    private static void DeletePlayerProgressDataAndFile()
     {
-        if (!_initialized) return;
+        if (!Application.isPlaying || !_initialized) return;
         
         try
         {
-            if (File.Exists(_playerDataPath))
+            if (File.Exists(_playerProgressDataPath))
             {
-                File.Delete(_playerDataPath);
-                _playerData = new PlayerSaveData();
-                Debug.Log("Save file deleted and reset to default.");
+                File.Delete(_playerProgressDataPath);
+                _playerProgressData = new PlayerProgressData();
+                Debug.Log("Player progress file deleted and reset to default.");
             }
         }
         catch (Exception e)
         {
-            Debug.LogError($"Failed to delete save file: {e.Message}");
+            Debug.LogError($"Failed to delete player progress file: {e.Message}");
         }
     }
     
     
-
-    private static void ResetAllProgress()
+    
+    [Button]
+    private static void SaveSettingsDataToFile()
     {
-        EnsureInitialized();
-        _playerData = new PlayerSaveData();
-        SavePlayerData();
-        Debug.Log("All progress reset!");
+        if (!Application.isPlaying || !_initialized) return;
+
+        try
+        {
+            string jsonData = JsonUtility.ToJson(_settingsData, true);
+            File.WriteAllText(_settingsDataPath, jsonData);
+            Debug.Log("Settings saved successfully!");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to save settings: {e.Message}");
+        }
+        
     }
-    
 
     
-    #endregion Player Data Handling ----------------------------------------------------------------------------------------------------------------------------
+    private static void LoadSettingsDataFromFile()
+    {
+        try
+        {
+            if (File.Exists(_settingsDataPath))
+            {
+                string jsonData = File.ReadAllText(_settingsDataPath);
+                _settingsData = JsonUtility.FromJson<SettingsData>(jsonData);
+            }
+            else
+            {
+                // Access through the instance
+                _settingsData = new SettingsData(
+                    Instance.defaultKeyboardMouseScheme, 
+                    Instance.defaultGamepadScheme
+                );
+                Debug.Log("No settings file found. Created new settings data.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to load settings: {e.Message}");
+            _settingsData = new SettingsData(
+                Instance.defaultKeyboardMouseScheme, 
+                Instance.defaultGamepadScheme
+            );
+        }
+        
+        Instance?.OnSettingsDataChanged?.Invoke();
+    }
+
+
+    [Button]
+    private static void DeleteSettingsDataAndFile()
+    {
+        if (!Application.isPlaying || !_initialized) return;
+
+        try
+        {
+            if (File.Exists(_settingsDataPath))
+            {
+                File.Delete(_settingsDataPath);
+                _settingsData = new SettingsData(
+                    Instance.defaultKeyboardMouseScheme, 
+                    Instance.defaultGamepadScheme
+                );
+                Debug.Log("Settings file deleted and reset to default.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to delete settings file: {e.Message}");
+        }
+        
+        Instance?.OnSettingsDataChanged?.Invoke();
+    }
+
+    #endregion File Handling ----------------------------------------------------------------------------------------------------------------------------
     
     
-    #region Progress Update Methods ----------------------------------------------------------------------------------------------------------------------
-    
+    #region Data Update Methods ----------------------------------------------------------------------------------------------------------------------
     
     public static void UpdateLevelProgress(string scenePath, int score, bool completed = true)
     {
@@ -173,9 +311,6 @@ public static class SaveManager
             {
                 progress.bestScores.RemoveRange(5, progress.bestScores.Count - 5);
             }
-
-            
-            SavePlayerData();
         }
     }
     
@@ -183,14 +318,25 @@ public static class SaveManager
     public static void UpdatePlayerProgress(int currency)
     {
         EnsureInitialized();
-        _playerData.currency = currency;
-        SavePlayerData();
+        _playerProgressData.currency = currency;
+    }
+
+    public static void  UpdateKeyboardControlScheme(ControlSchemeSettings newSettings)
+    {
+        EnsureInitialized();
+        _settingsData.keyboardMouseScheme = newSettings;
+    }
+    
+    public static void UpdateGamepadControlScheme(ControlSchemeSettings newSettings)
+    {
+        EnsureInitialized();
+        _settingsData.gamepadScheme = newSettings;
     }
     
     #endregion Public Update Methods ----------------------------------------------------------------------------------------------------------------------
     
     
-    #region Progress Getters ----------------------------------------------------------------------------------------------------------------------
+    #region Data Getters ----------------------------------------------------------------------------------------------------------------------
     
     public static LevelProgress GetLevelProgress(string scenePath)
     {
@@ -198,12 +344,12 @@ public static class SaveManager
         
         if (string.IsNullOrEmpty(scenePath)) return null;
         
-        LevelProgress progress = _playerData.levelProgresses.Find(p => p.scenePath == scenePath);
+        LevelProgress progress = _playerProgressData.levelProgresses.Find(p => p.scenePath == scenePath);
         
         if (progress == null)
         {
             progress = new LevelProgress(scenePath);
-            _playerData.levelProgresses.Add(progress);
+            _playerProgressData.levelProgresses.Add(progress);
         }
         
         return progress;
@@ -214,10 +360,52 @@ public static class SaveManager
     {
         EnsureInitialized();
         
-        return _playerData?.currency ?? 0;
+        return _playerProgressData?.currency ?? 0;
+    }
+    
+    public static ControlSchemeSettings GetKeyboardControlScheme()
+    {
+        EnsureInitialized();
+
+        return _settingsData.keyboardMouseScheme;
+    }
+    
+    public static ControlSchemeSettings GetGamepadControlScheme()
+    {
+        EnsureInitialized();
+
+        return _settingsData.gamepadScheme;
     }
     
     #endregion Progress Getters ----------------------------------------------------------------------------------------------------------------------
     
+    
+#if UNITY_EDITOR
+    #region Editor --------------------------------------------------------------------------------------------------------------------------
+
+    // Force uninitialize in editor when exiting play mode
+    private static void ForceUninitialize()
+    {
+        _initialized = false;
+        _playerProgressData = null;
+        _playerProgressDataPath = null;
+        _settingsData = null;
+        _settingsDataPath = null;
+    }
+    
+    private static void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.ExitingPlayMode)
+        {
+            ForceUninitialize();
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+        }
+    }
+
+    #endregion Editor --------------------------------------------------------------------------------------------------------------------------
+#endif
+
+
+
     
 }

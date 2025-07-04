@@ -14,7 +14,7 @@ using VInspector;
 public class RailPlayerWeaponSystem : MonoBehaviour
 {
     [Header("Weapons Settings")]
-    [Tooltip("If true, the player can use the base weapon even with a special weapon, using a different button.")]
+    [Tooltip("If true, the player can use the base weapon with a special weapon, using a different button.")]
     [SerializeField] private bool allowBaseWeaponWithSpecialWeapon = true;
     [Tooltip("Special weapons are permanent, and don't change after limit reached (heat, ammo, time)")]
     [SerializeField] private bool specialWeaponsArePermanent = true;
@@ -29,7 +29,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Min(0.1f)] private float overHeatCooldown = 3f;
     [SerializeField] private bool overHeatMiniGame = true;
     [ShowIf("overHeatMiniGame")]
-    [SerializeField] private float failHeat = 50f;
+    [SerializeField] private bool overHeatResetsGame;
+    [SerializeField] private float miniGameFailHeat = 50f;
     [SerializeField] private bool randomizeWindow = true;
     [EndIf]
     [ShowIf("randomizeWindow")]
@@ -47,16 +48,24 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [EndIf]
     [EndFoldout]
     
-    [Header("Reticles")]
-    [SerializeField, Tooltip("How fast the reticle position smoothly moves to its target position")] private float reticleFollowSpeed = 25f;
-    [SerializeField] private float reticleGrowSpeed = 5f;
-    [SerializeField] private float reticleSizeMultiplier = 2f;
-    [SerializeField, Range(0f, 1f)] private float smallReticleRange = 0.8f;
+    [Foldout("Reticles")]
+    [SerializeField] private float targetReticleAimLockSize = 2.5f;
+    [SerializeField] private float targetReticleAimLockDuration = 0.6f;
+    [SerializeField] private float targetReticleOverheatPunchStrength = 1f;
+    [SerializeField] private float targetReticlePunchStrength = 0.2f;
+    [SerializeField] private float targetReticlePunchDuration = 0.3f;
+    [SerializeField] private bool useRangingReticles;
+    [ShowIf("useRangingReticles")]
+    [SerializeField, Min(1)] private int rangingReticlesAmount = 2;
+    [SerializeField, Range(0f, 1f)] private float rangingReticlesRange = 0.8f;
+    [SerializeField, Tooltip("How fast the reticle position smoothly moves to its target position")] private float reticlesFollowSpeed = 25f;
+    [EndIf]
+    [EndFoldout]
 
     
     [Header("References")]
+    [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
     [SerializeField] private Transform reticleHolder;
-    [SerializeField] private WeaponReticle smallReticle;
     [SerializeField] private WeaponReticle targetReticle;
     [SerializeField] private TextMeshPro overheatText;
     [SerializeField] private SOAudioEvent weaponSwitchSfx;
@@ -68,7 +77,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
-    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
 
 
     private bool _allowShooting;
@@ -89,6 +97,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private float _specialWeaponFireRateCooldown;
     private float _specialWeaponTime;
     private float _specialWeaponAmmo;
+    private readonly List<WeaponReticle> _rangingReticles = new List<WeaponReticle>();
     
     
     public bool IsOverHeated => _overHeated || _overHeatedCooldown;
@@ -141,6 +150,21 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         overheatText.alpha = 0;
         _allowShooting = true;
+
+        if (useRangingReticles)
+        {
+            for (int i = 0; i < rangingReticlesAmount; i++)
+            {
+                WeaponReticle reticle = Instantiate(targetReticle, reticleHolder);
+                reticle.gameObject.name = $"RangingReticle({i + 1})";
+
+                var scaleFactor = Mathf.Pow(rangingReticlesRange, i + 1);
+                reticle.transform.localScale = Vector3.one * scaleFactor;
+
+                reticle.ForceChangeBaseSize(scaleFactor);
+                _rangingReticles.Add(reticle);
+            }
+        }
     }
 
     private void Start()
@@ -149,6 +173,22 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             SetUpBaseWeapon(weapons[0]);
         }
+
+        
+        // Setup in a case there is no active level manager to set stage
+        if (!player.LevelManager)
+        {
+            targetReticle?.Show();
+            targetReticle?.ForceChangeAimLockSize(targetReticleAimLockSize);
+            ToggleRangeReticles(true);
+            if (_activeWeaponInstance == null)
+            {
+                if (_currentSpecialWeaponInstance != null) _activeWeaponInstance = _currentSpecialWeaponInstance;
+                else if (_baseWeaponInstance != null) _activeWeaponInstance = _baseWeaponInstance;
+                
+                _activeWeaponInstance?.OnWeaponSelected();
+            }
+        }
     }
 
     private void OnEnable()
@@ -156,10 +196,13 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         playerInput.OnAttackEvent += OnAttack;
         playerInput.OnAttack2Event += OnAttack2;
         playerMovement.OnDodge += OnDodge;
+        playerAiming.OnAimLockStateChange += OnAimLock;
+        player.OnDeath += OnDeath;
         
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged += OnStageChanged;
+            player.LevelManager.OnRestartFromSavePoint += OnRestartFromSavePoint;
         }
     }
     
@@ -168,44 +211,92 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         playerInput.OnAttackEvent -= OnAttack;
         playerInput.OnAttack2Event -= OnAttack2;
         playerMovement.OnDodge -= OnDodge;
+        playerAiming.OnAimLockStateChange -= OnAimLock;
+        player.OnDeath -= OnDeath;
         
         
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged -= OnStageChanged;
+            player.LevelManager.OnRestartFromSavePoint -= OnRestartFromSavePoint;
         }
     }
-    
-    
+
+
     private void Update()
     {
         CheckAttackInputs();
         UpdateFireRateCooldown();
         UpdateHeatRegeneration();
         UpdateWeaponTime();
-        UpdateReticlesPosition();
+        UpdateRangeReticlesPositions();
     }
     
 
     private void OnStageChanged(SOLevelStage stage)
     {
-        _allowShooting = !stage || stage.AllowPlayerShooting;
+        if (!stage) return;
+        
+        _allowShooting = stage.AllowPlayerShooting;
 
         if (_allowShooting)
         {
-            targetReticle.Show();
-            smallReticle.Show();
-            reticleHolder.gameObject.SetActive(true);
+            targetReticle?.Show();
+            targetReticle?.ForceChangeAimLockSize(targetReticleAimLockSize);
+            ToggleRangeReticles(true);
+            
+            if (_activeWeaponInstance == null)
+            {
+                if (_currentSpecialWeaponInstance != null) _activeWeaponInstance = _currentSpecialWeaponInstance;
+                else if (_baseWeaponInstance != null) _activeWeaponInstance = _baseWeaponInstance;
+            }
             _activeWeaponInstance?.OnWeaponSelected();
 
         }
         else
         {
             targetReticle.Hide();
-            smallReticle.Hide();
-            reticleHolder.gameObject.SetActive(false);
+            ToggleRangeReticles(false);
             _activeWeaponInstance?.OnWeaponDeselected();
         }
+    }
+    
+    private void OnRestartFromSavePoint(SavePointInformation savePoint)
+    {
+        if (savePoint == null) return;
+
+        if (savePoint.PlayerSpecialWeapon)
+        {
+            SetSpecialWeapon(savePoint.PlayerSpecialWeapon);
+        }
+        else
+        {
+            ResetHeat();
+        }
+    }
+    
+    private void OnAimLock(bool state, ChickenController target)
+    {
+        if (!_allowShooting) return;
+
+        if (state)
+        {
+            targetReticle?.EnableAimLockSize(targetReticleAimLockDuration);
+            _activeWeaponInstance?.OnAimLocked();
+        }
+        else
+        {
+            targetReticle?.DisableAimLockSize(targetReticleAimLockDuration);
+            _activeWeaponInstance?.OnAimUnlocked();
+        }
+    }
+    
+    private void OnDeath()
+    {
+        _allowShooting = false;
+        targetReticle?.Hide();
+        ToggleRangeReticles(false);
+        _activeWeaponInstance?.OnWeaponDeselected();
     }
 
 
@@ -351,6 +442,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (weaponInstance == null) return;
         
         weaponInstance.OnWeaponUsed(player, weaponInstance.weaponBarrels);
+        targetReticle?.PunchReticleSize(targetReticlePunchStrength, targetReticlePunchDuration);
     
         OnWeaponUsed?.Invoke(weaponInstance);
     }
@@ -435,17 +527,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _overHeated = true;
         _overHeatedCooldown = false;
         _inMiniGameWindow = false;
-        _miniGameAttempted = false;
+        if (overHeatResetsGame) _miniGameAttempted = false;
         weaponOverheatSfx?.Play(audioSource);
-
-        if (_currentSpecialWeaponInstance != null)
-        {
-            _currentSpecialWeaponInstance.OnWeaponOverheat();
-        }
-        else
-        {
-            _baseWeaponInstance?.OnWeaponOverheat();
-        }
+        _currentSpecialWeaponInstance?.OnWeaponOverheat();
+        targetReticle?.PunchReticleSize(targetReticleOverheatPunchStrength, targetReticlePunchDuration);
         
         Sequence.Create()
             .Group(Tween.PunchScale(overheatText.transform, strength:Vector3.one * 0.3f, duration:0.6f))
@@ -494,7 +579,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _miniGameAttempted = true;
         _attackInputHeld = false;
         weaponHeatMiniGameFail?.Play(audioSource);
-        _currentHeat += failHeat;
+        _currentHeat += miniGameFailHeat;
         OnWeaponHeatMiniGameFailed?.Invoke();
         if (_currentHeat >= maxHeat)
         {
@@ -516,6 +601,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
         float actualRegenTime = Mathf.Max(0.1f, (heatToRegenerate / maxHeat) * baseRegenTime);
         float regenRate = heatToRegenerate / actualRegenTime;
+        
         float miniGameDuration;
         float miniGameStartTime;
 
@@ -541,7 +627,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         if (overHeatMiniGame)
         {
-            OnWeaponHeatMiniGameWindowCreated?.Invoke(actualRegenTime, miniGameDuration, miniGameStartTime);
+            if (overHeatResetsGame || !_miniGameAttempted)
+            {
+                OnWeaponHeatMiniGameWindowCreated?.Invoke(actualRegenTime, miniGameDuration, miniGameStartTime);
+            }
         }
         
         // Cooldown phase
@@ -600,29 +689,41 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     #region Weapon Reticle -----------------------------------------------------------------------------------------------
 
-    private void UpdateReticlesPosition()
+    private void UpdateRangeReticlesPositions()
     {
-        if (!_allowShooting) return;
+        if (!_allowShooting || _rangingReticles.Count <= 0) return;
         
+        foreach (var reticle in _rangingReticles)
+        {
+            if (!reticle) continue;
 
-        if (reticleHolder)
-        {
-            reticleHolder.position = Vector3.Lerp(reticleHolder.position,playerAiming.AimWorldPosition.position, reticleFollowSpeed * Time.deltaTime);
-            reticleHolder.rotation = player.AlignToSplineDirection ? player.SplineRotation : Quaternion.identity;
-        }
-        
-        if (targetReticle)
-        {
-            Vector3 targetReticleSize = playerAiming.CurrentAimLockTarget ? (Vector3.one * reticleSizeMultiplier) : Vector3.one * 0.60f; 
-            targetReticle.transform.localScale = Vector3.Lerp(targetReticle.transform.localScale, targetReticleSize, reticleGrowSpeed * Time.deltaTime);
-        }
-        
-        if (smallReticle)
-        {
-            Vector3 smallReticlePosition = Vector3.Lerp(transform.position, playerAiming.AimWorldPosition.position, smallReticleRange);
-            smallReticle.transform.position = Vector3.Lerp(smallReticle.transform.position, smallReticlePosition, reticleFollowSpeed * Time.deltaTime);
+            var reticleIndex = _rangingReticles.IndexOf(reticle);
+            var proportionalFactor = (float)(_rangingReticles.Count - reticleIndex) / _rangingReticles.Count;
+            var currentReticleFollowSpeed = reticlesFollowSpeed / proportionalFactor;
+            var reticlePosition = Vector3.Lerp(transform.position, playerAiming.AimWorldPosition.position, rangingReticlesRange * proportionalFactor);
+            reticle.transform.position = Vector3.Lerp(reticle.transform.position, reticlePosition, currentReticleFollowSpeed * Time.deltaTime);
         }
     }
+
+
+    private void ToggleRangeReticles(bool state)
+    {
+        if (_rangingReticles.Count <= 0) return;
+        
+        foreach (var reticle in _rangingReticles.Where(reticle => reticle))
+        {
+            if (state)
+            {
+                reticle.Show();
+            }
+            else
+            {
+                reticle.Hide();
+            }
+        }
+    }
+    
+    
     
     
 
@@ -665,11 +766,11 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     }
     
     
-    public void SetSpecialWeapon(SOWeapon newWeapon)
+    public void SetSpecialWeapon(SOWeaponData weaponData)
     {
-        if (!newWeapon) return;
+        if (!weaponData) return;
 
-        foreach (var weaponInfo in weapons.Where(weaponInfo => weaponInfo.weaponData == newWeapon))
+        foreach (var weaponInfo in weapons.Where(weaponInfo => weaponInfo.weaponData == weaponData))
         {
             SetSpecialWeapon(weaponInfo);
             break;
@@ -681,16 +782,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _baseWeaponFireRateCooldown = 0;
         _baseWeaponInstance = weapon;
         OnBaseWeaponSwitched?.Invoke(_baseWeaponInstance);
-
-        if (_activeWeaponInstance == null)
-        {
-            _activeWeaponInstance = _baseWeaponInstance;
-            _activeWeaponInstance.OnWeaponSelected();
-        }
     }
 
     
-    [Button]
     private void DisableSpecialWeapon()
     {
         if (!Application.isPlaying || _currentSpecialWeaponInstance == null) return;

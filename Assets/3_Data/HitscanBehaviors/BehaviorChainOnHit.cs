@@ -22,12 +22,12 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
 
     private List<ChickenController> targetsToHit;
     
-    public override void OnStart(SOWeapon weapon, RailPlayer owner, ChickenController target = null)
+    public override void OnStart(SOWeaponData weaponData, RailPlayer owner, ChickenController target = null)
     {
         targetsToHit = new List<ChickenController>();
     }
 
-    public override void OnHit(SOWeapon weapon, RailPlayer owner, ChickenController target)
+    public override void OnHit(SOWeaponData weaponData, RailPlayer owner, ChickenController target)
     {
         // Hit the initial target
         if (target)
@@ -42,22 +42,22 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
         }
         
         // Choose between instant or delayed chaining
-        owner.StartCoroutine(ChainTargets(weapon, owner, target));
+        owner.StartCoroutine(ChainTargets(weaponData, owner, target));
 
     }
     
 
-    public override void OnEnd(SOWeapon weapon, RailPlayer owner, ChickenController target = null)
+    public override void OnEnd(SOWeaponData weaponData, RailPlayer owner, ChickenController target = null)
     {
         
     }
 
-    public override void OnDrawGizmos(SOWeapon weapon, RailPlayer owner, ChickenController target = null)
+    public override void OnDrawGizmos(SOWeaponData weaponData, RailPlayer owner, ChickenController target = null)
     {
 
     }
     
-    private IEnumerator ChainTargets(SOWeapon weapon, RailPlayer owner, ChickenController initialTarget)
+    private IEnumerator ChainTargets(SOWeaponData weaponData, RailPlayer owner, ChickenController initialTarget)
     {
         ChickenController currentTarget = initialTarget;
         
