@@ -35,7 +35,9 @@ public class SOAudioEvent : ScriptableObject
     [EndIf]
     
 
-
+    [Header("OneShot Object Pooler")]
+    public bool useObjectPooler = true;
+    public GameObject oneShotPrefab;
 
 
     #region Play AE ----------------------------------------------------------------------------
@@ -77,13 +79,31 @@ public class SOAudioEvent : ScriptableObject
             Debug.Log("No clips found");
             return;
         }
-        
-        AudioSource source = new GameObject("OneShotAudioEvent").AddComponent<AudioSource>();
-        source.transform.position = position;
-        
-        SetAudioSourceSettings(source);
-        source.Play();
-        Destroy(source.gameObject, source.clip.length);
+
+
+        if (!useObjectPooler)
+        {
+            AudioSource source = new GameObject("OneShotAudioEvent").AddComponent<AudioSource>();
+            
+            source.transform.position = position;
+            SetAudioSourceSettings(source);
+            source.Play();
+            Destroy(source.gameObject, source.clip.length);
+        }
+        else
+        {
+            GameObject oneShotObject = ObjectPooler.GetObjectFromPool(oneShotPrefab, position, Quaternion.identity);
+            if (oneShotObject.TryGetComponent(out AudioSource source))
+            {
+                source.transform.position = position;
+                SetAudioSourceSettings(source);
+                source.Play();
+                if (source.TryGetComponent(out AutoReturnToPool returnToPool))
+                {
+                    returnToPool.Initialize(source.clip.length);
+                }
+            }
+        }
     }
     
     public void PlayAtPoint(float delay, Vector3 position = new())
@@ -94,12 +114,32 @@ public class SOAudioEvent : ScriptableObject
             return;
         }
         
-        AudioSource source = new GameObject("OneShotAudioEvent").AddComponent<AudioSource>();
-        source.transform.position = position;
+
         
-        SetAudioSourceSettings(source);
-        source.PlayDelayed(delay);
-        Destroy(source.gameObject, source.clip.length + delay);
+        if (!useObjectPooler)
+        {
+            AudioSource source = new GameObject("OneShotAudioEvent").AddComponent<AudioSource>();
+            
+            source.transform.position = position;
+            SetAudioSourceSettings(source);
+            source.PlayDelayed(delay);
+            Destroy(source.gameObject, source.clip.length + delay);
+        }
+        else
+        {
+            GameObject oneShotObject = ObjectPooler.GetObjectFromPool(oneShotPrefab, position, Quaternion.identity);
+            if (oneShotObject.TryGetComponent(out AudioSource source))
+            {
+                source.transform.position = position;
+                SetAudioSourceSettings(source);
+                source.Play();
+
+                if (source.TryGetComponent(out AutoReturnToPool returnToPool))
+                {
+                    returnToPool.Initialize(source.clip.length);
+                }
+            }
+        }
     }
 
     

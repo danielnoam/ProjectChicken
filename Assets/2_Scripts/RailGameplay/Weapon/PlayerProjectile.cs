@@ -67,7 +67,7 @@ public class PlayerProjectile : MonoBehaviour
             {
                 behavior.OnCollision(this, _owner, collision);
             }
-            DestroyProjectile();
+            ReturnProjectileToPool();
         }
     }
     
@@ -76,23 +76,37 @@ public class PlayerProjectile : MonoBehaviour
         _lifetime -= Time.deltaTime;
         if (_lifetime <= 0f)
         {
-            DestroyProjectile();
+            ReturnProjectileToPool();
         }
     }
     
     
+    [Obsolete]
     private void DestroyProjectile()
     {
         foreach (var behavior in _projectileBehaviors)
         {
             behavior.OnDestroy(this, _owner);
         }
+        
         _isInitialized = false;
         Destroy(gameObject);
+    }
+    
+    private void ReturnProjectileToPool()
+    {
+        foreach (var behavior in _projectileBehaviors)
+        {
+            behavior.OnDestroy(this, _owner);
+        }
+        UnInitializeProjectile();
+        ObjectPooler.ReturnObjectToPool(gameObject);
     }
 
     private void UpdateTargetPosition()
     {
+        if (!_owner) return;
+        
         Vector3 currentEnemySplinePosition = _owner.LevelManager.EnemyPosition;
         
         if (_owner.AlignToSplineDirection)
@@ -146,6 +160,22 @@ public class PlayerProjectile : MonoBehaviour
         }
         
         _isInitialized = true;
+    }
+    
+    private void UnInitializeProjectile()
+    {
+        _isInitialized = false;
+        
+        _owner = null;
+        _lifetime = 0f;
+        WeaponData = null;
+        WeaponInstance = null;
+        Target = null;
+        _projectileBehaviors = null;
+        _aimOffsetFromSpline = Vector3.zero;
+        CurrentTargetPosition = Vector3.zero;
+        StartDirection = Vector3.zero;
+        StartTime = 0f;
     }
     
     public void SetUpProjectileWithCustomBehaviors(SOWeaponData weaponData, RailPlayer owner, WeaponInstance weaponInstance, ChickenController target, List<ProjectileBehaviorBase> projectileBehaviors)

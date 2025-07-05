@@ -115,8 +115,8 @@ public class WeaponInstance
     
     private void InstantiateProjectile(RailPlayer owner,Vector3 spawnPosition, ChickenController target = null)
     {
-        GameObject projectileObj = UnityEngine.Object.Instantiate(weaponData.PlayerProjectilePrefab.gameObject, spawnPosition, Quaternion.identity);
-        if (projectileObj.TryGetComponent(out PlayerProjectile projectile))
+        GameObject projectileObj = ObjectPooler.GetObjectFromPool(weaponData.PlayerProjectilePrefab.gameObject, spawnPosition, Quaternion.identity);
+        if (projectileObj && projectileObj.TryGetComponent(out PlayerProjectile projectile))
         {
             projectile.SetUpProjectile(weaponData, owner, this, target);
         }

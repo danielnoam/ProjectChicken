@@ -111,7 +111,6 @@ public class SaveManager : MonoBehaviour
 
         if (previousActiveScene.buildIndex == -1) return;
         SaveAllDataToFiles();
-        Debug.Log("bla");
     }
     
     
