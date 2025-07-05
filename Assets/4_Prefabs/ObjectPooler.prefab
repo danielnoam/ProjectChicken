@@ -48,17 +48,19 @@ MonoBehaviour:
   destroyAsFallBack: 1
   pools:
   - poolName: LaserProjectiles
-    maxPoolSize: 36
+    maxPoolSize: 40
     prefab: {fileID: 8373019005351946335, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
     dontDestroyOnLoad: 1
+    recycleActiveObjects: 0
     preWarmPool: 1
-    preWarmPoolSize: 3
+    preWarmPoolSize: 16
     _activePool: []
     _inactivePool: []
   - poolName: MissileProjectile
     maxPoolSize: 8
     prefab: {fileID: 8373019005351946335, guid: 20978eb0d84dfd74fbd018ce1cb29fbf, type: 3}
     dontDestroyOnLoad: 1
+    recycleActiveObjects: 0
     preWarmPool: 1
     preWarmPoolSize: 3
     _activePool: []
@@ -67,23 +69,35 @@ MonoBehaviour:
     maxPoolSize: 10
     prefab: {fileID: 8373019005351946335, guid: a68a7f88b92bbe947afd6a143f8e5792, type: 3}
     dontDestroyOnLoad: 1
+    recycleActiveObjects: 0
     preWarmPool: 0
     preWarmPoolSize: 0
     _activePool: []
     _inactivePool: []
   - poolName: AutoBallProjectiles
-    maxPoolSize: 50
+    maxPoolSize: 75
     prefab: {fileID: 8373019005351946335, guid: 14e001c3c26e24543956a33a00868bc9, type: 3}
     dontDestroyOnLoad: 1
-    preWarmPool: 0
-    preWarmPoolSize: 0
+    recycleActiveObjects: 0
+    preWarmPool: 1
+    preWarmPoolSize: 7
+    _activePool: []
+    _inactivePool: []
+  - poolName: EggProjectile
+    maxPoolSize: 30
+    prefab: {fileID: 2910271167061673307, guid: 6c123908f2916c449a315c79c13f0ce0, type: 3}
+    dontDestroyOnLoad: 1
+    recycleActiveObjects: 0
+    preWarmPool: 1
+    preWarmPoolSize: 10
     _activePool: []
     _inactivePool: []
   - poolName: OneShotSFX
-    maxPoolSize: 15
+    maxPoolSize: 30
     prefab: {fileID: 4881883869627230524, guid: 7538ce3299d5f864780acaafb8fcf87d, type: 3}
     dontDestroyOnLoad: 1
+    recycleActiveObjects: 1
     preWarmPool: 1
-    preWarmPoolSize: 15
+    preWarmPoolSize: 3
     _activePool: []
     _inactivePool: []

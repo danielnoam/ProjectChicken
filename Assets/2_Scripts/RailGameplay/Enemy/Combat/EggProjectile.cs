@@ -29,39 +29,44 @@ public class EggProjectile : MonoBehaviour
     // State
     private Vector3 moveDirection;
     private bool isInitialized = false;
+    private float _currentLifeTime;
     
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
         
-        // Setup rigidbody
         rb.useGravity = false;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        
-        // Make sure it's a trigger
         col.isTrigger = true;
     }
     
     public void Initialize(Vector3 direction, float speed, float damage)
     {
+        if (ProjectileManager.Instance != null)
+        {
+            ProjectileManager.Instance.RegisterProjectile(gameObject);
+        }
+        
         moveDirection = direction.normalized;
         currentSpeed = speed;
         currentDamage = damage;
-        isInitialized = true;
-        
-        // Set velocity
+        _currentLifeTime = lifetime;
         rb.linearVelocity = moveDirection * currentSpeed;
         
-        // Start lifetime countdown
-        Destroy(gameObject, lifetime);
+        isInitialized = true;
+
     }
     
     private void Update()
     {
         if (!isInitialized) return;
         
-        aliveTime += Time.deltaTime;
+        _currentLifeTime -= Time.deltaTime;
+        if (_currentLifeTime <= 0f)
+        {
+            ReturnProjectileToPool();
+        }
         
         // Handle rotation
         if (rotateInFlight)
@@ -87,6 +92,16 @@ public class EggProjectile : MonoBehaviour
         }
     }
     
+    private void ReturnProjectileToPool()
+    {
+        if (ProjectileManager.Instance != null)
+        {
+            ProjectileManager.Instance.UnregisterProjectile(gameObject);
+        }
+        isInitialized = false;
+        ObjectPooler.ReturnObjectToPool(gameObject);
+    }
+    
     private void OnTriggerEnter(Collider other)
     {
         // Check if we hit something on the hit layers
@@ -102,8 +117,8 @@ public class EggProjectile : MonoBehaviour
         // Play impact effects
         PlayImpactEffects(other.ClosestPoint(transform.position));
         
-        // Destroy projectile
-        Destroy(gameObject);
+
+        ReturnProjectileToPool();
     }
     
     

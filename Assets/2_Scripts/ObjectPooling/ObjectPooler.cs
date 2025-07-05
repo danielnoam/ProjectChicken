@@ -1,174 +1,6 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VInspector;
-using Object = UnityEngine.Object;
-
-
-[Serializable]
-public class ObjectPool
-{
-    [Header("Pool Settings")]
-    public string poolName = "New Pool";
-    [Min(1)] public int maxPoolSize = 25;
-    public GameObject prefab;
-    public bool dontDestroyOnLoad;
-    
-    [Header("Pre Warm")]
-    public bool preWarmPool = true;
-    public int  preWarmPoolSize = 5;
-
-
-    [SerializeField] private List<GameObject> _activePool;
-    [SerializeField] private List<GameObject> _inactivePool;
-    private Transform _poolHolder;
-    private bool _isInitialized;
-    private readonly HashSet<GameObject> _objectsBeingReturned = new HashSet<GameObject>();
-
-
-
-    public GameObject GetObjectFromPool(Vector3 position, Quaternion rotation)
-    {
-        if (!_isInitialized) return null;
-        
-        if (_inactivePool.Count > 0)
-        {
-            var obj = _inactivePool[0];
-            _inactivePool.RemoveAt(0);
-            
-            
-            _activePool.Add(obj);
-            obj.transform.position = position;
-            obj.transform.rotation = rotation;
-            obj.SetActive(true);
-            return obj;
-        }
-        else if ((_activePool.Count + _inactivePool.Count) < maxPoolSize)
-        {
-            var obj = InstantiatePoolObject();
-            
-            
-            _activePool.Add(obj);
-            obj.transform.position = position;
-            obj.transform.rotation = rotation;
-            obj.SetActive(true);
-            return obj;
-        }
-        else if (_activePool.Count > 0)
-        {
-
-            var obj = _activePool[0];
-            _activePool.RemoveAt(0);
-            obj.SetActive(false);
-            
-            
-            _activePool.Add(obj);
-            obj.transform.position = position;
-            obj.transform.rotation = rotation;
-            obj.SetActive(true);
-            return obj;
-        }
-        
-
-        return null;
-    }
-    
-    public void ReturnObjectToPool(GameObject obj)
-    {
-        if (!_isInitialized || !obj) return;
-        
-        if (_objectsBeingReturned.Contains(obj))
-        {
-            Debug.LogWarning($"[{poolName}] Object {obj.name} is already being returned to this pool");
-            return;
-        }
-
-        if (!_activePool.Contains(obj))
-        {
-            Debug.LogWarning($"[{poolName}] Object {obj.name} not found in active pool");
-            return;
-        }
-
-        _objectsBeingReturned.Add(obj);
-        
-        try
-        {
-            obj.SetActive(false);
-            _activePool.Remove(obj);
-            _inactivePool.Add(obj);
-        }
-        finally
-        {
-            _objectsBeingReturned.Remove(obj);
-        }
-    }
-    
-    public bool IsObjectPartOfPool(GameObject obj)
-    {
-        return _activePool.Contains(obj) || _inactivePool.Contains(obj);
-    }
-    
-    
-    
-    public void SetUpPool(Transform  poolHolder = null)
-    {
-        if (_isInitialized) return;
-        
-        _activePool = new List<GameObject>();
-        _inactivePool = new List<GameObject>();
-        _poolHolder = poolHolder;
-        if (preWarmPool) WarmPool();
-        _isInitialized = true;
-    }
-
-    public void ClearPools()
-    {
-        foreach (var obj in _activePool) {
-            Object.Destroy(obj);
-        }
-
-        foreach (var obj in _inactivePool) {
-            Object.Destroy(obj);
-        }
-
-        _activePool.Clear();
-        _inactivePool.Clear();
-        _objectsBeingReturned.Clear();
-        if (_poolHolder) Object.Destroy(_poolHolder.gameObject);
-        _isInitialized = false;
-    }
-    
-    public void LimitPreWorm()
-    {
-        preWarmPoolSize = !preWarmPool ? 0 : Mathf.Clamp(preWarmPoolSize, 1, maxPoolSize);
-    }
-    
-    
-    
-    private void  WarmPool()
-    {
-        if (_isInitialized) return;
-        
-        for (int i = 0; i < preWarmPoolSize; i++)
-        {
-            var obj = InstantiatePoolObject();
-            _inactivePool.Add(obj);
-        }
-    }
-    
-    private GameObject InstantiatePoolObject()
-    {
-        if (!prefab) return null;
-
-        var obj = Object.Instantiate(prefab);
-        obj.SetActive(false);
-        if (_poolHolder) obj.transform.SetParent(_poolHolder);
-        return obj;
-    }
-}
-
 
 
 
@@ -181,7 +13,7 @@ public class ObjectPooler : MonoBehaviour
     [SerializeField] private bool destroyAsFallBack = true;
     [SerializeField] private List<ObjectPool> pools = new List<ObjectPool>();
 
-    private string _firstSceneName;
+    private bool _isFirstScene;
     
     
     private void OnValidate()
@@ -198,7 +30,7 @@ public class ObjectPooler : MonoBehaviour
         if (!Instance || Instance == this)
         {
             Instance = this;
-            _firstSceneName =  SceneManager.GetActiveScene().name;
+            _isFirstScene =  true;
             DontDestroyOnLoad(this);
         }
         else
@@ -216,17 +48,30 @@ public class ObjectPooler : MonoBehaviour
     private static void OnActiveSceneChanged(Scene previousActiveScene, Scene newActiveScene)
     {
 
-        if (!Instance || newActiveScene.name == Instance._firstSceneName) return;
+        if (!Instance) return;
+
+        // Let awake run if it's the first time the game is loaded
+        if (Instance._isFirstScene)
+        {
+            Instance._isFirstScene = false;
+            return;
+        }
         
+        List<ObjectPool> poolsToReinitialize = new List<ObjectPool>();
         foreach (var pool in Instance.pools)
         {
             if (!pool.dontDestroyOnLoad)
             {
                 pool.ClearPools();
+                poolsToReinitialize.Add(pool);
             }
         }
         
-        Instance.SetUpPools();
+        foreach (var pool in poolsToReinitialize)
+        {
+            var poolHolder = new GameObject() { name = $"{pool.poolName} Holder"};
+            pool.SetUpPool(poolHolder.transform);
+        }
     }
 
 

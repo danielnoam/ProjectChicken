@@ -92,6 +92,13 @@ public class PlayerProjectile : MonoBehaviour
         _isInitialized = false;
         Destroy(gameObject);
     }
+
+    private void OnPoolRecycle()
+    {
+        if (!_isInitialized) return;
+        
+        UnInitializeProjectile();
+    }
     
     private void ReturnProjectileToPool()
     {

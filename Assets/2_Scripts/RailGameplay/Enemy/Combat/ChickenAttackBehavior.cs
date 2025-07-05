@@ -230,13 +230,7 @@ public class ChickenAttackBehavior : MonoBehaviour
     private void SpawnProjectile(Vector3 targetPosition)
     {
         // Instantiate projectile
-        GameObject projectileObj = Instantiate(eggProjectilePrefab, firePoint.position, Quaternion.identity);
-        
-        // Register with ProjectileManager
-        if (ProjectileManager.Instance != null)
-        {
-            ProjectileManager.Instance.RegisterProjectile(projectileObj);
-        }
+        GameObject projectileObj = ObjectPooler.GetObjectFromPool(eggProjectilePrefab, firePoint.position, Quaternion.identity);
         
         // Calculate direction to target
         Vector3 direction = (targetPosition - firePoint.position).normalized;
