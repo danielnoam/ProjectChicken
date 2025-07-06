@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using KBCore.Refs;
 using UnityEngine;
 using VInspector;
@@ -8,17 +9,17 @@ public class EnemyWaveManager : MonoBehaviour
 {
     public static EnemyWaveManager Instance { get; private set; }
     
-    [Header("Debug")]
-    [SerializeField,ReadOnly] private int enemyCount;
-    [SerializeField,ReadOnly] private SOLevelStage currentStage;
-    
     [Header("References")]
-    [SerializeField] private Transform enemyHolder;
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private RailPlayer player;
 
+    
+    private SOLevelStage _currentStage;
+    private readonly HashSet<ChickenController> _activeEnemies = new HashSet<ChickenController>();
 
 
+    public int ActiveEnemyCount => _activeEnemies.Count;
+    public event Action OnEnemyWaveSpawned;
     public event Action<int> OnEnemyWaveCleared;
     public event Action<int> OnEnemyDeath;
 
@@ -54,18 +55,19 @@ public class EnemyWaveManager : MonoBehaviour
     {
         levelManager.OnStageChanged += OnStageChanged;
         player.OnDeath += OnPlayerDeath;
+        foreach (var enemy in _activeEnemies)
+        {
+            enemy.OnDeath += UpdateEnemyCount;
+        }
     }
 
     private void OnDisable()
     {
         levelManager.OnStageChanged -= OnStageChanged;
         player.OnDeath -= OnPlayerDeath;
-        foreach (Transform child in enemyHolder)
+        foreach (var enemy in _activeEnemies)
         {
-            if (child.TryGetComponent<ChickenController>(out var enemy))
-            {
-                enemy.OnDeath -= UpdateEnemyCount;
-            }
+            enemy.OnDeath -= UpdateEnemyCount;
         }
     }
     
@@ -75,7 +77,7 @@ public class EnemyWaveManager : MonoBehaviour
     {
         if (!stage) return;
 
-        currentStage = stage;
+        _currentStage = stage;
         
         if (stage.StageType == StageType.EnemyWave)
         {
@@ -90,16 +92,16 @@ public class EnemyWaveManager : MonoBehaviour
     }
     
     
-    private void UpdateEnemyCount(int enemyScore)
+    private void UpdateEnemyCount(ChickenController enemy, int enemyScore)
     {
-        if (currentStage && currentStage.IsTimeBasedStage) return;
+        if (_currentStage && _currentStage.IsTimeBasedStage) return;
         
-        enemyCount--;
+        _activeEnemies.Remove(enemy);
         OnEnemyDeath?.Invoke(enemyScore);
         
-        if (enemyCount <= 0)
+        if (_activeEnemies.Count <= 0)
         {
-            OnEnemyWaveCleared?.Invoke(currentStage.WaveScore);
+            OnEnemyWaveCleared?.Invoke(_currentStage.WaveScore);
         }
     }
     
@@ -117,14 +119,8 @@ public class EnemyWaveManager : MonoBehaviour
     {
         if (stage.EnemyWave.Count == 0) return;
         
-        
-        // Clear previous enemies
         ClearEnemies();
-
         
-        // Spawn new enemies
-        int totalEnemiesSpawned = 0;
-
         foreach (var enemyType in stage.EnemyWave)
         {
             for (int i = 0; i < enemyType.Value; i++)
@@ -132,11 +128,10 @@ public class EnemyWaveManager : MonoBehaviour
                 if (!enemyType.Key || enemyType.Value <= 0) continue;
                 
                 SpawnEnemy(enemyType.Key);
-                totalEnemiesSpawned++;
             }
         }
         
-        enemyCount = totalEnemiesSpawned;
+        OnEnemyWaveSpawned?.Invoke();
     }
     
     
@@ -145,23 +140,28 @@ public class EnemyWaveManager : MonoBehaviour
     {
         if (!enemyPrefab) return;
 
-        var enemyInstance = Instantiate(enemyPrefab, enemyHolder);
-        enemyInstance.transform.localPosition = Vector3.zero;
-        enemyInstance.transform.localRotation = Quaternion.identity;
-        enemyInstance.OnDeath += UpdateEnemyCount;
+        var enemyObject = ObjectPooler.GetObjectFromPool(enemyPrefab.gameObject);
+        if (enemyObject.TryGetComponent<ChickenController>(out var enemy))
+        {
+            enemy.transform.localPosition = Vector3.zero;
+            enemy.transform.localRotation = Quaternion.identity;
+            enemy.OnDeath += UpdateEnemyCount;
+            _activeEnemies.Add(enemy);
+        }
+
     }
     
     private void ClearEnemies()
     {
-        foreach (Transform child in enemyHolder)
+        var enemiesToClear = new HashSet<ChickenController>(_activeEnemies);
+    
+        foreach (var enemy in enemiesToClear)
         {
-            if (child.TryGetComponent<ChickenController>(out var enemy))
-            {
-                Destroy(child.gameObject);
-            }
+            enemy.OnDeath -= UpdateEnemyCount;
+            enemy.ReturnToPool();
         }
         
-        enemyCount = 0;
+        _activeEnemies.Clear();
     }
 
     #endregion Enemy Spawning --------------------------------------------------------------------------------------

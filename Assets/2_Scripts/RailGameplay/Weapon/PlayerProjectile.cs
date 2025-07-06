@@ -4,9 +4,12 @@ using System.Linq;
 using KBCore.Refs;
 using UnityEngine;
 
+
+
+
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerProjectile : MonoBehaviour
+public class PlayerProjectile : MonoBehaviour, IPooledObject
 {
     
     [Header("References")]
@@ -62,12 +65,11 @@ public class PlayerProjectile : MonoBehaviour
         if (other.TryGetComponent(out ChickenController collision))
         {
             WeaponInstance.PlayImpactEffect(transform.position, Quaternion.identity);
-            collision.TakeDamage(WeaponData.Damage);
             foreach (var behavior in _projectileBehaviors)
             {
                 behavior.OnCollision(this, _owner, collision);
             }
-            ReturnProjectileToPool();
+            ReturnObjectToPool();
         }
     }
     
@@ -76,39 +78,10 @@ public class PlayerProjectile : MonoBehaviour
         _lifetime -= Time.deltaTime;
         if (_lifetime <= 0f)
         {
-            ReturnProjectileToPool();
+            ReturnObjectToPool();
         }
     }
     
-    
-    [Obsolete]
-    private void DestroyProjectile()
-    {
-        foreach (var behavior in _projectileBehaviors)
-        {
-            behavior.OnDestroy(this, _owner);
-        }
-        
-        _isInitialized = false;
-        Destroy(gameObject);
-    }
-
-    private void OnPoolRecycle()
-    {
-        if (!_isInitialized) return;
-        
-        UnInitializeProjectile();
-    }
-    
-    private void ReturnProjectileToPool()
-    {
-        foreach (var behavior in _projectileBehaviors)
-        {
-            behavior.OnDestroy(this, _owner);
-        }
-        UnInitializeProjectile();
-        ObjectPooler.ReturnObjectToPool(gameObject);
-    }
 
     private void UpdateTargetPosition()
     {
@@ -125,8 +98,47 @@ public class PlayerProjectile : MonoBehaviour
             CurrentTargetPosition = currentEnemySplinePosition + _aimOffsetFromSpline;
         }
     }
+
+
+    #region Pool Object -------------------------------------------------------------------------
+
+    private void ReturnObjectToPool()
+    {
+        if (!_isInitialized) return;
+        
+        foreach (var behavior in _projectileBehaviors)
+        {
+            behavior.OnDestroy(this, _owner);
+        }
+        UnInitializeProjectile();
+        ObjectPooler.ReturnObjectToPool(gameObject);
+    }
+    
+    public void OnPoolGet()
+    {
+
+        
+    }
+
+    public void OnPoolReturn()
+    {
+
+    }
+
+    public void OnPoolRecycle()
+    {
+        if (!_isInitialized) return;
+        UnInitializeProjectile();
+    }
+    
+    
+    
     
 
+    #endregion Pool Object -------------------------------------------------------------------------
+
+
+    
 
     #region SetUp -------------------------------------------------------------------------
 
@@ -252,5 +264,20 @@ public class PlayerProjectile : MonoBehaviour
 
     #endregion SetUp -------------------------------------------------------------------------
     
+    
+    
+    
+    [Obsolete]
+    private void DestroyProjectile()
+    {
+        foreach (var behavior in _projectileBehaviors)
+        {
+            behavior.OnDestroy(this, _owner);
+        }
+        
+        _isInitialized = false;
+        Destroy(gameObject);
+    }
+
     
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class AutoReturnToPool : MonoBehaviour
+public class AutoReturnToPool : MonoBehaviour, IPooledObject
 {
         
         
@@ -13,24 +13,14 @@ public class AutoReturnToPool : MonoBehaviour
         {
                 if (!_isInitialized) return;
                 
-                CheckLiftTime();
-        }
-        
-        
-        private void CheckLiftTime()
-        {
                 _lifeTime -= Time.deltaTime;
                 if (_lifeTime <= 0f)
                 {
-                        ReturnToPool();
+                        _isInitialized = false;
+                        ObjectPooler.ReturnObjectToPool(gameObject);
                 }
         }
         
-        private void ReturnToPool()
-        {
-                _isInitialized = false;
-                ObjectPooler.ReturnObjectToPool(gameObject);
-        }
         
         public void Initialize(float lifeTime)
         {
@@ -38,4 +28,18 @@ public class AutoReturnToPool : MonoBehaviour
                 _isInitialized = true;
         }
 
+        public void OnPoolGet()
+        {
+                
+        }
+
+        public void OnPoolReturn()
+        {
+
+        }
+
+        public void OnPoolRecycle()
+        {
+                _isInitialized = false;
+        }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using KBCore.Refs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -17,21 +16,22 @@ public class LevelManager : MonoBehaviour
 
     public static LevelManager Instance { get; private set; }
     
-    [Header("Path Settings")]
+        
+    [Header("Level Settings")]
     [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(25f,15f);
     [SerializeField, Min(0)] private Vector2 playerBoundary = new Vector2(10f,6f);
     [SerializeField] private float playerOffset = -30f;
     [SerializeField] private float enemyOffset = 30f;
     [SerializeField] private float startOffset;
     [SerializeField, Tooltip("The smoothness applied when stages have different move speeds")] private float pathFollowSmoothness = 0.1f;
-    
-    [Header("Score Settings")]
     [SerializeField, Min(0)] private int bonusThreshold = 500000;
-    
-    [Header("Level Stages")]
-    [SerializeField] private bool debugStageLevel;
-    [SerializeField, ReadOnly] private int currentStageIndex;
     [SerializeField] private SOLevelStage[] levelStages;
+    
+    [Header("Debug")]
+    [SerializeField] private bool debugLog;
+    [SerializeField, ReadOnly] private int enemiesLeft;
+    [SerializeField, ReadOnly] private int currentStageIndex;
+    [SerializeField, ReadOnly] private SOLevelStage currentStage;
     
     [Header("References")]
     [SerializeField, Child] private SplineContainer splineContainer;
@@ -49,7 +49,6 @@ public class LevelManager : MonoBehaviour
     public Vector3 PlayerPosition { get; private set; }
     public Vector3 EnemyPosition { get; private set; }
     public float SplineLength { get; private set; }
-    public SOLevelStage CurrentStage { get; private set; }
     public SplinePath <Spline> SplinePath  { get; private set; }
     public int Score { get; private set; }
     public Vector2 PlayerBoundary => playerBoundary;
@@ -123,8 +122,9 @@ public class LevelManager : MonoBehaviour
     {
         if (enemyWaveManager)
         {
+            enemyWaveManager.OnEnemyWaveSpawned += OnEnemyWaveSpawned;
             enemyWaveManager.OnEnemyWaveCleared += OnEnemyWaveCleared;
-            enemyWaveManager.OnEnemyDeath += AddScore;
+            enemyWaveManager.OnEnemyDeath += OnEnemyDeath;
         }
 
         if (player)
@@ -138,8 +138,9 @@ public class LevelManager : MonoBehaviour
     {
         if (enemyWaveManager)
         {
+            enemyWaveManager.OnEnemyWaveSpawned -= OnEnemyWaveSpawned;
             enemyWaveManager.OnEnemyWaveCleared -= OnEnemyWaveCleared;
-            enemyWaveManager.OnEnemyDeath -= AddScore;
+            enemyWaveManager.OnEnemyDeath -= OnEnemyDeath;
         }
         
         if (player)
@@ -148,7 +149,7 @@ public class LevelManager : MonoBehaviour
             player.OnDeath -= OnPlayerDeath;
         }
     }
-
+    
 
     private void Update()
     {
@@ -159,12 +160,22 @@ public class LevelManager : MonoBehaviour
     
     private void OnEnemyWaveCleared(int scoreWorth)
     {
-        if (!CurrentStage || CurrentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
+        if (!currentStage || currentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
         
         AddScore(scoreWorth);
         
-        SetNextStage(CurrentStage.DelayBeforeNextStage);
+        SetNextStage(currentStage.DelayBeforeNextStage);
+    }
+    
+    private void OnEnemyWaveSpawned()
+    {
+        enemiesLeft = enemyWaveManager.ActiveEnemyCount;
+    }
 
+    private void OnEnemyDeath(int score)
+    {
+        enemiesLeft = enemyWaveManager.ActiveEnemyCount;
+        AddScore(score);
     }
 
     private void OnPlayerDeath()
@@ -181,7 +192,7 @@ public class LevelManager : MonoBehaviour
     {
         if (levelStages == null || levelStages.Length == 0)
         {
-            if (debugStageLevel) Debug.LogError("No level stages defined!");
+            if (debugLog) Debug.LogError("No level stages defined!");
             return;
         }
         
@@ -218,7 +229,7 @@ public class LevelManager : MonoBehaviour
         }
         else
         {
-            if (debugStageLevel) Debug.Log("No more stages available");
+            if (debugLog) Debug.Log("No more stages available");
         }
     }
     
@@ -231,15 +242,15 @@ public class LevelManager : MonoBehaviour
 
         if (!newStage)
         {
-            if (debugStageLevel) Debug.LogError("No stage found at index: " + newStageIndex);
+            if (debugLog) Debug.LogError("No stage found at index: " + newStageIndex);
             SetNextStage();
             return;
         }
         
-        if (debugStageLevel) Debug.Log("Set stage to: " + newStage.name);
+        if (debugLog) Debug.Log("Set stage to: " + newStage.name);
         
         currentStageIndex = newStageIndex;
-        CurrentStage = newStage;
+        currentStage = newStage;
         UpdateReachedSavePoint(newStage);
         
         _settingStageFlag = false;
@@ -267,7 +278,7 @@ public class LevelManager : MonoBehaviour
     private IEnumerator ChangeStageAfterDelay(int newStateIndex, float delay)
     {
 
-        if (debugStageLevel) Debug.Log("Setting stage: " + levelStages[newStateIndex].name + ", In " + delay);
+        if (debugLog) Debug.Log("Setting stage: " + levelStages[newStateIndex].name + ", In " + delay);
 
         yield return new WaitForSeconds(delay);
 
@@ -341,12 +352,12 @@ public class LevelManager : MonoBehaviour
     
     private void MoveAlongSpline()
     {
-        if (!splineContainer || !currentPositionOnPath || !CurrentStage) return;
+        if (!splineContainer || !currentPositionOnPath || !currentStage) return;
 
         float currentT = GetSplineParameter(currentPositionOnPath.position);
         
         // Lerp the current speed towards the target speed
-        float targetSpeed = CurrentStage.PathFollowSpeed;
+        float targetSpeed = currentStage.PathFollowSpeed;
         _currentPathSpeed = Mathf.Lerp(_currentPathSpeed, targetSpeed, pathFollowSmoothness * Time.deltaTime);
 
         // Determine movement direction (forward or backward)
@@ -380,14 +391,14 @@ public class LevelManager : MonoBehaviour
     private void UpdatePlayerAndEnemyPositions(float currentT)
     {
         // Calculate player position
-        float playerStageOffset = CurrentStage ? CurrentStage.PlayerPositionOffset : 0f;
+        float playerStageOffset = currentStage ? currentStage.PlayerPositionOffset : 0f;
         float playerOffsetNormalized = (playerOffset + playerStageOffset) / SplineLength;
         float playerT = (currentT + playerOffsetNormalized) % 1.0f;
         if (playerT < 0) playerT += 1.0f;
         PlayerPosition = splineContainer.EvaluatePosition(playerT);
 
         // Calculate enemy position
-        float enemyStageOffset = CurrentStage ? CurrentStage.EnemyPositionOffset : 0f;
+        float enemyStageOffset = currentStage ? currentStage.EnemyPositionOffset : 0f;
         float enemyOffsetNormalized = (enemyOffset + enemyStageOffset) / SplineLength;
         float enemyT = (currentT + enemyOffsetNormalized) % 1.0f;
         if (enemyT < 0) enemyT += 1.0f;
@@ -484,11 +495,11 @@ public class LevelManager : MonoBehaviour
     
     public Quaternion GetAlignedRotation(Vector3 splineTangent, Vector3 splineUp)
     {
-        if (!CurrentStage) return Quaternion.identity;
+        if (!currentStage) return Quaternion.identity;
 
         Vector3 forward, up;
 
-        switch (CurrentStage.AlignmentMode)
+        switch (currentStage.AlignmentMode)
         {
             case SplineAnimate.AlignmentMode.None:
                 // No alignment - keep current rotation
@@ -496,22 +507,22 @@ public class LevelManager : MonoBehaviour
 
             case SplineAnimate.AlignmentMode.SplineElement:
                 // Use spline's tangent and up vectors with axis mapping
-                forward = GetAxisVector(splineTangent, CurrentStage.ForwardAxis);
-                up = GetAxisVector(splineUp, CurrentStage.UpAxis);
+                forward = GetAxisVector(splineTangent, currentStage.ForwardAxis);
+                up = GetAxisVector(splineUp, currentStage.UpAxis);
                 break;
 
             case SplineAnimate.AlignmentMode.SplineObject:
                 // Use spline container's transform axes
                 Vector3 splineForward = splineContainer.transform.forward;
                 Vector3 splineUpVector = splineContainer.transform.up;
-                forward = GetAxisVector(splineForward, CurrentStage.ForwardAxis);
-                up = GetAxisVector(splineUpVector, CurrentStage.UpAxis);
+                forward = GetAxisVector(splineForward, currentStage.ForwardAxis);
+                up = GetAxisVector(splineUpVector, currentStage.UpAxis);
                 break;
 
             case SplineAnimate.AlignmentMode.World:
                 // Use world space axes
-                forward = GetAxisVector(Vector3.forward, CurrentStage.ForwardAxis);
-                up = GetAxisVector(Vector3.up, CurrentStage.UpAxis);
+                forward = GetAxisVector(Vector3.forward, currentStage.ForwardAxis);
+                up = GetAxisVector(Vector3.up, currentStage.UpAxis);
                 break;
 
             default:
@@ -548,11 +559,11 @@ public class LevelManager : MonoBehaviour
     
     public Vector3 GetMovementDirection(float currentT)
     {
-        if (!CurrentStage) return Vector3.forward;
+        if (!currentStage) return Vector3.forward;
     
         Vector3 splineTangent = splineContainer.EvaluateTangent(currentT);
     
-        switch (CurrentStage.AlignmentMode)
+        switch (currentStage.AlignmentMode)
         {
             case SplineAnimate.AlignmentMode.None:
                 // Use current object's forward direction

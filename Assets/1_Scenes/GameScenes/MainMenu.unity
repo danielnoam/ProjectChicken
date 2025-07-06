@@ -891,7 +891,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 0.44313726, g: 0.38039216, b: 1, a: 1}
-  visualElementsTweenDuration: 0.5
+  visualElementsTweenDuration: 0.3
   labelText: Level Select
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 4
@@ -2153,7 +2153,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 0.2784314, g: 0.38039216, b: 1, a: 1}
-  visualElementsTweenDuration: 0.5
+  visualElementsTweenDuration: 0.3
   labelText: 'Launch '
   labelAlphaWhenDeselected: 0.25
   outlineWidthWhenSelected: 4
@@ -2178,10 +2178,10 @@ MonoBehaviour:
   emissionColorOff: {r: 0, g: 0, b: 0, a: 1}
   pulseSpeed: 2
   stateLerpSpeed: 5
-  leverPressedSfx: {fileID: 0}
   levelSelection: {fileID: 123263736}
   leverPivotTransform: {fileID: 1861637240}
   selectedLevelLight: {fileID: 1658971584}
+  leverPressedSfx: {fileID: 0}
 --- !u!114 &465575461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4497,7 +4497,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 1, g: 0.48235294, b: 0.48235294, a: 1}
-  visualElementsTweenDuration: 0.5
+  visualElementsTweenDuration: 0.3
   labelText: Eject
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 4
@@ -5483,7 +5483,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 1, g: 0.99215686, b: 0.43529412, a: 1}
-  visualElementsTweenDuration: 0.5
+  visualElementsTweenDuration: 0.3
   labelText: Shop
   labelAlphaWhenDeselected: 0.25
   outlineWidthWhenSelected: 4
@@ -6281,7 +6281,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 0.6627451, g: 1, b: 0.6, a: 1}
-  visualElementsTweenDuration: 0.5
+  visualElementsTweenDuration: 0.3
   labelText: Options
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 4

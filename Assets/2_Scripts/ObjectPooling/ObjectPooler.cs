@@ -85,7 +85,7 @@ public class ObjectPooler : MonoBehaviour
         }
     }
 
-    public static GameObject GetObjectFromPool(GameObject obj, Vector3 positon, Quaternion rotation)
+    public static GameObject GetObjectFromPool(GameObject obj, Vector3 positon = default, Quaternion rotation = default)
     {
         if (Instance)
         {
@@ -108,6 +108,7 @@ public class ObjectPooler : MonoBehaviour
         // Debug.LogError($"Can't get object, No object pooler in scene");
         return Instantiate(obj, positon, rotation);
     }
+    
     
     
     public static void ReturnObjectToPool(GameObject obj)

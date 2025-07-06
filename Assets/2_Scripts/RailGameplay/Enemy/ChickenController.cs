@@ -11,7 +11,7 @@ using VInspector;
 [RequireComponent(typeof(ChickenCombatBehavior))]
 [RequireComponent(typeof(ChickenIdleBehavior))]
 [RequireComponent(typeof(ChickenLookAtBehavior))]
-public class ChickenController : MonoBehaviour
+public class ChickenController : MonoBehaviour, IPooledObject
 {
     // State enum
     public enum ChickenState
@@ -62,7 +62,7 @@ public class ChickenController : MonoBehaviour
     public event Action OnExitCombat;
     public event Action OnConcussed;
     public event Action OnRecovered;
-    public event Action<int> OnDeath;
+    public event Action<ChickenController, int> OnDeath;
     public event Action<float> OnHealthChanged;
     
     // Public properties
@@ -200,10 +200,6 @@ public class ChickenController : MonoBehaviour
     
 
     #endregion State Management -----------------------------------------------------------------------------------------------------
-
-    
-    
-    
     
     
     #region Health Management -----------------------------------------------------------------------------------------------------
@@ -247,10 +243,10 @@ public class ChickenController : MonoBehaviour
 
         
         // Trigger death event
-        OnDeath?.Invoke(scoreValue);
+        OnDeath?.Invoke(this,scoreValue);
         
         // Destroy or pool the chicken
-        Destroy(gameObject);
+        ReturnToPool();
     }
     
     
@@ -266,9 +262,39 @@ public class ChickenController : MonoBehaviour
     
 
     #endregion  Health Management ----------------------------------------------------------------------------------------------------- 
+    
+    
+    
+    #region Pool Object -------------------------------------------------------------------------
 
+    public void ReturnToPool()
+    {
+        ObjectPooler.ReturnObjectToPool(gameObject);
+    }
+    
+    public void OnPoolGet()
+    {
+        _currentHealth = maxHealth;
+        OnHealthChanged?.Invoke(_currentHealth);
+        SetState(ChickenState.WaitingForFormation);
+    }
 
+    public void OnPoolReturn()
+    {
+        if (formationBehavior) formationBehavior.ReleaseSlot();
+    }
 
+    public void OnPoolRecycle()
+    {
+        if (formationBehavior) formationBehavior.ReleaseSlot();
+    }
+    
+    
+    
+    
+
+    #endregion Pool Object -------------------------------------------------------------------------
+    
 
     #region Public API methods for external systems -----------------------------------------------------------------------------------------------------
 
@@ -319,8 +345,7 @@ public class ChickenController : MonoBehaviour
 
 
     #endregion Public API methods for external systems -----------------------------------------------------------------------------------------------------
-
-
+    
 
     #region Debugging and Utility Methods -----------------------------------------------------------------------------------------------------
 

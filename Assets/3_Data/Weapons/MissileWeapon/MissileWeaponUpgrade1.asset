@@ -26,12 +26,12 @@ MonoBehaviour:
   targetCheckRadius: 4
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: 20978eb0d84dfd74fbd018ce1cb29fbf, type: 3}
   projectileLifetime: 4
-  convergenceMultiplier: 1
   projectileBehaviors:
+  - rid: 4758515477271806061
   - rid: 2319611325492494601
   - rid: 2319611325492494602
   - rid: 4758515269536055580
-  - rid: 4758515477271806061
+  - rid: 4047855503621750872
   hitscanBehaviors: []
   fireSound: {fileID: 11400000, guid: 65200ec152ef8d74fb474ec1f37a6549, type: 2}
   fireEffectPrefab: {fileID: 0}
@@ -54,8 +54,6 @@ MonoBehaviour:
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
       data:
         moveSpeed: 75
-        useAimAssist: 1
-        aimAssistStrength: 35
         useSpeedStagger: 0
         speedStaggerTime: 0.5
         staggerSpeedCurve:
@@ -91,6 +89,10 @@ MonoBehaviour:
         maxForce: 45
         stunChance: 25
         maxStunTime: 2
+    - rid: 4047855503621750872
+      type: {class: BehaviorDamageOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        damage: 35
     - rid: 4758515269536055580
       type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
       data:

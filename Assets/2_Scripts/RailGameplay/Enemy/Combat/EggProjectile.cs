@@ -4,7 +4,7 @@ using VInspector;
 // Handles the egg projectile behavior
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Collider))]
-public class EggProjectile : MonoBehaviour
+public class EggProjectile : MonoBehaviour, IPooledObject
 {
     [Header("Projectile Settings")]
     [SerializeField] private float lifetime = 5f; // Time before auto-destroy
@@ -92,15 +92,7 @@ public class EggProjectile : MonoBehaviour
         }
     }
     
-    private void ReturnProjectileToPool()
-    {
-        if (ProjectileManager.Instance != null)
-        {
-            ProjectileManager.Instance.UnregisterProjectile(gameObject);
-        }
-        isInitialized = false;
-        ObjectPooler.ReturnObjectToPool(gameObject);
-    }
+
     
     private void OnTriggerEnter(Collider other)
     {
@@ -146,4 +138,42 @@ public class EggProjectile : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position, moveDirection * 2f);
     }
+    
+    
+    
+    #region Pool Object -------------------------------------------------------------------------
+
+    private void ReturnProjectileToPool()
+    {
+        if (ProjectileManager.Instance != null)
+        {
+            ProjectileManager.Instance.UnregisterProjectile(gameObject);
+        }
+        isInitialized = false;
+        ObjectPooler.ReturnObjectToPool(gameObject);
+    }
+    
+    public void OnPoolGet()
+    {
+
+        
+    }
+
+    public void OnPoolReturn()
+    {
+
+    }
+
+    public void OnPoolRecycle()
+    {
+        isInitialized = false;
+    }
+    
+    
+    
+    
+
+    #endregion Pool Object -------------------------------------------------------------------------
+
+
 }

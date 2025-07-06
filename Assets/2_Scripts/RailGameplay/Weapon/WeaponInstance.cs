@@ -175,8 +175,7 @@ public class WeaponInstance
         {
             behavior.OnHit(weaponData, owner, enemy);
         }
-
-        enemy.TakeDamage(weaponData.Damage);
+        
         PlayImpactEffect(enemy.transform.position, Quaternion.identity);
     } 
     

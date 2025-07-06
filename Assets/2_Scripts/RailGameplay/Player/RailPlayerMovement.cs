@@ -43,6 +43,7 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Self, HideInInspector] private Rigidbody playerRigidbody;
 
 
+    private bool _allowMovement;
     private float _horizontalInput;
     private float _verticalInput;
     private Quaternion _velocityRotation = Quaternion.identity;
@@ -58,8 +59,6 @@ public class RailPlayerMovement : MonoBehaviour
 
     private float MovementBoundaryX => player.LevelManager ? player.LevelManager.PlayerBoundary.x : 10f;
     private float MovementBoundaryY => player.LevelManager ? player.LevelManager.PlayerBoundary.y : 6f;
-    private bool AllowMovement => player.IsAlive() && (!player.LevelManager || !player.LevelManager.CurrentStage ||
-                                                       player.LevelManager.CurrentStage.AllowPlayerMovement);
 
     public float MaxDodgeCooldown => dodgeCooldown;
     public bool IsDodging => _isDodging;
@@ -68,6 +67,11 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void OnValidate() { this.ValidateRefs(); }
 
+
+    private void Awake()
+    {
+        _allowMovement = true;
+    }
 
     private void Start()
     {
@@ -81,6 +85,11 @@ public class RailPlayerMovement : MonoBehaviour
         playerInput.OnDodgeRightEvent += OnDodgeRight;
         playerInput.OnDodgeFreeformEvent += OnDodgeFreeform;
         
+        if (player.LevelManager)
+        {
+            player.LevelManager.OnStageChanged += OnStageChanged;
+        }
+        
     }
     
     private void OnDisable()
@@ -89,6 +98,11 @@ public class RailPlayerMovement : MonoBehaviour
         playerInput.OnDodgeLeftEvent -= OnDodgeLeft;
         playerInput.OnDodgeRightEvent -= OnDodgeRight;
         playerInput.OnDodgeFreeformEvent -= OnDodgeFreeform;
+        
+        if (player.LevelManager)
+        {
+            player.LevelManager.OnStageChanged -= OnStageChanged;
+        }
     }
 
     private void Update()
@@ -102,6 +116,12 @@ public class RailPlayerMovement : MonoBehaviour
         HandleSplineFollowing();
     }
     
+    private void OnStageChanged(SOLevelStage stage)
+    {
+        if (!stage) return;
+        
+        _allowMovement = stage.AllowPlayerMovement;
+    }
     
 
     #region Movement --------------------------------------------------------------------------------------
@@ -275,7 +295,7 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void OnMove(InputAction.CallbackContext context)
     {
-        if (!AllowMovement)
+        if (!_allowMovement || !player.IsAlive())
         {
             _horizontalInput = 0f;
             _verticalInput = 0f;
@@ -297,7 +317,7 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void OnDodgeLeft(InputAction.CallbackContext context)
     {
-        if (!enableDodging || !AllowMovement) return;
+        if (!enableDodging || !_allowMovement || !player.IsAlive()) return;
         
         if (_dodgeCooldownTimer <= 0f && !_isDodging)
         {
@@ -312,7 +332,7 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void OnDodgeRight(InputAction.CallbackContext context)
     {
-        if (!enableDodging || !AllowMovement) return;
+        if (!enableDodging || !_allowMovement || !player.IsAlive()) return;
         
         if (_dodgeCooldownTimer <= 0f && !_isDodging)
         {
@@ -327,7 +347,7 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void OnDodgeFreeform(InputAction.CallbackContext context)
     {
-        if (!enableDodging || !AllowMovement) return;
+        if (!enableDodging || !_allowMovement || !player.IsAlive()) return;
         
 
         if (_horizontalInput < 0)
