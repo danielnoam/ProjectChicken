@@ -56,12 +56,14 @@ public class RailPlayerMovement : MonoBehaviour
     private float _currentDodgeRoll;
     private Vector3 _dodgeDirection;
     private Tween _dodgeTween;
-
+    private Vector2 _normalizedMovementPosition;
     private float MovementBoundaryX => player.LevelManager ? player.LevelManager.PlayerBoundary.x : 10f;
     private float MovementBoundaryY => player.LevelManager ? player.LevelManager.PlayerBoundary.y : 6f;
 
     public float MaxDodgeCooldown => dodgeCooldown;
     public bool IsDodging => _isDodging;
+    public Vector2 NormalizedMovementPosition => _normalizedMovementPosition;
+
     public event Action OnDodge;
     public event Action<float> OnDodgeCooldownUpdated;
 
@@ -135,53 +137,48 @@ public class RailPlayerMovement : MonoBehaviour
         Vector3 worldOffset = transform.position - playerSplinePosition;
         _currentOffsetFromSpline = Quaternion.Inverse(player.SplineRotation) * worldOffset;
         
-        // Handle input movement or dodging
+
         if (!_isDodging)
         {
-            // Get the input direction based on horizontal and vertical input
             Vector3 inputDirection = new Vector3(_horizontalInput, _verticalInput, 0);
-            
-            // Update target offset based on input
+
             if (inputDirection != Vector3.zero)
             {
-                // Add to the target offset based on input
                 _targetOffsetFromSpline += inputDirection * (maxMoveSpeed * Time.fixedDeltaTime);
-                
-                // Clamp the target offset to boundaries
                 _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
                 _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
-                _targetOffsetFromSpline.z = 0; // Keep Z offset at 0
+                _targetOffsetFromSpline.z = 0; 
             }
             
-            // Smoothly interpolate current offset towards target offset
+
             float lerpSpeed = inputDirection != Vector3.zero ? acceleration : deceleration;
             _currentOffsetFromSpline = Vector3.Lerp(_currentOffsetFromSpline, _targetOffsetFromSpline, lerpSpeed * Time.fixedDeltaTime);
         }
         else
         {
-            // During dodge, add dodge movement to the offset
+
             Vector3 dodgeMovement = _dodgeDirection * (dodgeMoveSpeed * Time.fixedDeltaTime);
             _targetOffsetFromSpline += dodgeMovement;
             _currentOffsetFromSpline += dodgeMovement;
             
-            // Clamp to boundaries after dodge
             _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
             _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
             _currentOffsetFromSpline.x = Mathf.Clamp(_currentOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
             _currentOffsetFromSpline.y = Mathf.Clamp(_currentOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
         }
         
-        // Calculate the desired world position (spline position and offset)
+
+        _normalizedMovementPosition = new Vector2(
+            MovementBoundaryX > 0 ? _currentOffsetFromSpline.x / MovementBoundaryX : 0f,
+            MovementBoundaryY > 0 ? _currentOffsetFromSpline.y / MovementBoundaryY : 0f
+        );
+        
+
         Vector3 desiredWorldPosition = playerSplinePosition + (player.SplineRotation * _currentOffsetFromSpline);
-        
-        // Calculate velocity to reach the desired position
         Vector3 positionDifference = desiredWorldPosition - transform.position;
-        
-        // Use a higher follow speed when we're far from the desired position
         float distanceToDesired = positionDifference.magnitude;
         float effectiveFollowSpeed = pathFollowSpeed * (1f + distanceToDesired);
         
-        // Set the rigidbody velocity
         playerRigidbody.linearVelocity = positionDifference.normalized * Mathf.Min(effectiveFollowSpeed, distanceToDesired / Time.fixedDeltaTime);
         playerRigidbody.rotation = player.SplineRotation;
     }

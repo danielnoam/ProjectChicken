@@ -20,8 +20,8 @@ public class RailPlayerInput : InputReaderBase
     private InputAction _dodgeFreeformAction;
     private float _lastMoveLeftTime;
     private float _lastMoveRightTime;
-    private readonly ControlSchemeSettings keyboardMouseScheme = new ControlSchemeSettings();
-    private readonly ControlSchemeSettings gamepadScheme = new ControlSchemeSettings();
+    private readonly ControlSchemeSettings _keyboardMouseScheme = new ControlSchemeSettings();
+    private readonly ControlSchemeSettings _gamepadScheme = new ControlSchemeSettings();
 
 
     public ControlSchemeSettings CurrentControlScheme { get; private set; }  = new ControlSchemeSettings();
@@ -63,7 +63,7 @@ public class RailPlayerInput : InputReaderBase
         
 
         UpdateControlSchemeSettings();
-        CurrentControlScheme.SetControlSchemeSettings(keyboardMouseScheme);
+        CurrentControlScheme.SetControlSchemeSettings(_keyboardMouseScheme);
     }
 
 
@@ -125,11 +125,11 @@ public class RailPlayerInput : InputReaderBase
         switch (currentScheme)
         {
             case "Keyboard&Mouse":
-                CurrentControlScheme = keyboardMouseScheme;
+                CurrentControlScheme = _keyboardMouseScheme;
                 IsCurrentDeviceGamepad = false;
                 break;
             case "Gamepad":
-                CurrentControlScheme = gamepadScheme;
+                CurrentControlScheme = _gamepadScheme;
                 IsCurrentDeviceGamepad = true;
                 break;
         }
@@ -137,9 +137,9 @@ public class RailPlayerInput : InputReaderBase
     
     private void UpdateControlSchemeSettings()
     {
-        keyboardMouseScheme.SetControlSchemeSettings(SaveManager.GetKeyboardControlScheme());
-        gamepadScheme.SetControlSchemeSettings(SaveManager.GetGamepadControlScheme());
-        CurrentControlScheme = IsCurrentDeviceGamepad ? gamepadScheme : keyboardMouseScheme;
+        _keyboardMouseScheme.SetControlSchemeSettings(SaveManager.GetKeyboardControlScheme());
+        _gamepadScheme.SetControlSchemeSettings(SaveManager.GetGamepadControlScheme());
+        CurrentControlScheme = IsCurrentDeviceGamepad ? _gamepadScheme : _keyboardMouseScheme;
     }
     
 
@@ -175,7 +175,6 @@ public class RailPlayerInput : InputReaderBase
     private void OnLook(InputAction.CallbackContext context)
     {
         Vector2 lookDelta = context.ReadValue<Vector2>();
-    
         
         Vector2 processedLookDelta = new Vector2(
             CurrentControlScheme.invertX ? -lookDelta.x : lookDelta.x,

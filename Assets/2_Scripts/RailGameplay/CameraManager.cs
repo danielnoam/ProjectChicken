@@ -236,8 +236,7 @@ public class CameraManager : MonoBehaviour
         Vector2 dynamicRotationOffset = CalculateDynamicRotationOffset(normalizedAimPosition);
     
         _currentRotationOffset = Vector2.Lerp(_currentRotationOffset, dynamicRotationOffset, rotationSmoothness * Time.deltaTime);
-    
-        // Convert to Vector3 and set it on the component
+        
         Vector3 eulerOffset = new Vector3(_currentRotationOffset.y, _currentRotationOffset.x, 0);
         followCameraRotateExtenstion.SetRotationOffset(eulerOffset);
     }
@@ -318,12 +317,19 @@ public class CameraManager : MonoBehaviour
 
         return player.PlayerAiming.NormalizedAimPosition;
     }
+
+    private Vector2 GetNormalizedMovementPosition()
+    {
+        if (!player) return Vector2.zero;
+
+        return player.PlayerMovement.NormalizedMovementPosition;
+    }
     
-    private Vector3 CalculateDynamicOffset(Vector2 normalizedAimPosition)
+    private Vector3 CalculateDynamicOffset(Vector2 normalizedPosition)
     {
         // Apply minimum range threshold - only calculate offset if input exceeds minimum
-        float xInput = ApplyMinRange(normalizedAimPosition.x, positionThreshold.x);
-        float yInput = ApplyMinRange(normalizedAimPosition.y, positionThreshold.y);
+        float xInput = ApplyMinRange(normalizedPosition.x, positionThreshold.x);
+        float yInput = ApplyMinRange(normalizedPosition.y, positionThreshold.y);
     
         // Convert processed input to offset
         float xOffset = xInput * positionOffsetRange.x;
@@ -351,11 +357,11 @@ public class CameraManager : MonoBehaviour
         return dynamicOffset;
     }
 
-    private Vector2 CalculateDynamicRotationOffset(Vector2 normalizedAimPosition)
+    private Vector2 CalculateDynamicRotationOffset(Vector2 normalizedPosition)
     {
         // Apply minimum range threshold - only calculate offset if input exceeds minimum
-        float xInput = ApplyMinRange(normalizedAimPosition.x, rotationThreshold.x);
-        float yInput = ApplyMinRange(normalizedAimPosition.y, rotationThreshold.y);
+        float xInput = ApplyMinRange(normalizedPosition.x, rotationThreshold.x);
+        float yInput = ApplyMinRange(normalizedPosition.y, rotationThreshold.y);
         
         // Convert processed input to rotation offset
         float xRotationOffset = xInput * rotationOffsetRange.x;
