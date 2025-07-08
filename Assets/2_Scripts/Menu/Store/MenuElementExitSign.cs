@@ -1,18 +1,19 @@
-
 using CustomAttribute;
 using PrimeTween;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VInspector;
 
-public class MenuElementShopSign : MenuElement
+public class MenuElementExitSign : MenuElement
 {
     
-    [Header("Shop Settings")]
+    [Header("Sign Settings")]
     [SerializeField] private float delayBeforeLoad = 1.5f;
     [SerializeField] private SceneField sceneToLoad;
     
+
+
     private Sequence loadSceneSequence;
-    
     
     protected override void OnSelected()
     {
@@ -35,8 +36,8 @@ public class MenuElementShopSign : MenuElement
         
         if (loadSceneSequence.isAlive) loadSceneSequence.Stop();
         loadSceneSequence = Sequence.Create()
-                .ChainDelay(delayBeforeLoad)
-                .OnComplete(FinishedInteraction);
+            .ChainDelay(delayBeforeLoad)
+            .OnComplete(FinishedInteraction);
     }
 
     protected override void OnFinishedInteraction()

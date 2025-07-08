@@ -14,10 +14,10 @@ public abstract class MenuElement : MonoBehaviour
     [Header("Element Settings")]
     [SerializeField] private bool canSelect = true;
     [SerializeField] private Color elementColor = Color.white;
-    [SerializeField, Min(0.1f)] private float visualElementsTweenDuration = 0.5f;
+    [SerializeField, Min(0.1f)] private float visualElementsTweenDuration = 0.3f;
     [SerializeField] private string labelText;
-    [SerializeField, Range(0, 1)] private float labelAlphaWhenDeselected = 0.25f;
-    [SerializeField, Range(0, 10)] private float outlineWidthWhenSelected = 2;
+    [SerializeField, Range(0, 1)] private float labelAlphaWhenDeselected = 0.15f;
+    [SerializeField, Range(0, 10)] private float outlineWidthWhenSelected = 4;
     [SerializeField] private Vector3 cameraLootAtOffset;
 
     

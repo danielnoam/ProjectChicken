@@ -71,16 +71,16 @@ public class ChickenIdleBehavior : MonoBehaviour
         }
     }
     
-    private void OnStateChanged(ChickenController.ChickenState oldState, ChickenController.ChickenState newState)
+    private void OnStateChanged(ChickenState oldState, ChickenState newState)
     {
         switch (newState)
         {
-            case ChickenController.ChickenState.MovingToSpawnPoint:
+            case ChickenState.MovingToSpawnPoint:
                 StartMovingToSpawnPoint();
                 break;
                 
-            case ChickenController.ChickenState.AtSpawnPoint:
-            case ChickenController.ChickenState.Idle:
+            case ChickenState.AtSpawnPoint:
+            case ChickenState.Idle:
                 StartIdleBehavior();
                 break;
         }
@@ -92,18 +92,18 @@ public class ChickenIdleBehavior : MonoBehaviour
         if (spawnPoint == null)
         {
             // No spawn point - just go idle
-            chickenController.SetState(ChickenController.ChickenState.Idle);
+            chickenController.SetState(ChickenState.Idle);
             return;
         }
         
-        chickenController.SetState(ChickenController.ChickenState.MovingToSpawnPoint);
+        chickenController.SetState(ChickenState.MovingToSpawnPoint);
     }
     
     private void StartMovingToSpawnPoint()
     {
         if (spawnPoint == null)
         {
-            chickenController.SetState(ChickenController.ChickenState.Idle);
+            chickenController.SetState(ChickenState.Idle);
             return;
         }
         
@@ -154,12 +154,12 @@ public class ChickenIdleBehavior : MonoBehaviour
     {
         switch (chickenController.CurrentState)
         {
-            case ChickenController.ChickenState.MovingToSpawnPoint:
+            case ChickenState.MovingToSpawnPoint:
                 MoveTowardsPosition(spawnPointTargetPosition, spawnPointSpeed, OnArrivedAtSpawnPoint);
                 break;
                 
-            case ChickenController.ChickenState.AtSpawnPoint:
-            case ChickenController.ChickenState.Idle:
+            case ChickenState.AtSpawnPoint:
+            case ChickenState.Idle:
                 HandleIdleMovement();
                 break;
         }
@@ -217,7 +217,7 @@ public class ChickenIdleBehavior : MonoBehaviour
     
     private void OnArrivedAtSpawnPoint()
     {
-        chickenController.SetState(ChickenController.ChickenState.AtSpawnPoint);
+        chickenController.SetState(ChickenState.AtSpawnPoint);
     }
     
     private float EaseOutCubic(float t)
@@ -244,8 +244,8 @@ public class ChickenIdleBehavior : MonoBehaviour
             Gizmos.DrawWireSphere(spawnPoint.position, spawnPointRadius);
             
             if (chickenController != null && 
-                (chickenController.CurrentState == ChickenController.ChickenState.MovingToSpawnPoint || 
-                 chickenController.CurrentState == ChickenController.ChickenState.AtSpawnPoint))
+                (chickenController.CurrentState == ChickenState.MovingToSpawnPoint || 
+                 chickenController.CurrentState == ChickenState.AtSpawnPoint))
             {
                 Gizmos.color = Color.cyan;
                 Gizmos.DrawLine(transform.position, currentTargetPosition);

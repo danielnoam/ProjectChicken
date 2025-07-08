@@ -115,13 +115,13 @@ public class ChickenAttackBehavior : MonoBehaviour
         }
     }
     
-    private void OnStateChanged(ChickenController.ChickenState oldState, ChickenController.ChickenState newState)
+    private void OnStateChanged(ChickenState oldState, ChickenState newState)
     {
         // Check if we can attack based on state
-        canAttack = enableAttacking && newState == ChickenController.ChickenState.InCombat;
+        canAttack = enableAttacking && newState == ChickenState.InCombat;
         
         // Reset attack timer when entering combat
-        if (newState == ChickenController.ChickenState.InCombat && oldState != ChickenController.ChickenState.InCombat)
+        if (newState == ChickenState.InCombat && oldState != ChickenState.InCombat)
         {
             // Set the next attack time - first attack uses the firstAttackDelay with variance
             float actualFirstDelay = firstAttackDelay + Random.Range(-firstAttackDelayVariance, firstAttackDelayVariance);

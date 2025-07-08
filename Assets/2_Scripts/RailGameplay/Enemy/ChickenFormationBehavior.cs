@@ -64,23 +64,16 @@ public class ChickenFormationBehavior : MonoBehaviour
     {
         // Subscribe to formation change event
         FormationManager.OnFormationChanged += HandleFormationChanged;
+        chickenController.OnStateChanged += OnStateChanged;
         
-        // Subscribe to state changes
-        if (chickenController != null)
-        {
-            chickenController.OnStateChanged += OnStateChanged;
-        }
     }
     
     private void OnDisable()
     {
         // Unsubscribe from events
         FormationManager.OnFormationChanged -= HandleFormationChanged;
+        chickenController.OnStateChanged -= OnStateChanged;
         
-        if (chickenController != null)
-        {
-            chickenController.OnStateChanged -= OnStateChanged;
-        }
         
         ReleaseSlot();
     }
@@ -94,19 +87,19 @@ public class ChickenFormationBehavior : MonoBehaviour
     }
     
     // Handle state changes
-    private void OnStateChanged(ChickenController.ChickenState oldState, ChickenController.ChickenState newState)
+    private void OnStateChanged(ChickenState oldState, ChickenState newState)
     {
         switch (newState)
         {
-            case ChickenController.ChickenState.MovingToSlot:
+            case ChickenState.MovingToSlot:
                 StartMovingToSlot();
                 break;
                 
-            case ChickenController.ChickenState.ReturningToSlot:
+            case ChickenState.ReturningToSlot:
                 StartReturningToSlot();
                 break;
                 
-            case ChickenController.ChickenState.WaitingForFormation:
+            case ChickenState.WaitingForFormation:
                 _waitTimer = 0f;
                 StartCoroutine(WaitForFormationAndAssign());
                 break;
@@ -116,14 +109,14 @@ public class ChickenFormationBehavior : MonoBehaviour
     // Wait for formation to be ready and try to assign
     private IEnumerator WaitForFormationAndAssign()
     {
-        while (chickenController.CurrentState == ChickenController.ChickenState.WaitingForFormation && 
+        while (chickenController.CurrentState == ChickenState.WaitingForFormation && 
                _waitTimer < maxWaitTime)
         {
             if (_formationManager.FormationSlots != null && _formationManager.FormationSlots.Count > 0)
             {
                 if (TryAssignToSlot())
                 {
-                    chickenController.SetState(ChickenController.ChickenState.MovingToSlot);
+                    chickenController.SetState(ChickenState.MovingToSlot);
                     yield break;
                 }
                 else
@@ -139,7 +132,7 @@ public class ChickenFormationBehavior : MonoBehaviour
         }
         
         // Timed out - move to spawn point
-        if (chickenController.CurrentState == ChickenController.ChickenState.WaitingForFormation)
+        if (chickenController.CurrentState == ChickenState.WaitingForFormation)
         {
             SendMessage("MoveToSpawnPoint", SendMessageOptions.DontRequireReceiver);
         }
@@ -191,15 +184,19 @@ public class ChickenFormationBehavior : MonoBehaviour
     {
         // Don't release if concussed
         if (chickenController.IsConcussed) return;
-        
+
         if (_assignedSlot != null && _formationManager != null)
         {
             _formationManager.ReleaseSlot(_assignedSlot);
-            _assignedSlot = null;
-            hasAssignedSlot = false;
-            assignedSlotInfo = "None";
-            OnSlotReleased?.Invoke();
         }
+        
+        _hasArrivedAtSlotOnce = false;
+        _assignedSlot = null;
+        hasAssignedSlot = false;
+        assignedSlotInfo = "None";
+        OnSlotReleased?.Invoke();
+        
+
     }
     
     // Handle formation changes
@@ -210,7 +207,7 @@ public class ChickenFormationBehavior : MonoBehaviour
         
         ReleaseSlot();
         _hasArrivedAtSlotOnce = false;
-        chickenController.SetState(ChickenController.ChickenState.WaitingForFormation);
+        chickenController.SetState(ChickenState.WaitingForFormation);
     }
     
     // Called when a slot becomes available
@@ -219,7 +216,7 @@ public class ChickenFormationBehavior : MonoBehaviour
         if (chickenController.IsIdle || chickenController.IsAtSpawnPoint)
         {
             StopAllCoroutines();
-            chickenController.SetState(ChickenController.ChickenState.WaitingForFormation);
+            chickenController.SetState(ChickenState.WaitingForFormation);
         }
     }
     
@@ -233,7 +230,7 @@ public class ChickenFormationBehavior : MonoBehaviour
             var availableSlots = _formationManager.GetAvailableSlots();
             if (availableSlots.Count > 0 && TryAssignToSlot())
             {
-                chickenController.SetState(ChickenController.ChickenState.MovingToSlot);
+                chickenController.SetState(ChickenState.MovingToSlot);
             }
         }
     }
@@ -242,15 +239,15 @@ public class ChickenFormationBehavior : MonoBehaviour
     {
         switch (chickenController.CurrentState)
         {
-            case ChickenController.ChickenState.MovingToSlot:
+            case ChickenState.MovingToSlot:
                 MoveTowardsSlot();
                 break;
                 
-            case ChickenController.ChickenState.InCombat:
+            case ChickenState.InCombat:
                 FollowSlotInCombat();
                 break;
                 
-            case ChickenController.ChickenState.ReturningToSlot:
+            case ChickenState.ReturningToSlot:
                 MoveTowardsSlotFast();
                 break;
         }
@@ -271,7 +268,7 @@ public class ChickenFormationBehavior : MonoBehaviour
             if (!_hasArrivedAtSlotOnce)
             {
                 _hasArrivedAtSlotOnce = true;
-                chickenController.SetState(ChickenController.ChickenState.InCombat);
+                chickenController.SetState(ChickenState.InCombat);
                 OnArrivedAtSlot?.Invoke();
             }
         }
@@ -288,7 +285,7 @@ public class ChickenFormationBehavior : MonoBehaviour
         if (Vector3.Distance(transform.position, targetPosition) < arrivalThreshold && !_hasArrivedAtSlotOnce)
         {
             _hasArrivedAtSlotOnce = true;
-            chickenController.SetState(ChickenController.ChickenState.InCombat);
+            chickenController.SetState(ChickenState.InCombat);
             OnArrivedAtSlot?.Invoke();
         }
     }
@@ -325,7 +322,7 @@ public class ChickenFormationBehavior : MonoBehaviour
         
         if (t >= 1f || Vector3.Distance(transform.position, targetPosition) < arrivalThreshold)
         {
-            chickenController.SetState(ChickenController.ChickenState.InCombat);
+            chickenController.SetState(ChickenState.InCombat);
         }
         
         float easedT = movementCurve != null && movementCurve.length > 0 ? 
@@ -341,12 +338,6 @@ public class ChickenFormationBehavior : MonoBehaviour
         return 1f - Mathf.Pow(1f - t, 3f);
     }
     
-    // Get distance to assigned slot
-    public float GetDistanceToSlot()
-    {
-        if (_assignedSlot == null || _formationManager == null) return float.MaxValue;
-        return Vector3.Distance(transform.position, _formationManager.GetSlotWorldPosition(_assignedSlot));
-    }
     
     private void OnDrawGizmos()
     {
@@ -357,13 +348,13 @@ public class ChickenFormationBehavior : MonoBehaviour
             // Color based on state
             switch (chickenController.CurrentState)
             {
-                case ChickenController.ChickenState.MovingToSlot:
+                case ChickenState.MovingToSlot:
                     Gizmos.color = Color.yellow;
                     break;
-                case ChickenController.ChickenState.InCombat:
+                case ChickenState.InCombat:
                     Gizmos.color = Color.green;
                     break;
-                case ChickenController.ChickenState.ReturningToSlot:
+                case ChickenState.ReturningToSlot:
                     Gizmos.color = Color.magenta;
                     break;
                 default:

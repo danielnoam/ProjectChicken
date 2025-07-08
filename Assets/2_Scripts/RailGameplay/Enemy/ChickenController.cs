@@ -3,7 +3,18 @@ using System;
 using KBCore.Refs;
 using VInspector;
 
-// Main controller that manages state and all chicken behaviors
+public enum ChickenState
+{
+    WaitingForFormation,
+    MovingToSpawnPoint,
+    AtSpawnPoint,
+    MovingToSlot,
+    InCombat,
+    Concussed,
+    ReturningToSlot,
+    Idle,
+    Dead
+}
 
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(Rigidbody))]
@@ -14,18 +25,7 @@ using VInspector;
 public class ChickenController : MonoBehaviour, IPooledObject
 {
     // State enum
-    public enum ChickenState
-    {
-        WaitingForFormation,
-        MovingToSpawnPoint,
-        AtSpawnPoint,
-        MovingToSlot,
-        InCombat,
-        Concussed,
-        ReturningToSlot,
-        Idle,
-        Dead
-    }
+
     
     [Header("Settings")]
     [SerializeField] private float maxHealth = 100f;
@@ -126,11 +126,7 @@ public class ChickenController : MonoBehaviour, IPooledObject
         hasSlot = formationBehavior && formationBehavior.HasAssignedSlot;
         isInCombat = currentState == ChickenState.InCombat;
     }
-
-
     
-
-
 
     #region State Management -----------------------------------------------------------------------------------------------------
 
