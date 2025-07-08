@@ -186,7 +186,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 if (_currentSpecialWeaponInstance != null) _activeWeaponInstance = _currentSpecialWeaponInstance;
                 else if (_baseWeaponInstance != null) _activeWeaponInstance = _baseWeaponInstance;
                 
-                _activeWeaponInstance?.OnWeaponSelected();
+                _activeWeaponInstance?.OnWeaponSelected(_allowShooting);
             }
         }
     }
@@ -250,7 +250,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 if (_currentSpecialWeaponInstance != null) _activeWeaponInstance = _currentSpecialWeaponInstance;
                 else if (_baseWeaponInstance != null) _activeWeaponInstance = _baseWeaponInstance;
             }
-            _activeWeaponInstance?.OnWeaponSelected();
+            _activeWeaponInstance?.OnWeaponSelected(_allowShooting);
 
         }
         else
@@ -353,7 +353,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             _activeWeaponInstance?.OnWeaponDeselected();
             _activeWeaponInstance = _baseWeaponInstance;
-            _activeWeaponInstance.OnWeaponSelected();
+            _activeWeaponInstance.OnWeaponSelected(_allowShooting);
         }
         UseWeapon(_activeWeaponInstance);
         _baseWeaponFireRateCooldown = _baseWeaponInstance.weaponData.FireRate;
@@ -428,7 +428,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             _activeWeaponInstance?.OnWeaponDeselected();
             _activeWeaponInstance = _currentSpecialWeaponInstance;
-            _activeWeaponInstance.OnWeaponSelected();
+            _activeWeaponInstance.OnWeaponSelected(_allowShooting);
         }
         UseWeapon(_activeWeaponInstance);
         _specialWeaponFireRateCooldown = _currentSpecialWeaponInstance.weaponData.FireRate;
@@ -759,7 +759,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (switchingWeaponsResetsHeat) ResetHeat();
         _activeWeaponInstance?.OnWeaponDeselected();
         _activeWeaponInstance = newWeapon;
-        _activeWeaponInstance.OnWeaponSelected();
+        _activeWeaponInstance.OnWeaponSelected(_allowShooting);
         weaponSwitchSfx?.Play(audioSource);
         OnSpecialWeaponCooldownUpdated?.Invoke(newWeapon,_specialWeaponFireRateCooldown);
         OnSpecialWeaponSwitched?.Invoke(_previousSpecialWeaponInstance, newWeapon);
@@ -797,7 +797,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (_baseWeaponInstance != null)
         {
             _activeWeaponInstance = _baseWeaponInstance;
-            _activeWeaponInstance.OnWeaponSelected();
+            _activeWeaponInstance.OnWeaponSelected(_allowShooting);
         }
     }
     

@@ -10,10 +10,10 @@ public class WeaponInstance
     public Transform[] weaponBarrels;
     
     
-    public void OnWeaponSelected()
+    public void OnWeaponSelected(bool allowShooting)
     {
         weaponGfx?.gameObject.SetActive(true);
-        weaponReticle?.Show();
+        UpdateReticleVisibility(allowShooting);
     }
     
     public void OnWeaponDeselected()
@@ -41,6 +41,20 @@ public class WeaponInstance
     public void OnAimUnlocked(float duration = 0.4f)
     {
         weaponReticle?.DisableAimLockSize(duration);
+    }
+    
+    
+    
+    public void UpdateReticleVisibility(bool allowShooting)
+    {
+        if (allowShooting)
+        {
+            weaponReticle?.Show();
+        }
+        else
+        {
+            weaponReticle?.Hide();
+        }
     }
     
     

@@ -8,33 +8,34 @@ using UnityEngine;
 using VInspector;
 using Random = UnityEngine.Random;
 
+
+
 [SelectionBase]
 public class CameraManager : MonoBehaviour
 {
     public static CameraManager Instance { get; private set; }
     
-    [Header("Follow Camera Settings")]
+    [Foldout("Follow Camera Settings")]
     [SerializeField] private float fovGainOnDodge = 10f;
-    [Foldout("Position Offset Settings")]
-    [SerializeField] private bool useDynamicPositionOffset = true;
-    [SerializeField] private Vector3 positionOffsetRange = new Vector3(10f, 5f, 1f);
-    [SerializeField] private Vector3 positionThreshold = new Vector3(0.2f, 0.2f, 0.2f);
-    [SerializeField] private float positionOffsetSmoothness = 2f;
-    [SerializeField] private bool invertPositionX;
-    [SerializeField] private bool invertPositionY;
-    [EndFoldout]
-    [Foldout("Rotation Offset Settings")]
-    [SerializeField] private bool useDynamicRotationOffset = true;
-    [SerializeField] private Vector2 rotationOffsetRange = new Vector2(15f, 10f);
-    [SerializeField] private Vector2 rotationThreshold = new Vector2(0.15f, 0.15f);
-    [SerializeField] private float rotationSmoothness = 2f;
-    [SerializeField] private bool invertRotationX;
-    [SerializeField] private bool invertRotationY = true;
+    [Space(5)]
+    [SerializeField] private bool reticleInfluencePosition = true;
+    [SerializeField, ShowIf("reticleInfluencePosition")] private CameraOffsetSettings reticlePositionOffset = new CameraOffsetSettings();[EndIf]
+    [Space(5)]
+    [SerializeField] private bool reticleInfluenceRotation = true;
+    [SerializeField, ShowIf("reticleInfluenceRotation")] private CameraOffsetSettings reticleRotationOffset = new CameraOffsetSettings();[EndIf]
+    [Space(5)]
+    [SerializeField] private bool playerInfluencePosition = true;
+    [SerializeField, ShowIf("playerInfluencePosition")] private CameraOffsetSettings playerPositionOffset = new CameraOffsetSettings();[EndIf]
+    [Space(5)]
+    [SerializeField] private bool playerInfluencesRotation;
+    [SerializeField, ShowIf("playerInfluencesRotation")] private CameraOffsetSettings playerRotationOffset = new CameraOffsetSettings();[EndIf]
     [EndFoldout]
     
-    [Header("Intro Camera Settings")]
+    
+    [Foldout("Intro Camera Settings")]
     [SerializeField] private bool changePositions = true;
     [SerializeField, Min(1f)] private float changePositionEvery = 1.5f;
+    [EndFoldout]
 
     [Header("References")]
     [SerializeField, Child(Flag.Editable)] private CinemachineCamera followCamera;
@@ -66,12 +67,11 @@ public class CameraManager : MonoBehaviour
             player = FindFirstObjectByType<RailPlayer>();
         }
         
-        // Clamp min ranges to valid values
-        positionThreshold.x = Mathf.Clamp(positionThreshold.x, 0f, 0.99f);
-        positionThreshold.y = Mathf.Clamp(positionThreshold.y, 0f, 0.99f);
-        positionThreshold.z = Mathf.Clamp(positionThreshold.z, 0f, 0.99f);
-        rotationThreshold.x = Mathf.Clamp(rotationThreshold.x, 0f, 0.99f);
-        rotationThreshold.y = Mathf.Clamp(rotationThreshold.y, 0f, 0.99f);
+        reticlePositionOffset.Validate();
+        reticleRotationOffset.Validate();
+        playerPositionOffset.Validate();
+        playerRotationOffset.Validate();
+
     }
 
     private void Awake()
@@ -205,20 +205,32 @@ public class CameraManager : MonoBehaviour
     
     private void UpdateDynamicCameraOffset()
     {
-        if (!useDynamicPositionOffset)
+        Vector3 combinedOffset = Vector3.zero;
+        
+        // Calculate aim offset
+        if (reticleInfluencePosition)
         {
-            _currentFollowOffset = Vector3.zero;
-            return;
+            Vector2 normalizedAimPosition = GetNormalizedAimPosition();
+            Vector3 aimOffset = CalculateDynamicPositionOffset(normalizedAimPosition, reticlePositionOffset);
+            combinedOffset += aimOffset;
         }
         
-        // Get the normalized aim position from the aiming component
-        Vector2 normalizedAimPosition = GetNormalizedAimPosition();
+        // Calculate movement offset
+        if (playerInfluencePosition)
+        {
+            Vector2 normalizedMovementPosition = GetNormalizedMovementPosition();
+            Vector3 movementOffset = CalculateDynamicPositionOffset(normalizedMovementPosition, playerPositionOffset);
+            combinedOffset += movementOffset;
+        }
         
-        // Calculate offset based on aim position
-        Vector3 dynamicOffset = CalculateDynamicOffset(normalizedAimPosition);
+        // Use the higher smoothness value for interpolation
+        float smoothness = Mathf.Max(
+            reticleInfluencePosition ? reticlePositionOffset.smoothness : 0f,
+            playerInfluencePosition ? playerPositionOffset.smoothness : 0f
+        );
         
         // Smooth the offset change
-        _currentFollowOffset = Vector3.Lerp(_currentFollowOffset, dynamicOffset, positionOffsetSmoothness * Time.deltaTime);
+        _currentFollowOffset = Vector3.Lerp(_currentFollowOffset, combinedOffset, smoothness * Time.deltaTime);
         
         // Apply the offset to the follow camera
         followCameraFollow.FollowOffset = _currentFollowOffset;
@@ -226,16 +238,37 @@ public class CameraManager : MonoBehaviour
 
     private void UpdateDynamicRotationOffset()
     {
-        if (!useDynamicRotationOffset || !followCameraRotate)
+        if (!followCameraRotate)
         {
             _currentRotationOffset = Vector2.zero;
             return;
         }
 
-        Vector2 normalizedAimPosition = GetNormalizedAimPosition();
-        Vector2 dynamicRotationOffset = CalculateDynamicRotationOffset(normalizedAimPosition);
+        Vector2 combinedRotationOffset = Vector2.zero;
+        
+        // Calculate aim rotation offset
+        if (reticleInfluenceRotation)
+        {
+            Vector2 normalizedAimPosition = GetNormalizedAimPosition();
+            Vector2 aimRotationOffset = CalculateDynamicRotationOffset(normalizedAimPosition, reticleRotationOffset);
+            combinedRotationOffset += aimRotationOffset;
+        }
+        
+        // Calculate movement rotation offset
+        if (playerInfluencesRotation)
+        {
+            Vector2 normalizedMovementPosition = GetNormalizedMovementPosition();
+            Vector2 movementRotationOffset = CalculateDynamicRotationOffset(normalizedMovementPosition, playerRotationOffset);
+            combinedRotationOffset += movementRotationOffset;
+        }
+        
+        // Use the higher smoothness value for interpolation
+        float smoothness = Mathf.Max(
+            reticleInfluenceRotation ? reticleRotationOffset.smoothness : 0f,
+            playerInfluencesRotation ? playerRotationOffset.smoothness : 0f
+        );
     
-        _currentRotationOffset = Vector2.Lerp(_currentRotationOffset, dynamicRotationOffset, rotationSmoothness * Time.deltaTime);
+        _currentRotationOffset = Vector2.Lerp(_currentRotationOffset, combinedRotationOffset, smoothness * Time.deltaTime);
         
         Vector3 eulerOffset = new Vector3(_currentRotationOffset.y, _currentRotationOffset.x, 0);
         followCameraRotateExtenstion.SetRotationOffset(eulerOffset);
@@ -325,19 +358,19 @@ public class CameraManager : MonoBehaviour
         return player.PlayerMovement.NormalizedMovementPosition;
     }
     
-    private Vector3 CalculateDynamicOffset(Vector2 normalizedPosition)
+    private Vector3 CalculateDynamicPositionOffset(Vector2 normalizedPosition, CameraOffsetSettings settings)
     {
         // Apply minimum range threshold - only calculate offset if input exceeds minimum
-        float xInput = ApplyMinRange(normalizedPosition.x, positionThreshold.x);
-        float yInput = ApplyMinRange(normalizedPosition.y, positionThreshold.y);
+        float xInput = ApplyMinRange(normalizedPosition.x, settings.threshold.x);
+        float yInput = ApplyMinRange(normalizedPosition.y, settings.threshold.y);
     
         // Convert processed input to offset
-        float xOffset = xInput * positionOffsetRange.x;
-        float yOffset = yInput * positionOffsetRange.y;
+        float xOffset = xInput * settings.range.x;
+        float yOffset = yInput * settings.range.y;
 
         // Apply inversions
-        if (invertPositionX) xOffset = -xOffset;
-        if (invertPositionY) yOffset = -yOffset;
+        if (settings.invertX) xOffset = -xOffset;
+        if (settings.invertY) yOffset = -yOffset;
 
         // Calculate Z offset based on the maximum of normalized X and Y inputs
         // This ensures Z reaches full when either X or Y reaches full
@@ -346,10 +379,10 @@ public class CameraManager : MonoBehaviour
         float normalizedMagnitude = Mathf.Max(normalizedX, normalizedY);
     
         // Apply threshold to the normalized magnitude using existing positionThreshold.z
-        float zInput = ApplyMinRange(normalizedMagnitude, positionThreshold.z);
+        float zInput = ApplyMinRange(normalizedMagnitude, settings.threshold.z);
     
         // Calculate final Z offset
-        float zOffset = zInput * positionOffsetRange.z;
+        float zOffset = zInput * settings.range.z;
 
         // Apply to dynamic offset
         Vector3 dynamicOffset = new Vector3(xOffset, yOffset, zOffset);
@@ -357,19 +390,19 @@ public class CameraManager : MonoBehaviour
         return dynamicOffset;
     }
 
-    private Vector2 CalculateDynamicRotationOffset(Vector2 normalizedPosition)
+    private Vector2 CalculateDynamicRotationOffset(Vector2 normalizedPosition, CameraOffsetSettings settings)
     {
         // Apply minimum range threshold - only calculate offset if input exceeds minimum
-        float xInput = ApplyMinRange(normalizedPosition.x, rotationThreshold.x);
-        float yInput = ApplyMinRange(normalizedPosition.y, rotationThreshold.y);
+        float xInput = ApplyMinRange(normalizedPosition.x, settings.threshold.x);
+        float yInput = ApplyMinRange(normalizedPosition.y, settings.threshold.y);
         
         // Convert processed input to rotation offset
-        float xRotationOffset = xInput * rotationOffsetRange.x;
-        float yRotationOffset = yInput * rotationOffsetRange.y;
+        float xRotationOffset = xInput * settings.range.x;
+        float yRotationOffset = yInput * settings.range.y;
         
         // Apply inversions
-        if (invertRotationX) xRotationOffset = -xRotationOffset;
-        if (invertRotationY) yRotationOffset = -yRotationOffset;
+        if (settings.invertX) xRotationOffset = -xRotationOffset;
+        if (settings.invertY) yRotationOffset = -yRotationOffset;
         
         // Add to default rotation offset
         Vector2 dynamicRotationOffset = new Vector2(xRotationOffset, yRotationOffset);
