@@ -15,8 +15,17 @@ public class LevelUIData
         soLevel = level;
         levelGfx = gfx;
         levelButton = button;
-        isCompleted = progress.isCompleted;
-        bestScore = progress.GetTopScore();
+
+        if (progress != null)
+        {
+            isCompleted = progress.isCompleted;
+            bestScore = progress.GetTopScore();
+        }
+        else
+        {
+            isCompleted = false;
+            bestScore = 0;
+        }
     }
     
     
@@ -28,12 +37,11 @@ public class LevelUIData
         // check if there are needed levels
         if (soLevel.IsLocked || soLevel.LevelsToComplete.Count == 0 || soLevel.LevelsToComplete == null) return;
         
-        
         // check if all needed levels are completed
         foreach (var neededLevel in soLevel.LevelsToComplete)
         {
             var neededLevelProgress = SaveManager.GetLevelProgress(neededLevel.GetScenePath());
-            if (neededLevelProgress.isCompleted) continue;
+            if (neededLevelProgress == null || neededLevelProgress.isCompleted) continue;
             levelButton.interactable = false;
             break;
         }

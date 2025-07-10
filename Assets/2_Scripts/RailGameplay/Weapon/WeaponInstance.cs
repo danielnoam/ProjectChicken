@@ -1,4 +1,5 @@
 ﻿using System;
+using DNExtensions;
 using UnityEngine;
 
 [Serializable]
@@ -10,10 +11,10 @@ public class WeaponInstance
     public Transform[] weaponBarrels;
     
     
-    public void OnWeaponSelected()
+    public void OnWeaponSelected(bool allowShooting)
     {
         weaponGfx?.gameObject.SetActive(true);
-        weaponReticle?.Show();
+        UpdateReticleVisibility(allowShooting);
     }
     
     public void OnWeaponDeselected()
@@ -41,6 +42,20 @@ public class WeaponInstance
     public void OnAimUnlocked(float duration = 0.4f)
     {
         weaponReticle?.DisableAimLockSize(duration);
+    }
+    
+    
+    
+    public void UpdateReticleVisibility(bool allowShooting)
+    {
+        if (allowShooting)
+        {
+            weaponReticle?.Show();
+        }
+        else
+        {
+            weaponReticle?.Hide();
+        }
     }
     
     
@@ -115,8 +130,8 @@ public class WeaponInstance
     
     private void InstantiateProjectile(RailPlayer owner,Vector3 spawnPosition, ChickenController target = null)
     {
-        GameObject projectileObj = UnityEngine.Object.Instantiate(weaponData.PlayerProjectilePrefab.gameObject, spawnPosition, Quaternion.identity);
-        if (projectileObj.TryGetComponent(out PlayerProjectile projectile))
+        GameObject projectileObj = ObjectPooler.GetObjectFromPool(weaponData.PlayerProjectilePrefab.gameObject, spawnPosition, Quaternion.identity);
+        if (projectileObj && projectileObj.TryGetComponent(out PlayerProjectile projectile))
         {
             projectile.SetUpProjectile(weaponData, owner, this, target);
         }
@@ -175,8 +190,7 @@ public class WeaponInstance
         {
             behavior.OnHit(weaponData, owner, enemy);
         }
-
-        enemy.TakeDamage(weaponData.Damage);
+        
         PlayImpactEffect(enemy.transform.position, Quaternion.identity);
     } 
     

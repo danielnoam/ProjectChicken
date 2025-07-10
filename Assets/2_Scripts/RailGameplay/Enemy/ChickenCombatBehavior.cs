@@ -72,30 +72,30 @@ public class ChickenCombatBehavior : MonoBehaviour
         formationBehavior.OnArrivedAtSlot -= OnArrivedAtFormation;
     }
     
-    private void OnStateChanged(ChickenController.ChickenState oldState, ChickenController.ChickenState newState)
+    private void OnStateChanged(ChickenState oldState, ChickenState newState)
     {
         // Update if we can be concussed
-        canBeConcussed = newState == ChickenController.ChickenState.InCombat;
+        canBeConcussed = newState == ChickenState.InCombat;
         
         // Handle hovering state
-        if (newState == ChickenController.ChickenState.InCombat && oldState != ChickenController.ChickenState.InCombat)
+        if (newState == ChickenState.InCombat && oldState != ChickenState.InCombat)
         {
             StartHovering();
         }
-        else if (oldState == ChickenController.ChickenState.InCombat && newState != ChickenController.ChickenState.InCombat)
+        else if (oldState == ChickenState.InCombat && newState != ChickenState.InCombat)
         {
             StopHovering();
         }
         
-        if (newState == ChickenController.ChickenState.Concussed)
+        if (newState == ChickenState.Concussed)
         {
             StopHovering();
             OnConcussionStart?.Invoke();
         }
-        else if (oldState == ChickenController.ChickenState.Concussed)
+        else if (oldState == ChickenState.Concussed)
         {
             OnConcussionEnd?.Invoke();
-            if (newState == ChickenController.ChickenState.InCombat)
+            if (newState == ChickenState.InCombat)
             {
                 StartHovering();
             }
@@ -151,14 +151,14 @@ public class ChickenCombatBehavior : MonoBehaviour
     {
         switch (chickenController.CurrentState)
         {
-            case ChickenController.ChickenState.InCombat:
+            case ChickenState.InCombat:
                 if (isHovering)
                 {
                     HandleHoverPhysics();
                 }
                 break;
                 
-            case ChickenController.ChickenState.Concussed:
+            case ChickenState.Concussed:
                 HandleConcussedPhysics();
                 break;
         }
@@ -206,13 +206,13 @@ public class ChickenCombatBehavior : MonoBehaviour
     // Enter concussion state
     private void EnterConcussState(float concussTime)
     {
-        if (!canBeConcussed || chickenController.CurrentState != ChickenController.ChickenState.InCombat)
+        if (!canBeConcussed || chickenController.CurrentState != ChickenState.InCombat)
         {
             Debug.LogWarning($"{gameObject.name}: Cannot enter concuss state - not in combat!");
             return;
         }
         
-        chickenController.SetState(ChickenController.ChickenState.Concussed);
+        chickenController.SetState(ChickenState.Concussed);
         _concussTimer = concussTime;
         _concussVelocity = rb.linearVelocity; // Preserve current velocity
     }
@@ -220,13 +220,13 @@ public class ChickenCombatBehavior : MonoBehaviour
     // Exit concussion and return to slot
     private void ExitConcussState()
     {
-        chickenController.SetState(ChickenController.ChickenState.ReturningToSlot);
+        chickenController.SetState(ChickenState.ReturningToSlot);
     }
     
     // Apply concussive force (called by weapons)
     public void ApplyConcussion(float concussDuration)
     {
-        if (!canBeConcussed || chickenController.CurrentState != ChickenController.ChickenState.InCombat)
+        if (!canBeConcussed || chickenController.CurrentState != ChickenState.InCombat)
         {
             // Debug.LogWarning($"{gameObject.name}: Cannot apply concussion - not in combat mode!");
             return;
@@ -238,12 +238,12 @@ public class ChickenCombatBehavior : MonoBehaviour
     
     public void ApplyForce(Vector3 direction, float force)
     {
-        if (chickenController.CurrentState == ChickenController.ChickenState.Concussed)
+        if (chickenController.CurrentState == ChickenState.Concussed)
         {
             // Apply force while concussed
             _concussVelocity += direction * force;
         }
-        else if (chickenController.CurrentState == ChickenController.ChickenState.InCombat)
+        else if (chickenController.CurrentState == ChickenState.InCombat)
         {
             // Apply force normally
             rb.AddForce(direction * force, ForceMode.Impulse);
@@ -252,12 +252,12 @@ public class ChickenCombatBehavior : MonoBehaviour
     
     public void ApplyTorque(Vector3 torque, float force)
     {
-        if (chickenController.CurrentState == ChickenController.ChickenState.Concussed)
+        if (chickenController.CurrentState == ChickenState.Concussed)
         {
             // Apply torque while concussed
             rb.AddTorque(torque * force, ForceMode.Impulse);
         }
-        else if (chickenController.CurrentState == ChickenController.ChickenState.InCombat)
+        else if (chickenController.CurrentState == ChickenState.InCombat)
         {
             // Apply torque normally
             rb.AddTorque(torque * force, ForceMode.VelocityChange);

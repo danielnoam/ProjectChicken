@@ -232,13 +232,6 @@ public class FormationManager : MonoBehaviour
         if (notifyChickens && Application.isPlaying)
         {
             OnFormationChanged?.Invoke();
-        
-            // Also find all chickens directly and notify them
-            var allChickens = FindObjectsByType<ChickenFollowFormation>(FindObjectsSortMode.None);
-            foreach (var chicken in allChickens)
-            {
-                chicken.OnFormationChangedNotification();
-            }
         }
         
     }

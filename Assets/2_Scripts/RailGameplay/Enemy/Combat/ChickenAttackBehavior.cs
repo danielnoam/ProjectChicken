@@ -1,3 +1,4 @@
+using DNExtensions;
 using KBCore.Refs;
 using PrimeTween;
 using UnityEngine;
@@ -32,10 +33,10 @@ public class ChickenAttackBehavior : MonoBehaviour
     [SerializeField] private ParticleSystem muzzleFlashVFX; // Optional muzzle flash
     
     [Header("Debug")]
-    [SerializeField, ReadOnly] private float nextAttackTime = 0f;
-    [SerializeField, ReadOnly] private float currentCooldown = 0f;
-    [SerializeField, ReadOnly] private bool canAttack = false;
-    [SerializeField, ReadOnly] private float distanceToPlayer = 0f;
+    [SerializeField, VInspector.ReadOnly] private float nextAttackTime = 0f;
+    [SerializeField, VInspector.ReadOnly] private float currentCooldown = 0f;
+    [SerializeField, VInspector.ReadOnly] private bool canAttack = false;
+    [SerializeField, VInspector.ReadOnly] private float distanceToPlayer = 0f;
     
     // References
     [SerializeField, Self] private ChickenController chickenController;
@@ -115,13 +116,13 @@ public class ChickenAttackBehavior : MonoBehaviour
         }
     }
     
-    private void OnStateChanged(ChickenController.ChickenState oldState, ChickenController.ChickenState newState)
+    private void OnStateChanged(ChickenState oldState, ChickenState newState)
     {
         // Check if we can attack based on state
-        canAttack = enableAttacking && newState == ChickenController.ChickenState.InCombat;
+        canAttack = enableAttacking && newState == ChickenState.InCombat;
         
         // Reset attack timer when entering combat
-        if (newState == ChickenController.ChickenState.InCombat && oldState != ChickenController.ChickenState.InCombat)
+        if (newState == ChickenState.InCombat && oldState != ChickenState.InCombat)
         {
             // Set the next attack time - first attack uses the firstAttackDelay with variance
             float actualFirstDelay = firstAttackDelay + Random.Range(-firstAttackDelayVariance, firstAttackDelayVariance);
@@ -230,13 +231,7 @@ public class ChickenAttackBehavior : MonoBehaviour
     private void SpawnProjectile(Vector3 targetPosition)
     {
         // Instantiate projectile
-        GameObject projectileObj = Instantiate(eggProjectilePrefab, firePoint.position, Quaternion.identity);
-        
-        // Register with ProjectileManager
-        if (ProjectileManager.Instance != null)
-        {
-            ProjectileManager.Instance.RegisterProjectile(projectileObj);
-        }
+        GameObject projectileObj = ObjectPooler.GetObjectFromPool(eggProjectilePrefab, firePoint.position, Quaternion.identity);
         
         // Calculate direction to target
         Vector3 direction = (targetPosition - firePoint.position).normalized;

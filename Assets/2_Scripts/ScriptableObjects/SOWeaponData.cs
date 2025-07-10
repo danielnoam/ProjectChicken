@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DNExtensions;
 using UnityEngine;
 using VInspector;
 
@@ -16,7 +17,6 @@ public class SOWeaponData : ScriptableObject
     [SerializeField, Min(0), ShowIf("weaponLimitation", WeaponLimitation.HeatBased)] private float heatPerShot = 1f;[EndIf]
     [SerializeField, Min(0), ShowIf("weaponLimitation", WeaponLimitation.TimeBased)] private float timeLimit = 10f;[EndIf]
     [SerializeField, Min(0), ShowIf("weaponLimitation", WeaponLimitation.AmmoBased)] private float ammoLimit = 3f;[EndIf]
-    [SerializeField, Min(0)] private float damage = 10f;
     [SerializeField, Min(0)] private float fireRate = 1f;
     [SerializeField, Min(0), Tooltip("0 = Infinite targets")] private int maxTargets = 1;
     [SerializeField, Min(0.1f)] private float targetCheckRadius = 3f;
@@ -60,7 +60,6 @@ public class SOWeaponData : ScriptableObject
     
     public WeaponLimitation WeaponLimitation => weaponLimitation;
     public WeaponType WeaponType => weaponType;
-    public float Damage => damage;
     public float FireRate => fireRate;
     public int MaxTargets => maxTargets;
     public float TargetCheckRadius => targetCheckRadius;

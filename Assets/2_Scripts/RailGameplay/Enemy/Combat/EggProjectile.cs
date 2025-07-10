@@ -1,10 +1,10 @@
+using DNExtensions;
 using UnityEngine;
-using VInspector;
 
 // Handles the egg projectile behavior
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Collider))]
-public class EggProjectile : MonoBehaviour
+public class EggProjectile : MonoBehaviour, IPooledObject
 {
     [Header("Projectile Settings")]
     [SerializeField] private float lifetime = 5f; // Time before auto-destroy
@@ -18,9 +18,9 @@ public class EggProjectile : MonoBehaviour
     [SerializeField] private SOAudioEvent impactSfx; // Impact sound
     
     [Header("Debug")]
-    [SerializeField, ReadOnly] private float currentSpeed;
-    [SerializeField, ReadOnly] private float currentDamage;
-    [SerializeField, ReadOnly] private float aliveTime;
+    [SerializeField, VInspector.ReadOnly] private float currentSpeed;
+    [SerializeField, VInspector.ReadOnly] private float currentDamage;
+    [SerializeField, VInspector.ReadOnly] private float aliveTime;
     
     // Components
     private Rigidbody rb;
@@ -29,39 +29,44 @@ public class EggProjectile : MonoBehaviour
     // State
     private Vector3 moveDirection;
     private bool isInitialized = false;
+    private float _currentLifeTime;
     
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
         
-        // Setup rigidbody
         rb.useGravity = false;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        
-        // Make sure it's a trigger
         col.isTrigger = true;
     }
     
     public void Initialize(Vector3 direction, float speed, float damage)
     {
+        if (ProjectileManager.Instance != null)
+        {
+            ProjectileManager.Instance.RegisterProjectile(gameObject);
+        }
+        
         moveDirection = direction.normalized;
         currentSpeed = speed;
         currentDamage = damage;
-        isInitialized = true;
-        
-        // Set velocity
+        _currentLifeTime = lifetime;
         rb.linearVelocity = moveDirection * currentSpeed;
         
-        // Start lifetime countdown
-        Destroy(gameObject, lifetime);
+        isInitialized = true;
+
     }
     
     private void Update()
     {
         if (!isInitialized) return;
         
-        aliveTime += Time.deltaTime;
+        _currentLifeTime -= Time.deltaTime;
+        if (_currentLifeTime <= 0f)
+        {
+            ReturnProjectileToPool();
+        }
         
         // Handle rotation
         if (rotateInFlight)
@@ -87,6 +92,8 @@ public class EggProjectile : MonoBehaviour
         }
     }
     
+
+    
     private void OnTriggerEnter(Collider other)
     {
         // Check if we hit something on the hit layers
@@ -102,8 +109,8 @@ public class EggProjectile : MonoBehaviour
         // Play impact effects
         PlayImpactEffects(other.ClosestPoint(transform.position));
         
-        // Destroy projectile
-        Destroy(gameObject);
+
+        ReturnProjectileToPool();
     }
     
     
@@ -131,4 +138,42 @@ public class EggProjectile : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position, moveDirection * 2f);
     }
+    
+    
+    
+    #region Pool Object -------------------------------------------------------------------------
+
+    private void ReturnProjectileToPool()
+    {
+        if (ProjectileManager.Instance != null)
+        {
+            ProjectileManager.Instance.UnregisterProjectile(gameObject);
+        }
+        isInitialized = false;
+        ObjectPooler.ReturnObjectToPool(gameObject);
+    }
+    
+    public void OnPoolGet()
+    {
+
+        
+    }
+
+    public void OnPoolReturn()
+    {
+
+    }
+
+    public void OnPoolRecycle()
+    {
+        isInitialized = false;
+    }
+    
+    
+    
+    
+
+    #endregion Pool Object -------------------------------------------------------------------------
+
+
 }

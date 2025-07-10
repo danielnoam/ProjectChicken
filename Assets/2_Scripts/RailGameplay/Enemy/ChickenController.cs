@@ -1,9 +1,22 @@
 using UnityEngine;
 using System;
+using DNExtensions;
 using KBCore.Refs;
+using UnityEngine.SceneManagement;
 using VInspector;
 
-// Main controller that manages state and all chicken behaviors
+public enum ChickenState
+{
+    WaitingForFormation,
+    MovingToSpawnPoint,
+    AtSpawnPoint,
+    MovingToSlot,
+    InCombat,
+    Concussed,
+    ReturningToSlot,
+    Idle,
+    Dead
+}
 
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(Rigidbody))]
@@ -11,22 +24,8 @@ using VInspector;
 [RequireComponent(typeof(ChickenCombatBehavior))]
 [RequireComponent(typeof(ChickenIdleBehavior))]
 [RequireComponent(typeof(ChickenLookAtBehavior))]
-public class ChickenController : MonoBehaviour
+public class ChickenController : MonoBehaviour, IPooledObject
 {
-    // State enum
-    public enum ChickenState
-    {
-        WaitingForFormation,
-        MovingToSpawnPoint,
-        AtSpawnPoint,
-        MovingToSlot,
-        InCombat,
-        Concussed,
-        ReturningToSlot,
-        Idle,
-        Dead
-    }
-    
     [Header("Settings")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private int scoreValue = 100;
@@ -41,9 +40,9 @@ public class ChickenController : MonoBehaviour
     
     
     [Header("Status")]
-    [SerializeField, ReadOnly] private ChickenState currentState = ChickenState.WaitingForFormation;
-    [SerializeField, ReadOnly] private bool hasSlot = false;
-    [SerializeField, ReadOnly] private bool isInCombat = false;
+    [SerializeField, VInspector.ReadOnly] private ChickenState currentState = ChickenState.WaitingForFormation;
+    [SerializeField, VInspector.ReadOnly] private bool hasSlot = false;
+    [SerializeField, VInspector.ReadOnly] private bool isInCombat = false;
     
     [Header("References")]
     [SerializeField, Self] private ChickenFormationBehavior formationBehavior;
@@ -62,7 +61,7 @@ public class ChickenController : MonoBehaviour
     public event Action OnExitCombat;
     public event Action OnConcussed;
     public event Action OnRecovered;
-    public event Action<int> OnDeath;
+    public event Action<ChickenController, int> OnDeath;
     public event Action<float> OnHealthChanged;
     
     // Public properties
@@ -126,11 +125,7 @@ public class ChickenController : MonoBehaviour
         hasSlot = formationBehavior && formationBehavior.HasAssignedSlot;
         isInCombat = currentState == ChickenState.InCombat;
     }
-
-
     
-
-
 
     #region State Management -----------------------------------------------------------------------------------------------------
 
@@ -200,10 +195,6 @@ public class ChickenController : MonoBehaviour
     
 
     #endregion State Management -----------------------------------------------------------------------------------------------------
-
-    
-    
-    
     
     
     #region Health Management -----------------------------------------------------------------------------------------------------
@@ -236,21 +227,17 @@ public class ChickenController : MonoBehaviour
         if (formationBehavior) formationBehavior.ReleaseSlot();
         
         // Drop a loot resource if available
-        if (lootTable)
-        {
-            Resource loot = lootTable.GetRandomResource();
-            lootTable.SpawnResource(loot, transform.position);
-        }
+        lootTable?.SpawnRandomResource(transform.position);
         
         // Play death sound effect
         deathSfx?.PlayAtPoint(transform.position);
 
         
         // Trigger death event
-        OnDeath?.Invoke(scoreValue);
+        OnDeath?.Invoke(this,scoreValue);
         
         // Destroy or pool the chicken
-        Destroy(gameObject);
+        ReturnToPool();
     }
     
     
@@ -266,9 +253,39 @@ public class ChickenController : MonoBehaviour
     
 
     #endregion  Health Management ----------------------------------------------------------------------------------------------------- 
+    
+    
+    
+    #region Pool Object -------------------------------------------------------------------------
 
+    public void ReturnToPool()
+    {
+        ObjectPooler.ReturnObjectToPool(gameObject);
+    }
+    
+    public void OnPoolGet()
+    {
+        _currentHealth = maxHealth;
+        OnHealthChanged?.Invoke(_currentHealth);
+        SetState(ChickenState.WaitingForFormation);
+    }
 
+    public void OnPoolReturn()
+    {
+        if (formationBehavior) formationBehavior.ReleaseSlot();
+    }
 
+    public void OnPoolRecycle()
+    {
+        if (formationBehavior) formationBehavior.ReleaseSlot();
+    }
+    
+    
+    
+    
+
+    #endregion Pool Object -------------------------------------------------------------------------
+    
 
     #region Public API methods for external systems -----------------------------------------------------------------------------------------------------
 
@@ -319,8 +336,7 @@ public class ChickenController : MonoBehaviour
 
 
     #endregion Public API methods for external systems -----------------------------------------------------------------------------------------------------
-
-
+    
 
     #region Debugging and Utility Methods -----------------------------------------------------------------------------------------------------
 

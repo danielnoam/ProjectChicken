@@ -17,6 +17,7 @@ public class SaveManager : MonoBehaviour
     private static PlayerProgressData _playerProgressData;
     private static string _playerProgressDataPath;
     private static bool _initialized;
+    private static int _sceneChangeCount;
 
     
     public event Action OnSettingsDataChanged;
@@ -95,12 +96,15 @@ public class SaveManager : MonoBehaviour
         _settingsDataPath = Path.Combine(Application.persistentDataPath, "Settings.json");
         LoadSettingsDataFromFile();
         _initialized = true;
+        _sceneChangeCount = 0;
 
 
+        SceneManager.activeSceneChanged -= OnActiveSceneChanged;
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
         
         #if UNITY_EDITOR
         // Subscribe to play mode state changes to uninitialize when exiting play mode
+        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         #endif
     }
@@ -108,10 +112,14 @@ public class SaveManager : MonoBehaviour
     
     private static void OnActiveSceneChanged(Scene previousActiveScene, Scene newActiveScene)
     {
-
-        if (previousActiveScene.buildIndex == -1) return;
+        _sceneChangeCount++;
+        
+        if (_sceneChangeCount <= 1)
+        {
+            return;
+        }
+    
         SaveAllDataToFiles();
-        Debug.Log("bla");
     }
     
     
@@ -387,10 +395,13 @@ public class SaveManager : MonoBehaviour
     private static void ForceUninitialize()
     {
         _initialized = false;
+        _sceneChangeCount = 0;
         _playerProgressData = null;
         _playerProgressDataPath = null;
         _settingsData = null;
         _settingsDataPath = null;
+        
+        SceneManager.activeSceneChanged -= OnActiveSceneChanged;
     }
     
     private static void OnPlayModeStateChanged(PlayModeStateChange state)

@@ -25,9 +25,10 @@ MonoBehaviour:
   maxTargets: 3
   targetCheckRadius: 5
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: 14e001c3c26e24543956a33a00868bc9, type: 3}
-  projectileLifetime: 4
+  projectileLifetime: 2
   projectileBehaviors:
   - rid: 3357952825749667913
+  - rid: 4047855503621750870
   - rid: 3357952728375754824
   - rid: 3357952757002403913
   hitscanBehaviors: []
@@ -67,3 +68,7 @@ MonoBehaviour:
         recheckTarget: 0
         recheckCount: 3
         recheckRadius: 10
+    - rid: 4047855503621750870
+      type: {class: BehaviorDamageOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        damage: 5

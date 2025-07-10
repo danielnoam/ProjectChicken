@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DNExtensions;
 using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -31,12 +32,11 @@ public class RailPlayerAiming : MonoBehaviour
     private bool _isAimLocked;
     private bool _allowAiming;
     private float _noInputTimer;
+    private float _aimLockCooldownTimer;
     private Vector2 _processedLookInput;
     private Vector2 _normalizedAimPosition;
     private Vector3 _aimDirection;
-    private Vector2 _lastSmoothedInput;
     private ChickenController _currentAimLockTarget;
-    private float _aimLockCooldownTimer;
     private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundary.x : 25f;
     private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundary.y : 15f;
 
@@ -231,13 +231,13 @@ public class RailPlayerAiming : MonoBehaviour
         }
     }
     
-    private void BreakAimLock(bool playerBrockAimLock = false)
+    private void BreakAimLock(bool playerBrokeAimLock = false)
     {
         if (!_isAimLocked) return;
         
         _isAimLocked = false;
         _currentAimLockTarget = null;
-        _aimLockCooldownTimer = !playerBrockAimLock ? playerInput.CurrentControlScheme.aimLockCooldown : playerInput.CurrentControlScheme.aimLockCooldown*2;
+        _aimLockCooldownTimer = !playerBrokeAimLock ? playerInput.CurrentControlScheme.aimLockCooldown : playerInput.CurrentControlScheme.aimLockCooldown*2;
         OnAimLockStateChange?.Invoke(false, null);
     }
     
@@ -274,66 +274,68 @@ public class RailPlayerAiming : MonoBehaviour
         
         if (_isAimLocked && _processedLookInput.magnitude > playerInput.CurrentControlScheme.aimLockStrength)
         {
-            BreakAimLock(playerBrockAimLock: true);
+            BreakAimLock(playerBrokeAimLock: true);
         }
 
         Vector2 inputDelta = _processedLookInput;
-        
+        Vector2 positionChange;
         
         if (playerInput.IsCurrentDeviceGamepad)
         {
-            float smoothingStrength = 0.15f;
-            inputDelta = Vector2.Lerp(_lastSmoothedInput, inputDelta, 1f - smoothingStrength);
-            _lastSmoothedInput = inputDelta;
-        }
-        
-        if (useScreenSpaceInput)
-        {
-
-            inputDelta = new Vector2(
-                inputDelta.x * screenSensitivity.x / Screen.width,
-                inputDelta.y * screenSensitivity.y / Screen.height
-            );
-        }
-        
-        float rawInputMagnitude = Mathf.Clamp01(inputDelta.magnitude);
-        float deadZone = playerInput.CurrentControlScheme.deadZone;
-        if (inputDelta.magnitude < deadZone)
-        {
-            inputDelta = Vector2.zero;
+            float deadZone = playerInput.CurrentControlScheme.deadZone;
+            
+            if (inputDelta.magnitude < deadZone)
+            {
+                inputDelta = Vector2.zero;
+            }
+            
+            Vector2 velocity = inputDelta * (baseSensitivity * playerInput.CurrentControlScheme.aimSensitivity * 2.5f);
+            positionChange = velocity * Time.deltaTime; 
         }
         else
         {
-            float scaledMagnitude = (inputDelta.magnitude - deadZone) / (1f - deadZone);
-            inputDelta = inputDelta.normalized * scaledMagnitude;
-        }
-        
-        if (inputDelta.magnitude > 0)
-        {
-            float originalMagnitude = inputDelta.magnitude;
-            float curvedSensitivity = playerInput.CurrentControlScheme.magnitudeToSensitivityCurve.Evaluate(rawInputMagnitude);
-            inputDelta = inputDelta.normalized * (originalMagnitude * curvedSensitivity * baseSensitivity * playerInput.CurrentControlScheme.aimSensitivity);
-        }
-        
+            float deadZone = playerInput.CurrentControlScheme.deadZone;
+            
+            if (inputDelta.magnitude < deadZone)
+            {
+                inputDelta = Vector2.zero;
+            }
+            else
+            {
+                float scaledMagnitude = (inputDelta.magnitude - deadZone) / (1f - deadZone);
+                inputDelta = inputDelta.normalized * scaledMagnitude;
+            }
+            
+            if (inputDelta.magnitude > 0)
+            {
+                float originalMagnitude = inputDelta.magnitude;
+                float curvedSensitivity = playerInput.CurrentControlScheme.magnitudeToSensitivityCurve.Evaluate(Mathf.Clamp01(inputDelta.magnitude));
+                inputDelta = inputDelta.normalized * (originalMagnitude * curvedSensitivity * baseSensitivity * playerInput.CurrentControlScheme.aimSensitivity);
+            }
+            
 
+            Vector2 mouseVelocity = inputDelta * 0.1f;
+            positionChange = mouseVelocity * Time.deltaTime;
+        }
+        
         Vector2 edgeDistance = new Vector2(
             1f - Mathf.Abs(_normalizedAimPosition.x),
             1f - Mathf.Abs(_normalizedAimPosition.y)
         );
-
         Vector2 edgeMultiplier = new Vector2(
             Mathf.Lerp(edgeSlowdown, 1f, edgeDistance.x),
             Mathf.Lerp(edgeSlowdown, 1f, edgeDistance.y)
         );
-
+        positionChange.x *= edgeMultiplier.x;
+        positionChange.y *= edgeMultiplier.y;
         
-        inputDelta.x *= edgeMultiplier.x;
-        inputDelta.y *= edgeMultiplier.y;
-        _normalizedAimPosition += inputDelta * Time.deltaTime;
+        _normalizedAimPosition += positionChange;
         _normalizedAimPosition.x = Mathf.Clamp(_normalizedAimPosition.x, -1f, 1f);
         _normalizedAimPosition.y = Mathf.Clamp(_normalizedAimPosition.y, -1f, 1f);
         _processedLookInput = inputDelta;
     }
+
+
 
     #endregion Input Processing --------------------------------------------------------------------------------------------------------
 

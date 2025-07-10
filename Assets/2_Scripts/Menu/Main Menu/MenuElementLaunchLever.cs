@@ -1,4 +1,5 @@
 using System;
+using DNExtensions;
 using KBCore.Refs;
 using PrimeTween;
 using UnityEngine;
@@ -14,17 +15,17 @@ public class MenuElementLaunchLever : MenuElement
     [SerializeField] private Ease animationEase = Ease.Default;
     [SerializeField] private CameraShakeSettings  cameraShakeSettings;
     
-    [Header("Emission Settings")]
+    [Header("Pulse Effect")]
     [SerializeField, ColorUsage(false, true)] private Color emissionColorOn = Color.white;
     [SerializeField] private Color emissionColorOff = Color.black;
     [SerializeField] private float pulseSpeed = 2f;
     [SerializeField] private float stateLerpSpeed = 5f;
-    [SerializeField] private SOAudioEvent leverPressedSfx;
     
     [Foldout("References")]
     [SerializeField] private MenuElementLevelSelection levelSelection;
     [SerializeField] private Transform leverPivotTransform;
     [SerializeField] private Renderer selectedLevelLight;
+    [SerializeField] private SOAudioEvent leverPressedSfx;
     [EndFoldout]
 
     
