@@ -146,7 +146,7 @@ public class RailPlayer : MonoBehaviour
 
         if (stage.StageType == StageType.Outro)
         {
-            SaveManager.UpdatePlayerProgress(_currentCurrency);
+            SaveManager.UpdatePlayerCurrency(_currentCurrency);
         }
     }
 
