@@ -1,4 +1,5 @@
 using System;
+using DNExtensions;
 using KBCore.Refs;
 using UnityEngine;
 using VInspector;
@@ -41,7 +42,7 @@ public class Resource : MonoBehaviour
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.HealthPack)] private int healthWorth = 1;[EndIf]
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.ShieldPack)] private int shieldWorth = 50;[EndIf]
-    [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private WeaponChance[] weaponChances = Array.Empty<WeaponChance>();[EndIf]
+    [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private WeaponChance[] weaponChances = Array.Empty<WeaponChance>(); [EndIf] 
     
     [Header("Effects")]
     [SerializeField] private SOAudioEvent spawnSfx;

@@ -1,5 +1,5 @@
+using DNExtensions;
 using UnityEngine;
-using VInspector;
 
 // Handles the egg projectile behavior
 [RequireComponent(typeof(Rigidbody))]
@@ -18,9 +18,9 @@ public class EggProjectile : MonoBehaviour, IPooledObject
     [SerializeField] private SOAudioEvent impactSfx; // Impact sound
     
     [Header("Debug")]
-    [SerializeField, ReadOnly] private float currentSpeed;
-    [SerializeField, ReadOnly] private float currentDamage;
-    [SerializeField, ReadOnly] private float aliveTime;
+    [SerializeField, VInspector.ReadOnly] private float currentSpeed;
+    [SerializeField, VInspector.ReadOnly] private float currentDamage;
+    [SerializeField, VInspector.ReadOnly] private float aliveTime;
     
     // Components
     private Rigidbody rb;

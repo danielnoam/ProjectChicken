@@ -327,8 +327,6 @@ public class SaveManager : MonoBehaviour
     {
         EnsureInitialized();
         _playerProgressData.currency = currency;
-
-        Debug.Log("currency");
     }
 
     public static void  UpdateKeyboardControlScheme(ControlSchemeSettings newSettings)

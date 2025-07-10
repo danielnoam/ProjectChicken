@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 #endif
 
-namespace CustomAttribute
+namespace DNExtensions
 {
     [System.Serializable]
     public class SceneField
@@ -88,10 +88,13 @@ namespace CustomAttribute
                     if (sceneAsset.objectReferenceValue != null)
                     {
                         SceneAsset scene = sceneAsset.objectReferenceValue as SceneAsset;
-                        sceneName.stringValue = scene.name;
-                        scenePath.stringValue = AssetDatabase.GetAssetPath(scene);
-                        
-                        
+                        if (scene)
+                        {
+                            sceneName.stringValue = scene.name;
+                            scenePath.stringValue = AssetDatabase.GetAssetPath(scene);
+                        }
+
+
                         // Validate if scene is in build settings
                         bool sceneInBuild = false;
                         EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;

@@ -1,3 +1,4 @@
+using DNExtensions;
 using KBCore.Refs;
 using PrimeTween;
 using UnityEngine;
@@ -32,10 +33,10 @@ public class ChickenAttackBehavior : MonoBehaviour
     [SerializeField] private ParticleSystem muzzleFlashVFX; // Optional muzzle flash
     
     [Header("Debug")]
-    [SerializeField, ReadOnly] private float nextAttackTime = 0f;
-    [SerializeField, ReadOnly] private float currentCooldown = 0f;
-    [SerializeField, ReadOnly] private bool canAttack = false;
-    [SerializeField, ReadOnly] private float distanceToPlayer = 0f;
+    [SerializeField, VInspector.ReadOnly] private float nextAttackTime = 0f;
+    [SerializeField, VInspector.ReadOnly] private float currentCooldown = 0f;
+    [SerializeField, VInspector.ReadOnly] private bool canAttack = false;
+    [SerializeField, VInspector.ReadOnly] private float distanceToPlayer = 0f;
     
     // References
     [SerializeField, Self] private ChickenController chickenController;

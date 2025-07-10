@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
+using DNExtensions;
 using KBCore.Refs;
+using UnityEngine.SceneManagement;
 using VInspector;
 
 public enum ChickenState
@@ -24,9 +26,6 @@ public enum ChickenState
 [RequireComponent(typeof(ChickenLookAtBehavior))]
 public class ChickenController : MonoBehaviour, IPooledObject
 {
-    // State enum
-
-    
     [Header("Settings")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private int scoreValue = 100;
@@ -41,9 +40,9 @@ public class ChickenController : MonoBehaviour, IPooledObject
     
     
     [Header("Status")]
-    [SerializeField, ReadOnly] private ChickenState currentState = ChickenState.WaitingForFormation;
-    [SerializeField, ReadOnly] private bool hasSlot = false;
-    [SerializeField, ReadOnly] private bool isInCombat = false;
+    [SerializeField, VInspector.ReadOnly] private ChickenState currentState = ChickenState.WaitingForFormation;
+    [SerializeField, VInspector.ReadOnly] private bool hasSlot = false;
+    [SerializeField, VInspector.ReadOnly] private bool isInCombat = false;
     
     [Header("References")]
     [SerializeField, Self] private ChickenFormationBehavior formationBehavior;
@@ -228,11 +227,7 @@ public class ChickenController : MonoBehaviour, IPooledObject
         if (formationBehavior) formationBehavior.ReleaseSlot();
         
         // Drop a loot resource if available
-        if (lootTable)
-        {
-            Resource loot = lootTable.GetRandomResource();
-            lootTable.SpawnResource(loot, transform.position);
-        }
+        lootTable?.SpawnRandomResource(transform.position);
         
         // Play death sound effect
         deathSfx?.PlayAtPoint(transform.position);

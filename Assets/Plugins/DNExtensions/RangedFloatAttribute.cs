@@ -43,42 +43,42 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace CustomAttribute
+namespace DNExtensions
 {
     #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(RangedFloat), true)]
     public class RangedFloatDrawer : PropertyDrawer
     {
         // Cached style for better performance
-        private static GUIStyle labelStyle;
+        private static GUIStyle _labelStyle;
         private static GUIStyle GetLabelStyle()
         {
-            if (labelStyle == null)
+            if (_labelStyle == null)
             {
-                labelStyle = new GUIStyle(EditorStyles.miniLabel)
+                _labelStyle = new GUIStyle(EditorStyles.miniLabel)
                 {
                     alignment = TextAnchor.UpperCenter
                 };
             }
-            return labelStyle;
+            return _labelStyle;
         }
         
         // Customizable UI constants
-        private const float FIELD_PADDING = 5f;     // Spacing between UI elements
-        private const float FIELD_WIDTH = 50f;      // Width of the min/max input fields
-        private const float FIELD_HEIGHT = 18f;    // Height of the min/max input fields
-        private const float DEFAULT_MIN_RANGE = -1f; // Default minimum range when no attribute is specified
-        private const float DEFAULT_MAX_RANGE = 1f;  // Default maximum range when no attribute is specified
-        private const float RANGE_PADDING_PERCENT = 0.2f; // Padding percentage for dynamic range calculation
+        private const float FieldPadding = 5f;     // Spacing between UI elements
+        private const float FieldWidth = 50f;      // Width of the min/max input fields
+        private const float FieldHeight = 18f;    // Height of the min/max input fields
+        private const float DefaultMinRange = -1f; // Default minimum range when no attribute is specified
+        private const float DefaultMaxRange = 1f;  // Default maximum range when no attribute is specified
+        private const float RangePaddingPercent = 0.2f; // Padding percentage for dynamic range calculation
         
         // Range label settings
-        private const bool SHOW_RANGE_VALUE = true;  // Toggle to show/hide the range value
-        private const float LABEL_Y_OFFSET = 15f;   // How far above the slider to show the label
-        private const int DECIMAL_PLACES = 1;        // Decimal places for range value
+        private const bool ShowRangeValue = true;  // Toggle to show/hide the range value
+        private const float LabelYOffset = 15f;   // How far above the slider to show the label
+        private const int DecimalPlaces = 1;        // Decimal places for range value
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return SHOW_RANGE_VALUE ? FIELD_HEIGHT + 15f : FIELD_HEIGHT;
+            return ShowRangeValue ? FieldHeight + 15f : FieldHeight;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -103,22 +103,22 @@ namespace CustomAttribute
             {
                 if (minProp.floatValue == 0 && maxProp.floatValue == 0)
                 {
-                    rangeMin = DEFAULT_MIN_RANGE;
-                    rangeMax = DEFAULT_MAX_RANGE;
+                    rangeMin = DefaultMinRange;
+                    rangeMax = DefaultMaxRange;
                 }
                 else
                 {
-                    float padding = (maxProp.floatValue - minProp.floatValue) * RANGE_PADDING_PERCENT;
+                    float padding = (maxProp.floatValue - minProp.floatValue) * RangePaddingPercent;
                     rangeMin = minProp.floatValue - padding;
                     rangeMax = maxProp.floatValue + padding;
                 }
             }
 
             // Calculate rects
-            Rect minFieldRect = new Rect(position.x, position.y, FIELD_WIDTH, FIELD_HEIGHT);
-            Rect sliderRect = new Rect(minFieldRect.xMax + FIELD_PADDING, position.y, 
-                position.width - (FIELD_WIDTH * 2) - (FIELD_PADDING * 2), FIELD_HEIGHT);
-            Rect maxFieldRect = new Rect(sliderRect.xMax + FIELD_PADDING, position.y, FIELD_WIDTH, FIELD_HEIGHT);
+            Rect minFieldRect = new Rect(position.x, position.y, FieldWidth, FieldHeight);
+            Rect sliderRect = new Rect(minFieldRect.xMax + FieldPadding, position.y, 
+                position.width - (FieldWidth * 2) - (FieldPadding * 2), FieldHeight);
+            Rect maxFieldRect = new Rect(sliderRect.xMax + FieldPadding, position.y, FieldWidth, FieldHeight);
 
             // Min field
             EditorGUI.BeginChangeCheck();
@@ -129,18 +129,18 @@ namespace CustomAttribute
             }
 
             // Draw range value above slider if enabled
-            if (SHOW_RANGE_VALUE)
+            if (ShowRangeValue)
             {
                 float rangeValue = maxProp.floatValue - minProp.floatValue;
     
                 Rect labelRect = new Rect(
                     sliderRect.x, 
-                    sliderRect.y + LABEL_Y_OFFSET, 
+                    sliderRect.y + LabelYOffset, 
                     sliderRect.width, 
                     20
                 );
     
-                EditorGUI.LabelField(labelRect, "Range " + rangeValue.ToString($"F{DECIMAL_PLACES}"), GetLabelStyle());
+                EditorGUI.LabelField(labelRect, "Range " + rangeValue.ToString($"F{DecimalPlaces}"), GetLabelStyle());
             }
 
             // Slider

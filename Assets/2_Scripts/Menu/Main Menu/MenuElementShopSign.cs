@@ -1,5 +1,5 @@
 
-using CustomAttribute;
+using DNExtensions;
 using PrimeTween;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,7 +11,7 @@ public class MenuElementShopSign : MenuElement
     [SerializeField] private float delayBeforeLoad = 1.5f;
     [SerializeField] private SceneField sceneToLoad;
     
-    private Sequence loadSceneSequence;
+    private Sequence _loadSceneSequence;
     
     
     protected override void OnSelected()
@@ -33,8 +33,8 @@ public class MenuElementShopSign : MenuElement
     {
         if (sceneToLoad == null) return;
         
-        if (loadSceneSequence.isAlive) loadSceneSequence.Stop();
-        loadSceneSequence = Sequence.Create()
+        if (_loadSceneSequence.isAlive) _loadSceneSequence.Stop();
+        _loadSceneSequence = Sequence.Create()
                 .ChainDelay(delayBeforeLoad)
                 .OnComplete(FinishedInteraction);
     }
@@ -46,7 +46,7 @@ public class MenuElementShopSign : MenuElement
     
     protected override void OnStopInteraction()
     {
-        if (loadSceneSequence.isAlive) loadSceneSequence.Stop();
+        if (_loadSceneSequence.isAlive) _loadSceneSequence.Stop();
     }
     
 }
