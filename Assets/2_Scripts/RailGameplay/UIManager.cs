@@ -101,7 +101,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private RailPlayer player;
 
     
-    private Dictionary<Image, bool> _healthIcons;
+    private Dictionary<Image, bool> _healthIcons = new Dictionary<Image, bool>();
     private Color _secondaryWeaponStartColor;
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
@@ -150,24 +150,8 @@ public class UIManager : MonoBehaviour
         
         SetUpUI();
     }
-
-    private void Start()
-    {
-        if (player)
-        {
-            OnSpecialWeaponSwitched(null, null);
-            OnWeaponHeatUpdated(0);
-            OnDodgeCooldownUpdated(0);
-        }
-        
-        if (levelManager)
-        {
-            OnScoreChanged(0);
-        }
-    }
-
-
-    private void OnEnable()
+    
+        private void OnEnable()
     {
         if (player)
         {
@@ -227,7 +211,6 @@ public class UIManager : MonoBehaviour
     }
     
 
-
     private void Update()
     {
         scoreText.text = _score.ToString($"D{scoreDigits}");
@@ -243,44 +226,44 @@ public class UIManager : MonoBehaviour
 
     private void SetUpUI()
     {
-        if (!player) return;
-        
-
-        if (!useTextForHealth)
-        {
-            foreach (Transform child in playerHealthHolder)
-            {
-                Destroy(child.gameObject);
-            }
-            
-            _healthIcons = new Dictionary<Image, bool>();
-            for (int health = 0; health < player.MaxHealth; health++)
-            {
-                var healthObject = Instantiate(healthIconPrefab, playerHealthHolder);
-                _healthIcons[healthObject] = false; 
-            }
-
-            playerHealthIcon = null;
-            playerHealthText = null;
-        }
-            
         _overheatBarHeight = playerHeatBar.rectTransform.sizeDelta.y;
         playerMiniGameWindow.color = miniGameInactiveColor;
         _weaponStartColor = playerWeaponIcon.color;
         _secondaryWeaponStartColor = playerSecondaryWeaponIcon.color;
         _dodgeStartColor = playerDodgeIcon.color;
         _heatBarTextStartColor = heatBarText.color;
+        playerHeatBar.fillAmount = 0f;
         waveTitleText.alpha = 0f;
         _previousScore = 0;
         _score = 0;
         _previousPlayerCurrency = 0;
         _playerCurrency = 0;
         _playerShield = 0f;
-
+        SetupHeartIcons();
+        
         ToggleHUD(false);
         ToggleKeybinds(false);
     }
-    
+
+
+    private void SetupHeartIcons()
+    {
+        if (!player || useTextForHealth) return;
+        
+        foreach (Transform child in playerHealthHolder)
+        {
+            Destroy(child.gameObject);
+        }
+        
+        for (int health = 0; health < player.MaxHealth; health++)
+        {
+            var healthObject = Instantiate(healthIconPrefab, playerHealthHolder);
+            _healthIcons[healthObject] = false; 
+        }
+
+        playerHealthIcon = null;
+        playerHealthText = null;
+    }
 
     #endregion SetUp -----------------------------------------------------------------------------------
 
@@ -376,9 +359,13 @@ public class UIManager : MonoBehaviour
     
     private void OnUpdateHealth(int currentHealth)
     {
-        
         if (!useTextForHealth)
         {
+            if (_healthIcons.Count == 0)
+            {
+                SetupHeartIcons();
+            }
+            
             int index = 0;
             foreach (var healthIcon in _healthIcons.Keys.ToList())
             {

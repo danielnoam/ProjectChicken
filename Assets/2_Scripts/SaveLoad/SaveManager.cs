@@ -426,8 +426,17 @@ public class SaveManager : MonoBehaviour
         EnsureInitialized();
         UpdatePlayerCurrency(GetCurrency() + amount);
     }
+
+    [Button]
+    private void OpenSaveFolder()
+    {
+        // find save folder
+        string saveFolder = Application.persistentDataPath;
+        System.Diagnostics.Process.Start(saveFolder);
+    }
     
     #endregion Debug  ----------------------------------------------------------------------------------------------------------------------
+    
     
 #if UNITY_EDITOR
     #region Editor --------------------------------------------------------------------------------------------------------------------------

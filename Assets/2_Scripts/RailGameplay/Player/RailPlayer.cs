@@ -17,7 +17,6 @@ using VInspector;
 [RequireComponent(typeof(RailPlayerWeaponSystem))]
 public class RailPlayer : MonoBehaviour
 {
-
     [Header("Health")]
     [SerializeField, Min(0)] private int baseHealth = 3;
     [SerializeField] private bool dodgingGivesInvincibility = true;
@@ -32,6 +31,7 @@ public class RailPlayer : MonoBehaviour
     
     [Header("Resource Collection")]
     [SerializeField ,Min(0)] private float magnetRadius = 14f;
+    [SerializeField] private SOResourceMagnetUpgrade[] resourceMagnetUpgrades = Array.Empty<SOResourceMagnetUpgrade>();
     
     [Header("Path Following")]
     [SerializeField] private bool alignToSplineDirection = true;
@@ -63,6 +63,7 @@ public class RailPlayer : MonoBehaviour
     private int _currentCurrency;
     private float _currentShieldHealth;
     private float _maxShieldHealth;
+    private float _currentMagnetRadius;
     private float _damagedCooldown;
     private Coroutine _regenShieldCoroutine;
     private Quaternion _splineRotation = Quaternion.identity;
@@ -106,9 +107,23 @@ public class RailPlayer : MonoBehaviour
         _collectionActions.Add(ResourceType.ShieldPack, (resource) => HealShield(resource.ShieldWorth));
         _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => playerWeapon.SetSpecialWeapon(resource.WeaponData));
         
-        SetupPlayer();
+        _maxHealth = baseHealth + TotalHealthUpgrades();
+        _maxShieldHealth = baseShieldHealth + TotalShieldUpgrades();
+        _currentMagnetRadius = magnetRadius + TotalResourceMagnetUpgrades();
+        
+        _currentCurrency = SaveManager.GetCurrency();
+        _currentHealth = _maxHealth;
+        _currentShieldHealth = _maxShieldHealth;
     }
-    
+
+
+    private void Start()
+    {
+        OnCurrencyChanged?.Invoke(_currentCurrency);
+        OnHealthChanged?.Invoke(_currentHealth);
+        OnShieldChanged?.Invoke(_currentShieldHealth);
+    }
+
 
     private void OnEnable()
     {
@@ -161,21 +176,6 @@ public class RailPlayer : MonoBehaviour
         _currentCurrency = savePoint.PlayerCurrency;
         _currentHealth = savePoint.PlayerHealth;
         _currentShieldHealth = savePoint.PlayerShield;
-        
-        
-        OnCurrencyChanged?.Invoke(_currentCurrency);
-        OnHealthChanged?.Invoke(_currentHealth);
-        OnShieldChanged?.Invoke(_currentShieldHealth);
-    }
-    
-    private void SetupPlayer()
-    {
-        _maxHealth = baseHealth + TotalHealthUpgrades();
-        _maxShieldHealth = baseShieldHealth + TotalShieldUpgrades();
-        _currentCurrency = SaveManager.GetCurrency();
-        
-        _currentHealth = _maxHealth;
-        _currentShieldHealth = _maxShieldHealth;
         
         
         OnCurrencyChanged?.Invoke(_currentCurrency);
@@ -462,9 +462,26 @@ public class RailPlayer : MonoBehaviour
         return shield;
     }
     
+    private float TotalResourceMagnetUpgrades()
+    {
+        var  magnet = 0f;
+        
+        foreach (var upgrade in resourceMagnetUpgrades)
+        {
+            if (SaveManager.HasStoreItem(upgrade.ItemID))
+            {
+                magnet += upgrade.MagnetUpgradeAmount;
+            }
+        }
+
+        return magnet;
+    }
+
+    
 
     #endregion Upgrades -----------------------------------------------------------------------------------------
 
+    
     #region Helper Methods --------------------------------------------------------------------------------------
 
     public bool HasShield()

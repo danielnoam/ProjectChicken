@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -31,22 +32,35 @@ namespace DNExtensions
             if (!Instance || Instance == this)
             {
                 Instance = this;
-                _isFirstScene = true;
                 DontDestroyOnLoad(gameObject);
-                SceneManager.activeSceneChanged += OnActiveSceneChanged;
-                SetUpPools();
             }
             else
             {
                 Destroy(gameObject);
-                return;
             }
+            
+
+            _isFirstScene = true;
+            SceneManager.activeSceneChanged += OnActiveSceneChanged;
+            SetUpPools();
+            #if UNITY_EDITOR
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+            #endif
+        }
+        
+        
+        private static void OnPlayModeStateChanged(PlayModeStateChange state)
+        {
+            if (state != PlayModeStateChange.ExitingPlayMode) return;
+            
+            Instance = null;
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            SceneManager.activeSceneChanged -= OnActiveSceneChanged;
         }
 
 
         private static void OnActiveSceneChanged(Scene previousActiveScene, Scene newActiveScene)
         {
-
             if (!Instance) return;
 
             // Let awake run if it's the first time the game is loaded
@@ -138,9 +152,7 @@ namespace DNExtensions
             // Debug.LogError($"Can't return object, No object pooler in scene");
             Destroy(obj);
         }
-
-
-
+        
 
 
     }
