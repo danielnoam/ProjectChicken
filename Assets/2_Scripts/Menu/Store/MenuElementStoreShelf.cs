@@ -15,7 +15,7 @@ public class MenuElementStoreShelf : MenuElement
     
     
     private readonly List<StoreItemUIData> _shelfItemsList = new List<StoreItemUIData>();
-    public Action OnStoreItemBought;
+    public Action OnStoreItemBoughtEvent;
     
     
     protected override void OnSelected()
@@ -43,10 +43,19 @@ public class MenuElementStoreShelf : MenuElement
             {
                 var storeItem = Instantiate(storeItemUIDataPrefab, storeItemHolder ? storeItemHolder : transform);
                 storeItem.SetupItem(item.Value);
-                storeItem.BoughtItem +=  () => OnStoreItemBought?.Invoke();
+                storeItem.BoughtItem +=  OnStoreItemBought;
                 _shelfItemsList.Add(storeItem);
+
+                if (item.Value.NeededItemsToUnlockToUnlock.Count > 0)
+                {
+                    foreach (var neededItem in item.Value.NeededItemsToUnlockToUnlock)
+                    {
+                        if (SaveManager.HasStoreItem(neededItem.Value.ItemID)) continue;
+                        storeItem.gameObject.SetActive(false);
+                        return;
+                    }
+                }
             }
-            
         }
     }
     
@@ -72,5 +81,20 @@ public class MenuElementStoreShelf : MenuElement
         {
             item.ToggleInteractingWithShelf(false);
         }
+    }
+
+    private void OnStoreItemBought()
+    {
+        
+        foreach (var item in _shelfItemsList)
+        {
+            if (item.StoreItem.NeededItemsToUnlockToUnlock.Count <= 0) continue;
+            foreach (var neededItem in item.StoreItem.NeededItemsToUnlockToUnlock)
+            {
+                item.gameObject.SetActive(SaveManager.HasStoreItem(neededItem.Value.ItemID));
+            }
+        }
+        
+        OnStoreItemBoughtEvent?.Invoke();
     }
 }

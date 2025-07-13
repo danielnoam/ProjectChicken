@@ -1,46 +1,89 @@
 using System;
 using System.Collections.Generic;
-using DNExtensions;
+using AYellowpaper;
 using UnityEngine;
 using VInspector;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
-[CreateAssetMenu(fileName = "New Weapon Upgrade", menuName = "Scriptable Objects/New Weapon Upgrade")]
 public class SOWeaponUpgrade : ScriptableObject, IStoreItem
 {
-    
-    
-    [Header("Weapon Upgrade")]
-    [SerializeField] private SOWeaponData baseWeapon;
+    [SerializeField, ReadOnly] private SOWeaponData baseWeapon;
     
     [Header("Override Weapon Settings")]
-    [SerializeField, Min(0)] private float fireRate = 1f;
-    [SerializeField, Min(0), Tooltip("0 = Infinite targets")] private int maxTargets = 1;
-    [SerializeField, Min(0.1f)] private float targetCheckRadius = 3f;
-    [ShowIf("WeaponType", WeaponType.Projectile)]
-    [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>(); [EndIf]
-    [ShowIf("WeaponType", WeaponType.Hitscan)]
-    [SerializeReference] private List<HitscanBehaviorBase> hitscanBehaviors = new List<HitscanBehaviorBase>(); [EndIf]
+    [SerializeField] private bool overrideWeaponGfx;
+    [SerializeField] private bool overrideWeaponBarrels;
+    [SerializeField] private bool overrideFireRate;
+    [ShowIf("overrideFireRate")]
+    [SerializeField, Min(0)] private float fireRate = 0.15f;
+    [EndIf]
     
+    [SerializeField] private bool overrideMaxTargets;
+    [ShowIf("overrideMaxTargets")]
+    [SerializeField, Min(0), Tooltip("0 = Infinite targets")] private int maxTargets = 1;
+    [EndIf]
+    
+    [SerializeField] private bool overrideTargetCheckRadius;
+    [ShowIf("overrideTargetCheckRadius")]
+    [SerializeField, Min(0.1f)] private float targetCheckRadius = 4f;
+    [EndIf]
+    
+    [SerializeField] private bool overrideWeaponLimitation;
+    [ShowIf("ShowHeatPerShot")]
+    [SerializeField, Min(0)] private float heatPerShot = 1f;
+    [EndIf]
+    
+    [ShowIf("ShowTimeLimit")]
+    [SerializeField, Min(0)] private float timeLimit = 10f;
+    [EndIf]
+    
+    [ShowIf("ShowAmmoLimit")]
+    [SerializeField, Min(0)] private float ammoLimit = 3f;
+    [EndIf]
+    
+    [ShowIf("WeaponType", WeaponType.Projectile), SerializeField] private bool overrideProjectileBehaviors; [EndIf]
+    [ShowIf("ShowProjectileBehaviors"),SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>(); [EndIf]
+    
+    [ShowIf("WeaponType", WeaponType.Hitscan),SerializeField] private bool overrideHitscanBehaviors;[EndIf]
+    [ShowIf("ShowHitscanBehaviors"), SerializeReference] private List<HitscanBehaviorBase> hitscanBehaviors = new List<HitscanBehaviorBase>(); [EndIf]
+
     
     [Header("Store Interface")]
     [SerializeField] private string itemName = "New Store Item";
     [SerializeField] private string itemDescription = "An Item";
     [SerializeField, Min(0)] private int itemCost = 10;
-    [SerializeField, VInspector.ReadOnly] private int itemID;
+    [SerializeField] private List<InterfaceReference<IStoreItem>> neededItemsToUnlock = new  List<InterfaceReference<IStoreItem>>();
+    [SerializeField, ReadOnly] private int itemID;
     
     
-    public WeaponType  WeaponType => baseWeapon ? baseWeapon.WeaponType : WeaponType.Projectile;
-    public float FireRate => fireRate;
-    public int MaxTargets => maxTargets;
-    public float TargetCheckRadius => targetCheckRadius;
-    public List<ProjectileBehaviorBase> ProjectileBehaviors => projectileBehaviors;
-    public List<HitscanBehaviorBase> HitscanBehaviors => hitscanBehaviors;
-
-
+    
+    private WeaponType WeaponType => baseWeapon ? baseWeapon.WeaponType : WeaponType.Projectile;
+    private bool ShowProjectileBehaviors => overrideProjectileBehaviors && WeaponType == WeaponType.Projectile;
+    private bool ShowHitscanBehaviors => overrideHitscanBehaviors && WeaponType == WeaponType.Hitscan;
+    private bool ShowHeatPerShot => overrideWeaponLimitation && baseWeapon.WeaponLimitation == WeaponLimitation.HeatBased;
+    private bool ShowTimeLimit => overrideWeaponLimitation && baseWeapon.WeaponLimitation == WeaponLimitation.TimeBased;
+    private bool ShowAmmoLimit => overrideWeaponLimitation && baseWeapon.WeaponLimitation == WeaponLimitation.AmmoBased;
+    
+    
+    public SOWeaponData BaseWeapon => baseWeapon;
+    public bool OverrideWeaponGfx => overrideWeaponGfx;
+    public bool OverrideWeaponBarrels => overrideWeaponBarrels;
+    public float FireRate => overrideFireRate ? fireRate : (baseWeapon ? baseWeapon.FireRate : 1f);
+    public int MaxTargets => overrideMaxTargets ? maxTargets : (baseWeapon ? baseWeapon.MaxTargets : 1);
+    public float TargetCheckRadius => overrideTargetCheckRadius ? targetCheckRadius : (baseWeapon ? baseWeapon.TargetCheckRadius : 3f);
+    public float HeatPerShot => overrideWeaponLimitation && baseWeapon.WeaponLimitation == WeaponLimitation.HeatBased ? heatPerShot : (baseWeapon ? baseWeapon.HeatPerShot : 1f);
+    public float TimeLimit => overrideWeaponLimitation && baseWeapon.WeaponLimitation == WeaponLimitation.TimeBased ? timeLimit : (baseWeapon ? baseWeapon.TimeLimit : 10f);
+    public float AmmoLimit => overrideWeaponLimitation && baseWeapon.WeaponLimitation == WeaponLimitation.AmmoBased ? ammoLimit : (baseWeapon ? baseWeapon.AmmoLimit : 3f);
+    public List<ProjectileBehaviorBase> ProjectileBehaviors => overrideProjectileBehaviors ? projectileBehaviors : (baseWeapon ? baseWeapon.ProjectileBehaviors : new List<ProjectileBehaviorBase>());
+    public List<HitscanBehaviorBase> HitscanBehaviors => overrideHitscanBehaviors ? hitscanBehaviors : (baseWeapon ? baseWeapon.HitscanBehaviors : new List<HitscanBehaviorBase>());
     public string ItemName => itemName;
     public string ItemDescription => itemDescription;
     public int ItemCost => itemCost;
+    public List<InterfaceReference<IStoreItem>> NeededItemsToUnlockToUnlock => neededItemsToUnlock;
+    
+    
     public int ItemID { get => itemID; set => itemID = value; }
     
     
@@ -48,5 +91,66 @@ public class SOWeaponUpgrade : ScriptableObject, IStoreItem
     {
         IStoreItem.EnsureUniqueID(this);
     }
-}
+    
+    #if UNITY_EDITOR
+    private void OnDestroy()
+    {
+        if (baseWeapon)
+        {
+            baseWeapon.RemoveUpgrade(this);
+        }
+    }
+    #endif
+    
+    
+    
+    public void SetBaseWeapon(SOWeaponData weapon)
+    {
+        baseWeapon = weapon;
+        
+        // Initialize with base weapon values
+        if (weapon)
+        {
+            // Set default upgrade name
+            if (itemName == "New Store Item")
+            {
+                int weaponUpgradeIndex = baseWeapon.WeaponUpgrades.Count + 1;
+                itemName = $"{weapon.WeaponName} Upgrade {weaponUpgradeIndex}";
+            }
+        }
+        
+        CopyDataFromBaseWeapon();
+        
+        #if UNITY_EDITOR
+        EditorUtility.SetDirty(this);
+        #endif
+    }
+    
+    
 
+    [Button]
+    private void CopyDataFromBaseWeapon()
+    {
+        if (!baseWeapon) return;
+        
+        if (!overrideFireRate) fireRate = baseWeapon.FireRate;
+        if (!overrideMaxTargets) maxTargets = baseWeapon.MaxTargets;
+        if (!overrideTargetCheckRadius) targetCheckRadius = baseWeapon.TargetCheckRadius;
+        if (!overrideWeaponLimitation) 
+        {
+            heatPerShot = baseWeapon.HeatPerShot;
+            timeLimit = baseWeapon.TimeLimit;
+            ammoLimit = baseWeapon.AmmoLimit;
+        }
+        
+        switch (baseWeapon.WeaponType)
+        {
+            case WeaponType.Projectile:
+                if (!overrideProjectileBehaviors) projectileBehaviors = new List<ProjectileBehaviorBase>(baseWeapon.ProjectileBehaviors);
+                break;
+            case WeaponType.Hitscan:
+                 if (!overrideHitscanBehaviors)hitscanBehaviors = new List<HitscanBehaviorBase>(baseWeapon.HitscanBehaviors);
+                break;
+        }
+    }
+}

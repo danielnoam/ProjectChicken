@@ -2434,7 +2434,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2147374, guid: 0161d805a3764c089bef00bfe00793f5, type: 2}
+  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2478,8 +2478,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Overheated!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 0161d805a3764c089bef00bfe00793f5, type: 2}
-  m_sharedMaterial: {fileID: 2147374, guid: 0161d805a3764c089bef00bfe00793f5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3269,23 +3269,23 @@ MonoBehaviour:
   allowBaseWeaponWithSpecialWeapon: 1
   specialWeaponsArePermanent: 1
   weapons:
-  - weaponData: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
+  - baseWeaponData: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
     weaponGfx: {fileID: 4913251172318160832}
     weaponReticle: {fileID: 942245884214204724}
     weaponBarrels:
     - {fileID: 3537693180872267810}
     - {fileID: 2538473021605918491}
-  - weaponData: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
+  - baseWeaponData: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
     weaponGfx: {fileID: 8445288471549559756}
     weaponReticle: {fileID: 4800777414530687514}
     weaponBarrels:
     - {fileID: 8658125663898116613}
-  - weaponData: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
+  - baseWeaponData: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
     weaponGfx: {fileID: 2591645915025464599}
     weaponReticle: {fileID: 7452997770777450716}
     weaponBarrels:
     - {fileID: 188962324070582139}
-  - weaponData: {fileID: 11400000, guid: 0b9da28535a5fb944b9dfa31864911a7, type: 2}
+  - baseWeaponData: {fileID: 11400000, guid: 0b9da28535a5fb944b9dfa31864911a7, type: 2}
     weaponGfx: {fileID: 4913251172318160832}
     weaponReticle: {fileID: 2456777011304124103}
     weaponBarrels:

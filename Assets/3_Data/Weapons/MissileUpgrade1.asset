@@ -1,0 +1,108 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04dac25139e84b27a8a6593b947380f7, type: 3}
+  m_Name: MissileUpgrade1
+  m_EditorClassIdentifier: 
+  baseWeapon: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
+  overrideFireRate: 0
+  fireRate: 1
+  overrideMaxTargets: 0
+  maxTargets: 1
+  overrideTargetCheckRadius: 0
+  targetCheckRadius: 4
+  overrideWeaponLimitation: 0
+  heatPerShot: 35
+  timeLimit: 10
+  ammoLimit: 5
+  overrideProjectileBehaviors: 1
+  projectileBehaviors:
+  - rid: 4485103943456129170
+  - rid: 4485103943456129171
+  - rid: 4485103943456129172
+  - rid: 4485103943456129173
+  - rid: 4485103943456129174
+  overrideHitscanBehaviors: 0
+  hitscanBehaviors: []
+  itemName: Missile Upgrade 1
+  itemDescription: An Item
+  itemCost: 300
+  neededItemsToUnlock: []
+  itemID: 478881102
+  references:
+    version: 2
+    RefIds:
+    - rid: 4485103943456129170
+      type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
+      data:
+        moveSpeed: 75
+        useSpeedStagger: 0
+        speedStaggerTime: 0.5
+        staggerSpeedCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 4485103943456129171
+      type: {class: BehaviorExplodeOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        minRadius: 7
+        maxRadius: 9
+        maxDamage: 45
+        maxForce: 45
+        stunChance: 25
+        maxStunTime: 2
+    - rid: 4485103943456129172
+      type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        pushForce: 25
+    - rid: 4485103943456129173
+      type: {class: BehaviorDamageOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        damage: 35
+    - rid: 4485103943456129174
+      type: {class: BehaviorSpawnProjectilesOnStart, ns: , asm: Assembly-CSharp}
+      data:
+        targetRadius: 10
+        spawnRadius: 1
+        maxProjectiles: 3
+        projectilePrefab: {fileID: 6825391653092111716, guid: a68a7f88b92bbe947afd6a143f8e5792, type: 3}
+        projectileBehaviors:
+        - rid: 4485103943456129175
+    - rid: 4485103943456129175
+      type: {class: BehaviorAimLockMovement, ns: , asm: Assembly-CSharp}
+      data:
+        moveSpeed: 200
+        straightPhaseDuration: 0.5
+        bendPhaseDuration: 0.3
+        targetPhaseDuration: 2
+        recheckTarget: 1
+        recheckCount: 3
+        recheckRadius: 10

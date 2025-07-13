@@ -15,8 +15,8 @@ using VInspector;
 public class RailPlayerWeaponSystem : MonoBehaviour
 {
     [Header("Weapons Settings")]
-    [Tooltip("If true, the player can use the base weapon with a special weapon, using a different button.")]
-    [SerializeField] private bool allowBaseWeaponWithSpecialWeapon = true;
+    [Tooltip("If true, the player can use the start weapon with a special weapon, using a different button.")]
+    [SerializeField] private bool allowStartWeaponWithSpecialWeapon = true;
     [Tooltip("Special weapons are permanent, and don't change after limit reached (heat, ammo, time)")]
     [SerializeField] private bool specialWeaponsArePermanent = true;
     [SerializeField] private List<WeaponInstance> weapons = new List<WeaponInstance>();
@@ -149,9 +149,11 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     private void Awake()
     {
-        overheatText.alpha = 0;
-        _allowShooting = true;
-
+        foreach (var weapon in weapons)
+        {
+            weapon.SetUpWeaponInstance();
+        }
+        
         if (useRangingReticles)
         {
             for (int i = 0; i < rangingReticlesAmount; i++)
@@ -166,6 +168,11 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 _rangingReticles.Add(reticle);
             }
         }
+        
+        overheatText.alpha = 0;
+        
+        _allowShooting = true;
+
     }
 
     private void Start()
@@ -442,7 +449,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         if (weaponInstance == null) return;
         
-        weaponInstance.OnWeaponUsed(player, weaponInstance.weaponBarrels);
+        weaponInstance.OnWeaponUsed(player);
         targetReticle?.PunchReticleSize(targetReticlePunchStrength, targetReticlePunchDuration);
     
         OnWeaponUsed?.Invoke(weaponInstance);
@@ -830,7 +837,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void OnAttack2(InputAction.CallbackContext context)
     {
-        if (!allowBaseWeaponWithSpecialWeapon) return;
+        if (!allowStartWeaponWithSpecialWeapon) return;
         
         if (!_allowShooting || !player.IsAlive())
         {
@@ -855,7 +862,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             FireActiveWeapon();
         }
         
-        if (_attack2InputHeld && allowBaseWeaponWithSpecialWeapon && _currentSpecialWeaponInstance != null)
+        if (_attack2InputHeld && allowStartWeaponWithSpecialWeapon && _currentSpecialWeaponInstance != null)
         {
             FireBaseWeapon();
         }

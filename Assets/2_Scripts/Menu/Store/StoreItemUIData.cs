@@ -17,6 +17,8 @@ public class StoreItemUIData : MonoBehaviour
     private IStoreItem _storeItem;
     private bool _hasItem;
     private bool _interactingWithShelf;
+    
+    public IStoreItem  StoreItem => _storeItem;
     public Action BoughtItem;
     
     

@@ -3,6 +3,8 @@
 
 
 using System;
+using System.Collections.Generic;
+using AYellowpaper;
 using UnityEngine;
 
 public interface IStoreItem
@@ -10,6 +12,7 @@ public interface IStoreItem
     string ItemName { get; }
     string ItemDescription { get; }
     int ItemCost { get; }
+    List<InterfaceReference<IStoreItem>> NeededItemsToUnlockToUnlock { get; }
     int ItemID { get; set; }
     
     

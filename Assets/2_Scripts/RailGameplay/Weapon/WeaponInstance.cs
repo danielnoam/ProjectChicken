@@ -3,30 +3,184 @@ using DNExtensions;
 using UnityEngine;
 
 [Serializable]
+public class WeaponUpgradeAssets
+{
+    [SerializeField] private SOWeaponUpgrade upgrade;
+    [SerializeField] private Transform upgradeGfx;
+    [SerializeField] private Transform[] upgradeBarrels;
+    
+    public SOWeaponUpgrade Upgrade => upgrade;
+    public Transform UpgradeGfx => upgradeGfx;
+    public Transform[] UpgradeBarrels => upgradeBarrels;
+    
+    public WeaponUpgradeAssets(SOWeaponUpgrade upgrade)
+    {
+        this.upgrade = upgrade;
+    }
+}
+
+[Serializable]
 public class WeaponInstance
 {
-    public SOWeaponData weaponData;
+    public SOWeaponData baseWeaponData;
     public Transform weaponGfx;
     public WeaponReticle weaponReticle;
     public Transform[] weaponBarrels;
+    public WeaponUpgradeAssets[] upgradeAssets;
     
+    public SOWeaponData weaponData { get; private set; }
+    public Transform currentWeaponGfx { get; private set; }
+    public Transform[] currentWeaponBarrels { get; private set; }
+
+    public void SetUpWeaponInstance()
+    {
+        weaponData = baseWeaponData;
+        currentWeaponGfx = weaponGfx;
+        currentWeaponBarrels = weaponBarrels;
+        
+        if (baseWeaponData.WeaponUpgrades.Count == 0) return;
+        
+        // Find the highest level upgrade the player owns
+        SOWeaponUpgrade latestUpgrade = null;
+        int highestIndex = -1;
+    
+        for (int i = 0; i < baseWeaponData.WeaponUpgrades.Count; i++)
+        {
+            var weaponUpgrade = baseWeaponData.WeaponUpgrades[i];
+            if (SaveManager.HasStoreItem(weaponUpgrade.ItemID))
+            {
+                if (i > highestIndex)
+                {
+                    highestIndex = i;
+                    latestUpgrade = weaponUpgrade;
+                }
+            }
+        }
+
+        var activeWeaponUpgrade = latestUpgrade;
+        
+        if (activeWeaponUpgrade)
+        {
+            // Create a new runtime instance of weapon data
+            weaponData = ScriptableObject.CreateInstance<SOWeaponData>();
+            weaponData.name = baseWeaponData.name + "_Upgraded";
+
+            // Copy all base values from original
+            weaponData.CopyBaseWeaponData(baseWeaponData);
+            weaponData.ApplyUpgradeData(activeWeaponUpgrade);
+            
+            // Find the upgrade assets for this specific upgrade
+            WeaponUpgradeAssets upgradeAsset = GetUpgradeAssets(activeWeaponUpgrade);
+            
+            if (upgradeAsset != null)
+            {
+                // Handle GFX override
+                if (activeWeaponUpgrade.OverrideWeaponGfx && upgradeAsset.UpgradeGfx)
+                {
+                    currentWeaponGfx = upgradeAsset.UpgradeGfx;
+                }
+                else
+                {
+                    currentWeaponGfx = weaponGfx;
+                }
+                
+                // Handle Barrels override
+                if (activeWeaponUpgrade.OverrideWeaponBarrels && upgradeAsset.UpgradeBarrels != null && upgradeAsset.UpgradeBarrels.Length > 0)
+                {
+                    currentWeaponBarrels = upgradeAsset.UpgradeBarrels;
+                }
+                else
+                {
+                    currentWeaponBarrels = weaponBarrels;
+                }
+            }
+            else
+            {
+                // Fallback to base assets
+                currentWeaponGfx = weaponGfx;
+                currentWeaponBarrels = weaponBarrels;
+                Debug.LogWarning($"No upgrade assets found for upgrade '{activeWeaponUpgrade.ItemName}' on weapon '{baseWeaponData.WeaponName}'");
+            }
+            
+            Debug.Log($"Applied upgrade '{activeWeaponUpgrade.ItemName}' to weapon '{baseWeaponData.WeaponName}'");
+        }
+    }
+    
+    private WeaponUpgradeAssets GetUpgradeAssets(SOWeaponUpgrade upgrade)
+    {
+        if (upgradeAssets == null) return null;
+        
+        foreach (var asset in upgradeAssets)
+        {
+            if (asset.Upgrade == upgrade)
+                return asset;
+        }
+        return null;
+    }
     
     public void OnWeaponSelected(bool allowShooting)
     {
-        weaponGfx?.gameObject.SetActive(true);
+        // Hide all GFX first
+        if (weaponGfx) weaponGfx.gameObject.SetActive(false);
+        
+        // Hide all upgrade GFX
+        if (upgradeAssets != null)
+        {
+            foreach (var asset in upgradeAssets)
+            {
+                if (asset.UpgradeGfx) asset.UpgradeGfx.gameObject.SetActive(false);
+            }
+        }
+        
+        // Show current active GFX
+        if (currentWeaponGfx) currentWeaponGfx.gameObject.SetActive(true);
+        
         UpdateReticleVisibility(allowShooting);
     }
     
     public void OnWeaponDeselected()
     {
-        weaponGfx?.gameObject.SetActive(false);
+        // Hide all GFX
+        if (weaponGfx) weaponGfx.gameObject.SetActive(false);
+        
+        // Hide all upgrade GFX
+        if (upgradeAssets != null)
+        {
+            foreach (var asset in upgradeAssets)
+            {
+                if (asset.UpgradeGfx) asset.UpgradeGfx.gameObject.SetActive(false);
+            }
+        }
+        
         weaponReticle?.Hide();
     }
 
-    public void OnWeaponUsed(RailPlayer owner, Transform[] barrelPositions)
+    public void OnWeaponUsed(RailPlayer owner)
     {
         weaponReticle?.PunchReticleSize(0.25f, 0.5f, 0.03f);
-        FireWeapon(owner, barrelPositions);
+        
+
+        if (weaponData && currentWeaponBarrels != null)
+        {
+            switch (weaponData.WeaponType)
+            {
+                case WeaponType.Projectile:
+                    foreach (var barrelPosition in currentWeaponBarrels)
+                    {
+                        if (barrelPosition)
+                            FireProjectileWeapon(owner, barrelPosition.position);
+                    }
+                    break;
+                
+                case WeaponType.Hitscan:
+                    foreach (var barrelPosition in currentWeaponBarrels)
+                    {
+                        if (barrelPosition)
+                            FireHitscanWeapon(owner, barrelPosition.position);
+                    }
+                    break;
+            }
+        }
     }
 
     public void OnWeaponOverheat()
@@ -44,8 +198,6 @@ public class WeaponInstance
         weaponReticle?.DisableAimLockSize(duration);
     }
     
-    
-    
     public void UpdateReticleVisibility(bool allowShooting)
     {
         if (allowShooting)
@@ -58,47 +210,17 @@ public class WeaponInstance
         }
     }
     
-    
-    private void FireWeapon(RailPlayer owner, Transform[] barrelPositions)
-    {
-        if (!weaponData) return;
-        
-        switch (weaponData.WeaponType)
-        {
-            case WeaponType.Projectile:
 
-                foreach (var barrelPosition in barrelPositions)
-                {
-                    FireProjectileWeapon(owner, barrelPosition.position);
-                }
+    #region Projectile ---------------------------------------------------------------------------------
 
-                break;
-            case WeaponType.Hitscan:
-                
-                foreach (var barrelPosition in barrelPositions)
-                {
-                    FireHitscanWeapon(owner, barrelPosition.position);
-                }
-
-                break;
-        }
-    }
-    
-    
-    
-    
-    #region Projectile  ---------------------------------------------------------------------------------
-
-    
-
-    private void FireProjectileWeapon(RailPlayer owner ,Vector3 position)
+    private void FireProjectileWeapon(RailPlayer owner, Vector3 position)
     {
         if (!weaponData.PlayerProjectilePrefab) return;
         
+
         if (weaponData.MaxTargets == 1)
         {
-            InstantiateProjectile(owner,position, owner.GetTarget(weaponData.TargetCheckRadius));
-            
+            InstantiateProjectile(owner, position, owner.GetTarget(weaponData.TargetCheckRadius));
         } 
         else
         {
@@ -124,36 +246,32 @@ public class WeaponInstance
                 InstantiateProjectile(owner, position, null);
             }
         }
-        
     }
     
-    
-    private void InstantiateProjectile(RailPlayer owner,Vector3 spawnPosition, ChickenController target = null)
+    private void InstantiateProjectile(RailPlayer owner, Vector3 spawnPosition, ChickenController target = null)
     {
         GameObject projectileObj = ObjectPooler.GetObjectFromPool(weaponData.PlayerProjectilePrefab.gameObject, spawnPosition, Quaternion.identity);
         if (projectileObj && projectileObj.TryGetComponent(out PlayerProjectile projectile))
         {
             projectile.SetUpProjectile(weaponData, owner, this, target);
         }
-
     }
 
-    #endregion Projectile  ---------------------------------------------------------------------------------
+    #endregion Projectile ---------------------------------------------------------------------------------
 
     
-
     #region Hitscan ----------------------------------------------------------------------------------
 
-    private void FireHitscanWeapon(RailPlayer owner,Vector3 startPosition)
+    private void FireHitscanWeapon(RailPlayer owner, Vector3 startPosition)
     {
         PlayFireEffect(startPosition, Quaternion.identity);
         
+        // weaponData.HitscanBehaviors now contains the upgraded behaviors
         foreach (var behavior in weaponData.HitscanBehaviors)
         {
             behavior.OnStart(weaponData, owner);
         }
 
-        
         if (weaponData.MaxTargets == 1)
         {
             ChickenController enemy = owner.GetTarget(weaponData.TargetCheckRadius);
@@ -179,10 +297,7 @@ public class WeaponInstance
         }
     }
 
-    
-    
-    
-    private void HitscanHit(RailPlayer owner,ChickenController enemy)
+    private void HitscanHit(RailPlayer owner, ChickenController enemy)
     {
         if (!enemy) return;
 
@@ -193,13 +308,11 @@ public class WeaponInstance
         
         PlayImpactEffect(enemy.transform.position, Quaternion.identity);
     } 
-    
-    #endregion Hitscan ----------------------------------------------------------------------------------
 
+    #endregion Hitscan ----------------------------------------------------------------------------------
 
     
     #region Effects ---------------------------------------------------------------------------------------
-
     
     public void PlayImpactEffect(Vector3 position, Quaternion rotation)
     {
@@ -217,9 +330,7 @@ public class WeaponInstance
         {
             CameraManager.Instance?.ShakeCamera(weaponData.ImpactShakeSettings.impulseShape, weaponData.ImpactShakeSettings.intensity, weaponData.ImpactShakeSettings.duration);
         }
-
     }
-    
     
     public void PlayFireEffect(Vector3 position, Quaternion rotation, AudioSource audioSource = null)
     {
@@ -247,9 +358,4 @@ public class WeaponInstance
     }
 
     #endregion Effects ---------------------------------------------------------------------------------------
-
 }
-
-    
-    
-    
