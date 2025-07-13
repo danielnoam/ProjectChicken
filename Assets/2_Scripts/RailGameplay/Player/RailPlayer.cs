@@ -19,14 +19,16 @@ public class RailPlayer : MonoBehaviour
 {
 
     [Header("Health")]
-    [SerializeField, Min(0)] private int maxHealth = 3;
+    [SerializeField, Min(0)] private int baseHealth = 3;
     [SerializeField] private bool dodgingGivesInvincibility = true;
     [SerializeField] private bool receiveHealthOnBonusThreshold = true;
+    [SerializeField] private SOHealthUpgrade[] healthUpgrades = Array.Empty<SOHealthUpgrade>();
     
     [Header("Shield")]
-    [SerializeField, Min(0)] private float maxShieldHealth = 100f;
+    [SerializeField, Min(0)] private float baseShieldHealth = 100f;
     [SerializeField, Min(0)] private float shieldRegenCooldown = 3f;
     [SerializeField, Min(0)] private float shieldRegenRate = 15f;
+    [SerializeField] private SOShieldUpgrade[] shieldUpgrades = Array.Empty<SOShieldUpgrade>();
     
     [Header("Resource Collection")]
     [SerializeField ,Min(0)] private float magnetRadius = 14f;
@@ -57,8 +59,10 @@ public class RailPlayer : MonoBehaviour
 
 
     private int _currentHealth;
+    private int _maxHealth;
     private int _currentCurrency;
     private float _currentShieldHealth;
+    private float _maxShieldHealth;
     private float _damagedCooldown;
     private Coroutine _regenShieldCoroutine;
     private Quaternion _splineRotation = Quaternion.identity;
@@ -71,8 +75,8 @@ public class RailPlayer : MonoBehaviour
     public LevelManager LevelManager => levelManager;
     public Quaternion SplineRotation => _splineRotation;
     public bool AlignToSplineDirection => alignToSplineDirection;
-    public int MaxHealth => maxHealth;
-    public float MaxShieldHealth => maxShieldHealth;
+    public int MaxHealth => _maxHealth;
+    public float MaxShieldHealth => _maxShieldHealth;
     public int CurrentHealth => _currentHealth;
     public float CurrentShieldHealth => _currentShieldHealth;
     public int CurrentCurrency => _currentCurrency;
@@ -166,9 +170,12 @@ public class RailPlayer : MonoBehaviour
     
     private void SetupPlayer()
     {
+        _maxHealth = baseHealth + TotalHealthUpgrades();
+        _maxShieldHealth = baseShieldHealth + TotalShieldUpgrades();
         _currentCurrency = SaveManager.GetCurrency();
-        _currentHealth = maxHealth;
-        _currentShieldHealth = maxShieldHealth;
+        
+        _currentHealth = _maxHealth;
+        _currentShieldHealth = _maxShieldHealth;
         
         
         OnCurrencyChanged?.Invoke(_currentCurrency);
@@ -244,7 +251,7 @@ public class RailPlayer : MonoBehaviour
             _damagedCooldown -= Time.deltaTime;
         }
         
-        if (_damagedCooldown <= 0 &&  _regenShieldCoroutine == null && _currentShieldHealth < maxShieldHealth)
+        if (_damagedCooldown <= 0 &&  _regenShieldCoroutine == null && _currentShieldHealth < _maxShieldHealth)
         {
             StartShieldRegen();
         }
@@ -269,12 +276,12 @@ public class RailPlayer : MonoBehaviour
     {
         shieldStartRegenSfx?.Play(audioSource);
         
-        while (_currentShieldHealth < maxShieldHealth)
+        while (_currentShieldHealth < _maxShieldHealth)
         {
             _currentShieldHealth += shieldRegenRate * Time.deltaTime;
-            if (_currentShieldHealth >= maxShieldHealth)
+            if (_currentShieldHealth >= _maxShieldHealth)
             {
-                _currentShieldHealth = maxShieldHealth;
+                _currentShieldHealth = _maxShieldHealth;
                 shieldRegeneratedSfx?.Play(audioSource);
                 yield break;
             }
@@ -316,9 +323,9 @@ public class RailPlayer : MonoBehaviour
         if (amount <= 0) return;
         
         _currentHealth += amount;
-        if (_currentHealth > maxHealth)
+        if (_currentHealth > _maxHealth)
         {
-            _currentHealth = maxHealth;
+            _currentHealth = _maxHealth;
         }
         healthHealedSfx?.Play(audioSource);
         
@@ -328,12 +335,12 @@ public class RailPlayer : MonoBehaviour
     [Button]
     private void HealShield(float amount = 25f)
     {
-        if (_currentShieldHealth >= maxShieldHealth) return;
+        if (_currentShieldHealth >= _maxShieldHealth) return;
         
         _currentShieldHealth += amount;
-        if (_currentShieldHealth >= maxShieldHealth)
+        if (_currentShieldHealth >= _maxShieldHealth)
         {
-            _currentShieldHealth = maxShieldHealth;
+            _currentShieldHealth = _maxShieldHealth;
             shieldRegeneratedSfx?.Play(audioSource);
         }
         else
@@ -421,7 +428,42 @@ public class RailPlayer : MonoBehaviour
     
 
     #endregion Resource Collection --------------------------------------------------------------------------------------
+
+    #region Upgrades -----------------------------------------------------------------------------------------
+
+
+    private int TotalHealthUpgrades()
+    {
+        var health = 0;
+        
+        foreach (var upgrade in healthUpgrades)
+        {
+            if (SaveManager.HasStoreItem(upgrade.ItemID))
+            {
+                health += upgrade.HealthUpgradeAmount;
+            }
+        }
+        
+        return health;
+    }
     
+    private float TotalShieldUpgrades()
+    {
+        var shield = 0f;
+
+        foreach (var upgrade in shieldUpgrades)
+        {
+            if (SaveManager.HasStoreItem(upgrade.ItemID))
+            {
+                shield += upgrade.ShieldUpgradeAmount;
+            }
+        }
+
+        return shield;
+    }
+    
+
+    #endregion Upgrades -----------------------------------------------------------------------------------------
 
     #region Helper Methods --------------------------------------------------------------------------------------
 

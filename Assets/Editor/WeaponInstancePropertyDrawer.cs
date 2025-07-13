@@ -106,9 +106,10 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
             // Check if we should show upgrade section
             if (ShouldShowUpgradeSection(weaponDataProp.objectReferenceValue as SOWeaponData))
             {
-                yPos += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                // Auto-sync upgrade assets before drawing
+                AutoSyncUpgradeAssets(property);
                 
-                // Draw upgrade assets array
+                // Draw upgrade assets array with custom label (no bold)
                 SerializedProperty upgradeAssets = property.FindPropertyRelative("upgradeAssets");
                 if (upgradeAssets != null)
                 {
@@ -116,16 +117,10 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
                     EditorGUI.PropertyField(
                         new Rect(position.x, yPos, position.width, upgradeAssetsHeight),
                         upgradeAssets,
-                        new GUIContent("Upgrade Assets"),
+                        new GUIContent("Upgrades"),
                         true
                     );
                     yPos += upgradeAssetsHeight + EditorGUIUtility.standardVerticalSpacing;
-                }
-                
-                // Show sync button to help setup upgrade assets
-                if (GUI.Button(new Rect(position.x, yPos, position.width, EditorGUIUtility.singleLineHeight), "Sync Upgrade Assets"))
-                {
-                    SyncUpgradeAssets(property);
                 }
             }
             
@@ -145,9 +140,6 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
         
         if (property.isExpanded)
         {
-            // Base configuration header
-            height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-            
             // Add height for each base field with null checks
             SerializedProperty weaponData = property.FindPropertyRelative("baseWeaponData");
             if (weaponData != null)
@@ -180,9 +172,6 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
             SerializedProperty weaponDataProp = property.FindPropertyRelative("baseWeaponData");
             if (weaponDataProp != null && ShouldShowUpgradeSection(weaponDataProp.objectReferenceValue as SOWeaponData))
             {
-                // Upgrade section header
-                height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-                
                 // Add height for upgrade assets array
                 SerializedProperty upgradeAssets = property.FindPropertyRelative("upgradeAssets");
                 if (upgradeAssets != null)
@@ -196,9 +185,6 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
                         height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                     }
                 }
-                
-                // Add height for sync button
-                height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             }
         }
         
@@ -230,7 +216,7 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
         return false;
     }
     
-    private void SyncUpgradeAssets(SerializedProperty property)
+    private void AutoSyncUpgradeAssets(SerializedProperty property)
     {
         SerializedProperty weaponDataProp = property.FindPropertyRelative("baseWeaponData");
         SerializedProperty upgradeAssetsProp = property.FindPropertyRelative("upgradeAssets");
@@ -240,21 +226,47 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
         SOWeaponData weaponData = weaponDataProp.objectReferenceValue as SOWeaponData;
         if (weaponData?.WeaponUpgrades == null) return;
         
-        // Create upgrade assets array to match the weapon's upgrades
-        upgradeAssetsProp.arraySize = weaponData.WeaponUpgrades.Count;
+        bool needsSync = false;
         
-        for (int i = 0; i < weaponData.WeaponUpgrades.Count; i++)
+        // Check if array sizes match
+        if (upgradeAssetsProp.arraySize != weaponData.WeaponUpgrades.Count)
         {
-            SerializedProperty assetElement = upgradeAssetsProp.GetArrayElementAtIndex(i);
-            SerializedProperty upgradeProp = assetElement.FindPropertyRelative("upgrade");
-            
-            if (upgradeProp != null)
+            needsSync = true;
+        }
+        else
+        {
+            // Check if upgrade references match
+            for (int i = 0; i < weaponData.WeaponUpgrades.Count; i++)
             {
-                upgradeProp.objectReferenceValue = weaponData.WeaponUpgrades[i];
+                SerializedProperty assetElement = upgradeAssetsProp.GetArrayElementAtIndex(i);
+                SerializedProperty upgradeProp = assetElement.FindPropertyRelative("upgrade");
+                
+                if (upgradeProp?.objectReferenceValue != weaponData.WeaponUpgrades[i])
+                {
+                    needsSync = true;
+                    break;
+                }
             }
         }
         
-        upgradeAssetsProp.serializedObject.ApplyModifiedProperties();
+        if (needsSync)
+        {
+            // Resize and sync the array
+            upgradeAssetsProp.arraySize = weaponData.WeaponUpgrades.Count;
+            
+            for (int i = 0; i < weaponData.WeaponUpgrades.Count; i++)
+            {
+                SerializedProperty assetElement = upgradeAssetsProp.GetArrayElementAtIndex(i);
+                SerializedProperty upgradeProp = assetElement.FindPropertyRelative("upgrade");
+                
+                if (upgradeProp != null)
+                {
+                    upgradeProp.objectReferenceValue = weaponData.WeaponUpgrades[i];
+                }
+            }
+            
+            upgradeAssetsProp.serializedObject.ApplyModifiedProperties();
+        }
     }
     
     private int GetArrayIndex(string propertyPath)
@@ -286,24 +298,29 @@ public class WeaponUpgradeAssetsPropertyDrawer : PropertyDrawer
     {
         SerializedProperty upgradeProp = property.FindPropertyRelative("upgrade");
         
-        string displayName = "Upgrade Asset";
-        if (upgradeProp?.objectReferenceValue)
-        {
-            SOWeaponUpgrade upgrade = upgradeProp.objectReferenceValue as SOWeaponUpgrade;
-            if (upgrade)
-            {
-                displayName = upgrade.ItemName;
-            }
-        }
+        // Early return if no upgrade or upgrade doesn't have visual overrides
+        if (upgradeProp?.objectReferenceValue == null)
+            return;
+            
+        SOWeaponUpgrade upgrade = upgradeProp.objectReferenceValue as SOWeaponUpgrade;
+        if (upgrade == null || (!upgrade.OverrideWeaponGfx && !upgrade.OverrideWeaponBarrels))
+            return;
+        
+        string displayName = upgrade.ItemName;
         
         EditorGUI.BeginProperty(position, label, property);
         
-        // Show foldout
+        // Create a GUIStyle for normal (non-bold) text
+        GUIStyle foldoutStyle = new GUIStyle(EditorStyles.foldout);
+        foldoutStyle.fontStyle = FontStyle.Normal;
+        
+        // Show foldout with normal text style
         property.isExpanded = EditorGUI.Foldout(
             new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight),
             property.isExpanded,
             displayName,
-            true
+            true,
+            foldoutStyle
         );
         
         if (property.isExpanded)
@@ -311,41 +328,34 @@ public class WeaponUpgradeAssetsPropertyDrawer : PropertyDrawer
             EditorGUI.indentLevel++;
             float yPos = position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-            if (upgradeProp != null)
+            // Draw upgrade GFX
+            if (upgrade.OverrideWeaponGfx)
             {
-                SOWeaponUpgrade upgrade = upgradeProp.objectReferenceValue as SOWeaponUpgrade;
-                
-                if (!upgrade) return;
-                
-                // Draw upgrade GFX
-                if (upgrade.OverrideWeaponGfx)
+                SerializedProperty upgradeGfx = property.FindPropertyRelative("upgradeGfx");
+                if (upgradeGfx != null)
                 {
-                    SerializedProperty upgradeGfx = property.FindPropertyRelative("upgradeGfx");
-                    if (upgradeGfx != null)
-                    {
-                        EditorGUI.PropertyField(
-                            new Rect(position.x, yPos, position.width, EditorGUIUtility.singleLineHeight),
-                            upgradeGfx,
-                            new GUIContent("GFX")
-                        );
-                        yPos += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-                    }
+                    EditorGUI.PropertyField(
+                        new Rect(position.x, yPos, position.width, EditorGUIUtility.singleLineHeight),
+                        upgradeGfx,
+                        new GUIContent("GFX")
+                    );
+                    yPos += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                 }
+            }
 
-                if (upgrade.OverrideWeaponBarrels)
+            if (upgrade.OverrideWeaponBarrels)
+            {
+                // Draw upgrade barrels
+                SerializedProperty upgradeBarrels = property.FindPropertyRelative("upgradeBarrels");
+                if (upgradeBarrels != null)
                 {
-                    // Draw upgrade barrels
-                    SerializedProperty upgradeBarrels = property.FindPropertyRelative("upgradeBarrels");
-                    if (upgradeBarrels != null)
-                    {
-                        float barrelsHeight = EditorGUI.GetPropertyHeight(upgradeBarrels, true);
-                        EditorGUI.PropertyField(
-                            new Rect(position.x, yPos, position.width, barrelsHeight),
-                            upgradeBarrels,
-                            new GUIContent("Barrels"),
-                            true
-                        );
-                    }
+                    float barrelsHeight = EditorGUI.GetPropertyHeight(upgradeBarrels, true);
+                    EditorGUI.PropertyField(
+                        new Rect(position.x, yPos, position.width, barrelsHeight),
+                        upgradeBarrels,
+                        new GUIContent("Barrels"),
+                        true
+                    );
                 }
             }
             
@@ -357,21 +367,34 @@ public class WeaponUpgradeAssetsPropertyDrawer : PropertyDrawer
     
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
+        SerializedProperty upgradeProp = property.FindPropertyRelative("upgrade");
+        
+        // Return 0 height if no upgrade or upgrade doesn't have visual overrides
+        if (upgradeProp?.objectReferenceValue == null)
+            return 0;
+            
+        SOWeaponUpgrade upgrade = upgradeProp.objectReferenceValue as SOWeaponUpgrade;
+        if (upgrade == null || (!upgrade.OverrideWeaponGfx && !upgrade.OverrideWeaponBarrels))
+            return 0;
+        
         float height = EditorGUIUtility.singleLineHeight;
         
         if (property.isExpanded)
         {
-            // Upgrade reference
-            height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-            
-            // Upgrade GFX
-            height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-            
-            // Upgrade barrels array
-            SerializedProperty upgradeBarrels = property.FindPropertyRelative("upgradeBarrels");
-            if (upgradeBarrels != null)
+            // Add height for GFX field if override is enabled
+            if (upgrade.OverrideWeaponGfx)
             {
-                height += EditorGUI.GetPropertyHeight(upgradeBarrels, true) + EditorGUIUtility.standardVerticalSpacing;
+                height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            }
+            
+            // Add height for barrels array if override is enabled
+            if (upgrade.OverrideWeaponBarrels)
+            {
+                SerializedProperty upgradeBarrels = property.FindPropertyRelative("upgradeBarrels");
+                if (upgradeBarrels != null)
+                {
+                    height += EditorGUI.GetPropertyHeight(upgradeBarrels, true) + EditorGUIUtility.standardVerticalSpacing;
+                }
             }
         }
         

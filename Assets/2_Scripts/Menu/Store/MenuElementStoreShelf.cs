@@ -52,7 +52,6 @@ public class MenuElementStoreShelf : MenuElement
                     {
                         if (SaveManager.HasStoreItem(neededItem.Value.ItemID)) continue;
                         storeItem.gameObject.SetActive(false);
-                        return;
                     }
                 }
             }

@@ -106,7 +106,6 @@ public class SOWeaponData : ScriptableObject
                 upgrade.SetBaseWeapon(this);
             }
         }
-        
     }
 
 

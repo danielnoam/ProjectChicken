@@ -85,7 +85,7 @@ public class WeaponInstance
                 }
                 
                 // Handle Barrels override
-                if (activeWeaponUpgrade.OverrideWeaponBarrels && upgradeAsset.UpgradeBarrels != null && upgradeAsset.UpgradeBarrels.Length > 0)
+                if (activeWeaponUpgrade.OverrideWeaponBarrels && upgradeAsset.UpgradeBarrels is { Length: > 0 })
                 {
                     currentWeaponBarrels = upgradeAsset.UpgradeBarrels;
                 }
@@ -99,10 +99,10 @@ public class WeaponInstance
                 // Fallback to base assets
                 currentWeaponGfx = weaponGfx;
                 currentWeaponBarrels = weaponBarrels;
-                Debug.LogWarning($"No upgrade assets found for upgrade '{activeWeaponUpgrade.ItemName}' on weapon '{baseWeaponData.WeaponName}'");
+                // Debug.LogWarning($"No upgrade assets found for upgrade '{activeWeaponUpgrade.ItemName}' on weapon '{baseWeaponData.WeaponName}'");
             }
             
-            Debug.Log($"Applied upgrade '{activeWeaponUpgrade.ItemName}' to weapon '{baseWeaponData.WeaponName}'");
+            // Debug.Log($"Applied upgrade '{activeWeaponUpgrade.ItemName}' to weapon '{baseWeaponData.WeaponName}'");
         }
     }
     
