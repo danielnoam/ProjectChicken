@@ -47,8 +47,8 @@ namespace DNExtensions
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             #endif
         }
-        
-        
+
+#if UNITY_EDITOR
         private static void OnPlayModeStateChanged(PlayModeStateChange state)
         {
             if (state != PlayModeStateChange.ExitingPlayMode) return;
@@ -57,6 +57,9 @@ namespace DNExtensions
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             SceneManager.activeSceneChanged -= OnActiveSceneChanged;
         }
+#endif
+        
+
 
 
         private static void OnActiveSceneChanged(Scene previousActiveScene, Scene newActiveScene)

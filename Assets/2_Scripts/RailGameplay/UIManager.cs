@@ -151,7 +151,7 @@ public class UIManager : MonoBehaviour
         SetUpUI();
     }
     
-        private void OnEnable()
+    private void OnEnable()
     {
         if (player)
         {

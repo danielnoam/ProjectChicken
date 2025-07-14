@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using DNExtensions;
 using VInspector;
-
-#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
-#endif
 
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Scriptable Objects/New Weapon")]
 public class SOWeaponData : ScriptableObject
