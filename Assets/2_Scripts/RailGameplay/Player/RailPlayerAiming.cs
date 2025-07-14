@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using VInspector;
 
+[RequireComponent(typeof(RailPlayer))]
 public class RailPlayerAiming : MonoBehaviour
 {
     [Header("Aim Settings")]
@@ -27,6 +28,7 @@ public class RailPlayerAiming : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
+    [SerializeField, Self, HideInInspector] private RumbleSource rumbleSource;
 
 
     private bool _isAimLocked;

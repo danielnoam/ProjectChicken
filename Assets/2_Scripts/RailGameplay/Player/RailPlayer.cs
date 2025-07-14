@@ -15,6 +15,7 @@ using VInspector;
 [RequireComponent(typeof(RailPlayerMovement))]
 [RequireComponent(typeof(RailPlayerAiming))]
 [RequireComponent(typeof(RailPlayerWeaponSystem))]
+[RequireComponent(typeof(RumbleSource))]
 public class RailPlayer : MonoBehaviour
 {
     [Header("Health")]
@@ -54,6 +55,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
+    [SerializeField, Self, HideInInspector] private RumbleSource rumbleSource;
 
     
 
@@ -220,6 +222,7 @@ public class RailPlayer : MonoBehaviour
             shieldDamageSfx?.Play(audioSource);
         }
         
+        rumbleSource.Rumble(0.1f,0, 0.1f);
         OnShieldChanged?.Invoke(_currentShieldHealth);
     }
     
@@ -238,6 +241,7 @@ public class RailPlayer : MonoBehaviour
             healthDamageSfx?.Play(audioSource);
         }
         
+        rumbleSource.Rumble(0,0.5f, 0.3f);
         OnHealthChanged?.Invoke(_currentHealth);
     }
     
@@ -262,7 +266,7 @@ public class RailPlayer : MonoBehaviour
     private void Die()
     {
         deathSfx?.Play(audioSource);
-        
+        rumbleSource.Rumble(0.2f,0.2f, 1f);
         OnDeath?.Invoke();
     }
 

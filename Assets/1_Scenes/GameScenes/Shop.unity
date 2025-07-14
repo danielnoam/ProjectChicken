@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 31568398}
   - component: {fileID: 31568397}
   - component: {fileID: 31568395}
+  - component: {fileID: 31568399}
   m_Layer: 0
   m_Name: ShopMenu
   m_TagString: Untagged
@@ -171,6 +172,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 324cb3159d5516044bda50b503563878, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rumbleInMenus: 1
   menuElements:
   - {fileID: 1938358609}
   - {fileID: 268447421}
@@ -179,6 +181,7 @@ MonoBehaviour:
   menuLoopSfx: {fileID: 11400000, guid: d47adb19517f1f74b904221fe75a5581, type: 2}
   audioSource: {fileID: 31568396}
   menuInput: {fileID: 31568397}
+  rumbleSource: {fileID: 31568399}
 --- !u!82 &31568396
 AudioSource:
   m_ObjectHideFlags: 0
@@ -388,6 +391,18 @@ MonoBehaviour:
   m_DefaultActionMap: UI
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &31568399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 31568393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcae686dfb6f4e95ab416ccb595ef855, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &136820635
 GameObject:
   m_ObjectHideFlags: 0
@@ -912,6 +927,7 @@ GameObject:
   m_Component:
   - component: {fileID: 268447420}
   - component: {fileID: 268447423}
+  - component: {fileID: 268447424}
   - component: {fileID: 268447422}
   - component: {fileID: 268447421}
   m_Layer: 0
@@ -966,6 +982,7 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
+  rumbleSource: {fileID: 268447424}
   interactionCamera: {fileID: 2089799990}
   shelfItems:
   - _underlyingValue: {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
@@ -1015,6 +1032,18 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.36
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &268447424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 268447419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcae686dfb6f4e95ab416ccb595ef855, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &281214431
 GameObject:
   m_ObjectHideFlags: 0
@@ -2975,8 +3004,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1474582292}
   - component: {fileID: 1474582294}
-  - component: {fileID: 1474582296}
+  - component: {fileID: 1474582297}
   - component: {fileID: 1474582295}
+  - component: {fileID: 1474582296}
   m_Layer: 0
   m_Name: ExitShopSign
   m_TagString: Untagged
@@ -3066,12 +3096,25 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
+  rumbleSource: {fileID: 1474582297}
   interactionCamera: {fileID: 0}
   delayBeforeLoad: 1
   sceneToLoad:
     m_SceneAsset: {fileID: 102900000, guid: 81ac6686a6faf384a8be7373c1b1ef15, type: 3}
     m_SceneName: MainMenu
     m_ScenePath: Assets/1_Scenes/GameScenes/MainMenu.unity
+--- !u!114 &1474582297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1474582291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcae686dfb6f4e95ab416ccb595ef855, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1491774888
 GameObject:
   m_ObjectHideFlags: 0
@@ -3659,6 +3702,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1938358605}
   - component: {fileID: 1938358607}
+  - component: {fileID: 1938358610}
   - component: {fileID: 1938358608}
   - component: {fileID: 1938358609}
   m_Layer: 0
@@ -3752,6 +3796,7 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
+  rumbleSource: {fileID: 1938358610}
   interactionCamera: {fileID: 691996174}
   shelfItems:
   - _underlyingValue: {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
@@ -3759,6 +3804,18 @@ MonoBehaviour:
   - _underlyingValue: {fileID: 11400000, guid: 12cc92c87d933784fa7101edef57d18c, type: 2}
   storeItemUIDataPrefab: {fileID: 2223244352072553111, guid: 6b013a4f530eeaa4b84e36c201bd94c7, type: 3}
   storeItemHolder: {fileID: 1957478632}
+--- !u!114 &1938358610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1938358604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcae686dfb6f4e95ab416ccb595ef855, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1957478631
 GameObject:
   m_ObjectHideFlags: 0

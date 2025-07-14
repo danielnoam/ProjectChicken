@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using DNExtensions;
 using PrimeTween;
 using UnityEngine;
 using VInspector;
@@ -8,13 +10,9 @@ public class WeaponReticle : MonoBehaviour
 {
     [Header("Emission")]
     [SerializeField, Range(0,1)] private float emissionStrength = 1;
-    [SerializeField] private bool emissionAffectsAlpha = true;
+    [SerializeField, MinMaxRange(0f,1f)] private RangedFloat emissionRange = new(0.1f, 1f);
+    [SerializeField] private bool emissionEffectsAlpha = true;
     [SerializeField] private List<Renderer> reticleRenderers = new List<Renderer>();
-    
-    [Header("Pulse Effect")]
-    [SerializeField] private bool pulseEmission;
-    [SerializeField, Min(0.1f)] private float pulseSpeed = 3f;
-    [SerializeField, Range(0.1f, 0.9f)] private float pulseMin = 0.3f;
 
     
     [Header("References")]
@@ -22,9 +20,9 @@ public class WeaponReticle : MonoBehaviour
 
     private bool _isVisible;
     private bool _isAimLocked;
-    private float _maxStrength;
     private float _baseSize;
     private float _aimLockSize;
+    private float _currentHeat;
     private Tween _sizeTween;
     private Tween _punchTween;
     private readonly List<Material> _reticleMaterials = new List<Material>();
@@ -34,9 +32,9 @@ public class WeaponReticle : MonoBehaviour
     private float DefaultSize => _isAimLocked ? _aimLockSize : _baseSize;
 
 
+
     private void Awake()
     {
-        _maxStrength = emissionStrength;
         _baseSize = transform.localScale.x;
         _aimLockSize = _baseSize / 2;
         _isVisible = false;
@@ -44,19 +42,9 @@ public class WeaponReticle : MonoBehaviour
         
         GetMaterialsFromRenderers();
         UpdateMaterialsAlpha(0f);
+        SetEmissionStrength(0);
     }
     
-    private void Update()
-    {
-        if (!_isVisible) return;
-        
-        if (pulseEmission)
-        {
-            PulseEmission();
-        }
-        
-        UpdateMaterialsEmissionStrength(emissionStrength);
-    }
     
     public void Show()
     {
@@ -68,6 +56,7 @@ public class WeaponReticle : MonoBehaviour
     {
         _isVisible = false;
         TweenReticleSize(0f, 0.5f);
+        SetEmissionStrength(0);
     }
     
     
@@ -103,10 +92,15 @@ public class WeaponReticle : MonoBehaviour
         _aimLockSize = size;
     }
     
+    public void SetEmissionStrength(float strength)
+    {
+        emissionStrength = strength;
+        UpdateMaterialsEmissionStrength(emissionStrength);
+    }
+    
     
 
     #region Material -----------------------------------------------------------------------------------------------
-    
     
     
     private void UpdateMaterialsEmissionState(bool state)
@@ -122,7 +116,7 @@ public class WeaponReticle : MonoBehaviour
 
     private void UpdateMaterialsEmissionStrength(float strength)
     {
-        strength = Mathf.Clamp(strength, 0, _maxStrength);
+        strength = Mathf.Clamp(strength, emissionRange.minValue, emissionRange.maxValue);
         foreach (Material mat in _reticleMaterials)
         {
             if (mat)
@@ -131,7 +125,7 @@ public class WeaponReticle : MonoBehaviour
             }
         }
         
-        if (emissionAffectsAlpha)
+        if (emissionEffectsAlpha)
         {
             float alpha = Mathf.Pow(strength, 15f);
             UpdateMaterialsAlpha(alpha);
@@ -151,11 +145,6 @@ public class WeaponReticle : MonoBehaviour
         }
     }
     
-    private void PulseEmission()
-    {
-        float normalizedSine = (Mathf.Sin(Time.time * pulseSpeed) + 1f) * 0.5f;
-        emissionStrength = Mathf.Lerp(pulseMin, 1, normalizedSine);
-    }
     
     private void GetMaterialsFromRenderers()
     {
@@ -180,7 +169,7 @@ public class WeaponReticle : MonoBehaviour
     #endregion Material -----------------------------------------------------------------------------------------------
     
     
-    #region Tweens -----------------------------------------------------------------------------------
+    #region Size -----------------------------------------------------------------------------------
     
     private void TweenReticleSize(float size, float duration) 
     {
@@ -212,7 +201,7 @@ public class WeaponReticle : MonoBehaviour
         
     }
 
-    #endregion Tweens -----------------------------------------------------------------------------------
+    #endregion Size -----------------------------------------------------------------------------------
 
     
 

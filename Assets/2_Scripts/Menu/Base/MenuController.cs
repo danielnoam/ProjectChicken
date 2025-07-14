@@ -1,26 +1,35 @@
 using System;
 using DNExtensions;
 using KBCore.Refs;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using VInspector;
 
 
 [SelectionBase]
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(MenuInput))]
+[RequireComponent(typeof(RumbleSource))]
 public class MenuController : MonoBehaviour
 {
 
     [Header("Menu Settings")]
     [SerializeField] private MenuElement[] menuElements;
     
+    [Header("Rumble")]
+    [SerializeField] private bool rumbleInMenus = true;
+    [ShowIf("rumbleInMenus")]
+    [SerializeField] private float rumbleLowFreq = 0.03f;
+    [SerializeField] private float rumbleHighFreq;
+    [SerializeField] private float rumbleDuration = 0.3f;
+    [EndIf]
     
     [Header("References")]
     [SerializeField] private Transform defaultCameraLookAtPoint;
     [SerializeField] private SOAudioEvent menuLoopSfx;
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     [SerializeField, Self, HideInInspector] private MenuInput menuInput;
+    [SerializeField, Self, HideInInspector] private RumbleSource rumbleSource;
     
     
     private bool _isInteracting;
@@ -88,6 +97,7 @@ public class MenuController : MonoBehaviour
         }
 
         DisableSelection();
+        if (rumbleInMenus) rumbleSource.Rumble(0.05f,0f,0.1f);
 
         _currentMenuElementIndex = index;
         _currentMenuElement = menuElements[index];
@@ -183,7 +193,7 @@ public class MenuController : MonoBehaviour
     {
         if (_isInteracting || !element.CanSelect) return;
         
-        
+        if (rumbleInMenus) rumbleSource.Rumble(rumbleLowFreq,rumbleHighFreq,rumbleDuration);
         _isInteracting = true;
         element?.Interact();
         OnElementInteracted?.Invoke(element);
@@ -191,6 +201,7 @@ public class MenuController : MonoBehaviour
     
     private void StopInteraction(MenuElement element)
     {
+        if (rumbleInMenus) rumbleSource.Rumble(rumbleLowFreq,rumbleHighFreq,rumbleDuration);
         _isInteracting = false;
         element?.StopInteraction();
         OnElementFinishedInteraction?.Invoke(element);
@@ -235,7 +246,7 @@ public class MenuController : MonoBehaviour
         {
             SelectPreviousMenuElement();
         }
-
+        
     }
     
     private void OnSubmit(InputAction.CallbackContext context)
@@ -269,7 +280,6 @@ public class MenuController : MonoBehaviour
                 StopInteraction(_currentMenuElement);
             }
         }
-
     }
 
     

@@ -441,7 +441,7 @@ public class UIManager : MonoBehaviour
     {
         if (newWeaponInstance != null)
         {
-            playerWeaponIcon.sprite = newWeaponInstance.weaponData.WeaponIcon;
+            playerWeaponIcon.sprite = newWeaponInstance.WeaponData.WeaponIcon;
             Tween.Alpha(playerSecondaryWeaponIcon, endValue: 1f, duration: weaponAnimationDuration);
             Tween.PunchScale(playerWeaponIcon.transform, strength: Vector3.one * weaponPunchStrength, duration: weaponAnimationDuration);
         }
@@ -449,8 +449,8 @@ public class UIManager : MonoBehaviour
         {
             if (player.PlayerWeapon.BaseWeaponInstance != null)
             {
-                playerWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.weaponData.WeaponIcon;
-               playerSecondaryWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.weaponData.WeaponIcon;
+                playerWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.WeaponData.WeaponIcon;
+               playerSecondaryWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.WeaponData.WeaponIcon;
             }
             Tween.Alpha(playerSecondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
         }
@@ -459,7 +459,7 @@ public class UIManager : MonoBehaviour
         
     private void OnSpecialWeaponDisabled(WeaponInstance weapon)
     {
-        if (player.PlayerWeapon.BaseWeaponInstance != null) playerWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.weaponData.WeaponIcon;
+        if (player.PlayerWeapon.BaseWeaponInstance != null) playerWeaponIcon.sprite = player.PlayerWeapon.BaseWeaponInstance.WeaponData.WeaponIcon;
         Tween.Alpha(playerSecondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
 
     }
@@ -470,12 +470,12 @@ public class UIManager : MonoBehaviour
         
         if (player.PlayerWeapon.CurrentSpecialWeaponInstance != null)
         {
-            playerSecondaryWeaponIcon.sprite = weapon.weaponData.WeaponIcon;
+            playerSecondaryWeaponIcon.sprite = weapon.WeaponData.WeaponIcon;
             Tween.Alpha(playerSecondaryWeaponIcon, endValue: 1f, duration: weaponAnimationDuration);
         }
         else
         {
-            playerWeaponIcon.sprite = weapon.weaponData.WeaponIcon;
+            playerWeaponIcon.sprite = weapon.WeaponData.WeaponIcon;
             Tween.Alpha(playerSecondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
         }
     }
@@ -484,13 +484,13 @@ public class UIManager : MonoBehaviour
     {
         if (specialWeaponInstance == null) return;
         
-        float fillAmount = 1f - (cooldown / specialWeaponInstance.weaponData.FireRate);
+        float fillAmount = 1f - (cooldown / specialWeaponInstance.WeaponData.FireRate);
         playerWeaponIcon.color = Color.Lerp(cooldownIconColor, _weaponStartColor, fillAmount);
     }
     
     private void OnBaseWeaponCooldownUpdated(WeaponInstance baseWeaponInstance, float cooldown)
     {
-        float fillAmount = 1f - (cooldown / baseWeaponInstance.weaponData.FireRate);
+        float fillAmount = 1f - (cooldown / baseWeaponInstance.WeaponData.FireRate);
         
         if (player.PlayerWeapon.CurrentSpecialWeaponInstance != null)
         {

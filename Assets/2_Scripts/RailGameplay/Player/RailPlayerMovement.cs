@@ -7,6 +7,7 @@ using PrimeTween;
 using UnityEngine.InputSystem;
 using VInspector;
 
+[RequireComponent(typeof(RailPlayer))]
 [RequireComponent(typeof(Rigidbody))]
 public class RailPlayerMovement : MonoBehaviour
 {
@@ -42,6 +43,7 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private Rigidbody playerRigidbody;
+    [SerializeField, Self, HideInInspector] private RumbleSource rumbleSource;
 
 
     private bool _allowMovement;
@@ -324,6 +326,7 @@ public class RailPlayerMovement : MonoBehaviour
             _dodgeTimeCounter = 0f;
             _isDodging = true;
                 
+            rumbleSource.Rumble(0.2f,0.2f, 0.1f);
             PlayDodgeRollAnimation();
         }
     }
@@ -339,6 +342,7 @@ public class RailPlayerMovement : MonoBehaviour
             _dodgeTimeCounter = 0f;
             _isDodging = true;
                 
+            rumbleSource.Rumble(0.2f,0.2f, 0.1f);
             PlayDodgeRollAnimation();
         }
     }

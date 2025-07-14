@@ -590,16 +590,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
-  emissionAffectsAlpha: 1
+  emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 5022044165417545323}
   - {fileID: 4317489346689356038}
   - {fileID: 7628995704809813630}
   - {fileID: 3558174509910864628}
   - {fileID: 1228446762727484811}
-  pulseEmission: 0
-  pulseSpeed: 3
-  pulseMin: 0.3
   punchTransform: {fileID: 5170456632490657193}
 --- !u!1 &1506644416565149069
 GameObject:
@@ -1651,15 +1648,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
-  emissionAffectsAlpha: 1
+  emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 3954000043469550707}
   - {fileID: 3701714565008483880}
   - {fileID: 2267080844491920373}
   - {fileID: 8642202346870350222}
-  pulseEmission: 0
-  pulseSpeed: 3
-  pulseMin: 0.3
   punchTransform: {fileID: 7925574344398128321}
 --- !u!1 &3268264275588158959
 GameObject:
@@ -2914,6 +2908,7 @@ GameObject:
   - component: {fileID: 8177767816080453902}
   - component: {fileID: 8027271115035412187}
   - component: {fileID: 6276024430624118950}
+  - component: {fileID: 284695675551663708}
   - component: {fileID: 2233603387570671912}
   - component: {fileID: 8438971806570489096}
   - component: {fileID: 7233717465822237952}
@@ -3093,6 +3088,18 @@ CapsuleCollider:
   m_Height: 20
   m_Direction: 2
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &284695675551663708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042140183398147502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcae686dfb6f4e95ab416ccb595ef855, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &2233603387570671912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3118,6 +3125,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 85cde709a65e11a4285e307636799abb, type: 2}
   - {fileID: 11400000, guid: 5fd2ebb25c87fa547bc5c087a3dfb75d, type: 2}
   magnetRadius: 14
+  resourceMagnetUpgrades: []
   alignToSplineDirection: 1
   splineRotationSpeed: 5
   audioSource: {fileID: 6485381765733721381}
@@ -3135,6 +3143,7 @@ MonoBehaviour:
   playerAiming: {fileID: 890854243081262160}
   playerWeapon: {fileID: 3423310960035294283}
   playerMovement: {fileID: 7233717465822237952}
+  rumbleSource: {fileID: 284695675551663708}
 --- !u!114 &8438971806570489096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3243,6 +3252,7 @@ MonoBehaviour:
   playerAiming: {fileID: 890854243081262160}
   playerInput: {fileID: 8438971806570489096}
   playerRigidbody: {fileID: 8177767816080453902}
+  rumbleSource: {fileID: 284695675551663708}
 --- !u!114 &890854243081262160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3267,6 +3277,7 @@ MonoBehaviour:
   playerInput: {fileID: 8438971806570489096}
   playerMovement: {fileID: 7233717465822237952}
   playerWeapon: {fileID: 3423310960035294283}
+  rumbleSource: {fileID: 284695675551663708}
 --- !u!114 &3423310960035294283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3358,6 +3369,7 @@ MonoBehaviour:
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
   playerMovement: {fileID: 7233717465822237952}
+  rumbleSource: {fileID: 284695675551663708}
 --- !u!1 &5214599697061486050
 GameObject:
   m_ObjectHideFlags: 0
@@ -4340,7 +4352,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
-  emissionAffectsAlpha: 1
+  emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 2370971554237841213}
   - {fileID: 1128952694983886015}
@@ -4350,9 +4362,6 @@ MonoBehaviour:
   - {fileID: 6206509979826121043}
   - {fileID: 9029823964506724207}
   - {fileID: 1931480175894126312}
-  pulseEmission: 0
-  pulseSpeed: 3
-  pulseMin: 0.3
   punchTransform: {fileID: 0}
 --- !u!1 &6504249679124731053
 GameObject:
@@ -5643,7 +5652,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
-  emissionAffectsAlpha: 1
+  emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 8026457023098140983}
   - {fileID: 8993276472557018972}
@@ -5653,9 +5662,6 @@ MonoBehaviour:
   - {fileID: 219285135356931742}
   - {fileID: 4208656679078098340}
   - {fileID: 6724299620791783669}
-  pulseEmission: 0
-  pulseSpeed: 3
-  pulseMin: 0.3
   punchTransform: {fileID: 2338327964849211494}
 --- !u!1 &8563685080792428195
 GameObject:
@@ -5744,7 +5750,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
-  emissionAffectsAlpha: 1
+  emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 7999980696630192649}
   - {fileID: 2450861604774361118}
@@ -5754,9 +5760,6 @@ MonoBehaviour:
   - {fileID: 4621544568579801908}
   - {fileID: 2886694885490108338}
   - {fileID: 5050244819003849486}
-  pulseEmission: 0
-  pulseSpeed: 3
-  pulseMin: 0.3
   punchTransform: {fileID: 0}
 --- !u!1 &8599118151109767702
 GameObject:
@@ -5804,15 +5807,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
-  emissionAffectsAlpha: 1
+  emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 1445691226714708908}
   - {fileID: 6187236964504006385}
   - {fileID: 4135655409000580243}
   - {fileID: 1744674984524784899}
-  pulseEmission: 0
-  pulseSpeed: 3
-  pulseMin: 0.3
   punchTransform: {fileID: 5143968757658090375}
 --- !u!1 &8680117356106722540
 GameObject:
@@ -6118,7 +6118,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
-  emissionAffectsAlpha: 1
+  emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 2797940402119788746}
   - {fileID: 3149968215603376845}
@@ -6128,9 +6128,6 @@ MonoBehaviour:
   - {fileID: 7022256400578633095}
   - {fileID: 6675292182593283073}
   - {fileID: 6317577960617544784}
-  pulseEmission: 0
-  pulseSpeed: 3
-  pulseMin: 0.3
   punchTransform: {fileID: 6776964019177118187}
 --- !u!1 &8802662561648209402
 GameObject:

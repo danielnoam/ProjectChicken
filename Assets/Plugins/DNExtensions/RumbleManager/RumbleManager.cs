@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.DualShock;
+using UnityEngine.SceneManagement;
 
 namespace DNExtensions
 {
@@ -35,26 +36,8 @@ namespace DNExtensions
 
         private void OnEnable()
         {
-            if (!_currentPlayerInput)
-            {
-                _currentPlayerInput = FindFirstObjectByType<PlayerInput>();
-
-                if (_currentPlayerInput)
-                {
-                    _currentPlayerInput.onControlsChanged += OnControlsChanged;
-                    if (_currentPlayerInput.currentControlScheme == "Gamepad")
-                    {
-                        _gamepad = Gamepad.current;
-                        _dualShockGamepad = DualShockGamepad.current;
-                    }
-                    else
-                    {
-                        _gamepad = null;
-                        _dualShockGamepad = null;
-                    }
-
-                }
-            }
+            FindPlayerInput();
+            SceneManager.activeSceneChanged += OnActiveSceneChanged;
         }
 
         private void OnDisable()
@@ -64,6 +47,8 @@ namespace DNExtensions
                 _currentPlayerInput.onControlsChanged -= OnControlsChanged;
                 _currentPlayerInput = null;
             }
+            
+            SceneManager.activeSceneChanged -= OnActiveSceneChanged;
         }
 
         private void Update()
@@ -101,23 +86,52 @@ namespace DNExtensions
 
         private void OnControlsChanged(PlayerInput input)
         {
-            if (_gamepad != null)
+            if (input.currentControlScheme == "Gamepad")
             {
-                ResetHaptics();
-                SetLightBarColor(Color.white);
+                if (_gamepad != null)
+                {
+                    ResetHaptics();
+                    SetLightBarColor(Color.white);
+                }
+
+                _gamepad = Gamepad.current;
+                _dualShockGamepad = DualShockGamepad.current;
+            }
+            else
+            {
+                _gamepad = null;
+                _dualShockGamepad = null;
             }
 
-            _gamepad = Gamepad.current;
-            _dualShockGamepad = DualShockGamepad.current;
-
-            if (_gamepad != null)
-            {
-                ResetHaptics();
-                SetLightBarColor(Color.white);
-            }
         }
 
 
+        private void OnActiveSceneChanged(Scene previousScene, Scene nextScene)
+        {
+            FindPlayerInput();
+        }
+        
+        private void FindPlayerInput()
+        {
+            if (_currentPlayerInput) return;
+            
+            _currentPlayerInput = FindFirstObjectByType<PlayerInput>();
+
+            if (_currentPlayerInput)
+            {
+                _currentPlayerInput.onControlsChanged += OnControlsChanged;
+                if (_currentPlayerInput.currentControlScheme == "Gamepad")
+                {
+                    _gamepad = Gamepad.current;
+                    _dualShockGamepad = DualShockGamepad.current;
+                }
+                else
+                {
+                    _gamepad = null;
+                    _dualShockGamepad = null;
+                }
+            }
+        }
 
 
         #region Rumble Effects ------------------------------------------------------------------------------
