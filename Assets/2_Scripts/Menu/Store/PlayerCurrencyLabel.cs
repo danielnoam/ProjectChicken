@@ -25,7 +25,7 @@ public class PlayerCurrencyLabel : MonoBehaviour
      {
           foreach (var shelf in _storeShelves)
           {
-               shelf.OnStoreItemBoughtEvent +=  () => { _currentCurrency = SaveManager.GetCurrency(); };
+               shelf.OnStoreItemBoughtEvent +=  (var ) => { _currentCurrency = SaveManager.GetCurrency(); };
           }
      }
      
@@ -33,7 +33,7 @@ public class PlayerCurrencyLabel : MonoBehaviour
      {
           foreach (var shelf in _storeShelves)
           {
-               shelf.OnStoreItemBoughtEvent -= () => { _currentCurrency = SaveManager.GetCurrency(); };
+               shelf.OnStoreItemBoughtEvent -= (var ) => { _currentCurrency = SaveManager.GetCurrency(); };
           }
      }
 

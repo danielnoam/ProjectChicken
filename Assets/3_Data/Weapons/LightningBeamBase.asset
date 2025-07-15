@@ -30,7 +30,9 @@ MonoBehaviour:
   projectileLifetime: 5
   projectileBehaviors: []
   hitscanBehaviors:
-  - rid: 2319611688567439443
+  - rid: 4047855709786210427
+  - rid: 4047855709786210428
+  - rid: 4047855709786210429
   - rid: 4047855707409612904
   fireSound: {fileID: 11400000, guid: 95e63c624a0fccb43a66ea5cd0c84b9f, type: 2}
   fireEffectPrefab: {fileID: 0}
@@ -39,15 +41,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 2319611688567439443
-      type: {class: BehaviorChainOnHit, ns: , asm: Assembly-CSharp}
-      data:
-        targetsRadiusCheck: 10
-        maxTargets: 5
-        baseDamage: 10
-        baseForce: 10
-        chainDelay: 0.1
-        chainFalloff: 0.8
     - rid: 4047855707409612904
       type: {class: BehaviorRumbleAndShakeOnStart, ns: , asm: Assembly-CSharp}
       data:
@@ -109,3 +102,16 @@ MonoBehaviour:
           impulseShape: 2
           intensity: 1
           duration: 0.3
+    - rid: 4047855709786210427
+      type: {class: BehaviorDamageOnHit, ns: , asm: Assembly-CSharp}
+      data:
+        damage: 10
+    - rid: 4047855709786210428
+      type: {class: BehaviorPushOnHit, ns: , asm: Assembly-CSharp}
+      data:
+        pushForce: 5
+    - rid: 4047855709786210429
+      type: {class: BehaviorStunOnHit, ns: , asm: Assembly-CSharp}
+      data:
+        stunChance: 1
+        stunDuration: 0.5

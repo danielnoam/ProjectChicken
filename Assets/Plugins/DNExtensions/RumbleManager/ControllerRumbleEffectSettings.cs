@@ -10,5 +10,19 @@ namespace DNExtensions
         [Min(0)] public float duration = 0.3f;
         public AnimationCurve lowFrequencyCurve = AnimationCurve.Linear(0, 1, 1, 1);
         public AnimationCurve highFrequencyCurve = AnimationCurve.Linear(0, 1, 1, 1);
+        
+        
+        public ControllerRumbleEffectSettings()
+        {
+        }
+        
+        public ControllerRumbleEffectSettings(float lowFrequency, float highFrequency, float duration, AnimationCurve lowFrequencyCurve = null, AnimationCurve highFrequencyCurve = null)
+        {
+            this.lowFrequency = lowFrequency;
+            this.highFrequency = highFrequency;
+            this.duration = duration;
+            this.lowFrequencyCurve = lowFrequencyCurve ?? AnimationCurve.Linear(0, 1, 1, 1);
+            this.highFrequencyCurve = highFrequencyCurve ?? AnimationCurve.Linear(0, 1, 1, 1);
+        }
     }
 }

@@ -32,7 +32,7 @@ MonoBehaviour:
   - rid: 4047855709786210424
   - rid: 4047855709786210425
   itemName: Lightning Beam Upgrade 2
-  itemDescription: Cook more chickens with each beam! (also makes the beam stronger)
+  itemDescription: Cook more chickens with each beam!
   itemCost: 500
   neededItemsToUnlock:
   - _underlyingValue: {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
@@ -47,6 +47,8 @@ MonoBehaviour:
         maxTargets: 5
         baseDamage: 10
         baseForce: 10
+        baseStunChance: 0.1
+        baseStunDuration: 0.5
         chainDelay: 0.1
         chainFalloff: 0.8
     - rid: 4047855709786210425

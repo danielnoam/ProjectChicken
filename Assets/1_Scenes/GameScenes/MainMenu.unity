@@ -466,10 +466,110 @@ MonoBehaviour:
   - {fileID: 1606466669}
   - {fileID: 1474582293}
   - {fileID: 465575460}
-  rumbleInMenus: 1
-  rumbleLowFreq: 0.03
-  rumbleHighFreq: 0
-  rumbleDuration: 0.3
+  rumbleOnInteract:
+    lowFrequency: 0.01
+    highFrequency: 0
+    duration: 0.2
+    lowFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    highFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  rumbleOnSelect:
+    lowFrequency: 0.01
+    highFrequency: 0
+    duration: 0.2
+    lowFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    highFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   defaultCameraLookAtPoint: {fileID: 629420452}
   menuLoopSfx: {fileID: 11400000, guid: d47adb19517f1f74b904221fe75a5581, type: 2}
   audioSource: {fileID: 31568396}
@@ -927,6 +1027,7 @@ MonoBehaviour:
   elementColor: {r: 0.44313726, g: 0.38039216, b: 1, a: 1}
   visualElementsTweenDuration: 0.3
   labelText: Level Select
+  labelAlphaWhenInteracting: 0.15
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 4
   cameraLootAtOffset: {x: 0, y: 0.26, z: 0}
@@ -2258,6 +2359,7 @@ MonoBehaviour:
   elementColor: {r: 0.2784314, g: 0.38039216, b: 1, a: 1}
   visualElementsTweenDuration: 0.3
   labelText: 'Launch '
+  labelAlphaWhenInteracting: 0.15
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 4
   cameraLootAtOffset: {x: -0.15, y: 0.2, z: 0}
@@ -4671,6 +4773,7 @@ MonoBehaviour:
   elementColor: {r: 1, g: 0.48235294, b: 0.48235294, a: 1}
   visualElementsTweenDuration: 0.3
   labelText: Eject
+  labelAlphaWhenInteracting: 0.15
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 4
   cameraLootAtOffset: {x: -0.65, y: 0.2, z: 0}
@@ -5708,8 +5811,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.92
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 1.06
+  m_Center: {x: 0, y: 0.2, z: 0}
 --- !u!114 &1606466669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5726,6 +5829,7 @@ MonoBehaviour:
   elementColor: {r: 1, g: 0.99215686, b: 0.43529412, a: 1}
   visualElementsTweenDuration: 0.3
   labelText: Shop
+  labelAlphaWhenInteracting: 0.15
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 4
   cameraLootAtOffset: {x: -4.25, y: -0.5, z: 0}
@@ -6598,6 +6702,7 @@ MonoBehaviour:
   elementColor: {r: 0.6627451, g: 1, b: 0.6, a: 1}
   visualElementsTweenDuration: 0.3
   labelText: Options
+  labelAlphaWhenInteracting: 0
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 4
   cameraLootAtOffset: {x: 0.65, y: 0.1, z: 0}

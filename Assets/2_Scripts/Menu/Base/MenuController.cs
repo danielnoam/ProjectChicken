@@ -17,19 +17,15 @@ public class MenuController : MonoBehaviour
     [Header("Menu Settings")]
     [SerializeField] private MenuElement[] menuElements;
     
-    [Header("Rumble")]
-    [SerializeField] private bool rumbleInMenus = true;
-    [ShowIf("rumbleInMenus")]
-    [SerializeField] private float rumbleLowFreq = 0.03f;
-    [SerializeField] private float rumbleHighFreq;
-    [SerializeField] private float rumbleDuration = 0.3f;
-    [EndIf]
+    [Header("Controller Rumble")]
+    [SerializeField] private ControllerRumbleEffectSettings rumbleOnInteract = new ControllerRumbleEffectSettings(0.03f, 0f, 0.3f);
+    [SerializeField] private ControllerRumbleEffectSettings rumbleOnSelect = new ControllerRumbleEffectSettings(0.03f, 0f, 0.3f);
     
     [Header("References")]
     [SerializeField] private Transform defaultCameraLookAtPoint;
     [SerializeField] private SOAudioEvent menuLoopSfx;
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
-    [SerializeField, Self, HideInInspector] private MenuInput menuInput;
+    [SerializeField, Self, HideInInspector] public MenuInput menuInput;
     [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
     
     
@@ -98,7 +94,7 @@ public class MenuController : MonoBehaviour
         }
 
         DisableSelection();
-        if (rumbleInMenus) controllerRumbleSource.Rumble(0.05f,0f,0.1f);
+        controllerRumbleSource.Rumble(rumbleOnSelect);
 
         _currentMenuElementIndex = index;
         _currentMenuElement = menuElements[index];
@@ -194,7 +190,7 @@ public class MenuController : MonoBehaviour
     {
         if (_isInteracting || !element.CanSelect) return;
         
-        if (rumbleInMenus) controllerRumbleSource.Rumble(rumbleLowFreq,rumbleHighFreq,rumbleDuration);
+        controllerRumbleSource.Rumble(rumbleOnInteract);
         _isInteracting = true;
         element?.Interact();
         OnElementInteracted?.Invoke(element);
@@ -202,7 +198,7 @@ public class MenuController : MonoBehaviour
     
     private void StopInteraction(MenuElement element)
     {
-        if (rumbleInMenus) controllerRumbleSource.Rumble(rumbleLowFreq,rumbleHighFreq,rumbleDuration);
+        controllerRumbleSource.Rumble(rumbleOnInteract);
         _isInteracting = false;
         element?.StopInteraction();
         OnElementFinishedInteraction?.Invoke(element);

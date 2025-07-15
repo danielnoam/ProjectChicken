@@ -15,7 +15,7 @@ MonoBehaviour:
   baseWeapon: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
   overrideWeaponGfx: 0
   overrideWeaponBarrels: 0
-  overrideFireRate: 1
+  overrideFireRate: 0
   fireRate: 0.1
   overrideMaxTargets: 0
   maxTargets: 1
@@ -32,8 +32,8 @@ MonoBehaviour:
   - rid: 4047855709786210404
   - rid: 4047855709786210405
   itemName: Lightning Beam Upgrade 1
-  itemDescription: Chickens now cook faster!
-  itemCost: 300
+  itemDescription: The lightning beam jumps to nearby chickens!
+  itemCost: 350
   neededItemsToUnlock: []
   itemID: 1445882125
   references:
@@ -44,8 +44,10 @@ MonoBehaviour:
       data:
         targetsRadiusCheck: 7
         maxTargets: 3
-        baseDamage: 8
-        baseForce: 8
+        baseDamage: 10
+        baseForce: 10
+        baseStunChance: 0.1
+        baseStunDuration: 0.5
         chainDelay: 0.1
         chainFalloff: 0.8
     - rid: 4047855709786210405

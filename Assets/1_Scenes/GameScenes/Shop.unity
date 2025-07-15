@@ -131,9 +131,9 @@ GameObject:
   - component: {fileID: 31568396}
   - component: {fileID: 31568398}
   - component: {fileID: 31568400}
+  - component: {fileID: 31568399}
   - component: {fileID: 31568397}
   - component: {fileID: 31568395}
-  - component: {fileID: 31568399}
   m_Layer: 0
   m_Name: ShopMenu
   m_TagString: Untagged
@@ -177,10 +177,110 @@ MonoBehaviour:
   - {fileID: 1938358609}
   - {fileID: 268447421}
   - {fileID: 1474582296}
-  rumbleInMenus: 1
-  rumbleLowFreq: 0.03
-  rumbleHighFreq: 0
-  rumbleDuration: 0.3
+  rumbleOnInteract:
+    lowFrequency: 0.03
+    highFrequency: 0
+    duration: 0.3
+    lowFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    highFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  rumbleOnSelect:
+    lowFrequency: 0.03
+    highFrequency: 0
+    duration: 0.3
+    lowFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    highFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   defaultCameraLookAtPoint: {fileID: 629420452}
   menuLoopSfx: {fileID: 11400000, guid: d47adb19517f1f74b904221fe75a5581, type: 2}
   audioSource: {fileID: 31568396}
@@ -943,11 +1043,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 268447420}
-  - component: {fileID: 268447423}
   - component: {fileID: 268447424}
   - component: {fileID: 268447422}
   - component: {fileID: 268447421}
   - component: {fileID: 268447425}
+  - component: {fileID: 268447426}
   m_Layer: 0
   m_Name: ShipUpgradesShelf
   m_TagString: Untagged
@@ -990,9 +1090,10 @@ MonoBehaviour:
   elementColor: {r: 0.20025218, g: 0.14779866, b: 1, a: 1}
   visualElementsTweenDuration: 0.3
   labelText: Ship Upgrades
+  labelAlphaWhenInteracting: 0.15
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 4
-  cameraLootAtOffset: {x: 0.99, y: 0.1, z: 0}
+  cameraLootAtOffset: {x: 0.5, y: 0, z: 0}
   outline: {fileID: 268447422}
   label: {fileID: 136820637}
   labelCanvasGroup: {fileID: 2067354939}
@@ -1030,27 +1131,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!135 &268447423
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 268447419}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.36
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &268447424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1116,6 +1196,27 @@ MonoBehaviour:
     DissipationDistance: 100
     PropagationSpeed: 343
   DefaultVelocity: {x: 0, y: -1, z: 0}
+--- !u!65 &268447426
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 268447419}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.27, y: 0.58, z: 0.38}
+  m_Center: {x: 0, y: 0.16, z: 0}
 --- !u!1 &281214431
 GameObject:
   m_ObjectHideFlags: 0
@@ -1873,7 +1974,7 @@ Transform:
   m_GameObject: {fileID: 629420451}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.339, z: 1.3940002}
+  m_LocalPosition: {x: -0.055, y: 1.626, z: 1.3940002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3062,7 +3163,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -3102,9 +3203,10 @@ MonoBehaviour:
   elementColor: {r: 1, g: 0.26415092, b: 0.26415092, a: 1}
   visualElementsTweenDuration: 0.3
   labelText: Exit
-  labelAlphaWhenDeselected: 0.25
-  outlineWidthWhenSelected: 2
-  cameraLootAtOffset: {x: 0.85, y: -0.52, z: 0}
+  labelAlphaWhenInteracting: 0.15
+  labelAlphaWhenDeselected: 0.15
+  outlineWidthWhenSelected: 4
+  cameraLootAtOffset: {x: 1, y: -0.6, z: 0}
   outline: {fileID: 1474582295}
   label: {fileID: 1535349279}
   labelCanvasGroup: {fileID: 1079558328}
@@ -3115,7 +3217,7 @@ MonoBehaviour:
   controllerRumbleSource: {fileID: 1474582297}
   cinemachineImpulseSource: {fileID: 1474582298}
   interactionCamera: {fileID: 0}
-  delayBeforeLoad: 1
+  delayBeforeLoad: 0.5
   sceneToLoad:
     m_SceneAsset: {fileID: 102900000, guid: 81ac6686a6faf384a8be7373c1b1ef15, type: 3}
     m_SceneName: MainMenu
@@ -3771,11 +3873,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1938358605}
-  - component: {fileID: 1938358607}
   - component: {fileID: 1938358610}
   - component: {fileID: 1938358608}
   - component: {fileID: 1938358611}
   - component: {fileID: 1938358609}
+  - component: {fileID: 1938358612}
   m_Layer: 0
   m_Name: WeaponUpgradesShelf
   m_TagString: Untagged
@@ -3802,27 +3904,6 @@ Transform:
   - {fileID: 1957478632}
   m_Father: {fileID: 31568394}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &1938358607
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1938358604}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.36
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1938358608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3857,9 +3938,10 @@ MonoBehaviour:
   elementColor: {r: 1, g: 0.21568626, b: 0.79069054, a: 1}
   visualElementsTweenDuration: 0.3
   labelText: Weapon Upgrades
+  labelAlphaWhenInteracting: 0.15
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 4
-  cameraLootAtOffset: {x: 0.99, y: 0.1, z: 0}
+  cameraLootAtOffset: {x: 0.5, y: 0, z: 0}
   outline: {fileID: 1938358608}
   label: {fileID: 281214433}
   labelCanvasGroup: {fileID: 2105734948}
@@ -3944,6 +4026,27 @@ MonoBehaviour:
     DissipationDistance: 100
     PropagationSpeed: 343
   DefaultVelocity: {x: 0, y: -1, z: 0}
+--- !u!65 &1938358612
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1938358604}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.27, y: 0.58, z: 0.38}
+  m_Center: {x: 0, y: 0.16, z: 0}
 --- !u!1 &1957478631
 GameObject:
   m_ObjectHideFlags: 0
@@ -4472,8 +4575,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2134933386}
-  - component: {fileID: 2134933387}
   - component: {fileID: 2134933388}
+  - component: {fileID: 2134933387}
   m_Layer: 0
   m_Name: ShopCameraManager
   m_TagString: Untagged

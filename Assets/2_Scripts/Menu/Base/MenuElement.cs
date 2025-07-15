@@ -5,7 +5,10 @@ using TMPro;
 using UnityEngine;
 using PrimeTween;
 using Unity.Cinemachine;
+using Unity.VisualScripting;
+using UnityEngine.InputSystem;
 using VInspector;
+using Sequence = PrimeTween.Sequence;
 
 [SelectionBase]
 [RequireComponent(typeof(Outline))]
@@ -19,6 +22,7 @@ public abstract class MenuElement : MonoBehaviour
     [SerializeField] private Color elementColor = Color.white;
     [SerializeField, Min(0.1f)] private float visualElementsTweenDuration = 0.3f;
     [SerializeField] private string labelText;
+    [SerializeField, Range(0, 1)] private float labelAlphaWhenInteracting = 0.15f;
     [SerializeField, Range(0, 1)] private float labelAlphaWhenDeselected = 0.15f;
     [SerializeField, Range(0, 10)] private float outlineWidthWhenSelected = 4;
     [SerializeField] private Vector3 cameraLootAtOffset;
@@ -38,8 +42,8 @@ public abstract class MenuElement : MonoBehaviour
     [EndFoldout]
     
     
-    private enum VisualState { Deselected, Selected, Interacting, Disabled }
-    private VisualState _currentVisualState;
+    protected enum VisualState { Deselected, Selected, Interacting, Disabled }
+    protected VisualState CurrentVisualState;
     private Sequence _visualElementsSequence;
     
     public bool CanSelect => canSelect;
@@ -59,6 +63,20 @@ public abstract class MenuElement : MonoBehaviour
     {
         SetUp();
         OnSetUp();
+    }
+    
+    private void OnEnable()
+    {
+        menuController.menuInput.OnNavigateAction += OnNavigate;
+        menuController.menuInput.OnSubmitAction += OnSubmit;
+        menuController.menuInput.OnCancelAction += OnCancel;
+    }
+
+    private void OnDisable()
+    {
+        menuController.menuInput.OnNavigateAction -= OnNavigate;
+        menuController.menuInput.OnSubmitAction -= OnSubmit;
+        menuController.menuInput.OnCancelAction -= OnCancel;
     }
     
     public void Deselect()
@@ -98,17 +116,6 @@ public abstract class MenuElement : MonoBehaviour
         OnStopInteraction();
     }
     
-
-    public void OnMouseEnter()
-    {
-        menuController?.MouseEnteredElement(this);
-    }
-    
-    public void OnMouseDown()
-    {
-        menuController?.MousePressedElement(this);
-    }
-    
     
     private void SetUp()
     {
@@ -122,7 +129,7 @@ public abstract class MenuElement : MonoBehaviour
     {
         if (_visualElementsSequence.isAlive) _visualElementsSequence.Stop();
         
-        _currentVisualState = state;
+        CurrentVisualState = state;
         float targetAlpha;
         float targetOutlineWidth;
         Color targetColor;
@@ -148,8 +155,8 @@ public abstract class MenuElement : MonoBehaviour
                     targetOutlineWidth = outlineWidthWhenSelected;
                     break;
                 case VisualState.Interacting:
-                    targetAlpha = 0;
-                    targetColor = elementColor;
+                    targetAlpha = labelAlphaWhenInteracting;
+                    targetColor = Color.white;
                     targetOutlineWidth = 0;
                     break;
                 case VisualState.Disabled:
@@ -194,12 +201,56 @@ public abstract class MenuElement : MonoBehaviour
             SetVisualState(newState);
         }
     }
+
+
+    #region Input ----------------------------------------------------------------------------------------------------
+
+    public void OnMouseEnter()
+    {
+        menuController?.MouseEnteredElement(this);
+    }
+    
+    public void OnMouseDown()
+    {
+        menuController?.MousePressedElement(this);
+    }
     
     
+    protected virtual void OnNavigate(InputAction.CallbackContext context)
+    {
+        if (!context.performed || CurrentVisualState != VisualState.Interacting) return;
+        
+        
+    }
+    
+    protected virtual  void OnSubmit(InputAction.CallbackContext context)
+    {
+        if (!context.performed || CurrentVisualState != VisualState.Interacting ) return;
+    }
+    
+    protected virtual  void OnCancel(InputAction.CallbackContext context)
+    {
+        if (!context.performed || CurrentVisualState != VisualState.Interacting) return;
+    }
+    
+    
+
+    #endregion Input ----------------------------------------------------------------------------------------------------
+    
+    
+    #region Abstract ---------------------------------------------------------------------------------------------------
+
     protected abstract void OnSelected();
     protected abstract void OnDeselected();
     protected abstract void OnSetUp();
     protected abstract void OnInteract();
     protected abstract void OnFinishedInteraction();
     protected abstract void OnStopInteraction();
+    
+    
+
+    #endregion Abstract ---------------------------------------------------------------------------------------------------
+    
+    
+
 }
