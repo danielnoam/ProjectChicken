@@ -27,22 +27,21 @@ MonoBehaviour:
   ammoLimit: 5
   overrideProjectileBehaviors: 1
   projectileBehaviors:
-  - rid: 4485103943456129170
-  - rid: 4485103943456129171
-  - rid: 4485103943456129172
-  - rid: 4485103943456129173
-  - rid: 4485103943456129174
+  - rid: 4047855709786210393
+  - rid: 4047855709786210394
+  - rid: 4047855709786210397
+  - rid: 4047855709786210398
   overrideHitscanBehaviors: 0
   hitscanBehaviors: []
   itemName: Missile Upgrade 1
-  itemDescription: An Item
+  itemDescription: Bigger boom!
   itemCost: 300
   neededItemsToUnlock: []
   itemID: 478881102
   references:
     version: 2
     RefIds:
-    - rid: 4485103943456129170
+    - rid: 4047855709786210393
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
       data:
         moveSpeed: 75
@@ -72,39 +71,134 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-    - rid: 4485103943456129171
+    - rid: 4047855709786210394
       type: {class: BehaviorExplodeOnImpact, ns: , asm: Assembly-CSharp}
       data:
         minRadius: 7
-        maxRadius: 9
-        maxDamage: 45
+        maxRadius: 14
+        maxDamage: 55
         maxForce: 45
-        stunChance: 25
+        stunChance: 35
         maxStunTime: 2
-    - rid: 4485103943456129172
-      type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
+    - rid: 4047855709786210397
+      type: {class: BehaviorRumbleAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
       data:
-        pushForce: 25
-    - rid: 4485103943456129173
-      type: {class: BehaviorDamageOnImpact, ns: , asm: Assembly-CSharp}
+        rumbleControllerOnFire: 1
+        rumbleSettings:
+          lowFrequency: 0.6
+          highFrequency: 0.2
+          duration: 0.3
+          lowFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          highFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+        shakeCameraOnFire: 1
+        shakeSettings:
+          impulseShape: 4
+          intensity: 5
+          duration: 0.3
+    - rid: 4047855709786210398
+      type: {class: BehaviorRumbleAndShakeOnImpact, ns: , asm: Assembly-CSharp}
       data:
-        damage: 35
-    - rid: 4485103943456129174
-      type: {class: BehaviorSpawnProjectilesOnStart, ns: , asm: Assembly-CSharp}
-      data:
-        targetRadius: 10
-        spawnRadius: 1
-        maxProjectiles: 3
-        projectilePrefab: {fileID: 6825391653092111716, guid: a68a7f88b92bbe947afd6a143f8e5792, type: 3}
-        projectileBehaviors:
-        - rid: 4485103943456129175
-    - rid: 4485103943456129175
-      type: {class: BehaviorAimLockMovement, ns: , asm: Assembly-CSharp}
-      data:
-        moveSpeed: 200
-        straightPhaseDuration: 0.5
-        bendPhaseDuration: 0.3
-        targetPhaseDuration: 2
-        recheckTarget: 1
-        recheckCount: 3
-        recheckRadius: 10
+        rumbleControllerOnImpact: 1
+        rumbleSettings:
+          lowFrequency: 0.4
+          highFrequency: 0.4
+          duration: 0.3
+          lowFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          highFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+        shakeCameraOnImpact: 1
+        shakeSettings:
+          impulseShape: 4
+          intensity: 1
+          duration: 0.3

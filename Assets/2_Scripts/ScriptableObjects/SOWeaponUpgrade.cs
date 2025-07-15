@@ -118,8 +118,9 @@ public class SOWeaponUpgrade : ScriptableObject, IStoreItem
                 itemName = $"{weapon.WeaponName} Upgrade {weaponUpgradeIndex}";
             }
         }
-        
+
         CopyDataFromBaseWeapon();
+
         
         #if UNITY_EDITOR
         EditorUtility.SetDirty(this);
@@ -131,7 +132,11 @@ public class SOWeaponUpgrade : ScriptableObject, IStoreItem
     [Button]
     private void CopyDataFromBaseWeapon()
     {
-        if (!baseWeapon) return;
+        if (!baseWeapon)
+        {
+            Debug.Log("There is no base weapon");
+            return;
+        }
         
         if (!overrideFireRate) fireRate = baseWeapon.FireRate;
         if (!overrideMaxTargets) maxTargets = baseWeapon.MaxTargets;
@@ -150,6 +155,60 @@ public class SOWeaponUpgrade : ScriptableObject, IStoreItem
                 break;
             case WeaponType.Hitscan:
                  if (!overrideHitscanBehaviors)hitscanBehaviors = new List<HitscanBehaviorBase>(baseWeapon.HitscanBehaviors);
+                break;
+        }
+    }
+
+    [Button]
+    private void CopyDataFromPreviousUpgrade()
+    {
+        if (baseWeapon.WeaponUpgrades.Count > 2)
+        {
+            Debug.Log("There are no previous upgrades");
+            return;
+        }
+        
+        int upgradeIndex = baseWeapon.WeaponUpgrades.IndexOf(this);
+        if (upgradeIndex == 0)
+        {
+            Debug.Log("This is the first upgrade");
+            return;
+        }
+        
+        SOWeaponUpgrade previousUpgrade = baseWeapon.WeaponUpgrades[upgradeIndex - 1];
+        if (!previousUpgrade)
+        {
+            Debug.Log("{Previous upgrade is null");
+            return;
+        }
+
+
+        overrideFireRate = previousUpgrade.overrideFireRate;
+        overrideMaxTargets = previousUpgrade.overrideMaxTargets;
+        overrideTargetCheckRadius = previousUpgrade.overrideTargetCheckRadius;
+        overrideWeaponLimitation = previousUpgrade.overrideWeaponLimitation;
+        overrideProjectileBehaviors = previousUpgrade.overrideProjectileBehaviors;
+        overrideHitscanBehaviors = previousUpgrade.overrideHitscanBehaviors;
+        overrideWeaponGfx = previousUpgrade.overrideWeaponGfx;
+        overrideWeaponBarrels = previousUpgrade.overrideWeaponBarrels;
+        
+        if (!overrideFireRate) fireRate = previousUpgrade.FireRate;
+        if (!overrideMaxTargets) maxTargets = previousUpgrade.MaxTargets;
+        if (!overrideTargetCheckRadius) targetCheckRadius = previousUpgrade.TargetCheckRadius;
+        if (!overrideWeaponLimitation)
+        {
+            heatPerShot = previousUpgrade.HeatPerShot;
+            timeLimit = previousUpgrade.TimeLimit;
+            ammoLimit = previousUpgrade.AmmoLimit;
+        }
+        
+        switch (baseWeapon.WeaponType)
+        {
+            case WeaponType.Projectile:
+                if (!overrideProjectileBehaviors) projectileBehaviors = new List<ProjectileBehaviorBase>(previousUpgrade.ProjectileBehaviors);
+                break;
+            case WeaponType.Hitscan:
+                if (!overrideHitscanBehaviors) hitscanBehaviors = new List<HitscanBehaviorBase>(previousUpgrade.HitscanBehaviors);
                 break;
         }
     }

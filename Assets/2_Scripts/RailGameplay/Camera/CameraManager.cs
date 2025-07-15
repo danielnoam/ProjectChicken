@@ -100,8 +100,6 @@ public class CameraManager : MonoBehaviour
         if (player)
         {
             player.PlayerMovement.OnDodge += OnPlayerDodge;
-            player.OnHealthChanged += OnHealthChanged;
-            player.OnShieldChanged += OnShieldChanged;
             player.OnDeath += OnPlayerDeath;
             followCamera.Target.TrackingTarget = player.GetFollowCameraTarget();
             introCamera.Target.TrackingTarget = player.GetRandomCameraPosition(); 
@@ -120,8 +118,6 @@ public class CameraManager : MonoBehaviour
         if (player)
         {
             player.PlayerMovement.OnDodge -= OnPlayerDodge;
-            player.OnHealthChanged -= OnHealthChanged;
-            player.OnShieldChanged -= OnShieldChanged;
             player.OnDeath -= OnPlayerDeath;
             followCamera.Target.TrackingTarget = null;
             introCamera.Target.TrackingTarget = null;
@@ -191,17 +187,6 @@ public class CameraManager : MonoBehaviour
     
     
     #region Camera Effects ------------------------------------------------------------------------------------------------
-    
-    [Button]
-    public void ShakeCamera(CinemachineImpulseDefinition.ImpulseShapes impulseShape, float intensity, float duration)
-    {
-        if (!impulseSource) return;
-        
-        impulseSource.ImpulseDefinition.ImpulseShape = impulseShape;
-        impulseSource.ImpulseDefinition.ImpulseDuration = duration;
-        impulseSource.DefaultVelocity = new Vector3(Random.Range(-1f,1f),Random.Range(-1f,1f),Random.Range(-1f,1f));
-        impulseSource.GenerateImpulseWithForce(intensity);
-    }
     
     
     private void UpdateDynamicCameraOffset()
@@ -278,6 +263,7 @@ public class CameraManager : MonoBehaviour
     #endregion Camera Effects ------------------------------------------------------------------------------------------------
     
     
+    
     #region Events ---------------------------------------------------------------------------------------------------------
     
     private void OnStageChanged(SOLevelStage stage)
@@ -318,22 +304,6 @@ public class CameraManager : MonoBehaviour
             ;
     }
     
-    private void OnHealthChanged(int health)
-    {
-        if (health <= 0)
-        {
-            ShakeCamera(CinemachineImpulseDefinition.ImpulseShapes.Rumble,5, 1f);
-        }
-    }
-    
-    private void OnShieldChanged(float shield)
-    {
-        if (shield <= 0)
-        {
-            ShakeCamera(CinemachineImpulseDefinition.ImpulseShapes.Rumble,3, 0.5f);
-        }
-    }
-    
     private void OnPlayerDeath()
     {
         SetActiveCamera(introCamera);
@@ -343,6 +313,7 @@ public class CameraManager : MonoBehaviour
     #endregion Events ---------------------------------------------------------------------------------------------------------
 
 
+    
     #region Helpers ---------------------------------------------------------------------------------------------------------
 
     private Vector2 GetNormalizedAimPosition()

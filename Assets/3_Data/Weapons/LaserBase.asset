@@ -33,21 +33,12 @@ MonoBehaviour:
   - rid: 4047855503621750873
   - rid: 3357952728375754824
   - rid: 3357952757002403913
+  - rid: 4047855707409612891
   hitscanBehaviors: []
   fireSound: {fileID: 11400000, guid: e971bc54a3f9999aaacf79a252c19c12, type: 2}
   fireEffectPrefab: {fileID: 0}
-  shakeCameraOnFire: 0
-  fireShakeSettings:
-    impulseShape: 2
-    intensity: 1
-    duration: 0.3
   impactSound: {fileID: 11400000, guid: ca5580e59bab65b42a64c5ca5924a136, type: 2}
   impactEffectPrefab: {fileID: 0}
-  shakeCameraOnImpact: 0
-  impactShakeSettings:
-    impulseShape: 2
-    intensity: 1
-    duration: 0.3
   references:
     version: 2
     RefIds:
@@ -94,3 +85,64 @@ MonoBehaviour:
       type: {class: BehaviorDamageOnImpact, ns: , asm: Assembly-CSharp}
       data:
         damage: 35
+    - rid: 4047855707409612891
+      type: {class: BehaviorRumbleAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
+      data:
+        rumbleControllerOnFire: 1
+        rumbleSettings:
+          lowFrequency: 0.1
+          highFrequency: 0.1
+          duration: 0.2
+          lowFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          highFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+        shakeCameraOnFire: 0
+        shakeSettings:
+          impulseShape: 2
+          intensity: 1
+          duration: 0.3

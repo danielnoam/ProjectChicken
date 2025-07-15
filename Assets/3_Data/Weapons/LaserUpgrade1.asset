@@ -25,23 +25,24 @@ MonoBehaviour:
   heatPerShot: 4
   timeLimit: 10
   ammoLimit: 3
-  overrideProjectileBehaviors: 0
+  overrideProjectileBehaviors: 1
   projectileBehaviors:
-  - rid: 4485103943456129184
-  - rid: 4485103943456129185
-  - rid: 4485103943456129186
-  - rid: 4485103943456129187
+  - rid: 4047855707409612910
+  - rid: 4047855707409612911
+  - rid: 4047855707409612912
+  - rid: 4047855707409612913
+  - rid: 4047855707409612914
   overrideHitscanBehaviors: 0
   hitscanBehaviors: []
   itemName: Laser Upgrade 1
-  itemDescription: The weapon now shoots two lasers!
+  itemDescription: Now shoots two lasers!
   itemCost: 150
   neededItemsToUnlock: []
   itemID: -1161306231
   references:
     version: 2
     RefIds:
-    - rid: 4485103943456129184
+    - rid: 4047855707409612910
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
       data:
         moveSpeed: 100
@@ -71,16 +72,77 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-    - rid: 4485103943456129185
+    - rid: 4047855707409612911
       type: {class: BehaviorDamageOnImpact, ns: , asm: Assembly-CSharp}
       data:
         damage: 35
-    - rid: 4485103943456129186
+    - rid: 4047855707409612912
       type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
       data:
         pushForce: 10
-    - rid: 4485103943456129187
+    - rid: 4047855707409612913
       type: {class: BehaviorStunOnImpact, ns: , asm: Assembly-CSharp}
       data:
         stunChance: 25
         stunDuration: 0.3
+    - rid: 4047855707409612914
+      type: {class: BehaviorRumbleAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
+      data:
+        rumbleControllerOnFire: 1
+        rumbleSettings:
+          lowFrequency: 0.1
+          highFrequency: 0.1
+          duration: 0.2
+          lowFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          highFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+        shakeCameraOnFire: 0
+        shakeSettings:
+          impulseShape: 2
+          intensity: 1
+          duration: 0.3

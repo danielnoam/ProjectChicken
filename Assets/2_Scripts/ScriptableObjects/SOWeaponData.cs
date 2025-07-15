@@ -42,18 +42,12 @@ public class SOWeaponData : ScriptableObject
     [Header("Fire Effect")]
     [SerializeField] private SOAudioEvent fireSound;
     [SerializeField] private ParticleSystem fireEffectPrefab;
-    [SerializeField] private bool shakeCameraOnFire;
-    [ShowIf("shakeCameraOnFire")]
-    [SerializeField] private CameraShakeSettings fireShakeSettings;
-    [EndIf]
     
     [Header("Impact Effect")]
     [SerializeField] private SOAudioEvent impactSound;
     [SerializeField] private ParticleSystem impactEffectPrefab;
-    [SerializeField] private bool shakeCameraOnImpact;
-    [ShowIf("shakeCameraOnImpact")]
-    [SerializeField] private CameraShakeSettings impactShakeSettings;
-    [EndIf]
+    
+    
     
 
 
@@ -80,12 +74,10 @@ public class SOWeaponData : ScriptableObject
     
     public SOAudioEvent FireSound => fireSound;
     public ParticleSystem FireEffectPrefab => fireEffectPrefab;
-    public bool ShakeCameraOnFire => shakeCameraOnFire;
-    public CameraShakeSettings FireShakeSettings => fireShakeSettings;
     public SOAudioEvent ImpactSound => impactSound;
     public ParticleSystem ImpactEffectPrefab => impactEffectPrefab;
-    public bool ShakeCameraOnImpact => shakeCameraOnImpact;
-    public CameraShakeSettings ImpactShakeSettings => impactShakeSettings;
+
+
 
 
     private void OnValidate()
@@ -222,13 +214,8 @@ public class SOWeaponData : ScriptableObject
 
         fireSound = source.FireSound;
         fireEffectPrefab = source.FireEffectPrefab;
-        shakeCameraOnFire = source.ShakeCameraOnFire;
-        fireShakeSettings = source.FireShakeSettings;
         impactSound = source.ImpactSound;
         impactEffectPrefab = source.ImpactEffectPrefab;
-        shakeCameraOnImpact = source.ShakeCameraOnImpact;
-        impactShakeSettings = source.ImpactShakeSettings;
-
     }
 
     public void ApplyUpgradeData(SOWeaponUpgrade upgrade)

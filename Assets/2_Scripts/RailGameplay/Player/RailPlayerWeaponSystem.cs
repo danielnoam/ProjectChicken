@@ -6,12 +6,15 @@ using DNExtensions;
 using KBCore.Refs;
 using PrimeTween;
 using TMPro;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VInspector;
 
 
 [RequireComponent(typeof(RailPlayer))]
+[RequireComponent(typeof(CinemachineImpulseSource))]
+[RequireComponent(typeof(ControllerRumbleSource))]
 public class RailPlayerWeaponSystem : MonoBehaviour
 {
     [Header("Weapons Settings")]
@@ -42,6 +45,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Range(0, 1)] private float miniGameWindowPosition = 0.23f;
     [SerializeField, Range(0, 1)] private float miniGameWindow = 0.415f; 
     [EndIf]
+    [SerializeField] private ControllerRumbleEffectSettings rumbleOnOverheatSettings = new ControllerRumbleEffectSettings();
     [Header("Dodge")]
     [SerializeField] private bool dodgeReleasesHeat = true;
     [ShowIf("dodgeReleasesHeat")]
@@ -62,6 +66,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Tooltip("How fast the reticle position smoothly moves to its target position")] private float reticlesFollowSpeed = 25f;
     [EndIf]
     [EndFoldout]
+    
+
 
     
     [Header("References")]
@@ -78,7 +84,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
-    [SerializeField, Self, HideInInspector] private RumbleSource rumbleSource;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
+    [SerializeField, Self, HideInInspector] private CinemachineImpulseSource impulseSource;
 
 
     private bool _allowShooting;
@@ -152,7 +159,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         foreach (var weapon in weapons)
         {
-            weapon.SetUpWeaponInstance();
+            weapon.SetUpWeaponInstance(controllerRumbleSource, impulseSource);
         }
         
         if (useRangingReticles)
@@ -462,7 +469,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         
         weaponInstance.OnWeaponUsed(player);
         targetReticle?.PunchReticleSize(targetReticlePunchStrength, targetReticlePunchDuration);
-        rumbleSource.Rumble(0.1f,0.1f, 0.1f);
     
         OnWeaponUsed?.Invoke(weaponInstance);
     }
@@ -552,7 +558,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _currentSpecialWeaponInstance?.OnWeaponOverheat();
         targetReticle?.PunchReticleSize(targetReticleOverheatPunchStrength, targetReticlePunchDuration);
         targetReticle?.SetEmissionStrength(_currentHeat);
-        rumbleSource.Rumble(0.5f,0.5f, 0.2f);
+        controllerRumbleSource.Rumble(rumbleOnOverheatSettings);
         
         Sequence.Create()
             .Group(Tween.PunchScale(overheatText.transform, strength:Vector3.one * 0.3f, duration:0.6f))

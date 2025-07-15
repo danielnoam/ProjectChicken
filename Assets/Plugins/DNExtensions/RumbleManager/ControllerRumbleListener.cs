@@ -3,52 +3,67 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.DualShock;
-using UnityEngine.SceneManagement;
+using VInspector;
 
 namespace DNExtensions
 {
-    
+    [RequireComponent(typeof(PlayerInput))]
     [DisallowMultipleComponent]
-    public class RumbleManager : MonoBehaviour, IDualShockHaptics
+    public class ControllerRumbleListener : MonoBehaviour, IDualShockHaptics
     {
-        public static RumbleManager Instance { get; private set; }
+        public static ControllerRumbleListener Instance { get; private set; }
 
 
-        private readonly List<RumbleSource> _rumbleSources = new List<RumbleSource>();
-        private readonly HashSet<RumbleEffect> _activeRumbleEffects = new HashSet<RumbleEffect>();
+        private readonly List<ControllerRumbleSource> _rumbleSources = new List<ControllerRumbleSource>();
+        private readonly HashSet<ControllerRumbleEffect> _activeRumbleEffects = new HashSet<ControllerRumbleEffect>();
         private Gamepad _gamepad;
         private DualShockGamepad _dualShockGamepad;
-        private PlayerInput _currentPlayerInput;
+        [SerializeField, ReadOnly] private PlayerInput playerInput;
 
+
+        private void OnValidate()
+        {
+            if (!playerInput) playerInput = GetComponent<PlayerInput>();
+        }
 
         private void Awake()
         {
             if (!Instance || Instance == this)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
             }
             else
             {
-                Destroy(gameObject);
+                Destroy(this);
             }
         }
 
         private void OnEnable()
         {
-            FindPlayerInput();
-            SceneManager.activeSceneChanged += OnActiveSceneChanged;
+            if (playerInput)
+            {
+                playerInput.onControlsChanged += OnControlsChanged;
+                if (playerInput.currentControlScheme == "Gamepad")
+                {
+                    _gamepad = Gamepad.current;
+                    _dualShockGamepad = DualShockGamepad.current;
+                }
+                else
+                {
+                    _gamepad = null;
+                    _dualShockGamepad = null;
+                }
+            }
         }
 
         private void OnDisable()
         {
-            if (_currentPlayerInput)
+            if (playerInput)
             {
-                _currentPlayerInput.onControlsChanged -= OnControlsChanged;
-                _currentPlayerInput = null;
+                playerInput.onControlsChanged -= OnControlsChanged;
+                playerInput = null;
             }
             
-            SceneManager.activeSceneChanged -= OnActiveSceneChanged;
         }
 
         private void Update()
@@ -104,43 +119,17 @@ namespace DNExtensions
             }
 
         }
-
-
-        private void OnActiveSceneChanged(Scene previousScene, Scene nextScene)
-        {
-            FindPlayerInput();
-        }
         
-        private void FindPlayerInput()
-        {
-            if (_currentPlayerInput) return;
-            
-            _currentPlayerInput = FindFirstObjectByType<PlayerInput>();
-
-            if (_currentPlayerInput)
-            {
-                _currentPlayerInput.onControlsChanged += OnControlsChanged;
-                if (_currentPlayerInput.currentControlScheme == "Gamepad")
-                {
-                    _gamepad = Gamepad.current;
-                    _dualShockGamepad = DualShockGamepad.current;
-                }
-                else
-                {
-                    _gamepad = null;
-                    _dualShockGamepad = null;
-                }
-            }
-        }
 
 
         #region Rumble Effects ------------------------------------------------------------------------------
 
-        public void AddRumbleEffect(RumbleEffect effect)
+        public void AddRumbleEffect(ControllerRumbleEffect effect)
         {
             _activeRumbleEffects.Add(effect);
         }
 
+        [Button]
         private void DisableAllRumbles()
         {
             _activeRumbleEffects.Clear();
@@ -155,7 +144,7 @@ namespace DNExtensions
         #region Rumble Sources ----------------------------------------------------------------------------------
 
 
-        public void ConnectRumbleSource(RumbleSource source)
+        public void ConnectRumbleSource(ControllerRumbleSource source)
         {
             if (!source || _rumbleSources.Contains(source)) return;
 
@@ -163,7 +152,7 @@ namespace DNExtensions
 
         }
 
-        public void DisconnectRumbleSource(RumbleSource source)
+        public void DisconnectRumbleSource(ControllerRumbleSource source)
         {
             if (!source || !_rumbleSources.Contains(source)) return;
 

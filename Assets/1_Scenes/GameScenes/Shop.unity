@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 31568394}
   - component: {fileID: 31568396}
   - component: {fileID: 31568398}
+  - component: {fileID: 31568400}
   - component: {fileID: 31568397}
   - component: {fileID: 31568395}
   - component: {fileID: 31568399}
@@ -172,16 +173,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 324cb3159d5516044bda50b503563878, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rumbleInMenus: 1
   menuElements:
   - {fileID: 1938358609}
   - {fileID: 268447421}
   - {fileID: 1474582296}
+  rumbleInMenus: 1
+  rumbleLowFreq: 0.03
+  rumbleHighFreq: 0
+  rumbleDuration: 0.3
   defaultCameraLookAtPoint: {fileID: 629420452}
   menuLoopSfx: {fileID: 11400000, guid: d47adb19517f1f74b904221fe75a5581, type: 2}
   audioSource: {fileID: 31568396}
   menuInput: {fileID: 31568397}
-  rumbleSource: {fileID: 31568399}
+  controllerRumbleSource: {fileID: 31568399}
 --- !u!82 &31568396
 AudioSource:
   m_ObjectHideFlags: 0
@@ -403,6 +407,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcae686dfb6f4e95ab416ccb595ef855, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &31568400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 31568393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dffa83163bd4a041ab121b85dd1ac55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInput: {fileID: 31568398}
 --- !u!1 &136820635
 GameObject:
   m_ObjectHideFlags: 0
@@ -673,7 +690,7 @@ GameObject:
   - component: {fileID: 251952650}
   - component: {fileID: 251952649}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Gfx
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -689,7 +706,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.565957, y: 0.2, z: 0.25}
+  m_LocalScale: {x: 3.283142, y: 0.2, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1938358605}
@@ -930,6 +947,7 @@ GameObject:
   - component: {fileID: 268447424}
   - component: {fileID: 268447422}
   - component: {fileID: 268447421}
+  - component: {fileID: 268447425}
   m_Layer: 0
   m_Name: ShipUpgradesShelf
   m_TagString: Untagged
@@ -946,7 +964,7 @@ Transform:
   m_GameObject: {fileID: 268447419}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.032, y: 1.7170001, z: 3.176}
+  m_LocalPosition: {x: -0.649, y: 1.773, z: 3.176}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -982,7 +1000,8 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
-  rumbleSource: {fileID: 268447424}
+  controllerRumbleSource: {fileID: 268447424}
+  cinemachineImpulseSource: {fileID: 268447425}
   interactionCamera: {fileID: 2089799990}
   shelfItems:
   - _underlyingValue: {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
@@ -1044,6 +1063,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcae686dfb6f4e95ab416ccb595ef855, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &268447425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 268447419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ImpulseDefinition:
+    ImpulseChannel: 1
+    ImpulseShape: 2
+    CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ImpulseDuration: 0.2
+    ImpulseType: 0
+    DissipationRate: 0.25
+    RawSignal: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    RepeatMode: 0
+    Randomize: 1
+    TimeEnvelope:
+      AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      AttackTime: 0
+      SustainTime: 0.2
+      DecayTime: 0.7
+      ScaleWithImpact: 1
+      HoldForever: 0
+    ImpactRadius: 100
+    DirectionMode: 0
+    DissipationMode: 2
+    DissipationDistance: 100
+    PropagationSpeed: 343
+  DefaultVelocity: {x: 0, y: -1, z: 0}
 --- !u!1 &281214431
 GameObject:
   m_ObjectHideFlags: 0
@@ -1192,7 +1264,7 @@ GameObject:
   - component: {fileID: 310664113}
   - component: {fileID: 310664112}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Gfx
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1208,7 +1280,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.565957, y: 0.2, z: 0.25}
+  m_LocalScale: {x: 3.283142, y: 0.2, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 268447420}
@@ -1776,63 +1848,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 584277360}
   m_CullTransparentMesh: 1
---- !u!1001 &601041606
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5812443463102875798, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
-      propertyPath: m_Name
-      value: RumbleManager
-      objectReference: {fileID: 0}
-    - target: {fileID: 7827767778290596485, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.19377
-      objectReference: {fileID: 0}
-    - target: {fileID: 7827767778290596485, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7827767778290596485, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.16089
-      objectReference: {fileID: 0}
-    - target: {fileID: 7827767778290596485, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7827767778290596485, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7827767778290596485, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7827767778290596485, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7827767778290596485, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7827767778290596485, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7827767778290596485, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 7223d2582cfa2e44582ce4469c357c4c, type: 3}
 --- !u!1 &629420451
 GameObject:
   m_ObjectHideFlags: 0
@@ -1900,7 +1915,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.018, y: 0.32099998}
+  m_AnchoredPosition: {x: -1.186, y: 0.32099998}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &641330615
@@ -1921,7 +1936,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 0.5
+  m_Spacing: 0.4
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -2104,7 +2119,7 @@ Transform:
   m_GameObject: {fileID: 691996172}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.301, z: -1.3659999}
+  m_LocalPosition: {x: 0, y: 0.301, z: -1.55}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3007,6 +3022,7 @@ GameObject:
   - component: {fileID: 1474582297}
   - component: {fileID: 1474582295}
   - component: {fileID: 1474582296}
+  - component: {fileID: 1474582298}
   m_Layer: 0
   m_Name: ExitShopSign
   m_TagString: Untagged
@@ -3096,7 +3112,8 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
-  rumbleSource: {fileID: 1474582297}
+  controllerRumbleSource: {fileID: 1474582297}
+  cinemachineImpulseSource: {fileID: 1474582298}
   interactionCamera: {fileID: 0}
   delayBeforeLoad: 1
   sceneToLoad:
@@ -3115,6 +3132,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcae686dfb6f4e95ab416ccb595ef855, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1474582298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1474582291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ImpulseDefinition:
+    ImpulseChannel: 1
+    ImpulseShape: 2
+    CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ImpulseDuration: 0.2
+    ImpulseType: 0
+    DissipationRate: 0.25
+    RawSignal: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    RepeatMode: 0
+    Randomize: 1
+    TimeEnvelope:
+      AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      AttackTime: 0
+      SustainTime: 0.2
+      DecayTime: 0.7
+      ScaleWithImpact: 1
+      HoldForever: 0
+    ImpactRadius: 100
+    DirectionMode: 0
+    DissipationMode: 2
+    DissipationDistance: 100
+    PropagationSpeed: 343
+  DefaultVelocity: {x: 0, y: -1, z: 0}
 --- !u!1 &1491774888
 GameObject:
   m_ObjectHideFlags: 0
@@ -3704,6 +3774,7 @@ GameObject:
   - component: {fileID: 1938358607}
   - component: {fileID: 1938358610}
   - component: {fileID: 1938358608}
+  - component: {fileID: 1938358611}
   - component: {fileID: 1938358609}
   m_Layer: 0
   m_Name: WeaponUpgradesShelf
@@ -3721,7 +3792,7 @@ Transform:
   m_GameObject: {fileID: 1938358604}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.032, y: 1.075, z: 3.176}
+  m_LocalPosition: {x: -0.649, y: 1.015, z: 3.176}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3796,12 +3867,16 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
-  rumbleSource: {fileID: 1938358610}
+  controllerRumbleSource: {fileID: 1938358610}
+  cinemachineImpulseSource: {fileID: 1938358611}
   interactionCamera: {fileID: 691996174}
   shelfItems:
   - _underlyingValue: {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
-  - _underlyingValue: {fileID: 11400000, guid: caa3ae67362bd314399b4bd2ba6e4eef, type: 2}
   - _underlyingValue: {fileID: 11400000, guid: 12cc92c87d933784fa7101edef57d18c, type: 2}
+  - _underlyingValue: {fileID: 11400000, guid: caa3ae67362bd314399b4bd2ba6e4eef, type: 2}
+  - _underlyingValue: {fileID: 11400000, guid: ab973da60211b7147bb6d445426db471, type: 2}
+  - _underlyingValue: {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
+  - _underlyingValue: {fileID: 11400000, guid: edf5b49190bc5f14cb523dda726bc824, type: 2}
   storeItemUIDataPrefab: {fileID: 2223244352072553111, guid: 6b013a4f530eeaa4b84e36c201bd94c7, type: 3}
   storeItemHolder: {fileID: 1957478632}
 --- !u!114 &1938358610
@@ -3816,6 +3891,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcae686dfb6f4e95ab416ccb595ef855, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1938358611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1938358604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ImpulseDefinition:
+    ImpulseChannel: 1
+    ImpulseShape: 2
+    CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ImpulseDuration: 0.2
+    ImpulseType: 0
+    DissipationRate: 0.25
+    RawSignal: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    RepeatMode: 0
+    Randomize: 1
+    TimeEnvelope:
+      AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      AttackTime: 0
+      SustainTime: 0.2
+      DecayTime: 0.7
+      ScaleWithImpact: 1
+      HoldForever: 0
+    ImpactRadius: 100
+    DirectionMode: 0
+    DissipationMode: 2
+    DissipationDistance: 100
+    PropagationSpeed: 343
+  DefaultVelocity: {x: 0, y: -1, z: 0}
 --- !u!1 &1957478631
 GameObject:
   m_ObjectHideFlags: 0
@@ -3852,7 +3980,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.0179996, y: 0.321}
+  m_AnchoredPosition: {x: -1.1860001, y: 0.321}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1957478634
@@ -3936,7 +4064,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 0.5
+  m_Spacing: 0.4
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -4085,7 +4213,7 @@ Transform:
   m_GameObject: {fileID: 2089799988}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.301, z: -1.415}
+  m_LocalPosition: {x: 0, y: 0.249, z: -1.599}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4509,7 +4637,6 @@ SceneRoots:
   - {fileID: 558234534}
   - {fileID: 1361232680}
   - {fileID: 1275789959175529501}
-  - {fileID: 601041606}
   - {fileID: 324375939}
   - {fileID: 31568394}
   - {fileID: 2134933386}

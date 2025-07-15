@@ -28,7 +28,7 @@ public class RailPlayerAiming : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
-    [SerializeField, Self, HideInInspector] private RumbleSource rumbleSource;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
 
 
     private bool _isAimLocked;

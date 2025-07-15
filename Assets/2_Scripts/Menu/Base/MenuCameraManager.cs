@@ -139,17 +139,6 @@ public class MenuCameraManager : MonoBehaviour
             ;
     }
     
-    
-    [Button]
-    public void ShakeCamera(CinemachineImpulseDefinition.ImpulseShapes impulseShape, float intensity, float duration)
-    {
-        if (!impulseSource) return;
-        
-        impulseSource.ImpulseDefinition.ImpulseShape = impulseShape;
-        impulseSource.ImpulseDefinition.ImpulseDuration = duration;
-        impulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f,1f),UnityEngine.Random.Range(-1f,1f),UnityEngine.Random.Range(-1f,1f));
-        impulseSource.GenerateImpulseWithForce(intensity);
-    }
 
 
 

@@ -4,7 +4,7 @@ namespace DNExtensions
 {
     
 
-    public class RumbleEffect
+    public class ControllerRumbleEffect
     {
         public readonly float LowFrequency;
         public readonly float HighFrequency;
@@ -17,8 +17,7 @@ namespace DNExtensions
         public bool IsExpired => ElapsedTime >= Duration;
 
 
-        public RumbleEffect(float lowFrequency, float highFrequency, float duration,
-            AnimationCurve lowFrequencyCurve = null, AnimationCurve highFrequencyCurve = null)
+        public ControllerRumbleEffect(float lowFrequency, float highFrequency, float duration, AnimationCurve lowFrequencyCurve = null, AnimationCurve highFrequencyCurve = null)
         {
             LowFrequency = lowFrequency;
             HighFrequency = highFrequency;
@@ -35,15 +34,21 @@ namespace DNExtensions
         }
     }
 
-    public static class RumblePresets
+    public static class ControllerRumblePresets
     {
-        public static RumbleEffect CreateFadeOut(float lowFreq, float highFreq, float duration)
+        public static ControllerRumbleEffect CreateFadeOut(float lowFreq, float highFreq, float duration)
         {
             var fadeOut = AnimationCurve.Linear(0, 1, 1, 0);
-            return new RumbleEffect(lowFreq, highFreq, duration, fadeOut, fadeOut);
+            return new ControllerRumbleEffect(lowFreq, highFreq, duration, fadeOut, fadeOut);
         }
 
-        public static RumbleEffect CreatePulse(float lowFreq, float highFreq, float duration, int pulses = 3)
+        public static ControllerRumbleEffect CreateFadeIn(float lowFreq, float highFreq, float duration)
+        {
+            var fadeIn = AnimationCurve.Linear(0, 0, 1, 1);
+            return new ControllerRumbleEffect(lowFreq, highFreq, duration, fadeIn, fadeIn);
+        }
+
+        public static ControllerRumbleEffect CreatePulse(float lowFreq, float highFreq, float duration, int pulses = 3)
         {
             var pulseCurve = new AnimationCurve();
             for (int i = 0; i < pulses; i++)
@@ -53,7 +58,7 @@ namespace DNExtensions
                 pulseCurve.AddKey(time + 0.1f / pulses, 1f);
             }
 
-            return new RumbleEffect(lowFreq, highFreq, duration, pulseCurve, pulseCurve);
+            return new ControllerRumbleEffect(lowFreq, highFreq, duration, pulseCurve, pulseCurve);
         }
     }
 }

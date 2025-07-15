@@ -9,7 +9,8 @@ using VInspector;
 [SelectionBase]
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(MenuInput))]
-[RequireComponent(typeof(RumbleSource))]
+[RequireComponent(typeof(ControllerRumbleSource))]
+[RequireComponent(typeof(ControllerRumbleListener))]
 public class MenuController : MonoBehaviour
 {
 
@@ -29,7 +30,7 @@ public class MenuController : MonoBehaviour
     [SerializeField] private SOAudioEvent menuLoopSfx;
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     [SerializeField, Self, HideInInspector] private MenuInput menuInput;
-    [SerializeField, Self, HideInInspector] private RumbleSource rumbleSource;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
     
     
     private bool _isInteracting;
@@ -97,7 +98,7 @@ public class MenuController : MonoBehaviour
         }
 
         DisableSelection();
-        if (rumbleInMenus) rumbleSource.Rumble(0.05f,0f,0.1f);
+        if (rumbleInMenus) controllerRumbleSource.Rumble(0.05f,0f,0.1f);
 
         _currentMenuElementIndex = index;
         _currentMenuElement = menuElements[index];
@@ -193,7 +194,7 @@ public class MenuController : MonoBehaviour
     {
         if (_isInteracting || !element.CanSelect) return;
         
-        if (rumbleInMenus) rumbleSource.Rumble(rumbleLowFreq,rumbleHighFreq,rumbleDuration);
+        if (rumbleInMenus) controllerRumbleSource.Rumble(rumbleLowFreq,rumbleHighFreq,rumbleDuration);
         _isInteracting = true;
         element?.Interact();
         OnElementInteracted?.Invoke(element);
@@ -201,7 +202,7 @@ public class MenuController : MonoBehaviour
     
     private void StopInteraction(MenuElement element)
     {
-        if (rumbleInMenus) rumbleSource.Rumble(rumbleLowFreq,rumbleHighFreq,rumbleDuration);
+        if (rumbleInMenus) controllerRumbleSource.Rumble(rumbleLowFreq,rumbleHighFreq,rumbleDuration);
         _isInteracting = false;
         element?.StopInteraction();
         OnElementFinishedInteraction?.Invoke(element);

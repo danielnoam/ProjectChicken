@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 
 
-public class BehaviorSpawnProjectilesOnStart : ProjectileBehaviorBase
+public class BehaviorCreateProjectilesOnSpawn : ProjectileBehaviorBase
 {
     [SerializeField] private float targetRadius = 10f;
     [SerializeField] private float spawnRadius = 1f;

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DNExtensions;
 using KBCore.Refs;
+using Unity.Cinemachine;
 using UnityEngine;
 using VInspector;
 
@@ -15,29 +16,41 @@ using VInspector;
 [RequireComponent(typeof(RailPlayerMovement))]
 [RequireComponent(typeof(RailPlayerAiming))]
 [RequireComponent(typeof(RailPlayerWeaponSystem))]
-[RequireComponent(typeof(RumbleSource))]
+[RequireComponent(typeof(ControllerRumbleSource))]
+[RequireComponent(typeof(CinemachineImpulseSource))]
 public class RailPlayer : MonoBehaviour
 {
     [Header("Health")]
     [SerializeField, Min(0)] private int baseHealth = 3;
     [SerializeField] private bool dodgingGivesInvincibility = true;
     [SerializeField] private bool receiveHealthOnBonusThreshold = true;
-    [SerializeField] private SOHealthUpgrade[] healthUpgrades = Array.Empty<SOHealthUpgrade>();
     
     [Header("Shield")]
     [SerializeField, Min(0)] private float baseShieldHealth = 100f;
     [SerializeField, Min(0)] private float shieldRegenCooldown = 3f;
     [SerializeField, Min(0)] private float shieldRegenRate = 15f;
-    [SerializeField] private SOShieldUpgrade[] shieldUpgrades = Array.Empty<SOShieldUpgrade>();
     
     [Header("Resource Collection")]
-    [SerializeField ,Min(0)] private float magnetRadius = 14f;
+    [SerializeField ,Min(0)] private float baseMagnetRadius = 14f;
+    
+    [Header("Upgrades")]
+    [SerializeField] private SOHealthUpgrade[] healthUpgrades = Array.Empty<SOHealthUpgrade>();
+    [SerializeField] private SOShieldUpgrade[] shieldUpgrades = Array.Empty<SOShieldUpgrade>();
     [SerializeField] private SOResourceMagnetUpgrade[] resourceMagnetUpgrades = Array.Empty<SOResourceMagnetUpgrade>();
     
     [Header("Path Following")]
     [SerializeField] private bool alignToSplineDirection = true;
     [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
     [EndIf]
+    
+    [Header("Camera Shake")]
+    [SerializeField] private CameraShakeSettings deathShakeSettings;
+    [SerializeField] private CameraShakeSettings shieldDepletedShakeSettings;
+    
+    [Header("Controller Rumble")]
+    [SerializeField] private ControllerRumbleEffectSettings deathControllerRumbleSettings;
+    [SerializeField] private ControllerRumbleEffectSettings shieldDamagedControllerRumbleSettings;
+    [SerializeField] private ControllerRumbleEffectSettings healthDamagedControllerRumbleSettings;
     
     [Header("References")]
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
@@ -55,7 +68,8 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
-    [SerializeField, Self, HideInInspector] private RumbleSource rumbleSource;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
+    [SerializeField, Self, HideInInspector] private CinemachineImpulseSource cinemachineImpulseSource;
 
     
 
@@ -111,7 +125,7 @@ public class RailPlayer : MonoBehaviour
         
         _maxHealth = baseHealth + TotalHealthUpgrades();
         _maxShieldHealth = baseShieldHealth + TotalShieldUpgrades();
-        _currentMagnetRadius = magnetRadius + TotalResourceMagnetUpgrades();
+        _currentMagnetRadius = baseMagnetRadius + TotalResourceMagnetUpgrades();
         
         _currentCurrency = SaveManager.GetCurrency();
         _currentHealth = _maxHealth;
@@ -216,13 +230,22 @@ public class RailPlayer : MonoBehaviour
             _currentShieldHealth = 0;
             DamageHealth();
             shieldDepletedSfx?.Play(audioSource);
+            
+            if (cinemachineImpulseSource)
+            {
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shieldDepletedShakeSettings.impulseShape;
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shieldDepletedShakeSettings.duration;
+                cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+                cinemachineImpulseSource.GenerateImpulseWithForce(shieldDepletedShakeSettings.intensity);
+            }
+            
         }
         else
         {
+            controllerRumbleSource.Rumble(shieldDamagedControllerRumbleSettings);
             shieldDamageSfx?.Play(audioSource);
         }
         
-        rumbleSource.Rumble(0.1f,0, 0.1f);
         OnShieldChanged?.Invoke(_currentShieldHealth);
     }
     
@@ -238,10 +261,10 @@ public class RailPlayer : MonoBehaviour
         }
         else
         {
+            controllerRumbleSource.Rumble(healthDamagedControllerRumbleSettings);
             healthDamageSfx?.Play(audioSource);
         }
         
-        rumbleSource.Rumble(0,0.5f, 0.3f);
         OnHealthChanged?.Invoke(_currentHealth);
     }
     
@@ -266,7 +289,15 @@ public class RailPlayer : MonoBehaviour
     private void Die()
     {
         deathSfx?.Play(audioSource);
-        rumbleSource.Rumble(0.2f,0.2f, 1f);
+        controllerRumbleSource.Rumble(deathControllerRumbleSettings);
+        if (cinemachineImpulseSource)
+        {
+            cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = deathShakeSettings.impulseShape;
+            cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = deathShakeSettings.duration;
+            cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f,1f),UnityEngine.Random.Range(-1f,1f),UnityEngine.Random.Range(-1f,1f));
+            cinemachineImpulseSource.GenerateImpulseWithForce(deathShakeSettings.intensity);
+        }
+
         OnDeath?.Invoke();
     }
 
@@ -384,7 +415,7 @@ public class RailPlayer : MonoBehaviour
     {
         if (!IsAlive()) return;
         
-        Collider[] colliders = Physics.OverlapSphere(transform.position, magnetRadius);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, _currentMagnetRadius);
         foreach (var col in colliders)
         {
             if (col.TryGetComponent(out Resource resource))
@@ -407,7 +438,7 @@ public class RailPlayer : MonoBehaviour
     
 
             var distance = Vector3.Distance(transform.position, resource.transform.position);
-            if (distance > magnetRadius)
+            if (distance > _currentMagnetRadius)
             {
                 resource.ReleaseFromMagnetization();
                 _resourcesInRange.RemoveAt(i);
@@ -564,8 +595,8 @@ public class RailPlayer : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, magnetRadius);
-        UnityEditor.Handles.Label(transform.position + (Vector3.up * magnetRadius), "Magnet Radius");
+        Gizmos.DrawWireSphere(transform.position, _currentMagnetRadius);
+        UnityEditor.Handles.Label(transform.position + (Vector3.up * baseMagnetRadius), "Magnet Radius");
     }
 
 

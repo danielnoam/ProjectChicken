@@ -590,6 +590,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
+  emissionRange:
+    minValue: 0.1
+    maxValue: 1
   emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 5022044165417545323}
@@ -1648,6 +1651,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
+  emissionRange:
+    minValue: 0.1
+    maxValue: 1
   emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 3954000043469550707}
@@ -2906,9 +2912,11 @@ GameObject:
   m_Component:
   - component: {fileID: 8474555558549935190}
   - component: {fileID: 8177767816080453902}
+  - component: {fileID: 646811667215214196}
   - component: {fileID: 8027271115035412187}
   - component: {fileID: 6276024430624118950}
   - component: {fileID: 284695675551663708}
+  - component: {fileID: 3917683547680578920}
   - component: {fileID: 2233603387570671912}
   - component: {fileID: 8438971806570489096}
   - component: {fileID: 7233717465822237952}
@@ -2967,6 +2975,19 @@ Rigidbody:
   m_Interpolate: 2
   m_Constraints: 0
   m_CollisionDetection: 1
+--- !u!114 &646811667215214196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042140183398147502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dffa83163bd4a041ab121b85dd1ac55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInput: {fileID: 8027271115035412187}
 --- !u!114 &8027271115035412187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3100,6 +3121,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcae686dfb6f4e95ab416ccb595ef855, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3917683547680578920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042140183398147502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ImpulseDefinition:
+    ImpulseChannel: 1
+    ImpulseShape: 2
+    CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ImpulseDuration: 0.2
+    ImpulseType: 0
+    DissipationRate: 0.25
+    RawSignal: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    RepeatMode: 0
+    Randomize: 1
+    TimeEnvelope:
+      AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      AttackTime: 0
+      SustainTime: 0.2
+      DecayTime: 0.7
+      ScaleWithImpact: 1
+      HoldForever: 0
+    ImpactRadius: 100
+    DirectionMode: 0
+    DissipationMode: 2
+    DissipationDistance: 100
+    PropagationSpeed: 343
+  DefaultVelocity: {x: 0, y: -1, z: 0}
 --- !u!114 &2233603387570671912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3115,19 +3189,185 @@ MonoBehaviour:
   baseHealth: 3
   dodgingGivesInvincibility: 1
   receiveHealthOnBonusThreshold: 1
-  healthUpgrades:
-  - {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
-  - {fileID: 11400000, guid: 5051ea4807e765847ad58fa7f3fcaadc, type: 2}
   baseShieldHealth: 100
   shieldRegenCooldown: 3
   shieldRegenRate: 15
+  baseMagnetRadius: 14
+  healthUpgrades:
+  - {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
+  - {fileID: 11400000, guid: 5051ea4807e765847ad58fa7f3fcaadc, type: 2}
   shieldUpgrades:
   - {fileID: 11400000, guid: 85cde709a65e11a4285e307636799abb, type: 2}
   - {fileID: 11400000, guid: 5fd2ebb25c87fa547bc5c087a3dfb75d, type: 2}
-  magnetRadius: 14
-  resourceMagnetUpgrades: []
+  resourceMagnetUpgrades:
+  - {fileID: 11400000, guid: 259517cbb337a8243a3e713a312b7abd, type: 2}
+  - {fileID: 11400000, guid: f1ff5cc07ba342e418fb8a51b876c50f, type: 2}
   alignToSplineDirection: 1
   splineRotationSpeed: 5
+  deathShakeSettings:
+    impulseShape: 4
+    intensity: 5
+    duration: 1
+  shieldDepletedShakeSettings:
+    impulseShape: 4
+    intensity: 3
+    duration: 0.5
+  deathControllerRumbleSettings:
+    lowFrequency: 0.3
+    highFrequency: 0.3
+    duration: 0.3
+    lowFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    highFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  shieldDamagedControllerRumbleSettings:
+    lowFrequency: 0.3
+    highFrequency: 0.3
+    duration: 0.3
+    lowFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    highFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  healthDamagedControllerRumbleSettings:
+    lowFrequency: 0.3
+    highFrequency: 0.3
+    duration: 0.3
+    lowFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    highFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   audioSource: {fileID: 6485381765733721381}
   cameraPositions: {fileID: 578094112693646351}
   followCameraTarget: {fileID: 7239159908269156373}
@@ -3143,7 +3383,8 @@ MonoBehaviour:
   playerAiming: {fileID: 890854243081262160}
   playerWeapon: {fileID: 3423310960035294283}
   playerMovement: {fileID: 7233717465822237952}
-  rumbleSource: {fileID: 284695675551663708}
+  controllerRumbleSource: {fileID: 284695675551663708}
+  cinemachineImpulseSource: {fileID: 3917683547680578920}
 --- !u!114 &8438971806570489096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3252,7 +3493,7 @@ MonoBehaviour:
   playerAiming: {fileID: 890854243081262160}
   playerInput: {fileID: 8438971806570489096}
   playerRigidbody: {fileID: 8177767816080453902}
-  rumbleSource: {fileID: 284695675551663708}
+  controllerRumbleSource: {fileID: 284695675551663708}
 --- !u!114 &890854243081262160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3277,7 +3518,7 @@ MonoBehaviour:
   playerInput: {fileID: 8438971806570489096}
   playerMovement: {fileID: 7233717465822237952}
   playerWeapon: {fileID: 3423310960035294283}
-  rumbleSource: {fileID: 284695675551663708}
+  controllerRumbleSource: {fileID: 284695675551663708}
 --- !u!114 &3423310960035294283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3347,9 +3588,61 @@ MonoBehaviour:
   miniGameWindow: 0.415
   dodgeReleasesHeat: 1
   heatReleased: 25
+  rumbleOnOverheatSettings:
+    lowFrequency: 0.5
+    highFrequency: 0.5
+    duration: 0.2
+    lowFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    highFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   targetReticleAimLockSize: 2.5
   targetReticleAimLockDuration: 0.6
-  targetReticleOverheatPunchStrength: 1
+  targetReticleOverheatPunchStrength: 1.2
   targetReticlePunchStrength: 0.2
   targetReticlePunchDuration: 0.3
   useRangingReticles: 0
@@ -3369,7 +3662,8 @@ MonoBehaviour:
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
   playerMovement: {fileID: 7233717465822237952}
-  rumbleSource: {fileID: 284695675551663708}
+  controllerRumbleSource: {fileID: 284695675551663708}
+  impulseSource: {fileID: 3917683547680578920}
 --- !u!1 &5214599697061486050
 GameObject:
   m_ObjectHideFlags: 0
@@ -4352,6 +4646,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
+  emissionRange:
+    minValue: 0.1
+    maxValue: 1
   emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 2370971554237841213}
@@ -5652,6 +5949,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
+  emissionRange:
+    minValue: 0.1
+    maxValue: 1
   emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 8026457023098140983}
@@ -5750,6 +6050,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
+  emissionRange:
+    minValue: 0.1
+    maxValue: 1
   emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 7999980696630192649}
@@ -5807,6 +6110,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
+  emissionRange:
+    minValue: 0.1
+    maxValue: 1
   emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 1445691226714708908}
@@ -6118,6 +6424,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emissionStrength: 1
+  emissionRange:
+    minValue: 0.1
+    maxValue: 1
   emissionEffectsAlpha: 0
   reticleRenderers:
   - {fileID: 2797940402119788746}

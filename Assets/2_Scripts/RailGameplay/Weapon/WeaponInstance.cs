@@ -1,8 +1,9 @@
-﻿using System;
+﻿
 using DNExtensions;
+using Unity.Cinemachine;
 using UnityEngine;
 
-[Serializable]
+[System.Serializable]
 public class WeaponUpgradeAssets
 {
     [SerializeField] private SOWeaponUpgrade upgrade;
@@ -19,7 +20,7 @@ public class WeaponUpgradeAssets
     }
 }
 
-[Serializable]
+[System.Serializable]
 public class WeaponInstance
 {
     public SOWeaponData baseWeaponData;
@@ -31,12 +32,16 @@ public class WeaponInstance
     public SOWeaponData WeaponData { get; private set; }
     public Transform CurrentWeaponGfx { get; private set; }
     public Transform[] CurrentWeaponBarrels { get; private set; }
+    public ControllerRumbleSource  ControllerRumbleSource { get; private set; }
+    public CinemachineImpulseSource CinemachineImpulseSource {  get; private set; }
 
-    public void SetUpWeaponInstance()
+    public void SetUpWeaponInstance(ControllerRumbleSource controllerRumbleSource, CinemachineImpulseSource cinemachineImpulseSource)
     {
         WeaponData = baseWeaponData;
         CurrentWeaponGfx = weaponGfx;
         CurrentWeaponBarrels = weaponBarrels;
+        ControllerRumbleSource = controllerRumbleSource;
+        CinemachineImpulseSource = cinemachineImpulseSource;
         
         
         if (baseWeaponData.WeaponUpgrades.Count == 0) return;
@@ -235,7 +240,7 @@ public class WeaponInstance
             {
                 0 => owner.GetAllTargets(999, WeaponData.TargetCheckRadius),
                 > 1 => owner.GetAllTargets(WeaponData.MaxTargets, WeaponData.TargetCheckRadius),
-                _ => Array.Empty<ChickenController>()
+                _ => System.Array.Empty<ChickenController>()
             };
 
             if (enemies.Length > 0)
@@ -276,7 +281,7 @@ public class WeaponInstance
         // weaponData.HitscanBehaviors now contains the upgraded behaviors
         foreach (var behavior in WeaponData.HitscanBehaviors)
         {
-            behavior.OnStart(WeaponData, owner);
+            behavior.OnStart(this, owner);
         }
 
         if (WeaponData.MaxTargets == 1)
@@ -290,7 +295,7 @@ public class WeaponInstance
             {
                 0 => owner.GetAllTargets(999, WeaponData.TargetCheckRadius),
                 > 1 => owner.GetAllTargets(WeaponData.MaxTargets, WeaponData.TargetCheckRadius),
-                _ => Array.Empty<ChickenController>()
+                _ => System.Array.Empty<ChickenController>()
             };
             foreach (ChickenController enemy in enemies)
             {
@@ -300,7 +305,7 @@ public class WeaponInstance
         
         foreach (var behavior in WeaponData.HitscanBehaviors)
         {
-            behavior.OnEnd(WeaponData, owner);
+            behavior.OnEnd(this, owner);
         }
     }
 
@@ -310,7 +315,7 @@ public class WeaponInstance
 
         foreach (var behavior in WeaponData.HitscanBehaviors)
         {
-            behavior.OnHit(WeaponData, owner, enemy);
+            behavior.OnHit(this, owner, enemy);
         }
         
         PlayImpactEffect(enemy.transform.position, Quaternion.identity);
@@ -325,25 +330,21 @@ public class WeaponInstance
     {
         if (WeaponData.ImpactEffectPrefab)
         {
-            UnityEngine.Object.Instantiate(WeaponData.ImpactEffectPrefab.gameObject, position, rotation);
+            Object.Instantiate(WeaponData.ImpactEffectPrefab.gameObject, position, rotation);
         }
         
         if (WeaponData.ImpactSound)
         {
             WeaponData.ImpactSound.PlayAtPoint(position);
         }
-
-        if (WeaponData.ShakeCameraOnImpact)
-        {
-            CameraManager.Instance?.ShakeCamera(WeaponData.ImpactShakeSettings.impulseShape, WeaponData.ImpactShakeSettings.intensity, WeaponData.ImpactShakeSettings.duration);
-        }
+        
     }
     
     public void PlayFireEffect(Vector3 position, Quaternion rotation, AudioSource audioSource = null)
     {
         if (WeaponData.FireEffectPrefab)
         {
-            UnityEngine.Object.Instantiate(WeaponData.FireEffectPrefab.gameObject, position, rotation);
+            Object.Instantiate(WeaponData.FireEffectPrefab.gameObject, position, rotation);
         }
         
         if (WeaponData.FireSound)
@@ -357,12 +358,8 @@ public class WeaponInstance
                 WeaponData.FireSound.PlayAtPoint(position);
             }
         }
-        
-        if (WeaponData.ShakeCameraOnFire)
-        {
-            CameraManager.Instance?.ShakeCamera(WeaponData.FireShakeSettings.impulseShape, WeaponData.FireShakeSettings.intensity, WeaponData.FireShakeSettings.duration);
-        }
     }
+    
 
     #endregion Effects ---------------------------------------------------------------------------------------
 }

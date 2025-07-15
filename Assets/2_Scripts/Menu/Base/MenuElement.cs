@@ -9,6 +9,8 @@ using VInspector;
 
 [SelectionBase]
 [RequireComponent(typeof(Outline))]
+[RequireComponent(typeof(CinemachineImpulseSource))]
+[RequireComponent(typeof(ControllerRumbleSource))]
 public abstract class MenuElement : MonoBehaviour
 {
     
@@ -30,7 +32,8 @@ public abstract class MenuElement : MonoBehaviour
     [SerializeField] private SOAudioEvent interactSfx;
     [SerializeField, Parent, HideInInspector] protected MenuController menuController;
     [SerializeField, Parent, HideInInspector] protected AudioSource audioSource;
-    [SerializeField, Self, HideInInspector] protected RumbleSource rumbleSource;
+    [SerializeField, Self, HideInInspector] protected ControllerRumbleSource controllerRumbleSource;
+    [SerializeField, Self, HideInInspector] protected CinemachineImpulseSource cinemachineImpulseSource;
     [SerializeField, Child(Flag.Optional), HideInInspector] private CinemachineCamera interactionCamera;
     [EndFoldout]
     

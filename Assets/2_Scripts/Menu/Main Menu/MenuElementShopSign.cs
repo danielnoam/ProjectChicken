@@ -35,7 +35,7 @@ public class MenuElementShopSign : MenuElement
         
         if (_loadSceneSequence.isAlive) _loadSceneSequence.Stop();
         _loadSceneSequence = Sequence.Create()
-                .ChainCallback(() => {rumbleSource.Rumble(0.05f,0, delayBeforeLoad);})
+                .ChainCallback(() => {controllerRumbleSource.Rumble(0.05f,0, delayBeforeLoad);})
                 .ChainDelay(delayBeforeLoad)
                 .OnComplete(FinishedInteraction);
     }

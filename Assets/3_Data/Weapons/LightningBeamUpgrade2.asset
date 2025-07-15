@@ -9,37 +9,38 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 108d4100b9f6ed44893c1bf888d0db7a, type: 3}
-  m_Name: LightningBeamBase
+  m_Script: {fileID: 11500000, guid: 04dac25139e84b27a8a6593b947380f7, type: 3}
+  m_Name: LightningBeamUpgrade2
   m_EditorClassIdentifier: 
-  weaponName: Lightning Beam
-  weaponDescription: Lightning!
-  weaponWeaponIcon: {fileID: 21300000, guid: d629af8e92b6b0892b661fba0e6c2912, type: 3}
-  weaponType: 1
-  weaponLimitation: 1
+  baseWeapon: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
+  overrideWeaponGfx: 0
+  overrideWeaponBarrels: 0
+  overrideFireRate: 1
+  fireRate: 0.1
+  overrideMaxTargets: 0
+  maxTargets: 1
+  overrideTargetCheckRadius: 0
+  targetCheckRadius: 4
+  overrideWeaponLimitation: 0
   heatPerShot: 3
   timeLimit: 30
   ammoLimit: 3
-  fireRate: 0.15
-  maxTargets: 1
-  targetCheckRadius: 4
-  weaponUpgrades:
-  - {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
-  - {fileID: 11400000, guid: edf5b49190bc5f14cb523dda726bc824, type: 2}
-  playerProjectilePrefab: {fileID: 6825391653092111716, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
-  projectileLifetime: 5
+  overrideProjectileBehaviors: 0
   projectileBehaviors: []
+  overrideHitscanBehaviors: 1
   hitscanBehaviors:
-  - rid: 2319611688567439443
-  - rid: 4047855707409612904
-  fireSound: {fileID: 11400000, guid: 95e63c624a0fccb43a66ea5cd0c84b9f, type: 2}
-  fireEffectPrefab: {fileID: 0}
-  impactSound: {fileID: 11400000, guid: ca5580e59bab65b42a64c5ca5924a136, type: 2}
-  impactEffectPrefab: {fileID: 0}
+  - rid: 4047855709786210424
+  - rid: 4047855709786210425
+  itemName: Lightning Beam Upgrade 2
+  itemDescription: Cook more chickens with each beam! (also makes the beam stronger)
+  itemCost: 500
+  neededItemsToUnlock:
+  - _underlyingValue: {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
+  itemID: 712304522
   references:
     version: 2
     RefIds:
-    - rid: 2319611688567439443
+    - rid: 4047855709786210424
       type: {class: BehaviorChainOnHit, ns: , asm: Assembly-CSharp}
       data:
         targetsRadiusCheck: 10
@@ -48,7 +49,7 @@ MonoBehaviour:
         baseForce: 10
         chainDelay: 0.1
         chainFalloff: 0.8
-    - rid: 4047855707409612904
+    - rid: 4047855709786210425
       type: {class: BehaviorRumbleAndShakeOnStart, ns: , asm: Assembly-CSharp}
       data:
         rumbleControllerOnFire: 1
