@@ -9,6 +9,7 @@ public class PlayerProgressData
 {
     public int currency = 0;
     public List<LevelProgress> levelProgresses = new();
+    public List<int> boughtItems = new(); // (itemID)
 }
 
 
@@ -33,3 +34,5 @@ public class LevelProgress
         return bestScores[0];
     }
 }
+
+

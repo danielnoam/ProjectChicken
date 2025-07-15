@@ -457,34 +457,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fovGainOnDodge: 10
-  reticleAffectsPosition: 1
-  aimPositionOffsetSettings:
-    range: {x: 10, y: 15, z: 5}
+  reticleInfluencePosition: 1
+  reticlePositionOffset:
+    range: {x: 10, y: 5, z: 1}
     threshold: {x: 0.2, y: 0.2, z: 0.2}
     smoothness: 2
     invertX: 0
     invertY: 0
-  reticleAffectsRotation: 1
-  aimRotationOffsetSettings:
-    range: {x: 5, y: 3, z: 0}
-    threshold: {x: 0.75, y: 0.75, z: 0}
+  reticleInfluenceRotation: 1
+  reticleRotationOffset:
+    range: {x: 10, y: 5, z: 1}
+    threshold: {x: 0.2, y: 0.2, z: 0.2}
     smoothness: 2
     invertX: 0
-    invertY: 1
-  playerAffectsPosition: 1
-  movementPositionOffsetSettings:
-    range: {x: 15, y: 15, z: 1}
-    threshold: {x: 0.2, y: 0.2, z: 0.2}
+    invertY: 0
+  playerInfluencePosition: 1
+  playerPositionOffset:
+    range: {x: 25, y: 25, z: 0}
+    threshold: {x: 0, y: 0, z: 0}
     smoothness: 2
     invertX: 1
     invertY: 1
-  playerAffectsRotation: 0
-  movementRotationOffsetSettings:
-    range: {x: 10, y: 5, z: 0}
-    threshold: {x: 0.2, y: 0.2, z: 0}
+  playerInfluencesRotation: 0
+  playerRotationOffset:
+    range: {x: 10, y: 5, z: 1}
+    threshold: {x: 0.2, y: 0.2, z: 0.2}
     smoothness: 2
     invertX: 0
-    invertY: 1
+    invertY: 0
   changePositions: 1
   changePositionEvery: 1.5
   followCamera: {fileID: 5184551184866118152}

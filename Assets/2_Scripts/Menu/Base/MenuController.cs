@@ -1,26 +1,32 @@
 using System;
 using DNExtensions;
 using KBCore.Refs;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using VInspector;
 
 
 [SelectionBase]
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(MenuInput))]
+[RequireComponent(typeof(ControllerRumbleSource))]
+[RequireComponent(typeof(ControllerRumbleListener))]
 public class MenuController : MonoBehaviour
 {
 
     [Header("Menu Settings")]
     [SerializeField] private MenuElement[] menuElements;
     
+    [Header("Controller Rumble")]
+    [SerializeField] private ControllerRumbleEffectSettings rumbleOnInteract = new ControllerRumbleEffectSettings(0.03f, 0f, 0.3f);
+    [SerializeField] private ControllerRumbleEffectSettings rumbleOnSelect = new ControllerRumbleEffectSettings(0.03f, 0f, 0.3f);
     
     [Header("References")]
     [SerializeField] private Transform defaultCameraLookAtPoint;
     [SerializeField] private SOAudioEvent menuLoopSfx;
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
-    [SerializeField, Self, HideInInspector] private MenuInput menuInput;
+    [SerializeField, Self, HideInInspector] public MenuInput menuInput;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
     
     
     private bool _isInteracting;
@@ -88,6 +94,7 @@ public class MenuController : MonoBehaviour
         }
 
         DisableSelection();
+        controllerRumbleSource.Rumble(rumbleOnSelect);
 
         _currentMenuElementIndex = index;
         _currentMenuElement = menuElements[index];
@@ -183,7 +190,7 @@ public class MenuController : MonoBehaviour
     {
         if (_isInteracting || !element.CanSelect) return;
         
-        
+        controllerRumbleSource.Rumble(rumbleOnInteract);
         _isInteracting = true;
         element?.Interact();
         OnElementInteracted?.Invoke(element);
@@ -191,6 +198,7 @@ public class MenuController : MonoBehaviour
     
     private void StopInteraction(MenuElement element)
     {
+        controllerRumbleSource.Rumble(rumbleOnInteract);
         _isInteracting = false;
         element?.StopInteraction();
         OnElementFinishedInteraction?.Invoke(element);
@@ -235,7 +243,7 @@ public class MenuController : MonoBehaviour
         {
             SelectPreviousMenuElement();
         }
-
+        
     }
     
     private void OnSubmit(InputAction.CallbackContext context)
@@ -269,7 +277,6 @@ public class MenuController : MonoBehaviour
                 StopInteraction(_currentMenuElement);
             }
         }
-
     }
 
     

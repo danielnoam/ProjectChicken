@@ -103,13 +103,22 @@ public class MenuElementLaunchLever : MenuElement
     {
         if (_leverPressSequence.isAlive) _leverPressSequence.Stop();
         
-        MenuCameraManager.Instance?.ShakeCamera(cameraShakeSettings.impulseShape, cameraShakeSettings.intensity, cameraShakeSettings.duration);
+
+        if (cinemachineImpulseSource)
+        {
+            cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = cameraShakeSettings.impulseShape;
+            cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = cameraShakeSettings.duration;
+            cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+            cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
+        }
 
         float delayBeforeAnimation = levelSelection.LaunchMissionMode == LaunchMissionMode.Auto ? 1.5f : 0f;
         
         _leverPressSequence = Sequence.Create()
+                .ChainCallback(() => {controllerRumbleSource.Rumble(0.1f,0.1f, animationDuration);})
                 .Group(Tween.LocalRotation(leverPivotTransform,startDelay: delayBeforeAnimation, startValue: _leverStartRot,endValue: leverPressedRotation, duration: animationDuration, ease: animationEase))
                 .ChainCallback(() => leverPressedSfx?.Play(audioSource))
+                .ChainCallback(() => {controllerRumbleSource.Rumble(0.1f,0.2f, delayBeforeLaunch);})
                 .ChainDelay(delayBeforeLaunch)
                 .OnComplete(FinishedInteraction)
             ;

@@ -13,7 +13,7 @@ public class MenuElementExitSign : MenuElement
     
 
 
-    private Sequence loadSceneSequence;
+    private Sequence _loadSceneSequence;
     
     protected override void OnSelected()
     {
@@ -34,8 +34,8 @@ public class MenuElementExitSign : MenuElement
     {
         if (sceneToLoad == null) return;
         
-        if (loadSceneSequence.isAlive) loadSceneSequence.Stop();
-        loadSceneSequence = Sequence.Create()
+        if (_loadSceneSequence.isAlive) _loadSceneSequence.Stop();
+        _loadSceneSequence = Sequence.Create()
             .ChainDelay(delayBeforeLoad)
             .OnComplete(FinishedInteraction);
     }
@@ -47,7 +47,7 @@ public class MenuElementExitSign : MenuElement
     
     protected override void OnStopInteraction()
     {
-        if (loadSceneSequence.isAlive) loadSceneSequence.Stop();
+        if (_loadSceneSequence.isAlive) _loadSceneSequence.Stop();
     }
     
 }

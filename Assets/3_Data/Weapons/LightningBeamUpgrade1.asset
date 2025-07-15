@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04dac25139e84b27a8a6593b947380f7, type: 3}
+  m_Name: LightningBeamUpgrade1
+  m_EditorClassIdentifier: 
+  baseWeapon: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
+  overrideWeaponGfx: 0
+  overrideWeaponBarrels: 0
+  overrideFireRate: 0
+  fireRate: 0.1
+  overrideMaxTargets: 0
+  maxTargets: 1
+  overrideTargetCheckRadius: 0
+  targetCheckRadius: 4
+  overrideWeaponLimitation: 0
+  heatPerShot: 3
+  timeLimit: 30
+  ammoLimit: 3
+  overrideProjectileBehaviors: 0
+  projectileBehaviors: []
+  overrideHitscanBehaviors: 1
+  hitscanBehaviors:
+  - rid: 4047855709786210404
+  - rid: 4047855709786210405
+  itemName: Lightning Beam Upgrade 1
+  itemDescription: The lightning beam jumps to nearby chickens!
+  itemCost: 350
+  neededItemsToUnlock: []
+  itemID: 1445882125
+  references:
+    version: 2
+    RefIds:
+    - rid: 4047855709786210404
+      type: {class: BehaviorChainOnHit, ns: , asm: Assembly-CSharp}
+      data:
+        targetsRadiusCheck: 7
+        maxTargets: 3
+        baseDamage: 10
+        baseForce: 10
+        baseStunChance: 0.1
+        baseStunDuration: 0.5
+        chainDelay: 0.1
+        chainFalloff: 0.8
+    - rid: 4047855709786210405
+      type: {class: BehaviorRumbleAndShakeOnStart, ns: , asm: Assembly-CSharp}
+      data:
+        rumbleControllerOnFire: 1
+        rumbleSettings:
+          lowFrequency: 0.1
+          highFrequency: 0.1
+          duration: 0.1
+          lowFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 34
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 34
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          highFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 34
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 34
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+        shakeCameraOnFire: 0
+        shakeSettings:
+          impulseShape: 2
+          intensity: 1
+          duration: 0.3

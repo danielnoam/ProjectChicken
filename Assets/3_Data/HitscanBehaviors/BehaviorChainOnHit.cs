@@ -10,54 +10,62 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
     [SerializeField] private float targetsRadiusCheck = 7f;
     [Tooltip("Maximum number of targets that can be hit (including initial target)")]
     [SerializeField, Min(1f)] private int maxTargets = 5;
+    
+    [Space(10)]
     [Tooltip("Base damage dealt to the first target in the chain")]
     [SerializeField] private float baseDamage = 10;
     [Tooltip("Base force applied to the first target in the chain")]
     [SerializeField] private float baseForce = 10;
+    [Tooltip("Base stun chance for the first target in the chain")]
+    [SerializeField,Range(0f,1f)] private float baseStunChance = 0.15f;
+    [Tooltip("Base stun duration for the first target in the chain")]
+    [SerializeField, Min(0f)] private float baseStunDuration = 1f;
+    
+    [Space(10)]
     [Tooltip("Delay between chain jumps")]
     [SerializeField, Min(0.01f)] private float chainDelay = 0.1f;
-    [Tooltip("Damage reduction per chain (0.8 = 20% reduction)")]
+    [Tooltip("Reduction per chain for each base type (0.8 = 20% reduction)")]
     [SerializeField, Range(0f,1f)] private float chainFalloff = 0.8f;
 
 
-    private List<ChickenController> targetsToHit;
+    private List<ChickenController> _targetsToHit;
     
-    public override void OnStart(SOWeaponData weaponData, RailPlayer owner, ChickenController target = null)
+    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner, ChickenController target = null)
     {
-        targetsToHit = new List<ChickenController>();
+        _targetsToHit = new List<ChickenController>();
     }
 
-    public override void OnHit(SOWeaponData weaponData, RailPlayer owner, ChickenController target)
+    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ChickenController target)
     {
         // Hit the initial target
         if (target)
         {
-            targetsToHit.Add(target);
+            _targetsToHit.Add(target);
             target.TakeDamage(baseDamage);
             
-            // Apply force away from the hit point
             Vector3 forceDirection = target.transform.position - owner.transform.position;
             forceDirection.Normalize();
             target.ApplyForce(forceDirection, baseForce);
+
+            if (UnityEngine.Random.Range(0f, 100f) > baseStunChance)
+            {
+                target.ApplyConcussion(baseStunDuration);
+            }
         }
         
         // Choose between instant or delayed chaining
-        owner.StartCoroutine(ChainTargets(weaponData, owner, target));
+        owner.StartCoroutine(ChainTargets(weaponInstance, owner, target));
 
     }
     
 
-    public override void OnEnd(SOWeaponData weaponData, RailPlayer owner, ChickenController target = null)
+    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner, ChickenController target = null)
     {
         
     }
-
-    public override void OnDrawGizmos(SOWeaponData weaponData, RailPlayer owner, ChickenController target = null)
-    {
-
-    }
     
-    private IEnumerator ChainTargets(SOWeaponData weaponData, RailPlayer owner, ChickenController initialTarget)
+    
+    private IEnumerator ChainTargets(WeaponInstance weaponInstance, RailPlayer owner, ChickenController initialTarget)
     {
         ChickenController currentTarget = initialTarget;
         
@@ -73,18 +81,26 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
                 if (!currentTarget) break;
             }
             
-            ChickenController nextTarget = FindClosestTarget(currentTarget.transform.position, targetsToHit);
+            ChickenController nextTarget = FindClosestTarget(currentTarget.transform.position, _targetsToHit);
             
             if (!nextTarget) break;
             
-            targetsToHit.Add(nextTarget);
+            _targetsToHit.Add(nextTarget);
             
             float currentDamage = baseDamage * Mathf.Pow(chainFalloff, chainCount);
             float currentForce = baseForce * Mathf.Pow(chainFalloff, chainCount);
+            float currentStunChance = baseStunChance * Mathf.Pow(chainFalloff, chainCount);
+            float currentStunDuration = baseStunDuration * Mathf.Pow(chainFalloff, chainCount);
             nextTarget.TakeDamage(currentDamage);
             
             Vector3 forceDirection = (nextTarget.transform.position - currentTarget.transform.position).normalized;
             nextTarget.ApplyForce(forceDirection, currentForce);
+
+
+            if (UnityEngine.Random.Range(0f, 100f) > currentStunChance)
+            {
+                nextTarget.ApplyConcussion(currentStunDuration);
+            }
             
             
             // Check if current target is still valid before playing effect
@@ -102,16 +118,16 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
     private ChickenController FindValidTargetFromHitList()
     {
         // Find the first valid (non-destroyed) target from our hit list
-        for (int i = targetsToHit.Count - 1; i >= 0; i--)
+        for (int i = _targetsToHit.Count - 1; i >= 0; i--)
         {
-            if (targetsToHit[i])
+            if (_targetsToHit[i])
             {
-                return targetsToHit[i];
+                return _targetsToHit[i];
             }
             else
             {
                 // Remove destroyed targets from the list
-                targetsToHit.RemoveAt(i);
+                _targetsToHit.RemoveAt(i);
             }
         }
         return null;

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DNExtensions;
 using KBCore.Refs;
+using Unity.Cinemachine;
 using UnityEngine;
 using VInspector;
 
@@ -15,26 +16,41 @@ using VInspector;
 [RequireComponent(typeof(RailPlayerMovement))]
 [RequireComponent(typeof(RailPlayerAiming))]
 [RequireComponent(typeof(RailPlayerWeaponSystem))]
+[RequireComponent(typeof(ControllerRumbleSource))]
+[RequireComponent(typeof(CinemachineImpulseSource))]
 public class RailPlayer : MonoBehaviour
 {
-
     [Header("Health")]
-    [SerializeField, Min(0)] private int maxHealth = 3;
+    [SerializeField, Min(0)] private int baseHealth = 3;
     [SerializeField] private bool dodgingGivesInvincibility = true;
     [SerializeField] private bool receiveHealthOnBonusThreshold = true;
     
     [Header("Shield")]
-    [SerializeField, Min(0)] private float maxShieldHealth = 100f;
+    [SerializeField, Min(0)] private float baseShieldHealth = 100f;
     [SerializeField, Min(0)] private float shieldRegenCooldown = 3f;
     [SerializeField, Min(0)] private float shieldRegenRate = 15f;
     
     [Header("Resource Collection")]
-    [SerializeField ,Min(0)] private float magnetRadius = 14f;
+    [SerializeField ,Min(0)] private float baseMagnetRadius = 14f;
+    
+    [Header("Upgrades")]
+    [SerializeField] private SOHealthUpgrade[] healthUpgrades = Array.Empty<SOHealthUpgrade>();
+    [SerializeField] private SOShieldUpgrade[] shieldUpgrades = Array.Empty<SOShieldUpgrade>();
+    [SerializeField] private SOResourceMagnetUpgrade[] resourceMagnetUpgrades = Array.Empty<SOResourceMagnetUpgrade>();
     
     [Header("Path Following")]
     [SerializeField] private bool alignToSplineDirection = true;
     [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
     [EndIf]
+    
+    [Header("Camera Shake")]
+    [SerializeField] private CameraShakeSettings deathShakeSettings;
+    [SerializeField] private CameraShakeSettings shieldDepletedShakeSettings;
+    
+    [Header("Controller Rumble")]
+    [SerializeField] private ControllerRumbleEffectSettings deathControllerRumbleSettings;
+    [SerializeField] private ControllerRumbleEffectSettings shieldDamagedControllerRumbleSettings;
+    [SerializeField] private ControllerRumbleEffectSettings healthDamagedControllerRumbleSettings;
     
     [Header("References")]
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
@@ -52,13 +68,18 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
+    [SerializeField, Self, HideInInspector] private CinemachineImpulseSource cinemachineImpulseSource;
 
     
 
 
     private int _currentHealth;
+    private int _maxHealth;
     private int _currentCurrency;
     private float _currentShieldHealth;
+    private float _maxShieldHealth;
+    private float _currentMagnetRadius;
     private float _damagedCooldown;
     private Coroutine _regenShieldCoroutine;
     private Quaternion _splineRotation = Quaternion.identity;
@@ -71,8 +92,8 @@ public class RailPlayer : MonoBehaviour
     public LevelManager LevelManager => levelManager;
     public Quaternion SplineRotation => _splineRotation;
     public bool AlignToSplineDirection => alignToSplineDirection;
-    public int MaxHealth => maxHealth;
-    public float MaxShieldHealth => maxShieldHealth;
+    public int MaxHealth => _maxHealth;
+    public float MaxShieldHealth => _maxShieldHealth;
     public int CurrentHealth => _currentHealth;
     public float CurrentShieldHealth => _currentShieldHealth;
     public int CurrentCurrency => _currentCurrency;
@@ -102,9 +123,23 @@ public class RailPlayer : MonoBehaviour
         _collectionActions.Add(ResourceType.ShieldPack, (resource) => HealShield(resource.ShieldWorth));
         _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => playerWeapon.SetSpecialWeapon(resource.WeaponData));
         
-        SetupPlayer();
+        _maxHealth = baseHealth + TotalHealthUpgrades();
+        _maxShieldHealth = baseShieldHealth + TotalShieldUpgrades();
+        _currentMagnetRadius = baseMagnetRadius + TotalResourceMagnetUpgrades();
+        
+        _currentCurrency = SaveManager.GetCurrency();
+        _currentHealth = _maxHealth;
+        _currentShieldHealth = _maxShieldHealth;
     }
-    
+
+
+    private void Start()
+    {
+        OnCurrencyChanged?.Invoke(_currentCurrency);
+        OnHealthChanged?.Invoke(_currentHealth);
+        OnShieldChanged?.Invoke(_currentShieldHealth);
+    }
+
 
     private void OnEnable()
     {
@@ -146,7 +181,7 @@ public class RailPlayer : MonoBehaviour
 
         if (stage.StageType == StageType.Outro)
         {
-            SaveManager.UpdatePlayerProgress(_currentCurrency);
+            SaveManager.UpdatePlayerCurrency(_currentCurrency);
         }
     }
 
@@ -157,18 +192,6 @@ public class RailPlayer : MonoBehaviour
         _currentCurrency = savePoint.PlayerCurrency;
         _currentHealth = savePoint.PlayerHealth;
         _currentShieldHealth = savePoint.PlayerShield;
-        
-        
-        OnCurrencyChanged?.Invoke(_currentCurrency);
-        OnHealthChanged?.Invoke(_currentHealth);
-        OnShieldChanged?.Invoke(_currentShieldHealth);
-    }
-    
-    private void SetupPlayer()
-    {
-        _currentCurrency = SaveManager.GetCurrency();
-        _currentHealth = maxHealth;
-        _currentShieldHealth = maxShieldHealth;
         
         
         OnCurrencyChanged?.Invoke(_currentCurrency);
@@ -207,9 +230,19 @@ public class RailPlayer : MonoBehaviour
             _currentShieldHealth = 0;
             DamageHealth();
             shieldDepletedSfx?.Play(audioSource);
+            
+            if (cinemachineImpulseSource)
+            {
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shieldDepletedShakeSettings.impulseShape;
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shieldDepletedShakeSettings.duration;
+                cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+                cinemachineImpulseSource.GenerateImpulseWithForce(shieldDepletedShakeSettings.intensity);
+            }
+            
         }
         else
         {
+            controllerRumbleSource.Rumble(shieldDamagedControllerRumbleSettings);
             shieldDamageSfx?.Play(audioSource);
         }
         
@@ -228,6 +261,7 @@ public class RailPlayer : MonoBehaviour
         }
         else
         {
+            controllerRumbleSource.Rumble(healthDamagedControllerRumbleSettings);
             healthDamageSfx?.Play(audioSource);
         }
         
@@ -244,7 +278,7 @@ public class RailPlayer : MonoBehaviour
             _damagedCooldown -= Time.deltaTime;
         }
         
-        if (_damagedCooldown <= 0 &&  _regenShieldCoroutine == null && _currentShieldHealth < maxShieldHealth)
+        if (_damagedCooldown <= 0 &&  _regenShieldCoroutine == null && _currentShieldHealth < _maxShieldHealth)
         {
             StartShieldRegen();
         }
@@ -255,7 +289,15 @@ public class RailPlayer : MonoBehaviour
     private void Die()
     {
         deathSfx?.Play(audioSource);
-        
+        controllerRumbleSource.Rumble(deathControllerRumbleSettings);
+        if (cinemachineImpulseSource)
+        {
+            cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = deathShakeSettings.impulseShape;
+            cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = deathShakeSettings.duration;
+            cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f,1f),UnityEngine.Random.Range(-1f,1f),UnityEngine.Random.Range(-1f,1f));
+            cinemachineImpulseSource.GenerateImpulseWithForce(deathShakeSettings.intensity);
+        }
+
         OnDeath?.Invoke();
     }
 
@@ -269,12 +311,12 @@ public class RailPlayer : MonoBehaviour
     {
         shieldStartRegenSfx?.Play(audioSource);
         
-        while (_currentShieldHealth < maxShieldHealth)
+        while (_currentShieldHealth < _maxShieldHealth)
         {
             _currentShieldHealth += shieldRegenRate * Time.deltaTime;
-            if (_currentShieldHealth >= maxShieldHealth)
+            if (_currentShieldHealth >= _maxShieldHealth)
             {
-                _currentShieldHealth = maxShieldHealth;
+                _currentShieldHealth = _maxShieldHealth;
                 shieldRegeneratedSfx?.Play(audioSource);
                 yield break;
             }
@@ -316,9 +358,9 @@ public class RailPlayer : MonoBehaviour
         if (amount <= 0) return;
         
         _currentHealth += amount;
-        if (_currentHealth > maxHealth)
+        if (_currentHealth > _maxHealth)
         {
-            _currentHealth = maxHealth;
+            _currentHealth = _maxHealth;
         }
         healthHealedSfx?.Play(audioSource);
         
@@ -328,12 +370,12 @@ public class RailPlayer : MonoBehaviour
     [Button]
     private void HealShield(float amount = 25f)
     {
-        if (_currentShieldHealth >= maxShieldHealth) return;
+        if (_currentShieldHealth >= _maxShieldHealth) return;
         
         _currentShieldHealth += amount;
-        if (_currentShieldHealth >= maxShieldHealth)
+        if (_currentShieldHealth >= _maxShieldHealth)
         {
-            _currentShieldHealth = maxShieldHealth;
+            _currentShieldHealth = _maxShieldHealth;
             shieldRegeneratedSfx?.Play(audioSource);
         }
         else
@@ -373,7 +415,7 @@ public class RailPlayer : MonoBehaviour
     {
         if (!IsAlive()) return;
         
-        Collider[] colliders = Physics.OverlapSphere(transform.position, magnetRadius);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, _currentMagnetRadius);
         foreach (var col in colliders)
         {
             if (col.TryGetComponent(out Resource resource))
@@ -396,7 +438,7 @@ public class RailPlayer : MonoBehaviour
     
 
             var distance = Vector3.Distance(transform.position, resource.transform.position);
-            if (distance > magnetRadius)
+            if (distance > _currentMagnetRadius)
             {
                 resource.ReleaseFromMagnetization();
                 _resourcesInRange.RemoveAt(i);
@@ -421,8 +463,60 @@ public class RailPlayer : MonoBehaviour
     
 
     #endregion Resource Collection --------------------------------------------------------------------------------------
+
+    #region Upgrades -----------------------------------------------------------------------------------------
+
+
+    private int TotalHealthUpgrades()
+    {
+        var health = 0;
+        
+        foreach (var upgrade in healthUpgrades)
+        {
+            if (SaveManager.HasStoreItem(upgrade.ItemID))
+            {
+                health += upgrade.HealthUpgradeAmount;
+            }
+        }
+        
+        return health;
+    }
+    
+    private float TotalShieldUpgrades()
+    {
+        var shield = 0f;
+
+        foreach (var upgrade in shieldUpgrades)
+        {
+            if (SaveManager.HasStoreItem(upgrade.ItemID))
+            {
+                shield += upgrade.ShieldUpgradeAmount;
+            }
+        }
+
+        return shield;
+    }
+    
+    private float TotalResourceMagnetUpgrades()
+    {
+        var  magnet = 0f;
+        
+        foreach (var upgrade in resourceMagnetUpgrades)
+        {
+            if (SaveManager.HasStoreItem(upgrade.ItemID))
+            {
+                magnet += upgrade.MagnetUpgradeAmount;
+            }
+        }
+
+        return magnet;
+    }
+
     
 
+    #endregion Upgrades -----------------------------------------------------------------------------------------
+
+    
     #region Helper Methods --------------------------------------------------------------------------------------
 
     public bool HasShield()
@@ -501,8 +595,8 @@ public class RailPlayer : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, magnetRadius);
-        UnityEditor.Handles.Label(transform.position + (Vector3.up * magnetRadius), "Magnet Radius");
+        Gizmos.DrawWireSphere(transform.position, _currentMagnetRadius);
+        UnityEditor.Handles.Label(transform.position + (Vector3.up * baseMagnetRadius), "Magnet Radius");
     }
 
 

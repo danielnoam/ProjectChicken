@@ -309,7 +309,7 @@ public class LevelManager : MonoBehaviour
     {
         if (!stage || !stage.IsSavePointStage || _currentSavePoint != null && _currentSavePoint.StageIndex == currentStageIndex) return;
 
-        var playerSpecialWeapon = player.PlayerWeapon.CurrentSpecialWeaponInstance?.weaponData;
+        var playerSpecialWeapon = player.PlayerWeapon.CurrentSpecialWeaponInstance?.WeaponData;
         
         var newSavePoint = new SavePointInformation(
             currentStageIndex,

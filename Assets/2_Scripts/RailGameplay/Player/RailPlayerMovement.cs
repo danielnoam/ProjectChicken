@@ -7,6 +7,7 @@ using PrimeTween;
 using UnityEngine.InputSystem;
 using VInspector;
 
+[RequireComponent(typeof(RailPlayer))]
 [RequireComponent(typeof(Rigidbody))]
 public class RailPlayerMovement : MonoBehaviour
 {
@@ -42,6 +43,7 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private Rigidbody playerRigidbody;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
 
 
     private bool _allowMovement;
@@ -274,8 +276,9 @@ public class RailPlayerMovement : MonoBehaviour
         
         // Play dodge sound effect
         dodgeSfx?.Play(audioSource);
-        
-        
+
+        controllerRumbleSource.RumbleFadeIn(0.05f, 0f, dodgeTweenSettings.duration/2);
+            
         // Tween just the dodge roll component
         _dodgeTween = Tween.Custom(
             onValueChange: rollAngle => _currentDodgeRoll = rollAngle,
@@ -323,7 +326,7 @@ public class RailPlayerMovement : MonoBehaviour
             _dodgeDirection = Vector3.left;
             _dodgeTimeCounter = 0f;
             _isDodging = true;
-                
+            
             PlayDodgeRollAnimation();
         }
     }
@@ -338,7 +341,7 @@ public class RailPlayerMovement : MonoBehaviour
             _dodgeDirection = Vector3.right;
             _dodgeTimeCounter = 0f;
             _isDodging = true;
-                
+            
             PlayDodgeRollAnimation();
         }
     }

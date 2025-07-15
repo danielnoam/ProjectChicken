@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using PrimeTween;
 using UnityEditor;
 using UnityEngine;
@@ -323,10 +324,21 @@ public class SaveManager : MonoBehaviour
     }
     
 
-    public static void UpdatePlayerProgress(int currency)
+    public static void UpdatePlayerCurrency(int currency)
     {
         EnsureInitialized();
         _playerProgressData.currency = currency;
+    }
+    
+    public static void UpdatePlayerBoughtItems(int itemID)
+    {
+        EnsureInitialized();
+
+        if (!HasStoreItem(itemID))
+        {
+            _playerProgressData.boughtItems.Add(itemID);
+            SavePlayerProgressDataToFile();
+        }
     }
 
     public static void  UpdateKeyboardControlScheme(ControlSchemeSettings newSettings)
@@ -370,6 +382,21 @@ public class SaveManager : MonoBehaviour
         
         return _playerProgressData?.currency ?? 0;
     }
+
+    public static bool HasStoreItem(int itemID)
+    {
+        EnsureInitialized();
+
+        foreach (var item in _playerProgressData.boughtItems)
+        {
+            if (itemID == item)
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
     
     public static ControlSchemeSettings GetKeyboardControlScheme()
     {
@@ -386,6 +413,29 @@ public class SaveManager : MonoBehaviour
     }
     
     #endregion Progress Getters ----------------------------------------------------------------------------------------------------------------------
+
+
+
+    #region Debug  ----------------------------------------------------------------------------------------------------------------------
+
+    [Button]
+    private void AddCurrency(int amount)
+    {
+        if (!Application.isPlaying) return;
+        
+        EnsureInitialized();
+        UpdatePlayerCurrency(GetCurrency() + amount);
+    }
+
+    [Button]
+    private void OpenSaveFolder()
+    {
+        // find save folder
+        string saveFolder = Application.persistentDataPath;
+        System.Diagnostics.Process.Start(saveFolder);
+    }
+    
+    #endregion Debug  ----------------------------------------------------------------------------------------------------------------------
     
     
 #if UNITY_EDITOR
