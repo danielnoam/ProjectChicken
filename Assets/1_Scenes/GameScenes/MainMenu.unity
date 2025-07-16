@@ -467,9 +467,9 @@ MonoBehaviour:
   - {fileID: 1474582293}
   - {fileID: 465575460}
   vibrationOnInteract:
-    lowFrequency: 0.03
-    highFrequency: 0
-    duration: 0.3
+    lowFrequency: 0.01
+    highFrequency: 0.01
+    duration: 0.1
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -519,9 +519,9 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   vibrationOnSelect:
-    lowFrequency: 0.03
-    highFrequency: 0
-    duration: 0.3
+    lowFrequency: 0.02
+    highFrequency: 0.02
+    duration: 0.2
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -809,6 +809,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerInput: {fileID: 31568398}
+  lowFrequencyRange:
+    minValue: 0
+    maxValue: 1
+  highFrequencyRange:
+    minValue: 0
+    maxValue: 1
 --- !u!1 &39598600
 GameObject:
   m_ObjectHideFlags: 0

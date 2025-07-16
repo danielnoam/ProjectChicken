@@ -3210,15 +3210,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5fd2ebb25c87fa547bc5c087a3dfb75d, type: 2}
   deathShakeSettings:
     impulseShape: 4
-    intensity: 5
+    intensity: 15
     duration: 1
   shieldDepletedShakeSettings:
     impulseShape: 4
-    intensity: 3
+    intensity: 8
     duration: 0.5
   deathVibrationSettings:
-    lowFrequency: 0.3
-    highFrequency: 0.3
+    lowFrequency: 0.5
+    highFrequency: 0.5
     duration: 0.3
     lowFrequencyCurve:
       serializedVersion: 2
@@ -3269,8 +3269,8 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   shieldDamagedVibrationSettings:
-    lowFrequency: 0.3
-    highFrequency: 0.3
+    lowFrequency: 0.1
+    highFrequency: 0.1
     duration: 0.3
     lowFrequencyCurve:
       serializedVersion: 2
@@ -3321,8 +3321,8 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   healthDamagedVibrationSettings:
-    lowFrequency: 0.3
-    highFrequency: 0.3
+    lowFrequency: 0.2
+    highFrequency: 0.2
     duration: 0.3
     lowFrequencyCurve:
       serializedVersion: 2
@@ -3592,8 +3592,8 @@ MonoBehaviour:
   miniGameWindowPosition: 0.23
   miniGameWindow: 0.415
   vibrationOnOverheatSettings:
-    lowFrequency: 0.3
-    highFrequency: 0.3
+    lowFrequency: 0.4
+    highFrequency: 0.4
     duration: 0.3
     lowFrequencyCurve:
       serializedVersion: 2

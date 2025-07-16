@@ -177,10 +177,10 @@ MonoBehaviour:
   - {fileID: 1938358609}
   - {fileID: 268447421}
   - {fileID: 1474582296}
-  rumbleOnInteract:
-    lowFrequency: 0.03
-    highFrequency: 0
-    duration: 0.3
+  vibrationOnInteract:
+    lowFrequency: 0.01
+    highFrequency: 0.01
+    duration: 0.1
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -229,10 +229,10 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  rumbleOnSelect:
-    lowFrequency: 0.03
-    highFrequency: 0
-    duration: 0.3
+  vibrationOnSelect:
+    lowFrequency: 0.02
+    highFrequency: 0.02
+    duration: 0.2
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -285,7 +285,7 @@ MonoBehaviour:
   menuLoopSfx: {fileID: 11400000, guid: d47adb19517f1f74b904221fe75a5581, type: 2}
   audioSource: {fileID: 31568396}
   menuInput: {fileID: 31568397}
-  controllerRumbleSource: {fileID: 31568399}
+  controllerVibrationSource: {fileID: 31568399}
 --- !u!82 &31568396
 AudioSource:
   m_ObjectHideFlags: 0
@@ -520,6 +520,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerInput: {fileID: 31568398}
+  lowFrequencyRange:
+    minValue: 0
+    maxValue: 1
+  highFrequencyRange:
+    minValue: 0
+    maxValue: 1
 --- !u!1 &136820635
 GameObject:
   m_ObjectHideFlags: 0
@@ -1101,7 +1107,7 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
-  controllerRumbleSource: {fileID: 268447424}
+  controllerVibrationSource: {fileID: 268447424}
   cinemachineImpulseSource: {fileID: 268447425}
   interactionCamera: {fileID: 2089799990}
   shelfItems:
@@ -3214,7 +3220,7 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
-  controllerRumbleSource: {fileID: 1474582297}
+  controllerVibrationSource: {fileID: 1474582297}
   cinemachineImpulseSource: {fileID: 1474582298}
   interactionCamera: {fileID: 0}
   delayBeforeLoad: 0.5
@@ -3949,7 +3955,7 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
-  controllerRumbleSource: {fileID: 1938358610}
+  controllerVibrationSource: {fileID: 1938358610}
   cinemachineImpulseSource: {fileID: 1938358611}
   interactionCamera: {fileID: 691996174}
   shelfItems:

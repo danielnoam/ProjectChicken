@@ -56,9 +56,9 @@ MonoBehaviour:
       data:
         vibrateControllerOnFire: 1
         vibrationSettings:
-          lowFrequency: 0.3
-          highFrequency: 0.3
-          duration: 0.3
+          lowFrequency: 0.15
+          highFrequency: 0.15
+          duration: 0.2
           lowFrequencyCurve:
             serializedVersion: 2
             m_Curve:
@@ -73,7 +73,7 @@ MonoBehaviour:
               outWeight: 0
             - serializedVersion: 3
               time: 1
-              value: 1
+              value: 0
               inSlope: 0
               outSlope: 0
               tangentMode: 0
@@ -97,7 +97,7 @@ MonoBehaviour:
               outWeight: 0
             - serializedVersion: 3
               time: 1
-              value: 1
+              value: 0
               inSlope: 0
               outSlope: 0
               tangentMode: 0
