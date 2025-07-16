@@ -466,10 +466,10 @@ MonoBehaviour:
   - {fileID: 1606466669}
   - {fileID: 1474582293}
   - {fileID: 465575460}
-  rumbleOnInteract:
-    lowFrequency: 0.01
+  vibrationOnInteract:
+    lowFrequency: 0.03
     highFrequency: 0
-    duration: 0.2
+    duration: 0.3
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -518,10 +518,10 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  rumbleOnSelect:
-    lowFrequency: 0.01
+  vibrationOnSelect:
+    lowFrequency: 0.03
     highFrequency: 0
-    duration: 0.2
+    duration: 0.3
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -574,7 +574,7 @@ MonoBehaviour:
   menuLoopSfx: {fileID: 11400000, guid: d47adb19517f1f74b904221fe75a5581, type: 2}
   audioSource: {fileID: 31568396}
   menuInput: {fileID: 31568397}
-  controllerRumbleSource: {fileID: 31568399}
+  controllerVibrationSource: {fileID: 31568399}
 --- !u!82 &31568396
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1038,7 +1038,7 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
-  controllerRumbleSource: {fileID: 123263739}
+  controllerVibrationSource: {fileID: 123263739}
   cinemachineImpulseSource: {fileID: 123263740}
   interactionCamera: {fileID: 39598603}
   launchMissionMode: 3
@@ -2294,10 +2294,10 @@ GameObject:
   m_Component:
   - component: {fileID: 465575458}
   - component: {fileID: 465575459}
+  - component: {fileID: 465575463}
   - component: {fileID: 465575462}
   - component: {fileID: 465575460}
   - component: {fileID: 465575461}
-  - component: {fileID: 465575463}
   m_Layer: 0
   m_Name: LaunchLever
   m_TagString: Untagged
@@ -2370,7 +2370,7 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
-  controllerRumbleSource: {fileID: 465575462}
+  controllerVibrationSource: {fileID: 465575462}
   cinemachineImpulseSource: {fileID: 465575463}
   interactionCamera: {fileID: 0}
   delayBeforeLaunch: 0.25
@@ -4784,7 +4784,7 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
-  controllerRumbleSource: {fileID: 1474582296}
+  controllerVibrationSource: {fileID: 1474582296}
   cinemachineImpulseSource: {fileID: 1474582297}
   interactionCamera: {fileID: 0}
   delayBeforeQuit: 0.25
@@ -5840,14 +5840,14 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
-  controllerRumbleSource: {fileID: 1606466671}
+  controllerVibrationSource: {fileID: 1606466671}
   cinemachineImpulseSource: {fileID: 1606466672}
   interactionCamera: {fileID: 2128919271}
   delayBeforeLoad: 0.75
   sceneToLoad:
-    m_SceneAsset: {fileID: 102900000, guid: 2a25f5f70e6ef954d8d58408d506d757, type: 3}
-    m_SceneName: Shop
-    m_ScenePath: Assets/1_Scenes/GameScenes/Shop.unity
+    sceneAsset: {fileID: 102900000, guid: 2a25f5f70e6ef954d8d58408d506d757, type: 3}
+    sceneName: Shop
+    scenePath: Assets/1_Scenes/GameScenes/Shop.unity
 --- !u!114 &1606466670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6713,7 +6713,7 @@ MonoBehaviour:
   interactSfx: {fileID: 0}
   menuController: {fileID: 31568395}
   audioSource: {fileID: 31568396}
-  controllerRumbleSource: {fileID: 1938358609}
+  controllerVibrationSource: {fileID: 1938358609}
   cinemachineImpulseSource: {fileID: 1938358610}
   interactionCamera: {fileID: 691996174}
 --- !u!135 &1938358607

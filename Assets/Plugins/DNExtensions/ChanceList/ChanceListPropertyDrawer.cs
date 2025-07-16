@@ -9,12 +9,16 @@ namespace DNExtensions
 {
     [CustomPropertyDrawer(typeof(ChanceList<>), true)]
 
-    public class ChanceListDrawer : PropertyDrawer
+    public class ChanceListPropertyDrawer : PropertyDrawer
     {
         private ReorderableList _reorderableList;
         private bool _isInitialized = false;
 
         // Layout configuration
+
+        private const float HeaderHeight = 2f;
+        private const float ElementHeight = 3f;
+        
         private const float ItemWidthRatio = 0.55f;
         private const float IntFieldWidth = 30f;
         private const float LockButtonWidth = 20f;
@@ -32,8 +36,8 @@ namespace DNExtensions
                 {
                     drawHeaderCallback = DrawHeader,
                     drawElementCallback = DrawElement,
-                    elementHeight = EditorGUIUtility.singleLineHeight + 2f,
-                    headerHeight = EditorGUIUtility.singleLineHeight + 4f,
+                    elementHeight = EditorGUIUtility.singleLineHeight + ElementHeight,
+                    headerHeight = EditorGUIUtility.singleLineHeight + HeaderHeight,
                     onAddCallback = OnAdd,
                     onRemoveCallback = OnRemove
                 };

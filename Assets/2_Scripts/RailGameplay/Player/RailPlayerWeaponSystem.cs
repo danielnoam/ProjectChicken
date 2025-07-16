@@ -14,7 +14,7 @@ using VInspector;
 
 [RequireComponent(typeof(RailPlayer))]
 [RequireComponent(typeof(CinemachineImpulseSource))]
-[RequireComponent(typeof(ControllerRumbleSource))]
+[RequireComponent(typeof(ControllerVibrationSource))]
 public class RailPlayerWeaponSystem : MonoBehaviour
 {
     [Header("Weapons Settings")]
@@ -45,7 +45,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Range(0, 1)] private float miniGameWindowPosition = 0.23f;
     [SerializeField, Range(0, 1)] private float miniGameWindow = 0.415f; 
     [EndIf]
-    [SerializeField] private ControllerRumbleEffectSettings rumbleOnOverheatSettings = new ControllerRumbleEffectSettings();
+    [SerializeField] private ControllerVibrationEffectSettings vibrationOnOverheatSettings = new ControllerVibrationEffectSettings();
     [Header("Dodge")]
     [SerializeField] private bool dodgeReleasesHeat = true;
     [ShowIf("dodgeReleasesHeat")]
@@ -84,7 +84,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
-    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
+    [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
     [SerializeField, Self, HideInInspector] private CinemachineImpulseSource impulseSource;
 
 
@@ -159,7 +159,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         foreach (var weapon in weapons)
         {
-            weapon.SetUpWeaponInstance(controllerRumbleSource, impulseSource);
+            weapon.SetUpWeaponInstance(controllerVibrationSource, impulseSource);
         }
         
         if (useRangingReticles)
@@ -558,7 +558,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _currentSpecialWeaponInstance?.OnWeaponOverheat();
         targetReticle?.PunchReticleSize(targetReticleOverheatPunchStrength, targetReticlePunchDuration);
         targetReticle?.SetEmissionStrength(_currentHeat);
-        controllerRumbleSource.Rumble(rumbleOnOverheatSettings);
+        controllerVibrationSource.Vibrate(vibrationOnOverheatSettings);
         
         Sequence.Create()
             .Group(Tween.PunchScale(overheatText.transform, strength:Vector3.one * 0.3f, duration:0.6f))

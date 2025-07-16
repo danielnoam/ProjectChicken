@@ -32,15 +32,15 @@ public class WeaponInstance
     public SOWeaponData WeaponData { get; private set; }
     public Transform CurrentWeaponGfx { get; private set; }
     public Transform[] CurrentWeaponBarrels { get; private set; }
-    public ControllerRumbleSource  ControllerRumbleSource { get; private set; }
+    public ControllerVibrationSource  ControllerVibrationSource { get; private set; }
     public CinemachineImpulseSource CinemachineImpulseSource {  get; private set; }
 
-    public void SetUpWeaponInstance(ControllerRumbleSource controllerRumbleSource, CinemachineImpulseSource cinemachineImpulseSource)
+    public void SetUpWeaponInstance(ControllerVibrationSource controllerVibrationSource, CinemachineImpulseSource cinemachineImpulseSource)
     {
         WeaponData = baseWeaponData;
         CurrentWeaponGfx = weaponGfx;
         CurrentWeaponBarrels = weaponBarrels;
-        ControllerRumbleSource = controllerRumbleSource;
+        ControllerVibrationSource = controllerVibrationSource;
         CinemachineImpulseSource = cinemachineImpulseSource;
         
         

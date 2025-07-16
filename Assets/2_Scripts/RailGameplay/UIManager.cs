@@ -60,6 +60,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Color miniGameActiveColor = Color.blue;
     [SerializeField] private Color miniGameInactiveColor = Color.clear;
     
+    [Header("Pause Icon")]
+    [SerializeField] private float pauseIconAnimationDuration = 0.2f;
+    
     [Header("Score")]
     [SerializeField] private float scoreAnimationDuration = 0.2f;
     [SerializeField] private float scorePunchDuration = 0.2f;
@@ -88,6 +91,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image playerMiniGameWindow;
     [SerializeField] private Image playerDodgeIcon;
     [SerializeField] private Image playerHealthIcon;
+    [SerializeField] private Image pauseIconFill;
+    [SerializeField] private CanvasGroup pauseGroup;
     [SerializeField] private TextMeshProUGUI playerHealthText;
     [SerializeField] private TextMeshProUGUI heatBarText;
     [SerializeField] private TextMeshProUGUI playerShieldText;
@@ -101,7 +106,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private RailPlayer player;
 
     
-    private Dictionary<Image, bool> _healthIcons = new Dictionary<Image, bool>();
+    private readonly Dictionary<Image, bool> _healthIcons = new Dictionary<Image, bool>();
     private Color _secondaryWeaponStartColor;
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
@@ -113,6 +118,7 @@ public class UIManager : MonoBehaviour
     private Sequence _playerCurrencySequence;
     private Sequence _playerShieldSequence;
     private Sequence _waveTitleSequence;
+    private Sequence _pauseSequence;
     private int _previousScore;
     private int _score;
     private int _previousPlayerCurrency;
@@ -159,6 +165,7 @@ public class UIManager : MonoBehaviour
             player.OnHealthChanged += OnUpdateHealth;
             player.OnShieldChanged += OnUpdateShield;
             player.OnCurrencyChanged += OnUpdateCurrency;
+            player.OnPauseTimerChanged += OnPauseTimerChanged;
             player.PlayerWeapon.OnSpecialWeaponSwitched += OnSpecialWeaponSwitched;
             player.PlayerWeapon.OnSpecialWeaponCooldownUpdated += OnSpecialWeaponCooldownUpdated;
             player.PlayerWeapon.OnBaseWeaponCooldownUpdated += OnBaseWeaponCooldownUpdated;
@@ -190,6 +197,7 @@ public class UIManager : MonoBehaviour
             player.OnHealthChanged -= OnUpdateHealth;
             player.OnShieldChanged -= OnUpdateShield;
             player.OnCurrencyChanged -= OnUpdateCurrency;
+            player.OnPauseTimerChanged -= OnPauseTimerChanged;
             player.PlayerWeapon.OnSpecialWeaponSwitched -= OnSpecialWeaponSwitched;
             player.PlayerWeapon.OnSpecialWeaponCooldownUpdated -= OnSpecialWeaponCooldownUpdated;
             player.PlayerWeapon.OnBaseWeaponCooldownUpdated -= OnBaseWeaponCooldownUpdated;
@@ -218,12 +226,8 @@ public class UIManager : MonoBehaviour
         playerShieldText.text = $"{_playerShield:F0}%";
         playerCurrencyText.text = _playerCurrency.ToString();
     }
-
-
-
-
-    #region SetUp -----------------------------------------------------------------------------------
-
+    
+    
     private void SetUpUI()
     {
         _overheatBarHeight = playerHeatBar.rectTransform.sizeDelta.y;
@@ -233,6 +237,8 @@ public class UIManager : MonoBehaviour
         _dodgeStartColor = playerDodgeIcon.color;
         _heatBarTextStartColor = heatBarText.color;
         playerHeatBar.fillAmount = 0f;
+        pauseGroup.alpha = 0f;
+        pauseIconFill.fillAmount = 0f;
         waveTitleText.alpha = 0f;
         _previousScore = 0;
         _score = 0;
@@ -265,9 +271,10 @@ public class UIManager : MonoBehaviour
         playerHealthText = null;
     }
 
-    #endregion SetUp -----------------------------------------------------------------------------------
-
-
+    
+    
+    
+    
     #region HUD --------------------------------------------------------------------------------
 
     private void OnStageChanged(SOLevelStage stage)
@@ -609,7 +616,7 @@ public class UIManager : MonoBehaviour
     
     private void OnDodgeCooldownUpdated(float cooldown)
     {
-        float fillAmount = 1f - (cooldown / player.PlayerMovement.MaxDodgeCooldown);
+        float fillAmount = 1f - cooldown;
         playerDodgeIcon.color = Color.Lerp(cooldownIconColor, _dodgeStartColor, fillAmount);
 
         if (Mathf.Approximately(fillAmount, 1f)) 
@@ -621,6 +628,16 @@ public class UIManager : MonoBehaviour
     private void OnDodge()
     {
         playerDodgeIcon.color = cooldownIconColor;
+    }
+    
+    private void OnPauseTimerChanged(float time)
+    {
+        float pauseAlpha = time < 0.2f ? 0f : Mathf.Lerp(0f, 1f, (time - 0.2f) / 0.7f);
+    
+        if (_pauseSequence.isAlive) _pauseSequence.Stop();
+        _pauseSequence = Sequence.Create()
+            .Group(Tween.Alpha(pauseGroup, startValue: pauseGroup.alpha, endValue: pauseAlpha, pauseIconAnimationDuration))
+            .Group(Tween.UIFillAmount(pauseIconFill, startValue: pauseIconFill.fillAmount, endValue: time, pauseIconAnimationDuration));
     }
 
     #endregion Player UI ----------------------------------------------------------------------------------

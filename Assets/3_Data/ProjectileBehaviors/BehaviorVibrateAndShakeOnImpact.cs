@@ -3,11 +3,11 @@ using DNExtensions;
 using UnityEngine;
 
 
-public class BehaviorRumbleAndShakeOnImpact : ProjectileBehaviorBase
+public class BehaviorVibrateAndShakeOnImpact : ProjectileBehaviorBase
 {
     
-    [SerializeField] private bool rumbleControllerOnImpact = true;
-    [SerializeField] private ControllerRumbleEffectSettings rumbleSettings;
+    [SerializeField] private bool vibrateControllerOnImpact = true;
+    [SerializeField] private ControllerVibrationEffectSettings vibrationSettings;
     
     [Space(10)]
     
@@ -29,7 +29,7 @@ public class BehaviorRumbleAndShakeOnImpact : ProjectileBehaviorBase
 
     public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
     {
-        if (rumbleControllerOnImpact) projectile.WeaponInstance.ControllerRumbleSource.Rumble(rumbleSettings);
+        if (vibrateControllerOnImpact) projectile.WeaponInstance.ControllerVibrationSource.Vibrate(vibrationSettings);
 
         if (shakeCameraOnImpact)
         {

@@ -13,7 +13,7 @@ using Sequence = PrimeTween.Sequence;
 [SelectionBase]
 [RequireComponent(typeof(Outline))]
 [RequireComponent(typeof(CinemachineImpulseSource))]
-[RequireComponent(typeof(ControllerRumbleSource))]
+[RequireComponent(typeof(ControllerVibrationSource))]
 public abstract class MenuElement : MonoBehaviour
 {
     
@@ -36,7 +36,7 @@ public abstract class MenuElement : MonoBehaviour
     [SerializeField] private SOAudioEvent interactSfx;
     [SerializeField, Parent, HideInInspector] protected MenuController menuController;
     [SerializeField, Parent, HideInInspector] protected AudioSource audioSource;
-    [SerializeField, Self, HideInInspector] protected ControllerRumbleSource controllerRumbleSource;
+    [SerializeField, Self, HideInInspector] protected ControllerVibrationSource controllerVibrationSource;
     [SerializeField, Self, HideInInspector] protected CinemachineImpulseSource cinemachineImpulseSource;
     [SerializeField, Child(Flag.Optional), HideInInspector] private CinemachineCamera interactionCamera;
     [EndFoldout]

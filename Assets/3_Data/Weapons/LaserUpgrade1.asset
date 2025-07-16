@@ -31,7 +31,7 @@ MonoBehaviour:
   - rid: 4047855707409612911
   - rid: 4047855707409612912
   - rid: 4047855707409612913
-  - rid: 4047855707409612914
+  - rid: 4485104011578441729
   overrideHitscanBehaviors: 0
   hitscanBehaviors: []
   itemName: Laser Upgrade 1
@@ -85,14 +85,14 @@ MonoBehaviour:
       data:
         stunChance: 25
         stunDuration: 0.3
-    - rid: 4047855707409612914
-      type: {class: BehaviorRumbleAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
+    - rid: 4485104011578441729
+      type: {class: BehaviorVibrateAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
       data:
-        rumbleControllerOnFire: 1
-        rumbleSettings:
-          lowFrequency: 0.1
-          highFrequency: 0.1
-          duration: 0.2
+        vibrateControllerOnFire: 1
+        vibrationSettings:
+          lowFrequency: 0.3
+          highFrequency: 0.3
+          duration: 0.3
           lowFrequencyCurve:
             serializedVersion: 2
             m_Curve:

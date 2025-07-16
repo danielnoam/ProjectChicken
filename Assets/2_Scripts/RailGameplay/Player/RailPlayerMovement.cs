@@ -43,7 +43,7 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private Rigidbody playerRigidbody;
-    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
+    [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
 
 
     private bool _allowMovement;
@@ -62,11 +62,10 @@ public class RailPlayerMovement : MonoBehaviour
     private Vector2 _normalizedMovementPosition;
     private float MovementBoundaryX => player.LevelManager ? player.LevelManager.PlayerBoundary.x : 10f;
     private float MovementBoundaryY => player.LevelManager ? player.LevelManager.PlayerBoundary.y : 6f;
-
-    public float MaxDodgeCooldown => dodgeCooldown;
+    
+    
     public bool IsDodging => _isDodging;
     public Vector2 NormalizedMovementPosition => _normalizedMovementPosition;
-
     public event Action OnDodge;
     public event Action<float> OnDodgeCooldownUpdated;
 
@@ -80,7 +79,7 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer);
+        OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer/dodgeCooldown);
     }
 
     private void OnEnable()
@@ -262,7 +261,7 @@ public class RailPlayerMovement : MonoBehaviour
         {
             _dodgeCooldownTimer -= Time.deltaTime;
             if (_dodgeCooldownTimer < 0f) _dodgeCooldownTimer = 0f;
-            OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer);
+            OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer/dodgeCooldown);
         }
     }
     
@@ -277,7 +276,7 @@ public class RailPlayerMovement : MonoBehaviour
         // Play dodge sound effect
         dodgeSfx?.Play(audioSource);
 
-        controllerRumbleSource.RumbleFadeIn(0.05f, 0f, dodgeTweenSettings.duration/2);
+        controllerVibrationSource.VibrateFadeIn(0.05f, 0f, dodgeTweenSettings.duration/2);
             
         // Tween just the dodge roll component
         _dodgeTween = Tween.Custom(

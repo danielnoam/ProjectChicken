@@ -31,8 +31,8 @@ MonoBehaviour:
   projectileBehaviors:
   - rid: 2319611325492494601
   - rid: 2319611325492494602
-  - rid: 4047855707409612893
-  - rid: 4047855707409612892
+  - rid: 4485104011578441735
+  - rid: 4485104011578441734
   hitscanBehaviors: []
   fireSound: {fileID: 11400000, guid: 65200ec152ef8d74fb474ec1f37a6549, type: 2}
   fireEffectPrefab: {fileID: 0}
@@ -80,13 +80,13 @@ MonoBehaviour:
         maxForce: 45
         stunChance: 35
         maxStunTime: 2
-    - rid: 4047855707409612892
-      type: {class: BehaviorRumbleAndShakeOnImpact, ns: , asm: Assembly-CSharp}
+    - rid: 4485104011578441734
+      type: {class: BehaviorVibrateAndShakeOnImpact, ns: , asm: Assembly-CSharp}
       data:
-        rumbleControllerOnImpact: 1
-        rumbleSettings:
-          lowFrequency: 0.4
-          highFrequency: 0.4
+        vibrateControllerOnImpact: 1
+        vibrationSettings:
+          lowFrequency: 0.3
+          highFrequency: 0.3
           duration: 0.3
           lowFrequencyCurve:
             serializedVersion: 2
@@ -138,16 +138,16 @@ MonoBehaviour:
             m_RotationOrder: 4
         shakeCameraOnImpact: 1
         shakeSettings:
-          impulseShape: 4
+          impulseShape: 2
           intensity: 1
           duration: 0.3
-    - rid: 4047855707409612893
-      type: {class: BehaviorRumbleAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
+    - rid: 4485104011578441735
+      type: {class: BehaviorVibrateAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
       data:
-        rumbleControllerOnFire: 1
-        rumbleSettings:
-          lowFrequency: 0.6
-          highFrequency: 0.2
+        vibrateControllerOnFire: 1
+        vibrationSettings:
+          lowFrequency: 0.3
+          highFrequency: 0.3
           duration: 0.3
           lowFrequencyCurve:
             serializedVersion: 2
@@ -199,6 +199,6 @@ MonoBehaviour:
             m_RotationOrder: 4
         shakeCameraOnFire: 1
         shakeSettings:
-          impulseShape: 4
-          intensity: 5
+          impulseShape: 2
+          intensity: 1
           duration: 0.3

@@ -3,10 +3,10 @@ using DNExtensions;
 using UnityEngine;
 
 
-public class BehaviorRumbleAndShakeOnStart : HitscanBehaviorBase
+public class BehaviorVibrateAndShakeOnStart : HitscanBehaviorBase
 {
-    [SerializeField] private bool rumbleControllerOnFire = true;
-    [SerializeField] private ControllerRumbleEffectSettings rumbleSettings;
+    [SerializeField] private bool vibrateControllerOnFire = true;
+    [SerializeField] private ControllerVibrationEffectSettings vibrationSettings;
     
     [Space(10)]
     
@@ -17,7 +17,7 @@ public class BehaviorRumbleAndShakeOnStart : HitscanBehaviorBase
     
     public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner,ChickenController target = null)
     {
-        if (rumbleControllerOnFire) weaponInstance.ControllerRumbleSource.Rumble(rumbleSettings);
+        if (vibrateControllerOnFire) weaponInstance.ControllerVibrationSource.Vibrate(vibrationSettings);
         
         if (shakeCameraOnFire)
         {

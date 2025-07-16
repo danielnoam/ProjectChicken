@@ -3,10 +3,10 @@ using DNExtensions;
 using UnityEngine;
 
 
-public class BehaviorRumbleAndShakeOnSpawn : ProjectileBehaviorBase
+public class BehaviorVibrateAndShakeOnSpawn : ProjectileBehaviorBase
 {
-    [SerializeField] private bool rumbleControllerOnFire = true;
-    [SerializeField] private ControllerRumbleEffectSettings rumbleSettings;
+    [SerializeField] private bool vibrateControllerOnFire = true;
+    [SerializeField] private ControllerVibrationEffectSettings vibrationSettings;
     
     [Space(10)]
     
@@ -16,7 +16,7 @@ public class BehaviorRumbleAndShakeOnSpawn : ProjectileBehaviorBase
 
     public override void OnSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
-        if (rumbleControllerOnFire) projectile.WeaponInstance.ControllerRumbleSource.Rumble(rumbleSettings);
+        if (vibrateControllerOnFire) projectile.WeaponInstance.ControllerVibrationSource.Vibrate(vibrationSettings);
         
         if (shakeCameraOnFire)
         {

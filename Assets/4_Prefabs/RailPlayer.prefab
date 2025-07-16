@@ -2922,6 +2922,7 @@ GameObject:
   - component: {fileID: 7233717465822237952}
   - component: {fileID: 890854243081262160}
   - component: {fileID: 3423310960035294283}
+  - component: {fileID: 4566949368712534308}
   m_Layer: 6
   m_Name: RailPlayer
   m_TagString: Player
@@ -2988,6 +2989,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerInput: {fileID: 8027271115035412187}
+  lowFrequencyRange:
+    minValue: 0
+    maxValue: 1
+  highFrequencyRange:
+    minValue: 0
+    maxValue: 1
 --- !u!114 &8027271115035412187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3186,24 +3193,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47818a8b6ad449f448a1ebb60dee421a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timeToPause: 3
+  alignToSplineDirection: 1
+  splineRotationSpeed: 5
   baseHealth: 3
   dodgingGivesInvincibility: 1
   receiveHealthOnBonusThreshold: 1
-  baseShieldHealth: 100
-  shieldRegenCooldown: 3
-  shieldRegenRate: 15
-  baseMagnetRadius: 14
   healthUpgrades:
   - {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
   - {fileID: 11400000, guid: 5051ea4807e765847ad58fa7f3fcaadc, type: 2}
+  baseShieldHealth: 100
+  shieldRegenCooldown: 3
+  shieldRegenRate: 15
   shieldUpgrades:
   - {fileID: 11400000, guid: 85cde709a65e11a4285e307636799abb, type: 2}
   - {fileID: 11400000, guid: 5fd2ebb25c87fa547bc5c087a3dfb75d, type: 2}
-  resourceMagnetUpgrades:
-  - {fileID: 11400000, guid: 259517cbb337a8243a3e713a312b7abd, type: 2}
-  - {fileID: 11400000, guid: f1ff5cc07ba342e418fb8a51b876c50f, type: 2}
-  alignToSplineDirection: 1
-  splineRotationSpeed: 5
   deathShakeSettings:
     impulseShape: 4
     intensity: 5
@@ -3212,7 +3216,7 @@ MonoBehaviour:
     impulseShape: 4
     intensity: 3
     duration: 0.5
-  deathControllerRumbleSettings:
+  deathVibrationSettings:
     lowFrequency: 0.3
     highFrequency: 0.3
     duration: 0.3
@@ -3264,7 +3268,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  shieldDamagedControllerRumbleSettings:
+  shieldDamagedVibrationSettings:
     lowFrequency: 0.3
     highFrequency: 0.3
     duration: 0.3
@@ -3316,7 +3320,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  healthDamagedControllerRumbleSettings:
+  healthDamagedVibrationSettings:
     lowFrequency: 0.3
     highFrequency: 0.3
     duration: 0.3
@@ -3383,7 +3387,8 @@ MonoBehaviour:
   playerAiming: {fileID: 890854243081262160}
   playerWeapon: {fileID: 3423310960035294283}
   playerMovement: {fileID: 7233717465822237952}
-  controllerRumbleSource: {fileID: 284695675551663708}
+  resourceCollector: {fileID: 4566949368712534308}
+  controllerVibrationSource: {fileID: 284695675551663708}
   cinemachineImpulseSource: {fileID: 3917683547680578920}
 --- !u!114 &8438971806570489096
 MonoBehaviour:
@@ -3493,7 +3498,7 @@ MonoBehaviour:
   playerAiming: {fileID: 890854243081262160}
   playerInput: {fileID: 8438971806570489096}
   playerRigidbody: {fileID: 8177767816080453902}
-  controllerRumbleSource: {fileID: 284695675551663708}
+  controllerVibrationSource: {fileID: 284695675551663708}
 --- !u!114 &890854243081262160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3518,7 +3523,7 @@ MonoBehaviour:
   playerInput: {fileID: 8438971806570489096}
   playerMovement: {fileID: 7233717465822237952}
   playerWeapon: {fileID: 3423310960035294283}
-  controllerRumbleSource: {fileID: 284695675551663708}
+  controllerVibrationSource: {fileID: 284695675551663708}
 --- !u!114 &3423310960035294283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3586,12 +3591,10 @@ MonoBehaviour:
   windowSizeRange: {x: 0.15, y: 0.2}
   miniGameWindowPosition: 0.23
   miniGameWindow: 0.415
-  dodgeReleasesHeat: 1
-  heatReleased: 25
-  rumbleOnOverheatSettings:
-    lowFrequency: 0.5
-    highFrequency: 0.5
-    duration: 0.2
+  vibrationOnOverheatSettings:
+    lowFrequency: 0.3
+    highFrequency: 0.3
+    duration: 0.3
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -3640,6 +3643,8 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+  dodgeReleasesHeat: 1
+  heatReleased: 25
   targetReticleAimLockSize: 2.5
   targetReticleAimLockDuration: 0.6
   targetReticleOverheatPunchStrength: 1.2
@@ -3662,8 +3667,25 @@ MonoBehaviour:
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
   playerMovement: {fileID: 7233717465822237952}
-  controllerRumbleSource: {fileID: 284695675551663708}
+  controllerVibrationSource: {fileID: 284695675551663708}
   impulseSource: {fileID: 3917683547680578920}
+--- !u!114 &4566949368712534308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042140183398147502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 045f8597f1094332b113468e32e86b96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseMagnetRadius: 14
+  resourceMagnetUpgrades:
+  - {fileID: 11400000, guid: 259517cbb337a8243a3e713a312b7abd, type: 2}
+  - {fileID: 11400000, guid: f1ff5cc07ba342e418fb8a51b876c50f, type: 2}
+  player: {fileID: 2233603387570671912}
 --- !u!1 &5214599697061486050
 GameObject:
   m_ObjectHideFlags: 0

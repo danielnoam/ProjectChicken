@@ -30,7 +30,7 @@ MonoBehaviour:
   overrideHitscanBehaviors: 1
   hitscanBehaviors:
   - rid: 4047855709786210424
-  - rid: 4047855709786210425
+  - rid: 4485104011578441733
   itemName: Lightning Beam Upgrade 2
   itemDescription: Cook more chickens with each beam!
   itemCost: 500
@@ -51,14 +51,14 @@ MonoBehaviour:
         baseStunDuration: 0.5
         chainDelay: 0.1
         chainFalloff: 0.8
-    - rid: 4047855709786210425
-      type: {class: BehaviorRumbleAndShakeOnStart, ns: , asm: Assembly-CSharp}
+    - rid: 4485104011578441733
+      type: {class: BehaviorVibrateAndShakeOnStart, ns: , asm: Assembly-CSharp}
       data:
-        rumbleControllerOnFire: 1
-        rumbleSettings:
-          lowFrequency: 0.15
-          highFrequency: 0.1
-          duration: 0.1
+        vibrateControllerOnFire: 1
+        vibrationSettings:
+          lowFrequency: 0.3
+          highFrequency: 0.3
+          duration: 0.3
           lowFrequencyCurve:
             serializedVersion: 2
             m_Curve:
@@ -67,7 +67,7 @@ MonoBehaviour:
               value: 1
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0
@@ -76,7 +76,7 @@ MonoBehaviour:
               value: 1
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0
@@ -91,7 +91,7 @@ MonoBehaviour:
               value: 1
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0
@@ -100,7 +100,7 @@ MonoBehaviour:
               value: 1
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0
