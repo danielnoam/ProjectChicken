@@ -1,8 +1,8 @@
 
 using DNExtensions;
+using DNExtensions.VFXManager;
 using PrimeTween;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MenuElementShopSign : MenuElement
 {
@@ -10,6 +10,7 @@ public class MenuElementShopSign : MenuElement
     [Header("Shop Settings")]
     [SerializeField] private float delayBeforeLoad = 1.5f;
     [SerializeField] private SceneField sceneToLoad;
+    [SerializeField] private SOVFEffectsSequence introSequence;
     
     private Sequence _loadSceneSequence;
     

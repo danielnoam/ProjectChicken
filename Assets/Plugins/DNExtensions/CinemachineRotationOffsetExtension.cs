@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Unity.Cinemachine;
 
+
 namespace DNExtensions
 {
     [AddComponentMenu("Cinemachine/Extensions/Rotation Offset Extension")]

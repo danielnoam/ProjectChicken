@@ -207,11 +207,13 @@ public abstract class MenuElement : MonoBehaviour
 
     public void OnMouseEnter()
     {
+        if (menuController.menuInput.IsCurrentDeviceGamepad) return;
         menuController?.MouseEnteredElement(this);
     }
     
     public void OnMouseDown()
     {
+        if (menuController.menuInput.IsCurrentDeviceGamepad) return;
         menuController?.MousePressedElement(this);
     }
     
