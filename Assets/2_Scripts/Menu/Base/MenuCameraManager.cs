@@ -6,7 +6,6 @@ using UnityEngine;
 using VInspector;
 
 [SelectionBase]
-[RequireComponent(typeof(CinemachineImpulseSource))]
 public class MenuCameraManager : MonoBehaviour
 {
 
@@ -17,11 +16,10 @@ public class MenuCameraManager : MonoBehaviour
     [SerializeField] private Ease lookAtEase = Ease.Linear;
     
     [Header("References")]
-    [SerializeField] private MenuController menuController;
     [SerializeField] private Transform cameraLookAtTarget;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private MenuController menuController;
     [SerializeField, Child (Flag.Optional), HideInInspector] private CinemachineCamera defaultCamera;
     [SerializeField, Child (Flag.Optional), HideInInspector] private CinemachineRotationComposer defaultCameraRotationComposer;
-    [SerializeField, Self, HideInInspector] private CinemachineImpulseSource impulseSource;
 
 
 
@@ -35,6 +33,12 @@ public class MenuCameraManager : MonoBehaviour
         if (!menuController)
         {
             menuController = FindFirstObjectByType<MenuController>();
+        }
+        else
+        {
+            _defaultTargetOffset = defaultCameraRotationComposer.TargetOffset;
+            cameraLookAtTarget.position = menuController.DefaultCameraLookAtPoint.position;
+            defaultCamera.Target.TrackingTarget = menuController.DefaultCameraPosition;
         }
         
 
@@ -58,6 +62,7 @@ public class MenuCameraManager : MonoBehaviour
         
         _defaultTargetOffset = defaultCameraRotationComposer.TargetOffset;
         cameraLookAtTarget.position = menuController.DefaultCameraLookAtPoint.position;
+        defaultCamera.Target.TrackingTarget = menuController.DefaultCameraPosition;
     }
 
     private void OnEnable()

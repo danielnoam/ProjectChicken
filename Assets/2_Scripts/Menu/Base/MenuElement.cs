@@ -11,7 +11,6 @@ using VInspector;
 using Sequence = PrimeTween.Sequence;
 
 [SelectionBase]
-[RequireComponent(typeof(Outline))]
 [RequireComponent(typeof(CinemachineImpulseSource))]
 [RequireComponent(typeof(ControllerVibrationSource))]
 public abstract class MenuElement : MonoBehaviour
@@ -29,7 +28,7 @@ public abstract class MenuElement : MonoBehaviour
 
     
     [Foldout("References")]
-    [SerializeField, Self(Flag.Editable)] private Outline outline;
+    [SerializeField, Child(Flag.Editable)] private Outline outline;
     [SerializeField] private TextMeshProUGUI label;
     [SerializeField] private CanvasGroup labelCanvasGroup;
     [SerializeField] private SOAudioEvent selectSfx;

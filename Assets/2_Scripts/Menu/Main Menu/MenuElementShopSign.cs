@@ -10,7 +10,6 @@ public class MenuElementShopSign : MenuElement
     [Header("Shop Settings")]
     [SerializeField] private float delayBeforeLoad = 1.5f;
     [SerializeField] private SceneField sceneToLoad;
-    [SerializeField] private SOVFEffectsSequence introSequence;
     
     private Sequence _loadSceneSequence;
     
@@ -36,7 +35,10 @@ public class MenuElementShopSign : MenuElement
         
         if (_loadSceneSequence.isAlive) _loadSceneSequence.Stop();
         _loadSceneSequence = Sequence.Create()
-                .ChainCallback(() => {controllerVibrationSource.Vibrate(0.05f,0, delayBeforeLoad);})
+                .ChainCallback(() =>
+                {
+                    controllerVibrationSource.Vibrate(0.05f,0, delayBeforeLoad);
+                })
                 .ChainDelay(delayBeforeLoad)
                 .OnComplete(FinishedInteraction);
     }

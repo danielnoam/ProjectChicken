@@ -22,6 +22,7 @@ public class MenuController : MonoBehaviour
     [SerializeField] private ControllerVibrationEffectSettings vibrationOnSelect = new ControllerVibrationEffectSettings(0.03f, 0f, 0.3f);
     
     [Header("References")]
+    [SerializeField] private Transform defaultCameraPosition;
     [SerializeField] private Transform defaultCameraLookAtPoint;
     [SerializeField] private SOAudioEvent menuLoopSfx;
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
@@ -35,6 +36,7 @@ public class MenuController : MonoBehaviour
     private MenuElement _currentMenuElement;
     
     public Transform DefaultCameraLookAtPoint => defaultCameraLookAtPoint ? defaultCameraLookAtPoint : transform;
+    public Transform DefaultCameraPosition => defaultCameraPosition ? defaultCameraPosition : transform;
     public Action<MenuElement> OnElementSelected;
     public Action<MenuElement> OnElementDeselected;
     public Action<MenuElement> OnElementInteracted;
