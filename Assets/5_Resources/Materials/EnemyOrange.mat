@@ -7,13 +7,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Reticle
-  m_Shader: {fileID: 4800000, guid: dfc173a5f8a33b945a935d6a0c531524, type: 3}
-  m_Parent: {fileID: 0}
+  m_Name: EnemyOrange
+  m_Shader: {fileID: 4800000, guid: 00ef3b0253587954b9a73aa29a71c5ba, type: 3}
+  m_Parent: {fileID: 2100000, guid: 722c47694fd055a49bba95f713346c5a, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords:
-  - _EMISSIONENABLED_ON
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -23,19 +22,10 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs:
-    - _BaseMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+    m_TexEnvs: []
     m_Ints: []
-    m_Floats:
-    - _Alpha: 1
-    - _EmissionEnabled: 1
-    - _EmissionIntensity: 1.93
-    - _EmissionStrength: 1
+    m_Floats: []
     m_Colors:
-    - _BaseColor: {r: 0.30598584, g: 0.7987421, b: 0, a: 1}
-    - _EmissionColor: {r: 0.47167015, g: 3.048182, b: 0, a: 1}
+    - _BaseColor: {r: 1, g: 0.65187675, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
