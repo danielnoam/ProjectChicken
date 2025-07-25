@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Outer
+  m_Name: Halo
   m_Shader: {fileID: -6465566751694194690, guid: 31d22f67efb2fbf4e9f038edd4cbd5fd, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -49,7 +49,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Difffuse:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: b356831ef4f363d48989d117c6ea79e3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -131,7 +131,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AddPrecomputedVelocity: 0
-    - _Alpha: -0.54
+    - _Alpha: -0.22
     - _AlphaClip: 1
     - _AlphaToMask: 0
     - _Alpha_Cycle_Speed: 0.1
@@ -144,13 +144,13 @@ Material:
     - _Cull: 2
     - _Cutoff: 0.5
     - _Cutout: 0.12
-    - _Cutout_Scale: 0.1
+    - _Cutout_Scale: 4.95
     - _Cutout_Scalee: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
     - _DstBlendAlpha: 0
-    - _Emission_Power: 12.32
+    - _Emission_Power: 12.29
     - _EnvironmentReflections: 1
     - _Exposure: 1
     - _Float: 2
@@ -159,12 +159,12 @@ Material:
     - _GlossyReflections: 0
     - _Height: 0.02
     - _IsNoise: 1
-    - _IsSmeared: 1
+    - _IsSmeared: 0
     - _IsTransparent: 0
     - _Lenghth: 1
     - _Metallic: 0
-    - _Noise_Scale: 1
-    - _Normal_Power: 1
+    - _Noise_Scale: 4.18
+    - _Normal_Power: 1.42
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueControl: 0
@@ -176,13 +176,13 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _Speed: 1
-    - _Speed_1: 0
+    - _Speed_1: 0.81
     - _SrcBlend: 5
     - _SrcBlendAlpha: 1
-    - _Steps: 5
+    - _Steps: 15
     - _Surface: 1
     - _Twirl_Rotation_Speedd: 0.1
-    - _Twirl_Strength: 0
+    - _Twirl_Strength: 0.08
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZTest: 4
@@ -193,7 +193,7 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color_1: {r: 1, g: 1, b: 1, a: 0}
     - _Direction: {r: 1, g: 5, b: 1, a: 0}
-    - _Emission: {r: 16.556467, g: 17.148373, b: 0, a: 0}
+    - _Emission: {r: 22.17523, g: 22.894424, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Tilling: {r: 1, g: 1, b: 0, a: 0}
