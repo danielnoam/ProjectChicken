@@ -309,7 +309,7 @@ Light:
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 5000
+  m_ColorTemperature: 6891
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
@@ -813,6 +813,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: UIManager
       objectReference: {fileID: 0}
+    - target: {fileID: 3217264707765852510, guid: 3f1977d2f87954fcca05fab30f54c487, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3217264707765852510, guid: 3f1977d2f87954fcca05fab30f54c487, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3217264707765852510, guid: 3f1977d2f87954fcca05fab30f54c487, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3217264707765852510, guid: 3f1977d2f87954fcca05fab30f54c487, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3282925616271391481, guid: 3f1977d2f87954fcca05fab30f54c487, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -977,6 +993,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5493757946794388521, guid: 3f1977d2f87954fcca05fab30f54c487, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5493757946794388521, guid: 3f1977d2f87954fcca05fab30f54c487, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5493757946794388521, guid: 3f1977d2f87954fcca05fab30f54c487, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5646922303810114807, guid: 3f1977d2f87954fcca05fab30f54c487, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -1113,7 +1141,6 @@ Transform:
   - {fileID: 1990519314}
   - {fileID: 1832145458}
   - {fileID: 1694666488}
-  - {fileID: 2107658378}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1159895778
@@ -1530,7 +1557,7 @@ GameObject:
   - component: {fileID: 1694666487}
   - component: {fileID: 1694666486}
   m_Layer: 0
-  m_Name: Sun
+  m_Name: SunHalo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1559,7 +1586,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: de1e848ec731aba4e8227d9fe5c8038a, type: 2}
+  - {fileID: 2100000, guid: 9c4d1d50d91aa1b49861d9d51d24c54b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1601,7 +1628,8 @@ Transform:
   m_LocalPosition: {x: -3494, y: -618, z: 5550}
   m_LocalScale: {x: 2366.524, y: 2366.524, z: 2366.524}
   m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_Children:
+  - {fileID: 2107658378}
   m_Father: {fileID: 1154851574}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1755819839
@@ -2079,7 +2107,7 @@ GameObject:
   - component: {fileID: 2107658380}
   - component: {fileID: 2107658379}
   m_Layer: 0
-  m_Name: Sun (1)
+  m_Name: Sun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2093,12 +2121,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2107658377}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3494, y: -618, z: 5550}
-  m_LocalScale: {x: 2157.4177, y: 2157.4177, z: 2157.4177}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.9116399, y: 0.9116399, z: 0.9116399}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 1154851574}
+  m_Father: {fileID: 1694666488}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &2107658379
 MeshRenderer:
@@ -2123,7 +2151,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 382efca7dc3919940ad183fa510b57ef, type: 2}
+  - {fileID: 2100000, guid: dd4b412114d374345807e00af7087415, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
