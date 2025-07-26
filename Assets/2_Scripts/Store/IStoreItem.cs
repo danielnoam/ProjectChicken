@@ -12,6 +12,7 @@ public interface IStoreItem
     string ItemName { get; }
     string ItemDescription { get; }
     int ItemCost { get; }
+    GameObject ItemGfx  { get; }
     List<InterfaceReference<IStoreItem>> NeededItemsToUnlockToUnlock { get; }
     int ItemID { get; set; }
     

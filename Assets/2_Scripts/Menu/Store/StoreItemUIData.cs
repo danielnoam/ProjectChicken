@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class StoreItemUIData : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private GameObject gfx;
+    [SerializeField] private Transform gfx;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private TextMeshProUGUI costText;
@@ -67,6 +67,10 @@ public class StoreItemUIData : MonoBehaviour
     {
         if (storeItem == null) return;
 
+        if (storeItem.ItemGfx)
+        {
+            var newGfx = Instantiate(storeItem.ItemGfx,gfx);
+        }
         StoreItem = storeItem;
         nameText.text = storeItem.ItemName;
         descriptionText.text = storeItem.ItemDescription;

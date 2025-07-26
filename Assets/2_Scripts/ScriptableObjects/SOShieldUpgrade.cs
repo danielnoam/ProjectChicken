@@ -20,6 +20,7 @@ public class SOShieldUpgrade : ScriptableObject, IStoreItem
     [SerializeField] private string itemName = "Shield Upgrade";
     [SerializeField] private string itemDescription = "Adds 25 hit points to the shield";
     [SerializeField, Min(0)] private int itemCost = 150;
+    [SerializeField] private GameObject itemGfx;
     [SerializeField] private List<InterfaceReference<IStoreItem>> neededItemsToUnlock = new  List<InterfaceReference<IStoreItem>>();
     [SerializeField, ReadOnly] private int itemID;
     
@@ -29,6 +30,7 @@ public class SOShieldUpgrade : ScriptableObject, IStoreItem
     public string ItemName => itemName;
     public string ItemDescription => itemDescription;
     public int ItemCost => itemCost;
+    public GameObject ItemGfx => itemGfx;
     public List<InterfaceReference<IStoreItem>> NeededItemsToUnlockToUnlock => neededItemsToUnlock;
     
     
