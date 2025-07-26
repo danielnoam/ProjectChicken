@@ -2770,9 +2770,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8474555558549935190}
   - component: {fileID: 8177767816080453902}
-  - component: {fileID: 646811667215214196}
-  - component: {fileID: 8027271115035412187}
   - component: {fileID: 6276024430624118950}
+  - component: {fileID: 8027271115035412187}
+  - component: {fileID: 646811667215214196}
   - component: {fileID: 284695675551663708}
   - component: {fileID: 3917683547680578920}
   - component: {fileID: 2233603387570671912}
@@ -2834,25 +2834,29 @@ Rigidbody:
   m_Interpolate: 2
   m_Constraints: 0
   m_CollisionDetection: 1
---- !u!114 &646811667215214196
-MonoBehaviour:
+--- !u!136 &6276024430624118950
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5042140183398147502}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9dffa83163bd4a041ab121b85dd1ac55, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerInput: {fileID: 8027271115035412187}
-  lowFrequencyRange:
-    minValue: 0
-    maxValue: 1
-  highFrequencyRange:
-    minValue: 0
-    maxValue: 1
+  serializedVersion: 2
+  m_Radius: 4
+  m_Height: 20
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8027271115035412187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2951,29 +2955,25 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!136 &6276024430624118950
-CapsuleCollider:
+--- !u!114 &646811667215214196
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5042140183398147502}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 4
-  m_Height: 20
-  m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 0}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dffa83163bd4a041ab121b85dd1ac55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInput: {fileID: 8027271115035412187}
+  lowFrequencyRange:
+    minValue: 0
+    maxValue: 1
+  highFrequencyRange:
+    minValue: 0
+    maxValue: 1
 --- !u!114 &284695675551663708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7148,7 +7148,7 @@ PrefabInstance:
     - target: {fileID: -1238719850214163566, guid: 3c17265e79669714289daeeef1678ad5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 827b3cd98888c1944a829bea9fe3a813, type: 2}
+      objectReference: {fileID: 2100000, guid: 0aba5f4f037115ba8beab83c7cccbf46, type: 2}
     - target: {fileID: 919132149155446097, guid: 3c17265e79669714289daeeef1678ad5, type: 3}
       propertyPath: m_Name
       value: SpaceShip01
@@ -7156,7 +7156,7 @@ PrefabInstance:
     - target: {fileID: 3071414090463894568, guid: 3c17265e79669714289daeeef1678ad5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 827b3cd98888c1944a829bea9fe3a813, type: 2}
+      objectReference: {fileID: 2100000, guid: 0aba5f4f037115ba8beab83c7cccbf46, type: 2}
     - target: {fileID: 4431670454091400558, guid: 3c17265e79669714289daeeef1678ad5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -7172,7 +7172,7 @@ PrefabInstance:
     - target: {fileID: 8961747979581553754, guid: 3c17265e79669714289daeeef1678ad5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 827b3cd98888c1944a829bea9fe3a813, type: 2}
+      objectReference: {fileID: 2100000, guid: 0aba5f4f037115ba8beab83c7cccbf46, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

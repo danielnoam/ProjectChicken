@@ -91,12 +91,12 @@ public class MenuElementLaunchLever : MenuElement
     
     private void OnLevelSelected()
     {
-        ToggleCanSelect(true, false);
+        ToggleCanSelect(true, true);
     }
     
     private void OnLevelDeselected()
     {
-        ToggleCanSelect(false, false);
+        ToggleCanSelect(false, true);
     }
 
     public void Launch()

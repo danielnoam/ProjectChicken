@@ -71,6 +71,7 @@ public class StoreItemUIData : MonoBehaviour
         {
             var newGfx = Instantiate(storeItem.ItemGfx,gfx);
         }
+        
         StoreItem = storeItem;
         nameText.text = storeItem.ItemName;
         descriptionText.text = storeItem.ItemDescription;

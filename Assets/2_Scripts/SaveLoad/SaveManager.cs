@@ -156,7 +156,7 @@ public class SaveManager : MonoBehaviour
         {
             string jsonData = JsonUtility.ToJson(_playerProgressData, true);
             File.WriteAllText(_playerProgressDataPath, jsonData);
-            Debug.Log("Player progress saved successfully!");
+            // Debug.Log("Player progress saved successfully!");
         }
         catch (Exception e)
         {
@@ -179,7 +179,7 @@ public class SaveManager : MonoBehaviour
             else
             {
                 _playerProgressData = new PlayerProgressData();
-                Debug.Log("No player progress file found. Created new player progress data.");
+                // Debug.Log("No player progress file found. Created new player progress data.");
             }
         }
         catch (Exception e)
@@ -248,7 +248,7 @@ public class SaveManager : MonoBehaviour
                     Instance.defaultKeyboardMouseScheme, 
                     Instance.defaultGamepadScheme
                 );
-                Debug.Log("No settings file found. Created new settings data.");
+                // Debug.Log("No settings file found. Created new settings data.");
             }
         }
         catch (Exception e)

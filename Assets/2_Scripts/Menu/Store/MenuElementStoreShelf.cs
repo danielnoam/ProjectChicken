@@ -43,6 +43,7 @@ public class MenuElementStoreShelf : MenuElement
             foreach (var item in shelfItems)
             {
                 var storeItem = Instantiate(storeItemUIDataPrefab, storeItemHolder ? storeItemHolder : transform);
+                storeItem.name = item.Value.ItemName;
                 storeItem.SetupItem(item.Value);
                 
                 storeItem.OnItemBoughtEvent += StoreItemBought;

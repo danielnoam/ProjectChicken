@@ -28,7 +28,7 @@ public abstract class MenuElement : MonoBehaviour
 
     
     [Foldout("References")]
-    [SerializeField, Child(Flag.Editable)] private Outline outline;
+    [SerializeField] private Outline outline;
     [SerializeField] private TextMeshProUGUI label;
     [SerializeField] private CanvasGroup labelCanvasGroup;
     [SerializeField] private SOAudioEvent selectSfx;

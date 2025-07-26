@@ -408,7 +408,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            if (_playerHealth != currentHealth)
+            if (playerHealthIcon && _playerHealth != currentHealth)
             {
                 Tween.PunchScale(playerHealthIcon.transform, strength: Vector3.one * healthPunchStrength, duration: healthPunchDuration);
             }
@@ -436,7 +436,7 @@ public class UIManager : MonoBehaviour
             _playerShield = currentShield;
         }
         
-        if (currentShield >= player.MaxShieldHealth - 1)
+        if (playerShieldIcon && currentShield >= player.MaxShieldHealth - 1)
         {
             Tween.PunchScale(playerShieldIcon.transform, strength: Vector3.one * shieldPunchStrength, duration: shieldPunchDuration);
         }
