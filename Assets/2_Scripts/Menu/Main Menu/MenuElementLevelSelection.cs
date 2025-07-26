@@ -1,12 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using PrimeTween;
 using TMPEffects.Components;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using VInspector;
+using Sequence = PrimeTween.Sequence;
 
 public class MenuElementLevelSelection : MenuElement
 {
@@ -35,7 +38,7 @@ public class MenuElementLevelSelection : MenuElement
     private Coroutine _writerDelayRoutine;
     private LevelUIData _currentlyShownLevel;
     private LevelUIData _selectedLevel;
-
+    private Sequence _levelInfoCanvasSequence;
     
     public SOLevel SelectedLevel => _selectedLevel?.soLevel;
     public LaunchMissionMode LaunchMissionMode => launchMissionMode;
@@ -105,7 +108,7 @@ public class MenuElementLevelSelection : MenuElement
         levelDescriptionText.text = "";
         levelDifficultyText.text = "";
         levelBestScoreText.text = "";
-        ToggleLevelCanvas(false);
+        ToggleLevelCanvas(false, false);
     }
     
     protected override void OnInteract()
@@ -258,13 +261,28 @@ public class MenuElementLevelSelection : MenuElement
     }
     
     
-    private void ToggleLevelCanvas(bool state)
+    private void ToggleLevelCanvas(bool state, bool animate = true)
     {
         if (!levelsSelectionCanvas) return;
-        
-        levelsSelectionCanvas.alpha = state ? 1 : 0;
-        levelsSelectionCanvas.interactable = state;
-        levelsSelectionCanvas.blocksRaycasts = state;
+        if (_levelInfoCanvasSequence.isAlive) _levelInfoCanvasSequence.Stop();
+
+        if (animate)
+        {
+            _levelInfoCanvasSequence = Sequence.Create()
+                .Group(Tween.Alpha(levelsSelectionCanvas, state ? 1 : 0, 0.3f))
+                .OnComplete(() =>
+                {
+                    levelsSelectionCanvas.interactable = state;
+                    levelsSelectionCanvas.blocksRaycasts = state;
+                });
+        }
+        else
+        {
+            levelsSelectionCanvas.alpha = state ? 1 : 0;
+            levelsSelectionCanvas.interactable = state;
+            levelsSelectionCanvas.blocksRaycasts = state;
+        }
+
     }
     
     private IEnumerator StartWritersWithDelay()

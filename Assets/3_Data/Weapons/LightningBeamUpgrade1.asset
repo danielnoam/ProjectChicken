@@ -30,10 +30,11 @@ MonoBehaviour:
   overrideHitscanBehaviors: 1
   hitscanBehaviors:
   - rid: 4047855709786210404
-  - rid: 4047855709786210405
+  - rid: 4485104011578441732
   itemName: Lightning Beam Upgrade 1
   itemDescription: The lightning beam jumps to nearby chickens!
   itemCost: 350
+  itemGfx: {fileID: 8791046985504996612, guid: bd68fccb9ae740d46918a9cbcc95b3dc, type: 3}
   neededItemsToUnlock: []
   itemID: 1445882125
   references:
@@ -50,14 +51,14 @@ MonoBehaviour:
         baseStunDuration: 0.5
         chainDelay: 0.1
         chainFalloff: 0.8
-    - rid: 4047855709786210405
-      type: {class: BehaviorRumbleAndShakeOnStart, ns: , asm: Assembly-CSharp}
+    - rid: 4485104011578441732
+      type: {class: BehaviorVibrateAndShakeOnStart, ns: , asm: Assembly-CSharp}
       data:
-        rumbleControllerOnFire: 1
-        rumbleSettings:
-          lowFrequency: 0.1
-          highFrequency: 0.1
-          duration: 0.1
+        vibrateControllerOnFire: 1
+        vibrationSettings:
+          lowFrequency: 0.15
+          highFrequency: 0.15
+          duration: 0.2
           lowFrequencyCurve:
             serializedVersion: 2
             m_Curve:
@@ -66,16 +67,16 @@ MonoBehaviour:
               value: 1
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0
             - serializedVersion: 3
               time: 1
-              value: 1
+              value: 0
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0
@@ -90,16 +91,16 @@ MonoBehaviour:
               value: 1
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0
             - serializedVersion: 3
               time: 1
-              value: 1
+              value: 0
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0

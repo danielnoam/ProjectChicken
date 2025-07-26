@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponWeaponIcon: {fileID: 21300000, guid: 5e47d3c0bf2847232a36283961f60a7d, type: 3}
   weaponType: 0
   weaponLimitation: 1
-  heatPerShot: 4
+  heatPerShot: 3
   timeLimit: 10
   ammoLimit: 3
   fireRate: 0.15
@@ -33,7 +33,7 @@ MonoBehaviour:
   - rid: 4047855503621750873
   - rid: 3357952728375754824
   - rid: 3357952757002403913
-  - rid: 4047855707409612891
+  - rid: 4485104011578441728
   hitscanBehaviors: []
   fireSound: {fileID: 11400000, guid: e971bc54a3f9999aaacf79a252c19c12, type: 2}
   fireEffectPrefab: {fileID: 0}
@@ -85,11 +85,11 @@ MonoBehaviour:
       type: {class: BehaviorDamageOnImpact, ns: , asm: Assembly-CSharp}
       data:
         damage: 35
-    - rid: 4047855707409612891
-      type: {class: BehaviorRumbleAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
+    - rid: 4485104011578441728
+      type: {class: BehaviorVibrateAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
       data:
-        rumbleControllerOnFire: 1
-        rumbleSettings:
+        vibrateControllerOnFire: 1
+        vibrationSettings:
           lowFrequency: 0.1
           highFrequency: 0.1
           duration: 0.2

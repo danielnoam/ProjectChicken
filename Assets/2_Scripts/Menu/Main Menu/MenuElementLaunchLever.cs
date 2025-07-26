@@ -115,10 +115,10 @@ public class MenuElementLaunchLever : MenuElement
         float delayBeforeAnimation = levelSelection.LaunchMissionMode == LaunchMissionMode.Auto ? 1.5f : 0f;
         
         _leverPressSequence = Sequence.Create()
-                .ChainCallback(() => {controllerRumbleSource.Rumble(0.1f,0.1f, animationDuration);})
+                .ChainCallback(() => {controllerVibrationSource.Vibrate(0.1f,0.1f, animationDuration);})
                 .Group(Tween.LocalRotation(leverPivotTransform,startDelay: delayBeforeAnimation, startValue: _leverStartRot,endValue: leverPressedRotation, duration: animationDuration, ease: animationEase))
                 .ChainCallback(() => leverPressedSfx?.Play(audioSource))
-                .ChainCallback(() => {controllerRumbleSource.Rumble(0.1f,0.2f, delayBeforeLaunch);})
+                .ChainCallback(() => {controllerVibrationSource.Vibrate(0.1f,0.2f, delayBeforeLaunch);})
                 .ChainDelay(delayBeforeLaunch)
                 .OnComplete(FinishedInteraction)
             ;

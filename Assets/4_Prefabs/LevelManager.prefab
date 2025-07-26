@@ -308,10 +308,16 @@ MonoBehaviour:
   startOffset: 0
   pathFollowSmoothness: 2
   bonusThreshold: 50000
-  debugStageLevel: 0
-  currentStageIndex: 0
   levelStages: []
+  debugLog: 0
+  enemiesLeft: 0
+  currentStageIndex: 0
+  currentStage: {fileID: 0}
   splineContainer: {fileID: 5337217381014650461}
+  mainMenuScene:
+    sceneAsset: {fileID: 102900000, guid: 81ac6686a6faf384a8be7373c1b1ef15, type: 3}
+    sceneName: MainMenu
+    scenePath: Assets/1_Scenes/GameScenes/MainMenu.unity
   currentPositionOnPath: {fileID: 3017262246087303862}
   enemyWaveManager: {fileID: 0}
   player: {fileID: 0}

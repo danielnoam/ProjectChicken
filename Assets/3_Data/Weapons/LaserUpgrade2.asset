@@ -31,12 +31,13 @@ MonoBehaviour:
   - rid: 4047855707409612906
   - rid: 4047855707409612907
   - rid: 4047855707409612908
-  - rid: 4047855707409612909
+  - rid: 4485104011578441730
   overrideHitscanBehaviors: 0
   hitscanBehaviors: []
   itemName: Laser Upgrade 2
   itemDescription: Now shoots three lasers!
   itemCost: 400
+  itemGfx: {fileID: 682982969330921429, guid: bf2cd7b501508c14e8723a3389ce300c, type: 3}
   neededItemsToUnlock:
   - _underlyingValue: {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
   itemID: -159191848
@@ -86,11 +87,11 @@ MonoBehaviour:
       data:
         stunChance: 25
         stunDuration: 0.3
-    - rid: 4047855707409612909
-      type: {class: BehaviorRumbleAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
+    - rid: 4485104011578441730
+      type: {class: BehaviorVibrateAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
       data:
-        rumbleControllerOnFire: 1
-        rumbleSettings:
+        vibrateControllerOnFire: 1
+        vibrationSettings:
           lowFrequency: 0.1
           highFrequency: 0.1
           duration: 0.2

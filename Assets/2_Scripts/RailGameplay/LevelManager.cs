@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
+using DNExtensions;
 using KBCore.Refs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.Splines;
 using VInspector;
@@ -23,18 +25,19 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private float playerOffset = -30f;
     [SerializeField] private float enemyOffset = 30f;
     [SerializeField] private float startOffset;
-    [SerializeField, Tooltip("The smoothness applied when stages have different move speeds")] private float pathFollowSmoothness = 0.1f;
-    [SerializeField, Min(0)] private int bonusThreshold = 500000;
+    [SerializeField, Tooltip("The smoothness applied when stages have different move speeds")] private float pathFollowSmoothness = 2f;
+    [SerializeField, Min(0)] private int bonusThreshold = 50000;
     [SerializeField] private SOLevelStage[] levelStages;
     
     [Header("Debug")]
     [SerializeField] private bool debugLog;
-    [SerializeField, ReadOnly] private int enemiesLeft;
-    [SerializeField, ReadOnly] private int currentStageIndex;
-    [SerializeField, ReadOnly] private SOLevelStage currentStage;
+    [SerializeField, VInspector.ReadOnly] private int enemiesLeft;
+    [SerializeField, VInspector.ReadOnly] private int currentStageIndex;
+    [SerializeField, VInspector.ReadOnly] private SOLevelStage currentStage;
     
     [Header("References")]
     [SerializeField, Child] private SplineContainer splineContainer;
+    [SerializeField] private SceneField mainMenuScene;
     [SerializeField] private Transform currentPositionOnPath;
     [SerializeField] private EnemyWaveManager enemyWaveManager;
     [SerializeField] private RailPlayer player;
@@ -129,8 +132,9 @@ public class LevelManager : MonoBehaviour
 
         if (player)
         {
-            player.OnResourceCollected += OnPlayerCollectedResource;
+            player.ResourceCollector.OnResourceCollected += OnPlayerCollectedResource;
             player.OnDeath += OnPlayerDeath;
+            player.OnPause += OnPlayerPaused;
         }
     }
     
@@ -145,8 +149,9 @@ public class LevelManager : MonoBehaviour
         
         if (player)
         {
-            player.OnResourceCollected -= OnPlayerCollectedResource;
+            player.ResourceCollector.OnResourceCollected -= OnPlayerCollectedResource;
             player.OnDeath -= OnPlayerDeath;
+            player.OnPause -= OnPlayerPaused;
         }
     }
     
@@ -183,6 +188,10 @@ public class LevelManager : MonoBehaviour
         StartCoroutine(RestartSavePoint());
     }
 
+    private void OnPlayerPaused()
+    {
+        StartCoroutine(ReturnToMainMenu(0.1f));
+    }
     
     
     #region Stage Management ---------------------------------------------------------------------------------
@@ -289,7 +298,7 @@ public class LevelManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         
-        SceneManager.LoadScene("MainMenu");
+        mainMenuScene?.LoadScene();
     }
     
 

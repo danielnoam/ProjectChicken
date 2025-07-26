@@ -9,8 +9,8 @@ using VInspector;
 [SelectionBase]
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(MenuInput))]
-[RequireComponent(typeof(ControllerRumbleSource))]
-[RequireComponent(typeof(ControllerRumbleListener))]
+[RequireComponent(typeof(ControllerVibrationSource))]
+[RequireComponent(typeof(ControllerVibrationListener))]
 public class MenuController : MonoBehaviour
 {
 
@@ -18,15 +18,16 @@ public class MenuController : MonoBehaviour
     [SerializeField] private MenuElement[] menuElements;
     
     [Header("Controller Rumble")]
-    [SerializeField] private ControllerRumbleEffectSettings rumbleOnInteract = new ControllerRumbleEffectSettings(0.03f, 0f, 0.3f);
-    [SerializeField] private ControllerRumbleEffectSettings rumbleOnSelect = new ControllerRumbleEffectSettings(0.03f, 0f, 0.3f);
+    [SerializeField] private ControllerVibrationEffectSettings vibrationOnInteract = new ControllerVibrationEffectSettings(0.03f, 0f, 0.3f);
+    [SerializeField] private ControllerVibrationEffectSettings vibrationOnSelect = new ControllerVibrationEffectSettings(0.03f, 0f, 0.3f);
     
     [Header("References")]
+    [SerializeField] private Transform defaultCameraPosition;
     [SerializeField] private Transform defaultCameraLookAtPoint;
     [SerializeField] private SOAudioEvent menuLoopSfx;
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     [SerializeField, Self, HideInInspector] public MenuInput menuInput;
-    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
+    [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
     
     
     private bool _isInteracting;
@@ -35,6 +36,7 @@ public class MenuController : MonoBehaviour
     private MenuElement _currentMenuElement;
     
     public Transform DefaultCameraLookAtPoint => defaultCameraLookAtPoint ? defaultCameraLookAtPoint : transform;
+    public Transform DefaultCameraPosition => defaultCameraPosition ? defaultCameraPosition : transform;
     public Action<MenuElement> OnElementSelected;
     public Action<MenuElement> OnElementDeselected;
     public Action<MenuElement> OnElementInteracted;
@@ -94,7 +96,7 @@ public class MenuController : MonoBehaviour
         }
 
         DisableSelection();
-        controllerRumbleSource.Rumble(rumbleOnSelect);
+        controllerVibrationSource.Vibrate(vibrationOnSelect);
 
         _currentMenuElementIndex = index;
         _currentMenuElement = menuElements[index];
@@ -190,7 +192,7 @@ public class MenuController : MonoBehaviour
     {
         if (_isInteracting || !element.CanSelect) return;
         
-        controllerRumbleSource.Rumble(rumbleOnInteract);
+        controllerVibrationSource.Vibrate(vibrationOnInteract);
         _isInteracting = true;
         element?.Interact();
         OnElementInteracted?.Invoke(element);
@@ -198,7 +200,7 @@ public class MenuController : MonoBehaviour
     
     private void StopInteraction(MenuElement element)
     {
-        controllerRumbleSource.Rumble(rumbleOnInteract);
+        controllerVibrationSource.Vibrate(vibrationOnInteract);
         _isInteracting = false;
         element?.StopInteraction();
         OnElementFinishedInteraction?.Invoke(element);

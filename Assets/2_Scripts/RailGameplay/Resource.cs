@@ -55,6 +55,7 @@ public class Resource : MonoBehaviour
     [SerializeField] private float magnetizedPunchDuration = 0.5f;
     
     [Header("References")]
+    [SerializeField] private Transform resourceGfx;
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     [SerializeField, Self, HideInInspector] private Rigidbody rigidBody;
     
@@ -103,7 +104,7 @@ public class Resource : MonoBehaviour
     private void Update()
     {
         CheckLifetime();
-        Rotate();
+        RotateGfx();
         UpdateSplineRotation();
     }
     
@@ -174,7 +175,8 @@ public class Resource : MonoBehaviour
         float randomSpeed = UnityEngine.Random.Range(spawnSpeedRange.x, spawnSpeedRange.y);
         Vector3 localVelocity = new Vector3(randomDir.x, randomDir.y, 0f) * randomSpeed;
         _currentVelocity = _splineRotation * localVelocity;
-        _targetVelocity = Vector3.zero; 
+        _targetVelocity = Vector3.zero;
+        resourceGfx.eulerAngles = new Vector3(UnityEngine.Random.Range(0f, 360f), UnityEngine.Random.Range(0f, 360f), UnityEngine.Random.Range(0f, 360f));
         
         PlaySpawnEffects();
     }
@@ -200,11 +202,11 @@ public class Resource : MonoBehaviour
     }
     
     
-    private void Rotate()
+    private void RotateGfx()
     {
         if (rotationSpeed <= 0f) return;
         
-        transform.Rotate(_rotationAxis, rotationSpeed * Time.deltaTime, Space.Self);
+        resourceGfx.Rotate(_rotationAxis, rotationSpeed * Time.deltaTime, Space.Self);
     }
 
 

@@ -42,7 +42,7 @@ public class MenuElementExitSign : MenuElement
 
     protected override void OnFinishedInteraction()
     {
-        SceneManager.LoadScene(sceneToLoad.SceneName);
+        sceneToLoad.LoadScene();
     }
     
     protected override void OnStopInteraction()

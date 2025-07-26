@@ -1,8 +1,8 @@
 
 using DNExtensions;
+using DNExtensions.VFXManager;
 using PrimeTween;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MenuElementShopSign : MenuElement
 {
@@ -35,14 +35,17 @@ public class MenuElementShopSign : MenuElement
         
         if (_loadSceneSequence.isAlive) _loadSceneSequence.Stop();
         _loadSceneSequence = Sequence.Create()
-                .ChainCallback(() => {controllerRumbleSource.Rumble(0.05f,0, delayBeforeLoad);})
+                .ChainCallback(() =>
+                {
+                    controllerVibrationSource.Vibrate(0.05f,0, delayBeforeLoad);
+                })
                 .ChainDelay(delayBeforeLoad)
                 .OnComplete(FinishedInteraction);
     }
 
     protected override void OnFinishedInteraction()
     {
-        SceneManager.LoadScene(sceneToLoad.SceneName);
+        sceneToLoad.LoadScene();
     }
     
     protected override void OnStopInteraction()

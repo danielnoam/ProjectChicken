@@ -29,9 +29,7 @@ public class SOLevel : ScriptableObject
     
     public void LoadLevel()
     {
-        if (levelScene == null) return;
-        
-        SceneManager.LoadScene(levelScene.BuildIndex);
+        levelScene?.LoadScene();
     }
     
     public GameObject SetUpGfx(Transform parent)

@@ -20,6 +20,7 @@ public class SOHealthUpgrade : ScriptableObject, IStoreItem
     [SerializeField] private string itemName = "Health Upgrade";
     [SerializeField] private string itemDescription = "Adds 1 heart to the player";
     [SerializeField, Min(0)] private int itemCost = 150;
+    [SerializeField] private GameObject itemGfx;
     [SerializeField] private List<InterfaceReference<IStoreItem>> neededItemsToUnlock = new  List<InterfaceReference<IStoreItem>>();
     [SerializeField, ReadOnly] private int itemID;
     
@@ -28,6 +29,7 @@ public class SOHealthUpgrade : ScriptableObject, IStoreItem
     public string ItemName => itemName;
     public string ItemDescription => itemDescription;
     public int ItemCost => itemCost;
+    public GameObject ItemGfx => itemGfx;
     public List<InterfaceReference<IStoreItem>> NeededItemsToUnlockToUnlock => neededItemsToUnlock;
     
     

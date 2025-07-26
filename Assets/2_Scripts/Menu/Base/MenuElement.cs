@@ -11,9 +11,8 @@ using VInspector;
 using Sequence = PrimeTween.Sequence;
 
 [SelectionBase]
-[RequireComponent(typeof(Outline))]
 [RequireComponent(typeof(CinemachineImpulseSource))]
-[RequireComponent(typeof(ControllerRumbleSource))]
+[RequireComponent(typeof(ControllerVibrationSource))]
 public abstract class MenuElement : MonoBehaviour
 {
     
@@ -29,14 +28,14 @@ public abstract class MenuElement : MonoBehaviour
 
     
     [Foldout("References")]
-    [SerializeField, Self(Flag.Editable)] private Outline outline;
+    [SerializeField, Child(Flag.Editable)] private Outline outline;
     [SerializeField] private TextMeshProUGUI label;
     [SerializeField] private CanvasGroup labelCanvasGroup;
     [SerializeField] private SOAudioEvent selectSfx;
     [SerializeField] private SOAudioEvent interactSfx;
     [SerializeField, Parent, HideInInspector] protected MenuController menuController;
     [SerializeField, Parent, HideInInspector] protected AudioSource audioSource;
-    [SerializeField, Self, HideInInspector] protected ControllerRumbleSource controllerRumbleSource;
+    [SerializeField, Self, HideInInspector] protected ControllerVibrationSource controllerVibrationSource;
     [SerializeField, Self, HideInInspector] protected CinemachineImpulseSource cinemachineImpulseSource;
     [SerializeField, Child(Flag.Optional), HideInInspector] private CinemachineCamera interactionCamera;
     [EndFoldout]
@@ -207,11 +206,13 @@ public abstract class MenuElement : MonoBehaviour
 
     public void OnMouseEnter()
     {
+        if (menuController.menuInput.IsCurrentDeviceGamepad) return;
         menuController?.MouseEnteredElement(this);
     }
     
     public void OnMouseDown()
     {
+        if (menuController.menuInput.IsCurrentDeviceGamepad) return;
         menuController?.MousePressedElement(this);
     }
     

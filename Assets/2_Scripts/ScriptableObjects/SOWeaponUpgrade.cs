@@ -54,6 +54,7 @@ public class SOWeaponUpgrade : ScriptableObject, IStoreItem
     [SerializeField] private string itemName = "New Store Item";
     [SerializeField] private string itemDescription = "An Item";
     [SerializeField, Min(0)] private int itemCost = 10;
+    [SerializeField] private GameObject itemGfx;
     [SerializeField] private List<InterfaceReference<IStoreItem>> neededItemsToUnlock = new  List<InterfaceReference<IStoreItem>>();
     [SerializeField, ReadOnly] private int itemID;
     
@@ -81,7 +82,9 @@ public class SOWeaponUpgrade : ScriptableObject, IStoreItem
     public string ItemName => itemName;
     public string ItemDescription => itemDescription;
     public int ItemCost => itemCost;
+    public GameObject ItemGfx => itemGfx;
     public List<InterfaceReference<IStoreItem>> NeededItemsToUnlockToUnlock => neededItemsToUnlock;
+    
     
     
     public int ItemID { get => itemID; set => itemID = value; }

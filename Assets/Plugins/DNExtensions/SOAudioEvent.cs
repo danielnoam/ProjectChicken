@@ -252,7 +252,7 @@ namespace DNExtensions
 
 // Preview button
     [CustomEditor(typeof(SOAudioEvent), true)]
-    public class AudioEventEditor : Editor
+    public class AudioEventEditor : UnityEditor.Editor
     {
 
         [SerializeField] private AudioSource previewer;
