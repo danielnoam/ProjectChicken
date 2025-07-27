@@ -1,9 +1,8 @@
-using System;
+
 using KBCore.Refs;
 using PrimeTween;
 using Unity.Cinemachine;
 using UnityEngine;
-using VInspector;
 
 [SelectionBase]
 public class MenuCameraManager : MonoBehaviour

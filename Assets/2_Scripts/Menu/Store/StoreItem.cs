@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StoreItemUIData : MonoBehaviour
+public class StoreItem : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Transform gfx;
@@ -21,12 +21,12 @@ public class StoreItemUIData : MonoBehaviour
     private Sequence _iconSequence;
     private Sequence _canvasSequence;
     private Camera _camera;
-    public IStoreItem StoreItem { get; private set; }
+    public IStoreItem IStoreItem { get; private set; }
 
-    public event Action<StoreItemUIData> OnItemBoughtEvent;
-    public event Action<StoreItemUIData> OnMouseEnterEvent;
-    public event Action<StoreItemUIData> OnMouseExitEvent;
-    public event Action<StoreItemUIData> OnMouseDownEvent;
+    public event Action<StoreItem> OnItemBoughtEvent;
+    public event Action<StoreItem> OnMouseEnterEvent;
+    public event Action<StoreItem> OnMouseExitEvent;
+    public event Action<StoreItem> OnMouseDownEvent;
 
 
     private void Awake()
@@ -72,7 +72,7 @@ public class StoreItemUIData : MonoBehaviour
             var newGfx = Instantiate(storeItem.ItemGfx,gfx);
         }
         
-        StoreItem = storeItem;
+        IStoreItem = storeItem;
         nameText.text = storeItem.ItemName;
         descriptionText.text = storeItem.ItemDescription;
         _hasItem = SaveManager.HasStoreItem(storeItem.ItemID);
@@ -95,7 +95,7 @@ public class StoreItemUIData : MonoBehaviour
     
     public void TryPurchase()
     {
-        if (StoreItem == null) return;
+        if (IStoreItem == null) return;
 
         if (_hasItem)
         {
@@ -111,10 +111,10 @@ public class StoreItemUIData : MonoBehaviour
 
         var currentCurrency = SaveManager.GetCurrency();
 
-        if (currentCurrency >= StoreItem.ItemCost)
+        if (currentCurrency >= IStoreItem.ItemCost)
         {
-            SaveManager.UpdatePlayerCurrency(currentCurrency - StoreItem.ItemCost);
-            SaveManager.UpdatePlayerBoughtItems(StoreItem.ItemID);
+            SaveManager.UpdatePlayerCurrency(currentCurrency - IStoreItem.ItemCost);
+            SaveManager.UpdatePlayerBoughtItems(IStoreItem.ItemID);
             costText.text = "Purchased";
             var iconColor = costIcon.color;
             iconColor.a = 0f;

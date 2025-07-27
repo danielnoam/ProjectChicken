@@ -1,13 +1,11 @@
-using System;
+
 using System.Collections;
-using System.Collections.Generic;
 using DNExtensions;
 using KBCore.Refs;
 using PrimeTween;
 using Unity.Cinemachine;
 using UnityEngine;
 using VInspector;
-using Random = UnityEngine.Random;
 
 
 
@@ -47,7 +45,6 @@ public class CameraManager : MonoBehaviour
     [SerializeField, Child(Flag.Editable)] private CinemachineRotationOffsetExtension followCameraRotateExtenstion;
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private RailPlayer player;
-    [SerializeField, Self, HideInInspector] private CinemachineImpulseSource impulseSource;
     
     private Sequence _fovSequence;
     private Vector3 _targetFollowOffset;
@@ -350,7 +347,7 @@ public class CameraManager : MonoBehaviour
         float normalizedY = Mathf.Abs(yInput);
         float normalizedMagnitude = Mathf.Max(normalizedX, normalizedY);
     
-        // Apply threshold to the normalized magnitude using existing positionThreshold.z
+        // Apply a threshold to the normalized magnitude using existing positionThreshold.z
         float zInput = ApplyMinRange(normalizedMagnitude, settings.threshold.z);
     
         // Calculate final Z offset
@@ -389,7 +386,7 @@ public class CameraManager : MonoBehaviour
         
         float absInput = Mathf.Abs(input);
         
-        // If input is below minimum threshold, return 0
+        // If input is below the minimum threshold, return 0
         if (absInput < minRange)
         {
             return 0f;
@@ -399,7 +396,7 @@ public class CameraManager : MonoBehaviour
         float denominator = 1f - minRange;
         if (denominator <= 0.01f)
         {
-            // If minRange is very close to 1, just return the sign
+            // If minRange is very close to 1, return the sign
             return Mathf.Sign(input);
         }
         

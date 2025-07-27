@@ -2777,10 +2777,10 @@ GameObject:
   - component: {fileID: 3917683547680578920}
   - component: {fileID: 2233603387570671912}
   - component: {fileID: 8438971806570489096}
+  - component: {fileID: 4566949368712534308}
   - component: {fileID: 7233717465822237952}
   - component: {fileID: 890854243081262160}
   - component: {fileID: 3423310960035294283}
-  - component: {fileID: 4566949368712534308}
   m_Layer: 6
   m_Name: RailPlayer
   m_TagString: Player
@@ -3262,6 +3262,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hideCursor: 1
   playerInput: {fileID: 8027271115035412187}
+--- !u!114 &4566949368712534308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042140183398147502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 045f8597f1094332b113468e32e86b96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseMagnetRadius: 14
+  resourceMagnetUpgrades:
+  - {fileID: 11400000, guid: 259517cbb337a8243a3e713a312b7abd, type: 2}
+  - {fileID: 11400000, guid: f1ff5cc07ba342e418fb8a51b876c50f, type: 2}
+  player: {fileID: 2233603387570671912}
 --- !u!114 &7233717465822237952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3532,23 +3549,6 @@ MonoBehaviour:
   playerMovement: {fileID: 7233717465822237952}
   controllerVibrationSource: {fileID: 284695675551663708}
   impulseSource: {fileID: 3917683547680578920}
---- !u!114 &4566949368712534308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5042140183398147502}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 045f8597f1094332b113468e32e86b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseMagnetRadius: 14
-  resourceMagnetUpgrades:
-  - {fileID: 11400000, guid: 259517cbb337a8243a3e713a312b7abd, type: 2}
-  - {fileID: 11400000, guid: f1ff5cc07ba342e418fb8a51b876c50f, type: 2}
-  player: {fileID: 2233603387570671912}
 --- !u!1 &5214599697061486050
 GameObject:
   m_ObjectHideFlags: 0

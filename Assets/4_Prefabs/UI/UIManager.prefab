@@ -494,7 +494,7 @@ GameObject:
   - component: {fileID: 6158614733273799534}
   - component: {fileID: 5199301963245156671}
   m_Layer: 6
-  m_Name: PauseIconGroup
+  m_Name: PauseIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -805,57 +805,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hudFadeDuration: 3
   cooldownIconColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
+  hudGroup: {fileID: 6058153400321184074}
+  pauseGroup: {fileID: 5199301963245156671}
+  keybindsText: {fileID: 6052121134156956947}
   useTextForHealth: 0
   healthAnimationDuration: 0.7
   healthPunchDuration: 0.2
   healthPunchStrength: 0.5
+  healthIconHolder: {fileID: 7206587545251318471}
+  healthIcon: {fileID: 5302955881431812181}
+  healthText: {fileID: 1057263406589104165}
+  healthIconPrefab: {fileID: 2668134889619642220, guid: 3b93c2c8fce83e545aacebcdea36a0e9, type: 3}
   shieldAnimationDuration: 0.7
   shieldPunchDuration: 0.2
   shieldPunchStrength: 0.5
+  shieldIcon: {fileID: 8682517557666568211}
+  shieldText: {fileID: 3434976926301271806}
   currencyAnimationDuration: 0.7
   currencyPunchDuration: 0.2
   currencyPunchStrength: 0.2
   bigCurrencyDifference: 4
+  currencyIcon: {fileID: 246031940554071247}
+  currencyText: {fileID: 1184307438426412104}
   dodgeAnimationDuration: 0.2
   dodgePunchStrength: 0.2
+  dodgeIcon: {fileID: 6222991068581116642}
   weaponAnimationDuration: 0.2
   weaponPunchStrength: 0.2
+  weaponIcon: {fileID: 8922614708895910532}
+  secondaryWeaponIcon: {fileID: 616318926374214678}
   heatBarAnimationDuration: 0.2
   heatBarPunchDuration: 0.2
   heatBarPunchStrength: 0.2
   heatedBarColor: {r: 1, g: 0, b: 0, a: 1}
   normalBarColor: {r: 1, g: 1, b: 1, a: 1}
+  heatBar: {fileID: 1085152276087718066}
+  barText: {fileID: 3685277399704484231}
   miniGameAnimationDuration: 0.2
   miniGamePunchDuration: 0.3
   miniGamePunchStrength: 0.2
   miniGameActiveColor: {r: 0.380503, g: 0.380503, b: 1, a: 0.78431374}
   miniGameInactiveColor: {r: 0, g: 0, b: 0, a: 0}
+  miniGameWindow: {fileID: 2989151481236214148}
   pauseIconAnimationDuration: 0.2
+  pauseIconFill: {fileID: 884242046296217277}
   scoreAnimationDuration: 0.2
   scorePunchDuration: 0.2
   scorePunchStrength: 0.2
   bigScoreDifference: 200
   scoreDigits: 7
-  waveTitleAnimationDuration: 3
-  healthIconPrefab: {fileID: 2668134889619642220, guid: 3b93c2c8fce83e545aacebcdea36a0e9, type: 3}
-  hudGroup: {fileID: 6058153400321184074}
-  playerHealthHolder: {fileID: 7206587545251318471}
-  playerShieldIcon: {fileID: 8682517557666568211}
-  playerWeaponIcon: {fileID: 8922614708895910532}
-  playerSecondaryWeaponIcon: {fileID: 616318926374214678}
-  playerCurrencyIcon: {fileID: 246031940554071247}
-  playerHeatBar: {fileID: 1085152276087718066}
-  playerMiniGameWindow: {fileID: 2989151481236214148}
-  playerDodgeIcon: {fileID: 6222991068581116642}
-  playerHealthIcon: {fileID: 5302955881431812181}
-  pauseIconFill: {fileID: 884242046296217277}
-  pauseGroup: {fileID: 5199301963245156671}
-  playerHealthText: {fileID: 1057263406589104165}
-  heatBarText: {fileID: 3685277399704484231}
-  playerShieldText: {fileID: 3434976926301271806}
-  playerCurrencyText: {fileID: 1184307438426412104}
   scoreText: {fileID: 1738198353898339583}
-  keybindsText: {fileID: 6052121134156956947}
+  waveTitleAnimationDuration: 3
   waveTitleText: {fileID: 1494737519199319349}
   levelManager: {fileID: 0}
   player: {fileID: 0}
@@ -870,7 +870,7 @@ GameObject:
   - component: {fileID: 8110281869139077166}
   - component: {fileID: 803879181262073607}
   m_Layer: 6
-  m_Name: PlayerScore
+  m_Name: Score
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -934,7 +934,7 @@ GameObject:
   - component: {fileID: 4658132420648684271}
   - component: {fileID: 1738198353898339583}
   m_Layer: 6
-  m_Name: CurrencyText
+  m_Name: ScoreText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1069,7 +1069,7 @@ GameObject:
   - component: {fileID: 2178444049517396619}
   - component: {fileID: 8948926562496668070}
   m_Layer: 6
-  m_Name: PlayerStats
+  m_Name: Stats
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1273,7 +1273,7 @@ GameObject:
   - component: {fileID: 4351329763724754311}
   - component: {fileID: 2393725598259378707}
   m_Layer: 6
-  m_Name: PlayerKeybinds
+  m_Name: Keybinds
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2054,7 +2054,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5482589690341371839}
   m_Layer: 6
-  m_Name: PlayerWeaponAndDodge
+  m_Name: WeaponAndDodge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
