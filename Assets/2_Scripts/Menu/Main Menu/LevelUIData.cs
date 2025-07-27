@@ -35,7 +35,7 @@ public class LevelUIData
         
 
         // check if there are needed levels
-        if (soLevel.IsLocked || soLevel.LevelsToComplete.Count == 0 || soLevel.LevelsToComplete == null) return;
+        if (soLevel.LevelsToComplete.Count == 0 || soLevel.LevelsToComplete == null) return;
         
         // check if all needed levels are completed
         foreach (var neededLevel in soLevel.LevelsToComplete)

@@ -47,5 +47,12 @@ public class PlayerCurrencyLabel : MonoBehaviour
           if (!currencyText) return;
           
           currencyText.text = _currentCurrency.ToString();
+          
+          
+          if (Input.GetKeyUp(KeyCode.F1))
+          {
+               SaveManager.UpdatePlayerCurrency(_currentCurrency + 50);
+               _currentCurrency = SaveManager.GetCurrency();
+          }
      }
 }

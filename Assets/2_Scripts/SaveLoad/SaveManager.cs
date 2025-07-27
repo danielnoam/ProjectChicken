@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using PrimeTween;
 using UnityEditor;
 using UnityEngine;
@@ -78,7 +77,7 @@ public class SaveManager : MonoBehaviour
         DeleteSettingsDataAndFile();
     }
     
-    
+
     private static void EnsureInitialized()
     {
         if (!_initialized)

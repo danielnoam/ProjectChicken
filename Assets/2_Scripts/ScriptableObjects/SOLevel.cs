@@ -17,13 +17,11 @@ public class SOLevel : ScriptableObject
 
     
     [Header("Level Unlock")]
-    [SerializeField] private bool isLocked;
-    [SerializeField, ShowIf("isLocked")] private List<SOLevel> levelsToComplete = new List<SOLevel>();
+    [SerializeField] private List<SOLevel> levelsToComplete = new List<SOLevel>();
     
     public string LevelName => levelName;
     public string LevelDescription => levelDescription;
     public LevelDifficulty LevelDifficulty => levelDifficulty;
-    public bool IsLocked => isLocked;
     public List<SOLevel> LevelsToComplete => levelsToComplete;
     
     
