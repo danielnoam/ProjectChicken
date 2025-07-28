@@ -23,9 +23,9 @@ namespace DNExtensions
         /// Adds values to individual components of the Vector3
         /// </summary>
         /// <param name="vector">The original vector</param>
-        /// <param name="x">Value to add to X component</param>
-        /// <param name="y">Value to add to Y component</param>
-        /// <param name="z">Value to add to Z component</param>
+        /// <param name="x">Value to add to an X component</param>
+        /// <param name="y">Value to add to a Y component</param>
+        /// <param name="z">Value to add to a Z component</param>
         /// <returns>A new Vector3 with the additions applied</returns>
         public static Vector3 Add(this Vector3 vector, float x = 0f, float y = 0f, float z = 0f)
         {
@@ -172,9 +172,9 @@ namespace DNExtensions
         /// Divides each component by corresponding values
         /// </summary>
         /// <param name="vector">The original vector</param>
-        /// <param name="x">Divisor for X component</param>
-        /// <param name="y">Divisor for Y component</param>
-        /// <param name="z">Divisor for Z component</param>
+        /// <param name="x">Divisor for an X component</param>
+        /// <param name="y">Divisor for a Y component</param>
+        /// <param name="z">Divisor for a Z component</param>
         /// <returns>A new Vector3 with divided components</returns>
         public static Vector3 Divide(this Vector3 vector, float x = 1f, float y = 1f, float z = 1f)
         {

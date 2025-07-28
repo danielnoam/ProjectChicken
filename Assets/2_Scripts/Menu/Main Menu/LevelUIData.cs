@@ -10,11 +10,12 @@ public class LevelUIData
     public int bestScore;
     public bool isCompleted;
     
-    public LevelUIData (SOLevel level, GameObject gfx, Button button, LevelProgress progress)
+    public LevelUIData (SOLevel level, GameObject gfx, Button button)
     {
         soLevel = level;
         levelGfx = gfx;
         levelButton = button;
+        var progress = SaveManager.GetLevelProgress(level.GetScenePath());
 
         if (progress != null)
         {
@@ -26,18 +27,17 @@ public class LevelUIData
             isCompleted = false;
             bestScore = 0;
         }
+        
+        UpdateLevelUIProgressState();
     }
     
     
-    public void UpdateLevelUIState()
+    public void UpdateLevelUIProgressState()
     {
         if (!soLevel || !levelButton) return;
         
-
-        // check if there are needed levels
         if (soLevel.LevelsToComplete.Count == 0 || soLevel.LevelsToComplete == null) return;
         
-        // check if all needed levels are completed
         foreach (var neededLevel in soLevel.LevelsToComplete)
         {
             var neededLevelProgress = SaveManager.GetLevelProgress(neededLevel.GetScenePath());
@@ -49,14 +49,13 @@ public class LevelUIData
     
     public void LoadLevelProgress()
     {
-
         LevelProgress progress = SaveManager.GetLevelProgress(soLevel.GetScenePath());
 
         if (progress != null)
         {
             isCompleted = progress.isCompleted;
             bestScore = progress.GetTopScore();
-            UpdateLevelUIState();
+            UpdateLevelUIProgressState();
         }
     }
 }

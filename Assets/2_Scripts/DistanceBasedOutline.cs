@@ -10,12 +10,11 @@ public class DistanceBasedOutline : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private Vector2 outlineWidthRange = new Vector2(0f, 10f);
-    [SerializeField] private float thinOutlineDistance = 5f;
-    [SerializeField] private float thickOutlineDistance = 10f;
+    [SerializeField] private float thinOutlineDistance = 80f;
+    [SerializeField] private float thickOutlineDistance = 100f;
     
     [Header("References")]
     [SerializeField,Self,HideInInspector] private Outline outline;
-    [SerializeField] private Camera mainCamera;
     
     [Header("Debug")]
     [SerializeField,ReadOnly] private float distance;
@@ -25,9 +24,7 @@ public class DistanceBasedOutline : MonoBehaviour
     {
         this.ValidateRefs();
 
-        if (!mainCamera) mainCamera = Camera.main;
         
-
         if (outlineWidthRange.x > outlineWidthRange.y)
         {
             outlineWidthRange.x = outlineWidthRange.y;
@@ -45,18 +42,13 @@ public class DistanceBasedOutline : MonoBehaviour
             outlineWidthRange.y = 0;
         }
     }
-
-    private void Awake()
-    {
-        if (!mainCamera) mainCamera = Camera.current;
-    }
-
+    
 
     private void Update()
     {
-        if (!mainCamera) return;
+        if (!Camera.main) return;
         
-        distance = Vector3.Distance(transform.position, mainCamera.transform.position);
+        distance = Vector3.Distance(transform.position, Camera.main.transform.position);
         var outlineWidth = Mathf.InverseLerp(thinOutlineDistance, thickOutlineDistance, distance);
         outline.OutlineWidth = Mathf.Lerp(outlineWidthRange.x, outlineWidthRange.y, outlineWidth);
     }

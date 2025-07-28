@@ -9,7 +9,6 @@ namespace DNExtensions
     
         public class ReadOnlyAttribute : PropertyAttribute 
         {
-            // Empty constructor, no parameters needed
             public ReadOnlyAttribute() {}
         }
 

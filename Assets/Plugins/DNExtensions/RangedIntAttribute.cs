@@ -10,7 +10,7 @@
  * 
  * 2. With MinMaxRange and direct int initialization:
  *    [MinMaxRange(-10, 10)] 
- *    public RangedInt damage = 5;  // Creates range from -10 to 10
+ *    public RangedInt damage = 5; // Creates range from -10 to 10
  * 
  * 3. With direct value initialization (no attribute):
  *    public RangedInt health = new RangedInt(50, 100);

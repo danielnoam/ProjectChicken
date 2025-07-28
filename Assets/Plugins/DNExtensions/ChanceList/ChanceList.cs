@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 
 namespace DNExtensions
 {
-    [System.Serializable]
+    [Serializable]
 
     public class ChanceList<T>
     {
@@ -167,7 +167,7 @@ namespace DNExtensions
             // If all entries are locked, don't normalize
             if (unlockedIndices.Count == 0) return;
 
-            // Calculate remaining percentage for unlocked entries
+            // Calculate the remaining percentage for unlocked entries
             int remainingPercentage = Mathf.Max(0, 100 - lockedTotal);
 
             // Calculate the total of unlocked chances
@@ -229,7 +229,7 @@ namespace DNExtensions
             // Final safety check: ensure no negative values in all entries
             for (int i = 0; i < internalItems.Length; i++)
             {
-                if (internalItems[i].chance < 0)
+                if (internalItems[i].chance <= 0)
                 {
                     internalItems[i].chance = 0;
                 }
@@ -238,6 +238,7 @@ namespace DNExtensions
 
         #endregion Public API
 
+        
         #region Random Selection
 
         /// <summary>
@@ -322,7 +323,7 @@ namespace DNExtensions
             {
                 if (availableItems.Count == 0) break;
 
-                // Calculate total weight of remaining items
+                // Calculate the total weight of remaining items
                 float totalWeight = 0f;
                 foreach (var item in availableItems)
                 {

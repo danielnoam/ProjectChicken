@@ -59,7 +59,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -149,6 +149,7 @@ GameObject:
   - component: {fileID: 3890864165098372917}
   - component: {fileID: 8464191749691141580}
   - component: {fileID: 2253330368844906039}
+  - component: {fileID: 8055111781758024564}
   m_Layer: 5
   m_Name: LevelButtonPrefab
   m_TagString: Untagged
@@ -236,9 +237,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 0.6297667, g: 0.58805025, b: 1, a: 1}
+    m_PressedColor: {r: 0.31027254, g: 0.2295596, b: 1, a: 1}
+    m_SelectedColor: {r: 0.6313726, g: 0.5882353, b: 1, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -271,3 +272,62 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Delegates: []
+--- !u!114 &8055111781758024564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8071770430385400284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22c641a4da1748fa866e29dd0aa259af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  positionEffectType: 0
+  positionOffset: {x: 0, y: 10, z: 0}
+  positionDuration: 0.15
+  positionEase: 31
+  shakeOnDeselect: 0
+  shakeStrength: {x: 3, y: 3, z: 0}
+  shakeFrequency: 10
+  shakeDuration: 0.5
+  shakeEase: 0
+  animateRotation: 0
+  rotationOffset: {x: 0, y: 0, z: 15}
+  rotationDuration: 0.15
+  rotationEase: 31
+  animateScale: 1
+  scaleMultiplier: 1.1
+  scaleDuration: 0.15
+  scaleEase: 31
+  animateAlpha: 0
+  selectedAlpha: 1
+  alphaDuration: 0.5
+  alphaCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  selectable: {fileID: 8464191749691141580}
+  eventTrigger: {fileID: 2253330368844906039}
+  rectTransform: {fileID: 7975087574338185871}

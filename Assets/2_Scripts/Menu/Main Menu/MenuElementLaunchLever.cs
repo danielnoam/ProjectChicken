@@ -89,9 +89,16 @@ public class MenuElementLaunchLever : MenuElement
             ;
     }
     
-    private void OnLevelSelected()
+    private void Update()
+    {
+        UpdateMaterialEmission();
+    }
+    
+    private void OnLevelSelected(LaunchMissionMode launchMissionMode)
     {
         ToggleCanSelect(true, true);
+
+        if (launchMissionMode == LaunchMissionMode.Auto) Launch();
     }
     
     private void OnLevelDeselected()
@@ -99,7 +106,7 @@ public class MenuElementLaunchLever : MenuElement
         ToggleCanSelect(false, true);
     }
 
-    public void Launch()
+    private void Launch()
     {
         if (_leverPressSequence.isAlive) _leverPressSequence.Stop();
         
@@ -124,10 +131,6 @@ public class MenuElementLaunchLever : MenuElement
             ;
     }
     
-    private void Update()
-    {
-        UpdateMaterialEmission();
-    }
     
     private void UpdateMaterialEmission()
     {
@@ -138,7 +141,6 @@ public class MenuElementLaunchLever : MenuElement
             
         if (levelSelection.SelectedLevel)
         {
-            // Create pulsing effect using sine wave
             float pulseValue = (Mathf.Sin(Time.time * pulseSpeed) + 1f) * 0.5f; // 0 to 1 range
             targetColor = Color.Lerp(emissionColorOff, emissionColorOn, pulseValue);
         }

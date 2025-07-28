@@ -116,11 +116,17 @@ public class StoreItem : MonoBehaviour
             SaveManager.UpdatePlayerCurrency(currentCurrency - IStoreItem.ItemCost);
             SaveManager.UpdatePlayerBoughtItems(IStoreItem.ItemID);
             costText.text = "Purchased";
-            var iconColor = costIcon.color;
-            iconColor.a = 0f;
-            costIcon.color = iconColor;
             _hasItem = true;
             OnItemBoughtEvent?.Invoke(this);
+            
+            if (_iconSequence.isAlive) _iconSequence.Stop();
+            costTransform.transform.localScale = Vector3.one;
+            
+            _iconSequence = Sequence.Create()
+                .Group(Tween.PunchScale(costTransform.transform, Vector3.one * 1f, 0.2f, 1))
+                .Group(Tween.Alpha(costIcon, 0, 0.2f));
+            
+
         }
         else
         {
@@ -130,8 +136,7 @@ public class StoreItem : MonoBehaviour
             _iconSequence = Sequence.Create()
                 .Group(Tween.PunchScale(costTransform.transform, Vector3.one * 1f, 0.2f, 1))
                 .Group(Tween.Color(costIcon, Color.red, 0.1f))
-                .Chain(Tween.Color(costIcon, Color.white, 0.1f))
-                .OnComplete(() => costTransform.transform.localScale = Vector3.one);
+                .Chain(Tween.Color(costIcon, Color.white, 0.1f)) ;
         }
     }
 

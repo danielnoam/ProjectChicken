@@ -126,7 +126,7 @@ public class MenuElementStoreShelf : MenuElement
     
     private void OnStoreItemMouseEnter(StoreItem item)
     {
-        if (CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
         
         _shelfItemsList[_currentStoreItemIndex]?.SetSelected(false);
         _currentStoreItemIndex = _shelfItemsList.IndexOf(item);
@@ -135,7 +135,7 @@ public class MenuElementStoreShelf : MenuElement
 
     private void OnStoreItemMouseExit(StoreItem item)
     {
-        if (CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
         
         if (item == _shelfItemsList[_currentStoreItemIndex])
         {
@@ -146,14 +146,14 @@ public class MenuElementStoreShelf : MenuElement
 
     private void OnStoreItemMouseDown(StoreItem item)
     {
-        if (CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
         
         item?.TryPurchase();
     }
 
     protected override void OnNavigate(InputAction.CallbackContext context)
     {
-        if (!context.performed || CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (!context.performed || CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
    
 
         var activeItems = new List<StoreItem>();
@@ -201,7 +201,7 @@ public class MenuElementStoreShelf : MenuElement
     
     protected override void OnSubmit(InputAction.CallbackContext context)
     {
-        if (!context.performed || CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (!context.performed || CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
         
         if (_shelfItemsList.Count <= 0 || _currentStoreItemIndex >= _shelfItemsList.Count) return;
         _shelfItemsList[_currentStoreItemIndex].TryPurchase();
@@ -209,7 +209,7 @@ public class MenuElementStoreShelf : MenuElement
     
     protected override void OnCancel(InputAction.CallbackContext context)
     {
-        if (!context.performed || CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (!context.performed || CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
     }
     
 }

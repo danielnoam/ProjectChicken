@@ -7,12 +7,12 @@ namespace DNExtensions
     [AddComponentMenu("Cinemachine/Extensions/Rotation Offset Extension")]
         [SaveDuringPlay]
         [DisallowMultipleComponent]
-        [CameraPipeline(CinemachineCore.Stage.Aim)] // Changed from Finalize to Aim
+        [CameraPipeline(CinemachineCore.Stage.Aim)] 
 
     public class CinemachineRotationOffsetExtension : CinemachineExtension
     {
         [Tooltip("Additional rotation offset to apply (in euler angles)")]
-        public Vector3 RotationOffset = Vector3.zero;
+        public Vector3 rotationOffset = Vector3.zero;
 
         /// <summary>
         /// Set the rotation offset from external code
@@ -20,7 +20,7 @@ namespace DNExtensions
         /// <param name="offset">Euler angles for the offset</param>
         public void SetRotationOffset(Vector3 offset)
         {
-            RotationOffset = offset;
+            rotationOffset = offset;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace DNExtensions
         /// <param name="offset">Quaternion offset</param>
         public void SetRotationOffset(Quaternion offset)
         {
-            RotationOffset = offset.eulerAngles;
+            rotationOffset = offset.eulerAngles;
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace DNExtensions
         /// <param name="additionalOffset">Additional euler angles to add</param>
         public void AddRotationOffset(Vector3 additionalOffset)
         {
-            RotationOffset += additionalOffset;
+            rotationOffset += additionalOffset;
         }
 
         protected override void PostPipelineStageCallback(CinemachineVirtualCameraBase vcam,
@@ -47,8 +47,8 @@ namespace DNExtensions
             // Apply the rotation offset at the Aim stage (before blending)
             if (stage == CinemachineCore.Stage.Aim)
             {
-                Quaternion rotationOffset = Quaternion.Euler(RotationOffset);
-                state.RawOrientation = state.RawOrientation * rotationOffset;
+                Quaternion offset = Quaternion.Euler(rotationOffset);
+                state.RawOrientation *=  offset;
             }
         }
     }

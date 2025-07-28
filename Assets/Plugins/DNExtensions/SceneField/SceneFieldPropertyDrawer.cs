@@ -35,7 +35,7 @@ namespace DNExtensions
                             scenePath.stringValue = AssetDatabase.GetAssetPath(scene);
                         }
 
-                        // Validate if scene is in build settings
+                        // Validate if the scene is in build settings
                         bool sceneInBuild = false;
                         bool sceneEnabled = false;
                         EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;

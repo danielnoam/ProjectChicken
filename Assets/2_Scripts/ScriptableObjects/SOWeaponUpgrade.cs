@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using AYellowpaper;
 using UnityEngine;
 using VInspector;
-
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
+
+
 
 public class SOWeaponUpgrade : ScriptableObject, IStoreItem
 {

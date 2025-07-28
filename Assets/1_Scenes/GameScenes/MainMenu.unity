@@ -127,6 +127,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3628323534024799, guid: 967080a4ff830294bb5c7bcaae236647, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3628323534024799, guid: 967080a4ff830294bb5c7bcaae236647, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3628323534024799, guid: 967080a4ff830294bb5c7bcaae236647, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3628323534024799, guid: 967080a4ff830294bb5c7bcaae236647, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5701600001357989695, guid: 967080a4ff830294bb5c7bcaae236647, type: 3}
       propertyPath: m_Name
       value: MainMenuFirstPerson
@@ -555,6 +571,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1746420621 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1732333300807405593, guid: 967080a4ff830294bb5c7bcaae236647, type: 3}
+  m_PrefabInstance: {fileID: 223809329}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1275789959175529501
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -734,16 +755,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7522737317449939145, guid: 40bf87c5e4a10764bbfd55a10c268824, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.624
+      value: 1.21
       objectReference: {fileID: 0}
     - target: {fileID: 7522737317449939145, guid: 40bf87c5e4a10764bbfd55a10c268824, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.334
+      value: 3.681
       objectReference: {fileID: 0}
     - target: {fileID: 7852216684907116898, guid: 40bf87c5e4a10764bbfd55a10c268824, type: 3}
       propertyPath: Target.TrackingTarget
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1746420621}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

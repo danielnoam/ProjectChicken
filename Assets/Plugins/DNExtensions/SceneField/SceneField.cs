@@ -102,7 +102,7 @@ namespace DNExtensions
         /// <summary>
         /// Checks if the scene is valid and exists in build settings
         /// </summary>
-        /// <returns>True if scene is valid and in build settings, false otherwise</returns>
+        /// <returns>True if the scene is valid and in build settings, false otherwise</returns>
         public bool IsSceneValid()
         {
             // Check if basic data is present
@@ -112,13 +112,13 @@ namespace DNExtensions
             }
 
             #if UNITY_EDITOR
-            // In editor, check if scene asset still exists
+            // In the editor, check if scene asset still exists
             if (!sceneAsset)
             {
                 return false;
             }
 
-            // Check if scene is in build settings and enabled
+            // Check if the scene is in build settings and enabled
             EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
             foreach (var buildScene in scenes)
             {
@@ -137,7 +137,7 @@ namespace DNExtensions
         /// <summary>
         /// Checks if the scene is in build settings (enabled or disabled)
         /// </summary>
-        /// <returns>True if scene is in build settings, false otherwise</returns>
+        /// <returns>True if the scene is in build settings, false otherwise</returns>
         public bool IsSceneInBuildSettings()
         {
             if (string.IsNullOrEmpty(scenePath))
