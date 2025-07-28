@@ -28,8 +28,10 @@ public class RailPlayerMovement : MonoBehaviour
     [Header("Dodge Settings")]
     [SerializeField] private bool enableDodging = true;
     [EnableIf("enableDodging")]
+    [SerializeField, Range(1,5)] private int maxDodgeAccumulation = 2;
+    [SerializeField, Min(0)] private float dodgeAccumulationRate = 2;
     [SerializeField, Min(0)] private float dodgeMoveSpeed = 65f;
-    [SerializeField, Min(0)] private float dodgeTime = 0.4f;
+    [SerializeField, Min(0)] private float dodgeDuration = 0.4f;
     [SerializeField, Min(0)] private float dodgeCooldown = 0.45f;
     [SerializeField, Min(0)] private float dodgeRollAmount = 360f;
     [SerializeField, Min(0)] private TweenSettings dodgeTweenSettings = new TweenSettings(1.2f, Ease.Custom);
@@ -54,6 +56,8 @@ public class RailPlayerMovement : MonoBehaviour
     private Vector3 _targetOffsetFromSpline = Vector3.zero;
     private Vector3 _currentOffsetFromSpline = Vector3.zero;
     private bool _isDodging;
+    private int _currentDodgeRemining;
+    private float _dodgeAccumulationRateTimer;
     private float _dodgeCooldownTimer;
     private float _dodgeTimeCounter;
     private float _currentDodgeRoll;
@@ -68,6 +72,7 @@ public class RailPlayerMovement : MonoBehaviour
     public Vector2 NormalizedMovementPosition => _normalizedMovementPosition;
     public event Action OnDodge;
     public event Action<float> OnDodgeCooldownUpdated;
+    public event Action<int> OnDodgeCountChanged;
 
     private void OnValidate() { this.ValidateRefs(); }
 
@@ -75,11 +80,13 @@ public class RailPlayerMovement : MonoBehaviour
     private void Awake()
     {
         _allowMovement = true;
+        _currentDodgeRemining = maxDodgeAccumulation;
     }
 
     private void Start()
     {
         OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer/dodgeCooldown);
+        OnDodgeCountChanged?.Invoke(_currentDodgeRemining);
     }
 
     private void OnEnable()
@@ -92,6 +99,7 @@ public class RailPlayerMovement : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged += OnStageChanged;
+            player.LevelManager.OnRestartFromSavePoint += (information => { _currentDodgeRemining = maxDodgeAccumulation;});
         }
         
     }
@@ -106,6 +114,7 @@ public class RailPlayerMovement : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged -= OnStageChanged;
+            player.LevelManager.OnRestartFromSavePoint -= (information => { _currentDodgeRemining = maxDodgeAccumulation;});
         }
     }
 
@@ -243,12 +252,12 @@ public class RailPlayerMovement : MonoBehaviour
         if (!enableDodging) return;
     
         // Check if we are currently dodging
-        if (_isDodging && _dodgeTimeCounter <= dodgeTime)
+        if (_isDodging && _dodgeTimeCounter <= dodgeDuration)
         {
             _dodgeTimeCounter += Time.deltaTime;
         
             // Reset dodge if we exceed the dodge time
-            if (_dodgeTimeCounter >= dodgeTime)
+            if (_dodgeTimeCounter >= dodgeDuration)
             {
                 _isDodging = false;
                 _dodgeCooldownTimer = dodgeCooldown;
@@ -263,22 +272,41 @@ public class RailPlayerMovement : MonoBehaviour
             if (_dodgeCooldownTimer < 0f) _dodgeCooldownTimer = 0f;
             OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer/dodgeCooldown);
         }
+        
+        // Accumulate dodges
+        if (!_isDodging && _dodgeAccumulationRateTimer > 0f && _currentDodgeRemining < maxDodgeAccumulation)
+        {
+            _dodgeAccumulationRateTimer -= Time.deltaTime;
+            
+            if (_dodgeAccumulationRateTimer < 0f)
+            {
+                _dodgeAccumulationRateTimer = dodgeAccumulationRate;
+                _currentDodgeRemining += 1;
+                OnDodgeCountChanged?.Invoke(_currentDodgeRemining);
+            }
+
+        }
     }
     
-    private void PlayDodgeRollAnimation()
+    private void Dodge(Vector3 direction)
     {
+        if (!(_dodgeCooldownTimer <= 0f) || _isDodging || _currentDodgeRemining <= 0) return;
+        
+        OnDodge?.Invoke();
+        _dodgeDirection = direction;
+        _dodgeTimeCounter = 0f;
+        _isDodging = true;
+        _currentDodgeRemining -= 1;
+        _dodgeAccumulationRateTimer = dodgeAccumulationRate;
+        OnDodgeCountChanged?.Invoke(_currentDodgeRemining);
+        
+        dodgeSfx?.Play(audioSource);
+        controllerVibrationSource.VibrateFadeIn(0.05f, 0f, dodgeTweenSettings.duration/2);
+        
         if (_dodgeTween.isAlive) _dodgeTween.Stop();
-
-        // Calculate target roll
         float startRoll = 0;
         float targetRoll = startRoll + (-_dodgeDirection.x * dodgeRollAmount);
         
-        // Play dodge sound effect
-        dodgeSfx?.Play(audioSource);
-
-        controllerVibrationSource.VibrateFadeIn(0.05f, 0f, dodgeTweenSettings.duration/2);
-            
-        // Tween just the dodge roll component
         _dodgeTween = Tween.Custom(
             onValueChange: rollAngle => _currentDodgeRoll = rollAngle,
             startValue: startRoll,
@@ -286,6 +314,7 @@ public class RailPlayerMovement : MonoBehaviour
             settings: dodgeTweenSettings
         );
     }
+    
 
     #endregion Dodge --------------------------------------------------------------------------------------
     
@@ -318,45 +347,33 @@ public class RailPlayerMovement : MonoBehaviour
     private void OnDodgeLeft(InputAction.CallbackContext context)
     {
         if (!enableDodging || !_allowMovement || !player.IsAlive()) return;
-        
-        if (_dodgeCooldownTimer <= 0f && !_isDodging)
-        {
-            OnDodge?.Invoke();
-            _dodgeDirection = Vector3.left;
-            _dodgeTimeCounter = 0f;
-            _isDodging = true;
-            
-            PlayDodgeRollAnimation();
-        }
+
+        Dodge(Vector3.left);
     }
+
+
+
     
     private void OnDodgeRight(InputAction.CallbackContext context)
     {
         if (!enableDodging || !_allowMovement || !player.IsAlive()) return;
         
-        if (_dodgeCooldownTimer <= 0f && !_isDodging)
-        {
-            OnDodge?.Invoke();
-            _dodgeDirection = Vector3.right;
-            _dodgeTimeCounter = 0f;
-            _isDodging = true;
-            
-            PlayDodgeRollAnimation();
-        }
+        Dodge(Vector3.right);
     }
     
     private void OnDodgeFreeform(InputAction.CallbackContext context)
     {
         if (!enableDodging || !_allowMovement || !player.IsAlive()) return;
-        
 
-        if (_horizontalInput < 0)
+
+        switch (_horizontalInput)
         {
-            OnDodgeLeft(context);
-        } 
-        else if (_horizontalInput > 0)
-        {
-            OnDodgeRight(context);
+            case < 0:
+                Dodge(Vector3.left);
+                break;
+            case > 0:
+                Dodge(Vector3.right);
+                break;
         }
     }
 

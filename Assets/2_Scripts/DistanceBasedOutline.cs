@@ -25,7 +25,7 @@ public class DistanceBasedOutline : MonoBehaviour
     {
         this.ValidateRefs();
 
-        if (!mainCamera) mainCamera = FindFirstObjectByType<Camera>();
+        if (!mainCamera) mainCamera = Camera.main;
         
 
         if (outlineWidthRange.x > outlineWidthRange.y)

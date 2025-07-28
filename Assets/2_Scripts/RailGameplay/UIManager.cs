@@ -51,6 +51,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float dodgeAnimationDuration = 0.2f;
     [SerializeField] private float dodgePunchStrength = 0.2f;
     [SerializeField] private Image dodgeIcon;
+    [SerializeField] private TextMeshProUGUI dodgeCountText;
     
     [Header("Weapons")]
     [SerializeField] private float weaponAnimationDuration = 0.2f;
@@ -170,6 +171,7 @@ public class UIManager : MonoBehaviour
             player.PlayerWeapon.OnWeaponHeatMiniGameFailed += OnOnWeaponHeatMiniGameFailed;
             player.PlayerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
             player.PlayerMovement.OnDodge += OnDodge;
+            player.PlayerMovement.OnDodgeCountChanged += OnDodgeCountChanged;
         }
 
         if (levelManager)
@@ -200,6 +202,7 @@ public class UIManager : MonoBehaviour
             player.PlayerWeapon.OnSpecialWeaponDisabled -= OnSpecialWeaponDisabled;
             player.PlayerMovement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
             player.PlayerMovement.OnDodge -= OnDodge;
+            player.PlayerMovement.OnDodgeCountChanged -= OnDodgeCountChanged;
         }
         
         if (levelManager)
@@ -209,6 +212,7 @@ public class UIManager : MonoBehaviour
         }
     }
     
+
 
     private void Update()
     {
@@ -236,6 +240,7 @@ public class UIManager : MonoBehaviour
         _previousPlayerCurrency = 0;
         _playerCurrency = 0;
         _playerShield = 0f;
+        dodgeCountText.text = "";
         SetupHeartIcons();
         
         ToggleHUD(false);
@@ -633,6 +638,13 @@ public class UIManager : MonoBehaviour
         _pauseSequence = Sequence.Create()
             .Group(Tween.Alpha(pauseGroup, startValue: pauseGroup.alpha, endValue: pauseAlpha, pauseIconAnimationDuration))
             .Group(Tween.UIFillAmount(pauseIconFill, startValue: pauseIconFill.fillAmount, endValue: time, pauseIconAnimationDuration));
+    }
+    
+    
+    private void OnDodgeCountChanged(int dodgesRemining)
+    {
+        dodgeCountText.text = $"X{dodgesRemining}";
+        Tween.PunchScale(dodgeCountText.transform, strength: Vector3.one * dodgePunchStrength, duration: dodgeAnimationDuration);
     }
 
     #endregion Player UI ----------------------------------------------------------------------------------
