@@ -3067,66 +3067,18 @@ MonoBehaviour:
   shieldUpgrades:
   - {fileID: 11400000, guid: 85cde709a65e11a4285e307636799abb, type: 2}
   - {fileID: 11400000, guid: 5fd2ebb25c87fa547bc5c087a3dfb75d, type: 2}
+  shieldDamagedShakeSettings:
+    impulseShape: 4
+    intensity: 0.3
+    duration: 0.3
+  healthDamagedShakeSettings:
+    impulseShape: 4
+    intensity: 0.8
+    duration: 0.4
   deathShakeSettings:
     impulseShape: 4
-    intensity: 15
-    duration: 1
-  shieldDepletedShakeSettings:
-    impulseShape: 4
-    intensity: 8
-    duration: 0.5
-  deathVibrationSettings:
-    lowFrequency: 0.5
-    highFrequency: 0.5
-    duration: 0.3
-    lowFrequencyCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    highFrequencyCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
+    intensity: 2
+    duration: 0.6
   shieldDamagedVibrationSettings:
     lowFrequency: 0.1
     highFrequency: 0.1
@@ -3182,7 +3134,59 @@ MonoBehaviour:
   healthDamagedVibrationSettings:
     lowFrequency: 0.2
     highFrequency: 0.2
-    duration: 0.3
+    duration: 0.4
+    lowFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    highFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  deathVibrationSettings:
+    lowFrequency: 0.5
+    highFrequency: 0.5
+    duration: 1
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:

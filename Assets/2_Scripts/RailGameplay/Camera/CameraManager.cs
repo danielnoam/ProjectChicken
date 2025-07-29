@@ -162,7 +162,6 @@ public class CameraManager : MonoBehaviour
     {
         if (!cam || !cam.isActiveAndEnabled) yield break;
         
-        
         yield return new WaitForSeconds(changePositionEvery);
         
         while (true)

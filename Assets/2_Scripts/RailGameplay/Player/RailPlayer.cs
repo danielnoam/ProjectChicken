@@ -36,13 +36,14 @@ public class RailPlayer : MonoBehaviour
     [SerializeField] private SOShieldUpgrade[] shieldUpgrades = Array.Empty<SOShieldUpgrade>();
     
     [Header("Camera Shake")]
+    [SerializeField] private CameraShakeSettings shieldDamagedShakeSettings;
+    [SerializeField] private CameraShakeSettings healthDamagedShakeSettings;
     [SerializeField] private CameraShakeSettings deathShakeSettings;
-    [SerializeField] private CameraShakeSettings shieldDepletedShakeSettings;
     
     [Header("Controller Rumble")]
-    [SerializeField] private ControllerVibrationEffectSettings deathVibrationSettings;
     [SerializeField] private ControllerVibrationEffectSettings shieldDamagedVibrationSettings;
     [SerializeField] private ControllerVibrationEffectSettings healthDamagedVibrationSettings;
+    [SerializeField] private ControllerVibrationEffectSettings deathVibrationSettings;
     
     [Header("References")]
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
@@ -267,6 +268,13 @@ public class RailPlayer : MonoBehaviour
         }
         else
         {
+            if (cinemachineImpulseSource)
+            {
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = healthDamagedShakeSettings.impulseShape;
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = healthDamagedShakeSettings.duration;
+                cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+                cinemachineImpulseSource.GenerateImpulseWithForce(healthDamagedShakeSettings.intensity);
+            }
             controllerVibrationSource.Vibrate(healthDamagedVibrationSettings);
             healthDamageSfx?.Play(audioSource);
         }
@@ -342,17 +350,16 @@ public class RailPlayer : MonoBehaviour
             _currentShieldHealth = 0;
             DamageHealth();
             shieldDepletedSfx?.Play(audioSource);
-            
-            if (cinemachineImpulseSource)
-            {
-                cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shieldDepletedShakeSettings.impulseShape;
-                cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shieldDepletedShakeSettings.duration;
-                cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
-                cinemachineImpulseSource.GenerateImpulseWithForce(shieldDepletedShakeSettings.intensity);
-            }
         }
         else
         {
+            if (cinemachineImpulseSource)
+            {
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shieldDamagedShakeSettings.impulseShape;
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shieldDamagedShakeSettings.duration;
+                cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+                cinemachineImpulseSource.GenerateImpulseWithForce(shieldDamagedShakeSettings.intensity);
+            }
             controllerVibrationSource.Vibrate(shieldDamagedVibrationSettings);
             shieldDamageSfx?.Play(audioSource);
         }
@@ -472,7 +479,7 @@ public class RailPlayer : MonoBehaviour
                 break;
         }
 
-        int randomIndex = UnityEngine.Random.Range(0, cameraPositions.childCount);
+        int randomIndex = UnityEngine.Random.Range(1, cameraPositions.childCount);
         return cameraPositions.GetChild(randomIndex);
     }
     

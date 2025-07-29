@@ -141,16 +141,6 @@ public class MenuElementLevelSelection : MenuElement
 
         SelectFirstAvailableButton();
     }
-
-    protected override void OnSubmit(InputAction.CallbackContext context)
-    {
-        base.OnSubmit(context);
-    }
-
-    protected override void OnCancel(InputAction.CallbackContext context)
-    {
-        base.OnCancel(context);
-    }
     
     private void SelectLevel(LevelUIData levelUI)
     {
@@ -313,7 +303,6 @@ public class MenuElementLevelSelection : MenuElement
 
     private void SetActiveLevelGraphics(LevelUIData activeLevel)
     {
-        // First, hide all level graphics
         foreach (var levelData in _levelUIData)
         {
             if (levelData.levelGfx)
@@ -322,7 +311,6 @@ public class MenuElementLevelSelection : MenuElement
             }
         }
         
-        // Then show only the active one
         if (activeLevel?.levelGfx)
         {
             activeLevel.levelGfx.SetActive(true);

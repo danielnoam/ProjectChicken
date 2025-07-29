@@ -1,17 +1,22 @@
 using System;
 using System.Linq;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using VInspector;
 
 
 public class MenuElementOptionsScreen : MenuElement
 {
-
+    [Header("Options Screen")]
+    [SerializeField] private CanvasGroup optionsCanvas;
     [SerializeField] private Selectable[] selectables = Array.Empty<Selectable>();
+    
     private Selectable _currentSelectable;
+    private Sequence _optionsCanvasSequence;
     
     
     protected override void OnSelected()
@@ -26,42 +31,85 @@ public class MenuElementOptionsScreen : MenuElement
 
     protected override void OnSetUp()
     {
-
+        foreach (var selectable in selectables)
+        {
+            SetupSelectable(selectable);
+        }
+        
+        ToggleLevelCanvas(false, false);
     }
     
     protected override void OnInteract()
     {
-
+        ToggleLevelCanvas(true);
+        SelectFirstAvailableButton();
     }
     
     protected override void OnFinishedInteraction()
     {
-        
+        ToggleLevelCanvas(false);
+        _currentSelectable = null;
     }
 
     protected override void OnStopInteraction()
     {
-        
+        ToggleLevelCanvas(false);
+        _currentSelectable = null;
     }
     
     protected override void OnNavigate(InputAction.CallbackContext context)
     {
         base.OnNavigate(context);
+        
+        if (_currentSelectable) return;
+
+        SelectFirstAvailableButton();
+    }
+    
+    
+    
+    private void ToggleLevelCanvas(bool state, bool animate = true)
+    {
+        if (!optionsCanvas) return;
+        if (_optionsCanvasSequence.isAlive) _optionsCanvasSequence.Stop();
+
+        if (animate)
+        {
+            _optionsCanvasSequence = Sequence.Create()
+                .Group(Tween.Alpha(optionsCanvas, state ? 1 : 0, 0.3f))
+                .OnComplete(() =>
+                {
+                    optionsCanvas.interactable = state;
+                    optionsCanvas.blocksRaycasts = state;
+                });
+        }
+        else
+        {
+            optionsCanvas.alpha = state ? 1 : 0;
+            optionsCanvas.interactable = state;
+            optionsCanvas.blocksRaycasts = state;
+        }
+
+    }
+    
+    
+    private void SelectFirstAvailableButton()
+    {
+        foreach (var selectable in selectables)
+        {
+            if (selectable.interactable)
+            {
+                selectable.Select();
+                _currentSelectable = selectable;
+                break;
+            }
+        }
     }
 
-    protected override void OnSubmit(InputAction.CallbackContext context)
-    {
-        base.OnSubmit(context);
-    }
-
-    protected override void OnCancel(InputAction.CallbackContext context)
-    {
-        base.OnCancel(context);
-    }
     
     
     
-    private void SetupSelectable(Selectable selectable, LevelUIData levelUIData)
+    private void SetupSelectable(Selectable selectable)
     {
         var eventTrigger = selectable.GetComponent<EventTrigger>() ?? selectable.gameObject.AddComponent<EventTrigger>();
         AddEventTriggerEntry(eventTrigger, EventTriggerType.Select, OnSelectableSelected);
