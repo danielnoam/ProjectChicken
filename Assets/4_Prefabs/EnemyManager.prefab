@@ -78,10 +78,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2201409f3a268ec4facd993593460610, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyCount: 0
-  currentStage: {fileID: 0}
-  enemyHolder: {fileID: 5166719617397303585}
   levelManager: {fileID: 0}
+  player: {fileID: 0}
 --- !u!114 &7872471331430467191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,9 +96,9 @@ MonoBehaviour:
   formationSeparation: 1.2
   boundaryOffset: 2
   splineRotationSpeed: 5
-  horizontalSpacing: 5
-  verticalSpacing: 5
-  circleRadius: 5
+  horizontalSpacing: 7
+  verticalSpacing: 7
+  circleRadius: 10
   constrainToBoundary: 1
   minSpacingMultiplier: 0.1
   vShapeBottomPadding: 5
