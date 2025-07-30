@@ -1,6 +1,7 @@
 using System;
 using KBCore.Refs;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VInspector;
 
 
@@ -20,6 +21,8 @@ public class DistanceBasedOutline : MonoBehaviour
     [SerializeField,ReadOnly] private float distance;
 
 
+    private Camera _camera;
+    
     private void OnValidate()
     {
         this.ValidateRefs();
@@ -42,13 +45,39 @@ public class DistanceBasedOutline : MonoBehaviour
             outlineWidthRange.y = 0;
         }
     }
+
     
+    
+    private void Awake()
+    {
+        _camera = Camera.main;
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.activeSceneChanged += ActiveSceneChanged;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.activeSceneChanged -= ActiveSceneChanged;
+        _camera = null;
+    }
+
+    private void ActiveSceneChanged(Scene arg0, Scene arg1)
+    {
+        _camera = Camera.main;
+    }
+
+
+
+
 
     private void Update()
     {
-        if (!Camera.main) return;
+        if (!_camera) return;
         
-        distance = Vector3.Distance(transform.position, Camera.main.transform.position);
+        distance = Vector3.Distance(transform.position, _camera.transform.position);
         var outlineWidth = Mathf.InverseLerp(thinOutlineDistance, thickOutlineDistance, distance);
         outline.OutlineWidth = Mathf.Lerp(outlineWidthRange.x, outlineWidthRange.y, outlineWidth);
     }
