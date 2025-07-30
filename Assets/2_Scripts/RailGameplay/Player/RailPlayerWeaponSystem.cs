@@ -59,12 +59,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField] private float targetReticleOverheatPunchStrength = 1f;
     [SerializeField] private float targetReticlePunchStrength = 0.2f;
     [SerializeField] private float targetReticlePunchDuration = 0.3f;
-    [SerializeField] private bool useRangingReticles;
-    [ShowIf("useRangingReticles")]
-    [SerializeField, Min(1)] private int rangingReticlesAmount = 2;
-    [SerializeField, Range(0f, 1f)] private float rangingReticlesRange = 0.8f;
-    [SerializeField, Tooltip("How fast the reticle position smoothly moves to its target position")] private float reticlesFollowSpeed = 25f;
-    [EndIf]
     [EndFoldout]
     
 
@@ -164,21 +158,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             weapon.SetUpWeaponInstance(controllerVibrationSource, impulseSource);
         }
         
-        if (useRangingReticles)
-        {
-            for (int i = 0; i < rangingReticlesAmount; i++)
-            {
-                WeaponReticle reticle = Instantiate(targetReticle, reticleHolder);
-                reticle.gameObject.name = $"RangingReticle({i + 1})";
-
-                var scaleFactor = Mathf.Pow(rangingReticlesRange, i + 1);
-                reticle.transform.localScale = Vector3.one * scaleFactor;
-
-                reticle.ForceChangeBaseSize(scaleFactor);
-                _rangingReticles.Add(reticle);
-            }
-        }
-        
         heatBarElements.barText.alpha = 0;
         
         _allowShooting = true;
@@ -198,7 +177,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             targetReticle?.Show();
             targetReticle?.ForceChangeAimLockSize(targetReticleAimLockSize);
-            ToggleRangeReticles(true);
             if (_activeWeaponInstance == null)
             {
                 if (_currentSpecialWeaponInstance != null) _activeWeaponInstance = _currentSpecialWeaponInstance;
@@ -250,7 +228,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         UpdateFireRateCooldown();
         UpdateHeatRegeneration();
         UpdateWeaponTime();
-        UpdateRangeReticlesPositions();
     }
     
 
@@ -264,7 +241,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             targetReticle?.Show();
             targetReticle?.ForceChangeAimLockSize(targetReticleAimLockSize);
-            ToggleRangeReticles(true);
             
             if (_activeWeaponInstance == null)
             {
@@ -277,7 +253,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         else
         {
             targetReticle.Hide();
-            ToggleRangeReticles(false);
             _activeWeaponInstance?.OnWeaponDeselected();
         }
     }
@@ -316,7 +291,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         _allowShooting = false;
         targetReticle?.Hide();
-        ToggleRangeReticles(false);
         _activeWeaponInstance?.OnWeaponDeselected();
     }
     
@@ -576,8 +550,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         
         Sequence.Create()
             .Group(Tween.PunchScale(heatBarElements.barText.transform, strength:Vector3.one * 0.3f, duration:0.6f))
-            .Group(Tween.Alpha(heatBarElements.barText, startValue: 0f, endValue: 1f, duration: 0.4f))
-            .Chain(Tween.Alpha(heatBarElements.barText, startValue: 1f, endValue: 0f, duration: 0.2f))
             ;
 
         OnWeaponOverheatedEvent?.Invoke();
@@ -731,50 +703,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     #endregion Weapon Limiters ----------------------------------------------------------------------------------------------------
     
-    
-    #region Weapon Reticle -----------------------------------------------------------------------------------------------
 
-    private void UpdateRangeReticlesPositions()
-    {
-        if (!_allowShooting || _rangingReticles.Count <= 0) return;
-        
-        foreach (var reticle in _rangingReticles)
-        {
-            if (!reticle) continue;
-
-            var reticleIndex = _rangingReticles.IndexOf(reticle);
-            var proportionalFactor = (float)(_rangingReticles.Count - reticleIndex) / _rangingReticles.Count;
-            var currentReticleFollowSpeed = reticlesFollowSpeed / proportionalFactor;
-            var reticlePosition = Vector3.Lerp(transform.position, playerAiming.AimWorldPosition.position, rangingReticlesRange * proportionalFactor);
-            reticle.transform.position = Vector3.Lerp(reticle.transform.position, reticlePosition, currentReticleFollowSpeed * Time.deltaTime);
-        }
-    }
-
-
-    private void ToggleRangeReticles(bool state)
-    {
-        if (_rangingReticles.Count <= 0) return;
-        
-        foreach (var reticle in _rangingReticles.Where(reticle => reticle))
-        {
-            if (state)
-            {
-                reticle.Show();
-            }
-            else
-            {
-                reticle.Hide();
-            }
-        }
-    }
-    
-    
-    
-    
-
-    #endregion Weapon Reticle -----------------------------------------------------------------------------------------------
-    
-    
     #region Weapon Management --------------------------------------------------------------------------------------
     
     
