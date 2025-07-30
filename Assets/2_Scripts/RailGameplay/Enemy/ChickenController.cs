@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using DNExtensions;
 using KBCore.Refs;
+using PrimeTween;
 using UnityEngine.SceneManagement;
 using VInspector;
 
@@ -217,6 +218,10 @@ public class ChickenController : MonoBehaviour, IPooledObject
         if (_currentHealth <= 0)
         {
             Die();
+        }
+        else
+        {
+            Tween.PunchScale(transform, Vector3.one * 0.15f, 0.5f);
         }
     }
     

@@ -45,10 +45,11 @@ MonoBehaviour:
       type: {class: BehaviorChainOnHit, ns: , asm: Assembly-CSharp}
       data:
         targetsRadiusCheck: 10
-        maxTargets: 5
-        baseDamage: 10
-        baseForce: 10
-        baseStunChance: 0.1
+        maxTargets: 7
+        baseDamage: 11
+        baseForce: 11
+        stun: 0
+        baseStunChance: 0.05
         baseStunDuration: 0.5
         chainDelay: 0.1
         chainFalloff: 0.8

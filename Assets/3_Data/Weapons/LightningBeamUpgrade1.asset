@@ -43,12 +43,13 @@ MonoBehaviour:
     - rid: 4047855709786210404
       type: {class: BehaviorChainOnHit, ns: , asm: Assembly-CSharp}
       data:
-        targetsRadiusCheck: 7
-        maxTargets: 3
+        targetsRadiusCheck: 10
+        maxTargets: 5
         baseDamage: 10
         baseForce: 10
-        baseStunChance: 0.1
-        baseStunDuration: 0.5
+        stun: 0
+        baseStunChance: 0.05
+        baseStunDuration: 0.2
         chainDelay: 0.1
         chainFalloff: 0.8
     - rid: 4485104011578441732

@@ -16,6 +16,7 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
     [SerializeField] private float baseDamage = 10;
     [Tooltip("Base force applied to the first target in the chain")]
     [SerializeField] private float baseForce = 10;
+    [SerializeField] private bool stun;
     [Tooltip("Base stun chance for the first target in the chain")]
     [SerializeField,Range(0f,1f)] private float baseStunChance = 0.15f;
     [Tooltip("Base stun duration for the first target in the chain")]
@@ -47,7 +48,7 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
             forceDirection.Normalize();
             target.ApplyForce(forceDirection, baseForce);
 
-            if (UnityEngine.Random.Range(0f, 100f) > baseStunChance)
+            if (stun && UnityEngine.Random.Range(0f, 100f) > baseStunChance)
             {
                 target.ApplyConcussion(baseStunDuration);
             }
@@ -73,7 +74,7 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
         {
             yield return new WaitForSeconds(chainDelay);
             
-            // Check if current target is still valid after delay
+            // Check if the current target is still valid after delay
             if (!currentTarget)
             {
                 // Try to find any valid target from our hit list that's still alive
@@ -97,7 +98,7 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
             nextTarget.ApplyForce(forceDirection, currentForce);
 
 
-            if (UnityEngine.Random.Range(0f, 100f) > currentStunChance)
+            if (stun && UnityEngine.Random.Range(0f, 100f) > currentStunChance)
             {
                 nextTarget.ApplyConcussion(currentStunDuration);
             }

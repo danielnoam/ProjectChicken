@@ -479,7 +479,7 @@ public class RailPlayer : MonoBehaviour
                 break;
         }
 
-        int randomIndex = UnityEngine.Random.Range(1, cameraPositions.childCount);
+        int randomIndex = UnityEngine.Random.Range(2, cameraPositions.childCount);
         return cameraPositions.GetChild(randomIndex);
     }
     

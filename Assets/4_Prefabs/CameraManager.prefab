@@ -53,12 +53,12 @@ Camera:
   m_ShutterSpeed: 0.005
   m_Aperture: 16
   m_FocusDistance: 10
-  m_FocalLength: 50
+  m_FocalLength: 13.858139
   m_BladeCount: 5
   m_Curvature: {x: 2, y: 11}
   m_BarrelClipping: 0.25
   m_Anamorphism: 0
-  m_SensorSize: {x: 36, y: 24}
+  m_SensorSize: {x: 21.946, y: 16.002}
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -317,7 +317,7 @@ MonoBehaviour:
     AmplitudeGain: 1
     FrequencyGain: 1
     Duration: 1
-    m_NoiseOffsets: {x: 0, y: 0, z: 0}
+    m_NoiseOffsets: {x: -367.849, y: 178.11523, z: -743.8624}
 --- !u!1 &3786705891516202745
 GameObject:
   m_ObjectHideFlags: 0
@@ -431,7 +431,7 @@ MonoBehaviour:
     AmplitudeGain: 1
     FrequencyGain: 1
     Duration: 1
-    m_NoiseOffsets: {x: 0, y: 0, z: 0}
+    m_NoiseOffsets: {x: 751.80383, y: -383.5293, z: 475.54346}
 --- !u!1 &6663246058566032334
 GameObject:
   m_ObjectHideFlags: 0
@@ -483,21 +483,21 @@ MonoBehaviour:
   fovGainOnDodge: 10
   reticleInfluencePosition: 1
   reticlePositionOffset:
-    range: {x: 10, y: 5, z: 1}
-    threshold: {x: 0.2, y: 0.2, z: 0.2}
+    range: {x: 15, y: 0, z: 1}
+    threshold: {x: 0.2, y: 0, z: 0.2}
     smoothness: 2
     invertX: 0
     invertY: 0
   reticleInfluenceRotation: 1
   reticleRotationOffset:
-    range: {x: 10, y: 5, z: 1}
-    threshold: {x: 0.2, y: 0.2, z: 0.2}
+    range: {x: 10, y: 0, z: 1}
+    threshold: {x: 0.2, y: 0, z: 0.2}
     smoothness: 2
     invertX: 0
     invertY: 0
   playerInfluencePosition: 1
   playerPositionOffset:
-    range: {x: 25, y: 25, z: 0}
+    range: {x: 0, y: 35, z: 0}
     threshold: {x: 0, y: 0, z: 0}
     smoothness: 2
     invertX: 1
@@ -652,4 +652,4 @@ MonoBehaviour:
     AmplitudeGain: 1
     FrequencyGain: 1
     Duration: 1
-    m_NoiseOffsets: {x: 0, y: 0, z: 0}
+    m_NoiseOffsets: {x: 15.188599, y: -885.2916, z: 370.46167}
