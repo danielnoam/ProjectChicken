@@ -856,6 +856,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4128553274159926499, guid: 7d8655a331c763c40960264514912631, type: 3}
   m_PrefabInstance: {fileID: 225692989}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &286374501 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 98154818553496101, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
+  m_PrefabInstance: {fileID: 4228898283931628017}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66b5b163cee51194294655b38566b6a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &320811061
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -998,7 +1009,7 @@ Light:
   serializedVersion: 11
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1042,7 +1053,7 @@ Light:
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
   m_ColorTemperature: 5000
-  m_UseColorTemperature: 1
+  m_UseColorTemperature: 0
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
@@ -3073,9 +3084,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5028379321817055836, guid: 4c2a7c246551de346b97a22f51602964, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6634366097323769788, guid: 4c2a7c246551de346b97a22f51602964, type: 3}
       propertyPath: m_Name
       value: Sun
+      objectReference: {fileID: 0}
+    - target: {fileID: 8170806528935988968, guid: 4c2a7c246551de346b97a22f51602964, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5923,10 +5942,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 820401398891440181, guid: ef6a29b3c2229b64581c6f07ca7aa213, type: 3}
-      propertyPath: m_Alpha
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1271145332438362439, guid: ef6a29b3c2229b64581c6f07ca7aa213, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -6115,6 +6130,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7860053491034170425, guid: ef6a29b3c2229b64581c6f07ca7aa213, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 3262514238323513285}
+    - target: {fileID: 7860053491034170425, guid: ef6a29b3c2229b64581c6f07ca7aa213, type: 3}
+      propertyPath: levelManager
+      value: 
+      objectReference: {fileID: 286374501}
     - target: {fileID: 8062290076464793684, guid: ef6a29b3c2229b64581c6f07ca7aa213, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -6162,14 +6185,6 @@ PrefabInstance:
     - target: {fileID: 8840614351241099005, guid: ef6a29b3c2229b64581c6f07ca7aa213, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9162010984888036493, guid: ef6a29b3c2229b64581c6f07ca7aa213, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 14.799927
-      objectReference: {fileID: 0}
-    - target: {fileID: 9162010984888036493, guid: ef6a29b3c2229b64581c6f07ca7aa213, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 89.900024
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6284,6 +6299,10 @@ PrefabInstance:
       propertyPath: 'levelStages.Array.data[4]'
       value: 
       objectReference: {fileID: 11400000, guid: e2041fe9b8cd89f45b94b2115398ae64, type: 2}
+    - target: {fileID: 3017262246087303862, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5337217381014650461, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_Splines.Array.data[0].m_MetaData.Array.data[0].Mode
       value: 0

@@ -1,6 +1,5 @@
 
 using DNExtensions;
-using DNExtensions.VFXManager;
 using PrimeTween;
 using UnityEngine;
 
@@ -45,7 +44,7 @@ public class MenuElementShopSign : MenuElement
 
     protected override void OnFinishedInteraction()
     {
-        sceneToLoad.LoadScene();
+        sceneToLoad?.LoadScene();
     }
     
     protected override void OnStopInteraction()

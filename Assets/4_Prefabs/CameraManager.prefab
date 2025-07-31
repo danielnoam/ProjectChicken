@@ -483,12 +483,12 @@ MonoBehaviour:
   fovGainOnDodge: 10
   reticleInfluencePosition: 1
   reticlePositionOffset:
-    range: {x: 15, y: 0, z: 1}
+    range: {x: 5, y: 5, z: 0}
     threshold: {x: 0, y: 0, z: 0}
-    smoothness: 2
+    smoothness: 0.5
     invertX: 0
     invertY: 0
-  reticleInfluenceRotation: 1
+  reticleInfluenceRotation: 0
   reticleRotationOffset:
     range: {x: 15, y: 0, z: 5}
     threshold: {x: 0, y: 0, z: 0}
@@ -497,18 +497,18 @@ MonoBehaviour:
     invertY: 0
   playerInfluencePosition: 1
   playerPositionOffset:
-    range: {x: 0, y: 35, z: 0}
-    threshold: {x: 0, y: 0, z: 0}
-    smoothness: 2
+    range: {x: 75, y: 25, z: 0}
+    threshold: {x: 0.5, y: 0.5, z: 0}
+    smoothness: 1
     invertX: 1
     invertY: 1
-  playerInfluencesRotation: 0
+  playerInfluencesRotation: 1
   playerRotationOffset:
-    range: {x: 10, y: 5, z: 1}
-    threshold: {x: 0.2, y: 0.2, z: 0.2}
-    smoothness: 2
+    range: {x: 15, y: 15, z: 10}
+    threshold: {x: 0.5, y: 0.5, z: 0}
+    smoothness: 1
     invertX: 0
-    invertY: 0
+    invertY: 1
   changePositions: 1
   changePositionEvery: 1.5
   followCamera: {fileID: 5184551184866118152}

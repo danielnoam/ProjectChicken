@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DNExtensions;
+using DNExtensions.VFXManager;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VInspector;
@@ -14,6 +15,8 @@ public class SOLevel : ScriptableObject
     [SerializeField, Multiline(3)] private string levelDescription;
     [SerializeField] private GameObject levelGfxPrefab;
     [SerializeField] private SceneField levelScene;
+    [SerializeField] private SOVFEffectsSequence loadVFXSequence;
+
 
     
     [Header("Level Unlock")]
@@ -27,7 +30,8 @@ public class SOLevel : ScriptableObject
     
     public void LoadLevel()
     {
-        levelScene?.LoadScene();
+        TransitionManager.TransitionToScene(levelScene, loadVFXSequence);
+        // levelScene?.LoadScene();
     }
     
     public GameObject SetUpGfx(Transform parent)

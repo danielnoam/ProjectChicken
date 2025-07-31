@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using VInspector;
 
 
-[RequireComponent(typeof(Outline))]
+
 public class DistanceBasedOutline : MonoBehaviour
 {
 
@@ -15,18 +15,17 @@ public class DistanceBasedOutline : MonoBehaviour
     [SerializeField] private float thickOutlineDistance = 100f;
     
     [Header("References")]
-    [SerializeField,Self,HideInInspector] private Outline outline;
+    [SerializeField] private Outline outline;
     
     [Header("Debug")]
-    [SerializeField,ReadOnly] private float distance;
+    [SerializeField, ReadOnly] private float distance;
+    [SerializeField, ReadOnly] private Camera cam;
 
 
-    private Camera _camera;
+
     
     private void OnValidate()
     {
-        this.ValidateRefs();
-
         
         if (outlineWidthRange.x > outlineWidthRange.y)
         {
@@ -48,36 +47,18 @@ public class DistanceBasedOutline : MonoBehaviour
 
     
     
-    private void Awake()
+    private void Start()
     {
-        _camera = Camera.main;
+        cam = Camera.main;
     }
-
-    private void OnEnable()
-    {
-        SceneManager.activeSceneChanged += ActiveSceneChanged;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.activeSceneChanged -= ActiveSceneChanged;
-        _camera = null;
-    }
-
-    private void ActiveSceneChanged(Scene arg0, Scene arg1)
-    {
-        _camera = Camera.main;
-    }
-
-
-
+    
 
 
     private void Update()
     {
-        if (!_camera) return;
+        if (!cam) return;
         
-        distance = Vector3.Distance(transform.position, _camera.transform.position);
+        distance = Vector3.Distance(transform.position, cam.transform.position);
         var outlineWidth = Mathf.InverseLerp(thinOutlineDistance, thickOutlineDistance, distance);
         outline.OutlineWidth = Mathf.Lerp(outlineWidthRange.x, outlineWidthRange.y, outlineWidth);
     }

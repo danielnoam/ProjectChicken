@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using DNExtensions;
+using DNExtensions.VFXManager;
 using KBCore.Refs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -38,6 +39,7 @@ public class LevelManager : MonoBehaviour
     [Header("References")]
     [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private SceneField mainMenuScene;
+    [SerializeField] private SOVFEffectsSequence introVFXSequence;
     [SerializeField] private Transform currentPositionOnPath;
     [SerializeField] private EnemyWaveManager enemyWaveManager;
     [SerializeField] private RailPlayer player;
@@ -204,7 +206,8 @@ public class LevelManager : MonoBehaviour
             if (debugLog) Debug.LogError("No level stages defined!");
             return;
         }
-        
+
+        VFXManager.Instance?.PlayVFX(introVFXSequence);
         ResetScore();
         SetStage(0);
     }

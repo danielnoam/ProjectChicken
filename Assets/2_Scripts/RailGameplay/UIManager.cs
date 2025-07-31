@@ -244,10 +244,6 @@ public class UIManager : MonoBehaviour
     }
     
     
-    
-    
-    
-    #region HUD --------------------------------------------------------------------------------
 
     private void OnStageChanged(SOLevelStage stage)
     {
@@ -324,11 +320,27 @@ public class UIManager : MonoBehaviour
     {
         keybindsText.alpha = state ? 1f : 0;
     }
-
-    #endregion HUD --------------------------------------------------------------------------------
     
+    
+    
+    private void UpdateStageTitle(string title)
+    {
+        
+        if (title == "" && _waveTitleSequence.isAlive)
+        {
+            _waveTitleSequence.OnComplete(() => waveTitleText.text = title);
+        }
+        else
+        {
+            if (_waveTitleSequence.isAlive) _waveTitleSequence.Stop();
+            waveTitleText.text = title;
+            _waveTitleSequence = Sequence.Create()
+                .Group(Tween.Alpha(waveTitleText, startDelay: 0.5f, startValue: 0, endValue: 1, duration:waveTitleAnimationDuration/0.6f))
+                .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.4f));
+        }
 
-    #region Player UI ----------------------------------------------------------------------------------
+    }
+    
 
 
     private void OnDeath()
@@ -541,11 +553,8 @@ public class UIManager : MonoBehaviour
         dodgeCountText.text = $"X{dodgesRemining}";
         Tween.PunchScale(dodgeCountText.transform, strength: Vector3.one * dodgePunchStrength, duration: dodgeAnimationDuration);
     }
-
-    #endregion Player UI ----------------------------------------------------------------------------------
-
     
-    #region Level UI ----------------------------------------------------------------------------------
+    
 
     private void OnScoreChanged(int newScore)
     {
@@ -557,37 +566,22 @@ public class UIManager : MonoBehaviour
                 
                     .Group(Tween.Custom(startValue: _previousScore, endValue: newScore, duration: scoreAnimationDuration, onValueChange: value => _score = Mathf.RoundToInt(value)))
                     .Chain(Tween.PunchScale(scoreText.transform, strength: Vector3.one * scorePunchStrength, duration: scorePunchDuration))
-                    .OnComplete(() => _previousScore = newScore)
+                    .OnComplete(() =>
+                    {
+                        _previousScore = newScore;
+                        scoreText.transform.localScale = Vector3.one;
+                    })
                 ;
         }
         else
         {
             if (_scoreSequence.isAlive) _scoreSequence.Stop();
             _scoreSequence = Sequence.Create()
-                
                     .Group(Tween.Custom(startValue: _previousScore, endValue: newScore, duration: scoreAnimationDuration, onValueChange: value => _score = Mathf.RoundToInt(value)))
                     .OnComplete(() => _previousScore = newScore)
                 ;
         }
     }
     
-    private void UpdateStageTitle(string title)
-    {
-        
-        if (title == "" && _waveTitleSequence.isAlive)
-        {
-            _waveTitleSequence.OnComplete(() => waveTitleText.text = title);
-        }
-        else
-        {
-            if (_waveTitleSequence.isAlive) _waveTitleSequence.Stop();
-            waveTitleText.text = title;
-            _waveTitleSequence = Sequence.Create()
-                    .Group(Tween.Alpha(waveTitleText, startDelay: 0.5f, startValue: 0, endValue: 1, duration:waveTitleAnimationDuration/0.6f))
-                    .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.4f));
-        }
-
-    }
-
-    #endregion Level UI ----------------------------------------------------------------------------------
+    
 }

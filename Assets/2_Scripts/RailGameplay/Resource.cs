@@ -67,7 +67,6 @@ public class Resource : MonoBehaviour
     private Sequence _scaleAnimation;
     private Vector3 _currentVelocity;
     private Vector3 _targetVelocity;
-    private Vector3 _currentOffsetFromSpline;
     private Quaternion _splineRotation = Quaternion.identity;
     
     private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
@@ -274,9 +273,6 @@ public class Resource : MonoBehaviour
         Vector3 finalVelocity = (positionDifference / Time.fixedDeltaTime) + splineVelocity;
         rigidBody.linearVelocity = finalVelocity;
         rigidBody.rotation = _splineRotation;
-        
-        // Update current offset for next frame
-        _currentOffsetFromSpline = proposedLocalOffset;
     }
 
     #endregion Movement ---------------------------------------------------------------------------------------
@@ -299,17 +295,17 @@ public class Resource : MonoBehaviour
         }
         
         if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
-        _scaleAnimation = Sequence.Create(Tween.Scale(transform, startValue: Vector3.one * 0.5f, endValue:Vector3.one, duration: spawnAnimationDuration, ease: Ease.InOutBounce));
+        _scaleAnimation = Sequence.Create(Tween.Scale(resourceGfx, startValue: Vector3.one * 0.5f, endValue:Vector3.one, duration: spawnAnimationDuration, ease: Ease.InOutBounce));
     }
     
     
     private void PlayDespawnEffects()
     {
         if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
-        transform.localScale = Vector3.one;
+        resourceGfx.localScale = Vector3.one;
         _scaleAnimation = Sequence.Create()
-            .Group(Tween.PunchScale(transform, strength: Vector3.one * magnetizedPunchStrength/2, frequency: 7, duration: despawnAnimationDuration/2, easeBetweenShakes: Ease.InOutBounce))
-            .Chain(Tween.Scale(transform, endValue: Vector3.zero, duration: despawnAnimationDuration/2, ease: Ease.OutSine));
+            .Group(Tween.PunchScale(resourceGfx, strength: Vector3.one * magnetizedPunchStrength/2, frequency: 7, duration: despawnAnimationDuration/2, easeBetweenShakes: Ease.InOutBounce))
+            .Chain(Tween.Scale(resourceGfx, endValue: Vector3.zero, duration: despawnAnimationDuration/2, ease: Ease.OutSine));
         
     }
     private void PlayCollectionEffects()
@@ -329,8 +325,8 @@ public class Resource : MonoBehaviour
     private void PlayMagnetizedEffects()
     {
         if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
-        transform.localScale = Vector3.one;
-        _scaleAnimation = Sequence.Create(Tween.PunchScale(transform, Vector3.one * magnetizedPunchStrength, duration: magnetizedPunchDuration));
+        resourceGfx.localScale = Vector3.one;
+        _scaleAnimation = Sequence.Create(Tween.PunchScale(resourceGfx, Vector3.one * magnetizedPunchStrength, duration: magnetizedPunchDuration));
     }
 
     #endregion Effects ---------------------------------------------------------------------------------------
