@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Lightning Beam
   weaponDescription: Lightning!
-  weaponWeaponIcon: {fileID: 21300000, guid: d629af8e92b6b0892b661fba0e6c2912, type: 3}
+  weaponWeaponIcon: {fileID: 21300000, guid: 0bcbef67846ca1a44bd8aad5a5652446, type: 3}
   weaponType: 1
   weaponLimitation: 1
   heatPerShot: 3
@@ -113,6 +113,7 @@ MonoBehaviour:
         maxTargets: 3
         baseDamage: 10
         baseForce: 7
+        stun: 0
         baseStunChance: 0
         baseStunDuration: 0
         chainDelay: 0.1

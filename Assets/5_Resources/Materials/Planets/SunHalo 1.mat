@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: SunHalo
+  m_Name: SunHalo 1
   m_Shader: {fileID: -6465566751694194690, guid: 31d22f67efb2fbf4e9f038edd4cbd5fd, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -144,7 +144,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AddPrecomputedVelocity: 0
-    - _Alpha: -0.28
+    - _Alpha: 1
     - _AlphaClip: 1
     - _AlphaToMask: 0
     - _Alpha_Cycle_Speed: 0.1
@@ -157,20 +157,20 @@ Material:
     - _Cull: 2
     - _Cutoff: 0.5
     - _Cutout: 0.12
-    - _Cutout_Scale: 0
+    - _Cutout_Scale: 1
     - _Cutout_Scalee: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
     - _DstBlendAlpha: 0
-    - _Emission_Power: 0.36
+    - _Emission_Power: -2.49
     - _EnvironmentReflections: 1
-    - _Exposure: 0.32
+    - _Exposure: 2.8
     - _Float: 2
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _Height: 0.01
+    - _Height: 0
     - _IsNoise: 1
     - _IsSmeared: 1
     - _IsTransparent: 0
@@ -203,10 +203,10 @@ Material:
     - _ZWriteControl: 0
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.92549014, g: 1, b: 0, a: 1}
     - _Color_1: {r: 1, g: 1, b: 1, a: 0}
     - _Direction: {r: 1, g: 5, b: 1, a: 0}
-    - _Emission: {r: 1.3266817, g: 1.3266817, b: 1.3266817, a: 1}
+    - _Emission: {r: 1.3350784, g: 1.2442092, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Tilling: {r: 1, g: 1, b: 0, a: 0}
