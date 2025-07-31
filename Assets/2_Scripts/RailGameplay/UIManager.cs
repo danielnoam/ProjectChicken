@@ -10,13 +10,7 @@ using PrimeTween;
 
 
 
-[Serializable]
-public class HeatBarElements
-{
-    public Image heatBar;
-    public TextMeshProUGUI barText;
-    public Image miniGameWindow;
-}
+
 
 [SelectionBase]
 public class UIManager : MonoBehaviour
@@ -69,23 +63,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image weaponIcon;
     [SerializeField] private Image secondaryWeaponIcon;
     
-    [Header("Overheat Bar")]
-    [SerializeField] private bool useHeatBarOnReticle = true;
-    [SerializeField] private float heatBarAnimationDuration = 0.2f;
-    [SerializeField] private float heatBarPunchDuration = 0.2f;
-    [SerializeField] private float heatBarPunchStrength = 0.2f;
-    [SerializeField] private Color heatedBarColor = Color.red;
-    [SerializeField] private Color normalBarColor = Color.white;
-    [SerializeField] private Image heatBar;
-    
-    [Header("Overheat MiniGame")]
-    [SerializeField] private float miniGameAnimationDuration = 0.2f;
-    [SerializeField] private float miniGamePunchDuration = 0.3f;
-    [SerializeField] private float miniGamePunchStrength = 0.2f;
-    [SerializeField] private Color miniGameActiveColor = Color.blue;
-    [SerializeField] private Color miniGameInactiveColor = Color.clear;
-    [SerializeField] private Image miniGameWindow;
-    
     [Header("Pause Icon")]
     [SerializeField] private float pauseIconAnimationDuration = 0.2f;
     [SerializeField] private Image pauseIconFill;
@@ -112,10 +89,8 @@ public class UIManager : MonoBehaviour
     private Color _secondaryWeaponStartColor;
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
-    private Color _heatBarTextStartColor;
     private Sequence _keybindsSequence;
     private Sequence _hudSequence;
-    private Sequence _heatBarSequence;
     private Sequence _scoreSequence;
     private Sequence _playerCurrencySequence;
     private Sequence _playerShieldSequence;
@@ -127,7 +102,7 @@ public class UIManager : MonoBehaviour
     private int _playerCurrency;
     private int _playerHealth;
     private float _playerShield;
-    private float _overheatBarHeight;
+
 
 
     private void OnValidate()
@@ -173,12 +148,6 @@ public class UIManager : MonoBehaviour
             player.PlayerWeapon.OnBaseWeaponCooldownUpdatedEvent += OnBaseWeaponCooldownUpdated;
             player.PlayerWeapon.OnBaseWeaponSwitchedEvent += OnBaseWeaponSwitched;
             player.PlayerWeapon.OnSpecialWeaponDisabledEvent += OnSpecialWeaponDisabled;
-            player.PlayerWeapon.OnWeaponHeatUpdatedEvent += OnWeaponHeatUpdated;
-            player.PlayerWeapon.OnWeaponOverheatedEvent += OnWeaponOverheated;
-            player.PlayerWeapon.OnWeaponHeatResetEvent += OnWeaponHeatReset;
-            player.PlayerWeapon.OnWeaponHeatMiniGameWindowCreatedEvent += OnWeaponHeatMiniGameWindowCreated;
-            player.PlayerWeapon.OnWeaponHeatMiniGameSucceededEvent += OnOnWeaponHeatMiniGameSucceeded;
-            player.PlayerWeapon.OnWeaponHeatMiniGameFailedEvent += OnOnWeaponHeatMiniGameFailed;
             player.PlayerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
             player.PlayerMovement.OnDodge += OnDodge;
             player.PlayerMovement.OnDodgeCountChanged += OnDodgeCountChanged;
@@ -204,10 +173,6 @@ public class UIManager : MonoBehaviour
             player.PlayerWeapon.OnSpecialWeaponSwitchedEvent -= OnSpecialWeaponSwitched;
             player.PlayerWeapon.OnSpecialWeaponCooldownUpdatedEvent -= OnSpecialWeaponCooldownUpdated;
             player.PlayerWeapon.OnBaseWeaponCooldownUpdatedEvent -= OnBaseWeaponCooldownUpdated;
-            player.PlayerWeapon.OnWeaponHeatUpdatedEvent -= OnWeaponHeatUpdated;
-            player.PlayerWeapon.OnWeaponOverheatedEvent -= OnWeaponOverheated;
-            player.PlayerWeapon.OnWeaponHeatResetEvent -= OnWeaponHeatReset;
-            player.PlayerWeapon.OnWeaponHeatMiniGameWindowCreatedEvent -= OnWeaponHeatMiniGameWindowCreated;
             player.PlayerWeapon.OnBaseWeaponSwitchedEvent -= OnBaseWeaponSwitched;
             player.PlayerWeapon.OnSpecialWeaponDisabledEvent -= OnSpecialWeaponDisabled;
             player.PlayerMovement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
@@ -235,10 +200,7 @@ public class UIManager : MonoBehaviour
     
     private void SetUpUI()
     {
-
-        SetupHeatBar();
         SetupHeartIcons();
-
         _weaponStartColor = weaponIcon.color;
         _secondaryWeaponStartColor = secondaryWeaponIcon.color;
         _dodgeStartColor = dodgeIcon.color;
@@ -280,31 +242,7 @@ public class UIManager : MonoBehaviour
         healthIcon = null;
         healthText = null;
     }
-
-    private void SetupHeatBar()
-    {
-        if (player)
-        {
-            var barElements = player.PlayerWeapon.HeatBarElements;
-            if (useHeatBarOnReticle)
-            {
-                heatBar = barElements.heatBar;
-                miniGameWindow = barElements.miniGameWindow;
-            }
-            else
-            {
-                barElements.heatBar.color = Color.clear;
-                barElements.barText.color = Color.clear;
-                barElements.miniGameWindow.color = Color.clear;
-            }
-        }
-        
-        
-        _overheatBarHeight = heatBar.rectTransform.sizeDelta.y;
-        miniGameWindow.color = miniGameInactiveColor;
-        heatBar.fillAmount = 0f;
-    }
-
+    
     
     
     
@@ -543,78 +481,8 @@ public class UIManager : MonoBehaviour
         }
     }
     
-
-    
-    private void OnOnWeaponHeatMiniGameFailed()
-    {
-        Tween.Color(miniGameWindow, startValue: miniGameWindow.color, endValue: miniGameInactiveColor, miniGameAnimationDuration);
-    }
-
-    private void OnOnWeaponHeatMiniGameSucceeded()
-    {
-        Tween.Color(miniGameWindow, startValue: miniGameWindow.color, endValue: miniGameInactiveColor, miniGameAnimationDuration);
-    }
-
-
-
-    private void OnWeaponHeatMiniGameWindowCreated(float regenTime, float windowDuration, float windowStartTime)
-    {
-        float normalizedWindowSize = Mathf.Clamp01(windowDuration / regenTime);
-        float windowHeight = _overheatBarHeight * normalizedWindowSize;
-
-        // Set the size of the mini-game window
-        miniGameWindow.rectTransform.sizeDelta = new Vector2(
-            miniGameWindow.rectTransform.sizeDelta.x, 
-            windowHeight
-        );
-
-        // Calculate the position based on windowStartTime
-        // Since the heat bar fills from bottom (0) to top (1), and the timing counts down from regenTime to 0;
-        // we need to invert the position calculation
-        float normalizedEndPosition = Mathf.Clamp01((windowStartTime - windowDuration) / regenTime);
-    
-        // Calculate the center position of the window (halfway between start and end)
-        float windowCenterPosition = normalizedEndPosition + (normalizedWindowSize * 0.5f);
-    
-        // Calculate the Y offset from the center of the heat bar
-        // Map from 0-1 range to the actual pixel range of the heat bar
-        float yOffset = (windowCenterPosition - 0.5f) * _overheatBarHeight;
-
-        // Set the anchored position
-        miniGameWindow.rectTransform.anchoredPosition = new Vector2(
-            miniGameWindow.rectTransform.anchoredPosition.x,
-            yOffset
-        );
-        
-        Tween.PunchScale(miniGameWindow.transform, strength: Vector3.one * miniGamePunchStrength, duration: miniGamePunchDuration);
-        Tween.Color(miniGameWindow, startValue: miniGameWindow.color, endValue: miniGameActiveColor, miniGameAnimationDuration);
-    }
     
     
-    private void OnWeaponOverheated()
-    {
-        Tween.PunchScale(heatBar.transform, strength: Vector3.one * heatBarPunchStrength, duration: heatBarPunchDuration);
-    }
-    
-    private void OnWeaponHeatReset()
-    {
-        Tween.PunchScale(heatBar.transform, strength: Vector3.one * heatBarPunchStrength, duration: heatBarPunchDuration);
-        
-        Tween.Color(miniGameWindow, startValue: miniGameWindow.color, endValue: miniGameInactiveColor, miniGameAnimationDuration);
-    }
-
-    
-    private void OnWeaponHeatUpdated(float heat)
-    {
-        float fillAmount = heat / player.PlayerWeapon.MaxWeaponHeat;
-        Color barFillColor = Color.Lerp(normalBarColor, heatedBarColor, fillAmount);
-        
-        if (_heatBarSequence.isAlive) _heatBarSequence.Stop();
-        _heatBarSequence = Sequence.Create()
-                .Group(Tween.Color(heatBar, startValue: heatBar.color, endValue: barFillColor, heatBarAnimationDuration))
-                .Group(Tween.UIFillAmount(heatBar, startValue: heatBar.fillAmount, endValue: fillAmount, heatBarAnimationDuration))
-            ;
-    }
     
     
     private void OnUpdateCurrency(int newCurrency)

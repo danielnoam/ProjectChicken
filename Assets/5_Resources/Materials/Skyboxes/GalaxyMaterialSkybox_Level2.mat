@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7709925867307274860
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 9
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -20,11 +7,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GalaxyMaterialSkybox_Test3
+  m_Name: GalaxyMaterialSkybox_Level2
   m_Shader: {fileID: -6465566751694194690, guid: 29374541fd657c4438fcd64a4648d5c9, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _DARKCLOUDSENABLED_ON
   m_InvalidKeywords:
   - _KEYWORD0_ON
   - _REFRECTIONCASECONDMODE_ON
@@ -44,11 +32,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CloudsRamp:
-        m_Texture: {fileID: 2800000, guid: af492fd72fe40bb4ca88d6c49f976e8e, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6f30dac5ca0eb004cada97d25c2cedf0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CloudsTexture:
-        m_Texture: {fileID: 8900000, guid: 399d11aecb04914488a63bbf3cc1223b, type: 3}
+        m_Texture: {fileID: 8900000, guid: 58901cd10d76c174c89a5777624c6e6a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CometsTexture:
@@ -104,7 +92,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RimNoiseTexture:
-        m_Texture: {fileID: 2800000, guid: 57535fb8629b4c6eb8530d7d3664d59f, type: 3}
+        m_Texture: {fileID: 2800000, guid: c2b65641b183df6429a4f42b11e61f14, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RimRamp:
@@ -116,7 +104,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _StarsTexture:
-        m_Texture: {fileID: 8900000, guid: 9708633a9f5c57e4da4c142c85e63c9e, type: 3}
+        m_Texture: {fileID: 8900000, guid: 955c88d7e6663e349bd0dbbe199ed6ec, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SunDistortionTexture:
@@ -196,39 +184,39 @@ Material:
     - _BumpScale: 1
     - _ChomaticAberration: 0
     - _CloudOpacityExp: 2
-    - _CloudsEmissionPower: 2
-    - _CloudsOpacityExp: 2
-    - _CloudsOpacityPower: 20
+    - _CloudsEmissionPower: 10.42
+    - _CloudsOpacityExp: 1
+    - _CloudsOpacityPower: 0
     - _CloudsRampOffsetExp: 1
-    - _CloudsRampOffsetExp2: 2
+    - _CloudsRampOffsetExp2: 1
     - _CloudsRampOffsetMultiply: 1
     - _CloudsRampTilingMultiply: 1
-    - _CloudsRotationSpeed: -0.02
+    - _CloudsRotationSpeed: -0.001
     - _CometsDistortionAmount: 1
     - _CometsRotationSpeed: -0.1
     - _Cutoff: 0.5
-    - _DARKCLOUDSENABLED: 0
+    - _DARKCLOUDSENABLED: 1
     - _DarkCloudsEdgesGlowClamp: 4
-    - _DarkCloudsEdgesGlowExp: 1
+    - _DarkCloudsEdgesGlowExp: 0.38
     - _DarkCloudsEdgesGlowGB: 0
     - _DarkCloudsEdgesGlowPower: 10
     - _DarkCloudsEdgesGlowStyle: 0
     - _DarkCloudsEnabled: 0
-    - _DarkCloudsLighten: 1
-    - _DarkCloudsRotationSpeed: -0.06
+    - _DarkCloudsLighten: 10
+    - _DarkCloudsRotationSpeed: -0.006
     - _DarkCloudsThicker: 1
     - _DetailNormalMapScale: 1
     - _DistortionAmount: 0.5
     - _DistortionExp: 1
     - _DistortionExp2: 1
     - _DstBlend: 0
-    - _Eta: -0.1
-    - _EtaAAEdgesFix: 0
+    - _Eta: -0.25
+    - _EtaAAEdgesFix: 0.25
     - _EtaEdgesFix: 0
-    - _EtaFresnelExp: 3
+    - _EtaFresnelExp: 2
     - _EtaFresnelExp2: 1
     - _Exp: 4
-    - _FinalPower: 1
+    - _FinalPower: 0.08
     - _FixMaybe: 0
     - _Float0: -1
     - _Float0df: 0.5
@@ -282,13 +270,13 @@ Material:
     - _RefractionExp2: 1
     - _RefractionIOR: 1.5
     - _RefrectionCASecondMode: 1
-    - _RimAddOrMultiply: 1
+    - _RimAddOrMultiply: 0
     - _RimEmissionPower: 2
     - _RimEnabled: 1
     - _RimExp: 4
     - _RimExp2: 2
-    - _RimNoiseAmount: 0.75
-    - _RimNoiseCAAmount: 0.05
+    - _RimNoiseAmount: -0.75
+    - _RimNoiseCAAmount: 0.1
     - _RimNoiseCAEnabled: 1
     - _RimNoiseCARimMaskExp: 4
     - _RimNoiseCAU: 1
@@ -297,15 +285,15 @@ Material:
     - _RimNoiseDistortionScaleU: 2
     - _RimNoiseDistortionScaleV: 4
     - _RimNoiseDistortionScrollSpeed: 0.05
-    - _RimNoiseDistortionTilingU: 2
-    - _RimNoiseDistortionTilingV: 4
+    - _RimNoiseDistortionTilingU: 0.25
+    - _RimNoiseDistortionTilingV: 2
     - _RimNoiseNormalSpherize: 0
-    - _RimNoiseRefraction: 0
+    - _RimNoiseRefraction: 1
     - _RimNoiseScrollSpeed: 0.05
     - _RimNoiseSpherize: 0
     - _RimNoiseTiling: 0.1
-    - _RimNoiseTilingU: 0.1
-    - _RimNoiseTilingV: 1
+    - _RimNoiseTilingU: 1
+    - _RimNoiseTilingV: 0.5
     - _RimNoiseToRefraction: 0
     - _RimNoiseTwistAmount: 0.25
     - _RimRampOffsetExp2: 1
@@ -318,11 +306,11 @@ Material:
     - _SphericalDistortionAmount: 0
     - _SphericalDistortionExp: 1
     - _SrcBlend: 1
-    - _StarsEmissionPower: 1
+    - _StarsEmissionPower: 2.5
     - _StarsExp: 1
     - _StarsExpNegate: 1
     - _StarsHueShift: 0
-    - _StarsRotationSpeed: 0
+    - _StarsRotationSpeed: -0.001
     - _SunDistortionPower: -0.25
     - _SunDistortionScrollSpeed: -0.75
     - _SunDistortionTilingU: 3
@@ -344,17 +332,17 @@ Material:
     - _ZWrite: 1
     - __dirty: 0
     m_Colors:
-    - _CloudsRampColorTint: {r: 0.990566, g: 0.17847958, b: 0, a: 1}
+    - _CloudsRampColorTint: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color0: {r: 1, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FresnelGlowColor: {r: 1, g: 1, b: 1, a: 1}
-    - _RimColor: {r: 1, g: 1, b: 1, a: 1}
+    - _RimColor: {r: 0.5424528, g: 0.5485644, b: 1, a: 1}
     - _RimEmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimNoiseSpherizeCenter: {r: 0, g: 0, b: 0, a: 0}
     - _RimNoiseSpherizePosition: {r: 0, g: 0, b: 0, a: 0}
     - _RotationAxis: {r: 0, g: 1, b: 0, a: 0}
-    - _StarsColorTint: {r: 1, g: 0.4347602, b: 0, a: 1}
+    - _StarsColorTint: {r: 1, g: 1, b: 1, a: 1}
     - _SunColor: {r: 1, g: 0, b: 0, a: 1}
     - _SunLocalPosition: {r: 0, g: 0, b: 0, a: 0}
     - _SunRampColorTint: {r: 1, g: 1, b: 1, a: 1}
@@ -364,3 +352,16 @@ Material:
     - _Vector4: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
+--- !u!114 &476749514911876353
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 9

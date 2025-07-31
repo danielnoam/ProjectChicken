@@ -65,7 +65,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     
     [Header("References")]
-    [SerializeField] private HeatBarElements heatBarElements;
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
     [SerializeField] private Transform reticleHolder;
     [SerializeField] private WeaponReticle targetReticle;
@@ -82,7 +81,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Self, HideInInspector] private CinemachineImpulseSource impulseSource;
 
 
-    private Sequence _heatBarSequence;
+
     private bool _allowShooting;
     private bool _attackInputHeld;
     private bool _attack2InputHeld;
@@ -108,7 +107,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public float MaxWeaponHeat => maxHeat;
     public WeaponInstance BaseWeaponInstance => _baseWeaponInstance;
     public WeaponInstance CurrentSpecialWeaponInstance => _currentSpecialWeaponInstance;
-    public HeatBarElements HeatBarElements => heatBarElements;
 
 
     public event Action<WeaponInstance> OnWeaponUsedEvent;
@@ -123,6 +121,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public event Action<float,float, float> OnWeaponHeatMiniGameWindowCreatedEvent;
     public event Action OnWeaponHeatMiniGameSucceededEvent;
     public event Action OnWeaponHeatMiniGameFailedEvent;
+    public event Action<bool> OnAllowShootingChangedEvent;
     
 
     
@@ -157,8 +156,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             weapon.SetUpWeaponInstance(controllerVibrationSource, impulseSource);
         }
-        
-        heatBarElements.barText.alpha = 0;
         
         _allowShooting = true;
 
@@ -236,6 +233,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (!stage) return;
         
         _allowShooting = stage.AllowPlayerShooting;
+        OnAllowShootingChangedEvent?.Invoke(_allowShooting);
 
         if (_allowShooting)
         {
@@ -299,18 +297,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         var normalizedHeat = heat / maxHeat;
         targetReticle?.SetEmissionStrength(normalizedHeat);
         _activeWeaponInstance?.OnHeatChanged(normalizedHeat);
-
-        heatBarElements.barText.text = heat >= MaxWeaponHeat ? "Overheated!" : $"{heat:F0}%";
-
-        float fillAmount = heat / MaxWeaponHeat;
-        Color textFillColor = Color.Lerp(Color.white, Color.red, fillAmount);
-        float textAlpha = fillAmount < 0.3f ? 0f : Mathf.Lerp(0f, 1f, (fillAmount - 0.3f) / 0.7f);
-        
-        if (_heatBarSequence.isAlive) _heatBarSequence.Stop();
-        _heatBarSequence = Sequence.Create()
-                .Group(Tween.Color(heatBarElements.barText, startValue: heatBarElements.barText.color, endValue: textFillColor, 0.3f))
-                .Group(Tween.Alpha(heatBarElements.barText, startValue: heatBarElements.barText.color.a, endValue: textAlpha, 0.3f))
-            ;
     }
 
 
@@ -548,10 +534,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         targetReticle?.SetEmissionStrength(_currentHeat);
         controllerVibrationSource.Vibrate(vibrationOnOverheatSettings);
         
-        Sequence.Create()
-            .Group(Tween.PunchScale(heatBarElements.barText.transform, strength:Vector3.one * 0.3f, duration:0.6f))
-            ;
-
         OnWeaponOverheatedEvent?.Invoke();
     }
 

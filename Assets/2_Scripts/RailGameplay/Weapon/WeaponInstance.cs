@@ -1,5 +1,6 @@
 ﻿
 using DNExtensions;
+using PrimeTween;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -28,6 +29,9 @@ public class WeaponInstance
     public WeaponReticle weaponReticle;
     public Transform[] weaponBarrels;
     public WeaponUpgradeAssets[] upgradeAssets;
+
+
+    private Sequence _weaponSequence;
     
     public SOWeaponData WeaponData { get; private set; }
     public Transform CurrentWeaponGfx { get; private set; }
@@ -108,7 +112,19 @@ public class WeaponInstance
                 // Debug.LogWarning($"No upgrade assets found for upgrade '{activeWeaponUpgrade.ItemName}' on weapon '{baseWeaponData.WeaponName}'");
             }
             
-            // Debug.Log($"Applied upgrade '{activeWeaponUpgrade.ItemName}' to weapon '{baseWeaponData.WeaponName}'");
+            // Debug.Log($"Applied upgrade '{activeWeaponUpgrade.ItemName}' to a weapon '{baseWeaponData.WeaponName}'");
+        }
+        
+        // Hide all GFX first
+        if (weaponGfx) weaponGfx.gameObject.SetActive(false);
+        
+        // Hide all upgrade GFX
+        if (upgradeAssets != null)
+        {
+            foreach (var asset in upgradeAssets)
+            {
+                if (asset.UpgradeGfx) asset.UpgradeGfx.gameObject.SetActive(false);
+            }
         }
     }
     
@@ -126,38 +142,14 @@ public class WeaponInstance
     
     public void OnWeaponSelected(bool allowShooting)
     {
-        // Hide all GFX first
-        if (weaponGfx) weaponGfx.gameObject.SetActive(false);
-        
-        // Hide all upgrade GFX
-        if (upgradeAssets != null)
-        {
-            foreach (var asset in upgradeAssets)
-            {
-                if (asset.UpgradeGfx) asset.UpgradeGfx.gameObject.SetActive(false);
-            }
-        }
-        
-        // Show current active GFX
-        if (CurrentWeaponGfx) CurrentWeaponGfx.gameObject.SetActive(true);
-        
+        ChangeGfxVisibility(true);
         UpdateReticleVisibility(allowShooting);
     }
     
     public void OnWeaponDeselected()
     {
-        // Hide all GFX
-        if (weaponGfx) weaponGfx.gameObject.SetActive(false);
-        
-        // Hide all upgrade GFX
-        if (upgradeAssets != null)
-        {
-            foreach (var asset in upgradeAssets)
-            {
-                if (asset.UpgradeGfx) asset.UpgradeGfx.gameObject.SetActive(false);
-            }
-        }
-        
+
+        ChangeGfxVisibility(false);
         weaponReticle?.Hide();
     }
 
@@ -221,6 +213,22 @@ public class WeaponInstance
             weaponReticle?.Hide();
         }
     }
+
+
+    private void ChangeGfxVisibility(bool isVisible)
+    {
+        if (!CurrentWeaponGfx) return;
+        
+        if (_weaponSequence.isAlive) _weaponSequence.Stop();
+        
+        if (isVisible) CurrentWeaponGfx.gameObject.SetActive(true);
+        
+        _weaponSequence = Sequence.Create()
+            .Group(Tween.Scale(CurrentWeaponGfx, isVisible ? Vector3.zero : Vector3.one, isVisible ? Vector3.one : Vector3.zero, 0.2f));
+        
+        if (!isVisible) _weaponSequence.OnComplete(() => CurrentWeaponGfx.gameObject.SetActive(false));
+    }
+    
     
 
     #region Projectile ---------------------------------------------------------------------------------

@@ -484,15 +484,15 @@ MonoBehaviour:
   reticleInfluencePosition: 1
   reticlePositionOffset:
     range: {x: 15, y: 0, z: 1}
-    threshold: {x: 0.2, y: 0, z: 0.2}
+    threshold: {x: 0, y: 0, z: 0}
     smoothness: 2
     invertX: 0
     invertY: 0
   reticleInfluenceRotation: 1
   reticleRotationOffset:
-    range: {x: 10, y: 0, z: 1}
-    threshold: {x: 0.2, y: 0, z: 0.2}
-    smoothness: 2
+    range: {x: 15, y: 0, z: 5}
+    threshold: {x: 0, y: 0, z: 0}
+    smoothness: 0.5
     invertX: 0
     invertY: 0
   playerInfluencePosition: 1
