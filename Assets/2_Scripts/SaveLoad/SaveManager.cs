@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VInspector;
+using DNExtensions.Button;
 
 [DefaultExecutionOrder(-1)]
 [SelectionBase]
@@ -24,6 +25,7 @@ public class SaveManager : MonoBehaviour
     
     
     [Header("Default Settings")]
+    [SerializeField] private VolumeSettings defaultVolumeSettings = new (1,1,1);
     [SerializeField] private ControlSchemeSettings defaultKeyboardMouseScheme = new (
         false, 
         false,
@@ -72,9 +74,6 @@ public class SaveManager : MonoBehaviour
         Initialize();
         
         PrimeTweenConfig.warnEndValueEqualsCurrent = false;
-        
-        // Delete it for now so we reset to default settings
-        DeleteSettingsDataAndFile();
     }
     
 
@@ -146,7 +145,7 @@ public class SaveManager : MonoBehaviour
         SaveSettingsDataToFile();
     }
 
-    [Button]
+    [DNExtensions.Button.Button(ButtonPlayMode.OnlyWhenPlaying)]
     private static void SavePlayerProgressDataToFile()
     {
         if (!Application.isPlaying || !_initialized) return;
@@ -190,7 +189,7 @@ public class SaveManager : MonoBehaviour
     
 
     
-    [Button]
+    [DNExtensions.Button.Button(ButtonPlayMode.OnlyWhenPlaying)]
     private static void DeletePlayerProgressDataAndFile()
     {
         if (!Application.isPlaying || !_initialized) return;
@@ -212,10 +211,10 @@ public class SaveManager : MonoBehaviour
     
     
     
-    [Button]
+    [DNExtensions.Button.Button(ButtonPlayMode.OnlyWhenPlaying)]
     private static void SaveSettingsDataToFile()
     {
-        if (!Application.isPlaying || !_initialized) return;
+        if (!_initialized) return;
 
         try
         {
@@ -245,7 +244,8 @@ public class SaveManager : MonoBehaviour
                 // Access through the instance
                 _settingsData = new SettingsData(
                     Instance.defaultKeyboardMouseScheme, 
-                    Instance.defaultGamepadScheme
+                    Instance.defaultGamepadScheme,
+                    Instance.defaultVolumeSettings
                 );
                 // Debug.Log("No settings file found. Created new settings data.");
             }
@@ -255,7 +255,8 @@ public class SaveManager : MonoBehaviour
             Debug.LogError($"Failed to load settings: {e.Message}");
             _settingsData = new SettingsData(
                 Instance.defaultKeyboardMouseScheme, 
-                Instance.defaultGamepadScheme
+                Instance.defaultGamepadScheme,
+                Instance.defaultVolumeSettings
             );
         }
         
@@ -263,10 +264,10 @@ public class SaveManager : MonoBehaviour
     }
 
 
-    [Button]
+    [DNExtensions.Button.Button(ButtonPlayMode.OnlyWhenPlaying)]
     private static void DeleteSettingsDataAndFile()
     {
-        if (!Application.isPlaying || !_initialized) return;
+        if (!_initialized) return;
 
         try
         {
@@ -275,7 +276,8 @@ public class SaveManager : MonoBehaviour
                 File.Delete(_settingsDataPath);
                 _settingsData = new SettingsData(
                     Instance.defaultKeyboardMouseScheme, 
-                    Instance.defaultGamepadScheme
+                    Instance.defaultGamepadScheme,
+                    Instance.defaultVolumeSettings
                 );
                 Debug.Log("Settings file deleted and reset to default.");
             }
@@ -344,12 +346,21 @@ public class SaveManager : MonoBehaviour
     {
         EnsureInitialized();
         _settingsData.keyboardMouseScheme = newSettings;
+        SaveSettingsDataToFile();
     }
     
     public static void UpdateGamepadControlScheme(ControlSchemeSettings newSettings)
     {
         EnsureInitialized();
         _settingsData.gamepadScheme = newSettings;
+        SaveSettingsDataToFile();
+    }
+
+    public static void UpdateVolumeSettings(VolumeSettings volumeSettings)
+    {
+        EnsureInitialized();
+        _settingsData.volumeSettings = volumeSettings;
+        SaveSettingsDataToFile();
     }
     
     #endregion Public Update Methods ----------------------------------------------------------------------------------------------------------------------
@@ -411,35 +422,28 @@ public class SaveManager : MonoBehaviour
         return _settingsData.gamepadScheme;
     }
     
-    #endregion Progress Getters ----------------------------------------------------------------------------------------------------------------------
-
-
-
-    #region Debug  ----------------------------------------------------------------------------------------------------------------------
-
-    [Button]
-    private void AddCurrency(int amount)
+    public static VolumeSettings GetVolumeSettings()
     {
-        if (!Application.isPlaying) return;
-        
         EnsureInitialized();
-        UpdatePlayerCurrency(GetCurrency() + amount);
-    }
-
-    [Button]
-    private void OpenSaveFolder()
-    {
-        // find save folder
-        string saveFolder = Application.persistentDataPath;
-        System.Diagnostics.Process.Start(saveFolder);
+        return _settingsData.volumeSettings;
     }
     
-    #endregion Debug  ----------------------------------------------------------------------------------------------------------------------
+    #endregion Progress Getters ----------------------------------------------------------------------------------------------------------------------
+
     
     
 #if UNITY_EDITOR
     #region Editor --------------------------------------------------------------------------------------------------------------------------
 
+    
+    [DNExtensions.Button.Button()]
+    private void OpenSaveFolder()
+    {
+        string saveFolder = Application.persistentDataPath;
+        System.Diagnostics.Process.Start(saveFolder);
+    }
+    
+    
     // Force uninitialize in editor when exiting play mode
     private static void ForceUninitialize()
     {

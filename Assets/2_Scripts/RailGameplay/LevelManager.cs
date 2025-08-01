@@ -28,6 +28,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private float startOffset;
     [SerializeField, Tooltip("The smoothness applied when stages have different move speeds")] private float pathFollowSmoothness = 2f;
     [SerializeField, Min(0)] private int bonusThreshold = 50000;
+    [SerializeField] private SOVFEffectsSequence levelExitSequence;
     [SerializeField] private SOLevelStage[] levelStages;
     
     [Header("Debug")]
@@ -301,7 +302,7 @@ public class LevelManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         
-        mainMenuScene?.LoadScene();
+        TransitionManager.TransitionToScene(mainMenuScene, levelExitSequence);
     }
     
 

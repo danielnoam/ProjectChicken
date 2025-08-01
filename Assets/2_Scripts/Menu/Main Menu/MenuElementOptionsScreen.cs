@@ -13,10 +13,14 @@ public class MenuElementOptionsScreen : MenuElement
 {
     [Header("Options Screen")]
     [SerializeField] private CanvasGroup optionsCanvas;
+    [SerializeField] private Button nextPage;
+    [SerializeField] private Button previousPage;
+    [SerializeField] private CanvasGroup[] optionPages = Array.Empty<CanvasGroup>();
     [SerializeField] private Selectable[] selectables = Array.Empty<Selectable>();
     
     private Selectable _currentSelectable;
     private Sequence _optionsCanvasSequence;
+    private int _currentOptionPageIndex;
     
     
     protected override void OnSelected()
@@ -35,6 +39,60 @@ public class MenuElementOptionsScreen : MenuElement
         {
             SetupSelectable(selectable);
         }
+        
+        
+        if (optionPages.Length > 0)
+        {
+            optionPages[0].interactable = true;
+            optionPages[0].blocksRaycasts = true;
+            optionPages[0].alpha = 1;
+            
+            for (var i = 1; i < optionPages.Length; i++)
+            {
+                optionPages[i].interactable = false;
+                optionPages[i].blocksRaycasts = false;
+                optionPages[i].alpha = 0;
+            }
+        }
+        
+        
+        if (nextPage)
+        {
+            nextPage.onClick.AddListener(() =>
+            {
+                if (_currentOptionPageIndex < optionPages.Length - 1)
+                {
+                    optionPages[_currentOptionPageIndex].interactable = false;
+                    optionPages[_currentOptionPageIndex].blocksRaycasts = false;
+                    optionPages[_currentOptionPageIndex].alpha = 0;
+
+                    _currentOptionPageIndex++;
+                    optionPages[_currentOptionPageIndex].interactable = true;
+                    optionPages[_currentOptionPageIndex].blocksRaycasts = true;
+                    optionPages[_currentOptionPageIndex].alpha = 1;
+                }
+            });
+        }
+        
+        if (previousPage)
+        {
+            previousPage.onClick.AddListener(() =>
+            {
+                if (_currentOptionPageIndex > 0)
+                {
+                    optionPages[_currentOptionPageIndex].interactable = false;
+                    optionPages[_currentOptionPageIndex].blocksRaycasts = false;
+                    optionPages[_currentOptionPageIndex].alpha = 0;
+
+                    _currentOptionPageIndex--;
+                    optionPages[_currentOptionPageIndex].interactable = true;
+                    optionPages[_currentOptionPageIndex].blocksRaycasts = true;
+                    optionPages[_currentOptionPageIndex].alpha = 1;
+                }
+            });
+        }
+        
+        
         
         ToggleLevelCanvas(false, false);
     }

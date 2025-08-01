@@ -13,7 +13,8 @@ public class MenuElementLaunchLever : MenuElement
     [SerializeField] private float animationDuration = 0.75f;
     [SerializeField] private Vector3 leverPressedRotation = new Vector3(55f, 0, 0);
     [SerializeField] private Ease animationEase = Ease.Default;
-    [SerializeField] private CameraShakeSettings  cameraShakeSettings;
+    [SerializeField] private CameraShakeSettings cameraShakeSettings;
+    [SerializeField] private ControllerVibrationEffectSettings controllerVibrationSettings;
     
     [Header("Pulse Effect")]
     [SerializeField, ColorUsage(false, true)] private Color emissionColorOn = Color.white;
@@ -111,21 +112,35 @@ public class MenuElementLaunchLever : MenuElement
         if (_leverPressSequence.isAlive) _leverPressSequence.Stop();
         
 
-        if (cinemachineImpulseSource)
-        {
-            cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = cameraShakeSettings.impulseShape;
-            cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = cameraShakeSettings.duration;
-            cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
-            cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
-        }
-
         float delayBeforeAnimation = levelSelection.LaunchMissionMode == LaunchMissionMode.Auto ? 1.5f : 0f;
         
         _leverPressSequence = Sequence.Create()
-                .ChainCallback(() => {controllerVibrationSource.Vibrate(0.1f,0.1f, animationDuration);})
+                .ChainCallback(() =>
+                {
+                    if (cinemachineImpulseSource)
+                    {
+                        cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = cameraShakeSettings.impulseShape;
+                        cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = cameraShakeSettings.duration;
+                        cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+                        cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
+                    }
+
+                    if (controllerVibrationSource)
+                    {
+                        controllerVibrationSource.Vibrate(controllerVibrationSettings);
+                    }
+                })
                 .Group(Tween.LocalRotation(leverPivotTransform,startDelay: delayBeforeAnimation, startValue: _leverStartRot,endValue: leverPressedRotation, duration: animationDuration, ease: animationEase))
-                .ChainCallback(() => leverPressedSfx?.Play(audioSource))
-                .ChainCallback(() => {controllerVibrationSource.Vibrate(0.1f,0.2f, delayBeforeLaunch);})
+                .ChainCallback(() =>
+                {
+                    leverPressedSfx?.Play(audioSource);
+                    if (cinemachineImpulseSource)
+                    {
+                        cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = cameraShakeSettings.impulseShape;
+                        cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = cameraShakeSettings.duration;
+                        cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity*2);
+                    }
+                })
                 .ChainDelay(delayBeforeLaunch)
                 .OnComplete(FinishedInteraction)
             ;
