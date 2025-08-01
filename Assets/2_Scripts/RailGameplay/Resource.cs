@@ -1,24 +1,8 @@
-using System;
 using DNExtensions;
 using KBCore.Refs;
 using UnityEngine;
 using VInspector;
 using PrimeTween;
-
-[System.Serializable]
-public class WeaponChance 
-{
-    public SOWeaponData weaponData;
-    [Range(0, 100)] public int chance = 10;
-    public bool isLocked;
-    public string displayName;
-    
-    public string GetDisplayName()
-    {
-        if (!string.IsNullOrEmpty(displayName)) return displayName;
-        return weaponData ? weaponData.name : "No Weapon";
-    }
-}
 
 
 [SelectionBase]
@@ -28,7 +12,7 @@ public class Resource : MonoBehaviour
 {
     [Header("General Settings")]
     [Tooltip("Time before the resource destroys itself (0 = unlimited time)"), SerializeField, Min(0)] private float lifetime = 8f;
-    [SerializeField, Min(0f)] private Vector2 spawnSpeedRange = new Vector2(50f,60f);
+    [SerializeField, MinMaxRange(30f,60f)] private RangedFloat spawnSpeedRange = new (50f,60f);
     [SerializeField, Min(0f)] private float splineMovementSpeed = 3f;
     [SerializeField, Min(0.1f)] private float deceleration = 4f;
     [SerializeField, Min(0.1f)] private float acceleration = 12f;
@@ -62,14 +46,13 @@ public class Resource : MonoBehaviour
     private Transform _playerTransform;
     private bool _isMagnetized;
     private float _currentLifetime;
+    private float _movementBoundaryX;
+    private float _movementBoundaryY;
     private Vector3 _rotationAxis;
     private Sequence _scaleAnimation;
     private Vector3 _currentVelocity;
     private Vector3 _targetVelocity;
     private Quaternion _splineRotation = Quaternion.identity;
-    
-    private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
-    private float MovementBoundaryY => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
     
     public ResourceType ResourceType => resourceType;
     public int ScoreWorth => scoreWorth;
@@ -79,7 +62,6 @@ public class Resource : MonoBehaviour
     public SOWeaponData WeaponData { get; private set;}
 
     
-    
     private void OnValidate()
     {
         this.ValidateRefs();
@@ -88,9 +70,8 @@ public class Resource : MonoBehaviour
 
     private void Awake()
     {
-        Initialize();
+        Setup();
     }
-    
 
     private void Update()
     {
@@ -131,8 +112,6 @@ public class Resource : MonoBehaviour
     {
         _isMagnetized = true;
         _playerTransform = playerTransform;
-    
-
         PlayMagnetizedEffects();
     }
     
@@ -149,25 +128,27 @@ public class Resource : MonoBehaviour
         Destroy(gameObject);
     }
     
-    private void Initialize()
+    private void Setup()
     {
         _currentLifetime = lifetime;
         _isMagnetized = false;
         _playerTransform = null;
+        _movementBoundaryX = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
+        _movementBoundaryY = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
         
-        _rotationAxis = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized;
+        _rotationAxis = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
         
         if (resourceType == ResourceType.SpecialWeapon && weapons.Count > 0)
         {
             WeaponData = weapons.GetRandomItem();
         }
         
-        Vector2 randomDir = UnityEngine.Random.insideUnitCircle.normalized;
-        float randomSpeed = UnityEngine.Random.Range(spawnSpeedRange.x, spawnSpeedRange.y);
+        float randomSpeed = spawnSpeedRange.RandomValue;
+        Vector2 randomDir = Random.insideUnitCircle.normalized;
         Vector3 localVelocity = new Vector3(randomDir.x, randomDir.y, 0f) * randomSpeed;
         _currentVelocity = _splineRotation * localVelocity;
         _targetVelocity = Vector3.zero;
-        resourceGfx.eulerAngles = new Vector3(UnityEngine.Random.Range(0f, 360f), UnityEngine.Random.Range(0f, 360f), UnityEngine.Random.Range(0f, 360f));
+        resourceGfx.eulerAngles = new Vector3(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
         
         PlaySpawnEffects();
     }
@@ -192,13 +173,6 @@ public class Resource : MonoBehaviour
         _splineRotation = splineForward != Vector3.zero ? Quaternion.LookRotation(splineForward, Vector3.up) : Quaternion.identity;
     }
     
-    
-    private void RotateGfx()
-    {
-        if (rotationSpeed <= 0f) return;
-        
-        resourceGfx.Rotate(_rotationAxis, rotationSpeed * Time.deltaTime, Space.Self);
-    }
 
 
     private void HandleMovement()
@@ -233,13 +207,13 @@ public class Resource : MonoBehaviour
         Vector3 proposedLocalOffset = Quaternion.Inverse(_splineRotation) * proposedWorldOffset;
         
         // Clamp to boundaries (but allow Z movement for spline progression)
-        proposedLocalOffset.x = Mathf.Clamp(proposedLocalOffset.x, -MovementBoundaryX, MovementBoundaryX);
-        proposedLocalOffset.y = Mathf.Clamp(proposedLocalOffset.y, -MovementBoundaryY, MovementBoundaryY);
+        proposedLocalOffset.x = Mathf.Clamp(proposedLocalOffset.x, -_movementBoundaryX, _movementBoundaryX);
+        proposedLocalOffset.y = Mathf.Clamp(proposedLocalOffset.y, -_movementBoundaryY, _movementBoundaryY);
         // Don't clamp Z - let it move freely along the spline
         
         // Handle boundary collisions
-        bool hitBoundaryX = Mathf.Abs(proposedLocalOffset.x) >= MovementBoundaryX * 0.99f;
-        bool hitBoundaryY = Mathf.Abs(proposedLocalOffset.y) >= MovementBoundaryY * 0.99f;
+        bool hitBoundaryX = Mathf.Abs(proposedLocalOffset.x) >= _movementBoundaryX * 0.99f;
+        bool hitBoundaryY = Mathf.Abs(proposedLocalOffset.y) >= _movementBoundaryY * 0.99f;
         
         if (hitBoundaryX || hitBoundaryY)
         {
@@ -273,6 +247,13 @@ public class Resource : MonoBehaviour
 
     #region Effects ---------------------------------------------------------------------------------------
 
+    
+    private void RotateGfx()
+    {
+        if (rotationSpeed <= 0f) return;
+        
+        resourceGfx.Rotate(_rotationAxis, rotationSpeed * Time.deltaTime, Space.Self);
+    }
 
     private void PlaySpawnEffects()
     {
