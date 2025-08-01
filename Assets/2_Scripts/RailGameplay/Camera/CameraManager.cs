@@ -51,6 +51,7 @@ public class CameraManager : MonoBehaviour
     private Vector3 _currentFollowOffset;
     private Vector2 _currentRotationOffset;
     private Coroutine  _changePositionCoroutine;
+    private CinemachineCamera _activeCamera;
     private float _defaultFov;
 
     private void OnValidate()
@@ -136,9 +137,11 @@ public class CameraManager : MonoBehaviour
 
     private void SetActiveCamera(CinemachineCamera cam)
     {
-        if (!cam) return;
+        if (!cam || cam == _activeCamera) return;
+
+        _activeCamera = cam;
         
-        if (cam == followCamera && followCameraRotateExtenstion)
+        if (_activeCamera == followCamera && followCameraRotateExtenstion)
         {
             followCameraRotateExtenstion.SetRotationOffset(Vector3.zero);
             _currentRotationOffset = Vector2.zero;
@@ -150,9 +153,9 @@ public class CameraManager : MonoBehaviour
         introCamera.Priority = 0;
         outroCamera.Priority = 0;
 
-        cam.Priority = 10;
+        _activeCamera.Priority = 10;
 
-        if (cam == introCamera && changePositions)
+        if (_activeCamera == introCamera && changePositions)
         {
             _changePositionCoroutine = StartCoroutine(ChangeCameraPosition(introCamera));
         }

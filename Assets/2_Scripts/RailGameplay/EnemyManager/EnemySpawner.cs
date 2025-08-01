@@ -4,20 +4,23 @@ using DNExtensions;
 using UnityEngine;
 
 
-public class EnemyWaveSpawner : MonoBehaviour
+public class EnemySpawner : MonoBehaviour
 {
-    public static EnemyWaveSpawner Instance { get; private set; }
+    public static EnemySpawner Instance { get; private set; }
     
     [Header("References")]
+    [SerializeField] private Transform enemySpawnPosition;
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private RailPlayer player;
 
     
-    private SOLevelStage _currentStage;
     private readonly HashSet<ChickenController> _activeEnemies = new HashSet<ChickenController>();
+    private SOLevelStage _currentStage;
 
-
+    
     public int ActiveEnemyCount => _activeEnemies.Count;
+    
+    
     public event Action OnEnemyWaveSpawned;
     public event Action<int> OnEnemyWaveCleared;
     public event Action<ChickenController> OnEnemyDeath;
@@ -142,7 +145,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         var enemyObject = ObjectPooler.GetObjectFromPool(enemyPrefab.gameObject);
         if (enemyObject.TryGetComponent<ChickenController>(out var enemy))
         {
-            enemy.transform.localPosition = Vector3.zero;
+            enemy.transform.localPosition = enemySpawnPosition ? enemySpawnPosition.position : Vector3.zero;
             enemy.transform.localRotation = Quaternion.identity;
             enemy.OnDeath += UpdateEnemyCount;
             _activeEnemies.Add(enemy);

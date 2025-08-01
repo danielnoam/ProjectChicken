@@ -142,47 +142,4 @@ public class ProjectileManager : MonoBehaviour
         
         Debug.Log("All projectiles cleared!");
     }
-    
-    // Debug method to show projectile info
-    [Button]
-    private void DebugProjectileInfo()
-    {
-        CleanupNullProjectiles();
-        Debug.Log($"=== Projectile Manager Debug ===");
-        Debug.Log($"Current Count: {currentProjectileCount}/{maxProjectiles}");
-        Debug.Log($"Can Spawn New: {CanSpawnProjectile()}");
-        
-        if (activeProjectiles.Count > 0)
-        {
-            Debug.Log("Active Projectiles:");
-            for (int i = 0; i < activeProjectiles.Count; i++)
-            {
-                if (activeProjectiles[i] != null)
-                {
-                    // Debug.Log($"  [{i}] {activeProjectiles[i].name} at {activeProjectiles[i].transform.position}");
-                }
-            }
-        }
-    }
-    
-    private void OnDrawGizmos()
-    {
-        if (!Application.isPlaying) return;
-        
-        // Draw active projectiles
-        Gizmos.color = Color.red;
-        foreach (var projectile in activeProjectiles)
-        {
-            if (projectile != null)
-            {
-                Gizmos.DrawWireSphere(projectile.transform.position, 0.3f);
-            }
-        }
-        
-        #if UNITY_EDITOR
-        // Show count in scene view
-        Vector3 labelPos = transform.position + Vector3.up * 2f;
-        UnityEditor.Handles.Label(labelPos, $"Projectiles: {currentProjectileCount}/{maxProjectiles}");
-        #endif
-    }
 }

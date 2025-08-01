@@ -6,34 +6,30 @@ using PrimeTween;
 
 
 [SelectionBase]
-[RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(AudioSource))]
 public class Resource : MonoBehaviour
 {
-    [Header("General Settings")]
-    [Tooltip("Time before the resource destroys itself (0 = unlimited time)"), SerializeField, Min(0)] private float lifetime = 8f;
-    [SerializeField, MinMaxRange(30f,60f)] private RangedFloat spawnSpeedRange = new (50f,60f);
-    [SerializeField, Min(0f)] private float splineMovementSpeed = 3f;
-    [SerializeField, Min(0.1f)] private float deceleration = 4f;
+    [Header("Movement")]
     [SerializeField, Min(0.1f)] private float acceleration = 12f;
+    [SerializeField, Min(0f)] private float moveToBoundarySpeed = 3f;
+    [SerializeField, Min(0f)] private float followBoundarySpeed = 15f;
     [SerializeField, Min(0f)] private float magnetizedSpeed = 25f;
-    [SerializeField, Min(0)] private float rotationSpeed = 45f;
-    [SerializeField] private Transform resourceGfx;
-    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
-    [SerializeField, Self, HideInInspector] private Rigidbody rigidBody;
-
     
     [Header("Effects")]
     [SerializeField] private SOAudioEvent spawnSfx;
     [SerializeField] private ParticleSystem spawnEffect;
     [SerializeField] private SOAudioEvent collectionSfx;
     [SerializeField] private ParticleSystem collectionEffect;
+    [SerializeField] private Transform resourceGfx;
+    [SerializeField, Min(0)] private float rotationSpeed = 45f;
     [SerializeField] private float spawnAnimationDuration = 1f;
     [SerializeField] private float despawnAnimationDuration = 2f;
     [SerializeField] private float magnetizedPunchStrength = 1f;
     [SerializeField] private float magnetizedPunchDuration = 0.5f;
+    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     
-    [Header("Resource Settings")]
+    [Header("Resource")]
+    [Tooltip("Time before the resource destroys itself (0 = unlimited time)"), SerializeField, Min(0)] private float lifetime = 8f;
     [SerializeField, Min(0)] private int scoreWorth = 50;
     [SerializeField] private ResourceType resourceType;
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
@@ -43,8 +39,9 @@ public class Resource : MonoBehaviour
     
     
 
+    
+    private ResourceMovementState _currentState;
     private Transform _playerTransform;
-    private bool _isMagnetized;
     private float _currentLifetime;
     private float _movementBoundaryX;
     private float _movementBoundaryY;
@@ -53,6 +50,14 @@ public class Resource : MonoBehaviour
     private Vector3 _currentVelocity;
     private Vector3 _targetVelocity;
     private Quaternion _splineRotation = Quaternion.identity;
+    private Vector3 _targetOffsetFromSpline;
+    private Vector3 _currentBoundaryTargetPosition;
+    private enum ResourceMovementState
+    {
+        MovingToBoundary,
+        FollowingBoundary,
+        Magnetized
+    }
     
     public ResourceType ResourceType => resourceType;
     public int ScoreWorth => scoreWorth;
@@ -60,6 +65,7 @@ public class Resource : MonoBehaviour
     public int ShieldWorth => shieldWorth;
     public int CurrencyWorth => currencyWorth;
     public SOWeaponData WeaponData { get; private set;}
+
 
     
     private void OnValidate()
@@ -78,10 +84,7 @@ public class Resource : MonoBehaviour
         CheckLifetime();
         RotateGfx();
         UpdateSplineRotation();
-    }
-    
-    private void FixedUpdate()
-    {
+        UpdateBoundaryTargetPosition();
         HandleMovement();
     }
 
@@ -93,7 +96,7 @@ public class Resource : MonoBehaviour
 
     private void CheckLifetime()
     {
-        if (lifetime <= 0f || _isMagnetized) return;
+        if (lifetime <= 0f || _currentState != ResourceMovementState.FollowingBoundary) return;
 
         _currentLifetime -= Time.deltaTime;
         
@@ -110,7 +113,7 @@ public class Resource : MonoBehaviour
 
     public void SetMagnetized(Transform playerTransform)
     {
-        _isMagnetized = true;
+        _currentState = ResourceMovementState.Magnetized;
         _playerTransform = playerTransform;
         PlayMagnetizedEffects();
     }
@@ -118,7 +121,7 @@ public class Resource : MonoBehaviour
     
     public void ReleaseFromMagnetization()
     {
-        _isMagnetized = false;
+        _currentState = ResourceMovementState.FollowingBoundary;
         _playerTransform = null;
     }
     
@@ -130,29 +133,38 @@ public class Resource : MonoBehaviour
     
     private void Setup()
     {
+        _currentState = ResourceMovementState.MovingToBoundary;
         _currentLifetime = lifetime;
-        _isMagnetized = false;
         _playerTransform = null;
         _movementBoundaryX = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
         _movementBoundaryY = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
-        
-        _rotationAxis = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
-        
         if (resourceType == ResourceType.SpecialWeapon && weapons.Count > 0)
         {
             WeaponData = weapons.GetRandomItem();
         }
+        _currentVelocity = Vector3.zero;
         
-        float randomSpeed = spawnSpeedRange.RandomValue;
-        Vector2 randomDir = Random.insideUnitCircle.normalized;
-        Vector3 localVelocity = new Vector3(randomDir.x, randomDir.y, 0f) * randomSpeed;
-        _currentVelocity = _splineRotation * localVelocity;
-        _targetVelocity = Vector3.zero;
-        resourceGfx.eulerAngles = new Vector3(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
+
+
+        if (LevelManager.Instance)
+        {
+            _movementBoundaryX = LevelManager.Instance.PlayerBoundary.x;
+            _movementBoundaryY = LevelManager.Instance.PlayerBoundary.y;
+           float randomX = Random.Range(-_movementBoundaryX, _movementBoundaryX);
+           float randomY = Random.Range(-_movementBoundaryY, _movementBoundaryY);
+           _targetOffsetFromSpline = new Vector3(randomX, randomY, 0f);
+           UpdateBoundaryTargetPosition(); 
+        }
         
         PlaySpawnEffects();
+
     }
     
+    private void UpdateBoundaryTargetPosition()
+    {
+        if (!LevelManager.Instance) return;
+        _currentBoundaryTargetPosition = LevelManager.Instance.PlayerPosition + (_splineRotation * _targetOffsetFromSpline);
+    }
 
 
     #endregion State Management ---------------------------------------------------------------------------------------
@@ -177,70 +189,59 @@ public class Resource : MonoBehaviour
 
     private void HandleMovement()
     {
-        if (!LevelManager.Instance) return;
-        
-        // Get current spline position and move backwards along it
-        Vector3 currentSplinePosition = LevelManager.Instance.CurrentPositionOnPath.position;
-        Vector3 backwardDirection = -LevelManager.Instance.GetSplineTangentAtPosition(currentSplinePosition);
-        
-        // Calculate spline velocity (not movement)
-        Vector3 splineVelocity = backwardDirection * splineMovementSpeed;
-        
-        if (_isMagnetized && _playerTransform)
+        switch (_currentState)
         {
-            Vector3 directionToPlayer = (_playerTransform.position - transform.position).normalized;
-            _targetVelocity = directionToPlayer * magnetizedSpeed;
-            _currentVelocity = Vector3.Lerp(_currentVelocity, _targetVelocity, acceleration * Time.fixedDeltaTime);
-        }
-        else
-        {
-            _currentVelocity = Vector3.Lerp(_currentVelocity, Vector3.zero, deceleration * Time.fixedDeltaTime);
-            if (_currentVelocity.magnitude < 0.1f)
-            {
-                _currentVelocity = Vector3.zero;
-            }
+            case ResourceMovementState.MovingToBoundary:
+                HandleMovingToBoundary();
+                break;
+            case ResourceMovementState.FollowingBoundary:
+                HandleFollowingBoundary();
+                break;
+            case ResourceMovementState.Magnetized:
+                HandleMagnetizedMovement();
+                break;
         }
         
-        // Calculate proposed position (current movement + spline movement)
-        Vector3 proposedPosition = transform.position + ((_currentVelocity + splineVelocity) * Time.fixedDeltaTime);
-        Vector3 proposedWorldOffset = proposedPosition - currentSplinePosition;
-        Vector3 proposedLocalOffset = Quaternion.Inverse(_splineRotation) * proposedWorldOffset;
+        transform.position += _currentVelocity * Time.deltaTime;
+    }
+    
+    private void HandleMovingToBoundary()
+    {
+        Vector3 directionToTarget = (_currentBoundaryTargetPosition - transform.position).normalized;
         
-        // Clamp to boundaries (but allow Z movement for spline progression)
-        proposedLocalOffset.x = Mathf.Clamp(proposedLocalOffset.x, -_movementBoundaryX, _movementBoundaryX);
-        proposedLocalOffset.y = Mathf.Clamp(proposedLocalOffset.y, -_movementBoundaryY, _movementBoundaryY);
-        // Don't clamp Z - let it move freely along the spline
+        _targetVelocity = directionToTarget * moveToBoundarySpeed;
+        _currentVelocity = Vector3.Lerp(_currentVelocity, _targetVelocity, acceleration * Time.deltaTime);
         
-        // Handle boundary collisions
-        bool hitBoundaryX = Mathf.Abs(proposedLocalOffset.x) >= _movementBoundaryX * 0.99f;
-        bool hitBoundaryY = Mathf.Abs(proposedLocalOffset.y) >= _movementBoundaryY * 0.99f;
-        
-        if (hitBoundaryX || hitBoundaryY)
+        float distanceToTarget = Vector3.Distance(transform.position, _currentBoundaryTargetPosition);
+        if (distanceToTarget < 3f)
         {
-            Vector3 localVelocity = Quaternion.Inverse(_splineRotation) * _currentVelocity;
-            
-            if (hitBoundaryX)
-            {
-                localVelocity.x *= -0.5f;
-            }
-            if (hitBoundaryY)
-            {
-                localVelocity.y *= -0.5f;
-            }
-            
-            _currentVelocity = _splineRotation * localVelocity;
+            _currentState = ResourceMovementState.FollowingBoundary;
         }
-        
-        // Calculate final world position and set the rigidbody velocity
-        Vector3 constrainedWorldPosition = currentSplinePosition + (_splineRotation * proposedLocalOffset);
-        Vector3 positionDifference = constrainedWorldPosition - transform.position;
-        
-        // Combine the position correction with spline velocity
-        Vector3 finalVelocity = (positionDifference / Time.fixedDeltaTime) + splineVelocity;
-        rigidBody.linearVelocity = finalVelocity;
-        rigidBody.rotation = _splineRotation;
     }
 
+    private void HandleFollowingBoundary()
+    {
+        Vector3 directionToTarget = (_currentBoundaryTargetPosition - transform.position).normalized;
+        
+        _targetVelocity = directionToTarget * followBoundarySpeed;
+        _currentVelocity = Vector3.Lerp(_currentVelocity, _targetVelocity, acceleration * Time.deltaTime);
+        
+        float distanceToTarget = Vector3.Distance(transform.position, _currentBoundaryTargetPosition);
+        if (distanceToTarget > 3f)
+        {
+            _currentState = ResourceMovementState.MovingToBoundary;
+        }
+    }
+
+    private void HandleMagnetizedMovement()
+    {
+        if (!_playerTransform) return;
+        
+        Vector3 directionToPlayer = (_playerTransform.position - transform.position).normalized;
+        _targetVelocity = directionToPlayer * magnetizedSpeed;
+        _currentVelocity = Vector3.Lerp(_currentVelocity, _targetVelocity, acceleration * Time.deltaTime);
+    }
+    
     #endregion Movement ---------------------------------------------------------------------------------------
     
     
@@ -257,6 +258,9 @@ public class Resource : MonoBehaviour
 
     private void PlaySpawnEffects()
     {
+        _rotationAxis = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
+        resourceGfx.eulerAngles = new Vector3(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
+        
         if (spawnSfx)
         {
             spawnSfx.Play(audioSource);
@@ -305,5 +309,15 @@ public class Resource : MonoBehaviour
     #endregion Effects ---------------------------------------------------------------------------------------
 
     
+    private void OnDrawGizmos()
+    {
+        // Draw the current boundary target position
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(_currentBoundaryTargetPosition, 1.5f);
+    
+        // Optional: Draw a line from the resource to the target
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(transform.position, _currentBoundaryTargetPosition);
+    }
  
 }

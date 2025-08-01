@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using KBCore.Refs;
+using UnityEngine;
 using VInspector;
 
 public class ResourceManager : MonoBehaviour
@@ -6,31 +7,33 @@ public class ResourceManager : MonoBehaviour
     
     [Header("References")] 
     [SerializeField] private LevelManager levelManager;
-    [SerializeField] private EnemyWaveSpawner enemyWaveSpawner;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
+    [SerializeField] private Transform resourceHolder;
     [SerializeField] private SOLootTable debugTable;
     
     private void OnValidate()
     {
-        if (!enemyWaveSpawner)
+        if (!enemySpawner)
         {
-            enemyWaveSpawner = FindFirstObjectByType<EnemyWaveSpawner>();
+            enemySpawner = FindFirstObjectByType<EnemySpawner>();
         }
+        this.ValidateRefs();
     }
     
     
     private void OnEnable()
     {
-        if (enemyWaveSpawner)
+        if (enemySpawner)
         {
-            enemyWaveSpawner.OnEnemyDeath += OnEnemyDeath;
+            enemySpawner.OnEnemyDeath += OnEnemyDeath;
         }
     }
 
     private void OnDisable()
     {
-        if (enemyWaveSpawner)
+        if (enemySpawner)
         {
-            enemyWaveSpawner.OnEnemyDeath -= OnEnemyDeath;
+            enemySpawner.OnEnemyDeath -= OnEnemyDeath;
         }
     }
 
@@ -38,7 +41,7 @@ public class ResourceManager : MonoBehaviour
     {
         if (!enemy  || !enemy.LootTable) return;
 
-        SpawnResource(enemy.LootTable.RandomResource, enemy.transform.position, transform);
+        SpawnResource(enemy.LootTable.RandomResource, enemy.transform.position, resourceHolder);
     }
     
     

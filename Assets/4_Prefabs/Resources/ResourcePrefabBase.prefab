@@ -40,7 +40,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 940408246834933977}
-  - component: {fileID: -447964021878340129}
   - component: {fileID: 6884096628715778134}
   - component: {fileID: 5688379921436340923}
   - component: {fileID: 1281269661393319534}
@@ -67,33 +66,6 @@ Transform:
   - {fileID: 182738610769909749}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &-447964021878340129
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3909718786344204849}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 2
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!82 &6884096628715778134
 AudioSource:
   m_ObjectHideFlags: 0
@@ -224,13 +196,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c1fcc4f70b9fd2218d4d520733ce59a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifetime: 15
-  spawnSpeedRange: {x: 20, y: 40}
-  splineMovementSpeed: 6
-  deceleration: 4
-  acceleration: 12
-  magnetizedSpeed: 25
+  acceleration: 6
+  moveToBoundarySpeed: 10
+  followBoundarySpeed: 10
+  magnetizedSpeed: 20
+  spawnSfx: {fileID: 0}
+  spawnEffect: {fileID: 0}
+  collectionSfx: {fileID: 11400000, guid: 2cd4f70089f86f84aba38d1deb14b0e8, type: 2}
+  collectionEffect: {fileID: 0}
+  resourceGfx: {fileID: 182738610769909749}
   rotationSpeed: 45
+  spawnAnimationDuration: 1
+  despawnAnimationDuration: 2
+  magnetizedPunchStrength: 1
+  magnetizedPunchDuration: 0.5
+  audioSource: {fileID: 6884096628715778134}
+  lifetime: 7
   scoreWorth: 50
   resourceType: 0
   currencyWorth: 1
@@ -238,14 +219,3 @@ MonoBehaviour:
   shieldWorth: 50
   weapons:
     internalItems: []
-  spawnSfx: {fileID: 0}
-  spawnEffect: {fileID: 0}
-  collectionSfx: {fileID: 11400000, guid: 2cd4f70089f86f84aba38d1deb14b0e8, type: 2}
-  collectionEffect: {fileID: 0}
-  spawnAnimationDuration: 1
-  despawnAnimationDuration: 2
-  magnetizedPunchStrength: 1
-  magnetizedPunchDuration: 0.5
-  resourceGfx: {fileID: 182738610769909749}
-  audioSource: {fileID: 6884096628715778134}
-  rigidBody: {fileID: -447964021878340129}

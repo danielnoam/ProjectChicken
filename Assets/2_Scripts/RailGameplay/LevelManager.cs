@@ -41,7 +41,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private SceneField mainMenuScene;
     [SerializeField] private SOVFEffectsSequence introVFXSequence;
     [SerializeField] private Transform currentPositionOnPath;
-    [SerializeField] private EnemyWaveSpawner enemyWaveSpawner;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField] private RailPlayer player;
     
 
@@ -50,18 +50,18 @@ public class LevelManager : MonoBehaviour
     private bool _settingStageFlag;
     private int _bonusThresholdCounter;
     private SavePointInformation _currentSavePoint;
+    private int _currentScore;
     
     public Vector3 PlayerPosition { get; private set; }
     public Vector3 EnemyPosition { get; private set; }
     public float SplineLength { get; private set; }
     public SplinePath <Spline> SplinePath  { get; private set; }
-    public int Score { get; private set; }
+    
     public Vector2 PlayerBoundary => playerBoundary;
     public Vector2 EnemyBoundary => enemyBoundary;
     public Transform CurrentPositionOnPath => currentPositionOnPath;
 
-
-
+    
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
     public event Action OnBonusThresholdReached;
@@ -72,17 +72,17 @@ public class LevelManager : MonoBehaviour
     private void OnValidate()
     {
 
+        this.ValidateRefs();
+        
         if (!player)
         {
             player = FindFirstObjectByType<RailPlayer>();
         }
-
-        if (!enemyWaveSpawner)
+        
+        if (!enemySpawner)
         {
-            enemyWaveSpawner = FindFirstObjectByType<EnemyWaveSpawner>();
+            enemySpawner = FindFirstObjectByType<EnemySpawner>();
         }
-        
-        
         
         if (Application.isPlaying) return;
         
@@ -126,11 +126,11 @@ public class LevelManager : MonoBehaviour
 
     private void OnEnable()
     {
-        if (enemyWaveSpawner)
+        if (enemySpawner)
         {
-            enemyWaveSpawner.OnEnemyWaveSpawned += OnEnemyWaveSpawned;
-            enemyWaveSpawner.OnEnemyWaveCleared += OnEnemyWaveCleared;
-            enemyWaveSpawner.OnEnemyDeath += OnEnemyDeath;
+            enemySpawner.OnEnemyWaveSpawned += EnemySpawned;
+            enemySpawner.OnEnemyWaveCleared += EnemyCleared;
+            enemySpawner.OnEnemyDeath += OnEnemyDeath;
         }
 
         if (player)
@@ -143,11 +143,11 @@ public class LevelManager : MonoBehaviour
     
     private void OnDisable()
     {
-        if (enemyWaveSpawner)
+        if (enemySpawner)
         {
-            enemyWaveSpawner.OnEnemyWaveSpawned -= OnEnemyWaveSpawned;
-            enemyWaveSpawner.OnEnemyWaveCleared -= OnEnemyWaveCleared;
-            enemyWaveSpawner.OnEnemyDeath -= OnEnemyDeath;
+            enemySpawner.OnEnemyWaveSpawned -= EnemySpawned;
+            enemySpawner.OnEnemyWaveCleared -= EnemyCleared;
+            enemySpawner.OnEnemyDeath -= OnEnemyDeath;
         }
         
         if (player)
@@ -166,7 +166,7 @@ public class LevelManager : MonoBehaviour
 
     
     
-    private void OnEnemyWaveCleared(int scoreWorth)
+    private void EnemyCleared(int scoreWorth)
     {
         if (!currentStage || currentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
         
@@ -175,14 +175,14 @@ public class LevelManager : MonoBehaviour
         SetNextStage(currentStage.DelayBeforeNextStage);
     }
     
-    private void OnEnemyWaveSpawned()
+    private void EnemySpawned()
     {
-        enemiesLeft = enemyWaveSpawner.ActiveEnemyCount;
+        enemiesLeft = enemySpawner.ActiveEnemyCount;
     }
 
     private void OnEnemyDeath(ChickenController enemy)
     {
-        enemiesLeft = enemyWaveSpawner.ActiveEnemyCount;
+        enemiesLeft = enemySpawner.ActiveEnemyCount;
         AddScore(enemy.ScoreValue);
     }
 
@@ -275,7 +275,7 @@ public class LevelManager : MonoBehaviour
             if (newStage.StageType == StageType.Outro)
             {
                 StartCoroutine(ReturnToMainMenu(newStage.StageDuration));
-                SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, Score);
+                SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, _currentScore);
             }
             else
             {
@@ -313,8 +313,8 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(5f);
         
         SetStage(_currentSavePoint.StageIndex);
-        Score = _currentSavePoint.Score;
-        OnScoreChanged?.Invoke(Score);
+        _currentScore = _currentSavePoint.Score;
+        OnScoreChanged?.Invoke(_currentScore);
         OnRestartedFromSavePoint?.Invoke(_currentSavePoint);
     }
 
@@ -326,7 +326,7 @@ public class LevelManager : MonoBehaviour
         
         var newSavePoint = new SavePointInformation(
             currentStageIndex,
-            Score, 
+            _currentScore, 
             player.CurrentHealth, 
             player.CurrentShieldHealth, 
             player.CurrentCurrency, 
@@ -426,10 +426,10 @@ public class LevelManager : MonoBehaviour
 
     private void AddScore(int score)
     {
-        Score += score;
+        _currentScore += score;
         _bonusThresholdCounter -= score;
         
-        OnScoreChanged?.Invoke(Score);
+        OnScoreChanged?.Invoke(_currentScore);
         
         if (_bonusThresholdCounter <= 0)
         {
@@ -441,10 +441,10 @@ public class LevelManager : MonoBehaviour
 
     private void ResetScore()
     {
-        Score = 0;
+        _currentScore = 0;
         _bonusThresholdCounter = bonusThreshold;
         
-        OnScoreChanged?.Invoke(Score);
+        OnScoreChanged?.Invoke(_currentScore);
     }
     
     private void OnPlayerCollectedResource(Resource resource)

@@ -1,9 +1,9 @@
-using System;
+
 using DNExtensions;
 using UnityEngine;
 using VInspector;
-using Random = System.Random;
 
+[SelectionBase]
 public class Asteroid : MonoBehaviour
 {
 
@@ -13,11 +13,17 @@ public class Asteroid : MonoBehaviour
     [SerializeField,MinMaxRange(0.5f,2f)] private RangedFloat sizeMultiplierRange = new(0.5f,2);
     [SerializeField] private bool randomizeRotationOnAwake;
     [SerializeField,MinMaxRange(0, 360)] private RangedFloat rotationRange = new(0, 360);
-
+    [SerializeField] private bool randomizeShapeOnAwake;
+    [SerializeField,MinMaxRange(0.5f,2f)] private RangedFloat shapeMultiplierRange = new(0.5f,2);
+    
+    
+    
     [Space(10)]
     [SerializeField] private bool rotate = true;
     [SerializeField] private float rotationSpeed = 15f;
 
+    [Header("References")]
+    [SerializeField] private Transform shapeTransform;
 
     private Vector3 _rotationDirection;
     
@@ -25,7 +31,8 @@ public class Asteroid : MonoBehaviour
     {
         if (randomizeSizeOnAwake) RandomizeSize();
         if (randomizeRotationOnAwake) RandomizeRotation();
-        if (rotate) _rotationDirection  = UnityEngine.Random.onUnitSphere;
+        if (randomizeShapeOnAwake) RandomizeShape();
+        if (rotate) _rotationDirection  = Random.onUnitSphere;
     }
 
     private void Update()
@@ -37,18 +44,18 @@ public class Asteroid : MonoBehaviour
     [Button]
     private void RandomizeSize()
     {
-        transform.localScale = Vector3.one * UnityEngine.Random.Range(sizeMultiplierRange.minValue, sizeMultiplierRange.maxValue);
+        transform.localScale = Vector3.one * Random.Range(sizeMultiplierRange.minValue, sizeMultiplierRange.maxValue);
+    }
+    
+    [Button]
+    private void RandomizeShape()
+    {
+        shapeTransform.localScale = new Vector3(Random.Range(shapeMultiplierRange.minValue, shapeMultiplierRange.maxValue),Random.Range(shapeMultiplierRange.minValue, shapeMultiplierRange.maxValue),Random.Range(shapeMultiplierRange.minValue, shapeMultiplierRange.maxValue)) ;
     }
 
     [Button]
     private void RandomizeRotation()
     {
-        transform.eulerAngles = Vector3.one * UnityEngine.Random.Range(rotationRange.minValue, rotationRange.maxValue);
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        
-        Gizmos.DrawWireSphere(transform.position, 8f * sizeMultiplierRange.maxValue);
+        transform.eulerAngles = Vector3.one * Random.Range(rotationRange.minValue, rotationRange.maxValue);
     }
 }
