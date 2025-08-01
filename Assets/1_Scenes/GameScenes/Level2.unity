@@ -3824,6 +3824,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: RailPlayer
       objectReference: {fileID: 0}
+    - target: {fileID: 8438971806570489096, guid: 0dc27c5e616b3bc4d89d1e222c4dae5d, type: 3}
+      propertyPath: storeManager
+      value: 
+      objectReference: {fileID: 4228898283931628019}
     - target: {fileID: 8474555558549935190, guid: 0dc27c5e616b3bc4d89d1e222c4dae5d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -4146,6 +4150,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66b5b163cee51194294655b38566b6a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4228898283931628019 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 256200700815906792, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
+  m_PrefabInstance: {fileID: 4228898283931628017}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d6df7ab4f1fd27458ffde335894e8a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &4683440511036258418

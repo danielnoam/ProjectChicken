@@ -14,11 +14,11 @@ public class InputReaderBase : MonoBehaviour
     [SerializeField, Self, HideInInspector] protected PlayerInput playerInput;
     
     
-    private void OnValidate() { this.ValidateRefs(); }
+    protected virtual void OnValidate() { this.ValidateRefs(); }
 
     protected virtual void Awake()
     {
-        SetCursorVisibility(hideCursor);
+        SetCursorVisibility(!hideCursor);
     }
 
 
@@ -42,17 +42,18 @@ public class InputReaderBase : MonoBehaviour
     
     
     
-    private void SetCursorVisibility(bool state)
+    protected void SetCursorVisibility(bool state)
     {
         if (state)
         {
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
         }
         else
         {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = false;
         }
     }
     

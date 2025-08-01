@@ -253,22 +253,22 @@ public class UIManager : MonoBehaviour
         {
             case StageType.Intro:
                 FadeHUD(false);
-                FadeKeybinds(false);
                 break;
             case StageType.Outro:
                 FadeHUD(false);
-                FadeKeybinds(false);
                 break;
             case StageType.Checkpoint:
                 FadeHUD(true);
-                FadeKeybinds(stage.ShowPlayerKeybinds);
                 break;
             case StageType.EnemyWave:
                 FadeHUD(true);
-                FadeKeybinds(stage.ShowPlayerKeybinds);
+                break;
+            case StageType.Store:
+                FadeHUD(false);
                 break;
         }
         
+        FadeKeybinds(stage.ShowPlayerKeybinds);
         UpdateStageTitle(stage.StageTitle);
     }
     
@@ -325,20 +325,14 @@ public class UIManager : MonoBehaviour
     
     private void UpdateStageTitle(string title)
     {
+        if (_waveTitleSequence.isAlive) _waveTitleSequence.Stop();
+            
+        waveTitleText.alpha = 0f;
+        waveTitleText.text = title;
         
-        if (title == "" && _waveTitleSequence.isAlive)
-        {
-            _waveTitleSequence.OnComplete(() => waveTitleText.text = title);
-        }
-        else
-        {
-            if (_waveTitleSequence.isAlive) _waveTitleSequence.Stop();
-            waveTitleText.text = title;
-            _waveTitleSequence = Sequence.Create()
-                .Group(Tween.Alpha(waveTitleText, startDelay: 0.5f, startValue: 0, endValue: 1, duration:waveTitleAnimationDuration/0.6f))
-                .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.4f));
-        }
-
+        _waveTitleSequence = Sequence.Create()
+            .Group(Tween.Alpha(waveTitleText, startDelay: 0.5f, startValue: 0, endValue: 1, duration: waveTitleAnimationDuration/0.6f))
+            .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.4f));
     }
     
 

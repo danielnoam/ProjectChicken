@@ -134,6 +134,11 @@ public class RailPlayerMovement : MonoBehaviour
         if (!stage) return;
         
         _allowMovement = stage.AllowPlayerMovement;
+
+        if (!stage.AllowPlayerMovement)
+        {
+            _targetOffsetFromSpline = Vector3.zero;
+        }
     }
     
 

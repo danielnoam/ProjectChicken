@@ -23,6 +23,7 @@ public class HeatBar : MonoBehaviour
     
     
     [Header("References")]
+    [SerializeField] private RailPlayer player;
     [SerializeField] private RailPlayerWeaponSystem weaponSystem;
     [SerializeField] private CanvasGroup heatBarGroup;
     [SerializeField] private Image heatBar;

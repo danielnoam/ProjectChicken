@@ -42,6 +42,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private SOVFEffectsSequence introVFXSequence;
     [SerializeField] private Transform currentPositionOnPath;
     [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private StoreManager storeManager;
     [SerializeField] private RailPlayer player;
     
 
@@ -82,6 +83,12 @@ public class LevelManager : MonoBehaviour
         if (!enemySpawner)
         {
             enemySpawner = FindFirstObjectByType<EnemySpawner>();
+        }
+        
+        
+        if (!storeManager)
+        {
+            storeManager = FindFirstObjectByType<StoreManager>();
         }
         
         if (Application.isPlaying) return;
@@ -139,8 +146,14 @@ public class LevelManager : MonoBehaviour
             player.OnDeath += OnPlayerDeath;
             player.OnPause += OnPlayerPaused;
         }
+
+        if (storeManager)
+        {
+            storeManager.OnStoreClosed += OnStoreClosed;
+        }
     }
     
+
     private void OnDisable()
     {
         if (enemySpawner)
@@ -155,6 +168,10 @@ public class LevelManager : MonoBehaviour
             player.ResourceCollector.OnResourceCollected -= OnPlayerCollectedResource;
             player.OnDeath -= OnPlayerDeath;
             player.OnPause -= OnPlayerPaused;
+        }
+        if (storeManager)
+        {
+            storeManager.OnStoreClosed -= OnStoreClosed;
         }
     }
     
@@ -184,6 +201,13 @@ public class LevelManager : MonoBehaviour
     {
         enemiesLeft = enemySpawner.ActiveEnemyCount;
         AddScore(enemy.ScoreValue);
+    }
+    
+    private void OnStoreClosed()
+    {
+        if (!currentStage || currentStage.StageType != StageType.Store) return;
+        
+        SetNextStage();
     }
 
     private void OnPlayerDeath()

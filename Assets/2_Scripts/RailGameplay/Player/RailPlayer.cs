@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using DNExtensions;
 using KBCore.Refs;
 using Unity.Cinemachine;
@@ -49,6 +48,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
     [SerializeField] private Transform cameraPositions;
     [SerializeField] private Transform followCameraTarget;
+    [SerializeField] private Transform storeCameraTarget;
     [SerializeField] private SOAudioEvent healthDamageSfx;
     [SerializeField] private SOAudioEvent healthHealedSfx;
     [SerializeField] private SOAudioEvent shieldDamageSfx;
@@ -390,8 +390,7 @@ public class RailPlayer : MonoBehaviour
     
 
     #region Currency --------------------------------------------------------------------------------
-
-    [Button]
+    
     public void UpdateCurrency(int amount)
     {
         _currentCurrency += amount;
@@ -465,21 +464,19 @@ public class RailPlayer : MonoBehaviour
     
     public Transform GetFollowCameraTarget()
     {
-        return followCameraTarget;
+        return followCameraTarget ? followCameraTarget : transform;;
+    }
+
+    public Transform GetStoreCameraTarget()
+    {
+        return storeCameraTarget ? storeCameraTarget : transform;
     }
     
     public Transform GetRandomCameraPosition()
     {
-        switch (cameraPositions.childCount)
-        {
-            case 0:
-                return null;
-            case 1:
-                cameraPositions.GetChild(1);
-                break;
-        }
-
-        int randomIndex = UnityEngine.Random.Range(2, cameraPositions.childCount);
+        if (!cameraPositions) return transform;
+        
+        int randomIndex = UnityEngine.Random.Range(0, cameraPositions.childCount);
         return cameraPositions.GetChild(randomIndex);
     }
     

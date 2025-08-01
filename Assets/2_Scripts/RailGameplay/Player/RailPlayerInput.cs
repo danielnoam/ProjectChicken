@@ -2,11 +2,12 @@ using System;
 using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using VInspector;
 
 
 public class RailPlayerInput : InputReaderBase
 {
+    [SerializeField] private StoreManager storeManager;
+    
     private InputActionMap _playerActionMap;
     private InputAction _moveAction;
     private InputAction _lookAction;
@@ -35,8 +36,12 @@ public class RailPlayerInput : InputReaderBase
     public event Action<Vector2> OnProcessedLookEvent;
 
     
-
-    
+    protected override void OnValidate()
+    {
+        base.OnValidate();
+        if (!playerInput) playerInput = GetComponent<PlayerInput>();
+        if (!storeManager) storeManager = FindFirstObjectByType<StoreManager>();
+    }
     
     protected override void Awake()
     {
@@ -81,6 +86,11 @@ public class RailPlayerInput : InputReaderBase
         playerInput.onDeviceLost += OnDeviceLost;
         playerInput.onControlsChanged += OnControlsChanged;
         if (SaveManager.Instance) SaveManager.Instance.OnSettingsDataChanged += UpdateControlSchemeSettings;
+        if (storeManager)
+        {
+            storeManager.OnStoreOpened += OnStoreOpened;
+            storeManager.OnStoreClosed += OnStoreClosed;
+        }
     }
     
 
@@ -100,8 +110,22 @@ public class RailPlayerInput : InputReaderBase
         playerInput.onDeviceLost -= OnDeviceLost;
         playerInput.onControlsChanged -= OnControlsChanged;
         if (SaveManager.Instance) SaveManager.Instance.OnSettingsDataChanged -= UpdateControlSchemeSettings;
+        if (storeManager)
+        {
+            storeManager.OnStoreOpened -= OnStoreOpened;
+            storeManager.OnStoreClosed -= OnStoreClosed;
+        }
     }
     
+    private void OnStoreOpened()
+    {
+        SetCursorVisibility(true);
+    }
+    
+    private void OnStoreClosed()
+    {
+        SetCursorVisibility(false);
+    }
     
 
     private void OnDeviceRegained(PlayerInput input)

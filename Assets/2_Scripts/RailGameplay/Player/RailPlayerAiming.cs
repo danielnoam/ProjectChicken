@@ -105,6 +105,11 @@ public class RailPlayerAiming : MonoBehaviour
         if (!stage) return;
         
         _allowAiming = stage.AllowPlayerAim;
+
+        if (!stage.AllowPlayerAim)
+        {
+            _normalizedAimPosition = Vector2.zero;
+        }
     }
     
         

@@ -40,6 +40,7 @@ public class CameraManager : MonoBehaviour
     [SerializeField, Child(Flag.Editable)] private CinemachineCamera followCamera;
     [SerializeField, Child(Flag.Editable)] private CinemachineCamera introCamera;
     [SerializeField, Child(Flag.Editable)] private CinemachineCamera outroCamera;
+    [SerializeField, Child(Flag.Editable)] private CinemachineCamera storeCamera;
     [SerializeField, Child(Flag.Editable)] private CinemachineFollow followCameraFollow;
     [SerializeField, Child(Flag.Editable)] private CinemachineRotateWithFollowTarget followCameraRotate;
     [SerializeField, Child(Flag.Editable)] private CinemachineRotationOffsetExtension followCameraRotateExtenstion;
@@ -100,6 +101,7 @@ public class CameraManager : MonoBehaviour
             player.PlayerMovement.OnDodge += OnPlayerDodge;
             player.OnDeath += OnPlayerDeath;
             followCamera.Target.TrackingTarget = player.GetFollowCameraTarget();
+            storeCamera.Target.TrackingTarget = player.GetStoreCameraTarget();
             introCamera.Target.TrackingTarget = player.GetRandomCameraPosition(); 
             introCamera.Target.LookAtTarget = player.transform;
             outroCamera.Target.LookAtTarget = player.transform; 
@@ -152,6 +154,7 @@ public class CameraManager : MonoBehaviour
         followCamera.Priority = 0;
         introCamera.Priority = 0;
         outroCamera.Priority = 0;
+        storeCamera.Priority = 0;
 
         _activeCamera.Priority = 10;
 
@@ -273,6 +276,9 @@ public class CameraManager : MonoBehaviour
         {
             case StageType.Checkpoint:
                 SetActiveCamera(followCamera);
+                break;
+            case StageType.Store:
+                SetActiveCamera(storeCamera);
                 break;
             case StageType.EnemyWave:
                 SetActiveCamera(followCamera);
