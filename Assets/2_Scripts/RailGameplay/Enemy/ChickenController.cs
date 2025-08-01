@@ -62,7 +62,7 @@ public class ChickenController : MonoBehaviour, IPooledObject
     public event Action OnExitCombat;
     public event Action OnConcussed;
     public event Action OnRecovered;
-    public event Action<ChickenController, int> OnDeath;
+    public event Action<ChickenController> OnDeath;
     public event Action<float> OnHealthChanged;
     
     // Public properties
@@ -81,6 +81,8 @@ public class ChickenController : MonoBehaviour, IPooledObject
     public float MaxHealth => maxHealth;
     
     public float HealthPercentage => _currentHealth / maxHealth;
+    public int ScoreValue => scoreValue;
+    public SOLootTable LootTable => lootTable;
     
     
     // Behavior properties
@@ -231,15 +233,12 @@ public class ChickenController : MonoBehaviour, IPooledObject
         
         if (formationBehavior) formationBehavior.ReleaseSlot();
         
-        // Drop a loot resource if available
-        lootTable?.SpawnRandomResource(transform.position);
-        
         // Play death sound effect
         deathSfx?.PlayAtPoint(transform.position);
 
         
         // Trigger death event
-        OnDeath?.Invoke(this,scoreValue);
+        OnDeath?.Invoke(this);
         
         // Destroy or pool the chicken
         ReturnToPool();

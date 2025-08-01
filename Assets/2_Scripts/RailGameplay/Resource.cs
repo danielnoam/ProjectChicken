@@ -34,15 +34,10 @@ public class Resource : MonoBehaviour
     [SerializeField, Min(0.1f)] private float acceleration = 12f;
     [SerializeField, Min(0f)] private float magnetizedSpeed = 25f;
     [SerializeField, Min(0)] private float rotationSpeed = 45f;
+    [SerializeField] private Transform resourceGfx;
+    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
+    [SerializeField, Self, HideInInspector] private Rigidbody rigidBody;
 
-    
-    [Header("Resource Settings")]
-    [SerializeField, Min(0)] private int scoreWorth = 50;
-    [SerializeField] private ResourceType resourceType;
-    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
-    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.HealthPack)] private int healthWorth = 1;[EndIf]
-    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.ShieldPack)] private int shieldWorth = 50;[EndIf]
-    [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private WeaponChance[] weaponChances = Array.Empty<WeaponChance>(); [EndIf] 
     
     [Header("Effects")]
     [SerializeField] private SOAudioEvent spawnSfx;
@@ -54,10 +49,14 @@ public class Resource : MonoBehaviour
     [SerializeField] private float magnetizedPunchStrength = 1f;
     [SerializeField] private float magnetizedPunchDuration = 0.5f;
     
-    [Header("References")]
-    [SerializeField] private Transform resourceGfx;
-    [SerializeField, Self, HideInInspector] private AudioSource audioSource;
-    [SerializeField, Self, HideInInspector] private Rigidbody rigidBody;
+    [Header("Resource Settings")]
+    [SerializeField, Min(0)] private int scoreWorth = 50;
+    [SerializeField] private ResourceType resourceType;
+    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
+    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.HealthPack)] private int healthWorth = 1;[EndIf]
+    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.ShieldPack)] private int shieldWorth = 50;[EndIf]
+    [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private ChanceList<SOWeaponData> weapons = new ChanceList<SOWeaponData>();[EndIf] 
+    
     
 
     private Transform _playerTransform;
@@ -83,14 +82,7 @@ public class Resource : MonoBehaviour
     
     private void OnValidate()
     {
-        if (Application.isPlaying) return;
-        
         this.ValidateRefs();
-        
-        if (resourceType == ResourceType.SpecialWeapon && weaponChances is { Length: > 0 })
-        {
-            NormalizeWeaponChances();
-        }
     }
     
 
@@ -165,9 +157,9 @@ public class Resource : MonoBehaviour
         
         _rotationAxis = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized;
         
-        if (resourceType == ResourceType.SpecialWeapon && weaponChances.Length > 0)
+        if (resourceType == ResourceType.SpecialWeapon && weapons.Count > 0)
         {
-            WeaponData = SelectRandomWeapon();
+            WeaponData = weapons.GetRandomItem();
         }
         
         Vector2 randomDir = UnityEngine.Random.insideUnitCircle.normalized;
@@ -332,148 +324,5 @@ public class Resource : MonoBehaviour
     #endregion Effects ---------------------------------------------------------------------------------------
 
     
-    
-    #region Weapon Selection ---------------------------------------------------------------------------------------
-    
-    
-    private SOWeaponData SelectRandomWeapon()
-    {
-        if (weaponChances.Length == 0) return null;
-    
-        // Filter out weapons with null references
-        var validWeapons = new System.Collections.Generic.List<WeaponChance>();
-        foreach (var weaponChance in weaponChances)
-        {
-            if (weaponChance.weaponData && weaponChance.chance > 0)
-            {
-                validWeapons.Add(weaponChance);
-            }
-        }
-    
-        if (validWeapons.Count == 0) return null;
-    
-        // Calculate total weight
-        int totalWeight = 0;
-        foreach (var weaponChance in validWeapons)
-        {
-            totalWeight += weaponChance.chance;
-        }
-    
-        if (totalWeight <= 0) return validWeapons[0].weaponData;
-    
-        // Select a random weapon based on weights
-        int randomValue = UnityEngine.Random.Range(0, totalWeight + 1);
-        int currentWeight = 0;
-    
-        foreach (var weaponChance in validWeapons)
-        {
-            currentWeight += weaponChance.chance;
-            if (randomValue <= currentWeight)
-            {
-                return weaponChance.weaponData;
-            }
-        }
-    
-        // Fallback
-        return validWeapons[0].weaponData;
-    }
-    
-
-    private void NormalizeWeaponChances()
-    {
-        if (weaponChances.Length == 0) return;
-        
-        // Separate locked and unlocked entries (only those with valid weapons)
-        var unlockedEntries = new System.Collections.Generic.List<WeaponChance>();
-        int lockedTotal = 0;
-        
-        foreach (var weaponChance in weaponChances)
-        {
-            // Only consider entries with valid weapons
-            if (weaponChance.weaponData)
-            {
-                if (weaponChance.isLocked)
-                {
-                    lockedTotal += Mathf.Max(0, weaponChance.chance);
-                }
-                else
-                {
-                    unlockedEntries.Add(weaponChance);
-                }
-            }
-        }
-        
-        // If all valid entries are locked, don't normalize
-        if (unlockedEntries.Count == 0) return;
-        
-        // Calculate remaining percentage for unlocked entries
-        int remainingPercentage = Mathf.Max(0, 100 - lockedTotal);
-        
-        // Calculate the total of unlocked chances
-        int unlockedTotal = 0;
-        foreach (var weaponChance in unlockedEntries)
-        {
-            unlockedTotal += Mathf.Max(0, weaponChance.chance);
-        }
-        
-        // If the unlocked total is 0, set equal chances for unlocked entries
-        if (unlockedTotal <= 0)
-        {
-            int equalChance = remainingPercentage / unlockedEntries.Count;
-            int remainder = remainingPercentage % unlockedEntries.Count;
-            
-            for (int i = 0; i < unlockedEntries.Count; i++)
-            {
-                unlockedEntries[i].chance = equalChance + (i < remainder ? 1 : 0);
-            }
-        }
-        // If the unlocked total doesn't match the remaining percentage, normalize unlocked entries
-        else if (unlockedTotal != remainingPercentage)
-        {
-            int newTotal = 0;
-            
-            // First pass: calculate normalized values for unlocked entries only
-            foreach (var weaponChance in unlockedEntries)
-            {
-                int normalizedChance = Mathf.RoundToInt((weaponChance.chance / (float)unlockedTotal) * remainingPercentage);
-                weaponChance.chance = normalizedChance;
-                newTotal += normalizedChance;
-            }
-            
-            // Second pass: adjust for rounding errors to ensure unlocked total = remainingPercentage
-            int difference = remainingPercentage - newTotal;
-            if (difference != 0 && unlockedEntries.Count > 0)
-            {
-                // Sort unlocked entries by current chance value (descending) to adjust larger values first
-                unlockedEntries.Sort((a, b) => b.chance.CompareTo(a.chance));
-                
-                // Distribute the difference, ensuring no negative values
-                for (int i = 0; i < Mathf.Abs(difference) && i < unlockedEntries.Count; i++)
-                {
-                    if (difference > 0)
-                    {
-                        unlockedEntries[i].chance += 1;
-                    }
-                    else if (unlockedEntries[i].chance > 0) // Only subtract if we won't go negative
-                    {
-                        unlockedEntries[i].chance -= 1;
-                    }
-                }
-            }
-        }
-        
-        // Final safety check: ensure no negative values in all entries
-        foreach (var weaponChance in weaponChances)
-        {
-            if (weaponChance.chance < 0)
-            {
-                weaponChance.chance = 0;
-            }
-        }
-    }
-    
-    
-    
-    #endregion Weapon Selection ---------------------------------------------------------------------------------------
-    
+ 
 }

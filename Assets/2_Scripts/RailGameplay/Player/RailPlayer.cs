@@ -126,7 +126,7 @@ public class RailPlayer : MonoBehaviour
     {
         levelManager.OnBonusThresholdReached += OnScoreReachedBonusThreshold;
         levelManager.OnStageChanged += OnStageChanged;
-        levelManager.OnRestartFromSavePoint += OnRestartFromSavePoint;
+        levelManager.OnRestartedFromSavePoint += RestartedFromSavePoint;
         playerInput.OnPauseActionEvent += OnPauseAction;
     }
 
@@ -134,7 +134,7 @@ public class RailPlayer : MonoBehaviour
     {
         levelManager.OnBonusThresholdReached -= OnScoreReachedBonusThreshold;
         levelManager.OnStageChanged -= OnStageChanged;
-        levelManager.OnRestartFromSavePoint -= OnRestartFromSavePoint;
+        levelManager.OnRestartedFromSavePoint -= RestartedFromSavePoint;
         playerInput.OnPauseActionEvent -= OnPauseAction;
     }
 
@@ -164,7 +164,7 @@ public class RailPlayer : MonoBehaviour
         }
     }
 
-    private void OnRestartFromSavePoint(SavePointInformation savePoint)
+    private void RestartedFromSavePoint(SavePointInformation savePoint)
     {
         if (savePoint == null) return;
         

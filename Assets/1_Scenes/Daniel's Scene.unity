@@ -5906,6 +5906,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemyManager
       objectReference: {fileID: 0}
+    - target: {fileID: 5182338845553468693, guid: 3d232dd9ec89c7740bccb1560c653f82, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6523,6 +6527,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8097056828059820149, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
+      propertyPath: enemyWaveSpawner
+      value: 
+      objectReference: {fileID: 1897613805567374489}
     - target: {fileID: 8757796954618938148, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_Name
       value: LevelManager

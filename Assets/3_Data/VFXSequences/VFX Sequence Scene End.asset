@@ -10,13 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de20f28ea40c22c43978f33a09f060b4, type: 3}
-  m_Name: VFX Sequence Scene Start Circle Clear
+  m_Name: VFX Sequence Scene End
   m_EditorClassIdentifier: 
   sequenceDuration: 1.5
-  resetEffectsOnComplete: 1
+  resetEffectsOnComplete: 0
   effects:
   - rid: 4047855796283506712
-  - rid: 4047856070569492574
   - rid: 4047855796283506714
   references:
     version: 2
@@ -32,19 +31,9 @@ MonoBehaviour:
       type: {class: SetIconScale, ns: DNExtensions.VFXManager, asm: Assembly-CSharp-firstpass}
       data:
         duration:
-          minValue: 0.17817375
+          minValue: 0
           maxValue: 1
         useDefaultScale: 0
-        startScale: {x: 26, y: 26, z: 26}
-        endScale: {x: 0, y: 0, z: 0}
-        ease: 4
-    - rid: 4047856070569492574
-      type: {class: SetIconScale, ns: DNExtensions.VFXManager, asm: Assembly-CSharp-firstpass}
-      data:
-        duration:
-          minValue: 0
-          maxValue: 0.12185806
-        useDefaultScale: 0
-        startScale: {x: 26, y: 26, z: 26}
+        startScale: {x: 0, y: 0, z: 0}
         endScale: {x: 26, y: 26, z: 26}
-        ease: 1
+        ease: 4

@@ -226,7 +226,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lifetime: 15
   spawnSpeedRange: {x: 20, y: 40}
-  splineMovementSpeed: 3
+  splineMovementSpeed: 6
   deceleration: 4
   acceleration: 12
   magnetizedSpeed: 25
@@ -236,7 +236,8 @@ MonoBehaviour:
   currencyWorth: 1
   healthWorth: 1
   shieldWorth: 50
-  weaponChances: []
+  weapons:
+    internalItems: []
   spawnSfx: {fileID: 0}
   spawnEffect: {fileID: 0}
   collectionSfx: {fileID: 11400000, guid: 2cd4f70089f86f84aba38d1deb14b0e8, type: 2}

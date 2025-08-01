@@ -147,6 +147,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weapons.internalItems.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponChances.Array.data[0].chance
       value: 43
       objectReference: {fileID: 0}
@@ -199,6 +203,42 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 0b9da28535a5fb944b9dfa31864911a7, type: 2}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weaponChances1.internalItems.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weapons.internalItems.Array.data[0].item
+      value: 
+      objectReference: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weapons.internalItems.Array.data[1].item
+      value: 
+      objectReference: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weapons.internalItems.Array.data[2].item
+      value: 
+      objectReference: {fileID: 11400000, guid: 0b9da28535a5fb944b9dfa31864911a7, type: 2}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weapons.internalItems.Array.data[0].chance
+      value: 43
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weapons.internalItems.Array.data[1].chance
+      value: 43
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weapons.internalItems.Array.data[2].chance
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weapons.internalItems.Array.data[0].isLocked
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weapons.internalItems.Array.data[2].isLocked
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponsList.serializedKvps.Array.data[0].Key
       value: 
       objectReference: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
@@ -229,6 +269,10 @@ PrefabInstance:
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponsList.serializedKvps.Array.data[2].index
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
+      propertyPath: weaponChances1.internalItems.Array.data[0].chance
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 1281269661393319534, guid: 9f8d98a200c3b704282ad001b8245847, type: 3}
       propertyPath: weaponsList.serializedKvps.Array.data[0].isKeyNull

@@ -5,7 +5,6 @@ using DNExtensions.VFXManager;
 using KBCore.Refs;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.Splines;
 using VInspector;
@@ -42,7 +41,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private SceneField mainMenuScene;
     [SerializeField] private SOVFEffectsSequence introVFXSequence;
     [SerializeField] private Transform currentPositionOnPath;
-    [SerializeField] private EnemyWaveManager enemyWaveManager;
+    [SerializeField] private EnemyWaveSpawner enemyWaveSpawner;
     [SerializeField] private RailPlayer player;
     
 
@@ -66,7 +65,8 @@ public class LevelManager : MonoBehaviour
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
     public event Action OnBonusThresholdReached;
-    public event Action<SavePointInformation> OnRestartFromSavePoint;
+    public event Action<SavePointInformation> OnRestartedFromSavePoint;
+    
 
 
     private void OnValidate()
@@ -77,9 +77,9 @@ public class LevelManager : MonoBehaviour
             player = FindFirstObjectByType<RailPlayer>();
         }
 
-        if (!enemyWaveManager)
+        if (!enemyWaveSpawner)
         {
-            enemyWaveManager = FindFirstObjectByType<EnemyWaveManager>();
+            enemyWaveSpawner = FindFirstObjectByType<EnemyWaveSpawner>();
         }
         
         
@@ -126,11 +126,11 @@ public class LevelManager : MonoBehaviour
 
     private void OnEnable()
     {
-        if (enemyWaveManager)
+        if (enemyWaveSpawner)
         {
-            enemyWaveManager.OnEnemyWaveSpawned += OnEnemyWaveSpawned;
-            enemyWaveManager.OnEnemyWaveCleared += OnEnemyWaveCleared;
-            enemyWaveManager.OnEnemyDeath += OnEnemyDeath;
+            enemyWaveSpawner.OnEnemyWaveSpawned += OnEnemyWaveSpawned;
+            enemyWaveSpawner.OnEnemyWaveCleared += OnEnemyWaveCleared;
+            enemyWaveSpawner.OnEnemyDeath += OnEnemyDeath;
         }
 
         if (player)
@@ -143,11 +143,11 @@ public class LevelManager : MonoBehaviour
     
     private void OnDisable()
     {
-        if (enemyWaveManager)
+        if (enemyWaveSpawner)
         {
-            enemyWaveManager.OnEnemyWaveSpawned -= OnEnemyWaveSpawned;
-            enemyWaveManager.OnEnemyWaveCleared -= OnEnemyWaveCleared;
-            enemyWaveManager.OnEnemyDeath -= OnEnemyDeath;
+            enemyWaveSpawner.OnEnemyWaveSpawned -= OnEnemyWaveSpawned;
+            enemyWaveSpawner.OnEnemyWaveCleared -= OnEnemyWaveCleared;
+            enemyWaveSpawner.OnEnemyDeath -= OnEnemyDeath;
         }
         
         if (player)
@@ -177,13 +177,13 @@ public class LevelManager : MonoBehaviour
     
     private void OnEnemyWaveSpawned()
     {
-        enemiesLeft = enemyWaveManager.ActiveEnemyCount;
+        enemiesLeft = enemyWaveSpawner.ActiveEnemyCount;
     }
 
-    private void OnEnemyDeath(int score)
+    private void OnEnemyDeath(ChickenController enemy)
     {
-        enemiesLeft = enemyWaveManager.ActiveEnemyCount;
-        AddScore(score);
+        enemiesLeft = enemyWaveSpawner.ActiveEnemyCount;
+        AddScore(enemy.ScoreValue);
     }
 
     private void OnPlayerDeath()
@@ -315,7 +315,7 @@ public class LevelManager : MonoBehaviour
         SetStage(_currentSavePoint.StageIndex);
         Score = _currentSavePoint.Score;
         OnScoreChanged?.Invoke(Score);
-        OnRestartFromSavePoint?.Invoke(_currentSavePoint);
+        OnRestartedFromSavePoint?.Invoke(_currentSavePoint);
     }
 
     private void UpdateReachedSavePoint(SOLevelStage stage)

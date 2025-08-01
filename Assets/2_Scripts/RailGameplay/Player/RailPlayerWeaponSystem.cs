@@ -196,7 +196,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged += OnStageChanged;
-            player.LevelManager.OnRestartFromSavePoint += OnRestartFromSavePoint;
+            player.LevelManager.OnRestartedFromSavePoint += RestartedFromSavePoint;
         }
     }
     
@@ -214,7 +214,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged -= OnStageChanged;
-            player.LevelManager.OnRestartFromSavePoint -= OnRestartFromSavePoint;
+            player.LevelManager.OnRestartedFromSavePoint -= RestartedFromSavePoint;
         }
     }
 
@@ -255,7 +255,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
     }
     
-    private void OnRestartFromSavePoint(SavePointInformation savePoint)
+    private void RestartedFromSavePoint(SavePointInformation savePoint)
     {
         if (savePoint == null) return;
 

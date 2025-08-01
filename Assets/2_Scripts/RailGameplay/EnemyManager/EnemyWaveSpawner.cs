@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using DNExtensions;
-using KBCore.Refs;
 using UnityEngine;
-using VInspector;
 
 
-public class EnemyWaveManager : MonoBehaviour
+public class EnemyWaveSpawner : MonoBehaviour
 {
-    public static EnemyWaveManager Instance { get; private set; }
+    public static EnemyWaveSpawner Instance { get; private set; }
     
     [Header("References")]
     [SerializeField] private LevelManager levelManager;
@@ -22,7 +20,7 @@ public class EnemyWaveManager : MonoBehaviour
     public int ActiveEnemyCount => _activeEnemies.Count;
     public event Action OnEnemyWaveSpawned;
     public event Action<int> OnEnemyWaveCleared;
-    public event Action<int> OnEnemyDeath;
+    public event Action<ChickenController> OnEnemyDeath;
 
 
     private void OnValidate()
@@ -56,6 +54,7 @@ public class EnemyWaveManager : MonoBehaviour
     {
         levelManager.OnStageChanged += OnStageChanged;
         player.OnDeath += OnPlayerDeath;
+        
         foreach (var enemy in _activeEnemies)
         {
             enemy.OnDeath += UpdateEnemyCount;
@@ -66,6 +65,7 @@ public class EnemyWaveManager : MonoBehaviour
     {
         levelManager.OnStageChanged -= OnStageChanged;
         player.OnDeath -= OnPlayerDeath;
+        
         foreach (var enemy in _activeEnemies)
         {
             enemy.OnDeath -= UpdateEnemyCount;
@@ -93,12 +93,12 @@ public class EnemyWaveManager : MonoBehaviour
     }
     
     
-    private void UpdateEnemyCount(ChickenController enemy, int enemyScore)
+    private void UpdateEnemyCount(ChickenController enemy)
     {
         if (_currentStage && _currentStage.IsTimeBasedStage) return;
         
         _activeEnemies.Remove(enemy);
-        OnEnemyDeath?.Invoke(enemyScore);
+        OnEnemyDeath?.Invoke(enemy);
         
         if (_activeEnemies.Count <= 0)
         {
@@ -112,9 +112,7 @@ public class EnemyWaveManager : MonoBehaviour
     }
     
     
-    
 
-    #region Enemy Spawning --------------------------------------------------------------------------------------
 
     private void SpawnEnemyWave(SOLevelStage stage)
     {
@@ -164,8 +162,7 @@ public class EnemyWaveManager : MonoBehaviour
         
         _activeEnemies.Clear();
     }
-
-    #endregion Enemy Spawning --------------------------------------------------------------------------------------
+    
     
 
     

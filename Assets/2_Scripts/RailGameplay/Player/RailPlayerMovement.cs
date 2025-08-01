@@ -99,7 +99,7 @@ public class RailPlayerMovement : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged += OnStageChanged;
-            player.LevelManager.OnRestartFromSavePoint += (information => { _currentDodgeRemining = maxDodgeAccumulation;});
+            player.LevelManager.OnRestartedFromSavePoint += (information => { _currentDodgeRemining = maxDodgeAccumulation;});
         }
         
     }
@@ -114,7 +114,7 @@ public class RailPlayerMovement : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged -= OnStageChanged;
-            player.LevelManager.OnRestartFromSavePoint -= (information => { _currentDodgeRemining = maxDodgeAccumulation;});
+            player.LevelManager.OnRestartedFromSavePoint -= (information => { _currentDodgeRemining = maxDodgeAccumulation;});
         }
     }
 
