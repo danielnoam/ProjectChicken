@@ -145,17 +145,26 @@ public class StoreManager : MonoBehaviour
     {
         if (player.CurrentCurrency < _currentRerollCost) return;
         
-
-        foreach (var egg in _upgradeEggs)
-        {
-            var upgrade = _currentUpgradesPool.GetRandomItem();
-            egg.SetUpgrade(upgrade.Value);
-            Debug.Log(upgrade.Value.ItemName);
-        }
         player.UpdateCurrency(-_currentRerollCost);
         _currentRerollCost += baseRerollCost;
         _currentRerollCost = Mathf.Clamp(_currentRerollCost, baseRerollCost, maxRerollCost);
         rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Reroll ({_currentRerollCost})";
+        foreach (var egg in _upgradeEggs)
+        {
+            egg.Reset(true);
+        }
+        
+        if (_storeSequence.isAlive) _storeSequence.Stop();
+        _storeSequence = Sequence.Create();
+
+        for (var index = 0; index < _upgradeEggs.Count; index++)
+        {
+            var egg = _upgradeEggs[index];
+            var upgrade = _currentUpgradesPool.GetRandomItem();
+            var index1 = index;
+            _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade.Value, index1 * 0.5f));
+            Debug.Log(upgrade.Value.ItemName);
+        }
     }
     
     
@@ -163,38 +172,48 @@ public class StoreManager : MonoBehaviour
     {
         if (_storeSequence.isAlive) _storeSequence.Stop();
 
+        storeGfx.gameObject.SetActive(true);
         _isOpen = true;
+
         
         _storeSequence = Sequence.Create()
-            .Group(Tween.Alpha(canvasGroup, 1, animationDuration))
-            .OnComplete(() =>
-            {
-                canvasGroup.interactable = true;
-                canvasGroup.blocksRaycasts = true; 
-                storeGfx.gameObject.SetActive(true);
-                _currentRerollCost = baseRerollCost;
-                foreach (var egg in _upgradeEggs)
-                {
-                    var upgrade = _currentUpgradesPool.GetRandomItem();
-                    egg.SetUpgrade(upgrade.Value);
-                    Debug.Log(upgrade.Value.ItemName);
-                }
-                OnStoreOpened?.Invoke();
-            });
+            .Group(Tween.Alpha(canvasGroup, 1, animationDuration));
+
+
+        for (var index = 0; index < _upgradeEggs.Count; index++)
+        {
+            var egg = _upgradeEggs[index];
+            var upgrade = _currentUpgradesPool.GetRandomItem();
+            var index1 = index;
+            _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade.Value, index1 * 0.5f));
+            Debug.Log(upgrade.Value.ItemName);
+        }
+
+        _storeSequence.OnComplete(() =>
+        {
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true; 
+            _currentRerollCost = baseRerollCost;
+            OnStoreOpened?.Invoke();
+        });
     }
 
     private void CloseStore()
     {
         if (_storeSequence.isAlive) _storeSequence.Stop();
         
-        
-        storeGfx.gameObject.SetActive(false);
         _storeSequence = Sequence.Create()
-            .Group(Tween.Alpha(canvasGroup, 0, animationDuration))            .OnComplete(() =>
+            .Group(Tween.Alpha(canvasGroup, 0, animationDuration))            
+            .OnComplete(() =>
             {
+                foreach (var egg in _upgradeEggs)
+                {
+                    egg.Reset(true);
+                }
                 canvasGroup.interactable = false;
                 canvasGroup.blocksRaycasts = false;
                 _isOpen = false;
+                storeGfx.gameObject.SetActive(false);
                 OnStoreClosed?.Invoke();
             });
     }

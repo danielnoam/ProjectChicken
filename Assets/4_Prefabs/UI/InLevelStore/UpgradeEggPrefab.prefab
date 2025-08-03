@@ -92,7 +92,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4249447914104070164}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -7.32}
+  m_LocalPosition: {x: 0, y: 0, z: -1.3200002}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -101,7 +101,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 1}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &7148323628085514122
@@ -225,6 +225,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2b758c95f9c48e5ad7666d3b79758dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animationDuration: 1.5
+  animationEase: 27
+  yOffset: -150
   button: {fileID: 4922194370750640143}
   canvasGroup: {fileID: 6582133130491470628}
   upgradeGfxHolder: {fileID: 3855093663816202177}
