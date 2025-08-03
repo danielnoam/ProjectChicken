@@ -69,7 +69,8 @@ public class MenuElementLevelSelection : MenuElement
             
             if (levelGfxParent)
             {
-                levelGfx = level.SetUpGfx(levelGfxParent);
+                levelGfx = Instantiate(level.LevelGfxPrefab, levelGfxParent);
+                levelGfx.SetActive(false);
             }
 
             if (levelButtonPrefab)
