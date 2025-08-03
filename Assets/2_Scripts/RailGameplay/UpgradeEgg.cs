@@ -6,7 +6,9 @@ using UnityEngine.UI;
 public class UpgradeEgg : MonoBehaviour
 {
     [Header("Animation")]
-    [SerializeField] private float animationDuration = 1;
+    [SerializeField] private float animationDuration = 2;
+    [SerializeField] private Ease animationEase = Ease.InOutBack;
+    [SerializeField] private float yOffset = -75;
     
     [Header("Reference")]
     [SerializeField] private Button button;
@@ -23,37 +25,62 @@ public class UpgradeEgg : MonoBehaviour
 
     private void Awake()
     {
-        _startPosition = transform.position;
+        _startPosition = transform.localPosition;
         _startScale = transform.localScale;
-        _startRotation = transform.eulerAngles;
-        canvasGroup.alpha = 0f;
-        button.onClick.AddListener(Select);
+        _startRotation = transform.localEulerAngles;
+        button.onClick.AddListener(OnSelect);
+        Reset(false);
 
     }
-
-    private void Select()
-    {
-        foreach (Transform child in upgradeGfxHolder)
-        {
-            Destroy(child.gameObject);
-        }
-        
-        if (_animationSequence.isAlive) _animationSequence.Stop();
-        _animationSequence = Sequence.Create()
-            .Group(Tween.Alpha(canvasGroup, 0, animationDuration));
-        
-        onUpgradeSelected?.Invoke(_upgrade);
-    }
-
-    public void SetUpgrade(IStoreItem upgrade)
+    
+    public void SetUpgrade(IStoreItem upgrade, float startDelay)
     {
         _upgrade = upgrade;
         Instantiate(_upgrade.ItemGfx, upgradeGfxHolder);
         
         if (_animationSequence.isAlive) _animationSequence.Stop();
         _animationSequence = Sequence.Create()
-            .Group(Tween.Alpha(canvasGroup, 1, animationDuration));
+                .ChainDelay(startDelay)
+            .Chain(Tween.LocalPositionY(transform,yOffset,_startPosition.y, animationDuration,animationEase))
+            .Group(Tween.Alpha(canvasGroup, canvasGroup.alpha,1, animationDuration, startDelay: animationDuration/3))
+            ;
     }
+
+    public void Reset(bool animate)
+    {
+        if (_animationSequence.isAlive) _animationSequence.Stop();
+
+        _upgrade = null;
+        transform.localScale = _startScale;
+        transform.localEulerAngles = _startRotation;
+        foreach (Transform child in upgradeGfxHolder)
+        {
+            Destroy(child.gameObject);
+        }
+        
+        if (!animate)
+        {
+            canvasGroup.alpha = 0f;
+            transform.localPosition = new Vector3(transform.localPosition.x, yOffset,transform.localPosition.z);
+        }
+        else
+        {
+            _animationSequence = Sequence.Create()
+                .Group(Tween.Alpha(canvasGroup, 0, animationDuration))
+                .Group(Tween.LocalPositionY(transform, yOffset, animationDuration))
+                ;
+        }
+        
+    }
+    
+    private void OnSelect()
+    {
+        if (_animationSequence.isAlive) _animationSequence.Stop();
+        
+        onUpgradeSelected?.Invoke(_upgrade);
+    }
+
+
     
 
 }
