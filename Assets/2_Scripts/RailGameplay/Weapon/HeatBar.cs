@@ -96,8 +96,8 @@ public class HeatBar : MonoBehaviour
     
     private void OnAllowShootingChangedEvent(bool state)
     {
-        if (_heatBarSequence.isAlive) _heatBarSequence.Stop();
-        _heatBarSequence = Sequence.Create()
+        if (_heatBarGroupSequence.isAlive) _heatBarGroupSequence.Stop();
+        _heatBarGroupSequence = Sequence.Create()
             .Group(Tween.Alpha(heatBarGroup, endValue: state ? 1f : 0f, 0.2f));
     }
 

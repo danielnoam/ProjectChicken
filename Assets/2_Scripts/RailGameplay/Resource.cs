@@ -281,7 +281,7 @@ public class Resource : MonoBehaviour
         if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
         resourceGfx.localScale = Vector3.one;
         _scaleAnimation = Sequence.Create()
-            .Group(Tween.PunchScale(resourceGfx, strength: Vector3.one * magnetizedPunchStrength/2, frequency: 7, duration: despawnAnimationDuration/2, easeBetweenShakes: Ease.InOutBounce))
+            .Group(Tween.PunchScale(resourceGfx, strength: Vector3.one * magnetizedPunchStrength/2, frequency: 2, duration: despawnAnimationDuration/2, easeBetweenShakes: Ease.InOutBounce))
             .Chain(Tween.Scale(resourceGfx, endValue: Vector3.zero, duration: despawnAnimationDuration/2, ease: Ease.OutSine));
         
     }
@@ -303,7 +303,7 @@ public class Resource : MonoBehaviour
     {
         if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
         resourceGfx.localScale = Vector3.one;
-        _scaleAnimation = Sequence.Create(Tween.PunchScale(resourceGfx, Vector3.one * magnetizedPunchStrength, duration: magnetizedPunchDuration));
+        _scaleAnimation = Sequence.Create(Tween.PunchScale(resourceGfx, Vector3.one * magnetizedPunchStrength, frequency:5, duration: magnetizedPunchDuration));
     }
 
     #endregion Effects ---------------------------------------------------------------------------------------

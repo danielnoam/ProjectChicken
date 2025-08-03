@@ -103,10 +103,13 @@ public class EnemySpawner : MonoBehaviour
         _activeEnemies.Remove(enemy);
         OnEnemyDeath?.Invoke(enemy);
         
+        
         if (_activeEnemies.Count <= 0)
         {
             OnEnemyWaveCleared?.Invoke(_currentStage.WaveScore);
         }
+        
+        enemy.OnDeath -= UpdateEnemyCount;
     }
     
     private void OnPlayerDeath()
@@ -145,8 +148,7 @@ public class EnemySpawner : MonoBehaviour
         var enemyObject = ObjectPooler.GetObjectFromPool(enemyPrefab.gameObject);
         if (enemyObject.TryGetComponent<ChickenController>(out var enemy))
         {
-            enemy.transform.localPosition = enemySpawnPosition ? enemySpawnPosition.position : Vector3.zero;
-            enemy.transform.localRotation = Quaternion.identity;
+            enemy.SetSpawnPoint(enemySpawnPosition);
             enemy.OnDeath += UpdateEnemyCount;
             _activeEnemies.Add(enemy);
         }

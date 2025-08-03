@@ -1,3 +1,5 @@
+using AYellowpaper;
+using DNExtensions;
 using UnityEngine;
 using UnityEngine.Splines;
 using VInspector;
@@ -12,6 +14,9 @@ public class SOLevelStage : ScriptableObject
     [ShowIf("IsTimeBasedStage")] 
     [SerializeField, Min(0.1f)] private float stageDuration = 5;
     [EndIf]
+    
+    [ShowIf("stageType", StageType.Store)]
+    [SerializeField] private ChanceList<InterfaceReference<IStoreItem, ScriptableObject>> upgradesPool = new ChanceList<InterfaceReference<IStoreItem, ScriptableObject>>();
     
     [ShowIf("stageType", StageType.EnemyWave)]
     [SerializeField] private float enemyPositionOffset;
@@ -28,11 +33,11 @@ public class SOLevelStage : ScriptableObject
     [SerializeField] private SplineAnimate.AlignmentMode alignmentMode = SplineAnimate.AlignmentMode.SplineElement;
     
     [Header("Player Settings")]
+    [SerializeField] private bool showHUD = true;
     [SerializeField] private bool allowPlayerMovement = true;
-    [SerializeField] private bool allowPlayerAim = true;
-    [SerializeField] private bool allowPlayerShooting = true;
+    [SerializeField] private bool allowPlayerShootingAndAiming = true;
     [SerializeField] private float playerPositionOffset;
-    [SerializeField] private bool showPlayerKeybinds;
+
     
 
     
@@ -40,8 +45,9 @@ public class SOLevelStage : ScriptableObject
     // Stage properties
     public StageType StageType => stageType;
     public float StageDuration => stageDuration;
-    public int WaveScore => stageType == StageType.EnemyWave ? waveScore : 0;
     public string StageTitle => stageTitle;
+    public ChanceList<InterfaceReference<IStoreItem, ScriptableObject>> UpgradesPool => upgradesPool;
+    public int WaveScore => stageType == StageType.EnemyWave ? waveScore : 0;
     public SerializedDictionary<ChickenController, int> EnemyWave => enemyWave;
     public float EnemyPositionOffset => enemyPositionOffset;
     public float DelayBeforeNextStage => delayBeforeNextStage;
@@ -58,10 +64,9 @@ public class SOLevelStage : ScriptableObject
     
 
     public bool AllowPlayerMovement => allowPlayerMovement;
-    public bool AllowPlayerAim => allowPlayerAim;
-    public bool AllowPlayerShooting => allowPlayerShooting;
+    public bool AllowPlayerShootingAndAiming => allowPlayerShootingAndAiming;
     public float PlayerPositionOffset => playerPositionOffset;
-    public bool ShowPlayerKeybinds => showPlayerKeybinds;
+    public bool ShowHUD => showHUD;
     
     
 }

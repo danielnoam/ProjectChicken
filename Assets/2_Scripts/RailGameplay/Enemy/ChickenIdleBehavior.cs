@@ -85,6 +85,13 @@ public class ChickenIdleBehavior : MonoBehaviour
                 break;
         }
     }
+
+    public void SetSpawnPoint(Transform spawnPoint)
+    {
+        if (!spawnPoint) return;
+        
+        this.spawnPoint = spawnPoint;
+    }
     
     // Called by FormationBehavior when no slots are available
     public void MoveToSpawnPoint()

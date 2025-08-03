@@ -15,6 +15,8 @@ MonoBehaviour:
   stageTitle: 
   stageType: 4
   stageDuration: 7
+  upgradesPool:
+    internalItems: []
   enemyPositionOffset: 0
   delayBeforeNextStage: 1
   waveScore: 1000
@@ -36,7 +38,6 @@ MonoBehaviour:
   forwardAxis: 2
   alignmentMode: 1
   allowPlayerMovement: 0
-  allowPlayerAim: 0
-  allowPlayerShooting: 0
+  allowPlayerShootingAndAiming: 0
   playerPositionOffset: 0
-  showPlayerKeybinds: 0
+  showHUD: 0

@@ -13,18 +13,15 @@ MonoBehaviour:
   m_Name: Stage_EnemyWave5
   m_EditorClassIdentifier: 
   stageTitle: 
-  stageType: 1
+  stageType: 2
   stageDuration: 15
+  upgradesPool:
+    internalItems: []
   enemyPositionOffset: 0
   delayBeforeNextStage: 1
   waveScore: 1000
   enemyWave:
-    serializedKvps:
-    - Key: {fileID: 745806696497487914, guid: 6c00b75d8a669d04395aeb4d7c57f138, type: 3}
-      Value: 25
-      index: 0
-      isKeyRepeated: 0
-      isKeyNull: 0
+    serializedKvps: []
     dividerPos: 0.33
   formationSettings:
     formationType: 1
@@ -40,8 +37,7 @@ MonoBehaviour:
   upAxis: 1
   forwardAxis: 2
   alignmentMode: 1
+  showHUD: 1
   allowPlayerMovement: 1
-  allowPlayerAim: 1
-  allowPlayerShooting: 1
+  allowPlayerShootingAndAiming: 1
   playerPositionOffset: 0
-  showPlayerKeybinds: 1

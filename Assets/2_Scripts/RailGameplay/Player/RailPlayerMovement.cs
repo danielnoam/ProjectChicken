@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections;
 using DNExtensions;
 using KBCore.Refs;
 using UnityEngine;
@@ -137,7 +138,7 @@ public class RailPlayerMovement : MonoBehaviour
 
         if (!stage.AllowPlayerMovement)
         {
-            _targetOffsetFromSpline = Vector3.zero;
+            StartCoroutine(ReturnToCenter());
         }
     }
     
@@ -243,6 +244,24 @@ public class RailPlayerMovement : MonoBehaviour
         finalEuler.z = _velocityRotation.eulerAngles.z + _currentDodgeRoll;
     
         shipModel.localRotation = Quaternion.Euler(finalEuler);
+    }
+
+    private IEnumerator ReturnToCenter()
+    {
+        while (true)
+        {
+            if (_targetOffsetFromSpline != Vector3.zero)
+            {
+                _targetOffsetFromSpline = Vector3.Lerp(_targetOffsetFromSpline, Vector3.zero, 1f * Time.deltaTime);
+            }
+            else
+            {
+                yield break;
+                
+            }
+            
+            yield return null;
+        }
     }
     
     

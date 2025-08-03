@@ -396,6 +396,7 @@ public class RailPlayer : MonoBehaviour
         _currentCurrency += amount;
         OnCurrencyChanged?.Invoke(_currentCurrency);
     }
+    
 
     #endregion Currency --------------------------------------------------------------------------------
     

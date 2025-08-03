@@ -12,9 +12,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
   m_Name: Stage_Store
   m_EditorClassIdentifier: 
-  stageTitle: Store
+  stageTitle: 
   stageType: 1
   stageDuration: 5
+  upgradesPool:
+    internalItems:
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
+      chance: 9
+      isLocked: 0
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: 5051ea4807e765847ad58fa7f3fcaadc, type: 2}
+      chance: 9
+      isLocked: 0
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: 259517cbb337a8243a3e713a312b7abd, type: 2}
+      chance: 9
+      isLocked: 0
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: f1ff5cc07ba342e418fb8a51b876c50f, type: 2}
+      chance: 9
+      isLocked: 0
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: 85cde709a65e11a4285e307636799abb, type: 2}
+      chance: 8
+      isLocked: 0
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: 5fd2ebb25c87fa547bc5c087a3dfb75d, type: 2}
+      chance: 8
+      isLocked: 0
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
+      chance: 8
+      isLocked: 0
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: 12cc92c87d933784fa7101edef57d18c, type: 2}
+      chance: 8
+      isLocked: 0
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
+      chance: 8
+      isLocked: 0
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: edf5b49190bc5f14cb523dda726bc824, type: 2}
+      chance: 8
+      isLocked: 0
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: caa3ae67362bd314399b4bd2ba6e4eef, type: 2}
+      chance: 8
+      isLocked: 0
+    - item:
+        _underlyingValue: {fileID: 11400000, guid: ab973da60211b7147bb6d445426db471, type: 2}
+      chance: 8
+      isLocked: 0
   enemyPositionOffset: 0
   delayBeforeNextStage: 1
   waveScore: 1000
@@ -36,7 +86,6 @@ MonoBehaviour:
   forwardAxis: 2
   alignmentMode: 1
   allowPlayerMovement: 0
-  allowPlayerAim: 0
-  allowPlayerShooting: 0
+  allowPlayerShootingAndAiming: 0
   playerPositionOffset: 0
-  showPlayerKeybinds: 1
+  showHUD: 1

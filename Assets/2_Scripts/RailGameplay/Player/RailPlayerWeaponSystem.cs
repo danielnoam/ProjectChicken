@@ -232,7 +232,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         if (!stage) return;
         
-        _allowShooting = stage.AllowPlayerShooting;
+        _allowShooting = stage.AllowPlayerShootingAndAiming;
         OnAllowShootingChangedEvent?.Invoke(_allowShooting);
 
         if (_allowShooting)

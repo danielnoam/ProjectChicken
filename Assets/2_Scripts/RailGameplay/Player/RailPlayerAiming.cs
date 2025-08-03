@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using DNExtensions;
 using KBCore.Refs;
@@ -104,11 +105,11 @@ public class RailPlayerAiming : MonoBehaviour
     {
         if (!stage) return;
         
-        _allowAiming = stage.AllowPlayerAim;
+        _allowAiming = stage.AllowPlayerShootingAndAiming;
 
-        if (!stage.AllowPlayerAim)
+        if (!stage.AllowPlayerShootingAndAiming)
         {
-            _normalizedAimPosition = Vector2.zero;
+            StartCoroutine(ReturnToCenter());
         }
     }
     
@@ -158,6 +159,26 @@ public class RailPlayerAiming : MonoBehaviour
             }
         }
     }
+    
+    
+    private IEnumerator ReturnToCenter()
+    {
+        while (true)
+        {
+            if (_normalizedAimPosition != Vector2.zero)
+            {
+                _normalizedAimPosition = Vector2.Lerp(_normalizedAimPosition, Vector3.zero, 1f * Time.deltaTime);
+            }
+            else
+            {
+                yield break;
+                
+            }
+            
+            yield return null;
+        }
+    }
+
 
     #endregion Aiming --------------------------------------------------------------------------------------------------------
     

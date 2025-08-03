@@ -371,8 +371,6 @@ public class MenuElementLevelSelection : MenuElement
         var eventTrigger = button.GetComponent<EventTrigger>() ?? button.gameObject.AddComponent<EventTrigger>();
         AddEventTriggerEntry(eventTrigger, EventTriggerType.Select, (eventData) => OnSelectableSelected(eventData, levelUIData));
         AddEventTriggerEntry(eventTrigger, EventTriggerType.Deselect, (eventData) => OnSelectableDeselected(eventData, levelUIData));
-        AddEventTriggerEntry(eventTrigger, EventTriggerType.PointerEnter, OnSelectablePointerEnter);
-        AddEventTriggerEntry(eventTrigger, EventTriggerType.PointerExit, OnSelectablePointerExit);
     }
     
     private void AddEventTriggerEntry(EventTrigger eventTrigger, EventTriggerType type, UnityAction<BaseEventData> callback)
@@ -413,26 +411,7 @@ public class MenuElementLevelSelection : MenuElement
         
         HideLevelInfo(levelUIData);
     }
-
-    private void OnSelectablePointerEnter(BaseEventData eventData)
-    {
-        if (CurrentVisualState != ElementState.Interacting) return;
-
-        if (eventData is PointerEventData pointerEventData)
-        {
-            pointerEventData.selectedObject = pointerEventData.pointerEnter;
-        }
-    }
-
-    private void OnSelectablePointerExit(BaseEventData eventData)
-    {
-        if (CurrentVisualState != ElementState.Interacting) return;
-
-        if (eventData is PointerEventData pointerEventData)
-        {
-            pointerEventData.selectedObject = null;
-        }
-    }
+    
 
     #endregion Button Setup ------------------------------------------------------------------------------
 

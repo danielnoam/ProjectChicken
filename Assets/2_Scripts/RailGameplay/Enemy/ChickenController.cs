@@ -132,6 +132,11 @@ public class ChickenController : MonoBehaviour, IPooledObject
 
     #region State Management -----------------------------------------------------------------------------------------------------
 
+    public void SetSpawnPoint(Transform spawnPoint)
+    {
+        rb.position = spawnPoint.position;
+        idleBehavior.SetSpawnPoint(spawnPoint);
+    }
         
     // Set new state with validation
     public void SetState(ChickenState newState)

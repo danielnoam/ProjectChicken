@@ -23,7 +23,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Color cooldownIconColor = Color.grey;
     [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
     [SerializeField] private CanvasGroup pauseGroup;
-    [SerializeField] private TextMeshProUGUI keybindsText;
     
     [Header("Health")]
     [SerializeField] private bool useTextForHealth;
@@ -216,7 +215,6 @@ public class UIManager : MonoBehaviour
         
         
         ToggleHUD(false);
-        ToggleKeybinds(false);
     }
 
 
@@ -249,26 +247,7 @@ public class UIManager : MonoBehaviour
     {
         if (!stage) return;
         
-        switch (stage.StageType)
-        {
-            case StageType.Intro:
-                FadeHUD(false);
-                break;
-            case StageType.Outro:
-                FadeHUD(false);
-                break;
-            case StageType.Checkpoint:
-                FadeHUD(true);
-                break;
-            case StageType.EnemyWave:
-                FadeHUD(true);
-                break;
-            case StageType.Store:
-                FadeHUD(false);
-                break;
-        }
-        
-        FadeKeybinds(stage.ShowPlayerKeybinds);
+        FadeHUD(stage.ShowHUD);
         UpdateStageTitle(stage.StageTitle);
     }
     
@@ -292,35 +271,11 @@ public class UIManager : MonoBehaviour
     
     }
     
-    private void FadeKeybinds(bool fadeIn)
-    {
-        if (_keybindsSequence.isAlive) _keybindsSequence.Stop();
-        
-        switch (fadeIn)
-        {
-            case true when keybindsText.alpha >= 1:
-            case false when keybindsText.alpha <= 0:
-                return;
-        }
-        
-        float endValue = fadeIn ? 1 : 0;
-        
-        _keybindsSequence = Sequence.Create()
-                .Group(Tween.Alpha(keybindsText, keybindsText.alpha, endValue, hudFadeDuration))
-            ;
-    
-    }
 
     private void ToggleHUD(bool state)
     {
         hudGroup.alpha = state ? 1f : 0;
     }
-    
-    private void ToggleKeybinds(bool state)
-    {
-        keybindsText.alpha = state ? 1f : 0;
-    }
-    
     
     
     private void UpdateStageTitle(string title)

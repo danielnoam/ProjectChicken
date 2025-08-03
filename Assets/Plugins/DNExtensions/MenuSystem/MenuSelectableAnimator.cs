@@ -2,6 +2,7 @@
 using System.Linq;
 using DNExtensions;
 using PrimeTween;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -18,6 +19,10 @@ namespace  DNExtensions.MenuSystem
 
     public class MenuSelectableAnimator : MonoBehaviour
     {
+        [Header("Settings")]
+        [SerializeField] private bool mouseSelectsSelectable;
+        
+        
         [Header("Position")] 
         [SerializeField] private PositionEffectType positionEffectType = PositionEffectType.Shake;
         [ShowIf("IsOffsetMode"), SerializeField] private Vector3 positionOffset = new Vector3(0, 10, 0);[EndIf]
@@ -87,6 +92,13 @@ namespace  DNExtensions.MenuSystem
 
             AddEventTriggerEntry(EventTriggerType.Select, OnSelect);
             AddEventTriggerEntry(EventTriggerType.Deselect, OnDeselect);
+
+            if (mouseSelectsSelectable)
+            {
+                AddEventTriggerEntry(EventTriggerType.PointerEnter, OnPointerEnter);
+                AddEventTriggerEntry(EventTriggerType.PointerExit, OnPointerExit);
+            }
+
         }
 
         private void OnDisable()
@@ -166,6 +178,26 @@ namespace  DNExtensions.MenuSystem
             if (animateRotation) PlayRotateAnimation(false);
             if (animateAlpha) PlayAlphaAnimation(false);
 
+        }
+
+        private void OnPointerEnter(BaseEventData eventData)
+        {
+            if (!selectable.interactable) return;
+
+            if (eventData is PointerEventData pointerEventData)
+            {
+                pointerEventData.selectedObject = pointerEventData.pointerEnter;
+            }
+        }
+
+        private void OnPointerExit(BaseEventData eventData)
+        {
+            if (!selectable.interactable) return;
+            
+            if (eventData is PointerEventData pointerEventData)
+            {
+                pointerEventData.selectedObject = null;
+            }
         }
 
 
