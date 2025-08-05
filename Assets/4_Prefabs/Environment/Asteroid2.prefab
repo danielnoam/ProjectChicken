@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7934104200990962556}
   - component: {fileID: 3296274864556596758}
+  - component: {fileID: 7009668123461265446}
+  - component: {fileID: -3106707164321127077}
   m_Layer: 0
   m_Name: Asteroid2
   m_TagString: Untagged
@@ -57,9 +59,50 @@ MonoBehaviour:
   shapeMultiplierRange:
     minValue: 0.5
     maxValue: 2
-  rotate: 1
+  rotate: 0
   rotationSpeed: 5
   shapeTransform: {fileID: 8186792736817293541}
+--- !u!114 &7009668123461265446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4194405773046947710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a1f54dd99b326e45908d331c349e38e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  rotationSpeed: {x: 15, y: 25, z: 5}
+  initialScale: 0.1
+  minSize: 0.1
+  maxSize: 0.25
+  scaleDuration: 2
+  fadeOutDuration: 1
+  destroyDelay: 5
+--- !u!65 &-3106707164321127077
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4194405773046947710}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6723363795230918543
 GameObject:
   m_ObjectHideFlags: 0

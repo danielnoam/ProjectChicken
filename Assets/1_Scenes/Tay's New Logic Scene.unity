@@ -2660,7 +2660,7 @@ Transform:
   m_GameObject: {fileID: 986713672}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 29.4}
+  m_LocalPosition: {x: 0, y: 0, z: -82}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2678,7 +2678,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a19b18997533a744bb36470586c6a6a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destructionDelay: 1
+  destructionDelay: 4
 --- !u!1001 &995641132
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2936,10 +2936,14 @@ MonoBehaviour:
   starPrefabs:
   - {fileID: 2767308421479521483, guid: 732a51eab95227d4eae684ad7396abac, type: 3}
   - {fileID: 8977404963119974001, guid: 809bacf9c1daf6442a93339625edebbb, type: 3}
+  - {fileID: 1968814213816329391, guid: 25971a88ee03ffd4d8f07521f1725812, type: 3}
+  - {fileID: 651960858193725616, guid: 7d8655a331c763c40960264514912631, type: 3}
+  - {fileID: 4194405773046947710, guid: 27f087554897cb043af6bc370b2518bf, type: 3}
   maxStarsOnScreen: 15
+  initialDelay: 0
   spawnInterval: 4
-  starMoveSpeed: 12
-  starScaleDuration: 5
+  starMoveSpeed: 15
+  starScaleDuration: 6
   doubleSpawnChance: 25
   spawnZone1: {fileID: 1036124239}
   spawnZone2: {fileID: 1036124238}
@@ -3038,7 +3042,7 @@ Transform:
   m_GameObject: {fileID: 1036124234}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.7, y: 0, z: 242.8}
+  m_LocalPosition: {x: 1.7, y: 0, z: 331.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3646,6 +3650,109 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4128553274159926499, guid: 7d8655a331c763c40960264514912631, type: 3}
   m_PrefabInstance: {fileID: 1210706744}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1277134339
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1277134345}
+  - component: {fileID: 1277134344}
+  - component: {fileID: 1277134342}
+  - component: {fileID: 1277134340}
+  m_Layer: 0
+  m_Name: Shop Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1277134340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277134339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7672c088cbce568489d081be5df09415, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  starPrefabs:
+  - {fileID: 3724146673273290545, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
+  - {fileID: 5771890810292038773, guid: 8ecf9c9ab609c1f409b01e986dd2af22, type: 3}
+  - {fileID: 3724146673273290545, guid: cf638f8b3934ec6439377e0766874185, type: 3}
+  - {fileID: 5771890810292038773, guid: efa8c1e144bea96448517a7a00aadeee, type: 3}
+  maxStarsOnScreen: 15
+  initialDelay: 7
+  spawnInterval: 75
+  starMoveSpeed: 8
+  starScaleDuration: 25
+  doubleSpawnChance: 0
+  spawnZone1: {fileID: 1277134344}
+  spawnZone2: {fileID: 0}
+  spawnZone3: {fileID: 1277134342}
+  spawnZone4: {fileID: 0}
+--- !u!65 &1277134342
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277134339}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 100, y: 50, z: 50}
+  m_Center: {x: 275, y: 0, z: 0}
+--- !u!65 &1277134344
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277134339}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 100, y: 50, z: 50}
+  m_Center: {x: -275, y: 0, z: 0}
+--- !u!4 &1277134345
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277134339}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.7, y: 0, z: 648}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1296091892 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 78a37f0438e119746869a742351395ed, type: 3}
@@ -6745,6 +6852,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5119365439679359532}
+  - component: {fileID: 5119365439679359533}
   m_Layer: 6
   m_Name: ShipGfx
   m_TagString: Player
@@ -7238,7 +7346,7 @@ Transform:
   m_GameObject: {fileID: 2103388375962782920}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 40}
+  m_LocalPosition: {x: 0, y: 0, z: 50}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7253,6 +7361,20 @@ Transform:
   - {fileID: 2591645915544355003}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5119365439679359533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2103388375962782920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4a20beedbcdc9c40a909b4457594680, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 30
+  usePhysics: 0
 --- !u!4 &5120816282884200810
 Transform:
   m_ObjectHideFlags: 0
@@ -9088,4 +9210,5 @@ SceneRoots:
   - {fileID: 1604359120}
   - {fileID: 5119365439679359532}
   - {fileID: 1036124240}
+  - {fileID: 1277134345}
   - {fileID: 986713674}

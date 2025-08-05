@@ -7,6 +7,7 @@ public class StarSpawner : MonoBehaviour
     [Header("Spawning Settings")]
     public List<GameObject> starPrefabs = new List<GameObject>();
     public int maxStarsOnScreen = 50;
+    public float initialDelay = 0f; // Time to wait before first spawn
     public float spawnInterval = 0.5f; // Time between spawns in seconds
     
     [Header("Global Star Settings")]
@@ -14,7 +15,7 @@ public class StarSpawner : MonoBehaviour
     public float starScaleDuration = 2f; // Time in seconds for all stars to reach target size
     
     [Header("Double Spawn Settings")]
-    [Range(1, 100)]
+    [Range(0, 100)]
     public int doubleSpawnChance = 40; // Percentage chance for double spawn
     
     [Header("Spawn Zones")]
@@ -79,6 +80,14 @@ public class StarSpawner : MonoBehaviour
     
     IEnumerator SpawnStars()
     {
+        // Wait for initial delay before starting to spawn
+        if (initialDelay > 0f)
+        {
+            Debug.Log($"StarSpawner: Waiting {initialDelay} seconds before starting spawns...");
+            yield return new WaitForSeconds(initialDelay);
+            Debug.Log("StarSpawner: Initial delay complete, starting spawns!");
+        }
+        
         while (true)
         {
             if (currentStarCount < maxStarsOnScreen)
@@ -146,6 +155,8 @@ public class StarSpawner : MonoBehaviour
         
         // Start coroutine to track this star
         StartCoroutine(TrackStar(newStar));
+        
+        Debug.Log($"Spawned star: {newStar.name} at {spawnPosition}. Current count: {currentStarCount}");
     }
     
     BoxCollider GetRandomSpawnZone()
@@ -219,6 +230,12 @@ public class StarSpawner : MonoBehaviour
             // Apply global settings to all stars
             starComponent.moveSpeed = starMoveSpeed;
             starComponent.scaleDuration = starScaleDuration;
+            
+            Debug.Log($"Applied global settings to {star.name}: Speed={starMoveSpeed}, ScaleDuration={starScaleDuration}");
+        }
+        else
+        {
+            Debug.LogWarning($"Star {star.name} doesn't have StarBehavior component!");
         }
     }
     
@@ -246,6 +263,7 @@ public class StarSpawner : MonoBehaviour
             rb.useGravity = false;
         }
         
+        Debug.Log("Star setup for destruction detection: " + star.name + " - Trigger: " + starCollider.isTrigger + ", Has Rigidbody: " + (rb != null));
     }
     
     IEnumerator TrackStar(GameObject star)
