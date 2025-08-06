@@ -2624,8 +2624,8 @@ GameObject:
   - component: {fileID: 986713673}
   - component: {fileID: 986713675}
   m_Layer: 0
-  m_Name: Star Destroyer
-  m_TagString: StarDestroyer
+  m_Name: Prop Destroyer
+  m_TagString: ItemDestroyer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2649,8 +2649,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 846.8065, y: 510.93808, z: 42.731453}
-  m_Center: {x: -21.207947, y: -24.158737, z: -17.938519}
+  m_Size: {x: 3000, y: 2000, z: 50}
+  m_Center: {x: -294.9701, y: -24.158737, z: -17.938519}
 --- !u!4 &986713674
 Transform:
   m_ObjectHideFlags: 0
@@ -2915,7 +2915,7 @@ GameObject:
   - component: {fileID: 1036124236}
   - component: {fileID: 1036124235}
   m_Layer: 0
-  m_Name: Star Spawner
+  m_Name: Meteor Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2933,18 +2933,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7672c088cbce568489d081be5df09415, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  starPrefabs:
-  - {fileID: 2767308421479521483, guid: 732a51eab95227d4eae684ad7396abac, type: 3}
-  - {fileID: 8977404963119974001, guid: 809bacf9c1daf6442a93339625edebbb, type: 3}
-  - {fileID: 1968814213816329391, guid: 25971a88ee03ffd4d8f07521f1725812, type: 3}
+  spaceItemPrefabs:
   - {fileID: 651960858193725616, guid: 7d8655a331c763c40960264514912631, type: 3}
-  - {fileID: 4194405773046947710, guid: 27f087554897cb043af6bc370b2518bf, type: 3}
-  maxStarsOnScreen: 15
+  maxItemsOnScreen: 50
   initialDelay: 0
-  spawnInterval: 4
-  starMoveSpeed: 15
-  starScaleDuration: 6
-  doubleSpawnChance: 25
+  spawnInterval: 2
+  itemMoveSpeed: 15
+  itemScaleDuration: 5
+  doubleSpawnChance: 50
   spawnZone1: {fileID: 1036124239}
   spawnZone2: {fileID: 1036124238}
   spawnZone3: {fileID: 1036124237}
@@ -2968,8 +2964,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 118.12147, y: 42.48738, z: 43.682083}
-  m_Center: {x: -13.325825, y: 57.5186, z: 21.341042}
+  m_Size: {x: 200, y: 100, z: 100}
+  m_Center: {x: 0, y: 100, z: 0}
 --- !u!65 &1036124237
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2989,8 +2985,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 34.47336, y: 173.82118, z: 43.691147}
-  m_Center: {x: 64.8745, y: -6.7187576, z: 21.345573}
+  m_Size: {x: 100, y: 200, z: 100}
+  m_Center: {x: 150, y: 0, z: 0}
 --- !u!65 &1036124238
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3010,8 +3006,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 123.04457, y: 42.672714, z: 43.431534}
-  m_Center: {x: -14.21772, y: -67.61347, z: 21.215767}
+  m_Size: {x: 200, y: 100, z: 100}
+  m_Center: {x: 0, y: -100, z: 0}
 --- !u!65 &1036124239
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3031,8 +3027,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 55.283997, y: 174.50165, z: 43.38353}
-  m_Center: {x: -100.59152, y: -5.0745277, z: 21.191765}
+  m_Size: {x: 100, y: 200, z: 100}
+  m_Center: {x: -150, y: 0, z: 0}
 --- !u!4 &1036124240
 Transform:
   m_ObjectHideFlags: 0
@@ -3042,7 +3038,7 @@ Transform:
   m_GameObject: {fileID: 1036124234}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.7, y: 0, z: 331.6}
+  m_LocalPosition: {x: 1.7, y: 0, z: 500}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3681,16 +3677,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7672c088cbce568489d081be5df09415, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  starPrefabs:
+  spaceItemPrefabs:
   - {fileID: 3724146673273290545, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
-  - {fileID: 5771890810292038773, guid: 8ecf9c9ab609c1f409b01e986dd2af22, type: 3}
   - {fileID: 3724146673273290545, guid: cf638f8b3934ec6439377e0766874185, type: 3}
-  - {fileID: 5771890810292038773, guid: efa8c1e144bea96448517a7a00aadeee, type: 3}
-  maxStarsOnScreen: 15
+  maxItemsOnScreen: 50
   initialDelay: 7
-  spawnInterval: 75
-  starMoveSpeed: 8
-  starScaleDuration: 25
+  spawnInterval: 60
+  itemMoveSpeed: 8
+  itemScaleDuration: 10
   doubleSpawnChance: 0
   spawnZone1: {fileID: 1277134344}
   spawnZone2: {fileID: 0}
@@ -3715,7 +3709,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 100, y: 50, z: 50}
+  m_Size: {x: 100, y: 50, z: 100}
   m_Center: {x: 275, y: 0, z: 0}
 --- !u!65 &1277134344
 BoxCollider:
@@ -3736,7 +3730,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 100, y: 50, z: 50}
+  m_Size: {x: 100, y: 50, z: 100}
   m_Center: {x: -275, y: 0, z: 0}
 --- !u!4 &1277134345
 Transform:
@@ -3747,7 +3741,7 @@ Transform:
   m_GameObject: {fileID: 1277134339}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.7, y: 0, z: 648}
+  m_LocalPosition: {x: 1.7, y: 0, z: 750}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5789,6 +5783,158 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7934104200990962556, guid: 27f087554897cb043af6bc370b2518bf, type: 3}
   m_PrefabInstance: {fileID: 1079284870}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1881213309
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1881213313}
+  - component: {fileID: 1881213312}
+  - component: {fileID: 1881213311}
+  - component: {fileID: 1881213315}
+  - component: {fileID: 1881213314}
+  - component: {fileID: 1881213310}
+  m_Layer: 0
+  m_Name: Star Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1881213310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881213309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7672c088cbce568489d081be5df09415, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spaceItemPrefabs:
+  - {fileID: 1742249867757293155, guid: cb57e0e6074da9a4b9bf706602045938, type: 3}
+  - {fileID: 5812440610106550900, guid: 21c9f5c806fda5a44949dd178fb596c9, type: 3}
+  - {fileID: 2879757880123640424, guid: f30302f315ab0bc438e93795f8c11d09, type: 3}
+  - {fileID: 8385246590541886528, guid: 65155869a22b045459540ac2f803d72e, type: 3}
+  - {fileID: 6847197689048635989, guid: be42b8299120f0c4581c1d7cf339948e, type: 3}
+  - {fileID: 5848314004470202556, guid: f70ab73b26c2c3049a7f42e0df94e9d0, type: 3}
+  - {fileID: 5848314004470202556, guid: aad9d02e31a81b74f88880e5af0eb80c, type: 3}
+  - {fileID: 6634366097323769788, guid: 4c2a7c246551de346b97a22f51602964, type: 3}
+  - {fileID: 8149321816309846758, guid: 636859dfca8ba4d4fa962c68dc8ff44b, type: 3}
+  maxItemsOnScreen: 50
+  initialDelay: 0
+  spawnInterval: 50
+  itemMoveSpeed: 8
+  itemScaleDuration: 15
+  doubleSpawnChance: 0
+  spawnZone1: {fileID: 1881213312}
+  spawnZone2: {fileID: 1881213315}
+  spawnZone3: {fileID: 1881213311}
+  spawnZone4: {fileID: 1881213314}
+--- !u!65 &1881213311
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881213309}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 100, y: 300, z: 100}
+  m_Center: {x: 500, y: 0, z: 0}
+--- !u!65 &1881213312
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881213309}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 100, y: 300, z: 100}
+  m_Center: {x: -500, y: 0, z: 0}
+--- !u!4 &1881213313
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881213309}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.7, y: 0, z: 1000}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1881213314
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881213309}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 300, y: 50, z: 100}
+  m_Center: {x: 0, y: -300, z: 0}
+--- !u!65 &1881213315
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881213309}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 300, y: 50, z: 100}
+  m_Center: {x: 0, y: 300, z: 0}
 --- !u!1001 &1884324598
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9211,4 +9357,5 @@ SceneRoots:
   - {fileID: 5119365439679359532}
   - {fileID: 1036124240}
   - {fileID: 1277134345}
+  - {fileID: 1881213313}
   - {fileID: 986713674}

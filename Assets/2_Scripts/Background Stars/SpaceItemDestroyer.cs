@@ -2,12 +2,12 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class StarDestroyer : MonoBehaviour
+public class SpaceItemDestroyer : MonoBehaviour
 {
     [Header("Destruction Settings")]
-    public float destructionDelay = 1f; // Time in seconds before destroying the star after trigger
+    public float destructionDelay = 1f; // Time in seconds before destroying the item after trigger
     
-    private HashSet<GameObject> starsBeingDestroyed = new HashSet<GameObject>();
+    private HashSet<GameObject> itemsBeingDestroyed = new HashSet<GameObject>();
     
     void Start()
     {
@@ -26,7 +26,7 @@ public class StarDestroyer : MonoBehaviour
         }
         
         // Set the tag for easy identification
-        gameObject.tag = "StarDestroyer";
+        gameObject.tag = "ItemDestroyer";
         
         // Add Rigidbody if it doesn't exist (needed for reliable trigger detection)
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -36,43 +36,58 @@ public class StarDestroyer : MonoBehaviour
             rb.isKinematic = true; // Kinematic so it doesn't fall due to gravity
             rb.useGravity = false;
         }
-
+        
+        Debug.Log("SpaceItemDestroyer setup complete - Tag: " + gameObject.tag + ", Trigger: " + col.isTrigger);
     }
     
     void OnTriggerEnter(Collider other)
     {
-        // Check if the object that entered is a star
-        StarBehavior star = other.GetComponent<StarBehavior>();
-        if (star != null)
+        Debug.Log("SpaceItemDestroyer triggered by: " + other.gameObject.name);
+        
+        // Check if the object that entered is a space item
+        SpaceItemBehavior spaceItem = other.GetComponent<SpaceItemBehavior>();
+        if (spaceItem != null)
         {
-            // Check if we're already processing this star
-            if (!starsBeingDestroyed.Contains(other.gameObject))
+            // Check if we're already processing this item
+            if (!itemsBeingDestroyed.Contains(other.gameObject))
             {
+                Debug.Log("Space item detected, starting destruction timer: " + destructionDelay + " seconds");
+                
                 // Add to tracking set
-                starsBeingDestroyed.Add(other.gameObject);
+                itemsBeingDestroyed.Add(other.gameObject);
                 
                 // Start destruction countdown
-                StartCoroutine(DestroyStarAfterDelay(star, other.gameObject));
+                StartCoroutine(DestroyItemAfterDelay(spaceItem, other.gameObject));
             }
+            else
+            {
+                Debug.Log("Space item already being processed for destruction: " + other.gameObject.name);
+            }
+        }
+        else
+        {
+            Debug.Log("Object is not a space item: " + other.gameObject.name);
         }
     }
     
-    IEnumerator DestroyStarAfterDelay(StarBehavior star, GameObject starObject)
+    IEnumerator DestroyItemAfterDelay(SpaceItemBehavior spaceItem, GameObject itemObject)
     {
         // Wait for the specified delay
         yield return new WaitForSeconds(destructionDelay);
         
-        // Check if the star still exists (might have been destroyed by other means)
-        if (starObject != null && star != null)
+        // Check if the item still exists (might have been destroyed by other means)
+        if (itemObject != null && spaceItem != null)
         {
+            Debug.Log("Destroying space item after delay: " + itemObject.name);
+            
             // Start the fade out process
-            star.StartFadeOut();
+            spaceItem.StartFadeOut();
         }
         
         // Remove from tracking set
-        if (starObject != null)
+        if (itemObject != null)
         {
-            starsBeingDestroyed.Remove(starObject);
+            itemsBeingDestroyed.Remove(itemObject);
         }
     }
     

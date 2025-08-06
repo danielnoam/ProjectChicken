@@ -1,12 +1,13 @@
 using UnityEngine;
 
-public class StarBehavior : MonoBehaviour
+public class SpaceItemBehavior : MonoBehaviour
 {
     [Header("Movement Settings")]
     [HideInInspector] public float moveSpeed = 5f; // Set by spawner
     
     [Header("Rotation Settings")]
-    public Vector3 rotationSpeed = new Vector3(15f, 25f, 5f); // Degrees per second for X, Y, Z axes
+    public bool enableRotation = true; // Toggle rotation on/off
+    public Vector3 rotationSpeed = new Vector3(10.75f, 16.75f, 22.75f); // Degrees per second for X, Y, Z axes (non-repeating pattern)
     
     [Header("Scaling Settings")]
     public float initialScale = 0.1f;
@@ -54,26 +55,30 @@ public class StarBehavior : MonoBehaviour
     
     void Update()
     {
-        MoveStar();
-        RotateStar();
-        ScaleStar();
+        MoveItem();
+        RotateItem();
+        ScaleItem();
         HandleFading();
     }
     
-    void MoveStar()
+    void MoveItem()
     {
-        // Move the star in world space (always toward positive Z regardless of rotation)
+        // Move the item in world space (always toward positive Z regardless of rotation)
         transform.position += movementDirection * moveSpeed * Time.deltaTime;
     }
     
-    void RotateStar()
+    void RotateItem()
     {
-        // Rotate the star around all axes using the rotation speed
-        Vector3 rotation = rotationSpeed * Time.deltaTime;
-        transform.Rotate(rotation, Space.Self);
+        // Only rotate if rotation is enabled
+        if (enableRotation)
+        {
+            // Rotate the item around all axes using the rotation speed
+            Vector3 rotation = rotationSpeed * Time.deltaTime;
+            transform.Rotate(rotation, Space.Self);
+        }
     }
     
-    void ScaleStar()
+    void ScaleItem()
     {
         if (!isFadingOut && currentScale < targetScale)
         {
@@ -116,12 +121,12 @@ public class StarBehavior : MonoBehaviour
         }
     }
     
-    // Called externally to start fade out (only called by StarDestroyer now)
+    // Called externally to start fade out (only called by ItemDestroyer now)
     public void StartFadeOut()
     {
         if (!isFadingOut)
         {
-            Debug.Log("Starting fade out for star: " + gameObject.name);
+            Debug.Log("Starting fade out for space item: " + gameObject.name);
             isFadingOut = true;
             fadeTimer = 0f;
             
@@ -130,7 +135,7 @@ public class StarBehavior : MonoBehaviour
         }
         else
         {
-            Debug.Log("Star " + gameObject.name + " already fading out");
+            Debug.Log("Space item " + gameObject.name + " already fading out");
         }
     }
     
