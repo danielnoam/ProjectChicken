@@ -29,8 +29,14 @@ public class SpaceItemBehavior : MonoBehaviour
     private Material starMaterial;
     private Color originalColor;
     private Vector3 movementDirection; // World space movement direction
+    private bool isPooled = false; // Track if this object is from pool
     
     void Start()
+    {
+        InitializeItem();
+    }
+    
+    void InitializeItem()
     {
         // Store initial position and setup
         initialPosition = transform.position;
@@ -113,10 +119,10 @@ public class SpaceItemBehavior : MonoBehaviour
                 starMaterial.color = newColor;
             }
             
-            // Destroy after fade is complete
+            // Return to pool or destroy after fade is complete
             if (fadeTimer >= fadeOutDuration)
             {
-                Destroy(gameObject);
+                ReturnToPoolOrDestroy();
             }
         }
     }
@@ -130,13 +136,121 @@ public class SpaceItemBehavior : MonoBehaviour
             fadeTimer = 0f;
             
             // Start destruction timer as backup
-            Destroy(gameObject, destroyDelay);
+            Invoke(nameof(ReturnToPoolOrDestroy), destroyDelay);
         }
     }
     
-    // Alternative method to destroy immediately if needed
-    public void DestroyImmediately()
+    // Alternative method to return to pool immediately if needed
+    public void ReturnToPoolOrDestroyImmediately()
     {
-        Destroy(gameObject);
+        CancelInvoke(); // Cancel any pending destruction
+        ReturnToPoolOrDestroy();
+    }
+    
+    void ReturnToPoolOrDestroy()
+    {
+        // Try to find the appropriate pool for this object
+        SpaceItemPool targetPool = null;
+        
+        // First, try to find a pool that contains this prefab type
+        targetPool = SpaceItemPool.FindPoolWithPrefab(FindOriginalPrefab());
+        
+        if (targetPool != null)
+        {
+            targetPool.ReturnToPool(gameObject);
+        }
+        else
+        {
+            // Fallback to destroying if no appropriate pool found
+            Destroy(gameObject);
+        }
+    }
+    
+    GameObject FindOriginalPrefab()
+    {
+        // Simple approach to find original prefab based on name
+        string itemName = gameObject.name.Replace("(Clone)", "").Trim();
+        
+        // Search through all pools to find matching prefab
+        SpaceItemPool[] allPools = FindObjectsOfType<SpaceItemPool>();
+        foreach (SpaceItemPool pool in allPools)
+        {
+            foreach (GameObject prefab in pool.itemPrefabs)
+            {
+                if (prefab != null && prefab.name == itemName)
+                {
+                    return prefab;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    // Reset method for object pooling
+    public void ResetForPool()
+    {
+        // Cancel any pending invokes
+        CancelInvoke();
+        
+        // Reset all state variables
+        scaleTimer = 0f;
+        isFadingOut = false;
+        fadeTimer = 0f;
+        currentScale = initialScale;
+        
+        // Reset target scale to a new random value
+        targetScale = Random.Range(minSize, maxSize);
+        
+        // Reset transform scale
+        transform.localScale = Vector3.one * currentScale;
+        
+        // Reset material color if available
+        if (starMaterial != null && originalColor != Color.clear)
+        {
+            starMaterial.color = originalColor;
+        }
+        else if (starRenderer != null)
+        {
+            // Re-get material and original color (in case material changed)
+            starMaterial = starRenderer.material;
+            if (starMaterial != null)
+            {
+                originalColor = starMaterial.color;
+            }
+        }
+        
+        // Set initial position to current position (will be updated by spawner)
+        initialPosition = transform.position;
+        
+        // Movement direction stays the same
+        movementDirection = Vector3.back;
+        
+        isPooled = true;
+    }
+    
+    void OnEnable()
+    {
+        // If this object was just enabled from pool, initialize it
+        if (isPooled)
+        {
+            // Don't call full InitializeItem() as ResetForPool() already handled most of it
+            // Just ensure we have the renderer and material references
+            if (starRenderer == null)
+            {
+                starRenderer = GetComponent<Renderer>();
+                if (starRenderer != null && starMaterial == null)
+                {
+                    starMaterial = starRenderer.material;
+                    originalColor = starMaterial.color;
+                }
+            }
+        }
+    }
+    
+    void OnDisable()
+    {
+        // Cancel any pending invokes when object is disabled
+        CancelInvoke();
     }
 }

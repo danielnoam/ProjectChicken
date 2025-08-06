@@ -21,8 +21,14 @@ public class SpaceItemSpawner : MonoBehaviour
     [Header("Spawn Zones")]
     public List<BoxCollider> spawnZones = new List<BoxCollider>();
     
+    [Header("Pool Integration")]
+    public bool useObjectPool = true; // Toggle to use object pool or traditional instantiation
+    public SpaceItemPool targetPool; // Reference to specific pool to use
+    public string poolName = "SpaceItemPool"; // Name of pool to find if targetPool is not assigned
+    
     private int currentItemCount = 0;
     private Transform playerTransform;
+    private SpaceItemPool itemPool;
     
     void Start()
     {
@@ -42,8 +48,54 @@ public class SpaceItemSpawner : MonoBehaviour
         ValidateSpawnZones();
         ValidateItemPrefabs();
         
+        // Setup object pool if enabled
+        SetupObjectPool();
+        
         // Start spawning items
         StartCoroutine(SpawnItems());
+    }
+    
+    void SetupObjectPool()
+    {
+        if (useObjectPool)
+        {
+            // Use assigned pool or find one by name
+            if (targetPool != null)
+            {
+                itemPool = targetPool;
+            }
+            else
+            {
+                itemPool = SpaceItemPool.FindPoolByName(poolName);
+            }
+            
+            if (itemPool == null)
+            {
+                // Create object pool if it doesn't exist
+                GameObject poolObject = new GameObject(poolName);
+                itemPool = poolObject.AddComponent<SpaceItemPool>();
+                
+                // Configure the pool with our prefabs
+                itemPool.poolName = poolName;
+                itemPool.itemPrefabs = new List<GameObject>(spaceItemPrefabs);
+                itemPool.initialPoolSize = Mathf.Max(10, maxItemsOnScreen / 2); // Start with half max items
+                itemPool.maxPoolSize = maxItemsOnScreen * 2; // Allow pool to grow beyond max screen items
+                
+                Debug.Log($"Created {poolName} with {spaceItemPrefabs.Count} prefab types");
+            }
+            else
+            {
+                // Ensure the existing pool has our prefabs
+                foreach (GameObject prefab in spaceItemPrefabs)
+                {
+                    if (!itemPool.itemPrefabs.Contains(prefab))
+                    {
+                        itemPool.itemPrefabs.Add(prefab);
+                        Debug.Log($"Added {prefab.name} to existing pool {itemPool.poolName}");
+                    }
+                }
+            }
+        }
     }
     
     void SetupSpawnZones()
@@ -107,13 +159,16 @@ public class SpaceItemSpawner : MonoBehaviour
         
         while (true)
         {
-            if (currentItemCount < maxItemsOnScreen)
+            // Get current active count from pool or use our counter
+            int activeCount = useObjectPool && itemPool != null ? itemPool.GetTotalActiveCount() : currentItemCount;
+            
+            if (activeCount < maxItemsOnScreen)
             {
                 // Check if we should do a double spawn
                 int randomRoll = Random.Range(1, 101); // 1 to 100
                 bool shouldDoubleSpawn = randomRoll <= doubleSpawnChance;
                 
-                if (shouldDoubleSpawn && currentItemCount + 1 < maxItemsOnScreen)
+                if (shouldDoubleSpawn && activeCount + 1 < maxItemsOnScreen)
                 {
                     // Double spawn: spawn first item immediately, second after half interval
                     SpawnSingleItem();
@@ -122,7 +177,8 @@ public class SpaceItemSpawner : MonoBehaviour
                     yield return new WaitForSeconds(spawnInterval * 0.5f);
                     
                     // Spawn second item (if still under limit)
-                    if (currentItemCount < maxItemsOnScreen)
+                    activeCount = useObjectPool && itemPool != null ? itemPool.GetTotalActiveCount() : currentItemCount;
+                    if (activeCount < maxItemsOnScreen)
                     {
                         SpawnSingleItem();
                     }
@@ -160,18 +216,47 @@ public class SpaceItemSpawner : MonoBehaviour
         // Calculate spawn position within the selected zone
         Vector3 spawnPosition = CalculateSpawnPosition(selectedZone);
         
-        // Create the space item
-        GameObject newItem = Instantiate(selectedPrefab, spawnPosition, Quaternion.identity);
+        // Create the space item (using pool or traditional instantiation)
+        GameObject newItem = CreateSpaceItem(selectedPrefab, spawnPosition);
         
-        // Apply global item settings
-        ApplyGlobalItemSettings(newItem);
+        if (newItem != null)
+        {
+            // Apply global item settings
+            ApplyGlobalItemSettings(newItem);
+            
+            // Setup the item
+            SetupItemDestruction(newItem);
+            
+            // Only track count if not using pool (pool handles its own counting)
+            if (!useObjectPool)
+            {
+                currentItemCount++;
+                StartCoroutine(TrackItem(newItem));
+            }
+        }
+    }
+    
+    GameObject CreateSpaceItem(GameObject prefab, Vector3 position)
+    {
+        GameObject newItem = null;
         
-        // Setup the item
-        SetupItemDestruction(newItem);
-        currentItemCount++;
+        if (useObjectPool && itemPool != null)
+        {
+            // Get item from pool
+            newItem = itemPool.GetPooledItem(prefab);
+            if (newItem != null)
+            {
+                newItem.transform.position = position;
+                newItem.transform.rotation = Quaternion.identity;
+            }
+        }
+        else
+        {
+            // Traditional instantiation
+            newItem = Instantiate(prefab, position, Quaternion.identity);
+        }
         
-        // Start coroutine to track this item
-        StartCoroutine(TrackItem(newItem));
+        return newItem;
     }
     
     BoxCollider GetRandomSpawnZone()
@@ -287,6 +372,7 @@ public class SpaceItemSpawner : MonoBehaviour
     
     IEnumerator TrackItem(GameObject spaceItem)
     {
+        // Only used when object pooling is disabled
         // Simply wait for the item to be destroyed by collision
         while (spaceItem != null)
         {

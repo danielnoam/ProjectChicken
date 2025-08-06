@@ -1917,6 +1917,56 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4128553274159926499, guid: 7d8655a331c763c40960264514912631, type: 3}
   m_PrefabInstance: {fileID: 586538837}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &588232813
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 588232814}
+  - component: {fileID: 588232815}
+  m_Layer: 0
+  m_Name: Meteor Pool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &588232814
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 588232813}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 785790367}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &588232815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 588232813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee76f71d9fa609b4597657e8630e0a89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemPrefabs:
+  - {fileID: 651960858193725616, guid: 7d8655a331c763c40960264514912631, type: 3}
+  initialPoolSize: 100
+  maxPoolSize: 200
+  poolParent: {fileID: 588232814}
+  poolName: Meteor Pool
 --- !u!1001 &599939353
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2240,6 +2290,57 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f825a85e8a45daf419722d544dbe51e7, type: 3}
   m_PrefabInstance: {fileID: 8181476646264505221}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &739229544
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 739229545}
+  - component: {fileID: 739229546}
+  m_Layer: 0
+  m_Name: Shop Pool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &739229545
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 739229544}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 785790367}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &739229546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 739229544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee76f71d9fa609b4597657e8630e0a89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemPrefabs:
+  - {fileID: 3724146673273290545, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
+  - {fileID: 3724146673273290545, guid: cf638f8b3934ec6439377e0766874185, type: 3}
+  initialPoolSize: 3
+  maxPoolSize: 200
+  poolParent: {fileID: 739229545}
+  poolName: Shop Pool
 --- !u!4 &741650226 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 21b31bb8e0e816745b014c4279ba1c87, type: 3}
@@ -2327,6 +2428,40 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4128553274159926499, guid: 7d8655a331c763c40960264514912631, type: 3}
   m_PrefabInstance: {fileID: 765164978}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &785790365
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 785790367}
+  m_Layer: 0
+  m_Name: Space Props Pool Parent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &785790367
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 785790365}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 588232814}
+  - {fileID: 739229545}
+  - {fileID: 1964429380}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -2679,6 +2814,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   destructionDelay: 4
+  useObjectPool: 1
+  targetPool: {fileID: 0}
+  poolName: SpaceItemPool
 --- !u!1001 &995641132
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2935,16 +3073,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spaceItemPrefabs:
   - {fileID: 651960858193725616, guid: 7d8655a331c763c40960264514912631, type: 3}
-  maxItemsOnScreen: 50
+  maxItemsOnScreen: 150
   initialDelay: 0
-  spawnInterval: 2
-  itemMoveSpeed: 15
+  spawnInterval: 1
+  itemMoveSpeed: 20
   itemScaleDuration: 5
   doubleSpawnChance: 50
-  spawnZone1: {fileID: 1036124239}
-  spawnZone2: {fileID: 1036124238}
-  spawnZone3: {fileID: 1036124237}
-  spawnZone4: {fileID: 1036124236}
+  spawnZones: []
+  useObjectPool: 1
+  targetPool: {fileID: 588232815}
+  poolName: Meteor Pool
 --- !u!65 &1036124236
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3686,10 +3824,10 @@ MonoBehaviour:
   itemMoveSpeed: 8
   itemScaleDuration: 10
   doubleSpawnChance: 0
-  spawnZone1: {fileID: 1277134344}
-  spawnZone2: {fileID: 0}
-  spawnZone3: {fileID: 1277134342}
-  spawnZone4: {fileID: 0}
+  spawnZones: []
+  useObjectPool: 1
+  targetPool: {fileID: 739229546}
+  poolName: Shop Pool
 --- !u!65 &1277134342
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3709,7 +3847,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 100, y: 50, z: 100}
+  m_Size: {x: 100, y: 150, z: 100}
   m_Center: {x: 275, y: 0, z: 0}
 --- !u!65 &1277134344
 BoxCollider:
@@ -3730,7 +3868,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 100, y: 50, z: 100}
+  m_Size: {x: 100, y: 150, z: 100}
   m_Center: {x: -275, y: 0, z: 0}
 --- !u!4 &1277134345
 Transform:
@@ -3741,7 +3879,7 @@ Transform:
   m_GameObject: {fileID: 1277134339}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.7, y: 0, z: 750}
+  m_LocalPosition: {x: 1.7, y: -50, z: 750}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5832,10 +5970,10 @@ MonoBehaviour:
   itemMoveSpeed: 8
   itemScaleDuration: 15
   doubleSpawnChance: 0
-  spawnZone1: {fileID: 1881213312}
-  spawnZone2: {fileID: 1881213315}
-  spawnZone3: {fileID: 1881213311}
-  spawnZone4: {fileID: 1881213314}
+  spawnZones: []
+  useObjectPool: 1
+  targetPool: {fileID: 1964429381}
+  poolName: Star Pool
 --- !u!65 &1881213311
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6022,6 +6160,64 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4128553274159926499, guid: 7d8655a331c763c40960264514912631, type: 3}
   m_PrefabInstance: {fileID: 1458932994}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1964429379
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1964429380}
+  - component: {fileID: 1964429381}
+  m_Layer: 0
+  m_Name: Star Pool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1964429380
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964429379}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 785790367}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1964429381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964429379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee76f71d9fa609b4597657e8630e0a89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemPrefabs:
+  - {fileID: 1742249867757293155, guid: cb57e0e6074da9a4b9bf706602045938, type: 3}
+  - {fileID: 5812440610106550900, guid: 21c9f5c806fda5a44949dd178fb596c9, type: 3}
+  - {fileID: 2879757880123640424, guid: f30302f315ab0bc438e93795f8c11d09, type: 3}
+  - {fileID: 8385246590541886528, guid: 65155869a22b045459540ac2f803d72e, type: 3}
+  - {fileID: 6847197689048635989, guid: be42b8299120f0c4581c1d7cf339948e, type: 3}
+  - {fileID: 5848314004470202556, guid: f70ab73b26c2c3049a7f42e0df94e9d0, type: 3}
+  - {fileID: 5848314004470202556, guid: aad9d02e31a81b74f88880e5af0eb80c, type: 3}
+  - {fileID: 6634366097323769788, guid: 4c2a7c246551de346b97a22f51602964, type: 3}
+  - {fileID: 8149321816309846758, guid: 636859dfca8ba4d4fa962c68dc8ff44b, type: 3}
+  initialPoolSize: 3
+  maxPoolSize: 200
+  poolParent: {fileID: 1964429380}
+  poolName: Star Pool
 --- !u!1001 &1972985114
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9359,3 +9555,4 @@ SceneRoots:
   - {fileID: 1277134345}
   - {fileID: 1881213313}
   - {fileID: 986713674}
+  - {fileID: 785790367}
