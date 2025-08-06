@@ -36,14 +36,10 @@ public class SpaceItemDestroyer : MonoBehaviour
             rb.isKinematic = true; // Kinematic so it doesn't fall due to gravity
             rb.useGravity = false;
         }
-        
-        Debug.Log("SpaceItemDestroyer setup complete - Tag: " + gameObject.tag + ", Trigger: " + col.isTrigger);
     }
     
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("SpaceItemDestroyer triggered by: " + other.gameObject.name);
-        
         // Check if the object that entered is a space item
         SpaceItemBehavior spaceItem = other.GetComponent<SpaceItemBehavior>();
         if (spaceItem != null)
@@ -51,22 +47,12 @@ public class SpaceItemDestroyer : MonoBehaviour
             // Check if we're already processing this item
             if (!itemsBeingDestroyed.Contains(other.gameObject))
             {
-                Debug.Log("Space item detected, starting destruction timer: " + destructionDelay + " seconds");
-                
                 // Add to tracking set
                 itemsBeingDestroyed.Add(other.gameObject);
                 
                 // Start destruction countdown
                 StartCoroutine(DestroyItemAfterDelay(spaceItem, other.gameObject));
             }
-            else
-            {
-                Debug.Log("Space item already being processed for destruction: " + other.gameObject.name);
-            }
-        }
-        else
-        {
-            Debug.Log("Object is not a space item: " + other.gameObject.name);
         }
     }
     
@@ -78,8 +64,6 @@ public class SpaceItemDestroyer : MonoBehaviour
         // Check if the item still exists (might have been destroyed by other means)
         if (itemObject != null && spaceItem != null)
         {
-            Debug.Log("Destroying space item after delay: " + itemObject.name);
-            
             // Start the fade out process
             spaceItem.StartFadeOut();
         }

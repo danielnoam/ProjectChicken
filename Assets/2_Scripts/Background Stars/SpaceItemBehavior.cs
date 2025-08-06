@@ -7,7 +7,7 @@ public class SpaceItemBehavior : MonoBehaviour
     
     [Header("Rotation Settings")]
     public bool enableRotation = true; // Toggle rotation on/off
-    public Vector3 rotationSpeed = new Vector3(10.75f, 16.75f, 22.75f); // Degrees per second for X, Y, Z axes (non-repeating pattern)
+    public Vector3 rotationSpeed = new Vector3(43f, 67f, 91f); // Degrees per second for X, Y, Z axes (non-repeating pattern)
     
     [Header("Scaling Settings")]
     public float initialScale = 0.1f;
@@ -126,16 +126,11 @@ public class SpaceItemBehavior : MonoBehaviour
     {
         if (!isFadingOut)
         {
-            Debug.Log("Starting fade out for space item: " + gameObject.name);
             isFadingOut = true;
             fadeTimer = 0f;
             
             // Start destruction timer as backup
             Destroy(gameObject, destroyDelay);
-        }
-        else
-        {
-            Debug.Log("Space item " + gameObject.name + " already fading out");
         }
     }
     

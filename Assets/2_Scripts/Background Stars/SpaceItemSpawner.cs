@@ -19,14 +19,10 @@ public class SpaceItemSpawner : MonoBehaviour
     public int doubleSpawnChance = 40; // Percentage chance for double spawn
     
     [Header("Spawn Zones")]
-    public BoxCollider spawnZone1;
-    public BoxCollider spawnZone2;
-    public BoxCollider spawnZone3;
-    public BoxCollider spawnZone4;
+    public List<BoxCollider> spawnZones = new List<BoxCollider>();
     
     private int currentItemCount = 0;
     private Transform playerTransform;
-    private BoxCollider[] spawnZones;
     
     void Start()
     {
@@ -39,8 +35,8 @@ public class SpaceItemSpawner : MonoBehaviour
                 playerTransform = player.transform;
         }
         
-        // Setup spawn zones array
-        spawnZones = new BoxCollider[] { spawnZone1, spawnZone2, spawnZone3, spawnZone4 };
+        // Setup spawn zones - either use assigned list or find all BoxColliders on this GameObject
+        SetupSpawnZones();
         
         // Validate spawn zones and prefabs
         ValidateSpawnZones();
@@ -50,14 +46,37 @@ public class SpaceItemSpawner : MonoBehaviour
         StartCoroutine(SpawnItems());
     }
     
+    void SetupSpawnZones()
+    {
+        // If no spawn zones assigned, automatically find all BoxColliders on this GameObject
+        if (spawnZones.Count == 0)
+        {
+            BoxCollider[] foundColliders = GetComponents<BoxCollider>();
+            if (foundColliders.Length > 0)
+            {
+                spawnZones.AddRange(foundColliders);
+                Debug.LogWarning($"SpaceItemSpawner: No spawn zones assigned, automatically found {foundColliders.Length} BoxColliders on this GameObject.");
+            }
+            else
+            {
+                Debug.LogError("SpaceItemSpawner: No spawn zones assigned and no BoxColliders found on this GameObject!");
+            }
+        }
+    }
+    
     void ValidateSpawnZones()
     {
-        for (int i = 0; i < spawnZones.Length; i++)
+        for (int i = 0; i < spawnZones.Count; i++)
         {
             if (spawnZones[i] == null)
             {
-                Debug.LogWarning($"Spawn Zone {i + 1} is not assigned in SpaceItemSpawner!");
+                Debug.LogWarning($"Spawn Zone at index {i} is null in SpaceItemSpawner!");
             }
+        }
+        
+        if (spawnZones.Count == 0)
+        {
+            Debug.LogError("No spawn zones available in SpaceItemSpawner!");
         }
     }
     
@@ -83,9 +102,7 @@ public class SpaceItemSpawner : MonoBehaviour
         // Wait for initial delay before starting to spawn
         if (initialDelay > 0f)
         {
-            Debug.Log($"SpaceItemSpawner: Waiting {initialDelay} seconds before starting spawns...");
             yield return new WaitForSeconds(initialDelay);
-            Debug.Log("SpaceItemSpawner: Initial delay complete, starting spawns!");
         }
         
         while (true)
@@ -155,8 +172,6 @@ public class SpaceItemSpawner : MonoBehaviour
         
         // Start coroutine to track this item
         StartCoroutine(TrackItem(newItem));
-        
-        Debug.Log($"Spawned space item: {newItem.name} at {spawnPosition}. Current count: {currentItemCount}");
     }
     
     BoxCollider GetRandomSpawnZone()
@@ -238,8 +253,6 @@ public class SpaceItemSpawner : MonoBehaviour
                 
             if (scaleDurationField != null)
                 scaleDurationField.SetValue(behaviorComponent, itemScaleDuration);
-                
-            Debug.Log($"Applied global settings to {spaceItem.name}: Speed={itemMoveSpeed}, ScaleDuration={itemScaleDuration}");
         }
         else
         {
@@ -287,20 +300,15 @@ public class SpaceItemSpawner : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         // Draw spawn zones in scene view
-        if (spawnZones != null)
+        if (spawnZones != null && spawnZones.Count > 0)
         {
-            for (int i = 0; i < spawnZones.Length; i++)
+            for (int i = 0; i < spawnZones.Count; i++)
             {
                 if (spawnZones[i] != null)
                 {
-                    // Set different colors for each zone
-                    switch (i)
-                    {
-                        case 0: Gizmos.color = Color.yellow; break;
-                        case 1: Gizmos.color = Color.green; break;
-                        case 2: Gizmos.color = Color.blue; break;
-                        case 3: Gizmos.color = Color.magenta; break;
-                    }
+                    // Set different colors for each zone (cycling through colors if more than 4 zones)
+                    Color[] colors = { Color.yellow, Color.green, Color.blue, Color.magenta, Color.cyan, Color.red, Color.white };
+                    Gizmos.color = colors[i % colors.Length];
                     
                     Bounds bounds = spawnZones[i].bounds;
                     Gizmos.DrawWireCube(bounds.center, bounds.size);
