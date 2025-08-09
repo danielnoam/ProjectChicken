@@ -7,12 +7,11 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DistantBG Variant 1
-  m_Shader: {fileID: -6465566751694194690, guid: 5706983d919a66147ac11c81a829487d, type: 3}
-  m_Parent: {fileID: 2100000, guid: 11a89614c5b48c84aa4a64e09d81a967, type: 2}
+  m_Name: PS_Jet_1 Variant 1
+  m_Shader: {fileID: -6465566751694194690, guid: 985ab2e2db519254f8174a320a6be45c, type: 3}
+  m_Parent: {fileID: 2100000, guid: 4bb4f59c0a0ff6a4da39609b5b606c6f, type: 2}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _CHANNELSELECTION_B
+  m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -26,19 +25,17 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Texture2D:
-        m_Texture: {fileID: 2800000, guid: b6796865274ec73479e0ddccb392b3f6, type: 3}
+        m_Texture: {fileID: 2800000, guid: 0414334cb48c96346b8e14e64e5c5c9b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Alpha: 0.09
-    - _CHANNELSELECTION: 2
-    m_Colors:
-    - _Color: {r: 0, g: 1, b: 0.9630308, a: 0}
-    - _Speed: {r: 0, g: 0.2, b: 0, a: 0}
+    - _Float: 0
+    - _custome_texture: 1
+    m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &8419980254836694068
+--- !u!114 &823850169786890980
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

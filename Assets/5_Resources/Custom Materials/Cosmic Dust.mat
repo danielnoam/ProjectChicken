@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-2949320334997135716
+--- !u!114 &-3657913947871427062
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DistantBG
+  m_Name: Cosmic Dust
   m_Shader: {fileID: -6465566751694194690, guid: 5706983d919a66147ac11c81a829487d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -39,7 +39,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Texture2D:
-        m_Texture: {fileID: 2800000, guid: b6796865274ec73479e0ddccb392b3f6, type: 3}
+        m_Texture: {fileID: 2800000, guid: f7427065e41811343a91fff097b35d84, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -56,12 +56,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Alpha: 0.02
+    - _Alpha: 0.03
     - _CHANNELSELECTION: 0
     - _QueueControl: 0
     - _QueueOffset: 0
     m_Colors:
-    - _Color: {r: 1, g: 0.77976024, b: 0, a: 0}
-    - _Speed: {r: 0, g: 0.1, b: 0, a: 0}
+    - _Color: {r: 1.4980394, g: 1.4980394, b: 1.4980394, a: 0}
+    - _Speed: {r: 0, g: 0.5, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
