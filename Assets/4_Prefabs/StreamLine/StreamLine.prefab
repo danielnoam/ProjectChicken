@@ -871,7 +871,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 500
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -924,7 +924,7 @@ ParticleSystem:
     rateOverDistance:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 200
+      scalar: 0
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -1309,7 +1309,7 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0.9923001, g: 1, b: 0.7247274, a: 0.11764706}
+        key0: {r: 0.9923001, g: 1, b: 0.7247274, a: 1}
         key1: {r: 1, g: 1, b: 1, a: 0}
         key2: {r: 1, g: 1, b: 1, a: 0}
         key3: {r: 0, g: 0, b: 0, a: 0}
@@ -4848,3 +4848,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Jitter: 0.1
   StreamLineMovementDistance: {x: 0, y: 1, z: 0}
+  StreamLineStartLocation: {fileID: 0}
+  SpaceshipTransform: {fileID: 0}
