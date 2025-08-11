@@ -16,6 +16,7 @@ public class BehaviorNormalMovement : ProjectileBehaviorBase
     private bool _hasPassedAimPosition;
     private float _currentMoveSpeed;
     private Vector3 _moveDirection;
+    private Vector3 _lastMoveDirection;
     
     
     public override void OnMovement(PlayerProjectile projectile, RailPlayer owner)
@@ -25,25 +26,25 @@ public class BehaviorNormalMovement : ProjectileBehaviorBase
             _moveDirection = (projectile.CurrentTargetPosition - projectile.transform.position).normalized;
             float distanceToTarget = Vector3.Distance(projectile.transform.position, projectile.CurrentTargetPosition);
             
-            
-            
-            if (distanceToTarget < DistanceToAimPosition)
+            if (distanceToTarget > DistanceToAimPosition)
+            {
+                _lastMoveDirection = _moveDirection;
+            }
+        
+            if (distanceToTarget <= DistanceToAimPosition)
             {
                 _hasPassedAimPosition = true;
-                _moveDirection = projectile.StartDirection;
+                _moveDirection = _lastMoveDirection;
             }
-            
         }
-        
-    
+
         _currentMoveSpeed = moveSpeed;
-        
+    
         if (useSpeedStagger)
         {
             float normalizedStaggerTime = (Time.time - projectile.StartTime) / speedStaggerTime;
             _currentMoveSpeed = moveSpeed * staggerSpeedCurve.Evaluate(normalizedStaggerTime);
         }
-    
 
         projectile.Rigidbody?.MoveRotation(Quaternion.LookRotation(_moveDirection));
         projectile.Rigidbody?.MovePosition(projectile.Rigidbody.position + _moveDirection * (_currentMoveSpeed * Time.fixedDeltaTime));

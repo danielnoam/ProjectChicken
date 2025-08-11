@@ -1,13 +1,11 @@
-using System;
+
 using System.Collections;
-using System.Collections.Generic;
 using DNExtensions;
 using KBCore.Refs;
 using PrimeTween;
 using Unity.Cinemachine;
 using UnityEngine;
 using VInspector;
-using Random = UnityEngine.Random;
 
 
 
@@ -42,18 +40,19 @@ public class CameraManager : MonoBehaviour
     [SerializeField, Child(Flag.Editable)] private CinemachineCamera followCamera;
     [SerializeField, Child(Flag.Editable)] private CinemachineCamera introCamera;
     [SerializeField, Child(Flag.Editable)] private CinemachineCamera outroCamera;
+    [SerializeField, Child(Flag.Editable)] private CinemachineCamera storeCamera;
     [SerializeField, Child(Flag.Editable)] private CinemachineFollow followCameraFollow;
     [SerializeField, Child(Flag.Editable)] private CinemachineRotateWithFollowTarget followCameraRotate;
     [SerializeField, Child(Flag.Editable)] private CinemachineRotationOffsetExtension followCameraRotateExtenstion;
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private RailPlayer player;
-    [SerializeField, Self, HideInInspector] private CinemachineImpulseSource impulseSource;
     
     private Sequence _fovSequence;
     private Vector3 _targetFollowOffset;
     private Vector3 _currentFollowOffset;
     private Vector2 _currentRotationOffset;
     private Coroutine  _changePositionCoroutine;
+    private CinemachineCamera _activeCamera;
     private float _defaultFov;
 
     private void OnValidate()
@@ -102,6 +101,7 @@ public class CameraManager : MonoBehaviour
             player.PlayerMovement.OnDodge += OnPlayerDodge;
             player.OnDeath += OnPlayerDeath;
             followCamera.Target.TrackingTarget = player.GetFollowCameraTarget();
+            storeCamera.Target.TrackingTarget = player.GetStoreCameraTarget();
             introCamera.Target.TrackingTarget = player.GetRandomCameraPosition(); 
             introCamera.Target.LookAtTarget = player.transform;
             outroCamera.Target.LookAtTarget = player.transform; 
@@ -139,9 +139,11 @@ public class CameraManager : MonoBehaviour
 
     private void SetActiveCamera(CinemachineCamera cam)
     {
-        if (!cam) return;
+        if (!cam || cam == _activeCamera) return;
+
+        _activeCamera = cam;
         
-        if (cam == followCamera && followCameraRotateExtenstion)
+        if (_activeCamera == followCamera && followCameraRotateExtenstion)
         {
             followCameraRotateExtenstion.SetRotationOffset(Vector3.zero);
             _currentRotationOffset = Vector2.zero;
@@ -152,10 +154,11 @@ public class CameraManager : MonoBehaviour
         followCamera.Priority = 0;
         introCamera.Priority = 0;
         outroCamera.Priority = 0;
+        storeCamera.Priority = 0;
 
-        cam.Priority = 10;
+        _activeCamera.Priority = 10;
 
-        if (cam == introCamera && changePositions)
+        if (_activeCamera == introCamera && changePositions)
         {
             _changePositionCoroutine = StartCoroutine(ChangeCameraPosition(introCamera));
         }
@@ -164,7 +167,6 @@ public class CameraManager : MonoBehaviour
     private IEnumerator ChangeCameraPosition(CinemachineCamera cam)
     {
         if (!cam || !cam.isActiveAndEnabled) yield break;
-        
         
         yield return new WaitForSeconds(changePositionEvery);
         
@@ -275,6 +277,9 @@ public class CameraManager : MonoBehaviour
             case StageType.Checkpoint:
                 SetActiveCamera(followCamera);
                 break;
+            case StageType.Store:
+                SetActiveCamera(storeCamera);
+                break;
             case StageType.EnemyWave:
                 SetActiveCamera(followCamera);
                 break;
@@ -350,7 +355,7 @@ public class CameraManager : MonoBehaviour
         float normalizedY = Mathf.Abs(yInput);
         float normalizedMagnitude = Mathf.Max(normalizedX, normalizedY);
     
-        // Apply threshold to the normalized magnitude using existing positionThreshold.z
+        // Apply a threshold to the normalized magnitude using existing positionThreshold.z
         float zInput = ApplyMinRange(normalizedMagnitude, settings.threshold.z);
     
         // Calculate final Z offset
@@ -389,7 +394,7 @@ public class CameraManager : MonoBehaviour
         
         float absInput = Mathf.Abs(input);
         
-        // If input is below minimum threshold, return 0
+        // If input is below the minimum threshold, return 0
         if (absInput < minRange)
         {
             return 0f;
@@ -399,7 +404,7 @@ public class CameraManager : MonoBehaviour
         float denominator = 1f - minRange;
         if (denominator <= 0.01f)
         {
-            // If minRange is very close to 1, just return the sign
+            // If minRange is very close to 1, return the sign
             return Mathf.Sign(input);
         }
         

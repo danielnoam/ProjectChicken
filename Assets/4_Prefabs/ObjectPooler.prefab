@@ -50,7 +50,7 @@ MonoBehaviour:
   - poolName: LaserProjectiles
     maxPoolSize: 40
     prefab: {fileID: 8373019005351946335, guid: f83d7b75275851d40b9bac59d12a15c6, type: 3}
-    dontDestroyOnLoad: 1
+    dontDestroyOnLoad: 0
     recycleActiveObjects: 0
     preWarmPool: 1
     preWarmPoolSize: 16
@@ -60,7 +60,7 @@ MonoBehaviour:
   - poolName: MissileProjectile
     maxPoolSize: 8
     prefab: {fileID: 8373019005351946335, guid: 20978eb0d84dfd74fbd018ce1cb29fbf, type: 3}
-    dontDestroyOnLoad: 1
+    dontDestroyOnLoad: 0
     recycleActiveObjects: 0
     preWarmPool: 1
     preWarmPoolSize: 3
@@ -70,7 +70,7 @@ MonoBehaviour:
   - poolName: MiniMissileProjectile
     maxPoolSize: 10
     prefab: {fileID: 8373019005351946335, guid: a68a7f88b92bbe947afd6a143f8e5792, type: 3}
-    dontDestroyOnLoad: 1
+    dontDestroyOnLoad: 0
     recycleActiveObjects: 0
     preWarmPool: 0
     preWarmPoolSize: 0
@@ -80,7 +80,7 @@ MonoBehaviour:
   - poolName: AutoBallProjectiles
     maxPoolSize: 50
     prefab: {fileID: 8373019005351946335, guid: 14e001c3c26e24543956a33a00868bc9, type: 3}
-    dontDestroyOnLoad: 1
+    dontDestroyOnLoad: 0
     recycleActiveObjects: 1
     preWarmPool: 1
     preWarmPoolSize: 5
@@ -88,19 +88,19 @@ MonoBehaviour:
     activePoolCount: 0
     inactivePoolCount: 0
   - poolName: EggProjectile
-    maxPoolSize: 30
+    maxPoolSize: 70
     prefab: {fileID: 2910271167061673307, guid: 6c123908f2916c449a315c79c13f0ce0, type: 3}
-    dontDestroyOnLoad: 1
+    dontDestroyOnLoad: 0
     recycleActiveObjects: 0
     preWarmPool: 1
-    preWarmPoolSize: 10
+    preWarmPoolSize: 15
     poolSize: 0
     activePoolCount: 0
     inactivePoolCount: 0
   - poolName: OneShotSFX
     maxPoolSize: 30
     prefab: {fileID: 4881883869627230524, guid: 7538ce3299d5f864780acaafb8fcf87d, type: 3}
-    dontDestroyOnLoad: 1
+    dontDestroyOnLoad: 0
     recycleActiveObjects: 1
     preWarmPool: 1
     preWarmPoolSize: 3
@@ -119,7 +119,7 @@ MonoBehaviour:
     inactivePoolCount: 0
   - poolName: EnemyChicken2
     maxPoolSize: 50
-    prefab: {fileID: 761269833103634017, guid: be5fc6bbe7807ab04a3f8869e0b6ad02, type: 3}
+    prefab: {fileID: 761269833103634017, guid: 995408c0cbcc4a7469e71b5bbe031ef0, type: 3}
     dontDestroyOnLoad: 0
     recycleActiveObjects: 1
     preWarmPool: 0

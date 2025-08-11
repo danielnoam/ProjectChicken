@@ -19,6 +19,8 @@ public class MenuInput : InputReaderBase
     private InputAction _trackedDeviceOrientationAction;
 
     
+    public bool IsCurrentDeviceGamepad { get; private set; }
+    
     public event Action<InputAction.CallbackContext> OnNavigateAction;
     public event Action<InputAction.CallbackContext> OnSubmitAction;
     public event Action<InputAction.CallbackContext> OnCancelAction;
@@ -29,6 +31,8 @@ public class MenuInput : InputReaderBase
     public event Action<InputAction.CallbackContext> OnRightClickAction;
     public event Action<InputAction.CallbackContext> OnTrackedDevicePositionAction;
     public event Action<InputAction.CallbackContext> OnTrackedDeviceOrientationAction;
+    
+
     
     protected override void Awake()
     {
@@ -68,6 +72,8 @@ public class MenuInput : InputReaderBase
         SubscribeToAction(_rightClickAction, OnRightClick);
         SubscribeToAction(_trackedDevicePositionAction, OnTrackedDevicePosition);
         SubscribeToAction(_trackedDeviceOrientationAction, OnTrackedDeviceOrientation);
+        
+        playerInput.onControlsChanged += OnControlsChanged;
 
     }
     
@@ -83,11 +89,17 @@ public class MenuInput : InputReaderBase
         UnsubscribeFromAction(_rightClickAction, OnRightClick);
         UnsubscribeFromAction(_trackedDevicePositionAction, OnTrackedDevicePosition);
         UnsubscribeFromAction(_trackedDeviceOrientationAction, OnTrackedDeviceOrientation);
+        
+        playerInput.onControlsChanged -= OnControlsChanged;
 
     }
 
+    private void OnControlsChanged(PlayerInput playerInput)
+    {
+        IsCurrentDeviceGamepad = playerInput.currentControlScheme == "Gamepad";
+    }
 
-    
+
     #region  Input Events --------------------------------------------------------------------------------------
 
     private void OnNavigate(InputAction.CallbackContext context)

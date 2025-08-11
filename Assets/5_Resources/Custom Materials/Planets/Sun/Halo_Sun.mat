@@ -40,31 +40,19 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs:
-    - _Difffuse:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _Normal:
-        m_Texture: {fileID: 2800000, guid: 7be741f9449557c488d643ae307fe1ab, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+    m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Alpha: -0.4
-    - _Cutout_Scale: 5
-    - _Emission_Power: 32.49
-    - _Exposure: 3.6
+    - _Alpha: -0.28
+    - _Cutout_Scale: 0.25
+    - _Exposure: 2.47
     - _Height: 0
     - _IsNoise: 1
-    - _IsSmeared: 0
-    - _Normal_Power: 1.4
-    - _Smoothness: 0
-    - _Speed_1: 0.1
-    - _Steps: 15
+    - _IsSmeared: 1
+    - _Normal_Power: 0
+    - _Speed_1: 0.005
+    - _Steps: 1
     - _Twirl_Strength: 1.26
-    m_Colors:
-    - _Emission: {r: 0.72549033, g: 0.7490197, b: 0, a: 0}
-    - _Tilling: {r: 1, g: 1, b: 0, a: 0}
+    m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: Stage_Intro
   m_EditorClassIdentifier: 
   stageTitle: 
-  stageType: 2
+  stageType: 3
   stageDuration: 5
+  upgradesPool:
+    internalItems: []
   enemyPositionOffset: 0
   delayBeforeNextStage: 1
   waveScore: 1000
@@ -36,7 +38,6 @@ MonoBehaviour:
   forwardAxis: 2
   alignmentMode: 1
   allowPlayerMovement: 0
-  allowPlayerAim: 0
-  allowPlayerShooting: 0
+  allowPlayerShootingAndAiming: 0
   playerPositionOffset: 0
-  showPlayerKeybinds: 1
+  showHUD: 0

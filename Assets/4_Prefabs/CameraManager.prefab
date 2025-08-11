@@ -53,12 +53,12 @@ Camera:
   m_ShutterSpeed: 0.005
   m_Aperture: 16
   m_FocusDistance: 10
-  m_FocalLength: 50
+  m_FocalLength: 13.858139
   m_BladeCount: 5
   m_Curvature: {x: 2, y: 11}
   m_BarrelClipping: 0.25
   m_Anamorphism: 0
-  m_SensorSize: {x: 36, y: 24}
+  m_SensorSize: {x: 21.946, y: 16.002}
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -293,7 +293,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dd6fce15d6d4175a63bd75196231ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RotationOffset: {x: 0, y: 0, z: 0}
+  rotationOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4024071034173061501
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -317,7 +317,7 @@ MonoBehaviour:
     AmplitudeGain: 1
     FrequencyGain: 1
     Duration: 1
-    m_NoiseOffsets: {x: 0, y: 0, z: 0}
+    m_NoiseOffsets: {x: -367.849, y: 178.11523, z: -743.8624}
 --- !u!1 &3786705891516202745
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,6 +329,7 @@ GameObject:
   - component: {fileID: 7515358271343329891}
   - component: {fileID: 5170202138966820100}
   - component: {fileID: 1410457196109467012}
+  - component: {fileID: 5885621498339977978}
   m_Layer: 0
   m_Name: OutroCamera
   m_TagString: Untagged
@@ -407,6 +408,157 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LookAtOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &5885621498339977978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3786705891516202745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b2d199b96b516448144ab30fb26aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ApplyAfter: 2
+  ChannelMask: 1
+  Gain: 1
+  Use2DDistance: 0
+  UseCameraSpace: 1
+  SignalCombinationMode: 0
+  ReactionSettings:
+    m_SecondaryNoise: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    Duration: 1
+    m_NoiseOffsets: {x: 751.80383, y: -383.5293, z: 475.54346}
+--- !u!1 &3957306181620328678
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1486049464017566701}
+  - component: {fileID: 6521664590335500298}
+  - component: {fileID: 3122979280376166863}
+  - component: {fileID: 8414476777719880887}
+  - component: {fileID: 3927812976018376882}
+  m_Layer: 0
+  m_Name: StoreCamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1486049464017566701
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3957306181620328678}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 3, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3807761247422892083}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6521664590335500298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3957306181620328678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Priority:
+    Enabled: 1
+    m_Value: 0
+  OutputChannel: 1
+  StandbyUpdate: 2
+  m_StreamingVersion: 20241001
+  m_LegacyPriority: 0
+  Target:
+    TrackingTarget: {fileID: 0}
+    LookAtTarget: {fileID: 0}
+    CustomLookAtTarget: 1
+  Lens:
+    FieldOfView: 60.000004
+    OrthographicSize: 5
+    NearClipPlane: 0.3
+    FarClipPlane: 10000
+    Dutch: 0
+    ModeOverride: 0
+    PhysicalProperties:
+      GateFit: 2
+      SensorSize: {x: 21.946, y: 16.002}
+      LensShift: {x: 0, y: 0}
+      FocusDistance: 10
+      Iso: 200
+      ShutterSpeed: 0.005
+      Aperture: 16
+      BladeCount: 5
+      Curvature: {x: 2, y: 11}
+      BarrelClipping: 0.25
+      Anamorphism: 0
+  BlendHint: 0
+--- !u!114 &3122979280376166863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3957306181620328678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b617507da6d07e749b7efdb34e1173e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TrackerSettings:
+    BindingMode: 4
+    PositionDamping: {x: 0, y: 0, z: 0}
+    AngularDampingMode: 0
+    RotationDamping: {x: 1, y: 1, z: 1}
+    QuaternionDamping: 1
+  FollowOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &8414476777719880887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3957306181620328678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4afa82ae3200b82408d605c3dbdd1e38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Damping: 0
+--- !u!114 &3927812976018376882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3957306181620328678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68bb026fafb42b14791938953eaace77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NoiseProfile: {fileID: 11400000, guid: 46965f9cbaf525742a6da4c2172a99cd, type: 2}
+  PivotOffset: {x: 0, y: 0, z: 0}
+  AmplitudeGain: 0.2
+  FrequencyGain: 0.5
+  m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1 &6663246058566032334
 GameObject:
   m_ObjectHideFlags: 0
@@ -417,7 +569,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3807761247422892083}
   - component: {fileID: 2126460727402861133}
-  - component: {fileID: 8155284909471646118}
   m_Layer: 0
   m_Name: CameraManager
   m_TagString: Untagged
@@ -440,6 +591,7 @@ Transform:
   m_Children:
   - {fileID: 7112784176072851888}
   - {fileID: 574347184607947500}
+  - {fileID: 1486049464017566701}
   - {fileID: 674618513643077679}
   - {fileID: 7515358271343329891}
   m_Father: {fileID: 0}
@@ -459,96 +611,43 @@ MonoBehaviour:
   fovGainOnDodge: 10
   reticleInfluencePosition: 1
   reticlePositionOffset:
-    range: {x: 10, y: 5, z: 1}
-    threshold: {x: 0.2, y: 0.2, z: 0.2}
-    smoothness: 2
+    range: {x: 5, y: 5, z: 0}
+    threshold: {x: 0, y: 0, z: 0}
+    smoothness: 0.5
     invertX: 0
     invertY: 0
-  reticleInfluenceRotation: 1
+  reticleInfluenceRotation: 0
   reticleRotationOffset:
-    range: {x: 10, y: 5, z: 1}
-    threshold: {x: 0.2, y: 0.2, z: 0.2}
-    smoothness: 2
+    range: {x: 15, y: 0, z: 5}
+    threshold: {x: 0, y: 0, z: 0}
+    smoothness: 0.5
     invertX: 0
     invertY: 0
   playerInfluencePosition: 1
   playerPositionOffset:
-    range: {x: 25, y: 25, z: 0}
-    threshold: {x: 0, y: 0, z: 0}
-    smoothness: 2
+    range: {x: 75, y: 25, z: 0}
+    threshold: {x: 0.5, y: 0.5, z: 0}
+    smoothness: 1
     invertX: 1
     invertY: 1
-  playerInfluencesRotation: 0
+  playerInfluencesRotation: 1
   playerRotationOffset:
-    range: {x: 10, y: 5, z: 1}
-    threshold: {x: 0.2, y: 0.2, z: 0.2}
-    smoothness: 2
+    range: {x: 15, y: 15, z: 10}
+    threshold: {x: 0.5, y: 0.5, z: 0}
+    smoothness: 1
     invertX: 0
-    invertY: 0
+    invertY: 1
   changePositions: 1
   changePositionEvery: 1.5
   followCamera: {fileID: 5184551184866118152}
   introCamera: {fileID: 2581970083502225265}
   outroCamera: {fileID: 5170202138966820100}
+  storeCamera: {fileID: 6521664590335500298}
   followCameraFollow: {fileID: 2996916535471782497}
   followCameraRotate: {fileID: 3506487632381530427}
   followCameraRotateExtenstion: {fileID: 2208085343183252038}
   levelManager: {fileID: 0}
   player: {fileID: 0}
-  impulseSource: {fileID: 8155284909471646118}
---- !u!114 &8155284909471646118
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6663246058566032334}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ImpulseDefinition:
-    ImpulseChannel: 1
-    ImpulseShape: 2
-    CustomImpulseShape:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    ImpulseDuration: 0.2
-    ImpulseType: 0
-    DissipationRate: 0.25
-    RawSignal: {fileID: 0}
-    AmplitudeGain: 1
-    FrequencyGain: 1
-    RepeatMode: 0
-    Randomize: 1
-    TimeEnvelope:
-      AttackShape:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      DecayShape:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      AttackTime: 0
-      SustainTime: 0.2
-      DecayTime: 0.7
-      ScaleWithImpact: 1
-      HoldForever: 0
-    ImpactRadius: 100
-    DirectionMode: 0
-    DissipationMode: 2
-    DissipationDistance: 100
-    PropagationSpeed: 343
-  DefaultVelocity: {x: 0, y: 0, z: 0}
 --- !u!1 &6870117087196868408
 GameObject:
   m_ObjectHideFlags: 0
@@ -561,6 +660,7 @@ GameObject:
   - component: {fileID: 2581970083502225265}
   - component: {fileID: 5122085792255927676}
   - component: {fileID: 7536412671792252948}
+  - component: {fileID: 4637683126920069446}
   m_Layer: 0
   m_Name: IntroCamera
   m_TagString: Untagged
@@ -658,3 +758,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LookAtOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &4637683126920069446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6870117087196868408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b2d199b96b516448144ab30fb26aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ApplyAfter: 2
+  ChannelMask: 1
+  Gain: 1
+  Use2DDistance: 0
+  UseCameraSpace: 1
+  SignalCombinationMode: 0
+  ReactionSettings:
+    m_SecondaryNoise: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    Duration: 1
+    m_NoiseOffsets: {x: 15.188599, y: -885.2916, z: 370.46167}

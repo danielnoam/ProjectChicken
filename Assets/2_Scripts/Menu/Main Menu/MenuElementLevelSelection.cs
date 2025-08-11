@@ -1,12 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using PrimeTween;
 using TMPEffects.Components;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VInspector;
+using Sequence = PrimeTween.Sequence;
 
 public class MenuElementLevelSelection : MenuElement
 {
@@ -16,7 +21,6 @@ public class MenuElementLevelSelection : MenuElement
     [SerializeField] private SOLevel[] levels;
     
     [Foldout("References")]
-    [SerializeField] private MenuElementLaunchLever launchLever;
     [SerializeField] private CanvasGroup levelsSelectionCanvas;
     [SerializeField] private Transform levelGfxParent;
     [SerializeField] private Transform levelButtonParent;
@@ -32,15 +36,22 @@ public class MenuElementLevelSelection : MenuElement
     [EndFoldout]
 
     private readonly List<LevelUIData> _levelUIData = new List<LevelUIData>();
+
+    private Selectable _currentSelectable;
     private Coroutine _writerDelayRoutine;
     private LevelUIData _currentlyShownLevel;
     private LevelUIData _selectedLevel;
-
+    private Sequence _levelInfoCanvasSequence;
+    
+    
     
     public SOLevel SelectedLevel => _selectedLevel?.soLevel;
     public LaunchMissionMode LaunchMissionMode => launchMissionMode;
-    public event Action OnLevelSelected;
+    public event Action<LaunchMissionMode> OnLevelSelected;
     public event Action OnLevelDeselected;
+    
+    
+    
     
     protected override void OnSelected()
     {
@@ -55,49 +66,19 @@ public class MenuElementLevelSelection : MenuElement
         foreach (var level in levels)
         {
             GameObject levelGfx = null;
-
-            // Instantiate level graphics
+            
             if (levelGfxParent)
             {
-                levelGfx = level.SetUpGfx(levelGfxParent);
+                levelGfx = Instantiate(level.LevelGfxPrefab, levelGfxParent);
+                levelGfx.SetActive(false);
             }
 
-            // Create button for each level
             if (levelButtonPrefab)
             {
                 var levelButton = Instantiate(levelButtonPrefab, levelButtonParent);
-                levelButton.GetComponentInChildren<TextMeshProUGUI>().text = level.LevelName;
-                levelButton.gameObject.name = $"Button{level.LevelName}";
-                
-                // Create the UI element container
-                var levelUIData = new LevelUIData(level, levelGfx, levelButton, SaveManager.GetLevelProgress(level.GetScenePath()));
+                var levelUIData = new LevelUIData(level, levelGfx, levelButton);
                 _levelUIData.Add(levelUIData);
-                
-                // Set up button click event
-                levelButton.onClick.AddListener(() => SelectLevel(levelUIData));
-                
-                // Set up hover events
-                EventTrigger eventTrigger = levelButton.GetComponent<EventTrigger>();
-                if (eventTrigger)
-                {
-                    EventTrigger.Entry entry = new EventTrigger.Entry
-                    {
-                        eventID = EventTriggerType.PointerEnter
-                    };
-                    entry.callback.AddListener((eventData) => ShowLevelInfo(levelUIData));
-                    eventTrigger.triggers.Add(entry);
-                    
-                    EventTrigger.Entry entry2 = new EventTrigger.Entry
-                    {
-                        eventID = EventTriggerType.PointerExit
-                    };
-                    entry2.callback.AddListener((eventData) => HideLevelInfo(levelUIData));
-                    eventTrigger.triggers.Add(entry2);
-                }
-                
-                
-                // check if there are needed levels
-                levelUIData.UpdateLevelUIState();
+                SetupSelectable(levelButton, levelUIData);
             }
         }
         
@@ -105,7 +86,7 @@ public class MenuElementLevelSelection : MenuElement
         levelDescriptionText.text = "";
         levelDifficultyText.text = "";
         levelBestScoreText.text = "";
-        ToggleLevelCanvas(false);
+        ToggleLevelCanvas(false, false);
     }
     
     protected override void OnInteract()
@@ -115,6 +96,8 @@ public class MenuElementLevelSelection : MenuElement
         if (_selectedLevel != null)
         {
             ShowLevelInfo(_selectedLevel);
+            _currentSelectable = _selectedLevel.levelButton;
+            _currentSelectable.Select();
         }
         else
         {
@@ -123,6 +106,7 @@ public class MenuElementLevelSelection : MenuElement
                 StopCoroutine(_writerDelayRoutine);
             }
             _writerDelayRoutine = StartCoroutine(StartWritersWithDelay());
+            SelectFirstAvailableButton();
         }
     }
     
@@ -134,6 +118,8 @@ public class MenuElementLevelSelection : MenuElement
             HideLevelInfo(_currentlyShownLevel);
             _currentlyShownLevel = null;
         }
+
+        _currentSelectable = null;
     }
     
     protected override void OnStopInteraction()
@@ -144,9 +130,86 @@ public class MenuElementLevelSelection : MenuElement
             HideLevelInfo(_currentlyShownLevel);
             _currentlyShownLevel = null;
         }
+        _currentSelectable = null;
+    }
+    
+    
+    protected override void OnNavigate(InputAction.CallbackContext context)
+    {
+        base.OnNavigate(context);
+        
+        if (_currentSelectable) return;
+
+        SelectFirstAvailableButton();
+    }
+    
+    private void SelectLevel(LevelUIData levelUI)
+    {
+        if (!levelUI?.soLevel) return;
+        
+        if (levelUI == _selectedLevel)
+        {
+            DeselectLevel();
+            return;
+        }
+        
+        DeselectLevel();
+        _selectedLevel = levelUI;
+        
+
+        if (_selectedLevel.levelButton)
+        {
+            _selectedLevel.levelButton.image.color = _selectedLevel.levelButton.colors.pressedColor;
+        }
+        
+        OnLevelSelected?.Invoke(launchMissionMode);
+        
+
+        switch (launchMissionMode)
+        {
+            case LaunchMissionMode.None:
+                _selectedLevel?.soLevel?.LoadLevel();
+                break;
+            case LaunchMissionMode.Manual:
+                break;
+            case LaunchMissionMode.ManualAutoExit:
+                FinishedInteraction();
+                break;
+            case LaunchMissionMode.Auto:
+                FinishedInteraction();
+                break;
+        }
     }
     
 
+    private void DeselectLevel()
+    {
+        if (_selectedLevel == null) return;
+        
+        if (_selectedLevel.levelButton)
+        {
+            _selectedLevel.levelButton.image.color = _selectedLevel.levelButton.colors.normalColor;
+        }
+        
+        _selectedLevel = null;
+        OnLevelDeselected?.Invoke();
+    }
+
+
+    private void SelectFirstAvailableButton()
+    {
+        foreach (var levelUIData in _levelUIData)
+        {
+            if (levelUIData.levelButton.interactable)
+            {
+                levelUIData.levelButton.Select();
+                _currentSelectable = levelUIData.levelButton;
+                break;
+            }
+        }
+    }
+    
+    
     #region Level Info ---------------------------------------------------------------------------------
 
     
@@ -241,7 +304,6 @@ public class MenuElementLevelSelection : MenuElement
 
     private void SetActiveLevelGraphics(LevelUIData activeLevel)
     {
-        // First, hide all level graphics
         foreach (var levelData in _levelUIData)
         {
             if (levelData.levelGfx)
@@ -250,7 +312,6 @@ public class MenuElementLevelSelection : MenuElement
             }
         }
         
-        // Then show only the active one
         if (activeLevel?.levelGfx)
         {
             activeLevel.levelGfx.SetActive(true);
@@ -258,13 +319,28 @@ public class MenuElementLevelSelection : MenuElement
     }
     
     
-    private void ToggleLevelCanvas(bool state)
+    private void ToggleLevelCanvas(bool state, bool animate = true)
     {
         if (!levelsSelectionCanvas) return;
-        
-        levelsSelectionCanvas.alpha = state ? 1 : 0;
-        levelsSelectionCanvas.interactable = state;
-        levelsSelectionCanvas.blocksRaycasts = state;
+        if (_levelInfoCanvasSequence.isAlive) _levelInfoCanvasSequence.Stop();
+
+        if (animate)
+        {
+            _levelInfoCanvasSequence = Sequence.Create()
+                .Group(Tween.Alpha(levelsSelectionCanvas, state ? 1 : 0, 0.3f))
+                .OnComplete(() =>
+                {
+                    levelsSelectionCanvas.interactable = state;
+                    levelsSelectionCanvas.blocksRaycasts = state;
+                });
+        }
+        else
+        {
+            levelsSelectionCanvas.alpha = state ? 1 : 0;
+            levelsSelectionCanvas.interactable = state;
+            levelsSelectionCanvas.blocksRaycasts = state;
+        }
+
     }
     
     private IEnumerator StartWritersWithDelay()
@@ -282,68 +358,63 @@ public class MenuElementLevelSelection : MenuElement
     }
 
     #endregion Level Info ---------------------------------------------------------------------------------
+    
 
+    
+    #region Button Setup ------------------------------------------------------------------------------
 
-    #region Level Selection ---------------------------------------------------------------------------------
-
-    private void SelectLevel(LevelUIData levelUI)
+    private void SetupSelectable(Button button, LevelUIData levelUIData)
     {
-        if (!levelUI?.soLevel) return;
-        
-        // If clicking the same level, deselect it
-        if (levelUI == _selectedLevel)
+        button.onClick.AddListener(() => SelectLevel(levelUIData));
+        button.gameObject.name = $"Button{levelUIData.soLevel.LevelName}";
+        button.GetComponentInChildren<TextMeshProUGUI>().text = levelUIData.soLevel.LevelName;
+    
+        var eventTrigger = button.GetComponent<EventTrigger>() ?? button.gameObject.AddComponent<EventTrigger>();
+        AddEventTriggerEntry(eventTrigger, EventTriggerType.Select, (eventData) => OnSelectableSelected(eventData, levelUIData));
+        AddEventTriggerEntry(eventTrigger, EventTriggerType.Deselect, (eventData) => OnSelectableDeselected(eventData, levelUIData));
+    }
+    
+    private void AddEventTriggerEntry(EventTrigger eventTrigger, EventTriggerType type, UnityAction<BaseEventData> callback)
+    {
+        var existingEntry = eventTrigger.triggers.FirstOrDefault(entry => entry.eventID == type);
+
+        if (existingEntry != null)
         {
-            DeselectLevel();
-            return;
+            existingEntry.callback.AddListener(callback);
         }
-        
-        // Deselect previous level and select new one
-        DeselectLevel();
-        _selectedLevel = levelUI;
-        
-        // Update button visual state
-        if (_selectedLevel.levelButton)
+        else
         {
-            _selectedLevel.levelButton.image.color = Color.blue;
-        }
-        
-        OnLevelSelected?.Invoke();
-        
-        // Handle launch mode
-        switch (launchMissionMode)
-        {
-            case LaunchMissionMode.None:
-                _selectedLevel?.soLevel?.LoadLevel();
-                break;
-            case LaunchMissionMode.Manual:
-                break;
-            case LaunchMissionMode.ManualAutoExit:
-                FinishedInteraction();
-                break;
-            case LaunchMissionMode.Auto:
-                FinishedInteraction();
-                launchLever?.Launch();
-                break;
+            var newEntry = new EventTrigger.Entry
+            {
+                eventID = type,
+                callback = new EventTrigger.TriggerEvent()
+            };
+            newEntry.callback.AddListener(callback);
+            eventTrigger.triggers.Add(newEntry);
         }
     }
     
-
-    private void DeselectLevel()
+    
+    private void OnSelectableSelected(BaseEventData eventData, LevelUIData levelUIData)
     {
-        if (_selectedLevel == null) return;
+        if (CurrentVisualState != ElementState.Interacting  || !eventData.selectedObject.activeSelf) return;
+
+        _currentSelectable = eventData.selectedObject.GetComponent<Selectable>();
         
-        // Reset button visual state
-        if (_selectedLevel.levelButton)
-        {
-            _selectedLevel.levelButton.image.color = Color.white;
-        }
+        ShowLevelInfo(levelUIData);
+    }
+
+    private void OnSelectableDeselected(BaseEventData eventData, LevelUIData levelUIData)
+    {
+        if (CurrentVisualState != ElementState.Interacting || !eventData.selectedObject.activeSelf || !_currentSelectable) return;
         
-        _selectedLevel = null;
-        OnLevelDeselected?.Invoke();
+        _currentSelectable = null;
+        
+        HideLevelInfo(levelUIData);
     }
     
+
+    #endregion Button Setup ------------------------------------------------------------------------------
+
     
-    #endregion Level Selection ---------------------------------------------------------------------------------
-
-
 }

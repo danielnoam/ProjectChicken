@@ -2,14 +2,12 @@ using System;
 using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using VInspector;
 
 
 public class RailPlayerInput : InputReaderBase
 {
-
-
-
+    [SerializeField] private StoreManager storeManager;
+    
     private InputActionMap _playerActionMap;
     private InputAction _moveAction;
     private InputAction _lookAction;
@@ -18,15 +16,14 @@ public class RailPlayerInput : InputReaderBase
     private InputAction _dodgeLeftAction;
     private InputAction _dodgeRightAction;
     private InputAction _dodgeFreeformAction;
+    private InputAction _pauseAction;
     private float _lastMoveLeftTime;
     private float _lastMoveRightTime;
     private readonly ControlSchemeSettings _keyboardMouseScheme = new ControlSchemeSettings();
     private readonly ControlSchemeSettings _gamepadScheme = new ControlSchemeSettings();
 
-
     public ControlSchemeSettings CurrentControlScheme { get; private set; }  = new ControlSchemeSettings();
     public bool IsCurrentDeviceGamepad { get; private set; }
-    
     
     public event Action<InputAction.CallbackContext> OnMoveEvent;
     public event Action<InputAction.CallbackContext> OnLookEvent;
@@ -35,11 +32,16 @@ public class RailPlayerInput : InputReaderBase
     public event Action<InputAction.CallbackContext> OnDodgeLeftEvent;
     public event Action<InputAction.CallbackContext> OnDodgeRightEvent;
     public event Action<InputAction.CallbackContext> OnDodgeFreeformEvent;
+    public event Action<InputAction.CallbackContext> OnPauseActionEvent;
     public event Action<Vector2> OnProcessedLookEvent;
 
     
-
-    
+    protected override void OnValidate()
+    {
+        base.OnValidate();
+        if (!playerInput) playerInput = GetComponent<PlayerInput>();
+        if (!storeManager) storeManager = FindFirstObjectByType<StoreManager>();
+    }
     
     protected override void Awake()
     {
@@ -60,6 +62,7 @@ public class RailPlayerInput : InputReaderBase
         _dodgeLeftAction = _playerActionMap.FindAction("DodgeLeft");
         _dodgeRightAction = _playerActionMap.FindAction("DodgeRight");
         _dodgeFreeformAction = _playerActionMap.FindAction("DodgeFreeform");
+        _pauseAction = _playerActionMap.FindAction("Pause");
         
 
         UpdateControlSchemeSettings();
@@ -76,10 +79,18 @@ public class RailPlayerInput : InputReaderBase
         SubscribeToAction(_dodgeLeftAction, OnDodgeLeft);
         SubscribeToAction(_dodgeRightAction, OnDodgeRight);
         SubscribeToAction(_dodgeFreeformAction, OnDodgeFreeform);
+        SubscribeToAction(_pauseAction, OnPauseAction);
+        
+        
         playerInput.onDeviceRegained += OnDeviceRegained;
         playerInput.onDeviceLost += OnDeviceLost;
         playerInput.onControlsChanged += OnControlsChanged;
         if (SaveManager.Instance) SaveManager.Instance.OnSettingsDataChanged += UpdateControlSchemeSettings;
+        if (storeManager)
+        {
+            storeManager.OnStoreOpened += OnStoreOpened;
+            storeManager.OnStoreClosed += OnStoreClosed;
+        }
     }
     
 
@@ -92,12 +103,29 @@ public class RailPlayerInput : InputReaderBase
         UnsubscribeFromAction(_dodgeLeftAction, OnDodgeLeft);
         UnsubscribeFromAction(_dodgeRightAction, OnDodgeRight);
         UnsubscribeFromAction(_dodgeFreeformAction, OnDodgeFreeform);
+        UnsubscribeFromAction(_pauseAction, OnPauseAction);
+        
+        
         playerInput.onDeviceRegained -= OnDeviceRegained;
         playerInput.onDeviceLost -= OnDeviceLost;
         playerInput.onControlsChanged -= OnControlsChanged;
         if (SaveManager.Instance) SaveManager.Instance.OnSettingsDataChanged -= UpdateControlSchemeSettings;
+        if (storeManager)
+        {
+            storeManager.OnStoreOpened -= OnStoreOpened;
+            storeManager.OnStoreClosed -= OnStoreClosed;
+        }
     }
     
+    private void OnStoreOpened()
+    {
+        SetCursorVisibility(true);
+    }
+    
+    private void OnStoreClosed()
+    {
+        SetCursorVisibility(false);
+    }
     
 
     private void OnDeviceRegained(PlayerInput input)
@@ -209,6 +237,11 @@ public class RailPlayerInput : InputReaderBase
     {
         if (!CurrentControlScheme.allowFreeformDodge) return;
         OnDodgeFreeformEvent?.Invoke(context);
+    }
+    
+    private void OnPauseAction(InputAction.CallbackContext context)
+    {
+        OnPauseActionEvent?.Invoke(context);
     }
     
 

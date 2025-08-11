@@ -1,61 +1,54 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using DNExtensions;
 using KBCore.Refs;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using VInspector;
-
-
-
-
 
 [SelectionBase]
 [RequireComponent(typeof(RailPlayerInput))]
 [RequireComponent(typeof(RailPlayerMovement))]
 [RequireComponent(typeof(RailPlayerAiming))]
 [RequireComponent(typeof(RailPlayerWeaponSystem))]
-[RequireComponent(typeof(ControllerRumbleSource))]
+[RequireComponent(typeof(RailPlayerResourceCollector))]
+[RequireComponent(typeof(ControllerVibrationSource))]
 [RequireComponent(typeof(CinemachineImpulseSource))]
 public class RailPlayer : MonoBehaviour
 {
+    [Header("General")]
+    [SerializeField, Min(0)] private float timeToPause = 3f;
+    [SerializeField] private bool alignToSplineDirection = true;
+    [SerializeField, Min(0), ShowIf("alignToSplineDirection")] private float splineRotationSpeed = 5f; [EndIf]
+    
     [Header("Health")]
     [SerializeField, Min(0)] private int baseHealth = 3;
     [SerializeField] private bool dodgingGivesInvincibility = true;
     [SerializeField] private bool receiveHealthOnBonusThreshold = true;
+    [SerializeField] private SOHealthUpgrade[] healthUpgrades = Array.Empty<SOHealthUpgrade>();
     
     [Header("Shield")]
     [SerializeField, Min(0)] private float baseShieldHealth = 100f;
     [SerializeField, Min(0)] private float shieldRegenCooldown = 3f;
     [SerializeField, Min(0)] private float shieldRegenRate = 15f;
-    
-    [Header("Resource Collection")]
-    [SerializeField ,Min(0)] private float baseMagnetRadius = 14f;
-    
-    [Header("Upgrades")]
-    [SerializeField] private SOHealthUpgrade[] healthUpgrades = Array.Empty<SOHealthUpgrade>();
     [SerializeField] private SOShieldUpgrade[] shieldUpgrades = Array.Empty<SOShieldUpgrade>();
-    [SerializeField] private SOResourceMagnetUpgrade[] resourceMagnetUpgrades = Array.Empty<SOResourceMagnetUpgrade>();
-    
-    [Header("Path Following")]
-    [SerializeField] private bool alignToSplineDirection = true;
-    [SerializeField, Min(0)] private float splineRotationSpeed = 5f;
-    [EndIf]
     
     [Header("Camera Shake")]
+    [SerializeField] private CameraShakeSettings shieldDamagedShakeSettings;
+    [SerializeField] private CameraShakeSettings healthDamagedShakeSettings;
     [SerializeField] private CameraShakeSettings deathShakeSettings;
-    [SerializeField] private CameraShakeSettings shieldDepletedShakeSettings;
     
     [Header("Controller Rumble")]
-    [SerializeField] private ControllerRumbleEffectSettings deathControllerRumbleSettings;
-    [SerializeField] private ControllerRumbleEffectSettings shieldDamagedControllerRumbleSettings;
-    [SerializeField] private ControllerRumbleEffectSettings healthDamagedControllerRumbleSettings;
+    [SerializeField] private ControllerVibrationEffectSettings shieldDamagedVibrationSettings;
+    [SerializeField] private ControllerVibrationEffectSettings healthDamagedVibrationSettings;
+    [SerializeField] private ControllerVibrationEffectSettings deathVibrationSettings;
     
     [Header("References")]
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
     [SerializeField] private Transform cameraPositions;
     [SerializeField] private Transform followCameraTarget;
+    [SerializeField] private Transform storeCameraTarget;
     [SerializeField] private SOAudioEvent healthDamageSfx;
     [SerializeField] private SOAudioEvent healthHealedSfx;
     [SerializeField] private SOAudioEvent shieldDamageSfx;
@@ -68,27 +61,25 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
-    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
+    [SerializeField, Self, HideInInspector] private RailPlayerResourceCollector resourceCollector;
+    [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
     [SerializeField, Self, HideInInspector] private CinemachineImpulseSource cinemachineImpulseSource;
-
-    
-
 
     private int _currentHealth;
     private int _maxHealth;
     private int _currentCurrency;
     private float _currentShieldHealth;
     private float _maxShieldHealth;
-    private float _currentMagnetRadius;
     private float _damagedCooldown;
+    private float _pauseTimer;
+    private bool _pauseInputHeld;
     private Coroutine _regenShieldCoroutine;
     private Quaternion _splineRotation = Quaternion.identity;
-    private readonly List<Resource> _resourcesInRange = new List<Resource>();
-    private readonly Dictionary<ResourceType, Action<Resource>> _collectionActions = new Dictionary<ResourceType, Action<Resource>>();
 
     public RailPlayerAiming PlayerAiming => playerAiming;
     public RailPlayerWeaponSystem PlayerWeapon => playerWeapon;
     public RailPlayerMovement PlayerMovement => playerMovement;
+    public RailPlayerResourceCollector ResourceCollector => resourceCollector;
     public LevelManager LevelManager => levelManager;
     public Quaternion SplineRotation => _splineRotation;
     public bool AlignToSplineDirection => alignToSplineDirection;
@@ -100,11 +91,9 @@ public class RailPlayer : MonoBehaviour
     public event Action OnDeath;
     public event Action<int> OnHealthChanged;
     public event Action<float> OnShieldChanged;
-    public event Action<Resource> OnResourceCollected;
     public event Action<int> OnCurrencyChanged;
-
-
-
+    public event Action<float> OnPauseTimerChanged;
+    public event Action OnPause;
 
     private void OnValidate()
     {
@@ -118,20 +107,13 @@ public class RailPlayer : MonoBehaviour
 
     private void Awake()
     {
-        _collectionActions.Add(ResourceType.Currency, (resource) => UpdateCurrency(resource.CurrencyWorth) );
-        _collectionActions.Add(ResourceType.HealthPack, (resource) => HealHealth(resource.HealthWorth));
-        _collectionActions.Add(ResourceType.ShieldPack, (resource) => HealShield(resource.ShieldWorth));
-        _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => playerWeapon.SetSpecialWeapon(resource.WeaponData));
-        
         _maxHealth = baseHealth + TotalHealthUpgrades();
         _maxShieldHealth = baseShieldHealth + TotalShieldUpgrades();
-        _currentMagnetRadius = baseMagnetRadius + TotalResourceMagnetUpgrades();
         
         _currentCurrency = SaveManager.GetCurrency();
         _currentHealth = _maxHealth;
         _currentShieldHealth = _maxShieldHealth;
     }
-
 
     private void Start()
     {
@@ -140,40 +122,37 @@ public class RailPlayer : MonoBehaviour
         OnShieldChanged?.Invoke(_currentShieldHealth);
     }
 
-
     private void OnEnable()
     {
-        levelManager.OnBonusThresholdReached += OnMillionScoreReached;
+        levelManager.OnBonusThresholdReached += OnScoreReachedBonusThreshold;
         levelManager.OnStageChanged += OnStageChanged;
-        levelManager.OnRestartFromSavePoint += OnRestartFromSavePoint;
+        levelManager.OnRestartedFromSavePoint += RestartedFromSavePoint;
+        playerInput.OnPauseActionEvent += OnPauseAction;
     }
 
     private void OnDisable()
     {
-        levelManager.OnBonusThresholdReached -= OnMillionScoreReached;
+        levelManager.OnBonusThresholdReached -= OnScoreReachedBonusThreshold;
         levelManager.OnStageChanged -= OnStageChanged;
-        levelManager.OnRestartFromSavePoint -= OnRestartFromSavePoint;
+        levelManager.OnRestartedFromSavePoint -= RestartedFromSavePoint;
+        playerInput.OnPauseActionEvent -= OnPauseAction;
     }
-    
 
     private void Update()
     {
         GetSplineRotations();
         CheckDamageCooldown();
-        CheckResourcesInRange();
-    }
-    
-    
-    private void OnTriggerEnter(Collider other)
-    {
-        if (!IsAlive()) return;
-
-        if (other.TryGetComponent(out Resource resource))
+        
+        if (_pauseInputHeld)
         {
-            CollectResource(resource);
+            _pauseTimer += Time.deltaTime;
+            OnPauseTimerChanged?.Invoke(_pauseTimer/timeToPause);
+            if (_pauseTimer >= timeToPause)
+            {
+                OnPause?.Invoke();
+            }
         }
     }
-    
     
     private void OnStageChanged(SOLevelStage stage)
     {
@@ -185,7 +164,7 @@ public class RailPlayer : MonoBehaviour
         }
     }
 
-    private void OnRestartFromSavePoint(SavePointInformation savePoint)
+    private void RestartedFromSavePoint(SavePointInformation savePoint)
     {
         if (savePoint == null) return;
         
@@ -193,14 +172,38 @@ public class RailPlayer : MonoBehaviour
         _currentHealth = savePoint.PlayerHealth;
         _currentShieldHealth = savePoint.PlayerShield;
         
-        
         OnCurrencyChanged?.Invoke(_currentCurrency);
         OnHealthChanged?.Invoke(_currentHealth);
         OnShieldChanged?.Invoke(_currentShieldHealth);
     }
     
+    private void OnScoreReachedBonusThreshold()
+    {
+        if (!receiveHealthOnBonusThreshold) return;
+        
+        HealHealth(1);
+    }
+    
+    private void OnPauseAction(InputAction.CallbackContext context)
+    {
+        if (!IsAlive()) return;
 
-    #region Damage ---------------------------------------------------------------------- 
+        if (context.started)
+        {
+            _pauseInputHeld = true;
+            _pauseTimer = 0f;
+            OnPauseTimerChanged?.Invoke(_pauseTimer/timeToPause);
+        } 
+        else if (context.canceled)
+        {
+            _pauseInputHeld = false;
+            _pauseTimer = 0f;
+            OnPauseTimerChanged?.Invoke(_pauseTimer/timeToPause);
+        }
+    }
+    
+
+    #region Damage ----------------------------------------------------------------------
 
     [Button]
     public void TakeDamage(float damage)
@@ -209,7 +212,6 @@ public class RailPlayer : MonoBehaviour
         
         StopShieldRegen();
         
-            
         if (HasShield())
         {
             DamageShield(damage);
@@ -218,56 +220,6 @@ public class RailPlayer : MonoBehaviour
         
         DamageHealth();
     }
-    
-    private void DamageShield(float damage)
-    {
-        if (damage <= 0 || !HasShield()) return;
-        
-        _currentShieldHealth -= damage;
-
-        if (_currentShieldHealth < 0)
-        {
-            _currentShieldHealth = 0;
-            DamageHealth();
-            shieldDepletedSfx?.Play(audioSource);
-            
-            if (cinemachineImpulseSource)
-            {
-                cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shieldDepletedShakeSettings.impulseShape;
-                cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shieldDepletedShakeSettings.duration;
-                cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
-                cinemachineImpulseSource.GenerateImpulseWithForce(shieldDepletedShakeSettings.intensity);
-            }
-            
-        }
-        else
-        {
-            controllerRumbleSource.Rumble(shieldDamagedControllerRumbleSettings);
-            shieldDamageSfx?.Play(audioSource);
-        }
-        
-        OnShieldChanged?.Invoke(_currentShieldHealth);
-    }
-    
-    private void DamageHealth()
-    {
-        if (!IsAlive()) return;
-
-        _currentHealth -= 1;
-        if (_currentHealth <= 0)
-        {
-            _currentHealth = 0;
-            Die();
-        }
-        else
-        {
-            controllerRumbleSource.Rumble(healthDamagedControllerRumbleSettings);
-            healthDamageSfx?.Play(audioSource);
-        }
-        
-        OnHealthChanged?.Invoke(_currentHealth);
-    }
-    
     
     private void CheckDamageCooldown()
     {
@@ -283,13 +235,11 @@ public class RailPlayer : MonoBehaviour
             StartShieldRegen();
         }
     }
-    
-    
 
     private void Die()
     {
         deathSfx?.Play(audioSource);
-        controllerRumbleSource.Rumble(deathControllerRumbleSettings);
+        controllerVibrationSource.Vibrate(deathVibrationSettings);
         if (cinemachineImpulseSource)
         {
             cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = deathShakeSettings.impulseShape;
@@ -300,12 +250,58 @@ public class RailPlayer : MonoBehaviour
 
         OnDeath?.Invoke();
     }
-
+    
     #endregion Damage ----------------------------------------------------------------------
-    
-    
-    #region Shield  --------------------------------------------------------------------------------------
 
+    
+    #region Health --------------------------------------------------------------------------
+
+    private void DamageHealth()
+    {
+        if (!IsAlive()) return;
+
+        _currentHealth -= 1;
+        if (_currentHealth <= 0)
+        {
+            _currentHealth = 0;
+            Die();
+        }
+        else
+        {
+            if (cinemachineImpulseSource)
+            {
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = healthDamagedShakeSettings.impulseShape;
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = healthDamagedShakeSettings.duration;
+                cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+                cinemachineImpulseSource.GenerateImpulseWithForce(healthDamagedShakeSettings.intensity);
+            }
+            controllerVibrationSource.Vibrate(healthDamagedVibrationSettings);
+            healthDamageSfx?.Play(audioSource);
+        }
+        
+        OnHealthChanged?.Invoke(_currentHealth);
+    }
+    
+    
+    [Button]
+    public void HealHealth(int amount = 1)
+    {
+        if (amount <= 0) return;
+        
+        _currentHealth += amount;
+        if (_currentHealth > _maxHealth)
+        {
+            _currentHealth = _maxHealth;
+        }
+        healthHealedSfx?.Play(audioSource);
+        
+        OnHealthChanged?.Invoke(_currentHealth);
+    }
+
+    #endregion Health --------------------------------------------------------------------------
+    
+    
+    #region Shield --------------------------------------------------------------------------------------
     
     private IEnumerator RegenShieldRoutine()
     {
@@ -340,35 +336,39 @@ public class RailPlayer : MonoBehaviour
     private void StartShieldRegen()
     {
         _regenShieldCoroutine ??= StartCoroutine(RegenShieldRoutine());
-
         _damagedCooldown = 0;
     }
     
-    
-
-    #endregion Shield  --------------------------------------------------------------------------------------
-    
-    
-    #region Healing ----------------------------------------------------------------------
-
-    
-    [Button]
-    private void HealHealth(int amount = 1)
+    private void DamageShield(float damage)
     {
-        if (amount <= 0) return;
+        if (damage <= 0 || !HasShield()) return;
         
-        _currentHealth += amount;
-        if (_currentHealth > _maxHealth)
+        _currentShieldHealth -= damage;
+
+        if (_currentShieldHealth < 0)
         {
-            _currentHealth = _maxHealth;
+            _currentShieldHealth = 0;
+            DamageHealth();
+            shieldDepletedSfx?.Play(audioSource);
         }
-        healthHealedSfx?.Play(audioSource);
+        else
+        {
+            if (cinemachineImpulseSource)
+            {
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shieldDamagedShakeSettings.impulseShape;
+                cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shieldDamagedShakeSettings.duration;
+                cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+                cinemachineImpulseSource.GenerateImpulseWithForce(shieldDamagedShakeSettings.intensity);
+            }
+            controllerVibrationSource.Vibrate(shieldDamagedVibrationSettings);
+            shieldDamageSfx?.Play(audioSource);
+        }
         
-        OnHealthChanged?.Invoke(_currentHealth);
+        OnShieldChanged?.Invoke(_currentShieldHealth);
     }
     
     [Button]
-    private void HealShield(float amount = 25f)
+    public void HealShield(float amount = 25f)
     {
         if (_currentShieldHealth >= _maxShieldHealth) return;
         
@@ -385,87 +385,23 @@ public class RailPlayer : MonoBehaviour
         
         OnShieldChanged?.Invoke(_currentShieldHealth);
     }
-    
-    private void OnMillionScoreReached()
-    {
-        if (!receiveHealthOnBonusThreshold) return;
-        
-        HealHealth(1);
-    }
+
+    #endregion Shield --------------------------------------------------------------------------------------
     
 
-    #endregion Healing ----------------------------------------------------------------------
-
+    #region Currency --------------------------------------------------------------------------------
     
-    #region Curreny --------------------------------------------------------------------------------
-
-    [Button]
-    private void UpdateCurrency(int amount)
+    public void UpdateCurrency(int amount)
     {
         _currentCurrency += amount;
         OnCurrencyChanged?.Invoke(_currentCurrency);
     }
-
-    #endregion Curreny --------------------------------------------------------------------------------
-    
-    
-    #region Resource Collection --------------------------------------------------------------------------------------
-
-    private void CheckResourcesInRange()
-    {
-        if (!IsAlive()) return;
-        
-        Collider[] colliders = Physics.OverlapSphere(transform.position, _currentMagnetRadius);
-        foreach (var col in colliders)
-        {
-            if (col.TryGetComponent(out Resource resource))
-            {
-                if (!resource || _resourcesInRange.Contains(resource)) continue;
-                _resourcesInRange.Add(resource);
-                resource.SetMagnetized(transform);
-            }
-        }
-        
-        for (int i = _resourcesInRange.Count - 1; i >= 0; i--)
-        {
-            var resource = _resourcesInRange[i];
-            
-            if (!resource)
-            {
-                _resourcesInRange.RemoveAt(i);
-                continue;
-            }
     
 
-            var distance = Vector3.Distance(transform.position, resource.transform.position);
-            if (distance > _currentMagnetRadius)
-            {
-                resource.ReleaseFromMagnetization();
-                _resourcesInRange.RemoveAt(i);
-            }
-        }
-    }
+    #endregion Currency --------------------------------------------------------------------------------
     
     
-    private void CollectResource(Resource resource)
-    {
-        if (!resource) return;
-        
-        if (_collectionActions.TryGetValue(resource.ResourceType, out var action))
-        {
-            action(resource);
-        }
-        
-        _resourcesInRange.Remove(resource);
-        resource.ResourceCollected();
-        OnResourceCollected?.Invoke(resource);
-    }
-    
-
-    #endregion Resource Collection --------------------------------------------------------------------------------------
-
     #region Upgrades -----------------------------------------------------------------------------------------
-
 
     private int TotalHealthUpgrades()
     {
@@ -496,23 +432,6 @@ public class RailPlayer : MonoBehaviour
 
         return shield;
     }
-    
-    private float TotalResourceMagnetUpgrades()
-    {
-        var  magnet = 0f;
-        
-        foreach (var upgrade in resourceMagnetUpgrades)
-        {
-            if (SaveManager.HasStoreItem(upgrade.ItemID))
-            {
-                magnet += upgrade.MagnetUpgradeAmount;
-            }
-        }
-
-        return magnet;
-    }
-
-    
 
     #endregion Upgrades -----------------------------------------------------------------------------------------
 
@@ -534,7 +453,6 @@ public class RailPlayer : MonoBehaviour
         return playerMovement.IsDodging;
     }
     
-    
     public ChickenController GetTarget(float radius)
     {
         return playerAiming.CurrentAimLockTarget ? playerAiming.CurrentAimLockTarget : playerAiming.GetEnemyTarget(radius);
@@ -547,24 +465,21 @@ public class RailPlayer : MonoBehaviour
     
     public Transform GetFollowCameraTarget()
     {
-        return followCameraTarget;
+        return followCameraTarget ? followCameraTarget : transform;;
+    }
+
+    public Transform GetStoreCameraTarget()
+    {
+        return storeCameraTarget ? storeCameraTarget : transform;
     }
     
     public Transform GetRandomCameraPosition()
     {
-        switch (cameraPositions.childCount)
-        {
-            case 0:
-                return null;
-            case 1:
-                cameraPositions.GetChild(1);
-                break;
-        }
-
+        if (!cameraPositions) return transform;
+        
         int randomIndex = UnityEngine.Random.Range(0, cameraPositions.childCount);
         return cameraPositions.GetChild(randomIndex);
     }
-    
     
     private void GetSplineRotations()
     {
@@ -584,23 +499,4 @@ public class RailPlayer : MonoBehaviour
     }
 
     #endregion Helper Methods --------------------------------------------------------------------------------------
-
-    
-    #region Editor  --------------------------------------------------------------------------------------
-    
-    
-    
-
-#if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, _currentMagnetRadius);
-        UnityEditor.Handles.Label(transform.position + (Vector3.up * baseMagnetRadius), "Magnet Radius");
-    }
-
-
-#endif
-    #endregion Editor  --------------------------------------------------------------------------------------
-
 }

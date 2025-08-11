@@ -13,7 +13,7 @@ public class EggProjectile : MonoBehaviour, IPooledObject
     [SerializeField] private LayerMask hitLayers = -1; // What can the egg hit
     
     [Header("Visual Effects")]
-    [SerializeField] private ParticleSystem trailVFX; // Trail effect
+    [SerializeField] private TrailRenderer trailVRenderer; // Trail effect
     [SerializeField] private GameObject impactVFXPrefab; // Impact effect prefab
     [SerializeField] private SOAudioEvent impactSfx; // Impact sound
     
@@ -39,11 +39,12 @@ public class EggProjectile : MonoBehaviour, IPooledObject
         rb.useGravity = false;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         col.isTrigger = true;
+        trailVRenderer.emitting = false;
     }
     
     public void Initialize(Vector3 direction, float speed, float damage)
     {
-        if (ProjectileManager.Instance != null)
+        if (ProjectileManager.Instance)
         {
             ProjectileManager.Instance.RegisterProjectile(gameObject);
         }
@@ -53,6 +54,7 @@ public class EggProjectile : MonoBehaviour, IPooledObject
         currentDamage = damage;
         _currentLifeTime = lifetime;
         rb.linearVelocity = moveDirection * currentSpeed;
+        trailVRenderer.emitting = true;
         
         isInitialized = true;
 
@@ -150,6 +152,7 @@ public class EggProjectile : MonoBehaviour, IPooledObject
             ProjectileManager.Instance.UnregisterProjectile(gameObject);
         }
         isInitialized = false;
+        trailVRenderer.emitting = false;
         ObjectPooler.ReturnObjectToPool(gameObject);
     }
     
@@ -167,6 +170,7 @@ public class EggProjectile : MonoBehaviour, IPooledObject
     public void OnPoolRecycle()
     {
         isInitialized = false;
+        trailVRenderer.emitting = false;
     }
     
     

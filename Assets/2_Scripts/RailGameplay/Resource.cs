@@ -1,76 +1,63 @@
-using System;
 using DNExtensions;
 using KBCore.Refs;
 using UnityEngine;
 using VInspector;
 using PrimeTween;
 
-[System.Serializable]
-public class WeaponChance 
-{
-    public SOWeaponData weaponData;
-    [Range(0, 100)] public int chance = 10;
-    public bool isLocked;
-    public string displayName;
-    
-    public string GetDisplayName()
-    {
-        if (!string.IsNullOrEmpty(displayName)) return displayName;
-        return weaponData ? weaponData.name : "No Weapon";
-    }
-}
-
 
 [SelectionBase]
-[RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(AudioSource))]
 public class Resource : MonoBehaviour
 {
-    [Header("General Settings")]
-    [Tooltip("Time before the resource destroys itself (0 = unlimited time)"), SerializeField, Min(0)] private float lifetime = 8f;
-    [SerializeField, Min(0f)] private Vector2 spawnSpeedRange = new Vector2(50f,60f);
-    [SerializeField, Min(0f)] private float splineMovementSpeed = 3f;
-    [SerializeField, Min(0.1f)] private float deceleration = 4f;
+    [Header("Movement")]
     [SerializeField, Min(0.1f)] private float acceleration = 12f;
+    [SerializeField, Min(0f)] private float moveToBoundarySpeed = 3f;
+    [SerializeField, Min(0f)] private float followBoundarySpeed = 15f;
     [SerializeField, Min(0f)] private float magnetizedSpeed = 25f;
-    [SerializeField, Min(0)] private float rotationSpeed = 45f;
-
-    
-    [Header("Resource Settings")]
-    [SerializeField, Min(0)] private int scoreWorth = 50;
-    [SerializeField] private ResourceType resourceType;
-    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
-    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.HealthPack)] private int healthWorth = 1;[EndIf]
-    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.ShieldPack)] private int shieldWorth = 50;[EndIf]
-    [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private WeaponChance[] weaponChances = Array.Empty<WeaponChance>(); [EndIf] 
     
     [Header("Effects")]
     [SerializeField] private SOAudioEvent spawnSfx;
     [SerializeField] private ParticleSystem spawnEffect;
     [SerializeField] private SOAudioEvent collectionSfx;
     [SerializeField] private ParticleSystem collectionEffect;
+    [SerializeField] private Transform resourceGfx;
+    [SerializeField, Min(0)] private float rotationSpeed = 45f;
     [SerializeField] private float spawnAnimationDuration = 1f;
     [SerializeField] private float despawnAnimationDuration = 2f;
     [SerializeField] private float magnetizedPunchStrength = 1f;
     [SerializeField] private float magnetizedPunchDuration = 0.5f;
-    
-    [Header("References")]
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
-    [SerializeField, Self, HideInInspector] private Rigidbody rigidBody;
+    
+    [Header("Resource")]
+    [Tooltip("Time before the resource destroys itself (0 = unlimited time)"), SerializeField, Min(0)] private float lifetime = 8f;
+    [SerializeField, Min(0)] private int scoreWorth = 50;
+    [SerializeField] private ResourceType resourceType;
+    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
+    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.HealthPack)] private int healthWorth = 1;[EndIf]
+    [SerializeField, Min(1), ShowIf("resourceType", ResourceType.ShieldPack)] private int shieldWorth = 50;[EndIf]
+    [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private ChanceList<SOWeaponData> weapons = new ChanceList<SOWeaponData>();[EndIf] 
+    
     
 
+    
+    private ResourceMovementState _currentState;
     private Transform _playerTransform;
-    private bool _isMagnetized;
     private float _currentLifetime;
+    private float _movementBoundaryX;
+    private float _movementBoundaryY;
     private Vector3 _rotationAxis;
     private Sequence _scaleAnimation;
     private Vector3 _currentVelocity;
     private Vector3 _targetVelocity;
-    private Vector3 _currentOffsetFromSpline;
     private Quaternion _splineRotation = Quaternion.identity;
-    
-    private float MovementBoundaryX => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
-    private float MovementBoundaryY => LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
+    private Vector3 _targetOffsetFromSpline;
+    private Vector3 _currentBoundaryTargetPosition;
+    private enum ResourceMovementState
+    {
+        MovingToBoundary,
+        FollowingBoundary,
+        Magnetized
+    }
     
     public ResourceType ResourceType => resourceType;
     public int ScoreWorth => scoreWorth;
@@ -79,36 +66,25 @@ public class Resource : MonoBehaviour
     public int CurrencyWorth => currencyWorth;
     public SOWeaponData WeaponData { get; private set;}
 
-    
+
     
     private void OnValidate()
     {
-        if (Application.isPlaying) return;
-        
         this.ValidateRefs();
-        
-        if (resourceType == ResourceType.SpecialWeapon && weaponChances is { Length: > 0 })
-        {
-            NormalizeWeaponChances();
-        }
     }
     
 
     private void Awake()
     {
-        Initialize();
+        Setup();
     }
-    
 
     private void Update()
     {
         CheckLifetime();
-        Rotate();
+        RotateGfx();
         UpdateSplineRotation();
-    }
-    
-    private void FixedUpdate()
-    {
+        UpdateBoundaryTargetPosition();
         HandleMovement();
     }
 
@@ -120,7 +96,7 @@ public class Resource : MonoBehaviour
 
     private void CheckLifetime()
     {
-        if (lifetime <= 0f || _isMagnetized) return;
+        if (lifetime <= 0f || _currentState != ResourceMovementState.FollowingBoundary) return;
 
         _currentLifetime -= Time.deltaTime;
         
@@ -137,17 +113,15 @@ public class Resource : MonoBehaviour
 
     public void SetMagnetized(Transform playerTransform)
     {
-        _isMagnetized = true;
+        _currentState = ResourceMovementState.Magnetized;
         _playerTransform = playerTransform;
-    
-
         PlayMagnetizedEffects();
     }
     
     
     public void ReleaseFromMagnetization()
     {
-        _isMagnetized = false;
+        _currentState = ResourceMovementState.FollowingBoundary;
         _playerTransform = null;
     }
     
@@ -157,28 +131,40 @@ public class Resource : MonoBehaviour
         Destroy(gameObject);
     }
     
-    private void Initialize()
+    private void Setup()
     {
+        _currentState = ResourceMovementState.MovingToBoundary;
         _currentLifetime = lifetime;
-        _isMagnetized = false;
         _playerTransform = null;
-        
-        _rotationAxis = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized;
-        
-        if (resourceType == ResourceType.SpecialWeapon && weaponChances.Length > 0)
+        _movementBoundaryX = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
+        _movementBoundaryY = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
+        if (resourceType == ResourceType.SpecialWeapon && weapons.Count > 0)
         {
-            WeaponData = SelectRandomWeapon();
+            WeaponData = weapons.GetRandomItem();
+        }
+        _currentVelocity = Vector3.zero;
+        
+
+
+        if (LevelManager.Instance)
+        {
+            _movementBoundaryX = LevelManager.Instance.PlayerBoundary.x;
+            _movementBoundaryY = LevelManager.Instance.PlayerBoundary.y;
+           float randomX = Random.Range(-_movementBoundaryX, _movementBoundaryX);
+           float randomY = Random.Range(-_movementBoundaryY, _movementBoundaryY);
+           _targetOffsetFromSpline = new Vector3(randomX, randomY, 0f);
+           UpdateBoundaryTargetPosition(); 
         }
         
-        Vector2 randomDir = UnityEngine.Random.insideUnitCircle.normalized;
-        float randomSpeed = UnityEngine.Random.Range(spawnSpeedRange.x, spawnSpeedRange.y);
-        Vector3 localVelocity = new Vector3(randomDir.x, randomDir.y, 0f) * randomSpeed;
-        _currentVelocity = _splineRotation * localVelocity;
-        _targetVelocity = Vector3.zero; 
-        
         PlaySpawnEffects();
+
     }
     
+    private void UpdateBoundaryTargetPosition()
+    {
+        if (!LevelManager.Instance) return;
+        _currentBoundaryTargetPosition = LevelManager.Instance.PlayerPosition + (_splineRotation * _targetOffsetFromSpline);
+    }
 
 
     #endregion State Management ---------------------------------------------------------------------------------------
@@ -199,93 +185,82 @@ public class Resource : MonoBehaviour
         _splineRotation = splineForward != Vector3.zero ? Quaternion.LookRotation(splineForward, Vector3.up) : Quaternion.identity;
     }
     
-    
-    private void Rotate()
-    {
-        if (rotationSpeed <= 0f) return;
-        
-        transform.Rotate(_rotationAxis, rotationSpeed * Time.deltaTime, Space.Self);
-    }
 
 
     private void HandleMovement()
     {
-        if (!LevelManager.Instance) return;
-        
-        // Get current spline position and move backwards along it
-        Vector3 currentSplinePosition = LevelManager.Instance.CurrentPositionOnPath.position;
-        Vector3 backwardDirection = -LevelManager.Instance.GetSplineTangentAtPosition(currentSplinePosition);
-        
-        // Calculate spline velocity (not movement)
-        Vector3 splineVelocity = backwardDirection * splineMovementSpeed;
-        
-        if (_isMagnetized && _playerTransform)
+        switch (_currentState)
         {
-            Vector3 directionToPlayer = (_playerTransform.position - transform.position).normalized;
-            _targetVelocity = directionToPlayer * magnetizedSpeed;
-            _currentVelocity = Vector3.Lerp(_currentVelocity, _targetVelocity, acceleration * Time.fixedDeltaTime);
-        }
-        else
-        {
-            _currentVelocity = Vector3.Lerp(_currentVelocity, Vector3.zero, deceleration * Time.fixedDeltaTime);
-            if (_currentVelocity.magnitude < 0.1f)
-            {
-                _currentVelocity = Vector3.zero;
-            }
+            case ResourceMovementState.MovingToBoundary:
+                HandleMovingToBoundary();
+                break;
+            case ResourceMovementState.FollowingBoundary:
+                HandleFollowingBoundary();
+                break;
+            case ResourceMovementState.Magnetized:
+                HandleMagnetizedMovement();
+                break;
         }
         
-        // Calculate proposed position (current movement + spline movement)
-        Vector3 proposedPosition = transform.position + ((_currentVelocity + splineVelocity) * Time.fixedDeltaTime);
-        Vector3 proposedWorldOffset = proposedPosition - currentSplinePosition;
-        Vector3 proposedLocalOffset = Quaternion.Inverse(_splineRotation) * proposedWorldOffset;
+        transform.position += _currentVelocity * Time.deltaTime;
+    }
+    
+    private void HandleMovingToBoundary()
+    {
+        Vector3 directionToTarget = (_currentBoundaryTargetPosition - transform.position).normalized;
         
-        // Clamp to boundaries (but allow Z movement for spline progression)
-        proposedLocalOffset.x = Mathf.Clamp(proposedLocalOffset.x, -MovementBoundaryX, MovementBoundaryX);
-        proposedLocalOffset.y = Mathf.Clamp(proposedLocalOffset.y, -MovementBoundaryY, MovementBoundaryY);
-        // Don't clamp Z - let it move freely along the spline
+        _targetVelocity = directionToTarget * moveToBoundarySpeed;
+        _currentVelocity = Vector3.Lerp(_currentVelocity, _targetVelocity, acceleration * Time.deltaTime);
         
-        // Handle boundary collisions
-        bool hitBoundaryX = Mathf.Abs(proposedLocalOffset.x) >= MovementBoundaryX * 0.99f;
-        bool hitBoundaryY = Mathf.Abs(proposedLocalOffset.y) >= MovementBoundaryY * 0.99f;
-        
-        if (hitBoundaryX || hitBoundaryY)
+        float distanceToTarget = Vector3.Distance(transform.position, _currentBoundaryTargetPosition);
+        if (distanceToTarget < 3f)
         {
-            Vector3 localVelocity = Quaternion.Inverse(_splineRotation) * _currentVelocity;
-            
-            if (hitBoundaryX)
-            {
-                localVelocity.x *= -0.5f;
-            }
-            if (hitBoundaryY)
-            {
-                localVelocity.y *= -0.5f;
-            }
-            
-            _currentVelocity = _splineRotation * localVelocity;
+            _currentState = ResourceMovementState.FollowingBoundary;
         }
-        
-        // Calculate final world position and set the rigidbody velocity
-        Vector3 constrainedWorldPosition = currentSplinePosition + (_splineRotation * proposedLocalOffset);
-        Vector3 positionDifference = constrainedWorldPosition - transform.position;
-        
-        // Combine the position correction with spline velocity
-        Vector3 finalVelocity = (positionDifference / Time.fixedDeltaTime) + splineVelocity;
-        rigidBody.linearVelocity = finalVelocity;
-        rigidBody.rotation = _splineRotation;
-        
-        // Update current offset for next frame
-        _currentOffsetFromSpline = proposedLocalOffset;
     }
 
+    private void HandleFollowingBoundary()
+    {
+        Vector3 directionToTarget = (_currentBoundaryTargetPosition - transform.position).normalized;
+        
+        _targetVelocity = directionToTarget * followBoundarySpeed;
+        _currentVelocity = Vector3.Lerp(_currentVelocity, _targetVelocity, acceleration * Time.deltaTime);
+        
+        float distanceToTarget = Vector3.Distance(transform.position, _currentBoundaryTargetPosition);
+        if (distanceToTarget > 3f)
+        {
+            _currentState = ResourceMovementState.MovingToBoundary;
+        }
+    }
+
+    private void HandleMagnetizedMovement()
+    {
+        if (!_playerTransform) return;
+        
+        Vector3 directionToPlayer = (_playerTransform.position - transform.position).normalized;
+        _targetVelocity = directionToPlayer * magnetizedSpeed;
+        _currentVelocity = Vector3.Lerp(_currentVelocity, _targetVelocity, acceleration * Time.deltaTime);
+    }
+    
     #endregion Movement ---------------------------------------------------------------------------------------
     
     
 
     #region Effects ---------------------------------------------------------------------------------------
 
+    
+    private void RotateGfx()
+    {
+        if (rotationSpeed <= 0f) return;
+        
+        resourceGfx.Rotate(_rotationAxis, rotationSpeed * Time.deltaTime, Space.Self);
+    }
 
     private void PlaySpawnEffects()
     {
+        _rotationAxis = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
+        resourceGfx.eulerAngles = new Vector3(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
+        
         if (spawnSfx)
         {
             spawnSfx.Play(audioSource);
@@ -297,17 +272,17 @@ public class Resource : MonoBehaviour
         }
         
         if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
-        _scaleAnimation = Sequence.Create(Tween.Scale(transform, startValue: Vector3.one * 0.5f, endValue:Vector3.one, duration: spawnAnimationDuration, ease: Ease.InOutBounce));
+        _scaleAnimation = Sequence.Create(Tween.Scale(resourceGfx, startValue: Vector3.one * 0.5f, endValue:Vector3.one, duration: spawnAnimationDuration, ease: Ease.InOutBounce));
     }
     
     
     private void PlayDespawnEffects()
     {
         if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
-        transform.localScale = Vector3.one;
+        resourceGfx.localScale = Vector3.one;
         _scaleAnimation = Sequence.Create()
-            .Group(Tween.PunchScale(transform, strength: Vector3.one * magnetizedPunchStrength/2, frequency: 7, duration: despawnAnimationDuration/2, easeBetweenShakes: Ease.InOutBounce))
-            .Chain(Tween.Scale(transform, endValue: Vector3.zero, duration: despawnAnimationDuration/2, ease: Ease.OutSine));
+            .Group(Tween.PunchScale(resourceGfx, strength: Vector3.one * magnetizedPunchStrength/2, frequency: 2, duration: despawnAnimationDuration/2, easeBetweenShakes: Ease.InOutBounce))
+            .Chain(Tween.Scale(resourceGfx, endValue: Vector3.zero, duration: despawnAnimationDuration/2, ease: Ease.OutSine));
         
     }
     private void PlayCollectionEffects()
@@ -327,155 +302,22 @@ public class Resource : MonoBehaviour
     private void PlayMagnetizedEffects()
     {
         if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
-        transform.localScale = Vector3.one;
-        _scaleAnimation = Sequence.Create(Tween.PunchScale(transform, Vector3.one * magnetizedPunchStrength, duration: magnetizedPunchDuration));
+        resourceGfx.localScale = Vector3.one;
+        _scaleAnimation = Sequence.Create(Tween.PunchScale(resourceGfx, Vector3.one * magnetizedPunchStrength, frequency:5, duration: magnetizedPunchDuration));
     }
 
     #endregion Effects ---------------------------------------------------------------------------------------
 
     
-    
-    #region Weapon Selection ---------------------------------------------------------------------------------------
-    
-    
-    private SOWeaponData SelectRandomWeapon()
+    private void OnDrawGizmos()
     {
-        if (weaponChances.Length == 0) return null;
+        // Draw the current boundary target position
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(_currentBoundaryTargetPosition, 1.5f);
     
-        // Filter out weapons with null references
-        var validWeapons = new System.Collections.Generic.List<WeaponChance>();
-        foreach (var weaponChance in weaponChances)
-        {
-            if (weaponChance.weaponData && weaponChance.chance > 0)
-            {
-                validWeapons.Add(weaponChance);
-            }
-        }
-    
-        if (validWeapons.Count == 0) return null;
-    
-        // Calculate total weight
-        int totalWeight = 0;
-        foreach (var weaponChance in validWeapons)
-        {
-            totalWeight += weaponChance.chance;
-        }
-    
-        if (totalWeight <= 0) return validWeapons[0].weaponData;
-    
-        // Select a random weapon based on weights
-        int randomValue = UnityEngine.Random.Range(0, totalWeight + 1);
-        int currentWeight = 0;
-    
-        foreach (var weaponChance in validWeapons)
-        {
-            currentWeight += weaponChance.chance;
-            if (randomValue <= currentWeight)
-            {
-                return weaponChance.weaponData;
-            }
-        }
-    
-        // Fallback
-        return validWeapons[0].weaponData;
+        // Optional: Draw a line from the resource to the target
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(transform.position, _currentBoundaryTargetPosition);
     }
-    
-
-    private void NormalizeWeaponChances()
-    {
-        if (weaponChances.Length == 0) return;
-        
-        // Separate locked and unlocked entries (only those with valid weapons)
-        var unlockedEntries = new System.Collections.Generic.List<WeaponChance>();
-        int lockedTotal = 0;
-        
-        foreach (var weaponChance in weaponChances)
-        {
-            // Only consider entries with valid weapons
-            if (weaponChance.weaponData)
-            {
-                if (weaponChance.isLocked)
-                {
-                    lockedTotal += Mathf.Max(0, weaponChance.chance);
-                }
-                else
-                {
-                    unlockedEntries.Add(weaponChance);
-                }
-            }
-        }
-        
-        // If all valid entries are locked, don't normalize
-        if (unlockedEntries.Count == 0) return;
-        
-        // Calculate remaining percentage for unlocked entries
-        int remainingPercentage = Mathf.Max(0, 100 - lockedTotal);
-        
-        // Calculate the total of unlocked chances
-        int unlockedTotal = 0;
-        foreach (var weaponChance in unlockedEntries)
-        {
-            unlockedTotal += Mathf.Max(0, weaponChance.chance);
-        }
-        
-        // If the unlocked total is 0, set equal chances for unlocked entries
-        if (unlockedTotal <= 0)
-        {
-            int equalChance = remainingPercentage / unlockedEntries.Count;
-            int remainder = remainingPercentage % unlockedEntries.Count;
-            
-            for (int i = 0; i < unlockedEntries.Count; i++)
-            {
-                unlockedEntries[i].chance = equalChance + (i < remainder ? 1 : 0);
-            }
-        }
-        // If the unlocked total doesn't match the remaining percentage, normalize unlocked entries
-        else if (unlockedTotal != remainingPercentage)
-        {
-            int newTotal = 0;
-            
-            // First pass: calculate normalized values for unlocked entries only
-            foreach (var weaponChance in unlockedEntries)
-            {
-                int normalizedChance = Mathf.RoundToInt((weaponChance.chance / (float)unlockedTotal) * remainingPercentage);
-                weaponChance.chance = normalizedChance;
-                newTotal += normalizedChance;
-            }
-            
-            // Second pass: adjust for rounding errors to ensure unlocked total = remainingPercentage
-            int difference = remainingPercentage - newTotal;
-            if (difference != 0 && unlockedEntries.Count > 0)
-            {
-                // Sort unlocked entries by current chance value (descending) to adjust larger values first
-                unlockedEntries.Sort((a, b) => b.chance.CompareTo(a.chance));
-                
-                // Distribute the difference, ensuring no negative values
-                for (int i = 0; i < Mathf.Abs(difference) && i < unlockedEntries.Count; i++)
-                {
-                    if (difference > 0)
-                    {
-                        unlockedEntries[i].chance += 1;
-                    }
-                    else if (unlockedEntries[i].chance > 0) // Only subtract if we won't go negative
-                    {
-                        unlockedEntries[i].chance -= 1;
-                    }
-                }
-            }
-        }
-        
-        // Final safety check: ensure no negative values in all entries
-        foreach (var weaponChance in weaponChances)
-        {
-            if (weaponChance.chance < 0)
-            {
-                weaponChance.chance = 0;
-            }
-        }
-    }
-    
-    
-    
-    #endregion Weapon Selection ---------------------------------------------------------------------------------------
-    
+ 
 }

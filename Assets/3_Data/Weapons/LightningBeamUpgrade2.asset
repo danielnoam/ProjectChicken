@@ -15,7 +15,7 @@ MonoBehaviour:
   baseWeapon: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
   overrideWeaponGfx: 0
   overrideWeaponBarrels: 0
-  overrideFireRate: 1
+  overrideFireRate: 0
   fireRate: 0.1
   overrideMaxTargets: 0
   maxTargets: 1
@@ -30,10 +30,11 @@ MonoBehaviour:
   overrideHitscanBehaviors: 1
   hitscanBehaviors:
   - rid: 4047855709786210424
-  - rid: 4047855709786210425
+  - rid: 4485104011578441733
   itemName: Lightning Beam Upgrade 2
   itemDescription: Cook more chickens with each beam!
   itemCost: 500
+  itemGfx: {fileID: 8791046985504996612, guid: bd68fccb9ae740d46918a9cbcc95b3dc, type: 3}
   neededItemsToUnlock:
   - _underlyingValue: {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
   itemID: 712304522
@@ -44,21 +45,22 @@ MonoBehaviour:
       type: {class: BehaviorChainOnHit, ns: , asm: Assembly-CSharp}
       data:
         targetsRadiusCheck: 10
-        maxTargets: 5
-        baseDamage: 10
-        baseForce: 10
-        baseStunChance: 0.1
+        maxTargets: 7
+        baseDamage: 11
+        baseForce: 11
+        stun: 0
+        baseStunChance: 0.05
         baseStunDuration: 0.5
         chainDelay: 0.1
         chainFalloff: 0.8
-    - rid: 4047855709786210425
-      type: {class: BehaviorRumbleAndShakeOnStart, ns: , asm: Assembly-CSharp}
+    - rid: 4485104011578441733
+      type: {class: BehaviorVibrateAndShakeOnStart, ns: , asm: Assembly-CSharp}
       data:
-        rumbleControllerOnFire: 1
-        rumbleSettings:
+        vibrateControllerOnFire: 1
+        vibrationSettings:
           lowFrequency: 0.15
-          highFrequency: 0.1
-          duration: 0.1
+          highFrequency: 0.15
+          duration: 0.2
           lowFrequencyCurve:
             serializedVersion: 2
             m_Curve:
@@ -67,16 +69,16 @@ MonoBehaviour:
               value: 1
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0
             - serializedVersion: 3
               time: 1
-              value: 1
+              value: 0
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0
@@ -91,16 +93,16 @@ MonoBehaviour:
               value: 1
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0
             - serializedVersion: 3
               time: 1
-              value: 1
+              value: 0
               inSlope: 0
               outSlope: 0
-              tangentMode: 34
+              tangentMode: 0
               weightedMode: 0
               inWeight: 0
               outWeight: 0

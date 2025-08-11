@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using DNExtensions;
 using KBCore.Refs;
@@ -28,7 +29,7 @@ public class RailPlayerAiming : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
-    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerRumbleSource;
+    [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
 
 
     private bool _isAimLocked;
@@ -104,7 +105,12 @@ public class RailPlayerAiming : MonoBehaviour
     {
         if (!stage) return;
         
-        _allowAiming = stage.AllowPlayerAim;
+        _allowAiming = stage.AllowPlayerShootingAndAiming;
+
+        if (!stage.AllowPlayerShootingAndAiming)
+        {
+            StartCoroutine(ReturnToCenter());
+        }
     }
     
         
@@ -153,6 +159,26 @@ public class RailPlayerAiming : MonoBehaviour
             }
         }
     }
+    
+    
+    private IEnumerator ReturnToCenter()
+    {
+        while (true)
+        {
+            if (_normalizedAimPosition != Vector2.zero)
+            {
+                _normalizedAimPosition = Vector2.Lerp(_normalizedAimPosition, Vector3.zero, 1f * Time.deltaTime);
+            }
+            else
+            {
+                yield break;
+                
+            }
+            
+            yield return null;
+        }
+    }
+
 
     #endregion Aiming --------------------------------------------------------------------------------------------------------
     

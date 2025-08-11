@@ -10,7 +10,7 @@
  * 
  * 2. With MinMaxRange and direct float initialization:
  *    [MinMaxRange(-5f, 5f)] 
- *    public RangedFloat damage = 5f;  // Creates range from -5 to 5
+ *    public RangedFloat damage = 5f; // Creates range from -5 to 5
  * 
  * 3. With direct value initialization (no attribute):
  *    public RangedFloat health = new RangedFloat(50f, 100f);

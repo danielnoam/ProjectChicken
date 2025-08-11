@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DNExtensions;
+using DNExtensions.VFXManager;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VInspector;
@@ -12,37 +13,35 @@ public class SOLevel : ScriptableObject
     [SerializeField] private string levelName;
     [SerializeField] private LevelDifficulty levelDifficulty;
     [SerializeField, Multiline(3)] private string levelDescription;
-    [SerializeField] private GameObject levelGfxPrefab;
     [SerializeField] private SceneField levelScene;
-
+    [SerializeField] private GameObject levelGfxPrefab;
+    
     
     [Header("Level Unlock")]
-    [SerializeField] private bool isLocked;
-    [SerializeField, ShowIf("isLocked")] private List<SOLevel> levelsToComplete = new List<SOLevel>();
+    [SerializeField] private List<SOLevel> levelsToComplete = new List<SOLevel>();
+    
+    
+    [Header("Effects")]
+    [SerializeField] private SOVFEffectsSequence loadVFXSequence;
+    [SerializeField] private SOVFEffectsSequence introVFXSequence;
+    [SerializeField] private SOVFEffectsSequence outroVFXSequence;
+
+
+    
+
     
     public string LevelName => levelName;
     public string LevelDescription => levelDescription;
+    public GameObject LevelGfxPrefab => levelGfxPrefab;
     public LevelDifficulty LevelDifficulty => levelDifficulty;
-    public bool IsLocked => isLocked;
     public List<SOLevel> LevelsToComplete => levelsToComplete;
+    public SOVFEffectsSequence IntroVFXSequence => introVFXSequence;
+    public SOVFEffectsSequence OutroVFXSequence => outroVFXSequence;
     
     
     public void LoadLevel()
     {
-        if (levelScene == null) return;
-        
-        SceneManager.LoadScene(levelScene.BuildIndex);
-    }
-    
-    public GameObject SetUpGfx(Transform parent)
-    {
-        if (!levelGfxPrefab) return null;
-        
-        GameObject levelGfx = Instantiate(levelGfxPrefab, parent);
-        
-        levelGfx.SetActive(false);
-        
-        return levelGfx;
+        TransitionManager.TransitionToScene(levelScene, loadVFXSequence);
     }
     
     public string GetScenePath()

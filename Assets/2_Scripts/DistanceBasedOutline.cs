@@ -1,33 +1,32 @@
 using System;
 using KBCore.Refs;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VInspector;
 
 
-[RequireComponent(typeof(Outline))]
+
 public class DistanceBasedOutline : MonoBehaviour
 {
 
     [Header("Settings")]
     [SerializeField] private Vector2 outlineWidthRange = new Vector2(0f, 10f);
-    [SerializeField] private float thinOutlineDistance = 5f;
-    [SerializeField] private float thickOutlineDistance = 10f;
+    [SerializeField] private float thinOutlineDistance = 80f;
+    [SerializeField] private float thickOutlineDistance = 100f;
     
     [Header("References")]
-    [SerializeField,Self,HideInInspector] private Outline outline;
-    [SerializeField] private Camera mainCamera;
+    [SerializeField] private Outline outline;
     
     [Header("Debug")]
-    [SerializeField,ReadOnly] private float distance;
+    [SerializeField, ReadOnly] private float distance;
+    [SerializeField, ReadOnly] private Camera cam;
 
 
+
+    
     private void OnValidate()
     {
-        this.ValidateRefs();
-
-        if (!mainCamera) mainCamera = FindFirstObjectByType<Camera>();
         
-
         if (outlineWidthRange.x > outlineWidthRange.y)
         {
             outlineWidthRange.x = outlineWidthRange.y;
@@ -46,17 +45,20 @@ public class DistanceBasedOutline : MonoBehaviour
         }
     }
 
-    private void Awake()
+    
+    
+    private void Start()
     {
-        if (!mainCamera) mainCamera = Camera.current;
+        cam = Camera.main;
     }
+    
 
 
     private void Update()
     {
-        if (!mainCamera) return;
+        if (!cam) return;
         
-        distance = Vector3.Distance(transform.position, mainCamera.transform.position);
+        distance = Vector3.Distance(transform.position, cam.transform.position);
         var outlineWidth = Mathf.InverseLerp(thinOutlineDistance, thickOutlineDistance, distance);
         outline.OutlineWidth = Mathf.Lerp(outlineWidthRange.x, outlineWidthRange.y, outlineWidth);
     }

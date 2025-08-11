@@ -47,12 +47,17 @@ namespace DNExtensions
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             #endif
         }
-
+        
 #if UNITY_EDITOR
         private static void OnPlayModeStateChanged(PlayModeStateChange state)
         {
             if (state != PlayModeStateChange.ExitingPlayMode) return;
-            
+
+            if (Instance && Instance.gameObject)
+            {
+                DestroyImmediate(Instance.gameObject);
+            }
+    
             Instance = null;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             SceneManager.activeSceneChanged -= OnActiveSceneChanged;

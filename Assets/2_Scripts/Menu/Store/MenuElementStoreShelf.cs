@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AYellowpaper;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,13 +11,13 @@ public class MenuElementStoreShelf : MenuElement
     [SerializeField] private InterfaceReference<IStoreItem, ScriptableObject>[] shelfItems = Array.Empty<InterfaceReference<IStoreItem, ScriptableObject>>();
     
     [Header("References")]
-    [SerializeField] private StoreItemUIData storeItemUIDataPrefab;
+    [SerializeField] private StoreItem storeItemPrefab;
     [SerializeField] private Transform storeItemHolder;
     
-    private readonly List<StoreItemUIData> _shelfItemsList = new List<StoreItemUIData>();
+    private readonly List<StoreItem> _shelfItemsList = new List<StoreItem>();
     private int _currentStoreItemIndex;
     
-    public event Action<StoreItemUIData> OnStoreItemBoughtEvent;
+    public event Action<StoreItem> OnStoreItemBoughtEvent;
     
     
     
@@ -32,17 +33,20 @@ public class MenuElementStoreShelf : MenuElement
 
     protected override void OnSetUp()
     {
+        PrimeTweenConfig.warnTweenOnDisabledTarget = false;
+        
         if (shelfItems.Length <= 0)
         {
             ToggleCanSelect(false);
         }
         else
         {
-            if (!storeItemUIDataPrefab) return;
+            if (!storeItemPrefab) return;
             
             foreach (var item in shelfItems)
             {
-                var storeItem = Instantiate(storeItemUIDataPrefab, storeItemHolder ? storeItemHolder : transform);
+                var storeItem = Instantiate(storeItemPrefab, storeItemHolder ? storeItemHolder : transform);
+                storeItem.name = item.Value.ItemName;
                 storeItem.SetupItem(item.Value);
                 
                 storeItem.OnItemBoughtEvent += StoreItemBought;
@@ -106,12 +110,12 @@ public class MenuElementStoreShelf : MenuElement
         _currentStoreItemIndex = 0;
     }
 
-    private void StoreItemBought(StoreItemUIData boughtItem)
+    private void StoreItemBought(StoreItem boughtItem)
     {
         foreach (var item in _shelfItemsList)
         {
-            if (item.StoreItem.NeededItemsToUnlockToUnlock.Count <= 0) continue;
-            foreach (var neededItem in item.StoreItem.NeededItemsToUnlockToUnlock)
+            if (item.IStoreItem.NeededItemsToUnlockToUnlock.Count <= 0) continue;
+            foreach (var neededItem in item.IStoreItem.NeededItemsToUnlockToUnlock)
             {
                 item.gameObject.SetActive(SaveManager.HasStoreItem(neededItem.Value.ItemID));
             }
@@ -120,18 +124,18 @@ public class MenuElementStoreShelf : MenuElement
         OnStoreItemBoughtEvent?.Invoke(boughtItem);
     }
     
-    private void OnStoreItemMouseEnter(StoreItemUIData item)
+    private void OnStoreItemMouseEnter(StoreItem item)
     {
-        if (CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
         
         _shelfItemsList[_currentStoreItemIndex]?.SetSelected(false);
         _currentStoreItemIndex = _shelfItemsList.IndexOf(item);
         item.SetSelected(true);
     }
 
-    private void OnStoreItemMouseExit(StoreItemUIData item)
+    private void OnStoreItemMouseExit(StoreItem item)
     {
-        if (CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
         
         if (item == _shelfItemsList[_currentStoreItemIndex])
         {
@@ -140,19 +144,19 @@ public class MenuElementStoreShelf : MenuElement
         }
     }
 
-    private void OnStoreItemMouseDown(StoreItemUIData item)
+    private void OnStoreItemMouseDown(StoreItem item)
     {
-        if (CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
         
         item?.TryPurchase();
     }
 
     protected override void OnNavigate(InputAction.CallbackContext context)
     {
-        if (!context.performed || CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (!context.performed || CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
    
 
-        var activeItems = new List<StoreItemUIData>();
+        var activeItems = new List<StoreItem>();
         foreach (var item in _shelfItemsList)
         {
             if (item.gameObject.activeInHierarchy)
@@ -197,7 +201,7 @@ public class MenuElementStoreShelf : MenuElement
     
     protected override void OnSubmit(InputAction.CallbackContext context)
     {
-        if (!context.performed || CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (!context.performed || CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
         
         if (_shelfItemsList.Count <= 0 || _currentStoreItemIndex >= _shelfItemsList.Count) return;
         _shelfItemsList[_currentStoreItemIndex].TryPurchase();
@@ -205,7 +209,7 @@ public class MenuElementStoreShelf : MenuElement
     
     protected override void OnCancel(InputAction.CallbackContext context)
     {
-        if (!context.performed || CurrentVisualState != VisualState.Interacting || _shelfItemsList.Count <= 0) return;
+        if (!context.performed || CurrentVisualState != ElementState.Interacting || _shelfItemsList.Count <= 0) return;
     }
     
 }

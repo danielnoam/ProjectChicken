@@ -20,6 +20,7 @@ public class SOResourceMagnetUpgrade : ScriptableObject, IStoreItem
     [SerializeField] private string itemName = "Resource Magnet Upgrade";
     [SerializeField] private string itemDescription = $"Makes the ship resource magnet radius bigger by 3";
     [SerializeField, Min(0)] private int itemCost = 75;
+    [SerializeField] private GameObject itemGfx;
     [SerializeField] private List<InterfaceReference<IStoreItem>> neededItemsToUnlock = new  List<InterfaceReference<IStoreItem>>();
     [SerializeField, ReadOnly] private int itemID;
     
@@ -28,6 +29,7 @@ public class SOResourceMagnetUpgrade : ScriptableObject, IStoreItem
     public string ItemName => itemName;
     public string ItemDescription => itemDescription;
     public int ItemCost => itemCost;
+    public GameObject ItemGfx => itemGfx;
     public List<InterfaceReference<IStoreItem>> NeededItemsToUnlockToUnlock => neededItemsToUnlock;
     
     
