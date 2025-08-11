@@ -14778,6 +14778,7 @@ GameObject:
   - component: {fileID: 5367381607354257122}
   - component: {fileID: 8075557577151878452}
   - component: {fileID: 2423926610012043616}
+  - component: {fileID: 476782027117837182}
   m_Layer: 0
   m_Name: ElectricAtmo
   m_TagString: Untagged
@@ -14854,6 +14855,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &476782027117837182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2879757880123640424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a1f54dd99b326e45908d331c349e38e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  enableRotation: 1
+  rotationSpeed: {x: 10.75, y: 16.75, z: 22.75}
+  initialScale: 0.1
+  minSize: 4
+  maxSize: 6
+  scaleDuration: 2
+  fadeOutDuration: 1
+  destroyDelay: 2
 --- !u!1 &3130782962284592943
 GameObject:
   m_ObjectHideFlags: 0
