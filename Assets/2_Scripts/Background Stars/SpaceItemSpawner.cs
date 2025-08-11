@@ -107,7 +107,7 @@ public class SpaceItemSpawner : MonoBehaviour
             if (foundColliders.Length > 0)
             {
                 spawnZones.AddRange(foundColliders);
-                Debug.LogWarning($"SpaceItemSpawner: No spawn zones assigned, automatically found {foundColliders.Length} BoxColliders on this GameObject.");
+                //Debug.LogWarning($"SpaceItemSpawner: No spawn zones assigned, automatically found {foundColliders.Length} BoxColliders on this GameObject.");
             }
             else
             {

@@ -58,7 +58,7 @@ public class SpaceItemDestroyer : MonoBehaviour
             
             if (itemPool == null)
             {
-                Debug.LogWarning($"SpaceItemDestroyer: Object pool '{poolName}' not found, falling back to traditional destruction");
+                //Debug.LogWarning($"SpaceItemDestroyer: Object pool '{poolName}' not found, falling back to traditional destruction");
                 useObjectPool = false;
             }
         }

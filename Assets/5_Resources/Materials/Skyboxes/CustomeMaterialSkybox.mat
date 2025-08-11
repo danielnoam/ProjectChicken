@@ -71,7 +71,7 @@ Material:
     - Vector1_e797322cc6194612ab007424c6b53a3b: 0
     - _CloudsEmissionPower: 1
     - _CloudsOpacityExp: 1
-    - _CloudsOpacityPower: 1
+    - _CloudsOpacityPower: 0
     - _CloudsRampOffsetExp: 1
     - _CloudsRampOffsetExp2: 1
     - _CloudsRotationSpeed: 0.05
@@ -89,16 +89,16 @@ Material:
     - _QueueOffset: 0
     - _RIMENABLED: 0
     - _RIMNOISECAENABLED: 0
-    - _RotationClouds: 0.11
+    - _RotationClouds: 0.05
     - _RotationDarkClouds: -1.05
     - _RotationStars: 0.06
     - _StarsEmissionPower: 4
     - _StarsExp: 1
     - _StarsExpNegate: 1
-    - _StarsRotationSpeed: 0.1
+    - _StarsRotationSpeed: 0.01
     m_Colors:
     - _CloudsRampColorTint: {r: 1, g: 1, b: 1, a: 1}
-    - _RotationAxis: {r: 0, g: 1, b: 0, a: 0}
+    - _RotationAxis: {r: 0.25, g: 0, b: 0, a: 0}
     - _StarsColorTint: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

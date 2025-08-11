@@ -57,8 +57,6 @@ public class SpaceItemPool : MonoBehaviour
         
         itemPools[prefab] = pool;
         activeItems[prefab] = activeList;
-        
-        Debug.Log($"Created pool for {prefab.name} with {poolSize} objects");
     }
     
     public GameObject GetPooledItem(GameObject prefab)
