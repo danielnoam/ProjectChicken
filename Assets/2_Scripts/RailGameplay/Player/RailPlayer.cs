@@ -19,8 +19,6 @@ public class RailPlayer : MonoBehaviour
 {
     [Header("General")]
     [SerializeField, Min(0)] private float timeToPause = 3f;
-    [SerializeField] private bool alignToSplineDirection = true;
-    [SerializeField, Min(0), ShowIf("alignToSplineDirection")] private float splineRotationSpeed = 5f; [EndIf]
     
     [Header("Health")]
     [SerializeField, Min(0)] private int baseHealth = 3;
@@ -81,8 +79,6 @@ public class RailPlayer : MonoBehaviour
     public RailPlayerMovement PlayerMovement => playerMovement;
     public RailPlayerResourceCollector ResourceCollector => resourceCollector;
     public LevelManager LevelManager => levelManager;
-    public Quaternion SplineRotation => _splineRotation;
-    public bool AlignToSplineDirection => alignToSplineDirection;
     public int MaxHealth => _maxHealth;
     public float MaxShieldHealth => _maxShieldHealth;
     public int CurrentHealth => _currentHealth;
@@ -140,7 +136,6 @@ public class RailPlayer : MonoBehaviour
 
     private void Update()
     {
-        GetSplineRotations();
         CheckDamageCooldown();
         
         if (_pauseInputHeld)
@@ -481,22 +476,6 @@ public class RailPlayer : MonoBehaviour
         return cameraPositions.GetChild(randomIndex);
     }
     
-    private void GetSplineRotations()
-    {
-        if (!alignToSplineDirection || !levelManager)
-        {
-            _splineRotation = Quaternion.identity;
-            return;
-        }
-        
-        Vector3 splineForward = levelManager.GetSplineTangentAtPosition(levelManager.CurrentPositionOnPath.position);
-        
-        if (splineForward != Vector3.zero)
-        {
-            Quaternion targetSplineRotation = Quaternion.LookRotation(splineForward, Vector3.up);
-            _splineRotation = Quaternion.Slerp(_splineRotation, targetSplineRotation, splineRotationSpeed * Time.deltaTime);
-        }
-    }
-
+    
     #endregion Helper Methods --------------------------------------------------------------------------------------
 }

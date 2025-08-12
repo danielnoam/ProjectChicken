@@ -13,11 +13,17 @@ MonoBehaviour:
   m_Name: Stage_Outro
   m_EditorClassIdentifier: 
   stageTitle: 
+  stageWorldSpeed: 1
+  stageVFXSequence: {fileID: 11400000, guid: 6b3d95219570c4e4eafbbbb4671f44cb, type: 2}
+  showHUD: 0
+  allowPlayerMovement: 0
+  allowPlayerShootingAndAiming: 0
+  playerPositionOffset: {x: 0, y: 0, z: 0}
   stageType: 4
   stageDuration: 7
   upgradesPool:
     internalItems: []
-  enemyPositionOffset: 0
+  enemyPositionOffset: {x: 0, y: 0, z: 0}
   delayBeforeNextStage: 1
   waveScore: 1000
   enemyWave:
@@ -33,11 +39,3 @@ MonoBehaviour:
     circleCount: 12
     gridSize: {x: 5, y: 3}
     gridFillsBoundary: 1
-  pathFollowSpeed: 55
-  upAxis: 1
-  forwardAxis: 2
-  alignmentMode: 1
-  allowPlayerMovement: 0
-  allowPlayerShootingAndAiming: 0
-  playerPositionOffset: 0
-  showHUD: 0

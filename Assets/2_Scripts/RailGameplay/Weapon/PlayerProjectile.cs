@@ -89,15 +89,7 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
         if (!_owner) return;
         
         Vector3 currentEnemySplinePosition = _owner.LevelManager.EnemyPosition;
-        
-        if (_owner.AlignToSplineDirection)
-        {
-            CurrentTargetPosition = currentEnemySplinePosition + (_owner.SplineRotation * _aimOffsetFromSpline);
-        }
-        else
-        {
-            CurrentTargetPosition = currentEnemySplinePosition + _aimOffsetFromSpline;
-        }
+        CurrentTargetPosition = currentEnemySplinePosition + _aimOffsetFromSpline;
     }
 
 
@@ -158,14 +150,7 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
         
         Vector3 enemySplinePosition = owner.LevelManager.EnemyPosition;
         Vector3 currentAimPosition = owner.PlayerAiming.AimWorldPosition.position;
-        if (owner.AlignToSplineDirection)
-        {
-            _aimOffsetFromSpline = Quaternion.Inverse(owner.SplineRotation) * (currentAimPosition - enemySplinePosition);
-        }
-        else
-        {
-            _aimOffsetFromSpline = currentAimPosition - enemySplinePosition;
-        }
+        _aimOffsetFromSpline = currentAimPosition - enemySplinePosition;
         UpdateTargetPosition();
         
         
@@ -213,14 +198,7 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
         
         Vector3 enemySplinePosition = owner.LevelManager.EnemyPosition;
         Vector3 currentAimPosition = owner.PlayerAiming.AimWorldPosition.position;
-        if (owner.AlignToSplineDirection)
-        {
-            _aimOffsetFromSpline = Quaternion.Inverse(owner.SplineRotation) * (currentAimPosition - enemySplinePosition);
-        }
-        else
-        {
-            _aimOffsetFromSpline = currentAimPosition - enemySplinePosition;
-        }
+        _aimOffsetFromSpline = currentAimPosition - enemySplinePosition;
         UpdateTargetPosition();
         
         
@@ -265,20 +243,5 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
 
     #endregion SetUp -------------------------------------------------------------------------
     
-    
-    
-    
-    [Obsolete]
-    private void DestroyProjectile()
-    {
-        foreach (var behavior in _projectileBehaviors)
-        {
-            behavior.OnDestroy(this, _owner);
-        }
-        
-        _isInitialized = false;
-        Destroy(gameObject);
-    }
-
     
 }

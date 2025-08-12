@@ -113,7 +113,6 @@ public class StoreManager : MonoBehaviour
         if (!_isOpen) return;
         
         store.transform.position = levelManager.EnemyPosition;
-        store.transform.rotation = player.SplineRotation;
     }
 
     private void OnStageChanged(SOLevelStage stage)

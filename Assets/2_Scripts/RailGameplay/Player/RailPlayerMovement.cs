@@ -121,38 +121,42 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        UpdateDodgeState();
+        HandleDodging();
         HandleShipModelAndRotation();
     }
 
     private void FixedUpdate()
     {
-        HandleSplineFollowing();
+        HandlePosition();
     }
     
     private void OnStageChanged(SOLevelStage stage)
     {
         if (!stage) return;
-        
-        _allowMovement = stage.AllowPlayerMovement;
 
-        if (!stage.AllowPlayerMovement)
+        if (_allowMovement != stage.AllowPlayerMovement)
         {
-            StartCoroutine(ReturnToCenter());
+            _allowMovement = stage.AllowPlayerMovement;
+
+            if (!stage.AllowPlayerMovement)
+            {
+                StartCoroutine(ReturnToCenter());
+            }
         }
+
     }
     
 
     #region Movement --------------------------------------------------------------------------------------
     
 
-    private void HandleSplineFollowing()
+    private void HandlePosition()
     {
         Vector3 playerSplinePosition = player.LevelManager.PlayerPosition;
         
         // Calculate current offset from spline in local space
         Vector3 worldOffset = transform.position - playerSplinePosition;
-        _currentOffsetFromSpline = Quaternion.Inverse(player.SplineRotation) * worldOffset;
+        _currentOffsetFromSpline = worldOffset;
         
 
         if (!_isDodging)
@@ -191,13 +195,12 @@ public class RailPlayerMovement : MonoBehaviour
         );
         
 
-        Vector3 desiredWorldPosition = playerSplinePosition + (player.SplineRotation * _currentOffsetFromSpline);
+        Vector3 desiredWorldPosition = playerSplinePosition + _currentOffsetFromSpline;
         Vector3 positionDifference = desiredWorldPosition - transform.position;
         float distanceToDesired = positionDifference.magnitude;
         float effectiveFollowSpeed = pathFollowSpeed * (1f + distanceToDesired);
         
         playerRigidbody.linearVelocity = positionDifference.normalized * Mathf.Min(effectiveFollowSpeed, distanceToDesired / Time.fixedDeltaTime);
-        playerRigidbody.rotation = player.SplineRotation;
     }
     
     
@@ -223,10 +226,9 @@ public class RailPlayerMovement : MonoBehaviour
         if (playerAiming)
         {
             Vector3 aimDirection = playerAiming.AimDirection;
-            Vector3 localAimDirection = Quaternion.Inverse(player.SplineRotation) * aimDirection;
         
-            float yawAngle = Mathf.Atan2(localAimDirection.x, localAimDirection.z) * Mathf.Rad2Deg;
-            float pitchAngle = -Mathf.Asin(Mathf.Clamp(localAimDirection.y, -1f, 1f)) * Mathf.Rad2Deg;
+            float yawAngle = Mathf.Atan2(aimDirection.x, aimDirection.z) * Mathf.Rad2Deg;
+            float pitchAngle = -Mathf.Asin(Mathf.Clamp(aimDirection.y, -1f, 1f)) * Mathf.Rad2Deg;
         
             yawAngle = Mathf.Clamp(yawAngle, -maxYawAngle, maxYawAngle);
             pitchAngle = Mathf.Clamp(pitchAngle, -maxPitchAngle, maxPitchAngle);
@@ -271,7 +273,7 @@ public class RailPlayerMovement : MonoBehaviour
 
     #region Dodge --------------------------------------------------------------------------------------
 
-    private void UpdateDodgeState()
+    private void HandleDodging()
     {
         if (!enableDodging) return;
     
@@ -428,7 +430,7 @@ public class RailPlayerMovement : MonoBehaviour
             Vector3[] worldCorners = new Vector3[4];
             for (int i = 0; i < 4; i++)
             {
-                worldCorners[i] = playerSplinePosition + (player.SplineRotation * localCorners[i]);
+                worldCorners[i] = playerSplinePosition + localCorners[i];
             }
 
             Gizmos.color = Color.blue;
@@ -439,7 +441,7 @@ public class RailPlayerMovement : MonoBehaviour
                 Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
             }
             
-            UnityEditor.Handles.Label(playerSplinePosition + (player.SplineRotation * Vector3.up * (MovementBoundaryY + 0.5f)), "Player Boundaries");
+            UnityEditor.Handles.Label(playerSplinePosition + Vector3.up * (MovementBoundaryY + 0.5f), "Player Boundaries");
         }
     }
 

@@ -12,7 +12,7 @@ public class RailPlayerAiming : MonoBehaviour
 {
     [Header("Aim Settings")]
     [SerializeField, Min(0.1f), Tooltip("Base speed multiplier for reticle movement")] private float baseSensitivity = 1f;
-    [SerializeField, Range(0f, 1f), Tooltip("Reduces sensitivity near boundaries to prevent wall sliding (1 = no slowdown, 0 = full slowdown)")] private float edgeSlowdown = 0.3f;
+    [SerializeField, Range(0f, 1f), Tooltip("Reduces sensitivity near boundaries to prevent wall sliding (1 = no slowdown, 0 = full slowdown)")] private float edgeSlowdown = 1f;
     [SerializeField, Tooltip("Use screen-relative input for consistent feel across different resolutions")] private bool useScreenSpaceInput;
     [SerializeField, ShowIf("useScreenSpaceInput"), Tooltip("Screen pixel equivalent for mouse movement normalization")] private Vector2 screenSensitivity = new Vector2(800f, 600f);[EndIf]
     
@@ -104,13 +104,17 @@ public class RailPlayerAiming : MonoBehaviour
     private void OnStageChanged(SOLevelStage stage)
     {
         if (!stage) return;
-        
-        _allowAiming = stage.AllowPlayerShootingAndAiming;
 
-        if (!stage.AllowPlayerShootingAndAiming)
+        if (_allowAiming != stage.AllowPlayerShootingAndAiming)
         {
-            StartCoroutine(ReturnToCenter());
+            _allowAiming = stage.AllowPlayerShootingAndAiming;
+
+            if (!stage.AllowPlayerShootingAndAiming)
+            {
+                StartCoroutine(ReturnToCenter());
+            }
         }
+
     }
     
         
@@ -127,15 +131,7 @@ public class RailPlayerAiming : MonoBehaviour
             0
         );
 
-
-        if (player.AlignToSplineDirection)
-        {
-            localOffset = player.SplineRotation * localOffset;
-        }
-
-
         aimWorldPosition.position = boundaryCenter + localOffset;
-        aimWorldPosition.rotation = player.AlignToSplineDirection ? player.SplineRotation : Quaternion.identity;
         _aimDirection = (aimWorldPosition.position - transform.position).normalized;
     }
     
@@ -222,10 +218,6 @@ public class RailPlayerAiming : MonoBehaviour
             Vector3 targetWorldPosition = _currentAimLockTarget.transform.position;
             Vector3 boundaryCenter = GetEnemySplinePosition();
             Vector3 localTargetOffset = targetWorldPosition - boundaryCenter;
-            if (player.AlignToSplineDirection)
-            {
-                localTargetOffset = Quaternion.Inverse(player.SplineRotation) * localTargetOffset;
-            }
         
             Vector2 targetNormalizedPosition = new Vector2(
                 Mathf.Clamp(localTargetOffset.x / CrosshairBoundaryX, -1f, 1f),
@@ -453,51 +445,43 @@ public class RailPlayerAiming : MonoBehaviour
             Gizmos.color = Color.blue;
             Vector3 crosshairSplinePosition = GetEnemySplinePosition();
             
-            if (player && player.AlignToSplineDirection)
+            // Draw rotated boundaries based on spline rotation
+            Vector3[] localCorners = new Vector3[]
             {
-                // Draw rotated boundaries based on spline rotation
-                Vector3[] localCorners = new Vector3[]
-                {
-                    new Vector3(-CrosshairBoundaryX, -CrosshairBoundaryY, 0),
-                    new Vector3(CrosshairBoundaryX, -CrosshairBoundaryY, 0),
-                    new Vector3(CrosshairBoundaryX, CrosshairBoundaryY, 0),
-                    new Vector3(-CrosshairBoundaryX, CrosshairBoundaryY, 0)
-                };
+                new Vector3(-CrosshairBoundaryX, -CrosshairBoundaryY, 0),
+                new Vector3(CrosshairBoundaryX, -CrosshairBoundaryY, 0),
+                new Vector3(CrosshairBoundaryX, CrosshairBoundaryY, 0),
+                new Vector3(-CrosshairBoundaryX, CrosshairBoundaryY, 0)
+            };
                 
-                Vector3[] worldCorners = new Vector3[4];
-                for (int i = 0; i < 4; i++)
-                {
-                    worldCorners[i] = crosshairSplinePosition + (player.SplineRotation * localCorners[i]);
-                }
-                
-                for (int i = 0; i < 4; i++)
-                {
-                    int nextIndex = (i + 1) % 4;
-                    Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
-                }
-                
-                
-                if (Application.isPlaying)
-                {
-                    string debugText = $"Normalized Position: ({_normalizedAimPosition.x:F2}, {_normalizedAimPosition.y:F2})";
-                    if (_isAimLocked && _currentAimLockTarget)
-                    {
-                        debugText += $"\nAim Locked: {_currentAimLockTarget.name}";
-                    }
-                    else if (_aimLockCooldownTimer > 0)
-                    {
-                        debugText += $"\nCooldown: {_aimLockCooldownTimer:F1}s";
-                    }
-
-                    debugText += $"\nCrosshair Boundaries";
-                
-                    UnityEditor.Handles.Label(crosshairSplinePosition + (player.SplineRotation * Vector3.up * (CrosshairBoundaryY + 0.5f)), debugText);
-                }
+            Vector3[] worldCorners = new Vector3[4];
+            for (int i = 0; i < 4; i++)
+            {
+                worldCorners[i] = crosshairSplinePosition + localCorners[i];
             }
-            else
+                
+            for (int i = 0; i < 4; i++)
             {
-                // Draw simple rectangular boundaries
-                Gizmos.DrawWireCube(crosshairSplinePosition, new Vector3(CrosshairBoundaryX * 2, CrosshairBoundaryY * 2, 0));
+                int nextIndex = (i + 1) % 4;
+                Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
+            }
+                
+                
+            if (Application.isPlaying)
+            {
+                string debugText = $"Normalized Position: ({_normalizedAimPosition.x:F2}, {_normalizedAimPosition.y:F2})";
+                if (_isAimLocked && _currentAimLockTarget)
+                {
+                    debugText += $"\nAim Locked: {_currentAimLockTarget.name}";
+                }
+                else if (_aimLockCooldownTimer > 0)
+                {
+                    debugText += $"\nCooldown: {_aimLockCooldownTimer:F1}s";
+                }
+
+                debugText += $"\nCrosshair Boundaries";
+                
+                UnityEditor.Handles.Label(crosshairSplinePosition + Vector3.up * (CrosshairBoundaryY + 0.5f), debugText);
             }
             
             
