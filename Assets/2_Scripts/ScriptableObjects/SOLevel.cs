@@ -1,30 +1,22 @@
-using System.Collections.Generic;
+using System;
 using DNExtensions;
 using DNExtensions.VFXManager;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using VInspector;
-
 
 [CreateAssetMenu(fileName = "New Level", menuName = "Scriptable Objects/New Level")]
 public class SOLevel : ScriptableObject
 {
-    [Header("Level Settings")]
+    [Header("Settings")]
     [SerializeField] private string levelName;
     [SerializeField] private LevelDifficulty levelDifficulty;
-    [SerializeField, Multiline(3)] private string levelDescription;
+    [SerializeField] private string levelDescription;
+    [SerializeField] private SOLevelStage[] levelStages = Array.Empty<SOLevelStage>();
+    [SerializeField] private SOLevel[] levelsNeededToUnlock = Array.Empty<SOLevel>();
+    
+    [Header("References")]
     [SerializeField] private SceneField levelScene;
     [SerializeField] private GameObject levelGfxPrefab;
-    
-    
-    [Header("Level Unlock")]
-    [SerializeField] private List<SOLevel> levelsToComplete = new List<SOLevel>();
-    
-    
-    [Header("Effects")]
     [SerializeField] private SOVFEffectsSequence loadVFXSequence;
-
-
     
 
     
@@ -32,7 +24,8 @@ public class SOLevel : ScriptableObject
     public string LevelDescription => levelDescription;
     public GameObject LevelGfxPrefab => levelGfxPrefab;
     public LevelDifficulty LevelDifficulty => levelDifficulty;
-    public List<SOLevel> LevelsToComplete => levelsToComplete;
+    public SOLevel[] LevelsNeededToUnlock => levelsNeededToUnlock;
+    public SOLevelStage[] LevelStages => levelStages;
     
     
     public void LoadLevel()

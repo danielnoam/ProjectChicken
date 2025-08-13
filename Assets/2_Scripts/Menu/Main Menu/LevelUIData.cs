@@ -36,9 +36,9 @@ public class LevelUIData
     {
         if (!soLevel || !levelButton) return;
         
-        if (soLevel.LevelsToComplete.Count == 0 || soLevel.LevelsToComplete == null) return;
+        if (soLevel.LevelsNeededToUnlock.Length == 0 || soLevel.LevelsNeededToUnlock == null) return;
         
-        foreach (var neededLevel in soLevel.LevelsToComplete)
+        foreach (var neededLevel in soLevel.LevelsNeededToUnlock)
         {
             var neededLevelProgress = SaveManager.GetLevelProgress(neededLevel.GetScenePath());
             if (neededLevelProgress == null || neededLevelProgress.isCompleted) continue;

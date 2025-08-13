@@ -13,13 +13,16 @@ MonoBehaviour:
   m_Name: Stage_Checkpoint
   m_EditorClassIdentifier: 
   stageTitle: Checkpoint Reached!
+  stageWorldSpeed: 1
+  stageVFXSequence: {fileID: 0}
+  showHUD: 1
+  allowPlayerMovement: 1
+  allowPlayerShootingAndAiming: 1
+  playerPositionOffset: {x: 0, y: 0, z: 0}
   stageType: 0
   stageDuration: 5
-  upgradesPool:
-    internalItems: []
-  enemyPositionOffset: 0
+  enemyPositionOffset: {x: 0, y: 0, z: 0}
   delayBeforeNextStage: 1
-  waveScore: 1000
   enemyWave:
     serializedKvps: []
     dividerPos: 0.33
@@ -33,11 +36,3 @@ MonoBehaviour:
     circleCount: 12
     gridSize: {x: 5, y: 3}
     gridFillsBoundary: 1
-  pathFollowSpeed: 14
-  upAxis: 1
-  forwardAxis: 2
-  alignmentMode: 1
-  showHUD: 1
-  allowPlayerMovement: 1
-  allowPlayerShootingAndAiming: 1
-  playerPositionOffset: 0

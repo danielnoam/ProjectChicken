@@ -20,7 +20,13 @@ MonoBehaviour:
     sceneName: Level3
     scenePath: Assets/1_Scenes/GameScenes/Level3.unity
   levelGfxPrefab: {fileID: 2855845098597496534, guid: f667169630846a74686bc4e115f140fd, type: 3}
-  levelsToComplete: []
   loadVFXSequence: {fileID: 11400000, guid: 6b3d95219570c4e4eafbbbb4671f44cb, type: 2}
-  introVFXSequence: {fileID: 0}
-  outroVFXSequence: {fileID: 0}
+  levelStages:
+  - {fileID: 11400000, guid: f338646e377bf42469dcc8b8dfde2127, type: 2}
+  - {fileID: 11400000, guid: 0f0431e820a1a7b46b778ae7a8aa4fcb, type: 2}
+  - {fileID: 11400000, guid: 5d55007c72a138d40b9e5209c7957b77, type: 2}
+  - {fileID: 11400000, guid: e76424f91448c7f488b75dcd40565620, type: 2}
+  - {fileID: 11400000, guid: 65ec1708ff6cc184d8aad8f26bd11397, type: 2}
+  - {fileID: 11400000, guid: 4e7feff1f70306d4e97dc1f59b34024f, type: 2}
+  - {fileID: 11400000, guid: f34f2f1a2767704418e7f7df3d8c8286, type: 2}
+  levelsNeededToUnlock: []

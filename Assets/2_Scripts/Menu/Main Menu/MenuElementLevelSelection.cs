@@ -233,7 +233,7 @@ public class MenuElementLevelSelection : MenuElement
             levelBestScoreText.text = $"";
             levelDescriptionText.text = $"Complete these levels to unlock:";
             
-            foreach (var level in levelUI.soLevel.LevelsToComplete)
+            foreach (var level in levelUI.soLevel.LevelsNeededToUnlock)
             {
                 levelDescriptionText.text += $"\n {level.name}" ;
             }

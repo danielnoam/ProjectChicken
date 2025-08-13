@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using DNExtensions;
+using Core.Attributes;
 using DNExtensions.VFXManager;
 using KBCore.Refs;
 using UnityEngine;
@@ -16,8 +16,8 @@ public class LevelManager : MonoBehaviour
     public static LevelManager Instance { get; private set; }
     
         
-    [Header("Level Settings")]
-    [SerializeField] private SOLevelStage[] levelStages;
+    [Header("Level")]
+    [SerializeField, CreateEditableAsset] private SOLevel level;
     
     [Header("Debug")]
     [SerializeField] private bool debugLog;
@@ -26,6 +26,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField, VInspector.ReadOnly] private int enemiesLeft;
     [SerializeField, VInspector.ReadOnly] public Vector3 playerPosition;
     [SerializeField, VInspector.ReadOnly] public Vector3 enemyPosition;
+    [SerializeField, VInspector.ReadOnly] private SOLevelStage[] levelStages;
     
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
@@ -83,8 +84,6 @@ public class LevelManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        UpdatePlayerAndEnemyPositions();
     }
 
 
@@ -181,6 +180,14 @@ public class LevelManager : MonoBehaviour
     [Button]
     private void StartLevel()
     {
+        if (!level)
+        {
+            if (debugLog) Debug.LogError("No level defined!");
+            return;
+        }
+
+        levelStages = level.LevelStages;
+        
         if (levelStages == null || levelStages.Length == 0)
         {
             if (debugLog) Debug.LogError("No level stages defined!");
@@ -244,6 +251,9 @@ public class LevelManager : MonoBehaviour
         currentStage = newStage;
         UpdateReachedSavePoint(newStage);
         UpdatePlayerAndEnemyPositions();
+        
+        _settingStageFlag = false;
+        OnStageChanged?.Invoke(newStage);
 
         if (newStage.IsTimeBasedStage)
         {
@@ -263,12 +273,6 @@ public class LevelManager : MonoBehaviour
             VFXManager.Instance?.PlayVFX(newStage.StageVFXSequence);
         }  
         
-        _settingStageFlag = false;
-        OnStageChanged?.Invoke(newStage);
-
-        
-
-
     }
 
 
