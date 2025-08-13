@@ -7,7 +7,7 @@ public class ResourceManager : MonoBehaviour
     
     [Header("References")] 
     [SerializeField] private LevelManager levelManager;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
+    [SerializeField, Scene(Flag.Optional)] private EnemySpawner enemySpawner;
     [SerializeField] private Transform resourceHolder;
     [SerializeField] private SOLootTable debugTable;
     

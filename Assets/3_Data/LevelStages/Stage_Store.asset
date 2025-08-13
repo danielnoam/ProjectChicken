@@ -12,7 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
   m_Name: Stage_Store
   m_EditorClassIdentifier: 
-  stageTitle: 
+  title: 
+  worldSpeed: 1
+  vFXSequence: {fileID: 0}
+  showHUD: 1
+  allowPlayerMovement: 0
+  allowPlayerShootingAndAiming: 0
+  playerPositionOffset: {x: 0, y: 0, z: 0}
   stageType: 1
   stageDuration: 5
   upgradesPool:
@@ -65,7 +71,7 @@ MonoBehaviour:
         _underlyingValue: {fileID: 11400000, guid: ab973da60211b7147bb6d445426db471, type: 2}
       chance: 8
       isLocked: 0
-  enemyPositionOffset: 0
+  enemyPositionOffset: {x: 0, y: 0, z: 0}
   delayBeforeNextStage: 1
   waveScore: 1000
   enemyWave:
@@ -81,11 +87,3 @@ MonoBehaviour:
     circleCount: 12
     gridSize: {x: 5, y: 3}
     gridFillsBoundary: 1
-  pathFollowSpeed: 0
-  upAxis: 1
-  forwardAxis: 2
-  alignmentMode: 1
-  allowPlayerMovement: 0
-  allowPlayerShootingAndAiming: 0
-  playerPositionOffset: 0
-  showHUD: 1

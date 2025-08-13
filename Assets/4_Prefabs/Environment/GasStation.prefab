@@ -9,6 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7840185886424104423}
+  - component: {fileID: 7400025501964893993}
+  - component: {fileID: -1226416240180687658}
   m_Layer: 0
   m_Name: GasStation
   m_TagString: Untagged
@@ -32,6 +34,47 @@ Transform:
   - {fileID: 5691960003539762116}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7400025501964893993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3724146673273290545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a1f54dd99b326e45908d331c349e38e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  rotationSpeed: {x: 0, y: 0, z: 0}
+  initialScale: 0.1
+  minSize: 1
+  maxSize: 1
+  scaleDuration: 2
+  fadeOutDuration: 1
+  destroyDelay: 2
+--- !u!65 &-1226416240180687658
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3724146673273290545}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 36.2972, y: 13.460211, z: 35.702766}
+  m_Center: {x: -1.0614109, y: 6.2301054, z: 0.52318573}
 --- !u!1001 &5293803284980210735
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -3,10 +3,8 @@ using System.Collections;
 using DNExtensions;
 using DNExtensions.VFXManager;
 using KBCore.Refs;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Splines;
 using VInspector;
 
 
@@ -14,36 +12,31 @@ using VInspector;
 [SelectionBase]
 public class LevelManager : MonoBehaviour
 {
-
-
+    
     public static LevelManager Instance { get; private set; }
     
         
     [Header("Level Settings")]
-    [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(25f,15f);
-    [SerializeField, Min(0)] private Vector2 playerBoundary = new Vector2(10f,6f);
-    [SerializeField] private float playerOffset = -30f;
-    [SerializeField] private float enemyOffset = 30f;
-    [SerializeField] private float startOffset;
-    [SerializeField, Tooltip("The smoothness applied when stages have different move speeds")] private float pathFollowSmoothness = 2f;
+    [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(45f,30f);
+    [SerializeField, Min(0)] private Vector2 playerBoundary = new Vector2(40f,25f);
+    [SerializeField] private float playerPositionMultiplier = -30f;
+    [SerializeField] private float enemyPositionMultiplier = 30f;
     [SerializeField, Min(0)] private int bonusThreshold = 50000;
-    [SerializeField] private SOVFEffectsSequence levelExitSequence;
     [SerializeField] private SOLevelStage[] levelStages;
     
     [Header("Debug")]
     [SerializeField] private bool debugLog;
-    [SerializeField, VInspector.ReadOnly] private int enemiesLeft;
-    [SerializeField, VInspector.ReadOnly] private int currentStageIndex;
     [SerializeField, VInspector.ReadOnly] private SOLevelStage currentStage;
+    [SerializeField, VInspector.ReadOnly] private int currentStageIndex;
+    [SerializeField, VInspector.ReadOnly] private int enemiesLeft;
+    [SerializeField, VInspector.ReadOnly] public Vector3 playerPosition;
+    [SerializeField, VInspector.ReadOnly] public Vector3 enemyPosition;
     
     [Header("References")]
-    [SerializeField, Child] private SplineContainer splineContainer;
     [SerializeField] private SceneField mainMenuScene;
-    [SerializeField] private SOVFEffectsSequence introVFXSequence;
-    [SerializeField] private Transform currentPositionOnPath;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField, Scene(Flag.EditableAnywhere)] private StoreManager storeManager;
-    [SerializeField] private RailPlayer player;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     
 
     private Coroutine _stageChangeCoroutine;
@@ -53,15 +46,10 @@ public class LevelManager : MonoBehaviour
     private SavePointInformation _currentSavePoint;
     private int _currentScore;
     
-    public Vector3 PlayerPosition { get; private set; }
-    public Vector3 EnemyPosition { get; private set; }
-    public float SplineLength { get; private set; }
-    public SplinePath <Spline> SplinePath  { get; private set; }
-    
     public Vector2 PlayerBoundary => playerBoundary;
     public Vector2 EnemyBoundary => enemyBoundary;
-    public Transform CurrentPositionOnPath => currentPositionOnPath;
-
+    public Vector3 PlayerPosition => playerPosition;
+    public Vector3 EnemyPosition => enemyPosition;
     
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
@@ -85,28 +73,9 @@ public class LevelManager : MonoBehaviour
             enemySpawner = FindFirstObjectByType<EnemySpawner>();
         }
         
-        
         if (!storeManager)
         {
             storeManager = FindFirstObjectByType<StoreManager>();
-        }
-        
-        if (Application.isPlaying) return;
-        
-        if (currentPositionOnPath && splineContainer && splineContainer.Splines.Count > 0)
-        {
-            var tempSplinePath = new SplinePath<Spline>(splineContainer.Splines);
-            float tempSplineLength = tempSplinePath.GetLength();
-        
-            if (tempSplineLength > 0)
-            {
-                float offsetDistance = startOffset;
-                float normalizedOffset = offsetDistance / tempSplineLength;
-                float startT = normalizedOffset % 1.0f;
-                if (startT < 0) startT += 1.0f;
-            
-                currentPositionOnPath.position = splineContainer.EvaluatePosition(startT);
-            }
         }
     }
 
@@ -121,8 +90,8 @@ public class LevelManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        
-        SetUpSpline();
+
+        UpdatePlayerAndEnemyPositions();
     }
 
 
@@ -175,14 +144,6 @@ public class LevelManager : MonoBehaviour
         }
     }
     
-
-    private void Update()
-    {
-        MoveAlongSpline();
-    }
-
-    
-    
     private void EnemyCleared(int scoreWorth)
     {
         if (!currentStage || currentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
@@ -231,8 +192,7 @@ public class LevelManager : MonoBehaviour
             if (debugLog) Debug.LogError("No level stages defined!");
             return;
         }
-
-        VFXManager.Instance?.PlayVFX(introVFXSequence);
+        
         ResetScore();
         SetStage(0);
     }
@@ -289,24 +249,31 @@ public class LevelManager : MonoBehaviour
         currentStageIndex = newStageIndex;
         currentStage = newStage;
         UpdateReachedSavePoint(newStage);
-        
-        _settingStageFlag = false;
-        OnStageChanged?.Invoke(newStage);
+        UpdatePlayerAndEnemyPositions();
 
-        
         if (newStage.IsTimeBasedStage)
         {
             if (newStage.StageType == StageType.Outro)
             {
-                StartCoroutine(ReturnToMainMenu(newStage.StageDuration));
+                StartCoroutine(ReturnToMainMenu(newStage.StageDuration, newStage.StageVFXSequence));
                 SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, _currentScore);
             }
             else
             {
                 SetNextStage(newStage.StageDuration);
+                VFXManager.Instance?.PlayVFX(newStage.StageVFXSequence);
             }
-
         }
+        else
+        {
+            VFXManager.Instance?.PlayVFX(newStage.StageVFXSequence);
+        }  
+        
+        _settingStageFlag = false;
+        OnStageChanged?.Invoke(newStage);
+
+        
+
 
     }
 
@@ -322,11 +289,19 @@ public class LevelManager : MonoBehaviour
         SetStage(newStateIndex);
     }
 
-    private IEnumerator ReturnToMainMenu(float delay)
+    private IEnumerator ReturnToMainMenu(float delay, SOVFEffectsSequence outroSequence = null)
     {
         yield return new WaitForSeconds(delay);
-        
-        TransitionManager.TransitionToScene(mainMenuScene, levelExitSequence);
+
+        if (outroSequence)
+        {
+            TransitionManager.TransitionToScene(mainMenuScene, outroSequence);
+        }
+        else
+        {
+            mainMenuScene?.LoadScene();
+        }
+
     }
     
 
@@ -359,93 +334,29 @@ public class LevelManager : MonoBehaviour
             
         _currentSavePoint = newSavePoint;
     }
+    
+    private void UpdatePlayerAndEnemyPositions()
+    {
+        if (!currentStage)
+        {
+            enemyPosition = Vector3.forward * enemyPositionMultiplier;
+            playerPosition = Vector3.forward * playerPositionMultiplier;
+            
+        }
+        else
+        {
+            enemyPosition = (Vector3.forward + currentStage.EnemyPositionOffset) * enemyPositionMultiplier;
+            playerPosition = (Vector3.forward + currentStage.PlayerPositionOffset) * playerPositionMultiplier;
+        }
+    }
+
 
 
     #endregion Stage Management ---------------------------------------------------------------------------------
 
-
-
-    #region Spline Positinoning ---------------------------------------------------------------------------------
-
-    private void SetUpSpline()
-    {
-        if (!splineContainer || !currentPositionOnPath) return;
-        
-        // Initialize the spline 
-        SplinePath = new SplinePath<Spline>(splineContainer.Splines);
-        SplineLength = SplinePath.GetLength();
-        
-        // Set starting position based on startOffset offset
-        float offsetDistance = startOffset;
-        float normalizedOffset = offsetDistance / SplineLength;
-        float startT = normalizedOffset;
-        if (startT < 0)
-        {
-            startT = 1.0f + startT;
-        }
-        currentPositionOnPath.position = splineContainer.EvaluatePosition(startT);
-        
-    }
     
-    private void MoveAlongSpline()
-    {
-        if (!splineContainer || !currentPositionOnPath || !currentStage) return;
-
-        float currentT = GetSplineParameter(currentPositionOnPath.position);
-        
-        // Lerp the current speed towards the target speed
-        float targetSpeed = currentStage.PathFollowSpeed;
-        _currentPathSpeed = Mathf.Lerp(_currentPathSpeed, targetSpeed, pathFollowSmoothness * Time.deltaTime);
-
-        // Determine movement direction (forward or backward)
-        Vector3 movementDir = GetMovementDirection(currentT);
-        Vector3 splineTangent = splineContainer.EvaluateTangent(currentT);
-
-        // Check if we should move forward or backward along spline
-        float directionMultiplier = Vector3.Dot(movementDir, splineTangent) >= 0 ? 1f : -1f;
-
-        // Move along the spline using the lerped speed
-        float deltaDistance = _currentPathSpeed * Time.deltaTime * directionMultiplier;
-        float deltaNormalized = deltaDistance / SplineLength;
-        float newT = currentT + deltaNormalized;
-
-        // Wrap around instead of clamping
-        newT = newT % 1.0f;
-        if (newT < 0) newT += 1.0f;
-
-        // Update position and rotation
-        Vector3 newPosition = splineContainer.EvaluatePosition(newT);
-        currentPositionOnPath.position = newPosition;
-
-        Vector3 tangent = splineContainer.EvaluateTangent(newT);
-        Vector3 up = splineContainer.EvaluateUpVector(newT);
-        currentPositionOnPath.rotation = GetAlignedRotation(tangent, up);
-
-        // Update player and enemy positions
-        UpdatePlayerAndEnemyPositions(newT);
-    }
     
-    private void UpdatePlayerAndEnemyPositions(float currentT)
-    {
-        // Calculate player position
-        float playerStageOffset = currentStage ? currentStage.PlayerPositionOffset : 0f;
-        float playerOffsetNormalized = (playerOffset + playerStageOffset) / SplineLength;
-        float playerT = (currentT + playerOffsetNormalized) % 1.0f;
-        if (playerT < 0) playerT += 1.0f;
-        PlayerPosition = splineContainer.EvaluatePosition(playerT);
-
-        // Calculate enemy position
-        float enemyStageOffset = currentStage ? currentStage.EnemyPositionOffset : 0f;
-        float enemyOffsetNormalized = (enemyOffset + enemyStageOffset) / SplineLength;
-        float enemyT = (currentT + enemyOffsetNormalized) % 1.0f;
-        if (enemyT < 0) enemyT += 1.0f;
-        EnemyPosition = splineContainer.EvaluatePosition(enemyT);
-    }
     
-    #endregion Spline Positinoning ---------------------------------------------------------------------------------
-
-    
-
     #region Score Management ---------------------------------------------------------------------------------
 
     private void AddScore(int score)
@@ -483,159 +394,6 @@ public class LevelManager : MonoBehaviour
 
     #endregion
     
-    
-    
-    #region Helper ---------------------------------------------------------------------------------------------
-
-    public float GetSplineParameter(Vector3 point)
-    {
-        if (!currentPositionOnPath || !splineContainer) return 0f;
-
-        SplineUtility.GetNearestPoint(splineContainer.Spline, point, out var nearestPoint, out var t);
-        return t;
-    }
-    
-    public Vector3 GetSplineTangent(float t)
-    {
-        if (!splineContainer) return Vector3.forward;
-
-        // Get the tangent vector at the specified t value on the spline
-        Vector3 tangent = splineContainer.EvaluateTangent(t);
-        
-        // Ensure the tangent is normalized
-        return tangent.normalized;
-    }
-    
-    public Vector3 GetSplineTangentAtPosition(Vector3 point)
-    {
-        if (!splineContainer) return Vector3.forward;
-    
-        // Get the current position and a slightly ahead position to calculate a direction
-        Vector3 currentPos = point;
-        float currentT = GetSplineParameter(point);
-    
-        // Sample a small step ahead on the spline to get a direction
-        float stepSize = 0.01f; // Small step forward
-        float aheadT = Mathf.Clamp01(currentT + stepSize);
-        Vector3 aheadPos = splineContainer.EvaluatePosition(aheadT);
-    
-        Vector3 direction = (aheadPos - currentPos).normalized;
-        return direction.magnitude > 0.001f ? direction : Vector3.forward;
-    }
-    
-    public Vector3 GetClosestPointOnSpline(Vector3 worldPosition)
-    {
-        if (!splineContainer) return worldPosition;
-        SplineUtility.GetNearestPoint(splineContainer.Spline, worldPosition, out float3 nearestPoint, out float t);
-        return nearestPoint;
-    }
-    
-    public Quaternion GetAlignedRotation(Vector3 splineTangent, Vector3 splineUp)
-    {
-        if (!currentStage) return Quaternion.identity;
-
-        Vector3 forward, up;
-
-        switch (currentStage.AlignmentMode)
-        {
-            case SplineAnimate.AlignmentMode.None:
-                // No alignment - keep current rotation
-                return currentPositionOnPath.rotation;
-
-            case SplineAnimate.AlignmentMode.SplineElement:
-                // Use spline's tangent and up vectors with axis mapping
-                forward = GetAxisVector(splineTangent, currentStage.ForwardAxis);
-                up = GetAxisVector(splineUp, currentStage.UpAxis);
-                break;
-
-            case SplineAnimate.AlignmentMode.SplineObject:
-                // Use spline container's transform axes
-                Vector3 splineForward = splineContainer.transform.forward;
-                Vector3 splineUpVector = splineContainer.transform.up;
-                forward = GetAxisVector(splineForward, currentStage.ForwardAxis);
-                up = GetAxisVector(splineUpVector, currentStage.UpAxis);
-                break;
-
-            case SplineAnimate.AlignmentMode.World:
-                // Use world space axes
-                forward = GetAxisVector(Vector3.forward, currentStage.ForwardAxis);
-                up = GetAxisVector(Vector3.up, currentStage.UpAxis);
-                break;
-
-            default:
-                forward = Vector3.forward;
-                up = Vector3.up;
-                break;
-        }
-
-        return Quaternion.LookRotation(forward, up);
-    }
-
-    public Vector3 GetAxisVector(Vector3 splineVector, SplineComponent.AlignAxis axis)
-    {
-        Vector3 normalized = splineVector.normalized;
-    
-        switch (axis)
-        {
-            case SplineComponent.AlignAxis.XAxis:
-                return Vector3.right;
-            case SplineComponent.AlignAxis.YAxis:
-                return Vector3.up;
-            case SplineComponent.AlignAxis.ZAxis:
-                return Vector3.forward;
-            case SplineComponent.AlignAxis.NegativeXAxis:
-                return Vector3.left;
-            case SplineComponent.AlignAxis.NegativeYAxis:
-                return Vector3.down;
-            case SplineComponent.AlignAxis.NegativeZAxis:
-                return Vector3.back;
-            default:
-                return normalized;
-        }
-    }
-    
-    public Vector3 GetMovementDirection(float currentT)
-    {
-        if (!currentStage) return Vector3.forward;
-    
-        Vector3 splineTangent = splineContainer.EvaluateTangent(currentT);
-    
-        switch (currentStage.AlignmentMode)
-        {
-            case SplineAnimate.AlignmentMode.None:
-                // Use current object's forward direction
-                return currentPositionOnPath.forward;
-            
-            case SplineAnimate.AlignmentMode.SplineElement:
-                // Use spline's tangent direction
-                return splineTangent.normalized;
-            
-            case SplineAnimate.AlignmentMode.SplineObject:
-                // Use spline container's forward direction
-                return splineContainer.transform.forward;
-            
-            case SplineAnimate.AlignmentMode.World:
-                // Use world forward direction
-                return Vector3.forward;
-            
-            default:
-                return splineTangent.normalized;
-        }
-    }
-    
-    public Vector3 GetSplineUpVector(float t)
-    {
-        if (!splineContainer) return Vector3.up;
-        return splineContainer.EvaluateUpVector(t);
-    }
-    
-    public Vector3 GetSplinePosition(float t)
-    {
-        if (!splineContainer) return Vector3.zero;
-        return splineContainer.EvaluatePosition(t);
-    }
-    
-    #endregion Helper ---------------------------------------------------------------------------------------------
 
     
     
@@ -643,23 +401,17 @@ public class LevelManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // Draw the current position on the path
-        if (currentPositionOnPath)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawSphere(currentPositionOnPath.position, 0.5f);
-        }
-
-        if (Application.isPlaying)
-        {
-            // Draw player position
-            Gizmos.color = Color.green;
-            Gizmos.DrawSphere(PlayerPosition, 0.3f);
+        
+        
+        
+        if (!Application.isPlaying) return;
+        // Draw player position
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(playerPosition, 0.3f);
             
-            // Draw enemy position
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(EnemyPosition, 0.3f);
-        }
+        // Draw enemy position
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(enemyPosition, 0.3f);
 
     }
 

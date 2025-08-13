@@ -178,7 +178,7 @@ public class FormationManager : MonoBehaviour
             return;
         }
 
-        Vector3 splineForward = GetSplineDirection();
+        Vector3 splineForward = Vector3.forward;
         
         if (splineForward != Vector3.zero)
         {
@@ -186,12 +186,7 @@ public class FormationManager : MonoBehaviour
             _splineRotation = Quaternion.Slerp(_splineRotation, targetSplineRotation, splineRotationSpeed * Time.deltaTime);
         }
     }
-
-    private Vector3 GetSplineDirection()
-    {
-        return !levelManager ? Vector3.forward : levelManager.GetSplineTangentAtPosition(levelManager.CurrentPositionOnPath.position);
-    }
-
+    
     #endregion
 
     #region Formation Generation

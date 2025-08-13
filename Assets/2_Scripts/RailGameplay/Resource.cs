@@ -10,10 +10,10 @@ using PrimeTween;
 public class Resource : MonoBehaviour
 {
     [Header("Movement")]
-    [SerializeField, Min(0.1f)] private float acceleration = 12f;
-    [SerializeField, Min(0f)] private float moveToBoundarySpeed = 3f;
-    [SerializeField, Min(0f)] private float followBoundarySpeed = 15f;
-    [SerializeField, Min(0f)] private float magnetizedSpeed = 25f;
+    [SerializeField, Min(0.1f)] private float acceleration = 6f;
+    [SerializeField, Min(0f)] private float moveToBoundarySpeed = 10f;
+    [SerializeField, Min(0f)] private float followBoundarySpeed = 10f;
+    [SerializeField, Min(0f)] private float magnetizedSpeed = 20f;
     
     [Header("Effects")]
     [SerializeField] private SOAudioEvent spawnSfx;
@@ -29,7 +29,7 @@ public class Resource : MonoBehaviour
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     
     [Header("Resource")]
-    [Tooltip("Time before the resource destroys itself (0 = unlimited time)"), SerializeField, Min(0)] private float lifetime = 8f;
+    [Tooltip("Time before the resource destroys itself (0 = unlimited time)"), SerializeField, Min(0)] private float lifetime = 7f;
     [SerializeField, Min(0)] private int scoreWorth = 50;
     [SerializeField] private ResourceType resourceType;
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.Currency)] private int currencyWorth = 1;[EndIf]
@@ -49,7 +49,6 @@ public class Resource : MonoBehaviour
     private Sequence _scaleAnimation;
     private Vector3 _currentVelocity;
     private Vector3 _targetVelocity;
-    private Quaternion _splineRotation = Quaternion.identity;
     private Vector3 _targetOffsetFromSpline;
     private Vector3 _currentBoundaryTargetPosition;
     private enum ResourceMovementState
@@ -83,7 +82,6 @@ public class Resource : MonoBehaviour
     {
         CheckLifetime();
         RotateGfx();
-        UpdateSplineRotation();
         UpdateBoundaryTargetPosition();
         HandleMovement();
     }
@@ -163,7 +161,7 @@ public class Resource : MonoBehaviour
     private void UpdateBoundaryTargetPosition()
     {
         if (!LevelManager.Instance) return;
-        _currentBoundaryTargetPosition = LevelManager.Instance.PlayerPosition + (_splineRotation * _targetOffsetFromSpline);
+        _currentBoundaryTargetPosition = LevelManager.Instance.PlayerPosition + _targetOffsetFromSpline;
     }
 
 
@@ -172,20 +170,7 @@ public class Resource : MonoBehaviour
 
     
     #region Movement ---------------------------------------------------------------------------------------
-
-    private void UpdateSplineRotation()
-    {
-        if (!LevelManager.Instance) 
-        {
-            _splineRotation = Quaternion.identity;
-            return;
-        }
-        Vector3 splineReferencePosition = LevelManager.Instance.CurrentPositionOnPath.position;
-        Vector3 splineForward = LevelManager.Instance.GetSplineTangentAtPosition(splineReferencePosition);
-        _splineRotation = splineForward != Vector3.zero ? Quaternion.LookRotation(splineForward, Vector3.up) : Quaternion.identity;
-    }
     
-
 
     private void HandleMovement()
     {
