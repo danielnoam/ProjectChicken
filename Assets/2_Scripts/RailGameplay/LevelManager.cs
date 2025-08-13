@@ -17,11 +17,6 @@ public class LevelManager : MonoBehaviour
     
         
     [Header("Level Settings")]
-    [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(45f,30f);
-    [SerializeField, Min(0)] private Vector2 playerBoundary = new Vector2(40f,25f);
-    [SerializeField] private float playerPositionMultiplier = -30f;
-    [SerializeField] private float enemyPositionMultiplier = 30f;
-    [SerializeField, Min(0)] private int bonusThreshold = 50000;
     [SerializeField] private SOLevelStage[] levelStages;
     
     [Header("Debug")]
@@ -33,7 +28,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField, VInspector.ReadOnly] public Vector3 enemyPosition;
     
     [Header("References")]
-    [SerializeField] private SceneField mainMenuScene;
+    [SerializeField] private SOGameSettings gameSettings;
     [SerializeField, Scene(Flag.EditableAnywhere)] private StoreManager storeManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
@@ -46,8 +41,6 @@ public class LevelManager : MonoBehaviour
     private SavePointInformation _currentSavePoint;
     private int _currentScore;
     
-    public Vector2 PlayerBoundary => playerBoundary;
-    public Vector2 EnemyBoundary => enemyBoundary;
     public Vector3 PlayerPosition => playerPosition;
     public Vector3 EnemyPosition => enemyPosition;
     
@@ -182,6 +175,7 @@ public class LevelManager : MonoBehaviour
     }
     
     
+    
     #region Stage Management ---------------------------------------------------------------------------------
 
     [Button]
@@ -295,11 +289,11 @@ public class LevelManager : MonoBehaviour
 
         if (outroSequence)
         {
-            TransitionManager.TransitionToScene(mainMenuScene, outroSequence);
+            TransitionManager.TransitionToScene(gameSettings.MainMenuScene, outroSequence);
         }
         else
         {
-            mainMenuScene?.LoadScene();
+            gameSettings.MainMenuScene?.LoadScene();
         }
 
     }
@@ -339,22 +333,20 @@ public class LevelManager : MonoBehaviour
     {
         if (!currentStage)
         {
-            enemyPosition = Vector3.forward * enemyPositionMultiplier;
-            playerPosition = Vector3.forward * playerPositionMultiplier;
+            enemyPosition = Vector3.forward * gameSettings.EnemyPositionMultiplier;
+            playerPosition = Vector3.forward * gameSettings.PlayerPositionMultiplier;
             
         }
         else
         {
-            enemyPosition = (Vector3.forward + currentStage.EnemyPositionOffset) * enemyPositionMultiplier;
-            playerPosition = (Vector3.forward + currentStage.PlayerPositionOffset) * playerPositionMultiplier;
+            enemyPosition = (Vector3.forward + currentStage.EnemyPositionOffset) * gameSettings.EnemyPositionMultiplier;
+            playerPosition = (Vector3.forward + currentStage.PlayerPositionOffset) * gameSettings.PlayerPositionMultiplier;
         }
     }
 
 
 
     #endregion Stage Management ---------------------------------------------------------------------------------
-
-    
     
     
     #region Score Management ---------------------------------------------------------------------------------
@@ -369,7 +361,7 @@ public class LevelManager : MonoBehaviour
         if (_bonusThresholdCounter <= 0)
         {
             OnBonusThresholdReached?.Invoke();
-            _bonusThresholdCounter = bonusThreshold;
+            _bonusThresholdCounter = gameSettings.BonusThreshold;
         }
 
     }
@@ -377,7 +369,7 @@ public class LevelManager : MonoBehaviour
     private void ResetScore()
     {
         _currentScore = 0;
-        _bonusThresholdCounter = bonusThreshold;
+        _bonusThresholdCounter = gameSettings.BonusThreshold;
         
         OnScoreChanged?.Invoke(_currentScore);
     }

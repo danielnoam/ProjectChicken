@@ -81,6 +81,7 @@ public class FormationManager : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private LevelManager levelManager;
+    [SerializeField] private SOGameSettings gameSettings;
 
     #endregion
 
@@ -974,9 +975,9 @@ public class FormationManager : MonoBehaviour
 
     private Vector2 GetFormationBoundary()
     {
-        if (!levelManager) return new Vector2(50f, 30f);
+        if (!gameSettings) return new Vector2(50f, 30f);
         
-        Vector2 crosshairBoundary = levelManager.EnemyBoundary * 2f;
+        Vector2 crosshairBoundary = gameSettings.EnemyBoundary * 2f;
         
         return new Vector2(
             Mathf.Max(1f, crosshairBoundary.x - (boundaryOffset * 2f)),

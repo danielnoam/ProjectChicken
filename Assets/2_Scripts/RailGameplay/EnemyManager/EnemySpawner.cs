@@ -9,6 +9,7 @@ public class EnemySpawner : MonoBehaviour
     public static EnemySpawner Instance { get; private set; }
     
     [Header("References")]
+    [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private Transform enemySpawnPosition;
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private RailPlayer player;
@@ -106,7 +107,7 @@ public class EnemySpawner : MonoBehaviour
         
         if (_activeEnemies.Count <= 0)
         {
-            OnEnemyWaveCleared?.Invoke(_currentStage.WaveScore);
+            OnEnemyWaveCleared?.Invoke(gameSettings.EnemyWaveScoreWorth);
         }
         
         enemy.OnDeath -= UpdateEnemyCount;

@@ -7,7 +7,6 @@ public class RailPlayerResourceCollector : MonoBehaviour
 {
     [Header("Resource Collection")]
     [SerializeField, Min(0)] private float baseMagnetRadius = 14f;
-    [SerializeField] private SOResourceMagnetUpgrade[] resourceMagnetUpgrades = Array.Empty<SOResourceMagnetUpgrade>();
     [SerializeField, Self, HideInInspector] private RailPlayer player;
     
     private float _currentMagnetRadius;
@@ -100,7 +99,7 @@ public class RailPlayerResourceCollector : MonoBehaviour
     {
         var magnet = 0f;
         
-        foreach (var upgrade in resourceMagnetUpgrades)
+        foreach (var upgrade in player.GameSettings.ResourceMagnetUpgrades)
         {
             if (SaveManager.HasStoreItem(upgrade.ItemID))
             {

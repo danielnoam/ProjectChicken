@@ -40,8 +40,8 @@ public class RailPlayerAiming : MonoBehaviour
     private Vector2 _normalizedAimPosition;
     private Vector3 _aimDirection;
     private ChickenController _currentAimLockTarget;
-    private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundary.x : 25f;
-    private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundary.y : 15f;
+    private float CrosshairBoundaryX => player.GameSettings ? player.GameSettings.EnemyBoundary.x : 25f;
+    private float CrosshairBoundaryY => player.GameSettings ? player.GameSettings.EnemyBoundary.y : 15f;
 
 
     public Vector3 AimDirection => _aimDirection;

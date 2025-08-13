@@ -65,8 +65,8 @@ public class RailPlayerMovement : MonoBehaviour
     private Vector3 _dodgeDirection;
     private Tween _dodgeTween;
     private Vector2 _normalizedMovementPosition;
-    private float MovementBoundaryX => player.LevelManager ? player.LevelManager.PlayerBoundary.x : 10f;
-    private float MovementBoundaryY => player.LevelManager ? player.LevelManager.PlayerBoundary.y : 6f;
+    private float MovementBoundaryX => player.GameSettings ? player.GameSettings.PlayerBoundary.x : 10f;
+    private float MovementBoundaryY => player.GameSettings ? player.GameSettings.PlayerBoundary.y : 6f;
     
     
     public bool IsDodging => _isDodging;

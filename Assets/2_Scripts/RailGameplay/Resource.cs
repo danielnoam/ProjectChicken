@@ -9,6 +9,8 @@ using PrimeTween;
 [RequireComponent(typeof(AudioSource))]
 public class Resource : MonoBehaviour
 {
+
+    
     [Header("Movement")]
     [SerializeField, Min(0.1f)] private float acceleration = 6f;
     [SerializeField, Min(0f)] private float moveToBoundarySpeed = 10f;
@@ -37,7 +39,8 @@ public class Resource : MonoBehaviour
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.ShieldPack)] private int shieldWorth = 50;[EndIf]
     [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private ChanceList<SOWeaponData> weapons = new ChanceList<SOWeaponData>();[EndIf] 
     
-    
+    [Header("References")]
+    [SerializeField] private SOGameSettings gameSettings;
 
     
     private ResourceMovementState _currentState;
@@ -134,8 +137,6 @@ public class Resource : MonoBehaviour
         _currentState = ResourceMovementState.MovingToBoundary;
         _currentLifetime = lifetime;
         _playerTransform = null;
-        _movementBoundaryX = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.x : 10f;
-        _movementBoundaryY = LevelManager.Instance ? LevelManager.Instance.PlayerBoundary.y : 6f;
         if (resourceType == ResourceType.SpecialWeapon && weapons.Count > 0)
         {
             WeaponData = weapons.GetRandomItem();
@@ -144,10 +145,10 @@ public class Resource : MonoBehaviour
         
 
 
-        if (LevelManager.Instance)
+        if (gameSettings)
         {
-            _movementBoundaryX = LevelManager.Instance.PlayerBoundary.x;
-            _movementBoundaryY = LevelManager.Instance.PlayerBoundary.y;
+            _movementBoundaryX = gameSettings.PlayerBoundary.x;
+            _movementBoundaryY = gameSettings.PlayerBoundary.y;
            float randomX = Random.Range(-_movementBoundaryX, _movementBoundaryX);
            float randomY = Random.Range(-_movementBoundaryY, _movementBoundaryY);
            _targetOffsetFromSpline = new Vector3(randomX, randomY, 0f);

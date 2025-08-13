@@ -23,8 +23,6 @@ public class SOLevel : ScriptableObject
     
     [Header("Effects")]
     [SerializeField] private SOVFEffectsSequence loadVFXSequence;
-    [SerializeField] private SOVFEffectsSequence introVFXSequence;
-    [SerializeField] private SOVFEffectsSequence outroVFXSequence;
 
 
     
@@ -35,8 +33,6 @@ public class SOLevel : ScriptableObject
     public GameObject LevelGfxPrefab => levelGfxPrefab;
     public LevelDifficulty LevelDifficulty => levelDifficulty;
     public List<SOLevel> LevelsToComplete => levelsToComplete;
-    public SOVFEffectsSequence IntroVFXSequence => introVFXSequence;
-    public SOVFEffectsSequence OutroVFXSequence => outroVFXSequence;
     
     
     public void LoadLevel()

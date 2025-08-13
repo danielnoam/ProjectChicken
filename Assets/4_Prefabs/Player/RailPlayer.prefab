@@ -141,6 +141,7 @@ MonoBehaviour:
   miniGameAnimationDuration: 0.3
   miniGamePunchDuration: 0.6
   miniGamePunchStrength: 0.2
+  player: {fileID: 0}
   weaponSystem: {fileID: 3423310960035294283}
   heatBarGroup: {fileID: 4346653012270481198}
   heatBar: {fileID: 4032922386872106941}
@@ -2508,9 +2509,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47818a8b6ad449f448a1ebb60dee421a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeToPause: 3
-  alignToSplineDirection: 1
-  splineRotationSpeed: 5
   baseHealth: 3
   dodgingGivesInvincibility: 1
   receiveHealthOnBonusThreshold: 1
@@ -2703,6 +2701,7 @@ MonoBehaviour:
   shieldDepletedSfx: {fileID: 11400000, guid: 37b968dd3a5328b478e0c33c3645f263, type: 2}
   deathSfx: {fileID: 0}
   levelManager: {fileID: 0}
+  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
   playerWeapon: {fileID: 3423310960035294283}

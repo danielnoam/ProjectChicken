@@ -17,20 +17,15 @@ using VInspector;
 [RequireComponent(typeof(CinemachineImpulseSource))]
 public class RailPlayer : MonoBehaviour
 {
-    [Header("General")]
-    [SerializeField, Min(0)] private float timeToPause = 3f;
-    
     [Header("Health")]
     [SerializeField, Min(0)] private int baseHealth = 3;
     [SerializeField] private bool dodgingGivesInvincibility = true;
     [SerializeField] private bool receiveHealthOnBonusThreshold = true;
-    [SerializeField] private SOHealthUpgrade[] healthUpgrades = Array.Empty<SOHealthUpgrade>();
     
     [Header("Shield")]
     [SerializeField, Min(0)] private float baseShieldHealth = 100f;
     [SerializeField, Min(0)] private float shieldRegenCooldown = 3f;
     [SerializeField, Min(0)] private float shieldRegenRate = 15f;
-    [SerializeField] private SOShieldUpgrade[] shieldUpgrades = Array.Empty<SOShieldUpgrade>();
     
     [Header("Camera Shake")]
     [SerializeField] private CameraShakeSettings shieldDamagedShakeSettings;
@@ -55,6 +50,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField] private SOAudioEvent shieldDepletedSfx;
     [SerializeField] private SOAudioEvent deathSfx;
     [SerializeField] private LevelManager levelManager;
+    [SerializeField] private SOGameSettings gameSettings;
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
@@ -72,8 +68,8 @@ public class RailPlayer : MonoBehaviour
     private float _pauseTimer;
     private bool _pauseInputHeld;
     private Coroutine _regenShieldCoroutine;
-    private Quaternion _splineRotation = Quaternion.identity;
 
+    public SOGameSettings GameSettings => gameSettings;
     public RailPlayerAiming PlayerAiming => playerAiming;
     public RailPlayerWeaponSystem PlayerWeapon => playerWeapon;
     public RailPlayerMovement PlayerMovement => playerMovement;
@@ -141,8 +137,8 @@ public class RailPlayer : MonoBehaviour
         if (_pauseInputHeld)
         {
             _pauseTimer += Time.deltaTime;
-            OnPauseTimerChanged?.Invoke(_pauseTimer/timeToPause);
-            if (_pauseTimer >= timeToPause)
+            OnPauseTimerChanged?.Invoke(_pauseTimer/gameSettings.TimeToPause);
+            if (_pauseTimer >= gameSettings.TimeToPause)
             {
                 OnPause?.Invoke();
             }
@@ -187,13 +183,13 @@ public class RailPlayer : MonoBehaviour
         {
             _pauseInputHeld = true;
             _pauseTimer = 0f;
-            OnPauseTimerChanged?.Invoke(_pauseTimer/timeToPause);
+            OnPauseTimerChanged?.Invoke(_pauseTimer/gameSettings.TimeToPause);
         } 
         else if (context.canceled)
         {
             _pauseInputHeld = false;
             _pauseTimer = 0f;
-            OnPauseTimerChanged?.Invoke(_pauseTimer/timeToPause);
+            OnPauseTimerChanged?.Invoke(_pauseTimer/gameSettings.TimeToPause);
         }
     }
     
@@ -402,7 +398,7 @@ public class RailPlayer : MonoBehaviour
     {
         var health = 0;
         
-        foreach (var upgrade in healthUpgrades)
+        foreach (var upgrade in gameSettings.HealthUpgrades)
         {
             if (SaveManager.HasStoreItem(upgrade.ItemID))
             {
@@ -417,7 +413,7 @@ public class RailPlayer : MonoBehaviour
     {
         var shield = 0f;
 
-        foreach (var upgrade in shieldUpgrades)
+        foreach (var upgrade in gameSettings.ShieldUpgrades)
         {
             if (SaveManager.HasStoreItem(upgrade.ItemID))
             {

@@ -18,18 +18,12 @@ public class SOLevelStage : ScriptableObject
     
     [Header("Type")]
     [SerializeField] private StageType stageType;
-    
     [ShowIf("IsTimeBasedStage")] 
     [SerializeField, Min(0.1f)] private float stageDuration = 5;
     [EndIf]
-    
-    [ShowIf("stageType", StageType.Store)]
-    [SerializeField] private ChanceList<InterfaceReference<IStoreItem, ScriptableObject>> upgradesPool = new ChanceList<InterfaceReference<IStoreItem, ScriptableObject>>();
-    
     [ShowIf("stageType", StageType.EnemyWave)]
     [SerializeField] private Vector3 enemyPositionOffset;
     [SerializeField, Min(0)] private float delayBeforeNextStage = 1f;
-    [SerializeField, Min(0)] private int waveScore = 1000;
     [SerializeField] private SerializedDictionary<ChickenController,int> enemyWave = new SerializedDictionary<ChickenController, int>();
     [SerializeField] private FormationSettings formationSettings = new FormationSettings();
     [EndIf]
@@ -42,8 +36,6 @@ public class SOLevelStage : ScriptableObject
     public float StageDuration => stageDuration;
     public SOVFEffectsSequence StageVFXSequence => stageVFXSequence;
     public string StageTitle => stageTitle;
-    public ChanceList<InterfaceReference<IStoreItem, ScriptableObject>> UpgradesPool => upgradesPool;
-    public int WaveScore => stageType == StageType.EnemyWave ? waveScore : 0;
     public SerializedDictionary<ChickenController, int> EnemyWave => enemyWave;
     public Vector3 EnemyPositionOffset => enemyPositionOffset;
     public float DelayBeforeNextStage => delayBeforeNextStage;

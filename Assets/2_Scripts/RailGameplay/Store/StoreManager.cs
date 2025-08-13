@@ -19,9 +19,10 @@ public class StoreManager : MonoBehaviour
     [SerializeField] private int maxRerollCost = 300;
     
     [Header("Animation")]
-    [SerializeField] private float animationDuration = 2f;
+    [SerializeField] private float animationDuration = 1f;
     
     [Header("References")]
+    [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private Transform store;
     [SerializeField] private Transform storeGfx;
     [SerializeField] private Transform eggHolder;
@@ -117,20 +118,16 @@ public class StoreManager : MonoBehaviour
 
     private void OnStageChanged(SOLevelStage stage)
     {
-        if (!stage) return;
-
-        if (stage.StageType == StageType.Store)
+        if (!stage || !gameSettings || stage.StageType != StageType.Store) return;
+        
+        if (gameSettings.UpgradesPool != null)
         {
-            if (stage.UpgradesPool != null)
-            {
-                _currentUpgradesPool = stage.UpgradesPool;
-                OpenStore();
-            }
-            else
-            {
-                CloseStore();
-            }
-
+            _currentUpgradesPool = gameSettings.UpgradesPool;
+            OpenStore();
+        }
+        else
+        {
+            CloseStore();
         }
     }
     
@@ -185,7 +182,6 @@ public class StoreManager : MonoBehaviour
             var upgrade = _currentUpgradesPool.GetRandomItem();
             var index1 = index;
             _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade.Value, index1 * 0.5f));
-            Debug.Log(upgrade.Value.ItemName);
         }
 
         _storeSequence.OnComplete(() =>
