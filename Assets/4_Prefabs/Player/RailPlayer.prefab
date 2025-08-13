@@ -1139,7 +1139,7 @@ Transform:
   m_GameObject: {fileID: 2440519371583176229}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -100}
+  m_LocalPosition: {x: 0, y: 0, z: -85}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2512,15 +2512,9 @@ MonoBehaviour:
   baseHealth: 3
   dodgingGivesInvincibility: 1
   receiveHealthOnBonusThreshold: 1
-  healthUpgrades:
-  - {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
-  - {fileID: 11400000, guid: 5051ea4807e765847ad58fa7f3fcaadc, type: 2}
   baseShieldHealth: 100
   shieldRegenCooldown: 3
   shieldRegenRate: 15
-  shieldUpgrades:
-  - {fileID: 11400000, guid: 85cde709a65e11a4285e307636799abb, type: 2}
-  - {fileID: 11400000, guid: 5fd2ebb25c87fa547bc5c087a3dfb75d, type: 2}
   shieldDamagedShakeSettings:
     impulseShape: 4
     intensity: 0.3
@@ -2737,9 +2731,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseMagnetRadius: 14
-  resourceMagnetUpgrades:
-  - {fileID: 11400000, guid: 259517cbb337a8243a3e713a312b7abd, type: 2}
-  - {fileID: 11400000, guid: f1ff5cc07ba342e418fb8a51b876c50f, type: 2}
   player: {fileID: 2233603387570671912}
 --- !u!114 &7233717465822237952
 MonoBehaviour:

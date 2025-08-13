@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AYellowpaper;
 using DNExtensions;
 using UnityEngine;
@@ -10,6 +11,9 @@ public class SOGameSettings : ScriptableObject
     [SerializeField, Min(0)] private float timeToPause = 3f;
     [SerializeField, Min(0)] private int bonusThreshold = 50000;
     [SerializeField, Min(0)] private int enemyWaveScoreWorth = 1000;
+    [SerializeField] private int maxPlayerHealth = 3;
+    [SerializeField] private float maxPlayerShield = 150;
+    [SerializeField] private float maxPlayerMagnetSize = 20;
     
     [Header("Boundaries")]
     [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(45f,30f);
@@ -21,12 +25,12 @@ public class SOGameSettings : ScriptableObject
     
     [Header("References")]
     [SerializeField] private SceneField mainMenuScene;
-    [SerializeField] private ChanceList<InterfaceReference<IStoreItem, ScriptableObject>> upgradesPool = new ChanceList<InterfaceReference<IStoreItem, ScriptableObject>>();
-    [SerializeField] private SOHealthUpgrade[] healthUpgrades = Array.Empty<SOHealthUpgrade>();
-    [SerializeField] private SOShieldUpgrade[] shieldUpgrades = Array.Empty<SOShieldUpgrade>();
-    [SerializeField] private SOResourceMagnetUpgrade[] resourceMagnetUpgrades = Array.Empty<SOResourceMagnetUpgrade>();
+    [SerializeField] private SOUpgrade[] upgradesPool = Array.Empty<SOUpgrade>();
     
     public float TimeToPause => timeToPause;
+    public int MaxPlayerHealth => maxPlayerHealth;
+    public float MaxPlayerShield => maxPlayerShield;
+    public float MaxPlayerMagnetSize => maxPlayerMagnetSize;
     public Vector2 PlayerBoundary => playerBoundary;
     public Vector2 EnemyBoundary => enemyBoundary;
     public float PlayerPositionMultiplier => playerPositionMultiplier;
@@ -34,8 +38,5 @@ public class SOGameSettings : ScriptableObject
     public int BonusThreshold => bonusThreshold;
     public int EnemyWaveScoreWorth =>  enemyWaveScoreWorth;
     public SceneField MainMenuScene => mainMenuScene;
-    public SOHealthUpgrade[] HealthUpgrades => healthUpgrades;
-    public SOShieldUpgrade[] ShieldUpgrades => shieldUpgrades;
-    public SOResourceMagnetUpgrade[] ResourceMagnetUpgrades => resourceMagnetUpgrades;
-    public ChanceList<InterfaceReference<IStoreItem, ScriptableObject>> UpgradesPool => upgradesPool;
+    public  SOUpgrade[] UpgradesPool => upgradesPool;
 }

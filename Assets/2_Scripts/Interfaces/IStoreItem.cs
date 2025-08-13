@@ -17,16 +17,11 @@ public interface IStoreItem
     int ItemID { get; set; }
     
     
-    static int GenerateUniqueID()
-    {
-        return Guid.NewGuid().GetHashCode();
-    }
-    
     static void EnsureUniqueID(IStoreItem item)
     {
         if (item.ItemID == 0)
         {
-            item.ItemID = GenerateUniqueID();
+            item.ItemID = Guid.NewGuid().GetHashCode();
         }
     }
 }

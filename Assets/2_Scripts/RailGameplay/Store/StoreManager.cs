@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AYellowpaper;
 using DNExtensions;
 using PrimeTween;
@@ -34,7 +35,7 @@ public class StoreManager : MonoBehaviour
     [SerializeField] private RailPlayer player;
 
 
-    private ChanceList<InterfaceReference<IStoreItem, ScriptableObject>> _currentUpgradesPool = new ChanceList<InterfaceReference<IStoreItem, ScriptableObject>>();
+    private readonly ChanceList<SOUpgrade> _currentUpgradesPool = new ChanceList<SOUpgrade>();
     private readonly List<UpgradeEgg> _upgradeEggs = new List<UpgradeEgg>();
     private bool _isOpen;
     private int _currentRerollCost;
@@ -108,21 +109,24 @@ public class StoreManager : MonoBehaviour
         }
         
     }
-
-    private void Update()
-    {
-        if (!_isOpen) return;
-        
-        store.transform.position = levelManager.EnemyPosition;
-    }
-
+    
     private void OnStageChanged(SOLevelStage stage)
     {
+        
+        store.transform.position = levelManager.EnemyPosition;
+        
+        
         if (!stage || !gameSettings || stage.StageType != StageType.Store) return;
         
-        if (gameSettings.UpgradesPool != null)
+        if (gameSettings.UpgradesPool is { Length: > 0 })
         {
-            _currentUpgradesPool = gameSettings.UpgradesPool;
+            _currentUpgradesPool.Clear();
+            foreach (var upgrade in gameSettings.UpgradesPool)
+            {
+                if (!upgrade) continue;
+                _currentUpgradesPool.AddItem(upgrade);
+            }
+            _currentUpgradesPool.NormalizeChances();
             OpenStore();
         }
         else
@@ -131,9 +135,10 @@ public class StoreManager : MonoBehaviour
         }
     }
     
-    private void OnUpgradeSelected(IStoreItem upgrade)
+    private void OnUpgradeSelected(SOUpgrade upgrade)
     {
         Debug.Log($"Selected {upgrade.ItemName}");
+        upgrade.ApplyUpgrade(player);
         CloseStore();
     }
 
@@ -158,8 +163,8 @@ public class StoreManager : MonoBehaviour
             var egg = _upgradeEggs[index];
             var upgrade = _currentUpgradesPool.GetRandomItem();
             var index1 = index;
-            _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade.Value, index1 * 0.5f));
-            Debug.Log(upgrade.Value.ItemName);
+            _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade, index1 * 0.5f));
+            Debug.Log(upgrade.ItemName);
         }
     }
     
@@ -181,7 +186,7 @@ public class StoreManager : MonoBehaviour
             var egg = _upgradeEggs[index];
             var upgrade = _currentUpgradesPool.GetRandomItem();
             var index1 = index;
-            _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade.Value, index1 * 0.5f));
+            _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade, index1 * 0.5f));
         }
 
         _storeSequence.OnComplete(() =>

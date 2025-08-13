@@ -28,8 +28,7 @@ public class RailPlayerResourceCollector : MonoBehaviour
         _collectionActions.Add(ResourceType.ShieldPack, (resource) => player.HealShield(resource.ShieldWorth));
         _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => player.PlayerWeapon.SetSpecialWeapon(resource.WeaponData));
         
-        // Calculate magnet radius with upgrades
-        _currentMagnetRadius = baseMagnetRadius + TotalResourceMagnetUpgrades();
+        _currentMagnetRadius = baseMagnetRadius;
     }
     
     private void Update()
@@ -95,19 +94,15 @@ public class RailPlayerResourceCollector : MonoBehaviour
         OnResourceCollected?.Invoke(resource);
     }
     
-    private float TotalResourceMagnetUpgrades()
+    public void AddToMagnetSize(float amount)
     {
-        var magnet = 0f;
+        if (amount <= 0) return;
         
-        foreach (var upgrade in player.GameSettings.ResourceMagnetUpgrades)
+        _currentMagnetRadius += amount;
+        if (_currentMagnetRadius > player.GameSettings.MaxPlayerMagnetSize)
         {
-            if (SaveManager.HasStoreItem(upgrade.ItemID))
-            {
-                magnet += upgrade.MagnetUpgradeAmount;
-            }
+            _currentMagnetRadius = player.GameSettings.MaxPlayerHealth;
         }
-
-        return magnet;
     }
     
 #if UNITY_EDITOR

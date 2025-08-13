@@ -60,10 +60,9 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self, HideInInspector] private CinemachineImpulseSource cinemachineImpulseSource;
 
     private int _currentHealth;
-    private int _maxHealth;
     private int _currentCurrency;
     private float _currentShieldHealth;
-    private float _maxShieldHealth;
+    private float _baseMaxShieldHealth;
     private float _damagedCooldown;
     private float _pauseTimer;
     private bool _pauseInputHeld;
@@ -75,11 +74,10 @@ public class RailPlayer : MonoBehaviour
     public RailPlayerMovement PlayerMovement => playerMovement;
     public RailPlayerResourceCollector ResourceCollector => resourceCollector;
     public LevelManager LevelManager => levelManager;
-    public int MaxHealth => _maxHealth;
-    public float MaxShieldHealth => _maxShieldHealth;
     public int CurrentHealth => _currentHealth;
     public float CurrentShieldHealth => _currentShieldHealth;
     public int CurrentCurrency => _currentCurrency;
+    public float BaseMaxShieldHealth => _baseMaxShieldHealth;
     public event Action OnDeath;
     public event Action<int> OnHealthChanged;
     public event Action<float> OnShieldChanged;
@@ -99,12 +97,9 @@ public class RailPlayer : MonoBehaviour
 
     private void Awake()
     {
-        _maxHealth = baseHealth + TotalHealthUpgrades();
-        _maxShieldHealth = baseShieldHealth + TotalShieldUpgrades();
-        
         _currentCurrency = SaveManager.GetCurrency();
-        _currentHealth = _maxHealth;
-        _currentShieldHealth = _maxShieldHealth;
+        _currentHealth = baseHealth;
+        _currentShieldHealth = baseShieldHealth;
     }
 
     private void Start()
@@ -221,7 +216,7 @@ public class RailPlayer : MonoBehaviour
             _damagedCooldown -= Time.deltaTime;
         }
         
-        if (_damagedCooldown <= 0 &&  _regenShieldCoroutine == null && _currentShieldHealth < _maxShieldHealth)
+        if (_damagedCooldown <= 0 &&  _regenShieldCoroutine == null && _currentShieldHealth < _baseMaxShieldHealth)
         {
             StartShieldRegen();
         }
@@ -280,9 +275,9 @@ public class RailPlayer : MonoBehaviour
         if (amount <= 0) return;
         
         _currentHealth += amount;
-        if (_currentHealth > _maxHealth)
+        if (_currentHealth > gameSettings.MaxPlayerHealth)
         {
-            _currentHealth = _maxHealth;
+            _currentHealth = gameSettings.MaxPlayerHealth;
         }
         healthHealedSfx?.Play(audioSource);
         
@@ -298,12 +293,12 @@ public class RailPlayer : MonoBehaviour
     {
         shieldStartRegenSfx?.Play(audioSource);
         
-        while (_currentShieldHealth < _maxShieldHealth)
+        while (_currentShieldHealth < _baseMaxShieldHealth)
         {
             _currentShieldHealth += shieldRegenRate * Time.deltaTime;
-            if (_currentShieldHealth >= _maxShieldHealth)
+            if (_currentShieldHealth >= _baseMaxShieldHealth)
             {
-                _currentShieldHealth = _maxShieldHealth;
+                _currentShieldHealth = _baseMaxShieldHealth;
                 shieldRegeneratedSfx?.Play(audioSource);
                 yield break;
             }
@@ -361,12 +356,12 @@ public class RailPlayer : MonoBehaviour
     [Button]
     public void HealShield(float amount = 25f)
     {
-        if (_currentShieldHealth >= _maxShieldHealth) return;
+        if (_currentShieldHealth >= _baseMaxShieldHealth) return;
         
         _currentShieldHealth += amount;
-        if (_currentShieldHealth >= _maxShieldHealth)
+        if (_currentShieldHealth >= _baseMaxShieldHealth)
         {
-            _currentShieldHealth = _maxShieldHealth;
+            _currentShieldHealth = _baseMaxShieldHealth;
             shieldRegeneratedSfx?.Play(audioSource);
         }
         else
@@ -375,6 +370,22 @@ public class RailPlayer : MonoBehaviour
         }
         
         OnShieldChanged?.Invoke(_currentShieldHealth);
+    }
+
+    public void AddBaseShield(float amount)
+    {
+        if (amount <= 0) return;
+        
+        _baseMaxShieldHealth += amount;
+        if (_baseMaxShieldHealth > gameSettings.MaxPlayerShield)
+        {
+            _baseMaxShieldHealth = gameSettings.MaxPlayerShield;
+        }
+
+        _currentShieldHealth = _baseMaxShieldHealth;
+        shieldRegeneratedSfx?.Play(audioSource);
+        OnShieldChanged?.Invoke(_currentShieldHealth);
+    
     }
 
     #endregion Shield --------------------------------------------------------------------------------------
@@ -391,41 +402,6 @@ public class RailPlayer : MonoBehaviour
 
     #endregion Currency --------------------------------------------------------------------------------
     
-    
-    #region Upgrades -----------------------------------------------------------------------------------------
-
-    private int TotalHealthUpgrades()
-    {
-        var health = 0;
-        
-        foreach (var upgrade in gameSettings.HealthUpgrades)
-        {
-            if (SaveManager.HasStoreItem(upgrade.ItemID))
-            {
-                health += upgrade.HealthUpgradeAmount;
-            }
-        }
-        
-        return health;
-    }
-    
-    private float TotalShieldUpgrades()
-    {
-        var shield = 0f;
-
-        foreach (var upgrade in gameSettings.ShieldUpgrades)
-        {
-            if (SaveManager.HasStoreItem(upgrade.ItemID))
-            {
-                shield += upgrade.ShieldUpgradeAmount;
-            }
-        }
-
-        return shield;
-    }
-
-    #endregion Upgrades -----------------------------------------------------------------------------------------
-
     
     #region Helper Methods --------------------------------------------------------------------------------------
 

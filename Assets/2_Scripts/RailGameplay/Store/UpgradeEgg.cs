@@ -6,22 +6,22 @@ using UnityEngine.UI;
 public class UpgradeEgg : MonoBehaviour
 {
     [Header("Animation")]
-    [SerializeField] private float animationDuration = 2;
+    [SerializeField] private float animationDuration = 1.5f;
     [SerializeField] private Ease animationEase = Ease.InOutBack;
-    [SerializeField] private float yOffset = -75;
+    [SerializeField] private float yOffset = -150;
     
     [Header("Reference")]
     [SerializeField] private Button button;
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Transform upgradeGfxHolder;
 
-    private IStoreItem _upgrade;
+    private SOUpgrade _upgrade;
     private Vector3 _startPosition;
     private Vector3 _startScale;
     private Vector3 _startRotation;
     private Sequence _animationSequence;
 
-    public event Action<IStoreItem> onUpgradeSelected;
+    public event Action<SOUpgrade> onUpgradeSelected;
 
     private void Awake()
     {
@@ -33,7 +33,7 @@ public class UpgradeEgg : MonoBehaviour
 
     }
     
-    public void SetUpgrade(IStoreItem upgrade, float startDelay)
+    public void SetUpgrade(SOUpgrade upgrade, float startDelay)
     {
         _upgrade = upgrade;
         Instantiate(_upgrade.ItemGfx, upgradeGfxHolder);

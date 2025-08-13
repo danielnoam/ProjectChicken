@@ -9,38 +9,16 @@ using UnityEditor;
 #endif
 
 [CreateAssetMenu(fileName = "Shield Upgrade", menuName = "Scriptable Objects/New Shield Upgrade")]
-public class SOShieldUpgrade : ScriptableObject, IStoreItem
+public class SOShieldUpgrade : SOUpgrade
 {
     
     [Header("Shield Upgrade")]
     [SerializeField, Min(1)] private float  shieldUpgradeAmount = 25;
-
-    
-    [Header("Store Interface")]
-    [SerializeField] private string itemName = "Shield Upgrade";
-    [SerializeField] private string itemDescription = "Adds 25 hit points to the shield";
-    [SerializeField, Min(0)] private int itemCost = 150;
-    [SerializeField] private GameObject itemGfx;
-    [SerializeField] private List<InterfaceReference<IStoreItem>> neededItemsToUnlock = new  List<InterfaceReference<IStoreItem>>();
-    [SerializeField, ReadOnly] private int itemID;
     
     
-    public float  ShieldUpgradeAmount => shieldUpgradeAmount;
-    
-    public string ItemName => itemName;
-    public string ItemDescription => itemDescription;
-    public int ItemCost => itemCost;
-    public GameObject ItemGfx => itemGfx;
-    public List<InterfaceReference<IStoreItem>> NeededItemsToUnlockToUnlock => neededItemsToUnlock;
-    
-    
-    public int ItemID { get => itemID; set => itemID = value; }
-    
-    
-    private void OnEnable()
+    public override void ApplyUpgrade(RailPlayer player)
     {
-        IStoreItem.EnsureUniqueID(this);
+        player?.AddBaseShield(shieldUpgradeAmount);
     }
-    
     
 }

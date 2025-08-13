@@ -23,6 +23,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Color cooldownIconColor = Color.grey;
     [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
     [SerializeField] private CanvasGroup pauseGroup;
+    [SerializeField] private SOGameSettings gameSettings;
     
     [Header("Health")]
     [SerializeField] private bool useTextForHealth;
@@ -231,7 +232,7 @@ public class UIManager : MonoBehaviour
             }
         }
         
-        for (int health = 0; health < player.MaxHealth; health++)
+        for (int health = 0; health < gameSettings.MaxPlayerHealth; health++)
         {
             var healthObject = Instantiate(healthIconPrefab, healthIconHolder);
             _healthIcons[healthObject] = false; 
@@ -369,7 +370,7 @@ public class UIManager : MonoBehaviour
             _playerShield = currentShield;
         }
         
-        if (shieldIcon && currentShield >= player.MaxShieldHealth - 1)
+        if (shieldIcon && currentShield >= player.BaseMaxShieldHealth - 1)
         {
             Tween.PunchScale(shieldIcon.transform, strength: Vector3.one * shieldPunchStrength, duration: shieldPunchDuration);
         }
