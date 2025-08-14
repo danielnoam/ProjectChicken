@@ -13,17 +13,22 @@ MonoBehaviour:
   m_Name: Stage_EnemyWave4
   m_EditorClassIdentifier: 
   stageTitle: 
+  stageWorldSpeed: 1
+  stageVFXSequence: {fileID: 0}
+  showHUD: 1
+  allowPlayerMovement: 1
+  allowPlayerShootingAndAiming: 1
+  playerPositionOffset: {x: 0, y: 0, z: 0}
   stageType: 2
   stageDuration: 15
   upgradesPool:
-    internalItems: []
-  enemyPositionOffset: 0
+  - {fileID: 0}
+  enemyPositionOffset: {x: 0, y: 0, z: 0}
   delayBeforeNextStage: 1
-  waveScore: 1000
   enemyWave:
     serializedKvps:
     - Key: {fileID: 745806696497487914, guid: 6c00b75d8a669d04395aeb4d7c57f138, type: 3}
-      Value: 25
+      Value: 20
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
@@ -38,11 +43,3 @@ MonoBehaviour:
     circleCount: 8
     gridSize: {x: 5, y: 3}
     gridFillsBoundary: 1
-  pathFollowSpeed: 5
-  upAxis: 1
-  forwardAxis: 2
-  alignmentMode: 1
-  showHUD: 1
-  allowPlayerMovement: 1
-  allowPlayerShootingAndAiming: 1
-  playerPositionOffset: 0
