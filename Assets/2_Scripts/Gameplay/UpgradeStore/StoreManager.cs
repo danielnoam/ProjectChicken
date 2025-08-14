@@ -14,6 +14,7 @@ public class StoreManager : MonoBehaviour
     [Header("Settings")]
     [SerializeField, Min(1)] private int availableUpgrades = 3;
     [SerializeField] private int baseRerollCost = 50;
+    [SerializeField] private int rerollCostIncrease = 50;
     [SerializeField] private int maxRerollCost = 300;
     
     [Header("Gfx")]
@@ -74,7 +75,7 @@ public class StoreManager : MonoBehaviour
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
         closeStoreButton.onClick.AddListener(CloseStore);
-        rerollButton.onClick.AddListener(RerollItems);
+        rerollButton.onClick.AddListener(RerollEggs);
         rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Reroll ({baseRerollCost})";
 
 
@@ -136,22 +137,23 @@ public class StoreManager : MonoBehaviour
         CloseStore();
     }
 
-    private void RerollItems()
+    private void RerollEggs()
     {
         if (player.CurrentCurrency < _currentRerollCost) return;
         
         player.UpdateCurrency(-_currentRerollCost);
-        _currentRerollCost += baseRerollCost;
+        _currentRerollCost += rerollCostIncrease;
         _currentRerollCost = Mathf.Clamp(_currentRerollCost, baseRerollCost, maxRerollCost);
         rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Reroll ({_currentRerollCost})";
+        
+        if (_storeSequence.isAlive) _storeSequence.Stop();
+        _storeSequence = Sequence.Create();
+        
         foreach (var egg in _upgradeEggs)
         {
             egg.Reset(true);
         }
         
-        if (_storeSequence.isAlive) _storeSequence.Stop();
-        _storeSequence = Sequence.Create();
-
         SetEggsUpgrades();
     }
     

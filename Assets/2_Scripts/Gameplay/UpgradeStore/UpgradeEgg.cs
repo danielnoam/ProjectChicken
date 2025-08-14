@@ -41,8 +41,7 @@ public class UpgradeEgg : MonoBehaviour
     {
         if (!upgrade)
         {
-            mainCanvasGroup.alpha = 0f;
-            transform.localPosition = new Vector3(0,yOffset,0);
+            Reset(false);
             return;
         }
         
@@ -85,12 +84,14 @@ public class UpgradeEgg : MonoBehaviour
                 .Group(Tween.LocalPositionY(transform, yOffset, animationDuration))
                 ;
         }
-        
     }
     
     private void OnSelect()
     {
         if (_animationSequence.isAlive) _animationSequence.Stop();
+        _animationSequence = Sequence.Create()
+                .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
+            ;
         OnUpgradeSelected?.Invoke(_upgrade);
     }
     
