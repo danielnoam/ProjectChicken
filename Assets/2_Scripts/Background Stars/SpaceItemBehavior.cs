@@ -1,3 +1,4 @@
+using PrimeTween;
 using UnityEngine;
 
 public class SpaceItemBehavior : MonoBehaviour
@@ -10,7 +11,7 @@ public class SpaceItemBehavior : MonoBehaviour
     public Vector3 rotationSpeed = new Vector3(43f, 67f, 91f); // Degrees per second for X, Y, Z axes (non-repeating pattern)
     
     [Header("Scaling Settings")]
-    public float initialScale = 0.1f;
+
     public float minSize = 0.8f;
     public float maxSize = 1.5f;
     [HideInInspector] public float scaleDuration = 2f; // Set by spawner
@@ -19,6 +20,7 @@ public class SpaceItemBehavior : MonoBehaviour
     public float fadeOutDuration = 1f;
     public float destroyDelay = 2f;
     
+    private float initialScale = 0f;
     private Vector3 initialPosition;
     private float currentScale;
     private float targetScale;
@@ -30,7 +32,9 @@ public class SpaceItemBehavior : MonoBehaviour
     private Color originalColor;
     private Vector3 movementDirection; // World space movement direction
     private bool isPooled = false; // Track if this object is from pool
-    
+
+
+
     void Start()
     {
         InitializeItem();
@@ -70,7 +74,7 @@ public class SpaceItemBehavior : MonoBehaviour
     void MoveItem()
     {
         // Move the item in world space (always toward positive Z regardless of rotation)
-        transform.position += movementDirection * moveSpeed * Time.deltaTime;
+        transform.position += movementDirection * (moveSpeed * LevelManager.WorldSpeed * Time.deltaTime);
     }
     
     void RotateItem()
@@ -247,10 +251,10 @@ public class SpaceItemBehavior : MonoBehaviour
             }
         }
     }
-    
-    void OnDisable()
+
+    private void OnDisable()
     {
-        // Cancel any pending invokes when object is disabled
         CancelInvoke();
     }
+    
 }

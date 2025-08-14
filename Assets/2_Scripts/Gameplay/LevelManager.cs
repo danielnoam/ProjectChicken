@@ -3,6 +3,7 @@ using System.Collections;
 using Core.Attributes;
 using DNExtensions.VFXManager;
 using KBCore.Refs;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VInspector;
@@ -21,12 +22,12 @@ public class LevelManager : MonoBehaviour
     
     [Header("Debug")]
     [SerializeField] private bool debugLog;
-    [SerializeField, VInspector.ReadOnly] private SOLevelStage currentStage;
-    [SerializeField, VInspector.ReadOnly] private int currentStageIndex;
-    [SerializeField, VInspector.ReadOnly] private int enemiesLeft;
-    [SerializeField, VInspector.ReadOnly] public Vector3 playerPosition;
-    [SerializeField, VInspector.ReadOnly] public Vector3 enemyPosition;
-    [SerializeField, VInspector.ReadOnly] private SOLevelStage[] levelStages;
+    [SerializeField, ReadOnly] private SOLevelStage currentStage;
+    [SerializeField, ReadOnly] private int currentStageIndex;
+    [SerializeField, ReadOnly] private int enemiesLeft;
+    [SerializeField, ReadOnly] public Vector3 playerPosition;
+    [SerializeField, ReadOnly] public Vector3 enemyPosition;
+    [SerializeField, ReadOnly] private SOLevelStage[] levelStages;
     
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
@@ -44,6 +45,7 @@ public class LevelManager : MonoBehaviour
     
     public Vector3 PlayerPosition => playerPosition;
     public Vector3 EnemyPosition => enemyPosition;
+    public static float WorldSpeed = 1f;
     
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
@@ -187,6 +189,7 @@ public class LevelManager : MonoBehaviour
         }
 
         levelStages = level.LevelStages;
+        WorldSpeed = 1f;
         
         if (levelStages == null || levelStages.Length == 0)
         {
@@ -249,6 +252,13 @@ public class LevelManager : MonoBehaviour
         
         currentStageIndex = newStageIndex;
         currentStage = newStage;
+        
+        Tween.Custom(
+            startValue: WorldSpeed,
+            endValue: newStage.StageWorldSpeed, 
+            duration: 0.5f, 
+            onValueChange:(value) => WorldSpeed = value);
+        
         UpdateReachedSavePoint(newStage);
         UpdatePlayerAndEnemyPositions();
         

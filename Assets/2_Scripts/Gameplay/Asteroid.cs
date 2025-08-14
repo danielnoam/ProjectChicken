@@ -19,7 +19,7 @@ public class Asteroid : MonoBehaviour
     
     
     [Space(10)]
-    [SerializeField] private bool rotate = true;
+    [SerializeField] private bool rotate;
     [SerializeField] private float rotationSpeed = 15f;
 
     [Header("References")]

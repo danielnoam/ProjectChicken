@@ -180,28 +180,6 @@ public class SpaceItemPool : MonoBehaviour
         return total;
     }
     
-    void OnGUI()
-    {
-        // Display pool statistics in game view (remove this in production)
-        if (Application.isPlaying)
-        {
-            GUILayout.BeginArea(new Rect(10, 10, 300, 200));
-            GUILayout.Label($"{poolName} Pool Stats:", new GUIStyle(GUI.skin.label) { fontSize = 14, fontStyle = FontStyle.Bold });
-            
-            foreach (GameObject prefab in itemPrefabs)
-            {
-                if (prefab != null)
-                {
-                    int active = GetActiveCount(prefab);
-                    int pooled = GetPooledCount(prefab);
-                    GUILayout.Label($"{prefab.name}: Active: {active}, Pooled: {pooled}");
-                }
-            }
-            
-            GUILayout.Label($"Total Active: {GetTotalActiveCount()}");
-            GUILayout.EndArea();
-        }
-    }
     
     // Static method to find a pool by name
     public static SpaceItemPool FindPoolByName(string name)

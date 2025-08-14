@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 public class SpaceItemSpawner : MonoBehaviour
 {
@@ -8,7 +10,10 @@ public class SpaceItemSpawner : MonoBehaviour
     public List<GameObject> spaceItemPrefabs = new List<GameObject>();
     public int maxItemsOnScreen = 50;
     public float initialDelay = 0f; // Time to wait before first spawn
-    public float spawnInterval = 0.5f; // Time between spawns in seconds
+    public float spawnInterval = 0.5f; // Base time between spawns in seconds
+    
+    [Header("World Speed Integration")]
+    public float minSpawnRate = 0.25f; // Minimum spawn interval when world speed is very high
     
     [Header("Global Item Settings")]
     public float itemMoveSpeed = 5f; // Applied to all items
@@ -27,20 +32,10 @@ public class SpaceItemSpawner : MonoBehaviour
     public string poolName = "SpaceItemPool"; // Name of pool to find if targetPool is not assigned
     
     private int currentItemCount = 0;
-    private Transform playerTransform;
     private SpaceItemPool itemPool;
     
     void Start()
     {
-        // Find the player or camera
-        playerTransform = Camera.main.transform;
-        if (playerTransform == null)
-        {
-            GameObject player = GameObject.FindWithTag("Player");
-            if (player != null)
-                playerTransform = player.transform;
-        }
-        
         // Setup spawn zones - either use assigned list or find all BoxColliders on this GameObject
         SetupSpawnZones();
         
@@ -54,6 +49,25 @@ public class SpaceItemSpawner : MonoBehaviour
         // Start spawning items
         StartCoroutine(SpawnItems());
     }
+
+    /// <summary>
+    /// Calculates the adjusted spawn interval based on world speed
+    /// </summary>
+    float GetAdjustedSpawnInterval()
+    {
+        float worldSpeed = LevelManager.WorldSpeed;
+        
+        // If world speed is 0 or negative, return a very large interval (effectively pausing spawning)
+        if (worldSpeed <= 0f)
+            return float.MaxValue;
+        
+        // Calculate adjusted interval: higher world speed = shorter interval (faster spawning)
+        float adjustedInterval = spawnInterval / worldSpeed;
+        
+        // Clamp to minimum spawn rate to prevent extremely fast spawning
+        return Mathf.Max(adjustedInterval, minSpawnRate);
+    }
+
     
     void SetupObjectPool()
     {
@@ -159,6 +173,17 @@ public class SpaceItemSpawner : MonoBehaviour
         
         while (true)
         {
+            // Get current world speed and adjusted spawn interval
+            float currentWorldSpeed = LevelManager.WorldSpeed;
+            float adjustedSpawnInterval = GetAdjustedSpawnInterval();
+            
+            // If world speed is 0 or negative, pause spawning
+            if (currentWorldSpeed <= 0f)
+            {
+                yield return new WaitForSeconds(0.1f); // Check again soon for speed changes
+                continue;
+            }
+            
             // Get current active count from pool or use our counter
             int activeCount = useObjectPool && itemPool != null ? itemPool.GetTotalActiveCount() : currentItemCount;
             
@@ -173,32 +198,35 @@ public class SpaceItemSpawner : MonoBehaviour
                     // Double spawn: spawn first item immediately, second after half interval
                     SpawnSingleItem();
                     
-                    // Wait half the spawn interval
-                    yield return new WaitForSeconds(spawnInterval * 0.5f);
+                    // Wait half the adjusted spawn interval
+                    yield return new WaitForSeconds(adjustedSpawnInterval * 0.5f);
                     
-                    // Spawn second item (if still under limit)
-                    activeCount = useObjectPool && itemPool != null ? itemPool.GetTotalActiveCount() : currentItemCount;
-                    if (activeCount < maxItemsOnScreen)
+                    // Spawn second item (if still under limit and world speed still > 0)
+                    if (LevelManager.WorldSpeed > 0f)
                     {
-                        SpawnSingleItem();
+                        activeCount = useObjectPool && itemPool != null ? itemPool.GetTotalActiveCount() : currentItemCount;
+                        if (activeCount < maxItemsOnScreen)
+                        {
+                            SpawnSingleItem();
+                        }
                     }
                     
                     // Wait the remaining half interval to complete the full cycle
-                    yield return new WaitForSeconds(spawnInterval * 0.5f);
+                    yield return new WaitForSeconds(adjustedSpawnInterval * 0.5f);
                 }
                 else
                 {
                     // Single spawn: spawn one item and wait full interval
                     SpawnSingleItem();
-                    yield return new WaitForSeconds(spawnInterval);
+                    yield return new WaitForSeconds(adjustedSpawnInterval);
                 }
             }
             else
             {
-                // If at max capacity, just wait and check again
-                yield return new WaitForSeconds(spawnInterval);
+                // If at max capacity, wait and check again (using adjusted interval)
+                yield return new WaitForSeconds(adjustedSpawnInterval);
             }
-        }
+        } 
     }
     
     void SpawnSingleItem()
@@ -381,25 +409,5 @@ public class SpaceItemSpawner : MonoBehaviour
         
         // Reduce count when item is destroyed
         currentItemCount--;
-    }
-    
-    void OnDrawGizmosSelected()
-    {
-        // Draw spawn zones in scene view
-        if (spawnZones != null && spawnZones.Count > 0)
-        {
-            for (int i = 0; i < spawnZones.Count; i++)
-            {
-                if (spawnZones[i] != null)
-                {
-                    // Set different colors for each zone (cycling through colors if more than 4 zones)
-                    Color[] colors = { Color.yellow, Color.green, Color.blue, Color.magenta, Color.cyan, Color.red, Color.white };
-                    Gizmos.color = colors[i % colors.Length];
-                    
-                    Bounds bounds = spawnZones[i].bounds;
-                    Gizmos.DrawWireCube(bounds.center, bounds.size);
-                }
-            }
-        }
     }
 }
