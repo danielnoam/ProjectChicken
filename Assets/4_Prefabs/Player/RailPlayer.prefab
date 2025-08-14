@@ -2509,10 +2509,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47818a8b6ad449f448a1ebb60dee421a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHealth: 3
+  baseHealth: 2
   dodgingGivesInvincibility: 1
   receiveHealthOnBonusThreshold: 1
-  baseShieldHealth: 100
+  baseShield: 100
   shieldRegenCooldown: 3
   shieldRegenRate: 15
   shieldDamagedShakeSettings:
@@ -2698,8 +2698,8 @@ MonoBehaviour:
   gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
-  playerWeapon: {fileID: 3423310960035294283}
   playerMovement: {fileID: 7233717465822237952}
+  weaponSystem: {fileID: 3423310960035294283}
   resourceCollector: {fileID: 4566949368712534308}
   controllerVibrationSource: {fileID: 284695675551663708}
   cinemachineImpulseSource: {fileID: 3917683547680578920}

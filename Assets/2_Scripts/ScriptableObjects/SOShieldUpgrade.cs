@@ -9,7 +9,7 @@ using UnityEditor;
 #endif
 
 [CreateAssetMenu(fileName = "Shield Upgrade", menuName = "Scriptable Objects/New Shield Upgrade")]
-public class SOShieldUpgrade : SOUpgrade
+public class SOShieldUpgrade : SOUpgradeBase
 {
     
     [Header("Shield Upgrade")]
@@ -18,7 +18,7 @@ public class SOShieldUpgrade : SOUpgrade
     
     public override void ApplyUpgrade(RailPlayer player)
     {
-        player?.AddBaseShield(shieldUpgradeAmount);
+        player?.AddMaxShieldUpgrade(this,shieldUpgradeAmount);
     }
     
 }

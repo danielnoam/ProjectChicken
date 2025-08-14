@@ -12,6 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04dac25139e84b27a8a6593b947380f7, type: 3}
   m_Name: MissileUpgrade1
   m_EditorClassIdentifier: 
+  itemName: Missile Upgrade 1
+  itemDescription: Bigger boom!
+  itemGfx: {fileID: 682982969330921429, guid: 2c656bacccd951d4185379ea47b9f618, type: 3}
+  itemRarity: 2
+  itemNeededToUnlock: []
+  itemID: 478881102
   baseWeapon: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
   overrideWeaponGfx: 1
   overrideWeaponBarrels: 1
@@ -33,12 +39,6 @@ MonoBehaviour:
   - rid: 4485104011578441737
   overrideHitscanBehaviors: 0
   hitscanBehaviors: []
-  itemName: Missile Upgrade 1
-  itemDescription: Bigger boom!
-  itemCost: 300
-  itemGfx: {fileID: 682982969330921429, guid: 2c656bacccd951d4185379ea47b9f618, type: 3}
-  neededItemsToUnlock: []
-  itemID: 478881102
   references:
     version: 2
     RefIds:

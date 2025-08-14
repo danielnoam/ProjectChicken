@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04dac25139e84b27a8a6593b947380f7, type: 3}
   m_Name: LightningBeamUpgrade2
   m_EditorClassIdentifier: 
+  itemName: Lightning Beam Upgrade 2
+  itemDescription: Cook more chickens with each beam!
+  itemGfx: {fileID: 8791046985504996612, guid: bd68fccb9ae740d46918a9cbcc95b3dc, type: 3}
+  itemRarity: 2
+  itemNeededToUnlock:
+  - {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
+  itemID: 712304522
   baseWeapon: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
   overrideWeaponGfx: 0
   overrideWeaponBarrels: 0
@@ -31,13 +38,6 @@ MonoBehaviour:
   hitscanBehaviors:
   - rid: 4047855709786210424
   - rid: 4485104011578441733
-  itemName: Lightning Beam Upgrade 2
-  itemDescription: Cook more chickens with each beam!
-  itemCost: 500
-  itemGfx: {fileID: 8791046985504996612, guid: bd68fccb9ae740d46918a9cbcc95b3dc, type: 3}
-  neededItemsToUnlock:
-  - _underlyingValue: {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
-  itemID: 712304522
   references:
     version: 2
     RefIds:

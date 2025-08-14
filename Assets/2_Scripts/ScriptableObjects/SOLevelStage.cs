@@ -1,3 +1,4 @@
+using System;
 using AYellowpaper;
 using DNExtensions;
 using DNExtensions.VFXManager;
@@ -18,9 +19,15 @@ public class SOLevelStage : ScriptableObject
     
     [Header("Type")]
     [SerializeField] private StageType stageType;
+    
     [ShowIf("IsTimeBasedStage")] 
     [SerializeField, Min(0.1f)] private float stageDuration = 5;
     [EndIf]
+    
+    [ShowIf("stageType", StageType.Store)]
+    [SerializeField] private SOUpgradeBase[] upgradesPool = Array.Empty<SOUpgradeBase>();
+    [EndIf]
+    
     [ShowIf("stageType", StageType.EnemyWave)]
     [SerializeField] private Vector3 enemyPositionOffset;
     [SerializeField, Min(0)] private float delayBeforeNextStage = 1f;
@@ -46,6 +53,7 @@ public class SOLevelStage : ScriptableObject
     public bool AllowPlayerShootingAndAiming => allowPlayerShootingAndAiming;
     public Vector3 PlayerPositionOffset => playerPositionOffset;
     public bool ShowHUD => showHUD;
+    public  SOUpgradeBase[] UpgradesPool => upgradesPool;
     
     
 }

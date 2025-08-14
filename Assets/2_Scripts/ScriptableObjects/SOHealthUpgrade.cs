@@ -9,7 +9,7 @@ using UnityEditor;
 #endif
 
 [CreateAssetMenu(fileName = "Health Upgrade", menuName = "Scriptable Objects/New Health Upgrade")]
-public class SOHealthUpgrade : SOUpgrade
+public class SOHealthUpgrade : SOUpgradeBase
 {
     
     [Header("Health Upgrade")]
@@ -19,6 +19,6 @@ public class SOHealthUpgrade : SOUpgrade
     
     public override void ApplyUpgrade(RailPlayer player)
     {
-        player?.HealHealth(healthUpgradeAmount);
+        player?.AddHealthUpgrade(this,healthUpgradeAmount);
     }
 }

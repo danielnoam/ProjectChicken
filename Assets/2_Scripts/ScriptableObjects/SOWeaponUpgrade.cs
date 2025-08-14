@@ -7,7 +7,7 @@ using UnityEditor;
 
 
 
-public class SOWeaponUpgrade : SOUpgrade
+public class SOWeaponUpgrade : SOUpgradeBase
 {
     [SerializeField, ReadOnly] private SOWeaponData baseWeapon;
     
@@ -195,6 +195,6 @@ public class SOWeaponUpgrade : SOUpgrade
     
     public override void ApplyUpgrade(RailPlayer player)
     {
-        
+        player.AddWeaponUpgrade(this, this);
     }
 }

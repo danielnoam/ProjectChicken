@@ -230,10 +230,12 @@ MonoBehaviour:
   baseRerollCost: 50
   maxRerollCost: 300
   animationDuration: 1
+  offsetBetweenUpgrades: {x: 25, y: 0, z: 0}
   gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   store: {fileID: 5210243299570152646}
   storeGfx: {fileID: 8325456232853324941}
   eggHolder: {fileID: 4126876949143536688}
+  captain: {fileID: 1917155914565094044}
   canvasGroup: {fileID: 9151987992877166731}
   closeStoreButton: {fileID: 8025480043361990059}
   rerollButton: {fileID: 8356642916159181571}
@@ -334,13 +336,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66b5b163cee51194294655b38566b6a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelStages: []
+  level: {fileID: 0}
   debugLog: 0
   currentStage: {fileID: 0}
   currentStageIndex: 0
   enemiesLeft: 0
   playerPosition: {x: 0, y: 0, z: 0}
   enemyPosition: {x: 0, y: 0, z: 0}
+  levelStages: []
   gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   storeManager: {fileID: 54411316279204509}
   enemySpawner: {fileID: 0}
@@ -658,8 +661,31 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4943601664248001295, guid: 25970df97e8542d45ba9505cc23cab44, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1917155914565094044}
   m_SourcePrefab: {fileID: 100100000, guid: 25970df97e8542d45ba9505cc23cab44, type: 3}
+--- !u!1 &8396104915537529262 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4943601664248001295, guid: 25970df97e8542d45ba9505cc23cab44, type: 3}
+  m_PrefabInstance: {fileID: 3467709499921316513}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1917155914565094044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8396104915537529262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03bfdf033a93479e8f61c3f3d59947fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationDuration: 1.5
+  animationEase: 28
+  yOffset: -150
 --- !u!4 &9209619634003038996 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5751346493381962165, guid: 25970df97e8542d45ba9505cc23cab44, type: 3}

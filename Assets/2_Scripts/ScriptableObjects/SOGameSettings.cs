@@ -25,7 +25,7 @@ public class SOGameSettings : ScriptableObject
     
     [Header("References")]
     [SerializeField] private SceneField mainMenuScene;
-    [SerializeField] private SOUpgrade[] upgradesPool = Array.Empty<SOUpgrade>();
+
     
     public float TimeToPause => timeToPause;
     public int MaxPlayerHealth => maxPlayerHealth;
@@ -38,5 +38,5 @@ public class SOGameSettings : ScriptableObject
     public int BonusThreshold => bonusThreshold;
     public int EnemyWaveScoreWorth =>  enemyWaveScoreWorth;
     public SceneField MainMenuScene => mainMenuScene;
-    public  SOUpgrade[] UpgradesPool => upgradesPool;
+
 }

@@ -9,7 +9,7 @@ using UnityEditor;
 #endif
 
 [CreateAssetMenu(fileName = "Resource Magnet Upgrade", menuName = "Scriptable Objects/New Resource Magnet Upgrade")]
-public class SOResourceMagnetUpgrade : SOUpgrade
+public class SOResourceMagnetUpgrade : SOUpgradeBase
 {
     
     [Header("Resource Magnet Upgrade")]
@@ -17,6 +17,6 @@ public class SOResourceMagnetUpgrade : SOUpgrade
     
     public override void ApplyUpgrade(RailPlayer player)
     {
-        player?.ResourceCollector.AddToMagnetSize(magnetUpgradeAmount);
+        player?.AddMagnetSizeUpgrade(this,magnetUpgradeAmount);
     }
 }
