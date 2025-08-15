@@ -1,4 +1,6 @@
-﻿public class SavePointInformation
+﻿using System.Collections.Generic;
+
+public class SavePointInformation
 {
 
     public readonly int StageIndex;
@@ -7,15 +9,17 @@
     public readonly float PlayerShield;
     public readonly int PlayerCurrency;
     public readonly SOWeaponData PlayerSpecialWeapon;
+    public readonly List<SOUpgradeBase> PlayerUpgrades;
 
 
-    public SavePointInformation(int stageIndex,int score, int health, float shield,int currency, SOWeaponData specialWeapon = null)
+    public SavePointInformation(int stageIndex,int score, int health, float shield,int currency,List<SOUpgradeBase> upgrades, SOWeaponData specialWeapon = null)
     {
-        this.StageIndex = stageIndex;
-        this.Score = score;
-        this.PlayerHealth = health;
-        this.PlayerShield = shield;
-        this.PlayerCurrency = currency;
-        this.PlayerSpecialWeapon = specialWeapon;
+        StageIndex = stageIndex;
+        Score = score;
+        PlayerHealth = health;
+        PlayerShield = shield;
+        PlayerCurrency = currency;
+        PlayerUpgrades = upgrades;
+        PlayerSpecialWeapon = specialWeapon;
     }
 }

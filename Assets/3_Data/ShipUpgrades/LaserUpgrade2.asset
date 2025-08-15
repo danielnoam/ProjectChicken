@@ -1,0 +1,150 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04dac25139e84b27a8a6593b947380f7, type: 3}
+  m_Name: LaserUpgrade2
+  m_EditorClassIdentifier: 
+  itemName: Laser Upgrade 2
+  itemDescription: Now shoots three lasers!
+  itemGfx: {fileID: 682982969330921429, guid: bf2cd7b501508c14e8723a3389ce300c, type: 3}
+  itemRarity: 2
+  itemNeededToUnlock:
+  - {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
+  itemID: -159191848
+  baseWeapon: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
+  overrideWeaponGfx: 1
+  overrideWeaponBarrels: 1
+  overrideFireRate: 0
+  fireRate: 0.15
+  overrideMaxTargets: 0
+  maxTargets: 1
+  overrideTargetCheckRadius: 0
+  targetCheckRadius: 4
+  overrideWeaponLimitation: 0
+  heatPerShot: 4
+  timeLimit: 10
+  ammoLimit: 3
+  overrideProjectileBehaviors: 1
+  projectileBehaviors:
+  - rid: 4047855707409612905
+  - rid: 4047855707409612906
+  - rid: 4047855707409612907
+  - rid: 4047855707409612908
+  - rid: 4485104011578441730
+  overrideHitscanBehaviors: 0
+  hitscanBehaviors: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 4047855707409612905
+      type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
+      data:
+        moveSpeed: 100
+        useSpeedStagger: 1
+        speedStaggerTime: 0.1
+        staggerSpeedCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 2
+            outSlope: 2
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 4047855707409612906
+      type: {class: BehaviorDamageOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        damage: 35
+    - rid: 4047855707409612907
+      type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        pushForce: 10
+    - rid: 4047855707409612908
+      type: {class: BehaviorStunOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        stunChance: 25
+        stunDuration: 0.3
+    - rid: 4485104011578441730
+      type: {class: BehaviorVibrateAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
+      data:
+        vibrateControllerOnFire: 1
+        vibrationSettings:
+          lowFrequency: 0.1
+          highFrequency: 0.1
+          duration: 0.2
+          lowFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          highFrequencyCurve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+        shakeCameraOnFire: 0
+        shakeSettings:
+          impulseShape: 2
+          intensity: 1
+          duration: 0.3

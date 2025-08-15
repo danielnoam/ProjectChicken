@@ -141,6 +141,7 @@ MonoBehaviour:
   miniGameAnimationDuration: 0.3
   miniGamePunchDuration: 0.6
   miniGamePunchStrength: 0.2
+  player: {fileID: 0}
   weaponSystem: {fileID: 3423310960035294283}
   heatBarGroup: {fileID: 4346653012270481198}
   heatBar: {fileID: 4032922386872106941}
@@ -982,6 +983,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6991438904229119427}
+  - {fileID: 5091131167723821911}
   - {fileID: 461206981692188705}
   - {fileID: 4913251172318160832}
   - {fileID: 5440797147934545249}
@@ -1138,7 +1140,7 @@ Transform:
   m_GameObject: {fileID: 2440519371583176229}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -100}
+  m_LocalPosition: {x: 0, y: 0, z: -85}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2508,21 +2510,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47818a8b6ad449f448a1ebb60dee421a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeToPause: 3
-  alignToSplineDirection: 1
-  splineRotationSpeed: 5
-  baseHealth: 3
+  baseHealth: 2
   dodgingGivesInvincibility: 1
   receiveHealthOnBonusThreshold: 1
-  healthUpgrades:
-  - {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
-  - {fileID: 11400000, guid: 5051ea4807e765847ad58fa7f3fcaadc, type: 2}
-  baseShieldHealth: 100
+  baseShield: 100
   shieldRegenCooldown: 3
   shieldRegenRate: 15
-  shieldUpgrades:
-  - {fileID: 11400000, guid: 85cde709a65e11a4285e307636799abb, type: 2}
-  - {fileID: 11400000, guid: 5fd2ebb25c87fa547bc5c087a3dfb75d, type: 2}
   shieldDamagedShakeSettings:
     impulseShape: 4
     intensity: 0.3
@@ -2703,10 +2696,11 @@ MonoBehaviour:
   shieldDepletedSfx: {fileID: 11400000, guid: 37b968dd3a5328b478e0c33c3645f263, type: 2}
   deathSfx: {fileID: 0}
   levelManager: {fileID: 0}
+  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   playerInput: {fileID: 8438971806570489096}
   playerAiming: {fileID: 890854243081262160}
-  playerWeapon: {fileID: 3423310960035294283}
   playerMovement: {fileID: 7233717465822237952}
+  weaponSystem: {fileID: 3423310960035294283}
   resourceCollector: {fileID: 4566949368712534308}
   controllerVibrationSource: {fileID: 284695675551663708}
   cinemachineImpulseSource: {fileID: 3917683547680578920}
@@ -2738,9 +2732,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseMagnetRadius: 14
-  resourceMagnetUpgrades:
-  - {fileID: 11400000, guid: 259517cbb337a8243a3e713a312b7abd, type: 2}
-  - {fileID: 11400000, guid: f1ff5cc07ba342e418fb8a51b876c50f, type: 2}
   player: {fileID: 2233603387570671912}
 --- !u!114 &7233717465822237952
 MonoBehaviour:
@@ -6336,6 +6327,68 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 21b31bb8e0e816745b014c4279ba1c87, type: 3}
   m_PrefabInstance: {fileID: 6863175857393932068}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6960918882403172464
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5119365439155976064}
+    m_Modifications:
+    - target: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.000026966176
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.18935037
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -4.5468836
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.0000029504306
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -6.8212097e-13
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.0000015199095
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5312780180153311794, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_Name
+      value: SpaceshipPazzaz
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+--- !u!4 &5091131167723821911 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+  m_PrefabInstance: {fileID: 6960918882403172464}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7074252658378033693
 PrefabInstance:

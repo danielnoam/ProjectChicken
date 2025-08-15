@@ -7,7 +7,7 @@ using UnityEditor;
 
 
 
-public class SOWeaponUpgrade : ScriptableObject, IStoreItem
+public class SOWeaponUpgrade : SOUpgradeBase
 {
     [SerializeField, ReadOnly] private SOWeaponData baseWeapon;
     
@@ -47,15 +47,7 @@ public class SOWeaponUpgrade : ScriptableObject, IStoreItem
     
     [ShowIf("WeaponType", WeaponType.Hitscan),SerializeField] private bool overrideHitscanBehaviors;[EndIf]
     [ShowIf("ShowHitscanBehaviors"), SerializeReference] private List<HitscanBehaviorBase> hitscanBehaviors = new List<HitscanBehaviorBase>(); [EndIf]
-
     
-    [Header("Store Interface")]
-    [SerializeField] private string itemName = "New Store Item";
-    [SerializeField] private string itemDescription = "An Item";
-    [SerializeField, Min(0)] private int itemCost = 10;
-    [SerializeField] private GameObject itemGfx;
-    [SerializeField] private List<InterfaceReference<IStoreItem>> neededItemsToUnlock = new  List<InterfaceReference<IStoreItem>>();
-    [SerializeField, ReadOnly] private int itemID;
     
     
     
@@ -78,21 +70,7 @@ public class SOWeaponUpgrade : ScriptableObject, IStoreItem
     public float AmmoLimit => overrideWeaponLimitation && baseWeapon.WeaponLimitation == WeaponLimitation.AmmoBased ? ammoLimit : (baseWeapon ? baseWeapon.AmmoLimit : 3f);
     public List<ProjectileBehaviorBase> ProjectileBehaviors => overrideProjectileBehaviors ? projectileBehaviors : (baseWeapon ? baseWeapon.ProjectileBehaviors : new List<ProjectileBehaviorBase>());
     public List<HitscanBehaviorBase> HitscanBehaviors => overrideHitscanBehaviors ? hitscanBehaviors : (baseWeapon ? baseWeapon.HitscanBehaviors : new List<HitscanBehaviorBase>());
-    public string ItemName => itemName;
-    public string ItemDescription => itemDescription;
-    public int ItemCost => itemCost;
-    public GameObject ItemGfx => itemGfx;
-    public List<InterfaceReference<IStoreItem>> NeededItemsToUnlockToUnlock => neededItemsToUnlock;
-    
-    
-    
-    public int ItemID { get => itemID; set => itemID = value; }
-    
-    
-    private void OnEnable()
-    {
-        IStoreItem.EnsureUniqueID(this);
-    }
+
     
     #if UNITY_EDITOR
     private void OnDestroy()
@@ -213,5 +191,10 @@ public class SOWeaponUpgrade : ScriptableObject, IStoreItem
                 if (!overrideHitscanBehaviors) hitscanBehaviors = new List<HitscanBehaviorBase>(previousUpgrade.HitscanBehaviors);
                 break;
         }
+    }
+    
+    public override void ApplyUpgrade(RailPlayer player)
+    {
+        player.AddWeaponUpgrade(this, this);
     }
 }

@@ -9,37 +9,16 @@ using UnityEditor;
 #endif
 
 [CreateAssetMenu(fileName = "Health Upgrade", menuName = "Scriptable Objects/New Health Upgrade")]
-public class SOHealthUpgrade : ScriptableObject, IStoreItem
+public class SOHealthUpgrade : SOUpgradeBase
 {
     
     [Header("Health Upgrade")]
     [SerializeField, Min(1)] private int  healthUpgradeAmount = 1;
+    
 
     
-    [Header("Store Interface")]
-    [SerializeField] private string itemName = "Health Upgrade";
-    [SerializeField] private string itemDescription = "Adds 1 heart to the player";
-    [SerializeField, Min(0)] private int itemCost = 150;
-    [SerializeField] private GameObject itemGfx;
-    [SerializeField] private List<InterfaceReference<IStoreItem>> neededItemsToUnlock = new  List<InterfaceReference<IStoreItem>>();
-    [SerializeField, ReadOnly] private int itemID;
-    
-    public int  HealthUpgradeAmount => healthUpgradeAmount;
-    
-    public string ItemName => itemName;
-    public string ItemDescription => itemDescription;
-    public int ItemCost => itemCost;
-    public GameObject ItemGfx => itemGfx;
-    public List<InterfaceReference<IStoreItem>> NeededItemsToUnlockToUnlock => neededItemsToUnlock;
-    
-    
-    public int ItemID { get => itemID; set => itemID = value; }
-    
-    
-    private void OnEnable()
+    public override void ApplyUpgrade(RailPlayer player)
     {
-        IStoreItem.EnsureUniqueID(this);
+        player?.AddHealthUpgrade(this,healthUpgradeAmount);
     }
-    
-    
 }

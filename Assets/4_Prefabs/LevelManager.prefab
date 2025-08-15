@@ -180,37 +180,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!1 &4518134958218238457
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3017262246087303862}
-  m_Layer: 0
-  m_Name: CurrentPositionOnPath
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3017262246087303862
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4518134958218238457}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 6161437660023631568}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4682168155981568801
 GameObject:
   m_ObjectHideFlags: 0
@@ -220,8 +189,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5210243299570152646}
+  - component: {fileID: 54411316279204509}
   m_Layer: 0
-  m_Name: Store
+  m_Name: StoreManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -244,198 +214,35 @@ Transform:
   - {fileID: 5378079476490355330}
   m_Father: {fileID: 6161437660023631568}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &5733738478967912776
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 9069391777445238961}
-  - component: {fileID: 5337217381014650461}
-  m_Layer: 0
-  m_Name: Path
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &9069391777445238961
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5733738478967912776}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 6161437660023631568}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5337217381014650461
+--- !u!114 &54411316279204509
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5733738478967912776}
+  m_GameObject: {fileID: 4682168155981568801}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dab5c7d4c32e743048dfca98e2d5914f, type: 3}
+  m_Script: {fileID: 11500000, guid: 2d6df7ab4f1fd27458ffde335894e8a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Spline:
-    m_EditModeType: 1
-    m_Knots: []
-    m_MetaData: []
-    m_Closed: 0
-    m_IntData:
-      m_Data: []
-    m_FloatData:
-      m_Data: []
-    m_Float4Data:
-      m_Data: []
-    m_ObjectData:
-      m_Data: []
-  m_Splines:
-  - m_EditModeType: 1
-    m_Knots:
-    - Position:
-        x: 0
-        y: 0
-        z: 0
-      TangentIn:
-        x: -0
-        y: -0
-        z: -132.51997
-      TangentOut:
-        x: 0
-        y: 0
-        z: 134.38567
-      Rotation:
-        value:
-          x: 0.0010739308
-          y: -0.6796237
-          z: -0.0011591585
-          w: 0.7335592
-    - Position:
-        x: -384.3
-        y: 0
-        z: 299.3
-      TangentIn:
-        x: -0
-        y: -0
-        z: -61.251713
-      TangentOut:
-        x: 0
-        y: 0
-        z: 37.076355
-      Rotation:
-        value:
-          x: -0.0074823657
-          y: 0.06845023
-          z: -0.10840585
-          w: 0.99171907
-    - Position:
-        x: -218.96
-        y: 0
-        z: 366.5
-      TangentIn:
-        x: -0
-        y: -0
-        z: -74.15008
-      TangentOut:
-        x: 0
-        y: 0
-        z: 142.9339
-      Rotation:
-        value:
-          x: -0.09177786
-          y: 0.40485263
-          z: -0.2011351
-          w: 0.88725185
-    - Position:
-        x: 114.9
-        y: 0
-        z: 939.5
-      TangentIn:
-        x: -0
-        y: -0
-        z: -117.62947
-      TangentOut:
-        x: 0
-        y: 0
-        z: 83.795364
-      Rotation:
-        value:
-          x: -0.057919543
-          y: 0.64331394
-          z: -0.068455115
-          w: 0.76033306
-    - Position:
-        x: 370
-        y: 0
-        z: 720
-      TangentIn:
-        x: -0
-        y: -0
-        z: -113.7284
-      TangentOut:
-        x: 0
-        y: 0
-        z: 137.38135
-      Rotation:
-        value:
-          x: 0.00029107012
-          y: 0.97197795
-          z: 0.00007039503
-          w: 0.23507191
-    - Position:
-        x: 413.6
-        y: 0
-        z: 230.86324
-      TangentIn:
-        x: -0
-        y: -0
-        z: -136.10344
-      TangentOut:
-        x: 0
-        y: 0
-        z: 133.66953
-      Rotation:
-        value:
-          x: -0.0037448248
-          y: 0.97056556
-          z: 0.0009291254
-          w: -0.24080619
-    m_MetaData:
-    - Mode: 0
-      Tension: 0.5
-    - Mode: 0
-      Tension: 0.5
-    - Mode: 0
-      Tension: 0.5
-    - Mode: 0
-      Tension: 0.5
-    - Mode: 0
-      Tension: 0.5
-    - Mode: 0
-      Tension: 0.5
-    m_Closed: 1
-    m_IntData:
-      m_Data: []
-    m_FloatData:
-      m_Data: []
-    m_Float4Data:
-      m_Data: []
-    m_ObjectData:
-      m_Data: []
-  m_Knots:
-    m_KnotsLink: []
+  availableUpgrades: 3
+  baseRerollCost: 25
+  rerollCostIncrease: 50
+  maxRerollCost: 300
+  animationDuration: 1
+  offsetBetweenUpgrades: {x: 25, y: 0, z: 0}
+  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
+  store: {fileID: 5210243299570152646}
+  storeGfx: {fileID: 8325456232853324941}
+  eggHolder: {fileID: 4126876949143536688}
+  captain: {fileID: 1917155914565094044}
+  canvasGroup: {fileID: 9151987992877166731}
+  closeStoreButton: {fileID: 8025480043361990059}
+  rerollButton: {fileID: 8356642916159181571}
+  upgradeEggPrefab: {fileID: 5191593688329016279, guid: ac70961ca0172944099e50fea330a0bb, type: 3}
+  levelManager: {fileID: 0}
+  player: {fileID: 0}
 --- !u!1 &6768918284444961252
 GameObject:
   m_ObjectHideFlags: 0
@@ -445,8 +252,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8969420720622942545}
+  - component: {fileID: 1817324182813476951}
   m_Layer: 0
-  m_Name: ResourceHolder
+  m_Name: ResourceManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -467,6 +275,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6161437660023631568}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1817324182813476951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6768918284444961252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ec4b4b137d45d58375459d55f74da8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelManager: {fileID: 98154818553496101}
+  enemySpawner: {fileID: 0}
+  resourceHolder: {fileID: 8969420720622942545}
+  debugTable: {fileID: 11400000, guid: 5b9315d82c63681c6a44897478ec311f, type: 2}
 --- !u!1 &8757796954618938148
 GameObject:
   m_ObjectHideFlags: 0
@@ -477,8 +301,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6161437660023631568}
   - component: {fileID: 98154818553496101}
-  - component: {fileID: 256200700815906792}
-  - component: {fileID: 3247101370619034507}
   m_Layer: 0
   m_Name: LevelManager
   m_TagString: Untagged
@@ -499,8 +321,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 9069391777445238961}
-  - {fileID: 3017262246087303862}
   - {fileID: 8969420720622942545}
   - {fileID: 5210243299570152646}
   m_Father: {fileID: 0}
@@ -517,70 +337,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66b5b163cee51194294655b38566b6a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyBoundary: {x: 45, y: 30}
-  playerBoundary: {x: 40, y: 25}
-  playerOffset: -30
-  enemyOffset: 30
-  startOffset: 0
-  pathFollowSmoothness: 1
-  bonusThreshold: 50000
-  levelExitSequence: {fileID: 11400000, guid: 6b3d95219570c4e4eafbbbb4671f44cb, type: 2}
-  levelStages: []
+  level: {fileID: 0}
   debugLog: 0
-  enemiesLeft: 0
-  currentStageIndex: 0
   currentStage: {fileID: 0}
-  splineContainer: {fileID: 5337217381014650461}
-  mainMenuScene:
-    sceneAsset: {fileID: 102900000, guid: 81ac6686a6faf384a8be7373c1b1ef15, type: 3}
-    sceneName: MainMenu
-    scenePath: Assets/1_Scenes/GameScenes/MainMenu.unity
-  introVFXSequence: {fileID: 11400000, guid: fc069ba71ecc050438412568acaa8b5b, type: 2}
-  currentPositionOnPath: {fileID: 3017262246087303862}
+  currentStageIndex: 0
+  enemiesLeft: 0
+  playerPosition: {x: 0, y: 0, z: 0}
+  enemyPosition: {x: 0, y: 0, z: 0}
+  levelStages: []
+  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
+  storeManager: {fileID: 54411316279204509}
   enemySpawner: {fileID: 0}
-  storeManager: {fileID: 256200700815906792}
   player: {fileID: 0}
---- !u!114 &256200700815906792
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8757796954618938148}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d6df7ab4f1fd27458ffde335894e8a6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  availableUpgrades: 3
-  baseRerollCost: 50
-  maxRerollCost: 300
-  animationDuration: 1
-  store: {fileID: 5210243299570152646}
-  storeGfx: {fileID: 8325456232853324941}
-  eggHolder: {fileID: 4126876949143536688}
-  canvasGroup: {fileID: 9151987992877166731}
-  closeStoreButton: {fileID: 8025480043361990059}
-  rerollButton: {fileID: 8356642916159181571}
-  upgradeEggPrefab: {fileID: 5191593688329016279, guid: ac70961ca0172944099e50fea330a0bb, type: 3}
-  levelManager: {fileID: 0}
-  player: {fileID: 0}
---- !u!114 &3247101370619034507
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8757796954618938148}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0ec4b4b137d45d58375459d55f74da8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 98154818553496101}
-  enemySpawner: {fileID: 0}
-  resourceHolder: {fileID: 8969420720622942545}
-  debugTable: {fileID: 11400000, guid: 5b9315d82c63681c6a44897478ec311f, type: 2}
 --- !u!1001 &675733913025445341
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -894,8 +662,31 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4943601664248001295, guid: 25970df97e8542d45ba9505cc23cab44, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1917155914565094044}
   m_SourcePrefab: {fileID: 100100000, guid: 25970df97e8542d45ba9505cc23cab44, type: 3}
+--- !u!1 &8396104915537529262 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4943601664248001295, guid: 25970df97e8542d45ba9505cc23cab44, type: 3}
+  m_PrefabInstance: {fileID: 3467709499921316513}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1917155914565094044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8396104915537529262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03bfdf033a93479e8f61c3f3d59947fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationDuration: 1.5
+  animationEase: 28
+  yOffset: -150
 --- !u!4 &9209619634003038996 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5751346493381962165, guid: 25970df97e8542d45ba9505cc23cab44, type: 3}
