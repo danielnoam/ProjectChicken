@@ -335,26 +335,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyBoundary: {x: 45, y: 30}
   playerBoundary: {x: 40, y: 25}
-  playerOffset: -30
-  enemyOffset: 30
-  startOffset: 0
-  pathFollowSmoothness: 1
+  playerPositionMultiplier: -30
+  enemyPositionMultiplier: 30
   bonusThreshold: 50000
-  levelExitSequence: {fileID: 11400000, guid: 6b3d95219570c4e4eafbbbb4671f44cb, type: 2}
   levelStages: []
   debugLog: 0
-  enemiesLeft: 0
-  currentStageIndex: 0
   currentStage: {fileID: 0}
-  splineContainer: {fileID: 0}
+  currentStageIndex: 0
+  enemiesLeft: 0
+  playerPosition: {x: 0, y: 0, z: 0}
+  enemyPosition: {x: 0, y: 0, z: 0}
   mainMenuScene:
     sceneAsset: {fileID: 102900000, guid: 81ac6686a6faf384a8be7373c1b1ef15, type: 3}
     sceneName: MainMenu
     scenePath: Assets/1_Scenes/GameScenes/MainMenu.unity
-  introVFXSequence: {fileID: 11400000, guid: fc069ba71ecc050438412568acaa8b5b, type: 2}
-  currentPositionOnPath: {fileID: 0}
-  enemySpawner: {fileID: 0}
   storeManager: {fileID: 54411316279204509}
+  enemySpawner: {fileID: 0}
   player: {fileID: 0}
 --- !u!1001 &675733913025445341
 PrefabInstance:

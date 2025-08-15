@@ -46,7 +46,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Difffuse:
-        m_Texture: {fileID: 2800000, guid: b356831ef4f363d48989d117c6ea79e3, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1a850abbd6067e6488bc2ee95cb8bf5f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -62,7 +62,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal:
-        m_Texture: {fileID: 2800000, guid: 7be741f9449557c488d643ae307fe1ab, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -188,11 +188,12 @@ Material:
     - _ZWriteControl: 0
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0, g: 0.7030182, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color_1: {r: 1, g: 1, b: 1, a: 0}
     - _Direction: {r: 1, g: 1, b: 1, a: 0}
     - _Emission: {r: 1, g: 1, b: 1, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Planet_Rotation_Speed: {r: 0.1, g: 0.1, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Speed_1: {r: 0.1, g: 0.1, b: 0, a: 0}
     - _Tilling: {r: 1.8, g: 0.5, b: 0, a: 0}
