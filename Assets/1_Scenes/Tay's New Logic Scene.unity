@@ -6417,13 +6417,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentFormation: 4
-  spacing: 5
-  slotsPerSide: 3
+  crossSpacing: 2
+  multiplySpacing: 2
+  spacing: 3
+  crossSlotsPerSide: 4
+  multiplySlotsPerSide: 3
+  slotsPerSide: 5
   circleRadius: 7
   fitWithinCollider: 1
   boundaryPadding: 1
-  formationCount: 3
-  formationSpacing: 50
+  formationCount: 4
+  formationSpacing: 5
+  useRandomPlacement: 1
+  maxPlacementAttempts: 100
   gizmoColor: {r: 1, g: 0, b: 0, a: 1}
   gizmoSize: 0.5
   showColliderBounds: 1
