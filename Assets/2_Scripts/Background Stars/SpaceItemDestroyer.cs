@@ -229,55 +229,6 @@ public class SpaceItemDestroyer : MonoBehaviour
         return itemsBeingDestroyed.Count;
     }
     
-    void OnDrawGizmos()
-    {
-        // Draw the destruction zone in scene view
-        Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
-        
-        // Get the collider bounds for accurate gizmo drawing
-        Collider col = GetComponent<Collider>();
-        if (col != null)
-        {
-            if (col is BoxCollider boxCol)
-            {
-                Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale);
-                Gizmos.DrawCube(boxCol.center, boxCol.size);
-                
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireCube(boxCol.center, boxCol.size);
-            }
-            else
-            {
-                // Fallback for other collider types
-                Gizmos.DrawCube(transform.position, transform.localScale);
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireCube(transform.position, transform.localScale);
-            }
-        }
-        else
-        {
-            // Fallback if no collider
-            Gizmos.DrawCube(transform.position, Vector3.one);
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(transform.position, Vector3.one);
-        }
-        
-        Gizmos.matrix = Matrix4x4.identity;
-    }
-    
-    void OnGUI()
-    {
-        // Display destroyer statistics in game view (remove this in production)
-        if (Application.isPlaying && useObjectPool)
-        {
-            int processingCount = GetProcessingCount();
-            if (processingCount > 0)
-            {
-                GUILayout.BeginArea(new Rect(10, 250, 300, 100));
-                GUILayout.Label("Item Destroyer Stats:", new GUIStyle(GUI.skin.label) { fontSize = 12, fontStyle = FontStyle.Bold });
-                GUILayout.Label($"Items Being Processed: {processingCount}");
-                GUILayout.EndArea();
-            }
-        }
-    }
+
+
 }

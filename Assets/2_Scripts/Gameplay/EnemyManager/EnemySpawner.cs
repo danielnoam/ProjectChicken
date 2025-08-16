@@ -341,10 +341,9 @@ public class EnemySpawner : MonoBehaviour
         if (spawnAreaBlocker)
         {
             // Check if blocker is completely inside the big area
-            if (!spawnAreaBig.bounds.Contains(spawnAreaBlocker.bounds.min) || 
-                !spawnAreaBig.bounds.Contains(spawnAreaBlocker.bounds.max))
+            if (!spawnAreaBig.bounds.Contains(spawnAreaBlocker.bounds.min) || !spawnAreaBig.bounds.Contains(spawnAreaBlocker.bounds.max))
             {
-                Debug.LogWarning($"EnemySpawner: Blocker area extends outside the big spawn area. This may cause spawning issues.");
+                // Debug.LogWarning($"EnemySpawner: Blocker area extends outside the big spawn area. This may cause spawning issues.");
             }
         }
     }
