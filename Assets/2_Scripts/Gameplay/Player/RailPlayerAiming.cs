@@ -40,6 +40,7 @@ public class RailPlayerAiming : MonoBehaviour
     private Vector2 _normalizedAimPosition;
     private Vector3 _aimDirection;
     private ChickenController _currentAimLockTarget;
+    private Coroutine _autoCenterRoutine;
     private float CrosshairBoundaryX => player.GameSettings ? player.GameSettings.EnemyBoundary.x : 25f;
     private float CrosshairBoundaryY => player.GameSettings ? player.GameSettings.EnemyBoundary.y : 15f;
 
@@ -105,12 +106,14 @@ public class RailPlayerAiming : MonoBehaviour
     private void OnDeath()
     {
         _allowAiming = false;
-        StartCoroutine(ReturnToCenter());
+        _autoCenterRoutine = StartCoroutine(ReturnToCenter());
     }
     
     private void OnStageChanged(SOLevelStage stage)
     {
         if (!stage) return;
+        
+        if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
 
         if (_allowAiming != stage.AllowPlayerShootingAndAiming)
         {
@@ -118,7 +121,7 @@ public class RailPlayerAiming : MonoBehaviour
 
             if (!stage.AllowPlayerShootingAndAiming)
             {
-                StartCoroutine(ReturnToCenter());
+                _autoCenterRoutine = StartCoroutine(ReturnToCenter());
             }
         }
     }

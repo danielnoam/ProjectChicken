@@ -19,13 +19,13 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 {
     [Header("Weapons Settings")]
     [Tooltip("If true, the player can use the start weapon with a special weapon, using a different button.")]
-    [SerializeField] private bool allowStartWeaponWithSpecialWeapon = true;
+    [SerializeField] private bool allowStartWeaponWithSpecialWeapon;
     [Tooltip("Special weapons are permanent, and don't change after limit reached (heat, ammo, time)")]
     [SerializeField] private bool specialWeaponsArePermanent = true;
     [SerializeField] private List<WeaponInstance> weapons = new List<WeaponInstance>();
     
     [Foldout("Heat System")]
-    [SerializeField, Min(0f)] private float maxHeat = 100f;
+    [SerializeField, Min(0f)] private float baseMaxHeat = 100f;
     [SerializeField, Min(0.1f)] private float timeBeforeRegen = 1f;
     [SerializeField, Min(0.1f)] private float heatRegenRate = 15f;
     [SerializeField] private bool switchingWeaponsResetsHeat = true;
@@ -53,10 +53,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [EndIf]
     [EndFoldout]
     
-    [Foldout("Reticles")]
+    [Foldout("Target Reticle")]
     [SerializeField] private float targetReticleAimLockSize = 2.5f;
     [SerializeField] private float targetReticleAimLockDuration = 0.6f;
-    [SerializeField] private float targetReticleOverheatPunchStrength = 1f;
+    [SerializeField] private float targetReticleOverheatPunchStrength = 1.2f;
     [SerializeField] private float targetReticlePunchStrength = 0.2f;
     [SerializeField] private float targetReticlePunchDuration = 0.3f;
     [EndFoldout]
@@ -100,10 +100,11 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private float _specialWeaponFireRateCooldown;
     private float _specialWeaponTime;
     private float _specialWeaponAmmo;
+    private float _maxHeat;
     
     
     public bool IsOverHeated => _overHeated || _overHeatedCooldown;
-    public float MaxWeaponHeat => maxHeat;
+    public float MaxWeaponHeat => _maxHeat;
     public WeaponInstance BaseWeaponInstance => _baseWeaponInstance;
     public WeaponInstance CurrentSpecialWeaponInstance => _currentSpecialWeaponInstance;
 
@@ -156,6 +157,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
         
         _allowShooting = true;
+        _maxHeat = baseMaxHeat;
+        _currentHeat = 0f;
 
     }
 
@@ -253,6 +256,22 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
     }
     
+    private void OnDodge()
+    {
+        if (!dodgeReleasesHeat || _currentHeat <= 0 || _overHeated) return;
+        
+        _currentHeat -= heatReleased;
+        
+        if (_currentHeat < 0)
+        {
+            _currentHeat = 0;
+        }
+        OnWeaponHeatUpdatedEvent?.Invoke(_currentHeat);
+        weaponHeatResetSfx?.Play(audioSource);
+    }
+
+
+    
     private void RestartedFromSavePoint(SavePointInformation savePoint)
     {
         if (savePoint == null) return;
@@ -292,7 +311,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void OnHeatUpdated(float heat)
     {
-        var normalizedHeat = heat / maxHeat;
+        var normalizedHeat = heat / _maxHeat;
         targetReticle?.SetEmissionStrength(normalizedHeat);
         _activeWeaponInstance?.OnHeatChanged(normalizedHeat);
     }
@@ -339,7 +358,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             
             _currentHeat += _baseWeaponInstance.WeaponData.HeatPerShot;
             _lastFireTimer = timeBeforeRegen;
-            if (_currentHeat >= maxHeat)
+            if (_currentHeat >= _maxHeat)
             {
                 SetOverheating();
             }
@@ -412,7 +431,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
                 _currentHeat += _currentSpecialWeaponInstance.WeaponData.HeatPerShot;
                 _lastFireTimer = timeBeforeRegen;
-                if (_currentHeat >= maxHeat)
+                if (_currentHeat >= _maxHeat)
                 {
                     SetOverheating(); 
                 }
@@ -518,7 +537,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
     
         _overHeatCooldownRoutine = StartCoroutine(OverHeatCooldownRoutine());
-        _currentHeat = maxHeat;
+        _currentHeat = _maxHeat;
         _lastFireTimer = timeBeforeRegen;
         _overHeated = true;
         _overHeatedCooldown = false;
@@ -574,7 +593,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         weaponHeatMiniGameFail?.Play(audioSource);
         _currentHeat += miniGameFailHeat;
         OnWeaponHeatMiniGameFailedEvent?.Invoke();
-        if (_currentHeat >= maxHeat)
+        if (_currentHeat >= _maxHeat)
         {
             SetOverheating();
         }
@@ -585,14 +604,14 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         float cooldownTime = overHeatCooldown * 0.4f;
         float baseRegenTime = overHeatCooldown * 0.6f;
-        _currentHeat = maxHeat;
+        _currentHeat = _maxHeat;
         float heatToRegenerate = _currentHeat;
         if (heatToRegenerate <= 0.1f)
         {
             ResetHeat();
             yield break;
         }
-        float actualRegenTime = Mathf.Max(0.1f, (heatToRegenerate / maxHeat) * baseRegenTime);
+        float actualRegenTime = Mathf.Max(0.1f, (heatToRegenerate / _maxHeat) * baseRegenTime);
         float regenRate = heatToRegenerate / actualRegenTime;
         
         float miniGameDuration;
@@ -660,22 +679,20 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         ResetHeat();
     }
-
-    private void OnDodge()
+    
+    
+    public void AddMaxHeatUpgrade(float amount)
     {
-        if (!dodgeReleasesHeat || _currentHeat <= 0 || _overHeated) return;
-        
-        _currentHeat -= heatReleased;
-        
-        if (_currentHeat < 0)
+        _maxHeat += amount;
+        if (_maxHeat > player.GameSettings.MaxPlayerHeat)
         {
-            _currentHeat = 0;
+            _maxHeat = player.GameSettings.MaxPlayerHeat;
         }
-        OnWeaponHeatUpdatedEvent?.Invoke(_currentHeat);
-        weaponHeatResetSfx?.Play(audioSource);
+        
+        ResetHeat();
     }
-    
-    
+
+
     
 
 
@@ -857,7 +874,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     #endregion Input Handling --------------------------------------------------------------------------------------
 
-    
+
+
 }
 
 

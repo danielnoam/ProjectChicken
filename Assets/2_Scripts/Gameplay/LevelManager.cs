@@ -73,6 +73,8 @@ public class LevelManager : MonoBehaviour
         {
             storeManager = FindFirstObjectByType<StoreManager>();
         }
+
+        UpdatePlayerAndEnemyPositions();
     }
 
     private void Awake()
@@ -84,7 +86,6 @@ public class LevelManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
-            return;
         }
     }
 
@@ -346,17 +347,8 @@ public class LevelManager : MonoBehaviour
     
     private void UpdatePlayerAndEnemyPositions()
     {
-        if (!currentStage)
-        {
-            enemyPosition = Vector3.forward * gameSettings.EnemyPositionMultiplier;
-            playerPosition = Vector3.forward * gameSettings.PlayerPositionMultiplier;
-            
-        }
-        else
-        {
-            enemyPosition = (Vector3.forward + currentStage.EnemyPositionOffset) * gameSettings.EnemyPositionMultiplier;
-            playerPosition = (Vector3.forward + currentStage.PlayerPositionOffset) * gameSettings.PlayerPositionMultiplier;
-        }
+        enemyPosition = (Vector3.forward + gameSettings.EnemyBoundaryOffset) * gameSettings.EnemyPositionMultiplier;
+        playerPosition = (Vector3.forward + gameSettings.PlayerBoundaryOffset) * gameSettings.PlayerPositionMultiplier;
     }
 
 
@@ -376,7 +368,7 @@ public class LevelManager : MonoBehaviour
         if (_bonusThresholdCounter <= 0)
         {
             OnBonusThresholdReached?.Invoke();
-            _bonusThresholdCounter = gameSettings.BonusThreshold;
+            _bonusThresholdCounter = gameSettings.ScoreBonusThreshold;
         }
 
     }
@@ -384,7 +376,7 @@ public class LevelManager : MonoBehaviour
     private void ResetScore()
     {
         _currentScore = 0;
-        _bonusThresholdCounter = gameSettings.BonusThreshold;
+        _bonusThresholdCounter = gameSettings.ScoreBonusThreshold;
         
         OnScoreChanged?.Invoke(_currentScore);
     }
@@ -406,10 +398,6 @@ public class LevelManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        
-        
-        
-        if (!Application.isPlaying) return;
         // Draw player position
         Gizmos.color = Color.green;
         Gizmos.DrawSphere(playerPosition, 0.3f);

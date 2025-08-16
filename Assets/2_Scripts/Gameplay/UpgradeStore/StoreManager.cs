@@ -88,8 +88,6 @@ public class StoreManager : MonoBehaviour
             _upgradeEggs.Add(egg);
             egg.OnUpgradeSelected += OnUpgradeSelected;
         }
-        
-        // Update the available pool of upgrades
 
     }
 
@@ -223,16 +221,17 @@ public class StoreManager : MonoBehaviour
     private void SetStoreUpgradesPool(List<SOUpgradeBase> newPool)
     {
         if (newPool is not { Count: > 0 }) return;
-    
+
         _storeUpgradesPool.Clear();
 
         foreach (var upgrade in newPool)
         {
+            
             if (!upgrade) continue;
-        
-  
+            if (player.HasUpgrade(upgrade.ItemID)) continue;
+
             bool hasRequiredItems = true;
-        
+    
             if (upgrade.ItemNeededToUnlock is { Length: > 0 })
             {
                 foreach (var requiredItem in upgrade.ItemNeededToUnlock)
@@ -244,7 +243,7 @@ public class StoreManager : MonoBehaviour
                     }
                 }
             }
-            
+        
             if (hasRequiredItems)
             {
                 _storeUpgradesPool.Add(upgrade);
@@ -255,19 +254,24 @@ public class StoreManager : MonoBehaviour
     private void SetEggsUpgrades()
     {
         var tempPool = new List<SOUpgradeBase>(_storeUpgradesPool);
-    
-        for (var index = 0; index < _upgradeEggs.Count; index++)
+        var validEggCount = Mathf.Min(_upgradeEggs.Count, tempPool.Count);
+
+        for (var index = 0; index < validEggCount; index++)
         {
             var egg = _upgradeEggs[index];
             var upgrade = GetUpgradeFromPool(tempPool);
-        
-            if (upgrade)
-            {
-                tempPool.Remove(upgrade);
-            }
-        
+
+            if (!upgrade) continue;
+            tempPool.Remove(upgrade);
             var index1 = index;
             _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade, index1 * 0.5f));
+        }
+    
+        // Hide remaining eggs that don't have upgrades
+        for (var index = validEggCount; index < _upgradeEggs.Count; index++)
+        {
+            var egg = _upgradeEggs[index];
+            _storeSequence.ChainCallback(() => egg.Reset(true));
         }
     }
     

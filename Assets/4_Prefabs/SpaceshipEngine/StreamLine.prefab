@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2788241166667087497}
   - component: {fileID: 4828117754412435414}
   - component: {fileID: 5588954687751909411}
-  - component: {fileID: 697053860365202462}
   m_Layer: 8
   m_Name: StreamLine
   m_TagString: Untagged
@@ -4835,19 +4834,3 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &697053860365202462
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6988321142249832546}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5416f86353350e04c94c969c03979e04, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Jitter: 0.1
-  StreamLineMovementDistance: {x: 0, y: 1, z: 0}
-  StreamLineStartLocation: {fileID: 0}
-  SpaceshipTransform: {fileID: 0}

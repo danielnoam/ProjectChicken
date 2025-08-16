@@ -18,7 +18,6 @@ MonoBehaviour:
   showHUD: 1
   allowPlayerMovement: 0
   allowPlayerShootingAndAiming: 0
-  playerPositionOffset: {x: 0, y: 0, z: 0}
   stageType: 1
   stageDuration: 5
   upgradesPool:
@@ -34,7 +33,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 51ca2963f2cea7943a3a350a00b0dee5, type: 2}
   - {fileID: 11400000, guid: 85cde709a65e11a4285e307636799abb, type: 2}
   - {fileID: 11400000, guid: 5fd2ebb25c87fa547bc5c087a3dfb75d, type: 2}
-  enemyPositionOffset: {x: 0, y: 0, z: 0}
+  - {fileID: 11400000, guid: afdb479ba8d405b4d9f3b4f351e6f278, type: 2}
+  - {fileID: 11400000, guid: 3b6370a96f1e8d04fae2fe1fdcc5614e, type: 2}
+  - {fileID: 11400000, guid: 2c87496b851da1c4588f2b1c6b034814, type: 2}
+  - {fileID: 11400000, guid: e1d77b5c74f521645983a6bca8641d0b, type: 2}
   delayBeforeNextStage: 1
   enemyWave:
     serializedKvps: []

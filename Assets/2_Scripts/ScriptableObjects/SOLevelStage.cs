@@ -15,7 +15,7 @@ public class SOLevelStage : ScriptableObject
     [SerializeField] private bool showHUD = true;
     [SerializeField] private bool allowPlayerMovement = true;
     [SerializeField] private bool allowPlayerShootingAndAiming = true;
-    [SerializeField] private Vector3 playerPositionOffset;
+
     
     [Header("Type")]
     [SerializeField] private StageType stageType;
@@ -29,7 +29,6 @@ public class SOLevelStage : ScriptableObject
     [EndIf]
     
     [ShowIf("stageType", StageType.EnemyWave)]
-    [SerializeField] private Vector3 enemyPositionOffset;
     [SerializeField, Min(0)] private float delayBeforeNextStage = 1f;
     [SerializeField] private SerializedDictionary<ChickenController,int> enemyWave = new SerializedDictionary<ChickenController, int>();
     [SerializeField] private FormationSettings formationSettings = new FormationSettings();
@@ -44,14 +43,13 @@ public class SOLevelStage : ScriptableObject
     public SOVFEffectsSequence StageVFXSequence => stageVFXSequence;
     public string StageTitle => stageTitle;
     public SerializedDictionary<ChickenController, int> EnemyWave => enemyWave;
-    public Vector3 EnemyPositionOffset => enemyPositionOffset;
     public float DelayBeforeNextStage => delayBeforeNextStage;
     public FormationSettings FormationSettings => formationSettings;
     public bool IsTimeBasedStage => stageType is StageType.Checkpoint or StageType.Intro or StageType.Outro;
     public bool IsSavePointStage => stageType is StageType.Intro or StageType.Checkpoint or StageType.Store;
     public bool AllowPlayerMovement => allowPlayerMovement;
     public bool AllowPlayerShootingAndAiming => allowPlayerShootingAndAiming;
-    public Vector3 PlayerPositionOffset => playerPositionOffset;
+
     public bool ShowHUD => showHUD;
     public  SOUpgradeBase[] UpgradesPool => upgradesPool;
     

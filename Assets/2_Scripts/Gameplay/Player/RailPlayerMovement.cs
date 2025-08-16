@@ -29,7 +29,7 @@ public class RailPlayerMovement : MonoBehaviour
     [Header("Dodge Settings")]
     [SerializeField] private bool enableDodging = true;
     [EnableIf("enableDodging")]
-    [SerializeField, Range(1,5)] private int maxDodgeAccumulation = 2;
+    [SerializeField] private int baseDodgeAccumulation = 1;
     [SerializeField, Min(0)] private float dodgeAccumulationRate = 2;
     [SerializeField, Min(0)] private float dodgeMoveSpeed = 65f;
     [SerializeField, Min(0)] private float dodgeDuration = 0.4f;
@@ -58,6 +58,7 @@ public class RailPlayerMovement : MonoBehaviour
     private Vector3 _currentOffsetFromSpline = Vector3.zero;
     private bool _isDodging;
     private int _currentDodgeRemining;
+    private int _maxDodgeAccumulation;
     private float _dodgeAccumulationRateTimer;
     private float _dodgeCooldownTimer;
     private float _dodgeTimeCounter;
@@ -65,6 +66,7 @@ public class RailPlayerMovement : MonoBehaviour
     private Vector3 _dodgeDirection;
     private Tween _dodgeTween;
     private Vector2 _normalizedMovementPosition;
+    private Coroutine _autoCenterRoutine;
     private float MovementBoundaryX => player.GameSettings ? player.GameSettings.PlayerBoundary.x : 10f;
     private float MovementBoundaryY => player.GameSettings ? player.GameSettings.PlayerBoundary.y : 6f;
     
@@ -81,7 +83,8 @@ public class RailPlayerMovement : MonoBehaviour
     private void Awake()
     {
         _allowMovement = true;
-        _currentDodgeRemining = maxDodgeAccumulation;
+        _maxDodgeAccumulation = baseDodgeAccumulation;
+        _currentDodgeRemining = baseDodgeAccumulation;
     }
 
     private void Start()
@@ -101,7 +104,7 @@ public class RailPlayerMovement : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged += OnStageChanged;
-            player.LevelManager.OnRestartedFromSavePoint += (information => { _currentDodgeRemining = maxDodgeAccumulation;});
+            player.LevelManager.OnRestartedFromSavePoint += OnRestartedFromSavePoint;
         }
         
     }
@@ -117,8 +120,14 @@ public class RailPlayerMovement : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged -= OnStageChanged;
-            player.LevelManager.OnRestartedFromSavePoint -= (information => { _currentDodgeRemining = maxDodgeAccumulation;});
+            player.LevelManager.OnRestartedFromSavePoint -= OnRestartedFromSavePoint;
         }
+    }
+
+
+    private void OnRestartedFromSavePoint(SavePointInformation savePointInformation)
+    {
+        _currentDodgeRemining = _maxDodgeAccumulation;
     }
 
     private void Update()
@@ -135,12 +144,14 @@ public class RailPlayerMovement : MonoBehaviour
     private void OnDeath()
     {
         _allowMovement = false;
-        StartCoroutine(ReturnToCenter());
+        _autoCenterRoutine = StartCoroutine(ReturnToCenter());
     }
     
     private void OnStageChanged(SOLevelStage stage)
     {
         if (!stage) return;
+
+        if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
 
         if (_allowMovement != stage.AllowPlayerMovement)
         {
@@ -148,7 +159,7 @@ public class RailPlayerMovement : MonoBehaviour
 
             if (!stage.AllowPlayerMovement)
             {
-                StartCoroutine(ReturnToCenter());
+                _autoCenterRoutine = StartCoroutine(ReturnToCenter());
             }
         }
 
@@ -221,14 +232,9 @@ public class RailPlayerMovement : MonoBehaviour
         float inputRoll = -_horizontalInput * maxRollAmount;
         Quaternion targetVelocityRotation = Quaternion.Euler(0f, 0f, inputRoll);
     
-        if (_horizontalInput != 0f)
-        {
-            _velocityRotation = Quaternion.Slerp(_velocityRotation, targetVelocityRotation, rollSpeed * Time.deltaTime);
-        }
-        else
-        {
-            _velocityRotation = Quaternion.Slerp(_velocityRotation, targetVelocityRotation, rollSpeed / 2 * Time.deltaTime);
-        }
+        _velocityRotation = _horizontalInput != 0f 
+            ? Quaternion.Slerp(_velocityRotation, targetVelocityRotation, rollSpeed * Time.deltaTime) 
+            : Quaternion.Slerp(_velocityRotation, targetVelocityRotation, rollSpeed / 2 * Time.deltaTime);
 
         // Aim rotation from aiming (only pitch and yaw)
         if (playerAiming)
@@ -308,7 +314,7 @@ public class RailPlayerMovement : MonoBehaviour
         }
         
         // Accumulate dodges
-        if (!_isDodging && _dodgeAccumulationRateTimer > 0f && _currentDodgeRemining < maxDodgeAccumulation)
+        if (!_isDodging && _dodgeAccumulationRateTimer > 0f && _currentDodgeRemining < _maxDodgeAccumulation)
         {
             _dodgeAccumulationRateTimer -= Time.deltaTime;
             
@@ -347,6 +353,20 @@ public class RailPlayerMovement : MonoBehaviour
             endValue: targetRoll,
             settings: dodgeTweenSettings
         );
+    }
+    
+    
+    public void AddDodgeAccumulationUpgrade(int amount)
+    {
+        _maxDodgeAccumulation += amount;
+        if (_maxDodgeAccumulation > player.GameSettings.MaxPlayerDodgeAccumulation)
+        {
+            _maxDodgeAccumulation = player.GameSettings.MaxPlayerDodgeAccumulation;
+        }
+        
+        _dodgeAccumulationRateTimer = dodgeAccumulationRate;
+        _currentDodgeRemining = _maxDodgeAccumulation;
+        OnDodgeCountChanged?.Invoke(_currentDodgeRemining);
     }
     
 

@@ -20,9 +20,8 @@ using VInspector;
 public class RailPlayer : MonoBehaviour
 {
     [Header("Health")]
-    [SerializeField, Min(0)] private int baseHealth = 3;
+    [SerializeField, Min(0)] private int baseHealth = 2;
     [SerializeField] private bool dodgingGivesInvincibility = true;
-    [SerializeField] private bool receiveHealthOnBonusThreshold = true;
     
     [Header("Shield")]
     [SerializeField, Min(0)] private float baseShield = 100f;
@@ -118,7 +117,6 @@ public class RailPlayer : MonoBehaviour
 
     private void OnEnable()
     {
-        levelManager.OnBonusThresholdReached += OnScoreReachedBonusThreshold;
         levelManager.OnStageChanged += OnStageChanged;
         levelManager.OnRestartedFromSavePoint += RestartedFromSavePoint;
         playerInput.OnPauseActionEvent += OnPauseAction;
@@ -126,7 +124,6 @@ public class RailPlayer : MonoBehaviour
 
     private void OnDisable()
     {
-        levelManager.OnBonusThresholdReached -= OnScoreReachedBonusThreshold;
         levelManager.OnStageChanged -= OnStageChanged;
         levelManager.OnRestartedFromSavePoint -= RestartedFromSavePoint;
         playerInput.OnPauseActionEvent -= OnPauseAction;
@@ -171,12 +168,6 @@ public class RailPlayer : MonoBehaviour
         OnShieldChanged?.Invoke(CurrentShield);
     }
     
-    private void OnScoreReachedBonusThreshold()
-    {
-        if (!receiveHealthOnBonusThreshold) return;
-        
-        HealHealth(1);
-    }
     
     private void OnPauseAction(InputAction.CallbackContext context)
     {
@@ -206,7 +197,7 @@ public class RailPlayer : MonoBehaviour
         
         StopShieldRegen();
         
-        if (HasShield())
+        if (ShieldActive())
         {
             DamageShield(damage);
             return;
@@ -327,13 +318,13 @@ public class RailPlayer : MonoBehaviour
 
     private void StartShieldRegen()
     {
-        _regenShieldCoroutine ??= StartCoroutine(RegenShieldRoutine());
+        _regenShieldCoroutine = StartCoroutine(RegenShieldRoutine());
         _damagedCooldown = 0;
     }
     
     private void DamageShield(float damage)
     {
-        if (damage <= 0 || !HasShield()) return;
+        if (damage <= 0 || !ShieldActive()) return;
         
         CurrentShield -= damage;
 
@@ -425,6 +416,18 @@ public class RailPlayer : MonoBehaviour
         weaponSystem.AddWeaponUpgrade(weaponUpgrade);
     }
     
+    public void AddMaxHeatUpgrade(SOUpgradeBase upgrade, float amount)
+    {
+        Upgrades.Add(upgrade);
+        weaponSystem.AddMaxHeatUpgrade(amount);
+    }
+
+    public void AddDodgeUpgrade(SOUpgradeBase upgrade, int amount)
+    {
+        Upgrades.Add(upgrade);
+        playerMovement.AddDodgeAccumulationUpgrade(amount);
+    }
+    
     public bool HasUpgrade(int itemID)
     {
         if (itemID == 0 || Upgrades.Count <= 0) return false;
@@ -458,7 +461,7 @@ public class RailPlayer : MonoBehaviour
     
     #region Helper Methods --------------------------------------------------------------------------------------
 
-    public bool HasShield()
+    public bool ShieldActive()
     {
         return CurrentShield > 0;
     }
