@@ -190,30 +190,48 @@ public class EnemySpawner : MonoBehaviour
     {
         if (!enemyPrefab) return;
 
-        var enemyObject = ObjectPooler.GetObjectFromPool(enemyPrefab.gameObject);
+        // Get a valid spawn position FIRST
+        Vector3 spawnPosition = GetValidSpawnPosition();
+        
+        // Pass the spawn position to the object pooler
+        var enemyObject = ObjectPooler.GetObjectFromPool(enemyPrefab.gameObject, spawnPosition);
+        
         if (enemyObject.TryGetComponent<ChickenController>(out var enemy))
         {
-            // Get a valid spawn position
-            Vector3 spawnPosition = GetValidSpawnPosition();
+            // Force immediate positioning to prevent any visual glitches
+            ForceImmediatePosition(enemy, spawnPosition);
             
-            // Simple positioning - chickens will handle their own movement to outer areas
-            enemy.transform.position = spawnPosition;
-            
-            // Clear any residual velocities
-            Rigidbody rb = enemy.GetComponent<Rigidbody>();
-            if (rb != null)
+            // Set spawn point for the chicken's behavior system WITHOUT moving the chicken
+            // We need to set the spawn point reference but not override the current position
+            if (enemy.GetComponent<ChickenIdleBehavior>() != null)
             {
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
+                enemy.GetComponent<ChickenIdleBehavior>().SetSpawnPoint(enemySpawnPosition);
             }
             
-            // Set spawn point for the chicken's behavior system  
-            enemy.SetSpawnPoint(enemySpawnPosition);
+            // DON'T call enemy.SetSpawnPoint() as it overrides position
             
             // Add to tracking
             enemy.OnDeath += UpdateEnemyCount;
             _activeEnemies.Add(enemy);
         }
+    }
+
+    // Force immediate positioning before any frame updates
+    private void ForceImmediatePosition(ChickenController enemy, Vector3 targetPosition)
+    {
+        if (!enemy) return;
+
+        Rigidbody rb = enemy.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            // Use the most direct approach for rigidbody positioning
+            rb.position = targetPosition;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+        
+        // Also set transform position as backup
+        enemy.transform.position = targetPosition;
     }
 
     // Get a valid spawn position within the big collider but outside the blocker
@@ -404,8 +422,4 @@ public class EnemySpawner : MonoBehaviour
         // Visual indicator in scene view
         Debug.DrawRay(testPosition, Vector3.up * 2f, Color.magenta, 2f);
     }
-    
-
-    
-
 }
