@@ -8,8 +8,6 @@ public class FormationCreator : MonoBehaviour
 {
     public enum FormationType
     {
-        Cross,
-        Multiply,
         Square,
         Circle,
         Triangle,
@@ -17,16 +15,12 @@ public class FormationCreator : MonoBehaviour
     }
 
     [Header("Formation Settings")]
-    public FormationType currentFormation = FormationType.Cross;
+    public FormationType currentFormation = FormationType.Square;
     
     [Header("Formation Spacing")]
-    public float crossSpacing = 1f; // Spacing for Cross formation
-    public float multiplySpacing = 1f; // Spacing for Multiply formation
     public float spacing = 2f; // For Square, Triangle, VShape formations
     
     [Header("Formation Sizes")]
-    public int crossSlotsPerSide = 2; // Size control for Cross formation
-    public int multiplySlotsPerSide = 2; // Size control for Multiply formation
     public int slotsPerSide = 3; // For Square, Triangle, VShape formations
     public float circleRadius = 3f;
     
@@ -54,8 +48,6 @@ public class FormationCreator : MonoBehaviour
     private List<Vector2> formationCenters = new List<Vector2>(); // Centers of placed formations
     private List<Vector2> formationBounds = new List<Vector2>(); // Bounds of placed formations
     private BoxCollider2D boxCollider2D;
-    private float effectiveCrossSpacing;
-    private float effectiveMultiplySpacing;
     private float effectiveSpacing;
     private float effectiveRadius;
     private float effectiveFormationSpacing;
@@ -100,8 +92,6 @@ public class FormationCreator : MonoBehaviour
     {
         if (!fitWithinCollider || boxCollider2D == null)
         {
-            effectiveCrossSpacing = crossSpacing;
-            effectiveMultiplySpacing = multiplySpacing;
             effectiveSpacing = spacing;
             effectiveRadius = circleRadius;
             effectiveFormationSpacing = formationSpacing;
@@ -122,8 +112,6 @@ public class FormationCreator : MonoBehaviour
             // Use the smaller scale to ensure it fits in both dimensions
             float uniformScale = Mathf.Min(scaleX, scaleY, 1f); // Don't scale up, only down
             
-            effectiveCrossSpacing = crossSpacing * uniformScale;
-            effectiveMultiplySpacing = multiplySpacing * uniformScale;
             effectiveSpacing = spacing * uniformScale;
             effectiveRadius = circleRadius * uniformScale;
             effectiveFormationSpacing = formationSpacing * uniformScale;
@@ -150,8 +138,6 @@ public class FormationCreator : MonoBehaviour
             // Use the smaller scale to ensure it fits in both dimensions
             float uniformScale = Mathf.Min(scaleX, scaleY, 1f); // Don't scale up, only down
             
-            effectiveCrossSpacing = crossSpacing * uniformScale;
-            effectiveMultiplySpacing = multiplySpacing * uniformScale;
             effectiveSpacing = spacing * uniformScale;
             effectiveRadius = circleRadius * uniformScale;
             effectiveFormationSpacing = formationSpacing * uniformScale;
@@ -163,13 +149,6 @@ public class FormationCreator : MonoBehaviour
     {
         switch (currentFormation)
         {
-            case FormationType.Cross:
-                return new Vector2(crossSlotsPerSide * crossSpacing * 2, crossSlotsPerSide * crossSpacing * 2);
-                
-            case FormationType.Multiply:
-                float diagonalDistance = multiplySlotsPerSide * multiplySpacing * 1.414f; // sqrt(2)
-                return new Vector2(diagonalDistance * 2, diagonalDistance * 2);
-                
             case FormationType.Square:
                 int halfSize = slotsPerSide / 2;
                 return new Vector2(halfSize * spacing * 2, halfSize * spacing * 2);
@@ -207,12 +186,6 @@ public class FormationCreator : MonoBehaviour
         
         switch (currentFormation)
         {
-            case FormationType.Cross:
-                GenerateCrossFormation(baseFormation);
-                break;
-            case FormationType.Multiply:
-                GenerateMultiplyFormation(baseFormation);
-                break;
             case FormationType.Square:
                 GenerateSquareFormation(baseFormation);
                 break;
@@ -358,13 +331,6 @@ public class FormationCreator : MonoBehaviour
     {
         switch (currentFormation)
         {
-            case FormationType.Cross:
-                return new Vector2(crossSlotsPerSide * effectiveCrossSpacing * 2, crossSlotsPerSide * effectiveCrossSpacing * 2);
-                
-            case FormationType.Multiply:
-                float diagonalDistance = multiplySlotsPerSide * effectiveMultiplySpacing * 1.414f; // sqrt(2)
-                return new Vector2(diagonalDistance * 2, diagonalDistance * 2);
-                
             case FormationType.Square:
                 int halfSize = slotsPerSide / 2;
                 return new Vector2(halfSize * effectiveSpacing * 2, halfSize * effectiveSpacing * 2);
@@ -384,44 +350,6 @@ public class FormationCreator : MonoBehaviour
                 
             default:
                 return Vector2.zero;
-        }
-    }
-
-    void GenerateCrossFormation(List<Vector3> formation)
-    {
-        // Center slot
-        formation.Add(Vector3.zero);
-        
-        // Horizontal line
-        for (int i = 1; i <= crossSlotsPerSide; i++)
-        {
-            formation.Add(new Vector3(i * effectiveCrossSpacing, 0, 0));
-            formation.Add(new Vector3(-i * effectiveCrossSpacing, 0, 0));
-        }
-        
-        // Vertical line
-        for (int i = 1; i <= crossSlotsPerSide; i++)
-        {
-            formation.Add(new Vector3(0, i * effectiveCrossSpacing, 0));
-            formation.Add(new Vector3(0, -i * effectiveCrossSpacing, 0));
-        }
-    }
-
-    void GenerateMultiplyFormation(List<Vector3> formation)
-    {
-        // Center slot
-        formation.Add(Vector3.zero);
-        
-        // Diagonal lines
-        for (int i = 1; i <= multiplySlotsPerSide; i++)
-        {
-            // Top-right to bottom-left diagonal
-            formation.Add(new Vector3(i * effectiveMultiplySpacing, i * effectiveMultiplySpacing, 0));
-            formation.Add(new Vector3(-i * effectiveMultiplySpacing, -i * effectiveMultiplySpacing, 0));
-            
-            // Top-left to bottom-right diagonal
-            formation.Add(new Vector3(-i * effectiveMultiplySpacing, i * effectiveMultiplySpacing, 0));
-            formation.Add(new Vector3(i * effectiveMultiplySpacing, -i * effectiveMultiplySpacing, 0));
         }
     }
 
@@ -602,12 +530,6 @@ public class FormationCreatorEditor : UnityEditor.Editor
             string sizeInfo = "";
             switch (formationCreator.currentFormation)
             {
-                case FormationCreator.FormationType.Cross:
-                    sizeInfo = $"(Size: {formationCreator.crossSlotsPerSide} slots, Spacing: {formationCreator.crossSpacing})";
-                    break;
-                case FormationCreator.FormationType.Multiply:
-                    sizeInfo = $"(Size: {formationCreator.multiplySlotsPerSide} slots, Spacing: {formationCreator.multiplySpacing})";
-                    break;
                 case FormationCreator.FormationType.Square:
                 case FormationCreator.FormationType.Triangle:
                 case FormationCreator.FormationType.VShape:
