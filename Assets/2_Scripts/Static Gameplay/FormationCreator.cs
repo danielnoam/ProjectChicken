@@ -8,8 +8,6 @@ public class FormationCreator : MonoBehaviour
 {
     public enum FormationType
     {
-        Cross,
-        Multiply,
         Square,
         Circle,
         Triangle,
@@ -17,24 +15,50 @@ public class FormationCreator : MonoBehaviour
     }
 
     [Header("Formation Settings")]
-    public FormationType currentFormation = FormationType.Cross;
-    public float spacing = 2f;
-    public int slotsPerSide = 3; // For formations that need size control
+    public FormationType currentFormation = FormationType.Square;
+    
+    [Header("Formation Spacing")]
+    public float spacing = 2f; // For Square, Triangle, VShape formations
+    
+    [Header("Formation Sizes")]
+    public int slotsPerSide = 3; // For Square, Triangle, VShape formations
     public float circleRadius = 3f;
     
+    [Header("Boundary Settings")]
+    public bool fitWithinCollider = true;
+    [Range(0.1f, 1f)]
+    public float boundaryPadding = 0.9f; // How much of the collider to use (90% by default)
+    
     [Header("Multiple Formations")]
-    [Range(1, 3)]
-    public int formationCount = 1; // Number of formations (1-3)
-    public float formationSpacing = 5f; // Distance between multiple formations
+    [Range(1, 10)]
+    public int formationCount = 1; // Number of formations (1-10)
+    public float formationSpacing = 5f; // Minimum distance between formation bounding boxes
+    
+    [Header("Random Placement")]
+    public bool useRandomPlacement = true; // If false, uses old side-by-side placement
+    [Range(10, 1000)]
+    public int maxPlacementAttempts = 100; // Maximum attempts to place formations without overlap
     
     [Header("Gizmo Settings")]
     public Color gizmoColor = Color.red;
     public float gizmoSize = 0.5f;
+    public bool showColliderBounds = true;
 
     private List<Vector3> formationSlots = new List<Vector3>();
+    private List<Vector2> formationCenters = new List<Vector2>(); // Centers of placed formations
+    private List<Vector2> formationBounds = new List<Vector2>(); // Bounds of placed formations
+    private BoxCollider2D boxCollider2D;
+    private float effectiveSpacing;
+    private float effectiveRadius;
+    private float effectiveFormationSpacing;
 
     void Start()
     {
+        boxCollider2D = GetComponent<BoxCollider2D>();
+        if (boxCollider2D == null)
+        {
+            Debug.LogWarning("FormationCreator: No BoxCollider2D found on " + gameObject.name + ". Formations will not be constrained.");
+        }
         GenerateFormation();
     }
 
@@ -44,6 +68,12 @@ public class FormationCreator : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             CycleFormation();
+        }
+        
+        // Regenerate random placements with R key (only in random placement mode)
+        if (Input.GetKeyDown(KeyCode.R) && useRandomPlacement)
+        {
+            GenerateFormation();
         }
     }
 
@@ -57,26 +87,105 @@ public class FormationCreator : MonoBehaviour
         GenerateFormation();
     }
 
+    // Calculate scaling factors to fit within collider bounds
+    void CalculateEffectiveValues()
+    {
+        if (!fitWithinCollider || boxCollider2D == null)
+        {
+            effectiveSpacing = spacing;
+            effectiveRadius = circleRadius;
+            effectiveFormationSpacing = formationSpacing;
+            return;
+        }
+
+        Vector2 colliderSize = boxCollider2D.size * boundaryPadding;
+        
+        if (useRandomPlacement)
+        {
+            // For random placement, scale based on single formation size
+            Vector2 singleFormationBounds = CalculateFormationBounds();
+            
+            // Calculate scaling factors for X and Y
+            float scaleX = singleFormationBounds.x > 0 ? (colliderSize.x / singleFormationBounds.x) : 1f;
+            float scaleY = singleFormationBounds.y > 0 ? (colliderSize.y / singleFormationBounds.y) : 1f;
+            
+            // Use the smaller scale to ensure it fits in both dimensions
+            float uniformScale = Mathf.Min(scaleX, scaleY, 1f); // Don't scale up, only down
+            
+            effectiveSpacing = spacing * uniformScale;
+            effectiveRadius = circleRadius * uniformScale;
+            effectiveFormationSpacing = formationSpacing * uniformScale;
+        }
+        else
+        {
+            // For side-by-side placement, use original logic
+            int actualCount = formationCount;
+
+            // Calculate the theoretical size of the formation without scaling
+            Vector2 formationBoundsCalc = CalculateFormationBounds();
+            
+            // For multiple formations, account for spacing between them
+            if (actualCount > 1)
+            {
+                float totalWidth = formationBoundsCalc.x * actualCount + formationSpacing * (actualCount - 1);
+                formationBoundsCalc.x = totalWidth;
+            }
+
+            // Calculate scaling factors for X and Y
+            float scaleX = formationBoundsCalc.x > 0 ? (colliderSize.x / formationBoundsCalc.x) : 1f;
+            float scaleY = formationBoundsCalc.y > 0 ? (colliderSize.y / formationBoundsCalc.y) : 1f;
+            
+            // Use the smaller scale to ensure it fits in both dimensions
+            float uniformScale = Mathf.Min(scaleX, scaleY, 1f); // Don't scale up, only down
+            
+            effectiveSpacing = spacing * uniformScale;
+            effectiveRadius = circleRadius * uniformScale;
+            effectiveFormationSpacing = formationSpacing * uniformScale;
+        }
+    }
+
+    // Calculate the theoretical bounds of a single formation
+    Vector2 CalculateFormationBounds()
+    {
+        switch (currentFormation)
+        {
+            case FormationType.Square:
+                int halfSize = slotsPerSide / 2;
+                return new Vector2(halfSize * spacing * 2, halfSize * spacing * 2);
+                
+            case FormationType.Circle:
+                return new Vector2(circleRadius * 2, circleRadius * 2);
+                
+            case FormationType.Triangle:
+                float triangleWidth = (slotsPerSide - 1) * spacing;
+                float triangleHeight = (slotsPerSide - 1) * spacing * 0.866f;
+                return new Vector2(triangleWidth, triangleHeight);
+                
+            case FormationType.VShape:
+                float vWidth = slotsPerSide * spacing * 1.414f; // 2 * slotsPerSide * 0.707
+                float vHeight = slotsPerSide * spacing * 0.707f; // sin(45°)
+                return new Vector2(vWidth, vHeight);
+                
+            default:
+                return Vector2.zero;
+        }
+    }
+
     // Generate formation slots based on current formation type
-    void GenerateFormation()
+    public void GenerateFormation()
     {
         formationSlots.Clear();
-
-        // Check if this formation type supports multiple copies
-        bool supportsMultiple = currentFormation != FormationType.Cross && currentFormation != FormationType.Multiply;
-        int actualCount = supportsMultiple ? formationCount : 1;
+        formationCenters.Clear();
+        formationBounds.Clear();
+        
+        // Calculate effective values based on collider constraints
+        CalculateEffectiveValues();
 
         // Generate the base formation
         List<Vector3> baseFormation = new List<Vector3>();
         
         switch (currentFormation)
         {
-            case FormationType.Cross:
-                GenerateCrossFormation(baseFormation);
-                break;
-            case FormationType.Multiply:
-                GenerateMultiplyFormation(baseFormation);
-                break;
             case FormationType.Square:
                 GenerateSquareFormation(baseFormation);
                 break;
@@ -91,6 +200,86 @@ public class FormationCreator : MonoBehaviour
                 break;
         }
 
+        if (useRandomPlacement)
+        {
+            PlaceFormationsRandomly(baseFormation);
+        }
+        else
+        {
+            PlaceFormationsSideBySide(baseFormation);
+        }
+    }
+
+    // Place formations randomly without overlapping
+    void PlaceFormationsRandomly(List<Vector3> baseFormation)
+    {
+        if (boxCollider2D == null)
+        {
+            // If no collider, just place at origin
+            foreach (Vector3 slot in baseFormation)
+            {
+                formationSlots.Add(slot);
+            }
+            return;
+        }
+
+        Vector2 singleFormationBounds = GetSingleFormationBounds();
+        Vector2 colliderSize = boxCollider2D.size * boundaryPadding;
+        Vector2 colliderOffset = boxCollider2D.offset;
+        
+        // Calculate available area for placement (collider area minus formation size and spacing)
+        Vector2 halfFormationSize = singleFormationBounds * 0.5f;
+        Vector2 availableMin = colliderOffset - colliderSize * 0.5f + halfFormationSize;
+        Vector2 availableMax = colliderOffset + colliderSize * 0.5f - halfFormationSize;
+        
+        // Check if even one formation can fit
+        if (availableMin.x >= availableMax.x || availableMin.y >= availableMax.y)
+        {
+            Debug.LogWarning("FormationCreator: Formation too large to fit within collider bounds!");
+            return;
+        }
+
+        int placedCount = 0;
+        int attempts = 0;
+        
+        while (placedCount < formationCount && attempts < maxPlacementAttempts)
+        {
+            attempts++;
+            
+            // Generate random position within available area
+            Vector2 randomCenter = new Vector2(
+                Random.Range(availableMin.x, availableMax.x),
+                Random.Range(availableMin.y, availableMax.y)
+            );
+            
+            // Check if this position overlaps with existing formations
+            if (IsPositionValid(randomCenter, singleFormationBounds))
+            {
+                // Place formation at this position
+                foreach (Vector3 slot in baseFormation)
+                {
+                    Vector3 worldSlot = new Vector3(slot.x + randomCenter.x, slot.y + randomCenter.y, slot.z);
+                    formationSlots.Add(worldSlot);
+                }
+                
+                // Track this formation's position and bounds
+                formationCenters.Add(randomCenter);
+                formationBounds.Add(singleFormationBounds);
+                placedCount++;
+            }
+        }
+        
+        if (placedCount < formationCount)
+        {
+            Debug.LogWarning($"FormationCreator: Could only place {placedCount} out of {formationCount} formations after {maxPlacementAttempts} attempts. Try reducing formation count or increasing collider size.");
+        }
+    }
+
+    // Place formations side by side (original behavior)
+    void PlaceFormationsSideBySide(List<Vector3> baseFormation)
+    {
+        int actualCount = formationCount;
+
         // Position multiple formations side by side
         for (int i = 0; i < actualCount; i++)
         {
@@ -98,7 +287,7 @@ public class FormationCreator : MonoBehaviour
             if (actualCount > 1)
             {
                 // Center the formations around the origin
-                xOffset = (i - (actualCount - 1) * 0.5f) * formationSpacing;
+                xOffset = (i - (actualCount - 1) * 0.5f) * effectiveFormationSpacing;
             }
 
             foreach (Vector3 slot in baseFormation)
@@ -108,41 +297,59 @@ public class FormationCreator : MonoBehaviour
         }
     }
 
-    void GenerateCrossFormation(List<Vector3> formation)
+    // Check if a position is valid (doesn't overlap with existing formations)
+    bool IsPositionValid(Vector2 center, Vector2 bounds)
     {
-        // Center slot
-        formation.Add(Vector3.zero);
-        
-        // Horizontal line
-        for (int i = 1; i <= slotsPerSide; i++)
+        for (int i = 0; i < formationCenters.Count; i++)
         {
-            formation.Add(new Vector3(i * spacing, 0, 0));
-            formation.Add(new Vector3(-i * spacing, 0, 0));
+            if (DoFormationsOverlap(center, bounds, formationCenters[i], formationBounds[i]))
+            {
+                return false;
+            }
         }
-        
-        // Vertical line
-        for (int i = 1; i <= slotsPerSide; i++)
-        {
-            formation.Add(new Vector3(0, i * spacing, 0));
-            formation.Add(new Vector3(0, -i * spacing, 0));
-        }
+        return true;
     }
 
-    void GenerateMultiplyFormation(List<Vector3> formation)
+    // Check if two formations overlap (including spacing buffer)
+    bool DoFormationsOverlap(Vector2 center1, Vector2 bounds1, Vector2 center2, Vector2 bounds2)
     {
-        // Center slot
-        formation.Add(Vector3.zero);
+        // Add formation spacing as buffer
+        Vector2 expandedBounds1 = bounds1 + Vector2.one * effectiveFormationSpacing;
+        Vector2 expandedBounds2 = bounds2 + Vector2.one * effectiveFormationSpacing;
         
-        // Diagonal lines
-        for (int i = 1; i <= slotsPerSide; i++)
+        // Calculate distance between centers
+        Vector2 distance = new Vector2(Mathf.Abs(center1.x - center2.x), Mathf.Abs(center1.y - center2.y));
+        
+        // Check if they overlap
+        Vector2 minDistance = (expandedBounds1 + expandedBounds2) * 0.5f;
+        
+        return distance.x < minDistance.x && distance.y < minDistance.y;
+    }
+
+    // Get the actual bounds of a single formation
+    Vector2 GetSingleFormationBounds()
+    {
+        switch (currentFormation)
         {
-            // Top-right to bottom-left diagonal
-            formation.Add(new Vector3(i * spacing, i * spacing, 0));
-            formation.Add(new Vector3(-i * spacing, -i * spacing, 0));
-            
-            // Top-left to bottom-right diagonal
-            formation.Add(new Vector3(-i * spacing, i * spacing, 0));
-            formation.Add(new Vector3(i * spacing, -i * spacing, 0));
+            case FormationType.Square:
+                int halfSize = slotsPerSide / 2;
+                return new Vector2(halfSize * effectiveSpacing * 2, halfSize * effectiveSpacing * 2);
+                
+            case FormationType.Circle:
+                return new Vector2(effectiveRadius * 2, effectiveRadius * 2);
+                
+            case FormationType.Triangle:
+                float triangleWidth = (slotsPerSide - 1) * effectiveSpacing;
+                float triangleHeight = (slotsPerSide - 1) * effectiveSpacing * 0.866f;
+                return new Vector2(triangleWidth, triangleHeight);
+                
+            case FormationType.VShape:
+                float vWidth = slotsPerSide * effectiveSpacing * 1.414f; // 2 * slotsPerSide * 0.707
+                float vHeight = slotsPerSide * effectiveSpacing * 0.707f; // sin(45°)
+                return new Vector2(vWidth, vHeight);
+                
+            default:
+                return Vector2.zero;
         }
     }
 
@@ -154,7 +361,7 @@ public class FormationCreator : MonoBehaviour
         {
             for (int y = -halfSize; y <= halfSize; y++)
             {
-                formation.Add(new Vector3(x * spacing, y * spacing, 0));
+                formation.Add(new Vector3(x * effectiveSpacing, y * effectiveSpacing, 0));
             }
         }
     }
@@ -166,8 +373,8 @@ public class FormationCreator : MonoBehaviour
         for (int i = 0; i < totalSlots; i++)
         {
             float angle = (i * 2 * Mathf.PI) / totalSlots;
-            float x = Mathf.Cos(angle) * circleRadius;
-            float y = Mathf.Sin(angle) * circleRadius;
+            float x = Mathf.Cos(angle) * effectiveRadius;
+            float y = Mathf.Sin(angle) * effectiveRadius;
             formation.Add(new Vector3(x, y, 0));
         }
         
@@ -178,17 +385,17 @@ public class FormationCreator : MonoBehaviour
     void GenerateTriangleFormation(List<Vector3> formation)
     {
         // Create an equilateral triangle formation centered at origin
-        float triangleHeight = (slotsPerSide - 1) * spacing * 0.866f; // Total height of triangle
+        float triangleHeight = (slotsPerSide - 1) * effectiveSpacing * 0.866f; // Total height of triangle
         float centerOffset = triangleHeight * 0.5f; // Offset to center the triangle
         
         for (int row = 0; row < slotsPerSide; row++)
         {
             int slotsInRow = row + 1;
-            float rowOffset = -row * spacing * 0.866f + centerOffset; // Apply center offset
+            float rowOffset = -row * effectiveSpacing * 0.866f + centerOffset; // Apply center offset
             
             for (int col = 0; col < slotsInRow; col++)
             {
-                float x = (col - (slotsInRow - 1) * 0.5f) * spacing;
+                float x = (col - (slotsInRow - 1) * 0.5f) * effectiveSpacing;
                 formation.Add(new Vector3(x, rowOffset, 0));
             }
         }
@@ -196,20 +403,24 @@ public class FormationCreator : MonoBehaviour
 
     void GenerateVShapeFormation(List<Vector3> formation)
     {
+        // Calculate offset to center the V shape properly
+        float maxY = slotsPerSide * effectiveSpacing * 0.707f; // sin(45°)
+        float centerOffsetY = -maxY * 0.5f; // Center the V shape vertically
+        
         // Center slot
-        formation.Add(Vector3.zero);
+        formation.Add(new Vector3(0, centerOffsetY, 0));
         
         // Create V shape with two angled lines
         for (int i = 1; i <= slotsPerSide; i++)
         {
             // Left side of V (45 degree angle)
-            float x1 = -i * spacing * 0.707f; // cos(45°)
-            float y1 = i * spacing * 0.707f;  // sin(45°)
+            float x1 = -i * effectiveSpacing * 0.707f; // cos(45°)
+            float y1 = i * effectiveSpacing * 0.707f + centerOffsetY;  // sin(45°) + offset
             formation.Add(new Vector3(x1, y1, 0));
             
             // Right side of V (45 degree angle)
-            float x2 = i * spacing * 0.707f;  // cos(45°)
-            float y2 = i * spacing * 0.707f;  // sin(45°)
+            float x2 = i * effectiveSpacing * 0.707f;  // cos(45°)
+            float y2 = i * effectiveSpacing * 0.707f + centerOffsetY;  // sin(45°) + offset
             formation.Add(new Vector3(x2, y2, 0));
         }
     }
@@ -220,12 +431,34 @@ public class FormationCreator : MonoBehaviour
         if (formationSlots == null || formationSlots.Count == 0)
             return;
 
+        // Draw formation slots
         Gizmos.color = gizmoColor;
-        
         foreach (Vector3 slot in formationSlots)
         {
             Vector3 worldPos = transform.position + transform.TransformDirection(slot);
             Gizmos.DrawWireSphere(worldPos, gizmoSize);
+        }
+        
+        // Draw formation bounding boxes (only for random placement)
+        if (useRandomPlacement && formationCenters.Count > 0)
+        {
+            Gizmos.color = Color.yellow;
+            for (int i = 0; i < formationCenters.Count; i++)
+            {
+                Vector3 center = transform.position + transform.TransformDirection(new Vector3(formationCenters[i].x, formationCenters[i].y, 0));
+                Vector3 size = new Vector3(formationBounds[i].x, formationBounds[i].y, 0.1f);
+                Gizmos.DrawWireCube(center, size);
+            }
+        }
+        
+        // Draw collider bounds
+        if (showColliderBounds && boxCollider2D != null)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Vector3 center = new Vector3(boxCollider2D.offset.x, boxCollider2D.offset.y, 0);
+            Vector3 size = new Vector3(boxCollider2D.size.x * boundaryPadding, boxCollider2D.size.y * boundaryPadding, 0.1f);
+            Gizmos.DrawWireCube(center, size);
         }
         
         // Draw formation name
@@ -248,6 +481,8 @@ public class FormationCreator : MonoBehaviour
     // Regenerate formation when values change in inspector
     void OnValidate()
     {
+        if (boxCollider2D == null)
+            boxCollider2D = GetComponent<BoxCollider2D>();
         GenerateFormation();
     }
 }
@@ -269,16 +504,47 @@ public class FormationCreatorEditor : UnityEditor.Editor
             formationCreator.CycleFormation();
         }
         
-        // Show info about multiple formations
-        GUILayout.Space(5);
-        if (formationCreator.currentFormation == FormationCreator.FormationType.Cross || 
-            formationCreator.currentFormation == FormationCreator.FormationType.Multiply)
+        // Add button to regenerate random placements
+        if (formationCreator.useRandomPlacement)
         {
-            EditorGUILayout.HelpBox("Cross and Multiply formations do not support multiple copies.", MessageType.Info);
+            if (GUILayout.Button("Regenerate Random Placements", GUILayout.Height(25)))
+            {
+                formationCreator.GenerateFormation();
+            }
+        }
+        
+        // Show info about collider constraint
+        GUILayout.Space(5);
+        if (formationCreator.GetComponent<BoxCollider2D>() == null)
+        {
+            EditorGUILayout.HelpBox("No BoxCollider2D found! Add a BoxCollider2D to constrain formations within bounds.", MessageType.Warning);
+        }
+        else if (formationCreator.fitWithinCollider)
+        {
+            EditorGUILayout.HelpBox("Formation will be automatically scaled to fit within the BoxCollider2D bounds.", MessageType.Info);
+        }
+        
+        // Show info about placement mode
+        if (formationCreator.useRandomPlacement)
+        {
+            string sizeInfo = "";
+            switch (formationCreator.currentFormation)
+            {
+                case FormationCreator.FormationType.Square:
+                case FormationCreator.FormationType.Triangle:
+                case FormationCreator.FormationType.VShape:
+                    sizeInfo = $"(Size: {formationCreator.slotsPerSide} slots, Spacing: {formationCreator.spacing})";
+                    break;
+                case FormationCreator.FormationType.Circle:
+                    sizeInfo = $"(Radius: {formationCreator.circleRadius})";
+                    break;
+            }
+            
+            EditorGUILayout.HelpBox($"Random placement: {formationCreator.formationCount} {formationCreator.currentFormation} formations {sizeInfo} with {formationCreator.formationSpacing} unit spacing between bounding boxes.\n\nControls:\n• Tab: Cycle formations\n• R: Regenerate random placements\n\nGizmos:\n• Red spheres: Formation slots\n• Yellow boxes: Formation bounding boxes\n• Blue box: Collider bounds", MessageType.Info);
         }
         else if (formationCreator.formationCount > 1)
         {
-            EditorGUILayout.HelpBox($"Showing {formationCreator.formationCount} {formationCreator.currentFormation} formations side by side.", MessageType.Info);
+            EditorGUILayout.HelpBox($"Side-by-side placement: {formationCreator.formationCount} {formationCreator.currentFormation} formations.\n\nControls:\n• Tab: Cycle formations", MessageType.Info);
         }
     }
 }

@@ -134,9 +134,12 @@ public class ChickenController : MonoBehaviour, IPooledObject
 
     public void SetSpawnPoint(Transform spawnPoint)
     {
+        // Just pass the spawn point reference to the idle behavior
+        // DON'T force move the rigidbody - let behaviors handle movement
         idleBehavior.SetSpawnPoint(spawnPoint);
-        rb.position = spawnPoint.position;
         
+        // REMOVED: rb.position = spawnPoint.position;
+        // This was causing chickens to teleport from spawn position to spawn point
     }
         
     // Set new state with validation
