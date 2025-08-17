@@ -2512,7 +2512,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseHealth: 2
   dodgingGivesInvincibility: 1
-  receiveHealthOnBonusThreshold: 1
   baseShield: 100
   shieldRegenCooldown: 3
   shieldRegenRate: 15
@@ -2688,6 +2687,7 @@ MonoBehaviour:
   cameraPositions: {fileID: 578094112693646351}
   followCameraTarget: {fileID: 7239159908269156373}
   storeCameraTarget: {fileID: 8469364165154082126}
+  storeCameraLookAtTarget: {fileID: 5369474610807630919}
   healthDamageSfx: {fileID: 0}
   healthHealedSfx: {fileID: 0}
   shieldDamageSfx: {fileID: 11400000, guid: d2d3e99fb5af65241a4debcb6162257a, type: 2}
@@ -2755,7 +2755,7 @@ MonoBehaviour:
   maxPitchAngle: 30
   maxYawAngle: 45
   enableDodging: 1
-  maxDodgeAccumulation: 2
+  baseDodgeAccumulation: 1
   dodgeAccumulationRate: 2
   dodgeMoveSpeed: 65
   dodgeDuration: 0.4
@@ -2914,7 +2914,7 @@ MonoBehaviour:
     - {fileID: 3537693180872267810}
     - {fileID: 0}
     upgradeAssets: []
-  maxHeat: 100
+  baseMaxHeat: 100
   timeBeforeRegen: 1
   heatRegenRate: 15
   switchingWeaponsResetsHeat: 1

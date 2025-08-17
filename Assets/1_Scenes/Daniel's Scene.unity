@@ -969,6 +969,24 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3f1977d2f87954fcca05fab30f54c487, type: 3}
+--- !u!1 &2144809333 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3957306181620328678, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+  m_PrefabInstance: {fileID: 7205351413575670517}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2144809339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2144809333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e8b78ac948f05a46a6d8339a503172b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LookAtOffset: {x: 0, y: 0, z: 0}
 --- !u!1001 &346697113166387671
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1329,10 +1347,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: CameraManager
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8414476777719880887, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3957306181620328678, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2144809339}
   m_SourcePrefab: {fileID: 100100000, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

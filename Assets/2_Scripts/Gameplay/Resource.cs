@@ -1,8 +1,10 @@
+using System;
 using DNExtensions;
 using KBCore.Refs;
 using UnityEngine;
 using VInspector;
 using PrimeTween;
+using Random = UnityEngine.Random;
 
 
 [SelectionBase]
@@ -43,7 +45,7 @@ public class Resource : MonoBehaviour
     [SerializeField] private SOGameSettings gameSettings;
 
     
-    private ResourceMovementState _currentState;
+    private ResourceState _currentState;
     private Transform _playerTransform;
     private float _currentLifetime;
     private float _movementBoundaryX;
@@ -54,11 +56,12 @@ public class Resource : MonoBehaviour
     private Vector3 _targetVelocity;
     private Vector3 _targetOffsetFromSpline;
     private Vector3 _currentBoundaryTargetPosition;
-    private enum ResourceMovementState
+    private enum ResourceState
     {
         MovingToBoundary,
         FollowingBoundary,
-        Magnetized
+        Magnetized,
+        Collected,
     }
     
     public ResourceType ResourceType => resourceType;
@@ -68,6 +71,7 @@ public class Resource : MonoBehaviour
     public int CurrencyWorth => currencyWorth;
     public SOWeaponData WeaponData { get; private set;}
 
+    public event Action<Resource> OnDestroyEvent;
 
     
     private void OnValidate()
@@ -89,6 +93,10 @@ public class Resource : MonoBehaviour
         HandleMovement();
     }
 
+    private void OnDestroy()
+    {
+        OnDestroyEvent?.Invoke(this);
+    }
 
 
 
@@ -97,7 +105,7 @@ public class Resource : MonoBehaviour
 
     private void CheckLifetime()
     {
-        if (lifetime <= 0f || _currentState != ResourceMovementState.FollowingBoundary) return;
+        if (lifetime <= 0f || _currentState != ResourceState.FollowingBoundary) return;
 
         _currentLifetime -= Time.deltaTime;
         
@@ -114,7 +122,9 @@ public class Resource : MonoBehaviour
 
     public void SetMagnetized(Transform playerTransform)
     {
-        _currentState = ResourceMovementState.Magnetized;
+        if (_currentState == ResourceState.Collected) return;
+        
+        _currentState = ResourceState.Magnetized;
         _playerTransform = playerTransform;
         PlayMagnetizedEffects();
     }
@@ -122,19 +132,31 @@ public class Resource : MonoBehaviour
     
     public void ReleaseFromMagnetization()
     {
-        _currentState = ResourceMovementState.FollowingBoundary;
+        _currentState = ResourceState.FollowingBoundary;
         _playerTransform = null;
     }
     
     public void ResourceCollected()
     {
+        if (_currentState == ResourceState.Collected) return;
+        
+        _currentState = ResourceState.Collected;
         PlayCollectionEffects();
-        Destroy(gameObject);
+        if (_scaleAnimation.isAlive) _scaleAnimation.OnComplete((() => { Destroy(gameObject); }));
     }
-    
+
+    public void ForceDespawn()
+    {
+        if (_currentState == ResourceState.Collected) return;
+        
+        PlayDespawnEffects();
+        if (_scaleAnimation.isAlive) _scaleAnimation.OnComplete((() => { Destroy(gameObject); }));
+    }
+
+
     private void Setup()
     {
-        _currentState = ResourceMovementState.MovingToBoundary;
+        _currentState = ResourceState.MovingToBoundary;
         _currentLifetime = lifetime;
         _playerTransform = null;
         if (resourceType == ResourceType.SpecialWeapon && weapons.Count > 0)
@@ -177,13 +199,13 @@ public class Resource : MonoBehaviour
     {
         switch (_currentState)
         {
-            case ResourceMovementState.MovingToBoundary:
+            case ResourceState.MovingToBoundary:
                 HandleMovingToBoundary();
                 break;
-            case ResourceMovementState.FollowingBoundary:
+            case ResourceState.FollowingBoundary:
                 HandleFollowingBoundary();
                 break;
-            case ResourceMovementState.Magnetized:
+            case ResourceState.Magnetized or ResourceState.Collected:
                 HandleMagnetizedMovement();
                 break;
         }
@@ -201,7 +223,7 @@ public class Resource : MonoBehaviour
         float distanceToTarget = Vector3.Distance(transform.position, _currentBoundaryTargetPosition);
         if (distanceToTarget < 3f)
         {
-            _currentState = ResourceMovementState.FollowingBoundary;
+            _currentState = ResourceState.FollowingBoundary;
         }
     }
 
@@ -215,7 +237,7 @@ public class Resource : MonoBehaviour
         float distanceToTarget = Vector3.Distance(transform.position, _currentBoundaryTargetPosition);
         if (distanceToTarget > 3f)
         {
-            _currentState = ResourceMovementState.MovingToBoundary;
+            _currentState = ResourceState.MovingToBoundary;
         }
     }
 

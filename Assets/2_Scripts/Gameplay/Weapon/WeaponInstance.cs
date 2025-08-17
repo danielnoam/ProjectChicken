@@ -1,5 +1,4 @@
-﻿
-using DNExtensions;
+﻿using DNExtensions;
 using PrimeTween;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -184,10 +183,17 @@ public class WeaponInstance
             switch (WeaponData.WeaponType)
             {
                 case WeaponType.Projectile:
-                    foreach (var barrelPosition in CurrentWeaponBarrels)
+                    
+                    
+                    Vector3[] barrelOffsets = WeaponData.BarrelAimOffsets;
+                    for (int i = 0; i < CurrentWeaponBarrels.Length; i++)
                     {
+                        var barrelPosition = CurrentWeaponBarrels[i];
                         if (barrelPosition)
-                            FireProjectileWeapon(owner, barrelPosition.position);
+                        {
+                            Vector3 aimOffset = i < barrelOffsets.Length ? barrelOffsets[i] : Vector3.zero;
+                            FireProjectileWeapon(owner, barrelPosition.position, aimOffset);
+                        }
                     }
                     break;
                 
@@ -228,14 +234,13 @@ public class WeaponInstance
 
     #region Projectile ---------------------------------------------------------------------------------
 
-    private void FireProjectileWeapon(RailPlayer owner, Vector3 position)
+    private void FireProjectileWeapon(RailPlayer owner, Vector3 position, Vector3 aimOffset)
     {
         if (!WeaponData.PlayerProjectilePrefab) return;
-        
-
+    
         if (WeaponData.MaxTargets == 1)
         {
-            InstantiateProjectile(owner, position, owner.GetTarget(WeaponData.TargetCheckRadius));
+            InstantiateProjectile(owner, position, owner.GetTarget(WeaponData.TargetCheckRadius), aimOffset);
         } 
         else
         {
@@ -252,23 +257,23 @@ public class WeaponInstance
                 {
                     if (enemy)
                     {
-                        InstantiateProjectile(owner, position, enemy);
+                        InstantiateProjectile(owner, position, enemy, aimOffset);
                     }
                 }
             }
             else
             {
-                InstantiateProjectile(owner, position, null);
+                InstantiateProjectile(owner, position, null, aimOffset);
             }
         }
     }
     
-    private void InstantiateProjectile(RailPlayer owner, Vector3 spawnPosition, ChickenController target = null)
+    private void InstantiateProjectile(RailPlayer owner, Vector3 spawnPosition, ChickenController target = null, Vector3 aimOffset = default)
     {
         GameObject projectileObj = ObjectPooler.GetObjectFromPool(WeaponData.PlayerProjectilePrefab.gameObject, spawnPosition, Quaternion.identity);
         if (projectileObj && projectileObj.TryGetComponent(out PlayerProjectile projectile))
         {
-            projectile.SetUpProjectile(WeaponData, owner, this, target);
+            projectile.SetUpProjectile(owner, this, target, aimOffset);
         }
     }
 

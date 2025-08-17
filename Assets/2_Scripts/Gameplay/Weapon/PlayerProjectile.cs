@@ -93,6 +93,8 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
     }
 
 
+    
+    
     #region Pool Object -------------------------------------------------------------------------
 
     private void ReturnObjectToPool()
@@ -131,30 +133,29 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
     #endregion Pool Object -------------------------------------------------------------------------
 
 
-    
-
     #region SetUp -------------------------------------------------------------------------
 
-    public void SetUpProjectile(SOWeaponData weaponData, RailPlayer owner, WeaponInstance weaponInstance, ChickenController target)
+    public void SetUpProjectile(RailPlayer owner, WeaponInstance weaponInstance, ChickenController target, Vector3 aimOffset = default)
     {
         if (_isInitialized) return;
         
         StartTime = Time.time;
-        WeaponData = weaponData;
         WeaponInstance = weaponInstance;
+        WeaponData = weaponInstance.WeaponData;
         Target = target;
         _owner = owner;
-        _lifetime = weaponData.ProjectileLifetime;
-        _projectileBehaviors = CreateUniqueBehaviorInstances(weaponData.ProjectileBehaviors);
+        _lifetime = WeaponData.ProjectileLifetime;
+        _projectileBehaviors = CreateUniqueBehaviorInstances(WeaponData.ProjectileBehaviors);
         
         
         Vector3 enemySplinePosition = owner.LevelManager.EnemyPosition;
-        Vector3 currentAimPosition = owner.PlayerAiming.AimWorldPosition.position;
+        Vector3 currentAimPosition = owner.PlayerAiming.AimWorldPosition.position + aimOffset;
         _aimOffsetFromSpline = currentAimPosition - enemySplinePosition;
         UpdateTargetPosition();
         
         
-        StartDirection = (owner.PlayerAiming.AimWorldPosition.position - transform.position).normalized;
+        Vector3 baseAimDirection = (owner.PlayerAiming.AimWorldPosition.position - transform.position).normalized;
+        StartDirection = (baseAimDirection + aimOffset).normalized;
         rigidBody.rotation = Quaternion.LookRotation(StartDirection);
         
         
@@ -166,6 +167,41 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
         
         _isInitialized = true;
     }
+    
+    
+    public void SetUpProjectile(RailPlayer owner, WeaponInstance weaponInstance, ChickenController target, List<ProjectileBehaviorBase> projectileBehaviors, Vector3 aimOffset = default)
+    {
+        if (_isInitialized) return;
+
+        StartTime = Time.time;
+        WeaponInstance = weaponInstance;
+        WeaponData = weaponInstance.WeaponData;
+        Target = target;
+        _owner = owner;
+        _lifetime = WeaponData.ProjectileLifetime;
+        _projectileBehaviors = CreateUniqueBehaviorInstances(projectileBehaviors);
+        
+        
+        Vector3 enemySplinePosition = owner.LevelManager.EnemyPosition;
+        Vector3 currentAimPosition = owner.PlayerAiming.AimWorldPosition.position + aimOffset;
+        _aimOffsetFromSpline = currentAimPosition - enemySplinePosition;
+        UpdateTargetPosition();
+        
+        
+        Vector3 baseAimDirection = (owner.PlayerAiming.AimWorldPosition.position - transform.position).normalized;
+        StartDirection = (baseAimDirection + aimOffset).normalized;
+        rigidBody.rotation = Quaternion.LookRotation(StartDirection);
+        
+        
+        weaponInstance.PlayFireEffect(transform.position, Quaternion.identity, audioSource);
+        foreach (var behavior in _projectileBehaviors)
+        {
+            behavior.OnSpawn(this, _owner);
+        }
+        
+        _isInitialized = true;
+    }
+    
     
     private void UnInitializeProjectile()
     {
@@ -182,39 +218,6 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
         StartDirection = Vector3.zero;
         StartTime = 0f;
     }
-    
-    public void SetUpProjectileWithCustomBehaviors(SOWeaponData weaponData, RailPlayer owner, WeaponInstance weaponInstance, ChickenController target, List<ProjectileBehaviorBase> projectileBehaviors)
-    {
-        if (_isInitialized) return;
-
-        StartTime = Time.time;
-        WeaponData = weaponData;
-        WeaponInstance = weaponInstance;
-        Target = target;
-        _owner = owner;
-        _lifetime = weaponData.ProjectileLifetime;
-        _projectileBehaviors = CreateUniqueBehaviorInstances(projectileBehaviors);
-        
-        
-        Vector3 enemySplinePosition = owner.LevelManager.EnemyPosition;
-        Vector3 currentAimPosition = owner.PlayerAiming.AimWorldPosition.position;
-        _aimOffsetFromSpline = currentAimPosition - enemySplinePosition;
-        UpdateTargetPosition();
-        
-        
-        StartDirection = (owner.PlayerAiming.AimWorldPosition.position - transform.position).normalized;
-        rigidBody.rotation = Quaternion.LookRotation(StartDirection);
-        
-        
-        weaponInstance.PlayFireEffect(transform.position, Quaternion.identity, audioSource);
-        foreach (var behavior in _projectileBehaviors)
-        {
-            behavior.OnSpawn(this, _owner);
-        }
-        
-        _isInitialized = true;
-    }
-    
     
     private List<ProjectileBehaviorBase> CreateUniqueBehaviorInstances(List<ProjectileBehaviorBase> originalBehaviors)
     {

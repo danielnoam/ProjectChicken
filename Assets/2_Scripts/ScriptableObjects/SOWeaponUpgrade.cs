@@ -29,6 +29,13 @@ public class SOWeaponUpgrade : SOUpgradeBase
     [SerializeField, Min(0.1f)] private float targetCheckRadius = 4f;
     [EndIf]
     
+    [Header("Barrel Offsets")]
+    [SerializeField] private bool overrideBarrelAimOffsets;
+    [ShowIf("overrideBarrelAimOffsets")]
+    [SerializeField, Tooltip("Offset applied to aim direction for each barrel")] 
+    private Vector3[] barrelAimOffsets = { Vector3.zero };
+    [EndIf]
+    
     [SerializeField] private bool overrideWeaponLimitation;
     [ShowIf("ShowHeatPerShot")]
     [SerializeField, Min(0)] private float heatPerShot = 1f;
@@ -65,6 +72,7 @@ public class SOWeaponUpgrade : SOUpgradeBase
     public float FireRate => overrideFireRate ? fireRate : (baseWeapon ? baseWeapon.FireRate : 1f);
     public int MaxTargets => overrideMaxTargets ? maxTargets : (baseWeapon ? baseWeapon.MaxTargets : 1);
     public float TargetCheckRadius => overrideTargetCheckRadius ? targetCheckRadius : (baseWeapon ? baseWeapon.TargetCheckRadius : 3f);
+    public Vector3[] BarrelAimOffsets => overrideBarrelAimOffsets ? barrelAimOffsets : (baseWeapon ? baseWeapon.BarrelAimOffsets : new Vector3[] { Vector3.zero });
     public float HeatPerShot => overrideWeaponLimitation && baseWeapon.WeaponLimitation == WeaponLimitation.HeatBased ? heatPerShot : (baseWeapon ? baseWeapon.HeatPerShot : 1f);
     public float TimeLimit => overrideWeaponLimitation && baseWeapon.WeaponLimitation == WeaponLimitation.TimeBased ? timeLimit : (baseWeapon ? baseWeapon.TimeLimit : 10f);
     public float AmmoLimit => overrideWeaponLimitation && baseWeapon.WeaponLimitation == WeaponLimitation.AmmoBased ? ammoLimit : (baseWeapon ? baseWeapon.AmmoLimit : 3f);
@@ -121,6 +129,11 @@ public class SOWeaponUpgrade : SOUpgradeBase
         if (!overrideFireRate) fireRate = baseWeapon.FireRate;
         if (!overrideMaxTargets) maxTargets = baseWeapon.MaxTargets;
         if (!overrideTargetCheckRadius) targetCheckRadius = baseWeapon.TargetCheckRadius;
+        if (!overrideBarrelAimOffsets && baseWeapon.BarrelAimOffsets != null) 
+        {
+            barrelAimOffsets = new Vector3[baseWeapon.BarrelAimOffsets.Length];
+            Array.Copy(baseWeapon.BarrelAimOffsets, barrelAimOffsets, baseWeapon.BarrelAimOffsets.Length);
+        }
         if (!overrideWeaponLimitation) 
         {
             heatPerShot = baseWeapon.HeatPerShot;
@@ -166,6 +179,7 @@ public class SOWeaponUpgrade : SOUpgradeBase
         overrideFireRate = previousUpgrade.overrideFireRate;
         overrideMaxTargets = previousUpgrade.overrideMaxTargets;
         overrideTargetCheckRadius = previousUpgrade.overrideTargetCheckRadius;
+        overrideBarrelAimOffsets = previousUpgrade.overrideBarrelAimOffsets;
         overrideWeaponLimitation = previousUpgrade.overrideWeaponLimitation;
         overrideProjectileBehaviors = previousUpgrade.overrideProjectileBehaviors;
         overrideHitscanBehaviors = previousUpgrade.overrideHitscanBehaviors;
@@ -175,6 +189,12 @@ public class SOWeaponUpgrade : SOUpgradeBase
         if (!overrideFireRate) fireRate = previousUpgrade.FireRate;
         if (!overrideMaxTargets) maxTargets = previousUpgrade.MaxTargets;
         if (!overrideTargetCheckRadius) targetCheckRadius = previousUpgrade.TargetCheckRadius;
+        if (!overrideBarrelAimOffsets && previousUpgrade.BarrelAimOffsets != null)
+        {
+            barrelAimOffsets = new Vector3[previousUpgrade.BarrelAimOffsets.Length];
+            Array.Copy(previousUpgrade.BarrelAimOffsets, barrelAimOffsets, previousUpgrade.BarrelAimOffsets.Length);
+        }
+
         if (!overrideWeaponLimitation)
         {
             heatPerShot = previousUpgrade.HeatPerShot;

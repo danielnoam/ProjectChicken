@@ -27,6 +27,10 @@ MonoBehaviour:
   maxTargets: 1
   overrideTargetCheckRadius: 0
   targetCheckRadius: 4
+  overrideBarrelAimOffsets: 1
+  barrelAimOffsets:
+  - {x: -3, y: 0, z: 0}
+  - {x: 3, y: 0, z: 0}
   overrideWeaponLimitation: 0
   heatPerShot: 4
   timeLimit: 10

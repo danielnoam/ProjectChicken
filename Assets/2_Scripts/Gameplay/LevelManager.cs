@@ -87,6 +87,9 @@ public class LevelManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        
+        PrimeTweenConfig.warnTweenOnDisabledTarget = false;
+        PrimeTweenConfig.warnZeroDuration = false;
     }
 
 
@@ -270,19 +273,15 @@ public class LevelManager : MonoBehaviour
         {
             if (newStage.StageType == StageType.Outro)
             {
-                StartCoroutine(ReturnToMainMenu(newStage.StageDuration, newStage.StageVFXSequence));
+                StartCoroutine(ReturnToMainMenu(newStage.StageDuration));
                 SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, _currentScore);
             }
             else
             {
+                if (newStage.StageType == StageType.Intro) VFXManager.Instance?.PlayVFX(level.IntroVFXSequence);
                 SetNextStage(newStage.StageDuration);
-                VFXManager.Instance?.PlayVFX(newStage.StageVFXSequence);
             }
         }
-        else
-        {
-            VFXManager.Instance?.PlayVFX(newStage.StageVFXSequence);
-        }  
         
     }
 
@@ -298,18 +297,11 @@ public class LevelManager : MonoBehaviour
         SetStage(newStateIndex);
     }
 
-    private IEnumerator ReturnToMainMenu(float delay, SOVFEffectsSequence outroSequence = null)
+    private IEnumerator ReturnToMainMenu(float delay)
     {
         yield return new WaitForSeconds(delay);
 
-        if (outroSequence)
-        {
-            TransitionManager.TransitionToScene(gameSettings.MainMenuScene, outroSequence);
-        }
-        else
-        {
-            gameSettings.MainMenuScene?.LoadScene();
-        }
+        TransitionManager.TransitionToScene(gameSettings.MainMenuScene, level.OutroVFXSequence);
 
     }
     

@@ -1,6 +1,4 @@
 using System;
-using AYellowpaper;
-using DNExtensions;
 using DNExtensions.VFXManager;
 using UnityEngine;
 using VInspector;
@@ -11,7 +9,6 @@ public class SOLevelStage : ScriptableObject
     [Header("Stage Settings")]
     [SerializeField] private string stageTitle = "";
     [SerializeField, Range(0f,2f)] private float stageWorldSpeed = 1f;
-    [SerializeField] private SOVFEffectsSequence stageVFXSequence;
     [SerializeField] private bool showHUD = true;
     [SerializeField] private bool allowPlayerMovement = true;
     [SerializeField] private bool allowPlayerShootingAndAiming = true;
@@ -40,7 +37,6 @@ public class SOLevelStage : ScriptableObject
     public StageType StageType => stageType;
     public float StageWorldSpeed => stageWorldSpeed;
     public float StageDuration => stageDuration;
-    public SOVFEffectsSequence StageVFXSequence => stageVFXSequence;
     public string StageTitle => stageTitle;
     public SerializedDictionary<ChickenController, int> EnemyWave => enemyWave;
     public float DelayBeforeNextStage => delayBeforeNextStage;

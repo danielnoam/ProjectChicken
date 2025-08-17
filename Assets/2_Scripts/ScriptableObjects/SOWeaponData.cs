@@ -25,11 +25,11 @@ public class SOWeaponData : ScriptableObject
     [Header("Weapon Upgrades")]
     [SerializeField] private List<SOWeaponUpgrade> weaponUpgrades = new List<SOWeaponUpgrade>();
     
-    
     [ShowIf("weaponType", WeaponType.Projectile)]
     [Header("Projectile Settings")]
     [SerializeField] private PlayerProjectile playerProjectilePrefab;
     [SerializeField, Min(0)] private float projectileLifetime = 5f;
+    [SerializeField, Tooltip("Offset applied to aim direction for each barrel. Should match the number of barrels on the weapon.")] private Vector3[] barrelAimOffsets = { Vector3.zero };
     [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>();
     [EndIf]
     
@@ -38,7 +38,6 @@ public class SOWeaponData : ScriptableObject
     [SerializeReference] private List<HitscanBehaviorBase> hitscanBehaviors = new List<HitscanBehaviorBase>();
     [EndIf]
     
-    
     [Header("Fire Effect")]
     [SerializeField] private SOAudioEvent fireSound;
     [SerializeField] private ParticleSystem fireEffectPrefab;
@@ -46,39 +45,31 @@ public class SOWeaponData : ScriptableObject
     [Header("Impact Effect")]
     [SerializeField] private SOAudioEvent impactSound;
     [SerializeField] private ParticleSystem impactEffectPrefab;
-    
-    
-    
 
-
-
+    // Properties
     public string WeaponName => weaponName;
     public string WeaponDescription => weaponDescription;
     public Sprite WeaponIcon => weaponWeaponIcon;
-    
-    
     public WeaponLimitation WeaponLimitation => weaponLimitation;
     public WeaponType WeaponType => weaponType;
     public float FireRate => fireRate;
     public int MaxTargets => maxTargets;
     public float TargetCheckRadius => targetCheckRadius;
     public List<SOWeaponUpgrade> WeaponUpgrades => weaponUpgrades;
-    
     public float TimeLimit => timeLimit;
     public float AmmoLimit => ammoLimit;
     public float HeatPerShot => heatPerShot;
     public float ProjectileLifetime => projectileLifetime;
-    public  List<ProjectileBehaviorBase> ProjectileBehaviors => projectileBehaviors;
+    public List<ProjectileBehaviorBase> ProjectileBehaviors => projectileBehaviors;
     public PlayerProjectile PlayerProjectilePrefab => playerProjectilePrefab;
     public List<HitscanBehaviorBase> HitscanBehaviors => hitscanBehaviors;
-    
     public SOAudioEvent FireSound => fireSound;
     public ParticleSystem FireEffectPrefab => fireEffectPrefab;
     public SOAudioEvent ImpactSound => impactSound;
     public ParticleSystem ImpactEffectPrefab => impactEffectPrefab;
-
-
-
+    
+    // Barrel offset property
+    public Vector3[] BarrelAimOffsets => barrelAimOffsets;
 
     private void OnValidate()
     {
@@ -89,18 +80,21 @@ public class SOWeaponData : ScriptableObject
                 RemoveUpgrade(upgrade);
             }
             
-            
-            if (upgrade.BaseWeapon !=  this)
+            if (upgrade.BaseWeapon != this)
             {
                 upgrade.SetBaseWeapon(this);
             }
         }
+        
+        // Ensure at least one barrel offset exists
+        if (barrelAimOffsets == null || barrelAimOffsets.Length == 0)
+        {
+            barrelAimOffsets = new Vector3[] { Vector3.zero };
+        }
     }
 
-
-    #region Upgrade management ----------------------------------------------------------------------------------
-
-        private void AddUpgrade(SOWeaponUpgrade upgrade)
+    #region Upgrade management
+    private void AddUpgrade(SOWeaponUpgrade upgrade)
     {
         if (!weaponUpgrades.Contains(upgrade))
         {
@@ -123,7 +117,7 @@ public class SOWeaponData : ScriptableObject
     }
 
     #if UNITY_EDITOR
-    [ContextMenu("Create Weapon Upgrade"),Button]
+    [ContextMenu("Create Weapon Upgrade"), Button]
     private void CreateWeaponUpgrade()
     {
         CreateWeaponUpgradeAsset(this);
@@ -131,17 +125,13 @@ public class SOWeaponData : ScriptableObject
     
     private static void CreateWeaponUpgradeAsset(SOWeaponData baseWeapon)
     {
-        // Create the upgrade asset
         SOWeaponUpgrade upgrade = CreateInstance<SOWeaponUpgrade>();
         upgrade.SetBaseWeapon(baseWeapon);
         
-        // Get the path of the base weapon
         string weaponPath = AssetDatabase.GetAssetPath(baseWeapon);
         string weaponDirectory = System.IO.Path.GetDirectoryName(weaponPath);
-        string weaponFileName = System.IO.Path.GetFileNameWithoutExtension(weaponPath);
         int weaponUpgradeIndex = baseWeapon.WeaponUpgrades.Count + 1;
         
-        // Create upgrades folder if it doesn't exist
         if (weaponDirectory != null)
         {
             string upgradesFolder = System.IO.Path.Combine(weaponDirectory);
@@ -151,11 +141,9 @@ public class SOWeaponData : ScriptableObject
                 AssetDatabase.Refresh();
             }
         
-            // Generate unique filename
             string upgradeName = $"{baseWeapon.weaponName}Upgrade{weaponUpgradeIndex}";
             string upgradePath = System.IO.Path.Combine(upgradesFolder, $"{upgradeName}.asset");
         
-            // Ensure unique filename
             int counter = 1;
             while (System.IO.File.Exists(upgradePath))
             {
@@ -163,29 +151,19 @@ public class SOWeaponData : ScriptableObject
                 counter++;
             }
         
-            // Create the asset
             AssetDatabase.CreateAsset(upgrade, upgradePath);
         }
         
-        
-        // Save and refresh
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        
-        // Add to the weapon's upgrade list
         baseWeapon.AddUpgrade(upgrade);
-        
-        // Focus on the new asset
         EditorUtility.FocusProjectWindow();
         Selection.activeObject = upgrade;
     }
     #endif
+    #endregion
 
-    #endregion Upgrade management ----------------------------------------------------------------------------------
-
-
-    #region Instance creation ---------------------------------------------------------------------------
-    
+    #region Instance creation
     public void CopyBaseWeaponData(SOWeaponData source)
     {
         weaponName = source.WeaponName;
@@ -200,6 +178,10 @@ public class SOWeaponData : ScriptableObject
         maxTargets = source.MaxTargets;
         targetCheckRadius = source.TargetCheckRadius;
         weaponUpgrades = source.WeaponUpgrades;
+        
+        // Copy barrel offsets
+        barrelAimOffsets = new Vector3[source.barrelAimOffsets.Length];
+        System.Array.Copy(source.barrelAimOffsets, barrelAimOffsets, source.barrelAimOffsets.Length);
 
         if (weaponType == WeaponType.Projectile)
         {
@@ -228,8 +210,13 @@ public class SOWeaponData : ScriptableObject
         ammoLimit = upgrade.AmmoLimit;
         projectileBehaviors = upgrade.ProjectileBehaviors;
         hitscanBehaviors = upgrade.HitscanBehaviors;
+        
+        // Apply barrel offset overrides if the upgrade has them
+        if (upgrade.BarrelAimOffsets != null && upgrade.BarrelAimOffsets.Length > 0)
+        {
+            barrelAimOffsets = new Vector3[upgrade.BarrelAimOffsets.Length];
+            Array.Copy(upgrade.BarrelAimOffsets, barrelAimOffsets, upgrade.BarrelAimOffsets.Length);
+        }
     }
-
-    #endregion Instance creation ---------------------------------------------------------------------------
-
+    #endregion
 }

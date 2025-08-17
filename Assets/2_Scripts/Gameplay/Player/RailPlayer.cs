@@ -43,6 +43,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField] private Transform cameraPositions;
     [SerializeField] private Transform followCameraTarget;
     [SerializeField] private Transform storeCameraTarget;
+    [SerializeField] private Transform storeCameraLookAtTarget;
     [SerializeField] private SOAudioEvent healthDamageSfx;
     [SerializeField] private SOAudioEvent healthHealedSfx;
     [SerializeField] private SOAudioEvent shieldDamageSfx;
@@ -494,6 +495,12 @@ public class RailPlayer : MonoBehaviour
     public Transform GetStoreCameraTarget()
     {
         return storeCameraTarget ? storeCameraTarget : transform;
+    }
+    
+    
+    public Transform GetStoreCameraLookAtTarget()
+    {
+        return storeCameraLookAtTarget ? storeCameraLookAtTarget : transform;
     }
     
     public Transform GetRandomCameraPosition()

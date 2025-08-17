@@ -102,6 +102,7 @@ public class CameraManager : MonoBehaviour
             player.OnDeath += OnPlayerDeath;
             followCamera.Target.TrackingTarget = player.GetFollowCameraTarget();
             storeCamera.Target.TrackingTarget = player.GetStoreCameraTarget();
+            storeCamera.Target.LookAtTarget = player.GetStoreCameraLookAtTarget();
             introCamera.Target.TrackingTarget = player.GetRandomCameraPosition(); 
             introCamera.Target.LookAtTarget = player.transform;
             outroCamera.Target.LookAtTarget = player.transform; 

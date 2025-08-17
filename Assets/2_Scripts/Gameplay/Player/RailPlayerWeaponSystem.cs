@@ -784,6 +784,59 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
     }
     
+    private void UpgradeCurrentWeapon()
+    {
+        if (_currentSpecialWeaponInstance != null)
+        {
+            // Get the next upgrade for the special weapon
+            SOWeaponUpgrade nextUpgrade = GetNextWeaponUpgrade(_currentSpecialWeaponInstance.WeaponData);
+            if (nextUpgrade)
+            {
+                // Add the upgrade to player's upgrades list first
+                player.Upgrades.Add(nextUpgrade);
+                // Then apply the upgrade
+                _currentSpecialWeaponInstance.ApplyWeaponUpgrade(player);
+            }
+        }
+        else if (_baseWeaponInstance != null)
+        {
+            // Get the next upgrade for the base weapon
+            SOWeaponUpgrade nextUpgrade = GetNextWeaponUpgrade(_baseWeaponInstance.WeaponData);
+            if (nextUpgrade)
+            {
+                // Add the upgrade to player's upgrades list first
+                player.Upgrades.Add(nextUpgrade);
+                // Then apply the upgrade
+                _baseWeaponInstance.ApplyWeaponUpgrade(player);
+            }
+        }
+    }
+    
+    private SOWeaponUpgrade GetNextWeaponUpgrade(SOWeaponData weaponData)
+    {
+        if (!weaponData || weaponData.WeaponUpgrades == null || weaponData.WeaponUpgrades.Count == 0) return null;
+
+        // Find the highest upgrade the player currently has
+        SOWeaponUpgrade currentHighest = player.GetHighestWeaponUpgrade(weaponData);
+    
+        if (!currentHighest)
+        {
+            // Player has no upgrades for this weapon, return the first one
+            return weaponData.WeaponUpgrades[0];
+        }
+    
+        // Find the index of the current highest upgrade
+        int currentIndex = weaponData.WeaponUpgrades.IndexOf(currentHighest);
+    
+        // Return the next upgrade if it exists
+        if (currentIndex >= 0 && currentIndex < weaponData.WeaponUpgrades.Count - 1)
+        {
+            return weaponData.WeaponUpgrades[currentIndex + 1];
+        }
+    
+        // No more upgrades available
+        return null;
+    }
 
     #endregion Weapon Management --------------------------------------------------------------------------------------
 
@@ -869,6 +922,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.F4))
         {
             DisableSpecialWeapon();
+        }
+        else if (Input.GetKeyDown(KeyCode.F5))
+        {
+            UpgradeCurrentWeapon();
         }
     }
 

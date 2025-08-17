@@ -17,7 +17,8 @@ public class SOLevel : ScriptableObject
     [SerializeField] private SceneField levelScene;
     [SerializeField] private GameObject levelGfxPrefab;
     [SerializeField] private SOVFEffectsSequence loadVFXSequence;
-    
+    [SerializeField] private SOVFEffectsSequence introVFXSequence;
+    [SerializeField] private SOVFEffectsSequence outroVFXSequence;
 
     
     public string LevelName => levelName;
@@ -26,6 +27,8 @@ public class SOLevel : ScriptableObject
     public LevelDifficulty LevelDifficulty => levelDifficulty;
     public SOLevel[] LevelsNeededToUnlock => levelsNeededToUnlock;
     public SOLevelStage[] LevelStages => levelStages;
+    public SOVFEffectsSequence IntroVFXSequence => introVFXSequence;
+    public SOVFEffectsSequence OutroVFXSequence => outroVFXSequence;
     
     
     public void LoadLevel()
