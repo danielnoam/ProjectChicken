@@ -513,6 +513,7 @@ GameObject:
   - component: {fileID: 2099359427101454486}
   - component: {fileID: 8824006632455104043}
   - component: {fileID: 6441098358043672622}
+  - component: {fileID: 8069820876864793074}
   m_Layer: 3
   m_Name: EnemyChicken
   m_TagString: Enemy
@@ -774,6 +775,22 @@ MonoBehaviour:
   showDebugLogs: 0
   showMovementGizmos: 1
   movementLineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+--- !u!114 &8069820876864793074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4673152547086385400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6411f663f9e8ec04ab932bae0af615b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  rotationSpeed: 2
+  useSmootRotation: 1
+  lockYAxis: 1
 --- !u!1 &4889101049602211096
 GameObject:
   m_ObjectHideFlags: 0
