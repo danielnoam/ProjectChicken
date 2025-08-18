@@ -25,7 +25,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField] private List<WeaponInstance> weapons = new List<WeaponInstance>();
     
     [Foldout("Heat System")]
-    [SerializeField, Min(0f)] private float baseMaxHeat = 100f;
     [SerializeField, Min(0.1f)] private float timeBeforeRegen = 1f;
     [SerializeField, Min(0.1f)] private float heatRegenRate = 15f;
     [SerializeField] private bool switchingWeaponsResetsHeat = true;
@@ -157,7 +156,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
         
         _allowShooting = true;
-        _maxHeat = baseMaxHeat;
+        _maxHeat = player.GameSettings.BaseMaxHeat;
         _currentHeat = 0f;
 
     }
@@ -192,7 +191,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         playerInput.OnAttack2Event += OnAttack2;
         playerMovement.OnDodge += OnDodge;
         playerAiming.OnAimLockStateChange += OnAimLock;
-        player.OnDeath += OnDeath;
+        player.Health.OnDeath += OnDeath;
         
         if (player.LevelManager)
         {
@@ -209,7 +208,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         playerInput.OnAttack2Event -= OnAttack2;
         playerMovement.OnDodge -= OnDodge;
         playerAiming.OnAimLockStateChange -= OnAimLock;
-        player.OnDeath -= OnDeath;
+        player.Health.OnDeath -= OnDeath;
         
         
         if (player.LevelManager)
@@ -684,9 +683,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public void AddMaxHeatUpgrade(float amount)
     {
         _maxHeat += amount;
-        if (_maxHeat > player.GameSettings.MaxPlayerHeat)
+        if (_maxHeat > player.GameSettings.MaxHeat)
         {
-            _maxHeat = player.GameSettings.MaxPlayerHeat;
+            _maxHeat = player.GameSettings.MaxHeat;
         }
         
         ResetHeat();
@@ -846,7 +845,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void OnAttack(InputAction.CallbackContext context)
     {
-        if (!_allowShooting || !player.IsAlive())
+        if (!_allowShooting || !player.Health.IsAlive())
         {
             _attackInputHeld = false;
             return;
@@ -867,7 +866,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         if (!allowStartWeaponWithSpecialWeapon) return;
         
-        if (!_allowShooting || !player.IsAlive())
+        if (!_allowShooting || !player.Health.IsAlive())
         {
             _attack2InputHeld = false;
             return;

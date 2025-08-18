@@ -14,6 +14,7 @@ public class ResourceManager : MonoBehaviour
     [SerializeField, Scene(Flag.Optional)] private RailPlayer player;
 
 
+
     private readonly List<Resource> _resources = new List<Resource>();
     
     private void OnValidate()
@@ -38,6 +39,8 @@ public class ResourceManager : MonoBehaviour
     }
     
     
+    
+    
     private void OnEnable()
     {
         if (enemySpawner)
@@ -53,7 +56,7 @@ public class ResourceManager : MonoBehaviour
 
         if (player)
         {
-            player.OnDeath += OnPlayerDeath;
+            player.Health.OnDeath += Death;
         }
     }
 
@@ -71,11 +74,11 @@ public class ResourceManager : MonoBehaviour
         
         if (player)
         {
-            player.OnDeath -= OnPlayerDeath;
+            player.Health.OnDeath -= Death;
         }
     }
 
-    private void OnPlayerDeath()
+    private void Death()
     {
         RemoveAllResources();
     }

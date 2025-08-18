@@ -27,6 +27,7 @@ public class SOLevelStage : ScriptableObject
     
     [ShowIf("stageType", StageType.EnemyWave)]
     [SerializeField, Min(0)] private float delayBeforeNextStage = 1f;
+    [SerializeField, Min(0)] private int waveScoreWorth = 1000;
     [SerializeField] private SerializedDictionary<ChickenController,int> enemyWave = new SerializedDictionary<ChickenController, int>();
     [SerializeField] private FormationSettings formationSettings = new FormationSettings();
     [EndIf]
@@ -40,6 +41,7 @@ public class SOLevelStage : ScriptableObject
     public string StageTitle => stageTitle;
     public SerializedDictionary<ChickenController, int> EnemyWave => enemyWave;
     public float DelayBeforeNextStage => delayBeforeNextStage;
+    public int WaveScoreWorth =>  waveScoreWorth;
     public FormationSettings FormationSettings => formationSettings;
     public bool IsTimeBasedStage => stageType is StageType.Checkpoint or StageType.Intro or StageType.Outro;
     public bool IsSavePointStage => stageType is StageType.Intro or StageType.Checkpoint or StageType.Store;

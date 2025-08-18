@@ -101,7 +101,7 @@ public class EnemySpawner : MonoBehaviour
     private void OnEnable()
     {
         levelManager.OnStageChanged += OnStageChanged;
-        player.OnDeath += OnPlayerDeath;
+        player.Health.OnDeath += Death;
         
         foreach (var enemy in _activeEnemies)
         {
@@ -112,7 +112,7 @@ public class EnemySpawner : MonoBehaviour
     private void OnDisable()
     {
         levelManager.OnStageChanged -= OnStageChanged;
-        player.OnDeath -= OnPlayerDeath;
+        player.Health.OnDeath -= Death;
         
         foreach (var enemy in _activeEnemies)
         {
@@ -151,13 +151,13 @@ public class EnemySpawner : MonoBehaviour
         
         if (_activeEnemies.Count <= 0)
         {
-            OnEnemyWaveCleared?.Invoke(gameSettings.EnemyWaveScoreWorth);
+            OnEnemyWaveCleared?.Invoke(_currentStage.WaveScoreWorth);
         }
         
         enemy.OnDeath -= UpdateEnemyCount;
     }
     
-    private void OnPlayerDeath()
+    private void Death()
     {
         ClearEnemies();
     }

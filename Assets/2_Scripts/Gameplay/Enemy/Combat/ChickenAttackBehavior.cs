@@ -147,7 +147,7 @@ public class ChickenAttackBehavior : MonoBehaviour
         currentCooldown = Mathf.Max(0f, nextAttackTime - Time.time);
         
         // Check if we're in range and ready to attack
-        if (distanceToPlayer <= attackRange && Time.time >= nextAttackTime && player != null && player.IsAlive() && eggProjectilePrefab != null)
+        if (distanceToPlayer <= attackRange && Time.time >= nextAttackTime && player != null && player.Health.IsAlive() && eggProjectilePrefab != null)
         {
             PerformAttack();
         }
@@ -179,7 +179,7 @@ public class ChickenAttackBehavior : MonoBehaviour
     
     private void PerformAttack()
     {
-        if (!player.IsAlive() || eggProjectilePrefab == null || projectileManager.GetProjectileCount()) return;
+        if (!player.Health.IsAlive() || eggProjectilePrefab == null || projectileManager.GetProjectileCount()) return;
         
         // Calculate target position
         Vector3 targetPosition = CalculateTargetPosition();

@@ -138,19 +138,19 @@ public class UIManager : MonoBehaviour
     {
         if (player)
         {
-            player.OnDeath += OnDeath;
-            player.OnHealthChanged += OnUpdateHealth;
-            player.OnShieldChanged += OnUpdateShield;
-            player.OnCurrencyChanged += OnUpdateCurrency;
             player.OnPauseTimerChanged += OnPauseTimerChanged;
+            player.Health.OnDeath += OnDeath;
+            player.Health.OnHealthChanged += OnUpdateHealth;
+            player.Health.OnShieldChanged += OnUpdateShield;
+            player.ResourceCollector.OnCurrencyChanged += OnUpdateCurrency;
             player.WeaponSystem.OnSpecialWeaponSwitchedEvent += SpecialWeaponSystemSwitched;
             player.WeaponSystem.OnSpecialWeaponCooldownUpdatedEvent += SpecialWeaponSystemCooldownUpdated;
             player.WeaponSystem.OnBaseWeaponCooldownUpdatedEvent += BaseWeaponSystemCooldownUpdated;
             player.WeaponSystem.OnBaseWeaponSwitchedEvent += BaseWeaponSystemSwitched;
             player.WeaponSystem.OnSpecialWeaponDisabledEvent += SpecialWeaponSystemDisabled;
-            player.PlayerMovement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
-            player.PlayerMovement.OnDodge += OnDodge;
-            player.PlayerMovement.OnDodgeCountChanged += OnDodgeCountChanged;
+            player.Movement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
+            player.Movement.OnDodge += OnDodge;
+            player.Movement.OnDodgeCountChanged += OnDodgeCountChanged;
         }
 
         if (levelManager)
@@ -165,19 +165,19 @@ public class UIManager : MonoBehaviour
     {
         if (player)
         {
-            player.OnDeath -= OnDeath;
-            player.OnHealthChanged -= OnUpdateHealth;
-            player.OnShieldChanged -= OnUpdateShield;
-            player.OnCurrencyChanged -= OnUpdateCurrency;
             player.OnPauseTimerChanged -= OnPauseTimerChanged;
+            player.Health.OnDeath -= OnDeath;
+            player.Health.OnHealthChanged -= OnUpdateHealth;
+            player.Health.OnShieldChanged -= OnUpdateShield;
+            player.ResourceCollector.OnCurrencyChanged -= OnUpdateCurrency;
             player.WeaponSystem.OnSpecialWeaponSwitchedEvent -= SpecialWeaponSystemSwitched;
             player.WeaponSystem.OnSpecialWeaponCooldownUpdatedEvent -= SpecialWeaponSystemCooldownUpdated;
             player.WeaponSystem.OnBaseWeaponCooldownUpdatedEvent -= BaseWeaponSystemCooldownUpdated;
             player.WeaponSystem.OnBaseWeaponSwitchedEvent -= BaseWeaponSystemSwitched;
             player.WeaponSystem.OnSpecialWeaponDisabledEvent -= SpecialWeaponSystemDisabled;
-            player.PlayerMovement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
-            player.PlayerMovement.OnDodge -= OnDodge;
-            player.PlayerMovement.OnDodgeCountChanged -= OnDodgeCountChanged;
+            player.Movement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
+            player.Movement.OnDodge -= OnDodge;
+            player.Movement.OnDodgeCountChanged -= OnDodgeCountChanged;
         }
         
         if (levelManager)
@@ -232,7 +232,7 @@ public class UIManager : MonoBehaviour
             }
         }
         
-        for (int health = 0; health < gameSettings.MaxPlayerHealth; health++)
+        for (int health = 0; health < gameSettings.MaxHealth; health++)
         {
             var healthObject = Instantiate(healthIconPrefab, healthIconHolder);
             _healthIcons[healthObject] = false; 
@@ -370,7 +370,7 @@ public class UIManager : MonoBehaviour
             _playerShield = currentShield;
         }
         
-        if (shieldIcon && currentShield >= player.MaxShield - 1)
+        if (shieldIcon && currentShield >= player.Health.MaxShield - 1)
         {
             Tween.PunchScale(shieldIcon.transform, strength: Vector3.one * shieldPunchStrength, duration: shieldPunchDuration);
         }

@@ -98,8 +98,8 @@ public class CameraManager : MonoBehaviour
 
         if (player)
         {
-            player.PlayerMovement.OnDodge += OnPlayerDodge;
-            player.OnDeath += OnPlayerDeath;
+            player.Movement.OnDodge += Dodge;
+            player.Health.OnDeath += Death;
             followCamera.Target.TrackingTarget = player.GetFollowCameraTarget();
             storeCamera.Target.TrackingTarget = player.GetStoreCameraTarget();
             storeCamera.Target.LookAtTarget = player.GetStoreCameraLookAtTarget();
@@ -118,8 +118,8 @@ public class CameraManager : MonoBehaviour
         
         if (player)
         {
-            player.PlayerMovement.OnDodge -= OnPlayerDodge;
-            player.OnDeath -= OnPlayerDeath;
+            player.Movement.OnDodge -= Dodge;
+            player.Health.OnDeath -= Death;
             followCamera.Target.TrackingTarget = null;
             introCamera.Target.TrackingTarget = null;
             introCamera.Target.LookAtTarget = null;
@@ -296,7 +296,7 @@ public class CameraManager : MonoBehaviour
         }
     }
     
-    private void OnPlayerDodge()
+    private void Dodge()
     {
         if (_fovSequence.isAlive) _fovSequence.Stop();
 
@@ -310,7 +310,7 @@ public class CameraManager : MonoBehaviour
             ;
     }
     
-    private void OnPlayerDeath()
+    private void Death()
     {
         SetActiveCamera(introCamera);
     }
@@ -326,14 +326,14 @@ public class CameraManager : MonoBehaviour
     {
         if (!player) return Vector2.zero;
 
-        return player.PlayerAiming.NormalizedAimPosition;
+        return player.Aiming.NormalizedAimPosition;
     }
 
     private Vector2 GetNormalizedMovementPosition()
     {
         if (!player) return Vector2.zero;
 
-        return player.PlayerMovement.NormalizedMovementPosition;
+        return player.Movement.NormalizedMovementPosition;
     }
     
     private Vector3 CalculateDynamicPositionOffset(Vector2 normalizedPosition, CameraOffsetSettings settings)

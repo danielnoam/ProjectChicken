@@ -22,7 +22,7 @@ public class BehaviorCreateProjectilesOnSpawn : ProjectileBehaviorBase
     {
         _targets = new List<ChickenController>();
         _spawnedProjectiles = 0;
-        _targets = owner.GetAllTargets(maxProjectiles, targetRadius).ToList();
+        _targets = owner.Aiming.GetTargets(maxProjectiles, targetRadius).ToList();
 
         if (_targets.Count <= 0 && _targets == null) return;
         foreach (var target in _targets)

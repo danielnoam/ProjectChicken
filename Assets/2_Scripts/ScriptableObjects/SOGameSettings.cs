@@ -8,16 +8,10 @@ public class SOGameSettings : ScriptableObject
     [Header("General")]
     [SerializeField, Min(0)] private float timeToPause = 3f;
     [SerializeField, Min(0)] private int scoreBonusThreshold = 50000;
-    [SerializeField, Min(0)] private int enemyWaveScoreWorth = 1000;
+    [SerializeField] private SceneField mainMenuScene;
     
-    [Header("Player Upgrades")]
-    [SerializeField] private int maxPlayerHealth = 3;
-    [SerializeField] private float maxPlayerShield = 150;
-    [SerializeField] private float maxPlayerHeat = 150;
-    [SerializeField] private int maxPlayerDodgeAccumulation = 3;
-    [SerializeField] private float maxPlayerMagnetSize = 20;
     
-    [Header("Boundaries")]
+    [Header("World Boundaries")]
     [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(45f,30f);
     [SerializeField, Min(0)] private Vector2 playerBoundary = new Vector2(40f,25f);
     [SerializeField] private Vector3 playerBoundaryOffset;
@@ -25,24 +19,53 @@ public class SOGameSettings : ScriptableObject
     [SerializeField] private float playerPositionMultiplier = -30f;
     [SerializeField] private float enemyPositionMultiplier = 30f;
     
-    [Header("References")]
-    [SerializeField] private SceneField mainMenuScene;
-
     
+    [Header("Player Base Stats")]
+    [SerializeField, Min(0)] private int baseHealth = 2;
+    [SerializeField, Min(0)] private float baseShield = 100f;
+    [SerializeField, Min(0)] private float baseMagnetRadius = 14f;
+    [SerializeField] private int baseDodgeAccumulation = 1;
+    [SerializeField, Min(0f)] private float baseMaxHeat = 100f;
+    
+    [Header("Player Max Stats")]
+    [SerializeField] private int maxHealth = 5;
+    [SerializeField] private float maxShield = 150;
+    [SerializeField] private float maxHeat = 150;
+    [SerializeField] private int maxDodgeAccumulation = 3;
+    [SerializeField] private float maxMagnetSize = 20;
+    
+
     public float TimeToPause => timeToPause;
-    public int MaxPlayerHealth => maxPlayerHealth;
-    public float MaxPlayerShield => maxPlayerShield;
-    public float MaxPlayerMagnetSize => maxPlayerMagnetSize;
-    public float MaxPlayerHeat => maxPlayerHeat;
-    public int MaxPlayerDodgeAccumulation => maxPlayerDodgeAccumulation;
+    public int ScoreBonusThreshold => scoreBonusThreshold;
+    public SceneField MainMenuScene => mainMenuScene;
+    
+    
     public Vector3 PlayerBoundaryOffset => playerBoundaryOffset;
     public Vector3 EnemyBoundaryOffset => enemyBoundaryOffset;
     public Vector2 PlayerBoundary => playerBoundary;
     public Vector2 EnemyBoundary => enemyBoundary;
     public float PlayerPositionMultiplier => playerPositionMultiplier;
     public float EnemyPositionMultiplier => enemyPositionMultiplier;
-    public int ScoreBonusThreshold => scoreBonusThreshold;
-    public int EnemyWaveScoreWorth =>  enemyWaveScoreWorth;
-    public SceneField MainMenuScene => mainMenuScene;
+    
+    
+    
+    
+    
+    public int BaseHealth => baseHealth;
+    public float BaseShield => baseShield;
+    public float BaseMagnetRadius => baseMagnetRadius;
+    public int BaseDodgeAccumulation => baseDodgeAccumulation;
+    public float BaseMaxHeat => baseMaxHeat;
+    
+    
+    
+    public int MaxHealth => maxHealth;
+    public float MaxShield => maxShield;
+    public float MaxMagnetSize => maxMagnetSize;
+    public float MaxHeat => maxHeat;
+    public int MaxDodgeAccumulation => maxDodgeAccumulation;
+
+    
+    
 
 }

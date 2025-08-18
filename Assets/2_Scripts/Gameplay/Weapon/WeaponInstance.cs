@@ -240,14 +240,14 @@ public class WeaponInstance
     
         if (WeaponData.MaxTargets == 1)
         {
-            InstantiateProjectile(owner, position, owner.GetTarget(WeaponData.TargetCheckRadius), aimOffset);
+            InstantiateProjectile(owner, position, owner.Aiming.GetTarget(WeaponData.TargetCheckRadius), aimOffset);
         } 
         else
         {
             ChickenController[] enemies = WeaponData.MaxTargets switch
             {
-                0 => owner.GetAllTargets(999, WeaponData.TargetCheckRadius),
-                > 1 => owner.GetAllTargets(WeaponData.MaxTargets, WeaponData.TargetCheckRadius),
+                0 => owner.Aiming.GetTargets(999, WeaponData.TargetCheckRadius),
+                > 1 => owner.Aiming.GetTargets(WeaponData.MaxTargets, WeaponData.TargetCheckRadius),
                 _ => System.Array.Empty<ChickenController>()
             };
 
@@ -294,15 +294,15 @@ public class WeaponInstance
 
         if (WeaponData.MaxTargets == 1)
         {
-            ChickenController enemy = owner.GetTarget(WeaponData.TargetCheckRadius);
+            ChickenController enemy = owner.Aiming.GetTarget(WeaponData.TargetCheckRadius);
             HitscanHit(owner, enemy);
         } 
         else
         {
             ChickenController[] enemies = WeaponData.MaxTargets switch
             {
-                0 => owner.GetAllTargets(999, WeaponData.TargetCheckRadius),
-                > 1 => owner.GetAllTargets(WeaponData.MaxTargets, WeaponData.TargetCheckRadius),
+                0 => owner.Aiming.GetTargets(999, WeaponData.TargetCheckRadius),
+                > 1 => owner.Aiming.GetTargets(WeaponData.MaxTargets, WeaponData.TargetCheckRadius),
                 _ => System.Array.Empty<ChickenController>()
             };
             foreach (ChickenController enemy in enemies)

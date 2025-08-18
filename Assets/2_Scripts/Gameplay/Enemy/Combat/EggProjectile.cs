@@ -105,7 +105,7 @@ public class EggProjectile : MonoBehaviour, IPooledObject
         if (other.TryGetComponent(out RailPlayer player))
         {
             // Deal damage to player
-            player.TakeDamage(currentDamage);
+            player.Health.TakeDamage(currentDamage);
         }
         
         // Play impact effects

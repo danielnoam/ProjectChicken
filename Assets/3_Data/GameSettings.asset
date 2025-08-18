@@ -12,21 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9251c2671eed2594c80c7d6f6bebbe19, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: 
-  timeToPause: 3
+  timeToPause: 2
   scoreBonusThreshold: 50000
-  enemyWaveScoreWorth: 1000
-  maxPlayerHealth: 5
-  maxPlayerShield: 150
-  maxPlayerHeat: 150
-  maxPlayerDodgeAccumulation: 3
-  maxPlayerMagnetSize: 20
+  mainMenuScene:
+    sceneAsset: {fileID: 102900000, guid: 81ac6686a6faf384a8be7373c1b1ef15, type: 3}
+    sceneName: MainMenu
+    scenePath: Assets/1_Scenes/GameScenes/MainMenu.unity
   enemyBoundary: {x: 45, y: 30}
   playerBoundary: {x: 40, y: 25}
   playerBoundaryOffset: {x: 0, y: 0, z: 0}
   enemyBoundaryOffset: {x: 0, y: 0.25, z: 0}
   playerPositionMultiplier: -30
   enemyPositionMultiplier: 30
-  mainMenuScene:
-    sceneAsset: {fileID: 102900000, guid: 81ac6686a6faf384a8be7373c1b1ef15, type: 3}
-    sceneName: MainMenu
-    scenePath: Assets/1_Scenes/GameScenes/MainMenu.unity
+  baseHealth: 2
+  baseShield: 100
+  baseMagnetRadius: 14
+  baseDodgeAccumulation: 1
+  baseMaxHeat: 100
+  maxHealth: 5
+  maxShield: 150
+  maxHeat: 150
+  maxDodgeAccumulation: 3
+  maxMagnetSize: 20

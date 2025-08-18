@@ -27,16 +27,12 @@ public class RailPlayerMovement : MonoBehaviour
 
     
     [Header("Dodge Settings")]
-    [SerializeField] private bool enableDodging = true;
-    [EnableIf("enableDodging")]
-    [SerializeField] private int baseDodgeAccumulation = 1;
     [SerializeField, Min(0)] private float dodgeAccumulationRate = 2;
     [SerializeField, Min(0)] private float dodgeMoveSpeed = 65f;
     [SerializeField, Min(0)] private float dodgeDuration = 0.4f;
     [SerializeField, Min(0)] private float dodgeCooldown = 0.45f;
     [SerializeField, Min(0)] private float dodgeRollAmount = 360f;
     [SerializeField, Min(0)] private TweenSettings dodgeTweenSettings = new TweenSettings(1.2f, Ease.Custom);
-    [EndIf]
     
     [Header("References")] 
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
@@ -83,8 +79,8 @@ public class RailPlayerMovement : MonoBehaviour
     private void Awake()
     {
         _allowMovement = true;
-        _maxDodgeAccumulation = baseDodgeAccumulation;
-        _currentDodgeRemining = baseDodgeAccumulation;
+        _maxDodgeAccumulation = player.GameSettings.BaseDodgeAccumulation;
+        _currentDodgeRemining = player.GameSettings.BaseDodgeAccumulation;
     }
 
     private void Start()
@@ -95,7 +91,7 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void OnEnable()
     {
-        player.OnDeath += OnDeath;
+        player.Health.OnDeath += OnDeath;
         playerInput.OnMoveEvent += OnMove;
         playerInput.OnDodgeLeftEvent += OnDodgeLeft;
         playerInput.OnDodgeRightEvent += OnDodgeRight;
@@ -111,7 +107,7 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void OnDisable()
     {
-        player.OnDeath -= OnDeath;
+        player.Health.OnDeath -= OnDeath;
         playerInput.OnMoveEvent -= OnMove;
         playerInput.OnDodgeLeftEvent -= OnDodgeLeft;
         playerInput.OnDodgeRightEvent -= OnDodgeRight;
@@ -289,8 +285,6 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void HandleDodging()
     {
-        if (!enableDodging) return;
-    
         // Check if we are currently dodging
         if (_isDodging && _dodgeTimeCounter <= dodgeDuration)
         {
@@ -356,12 +350,12 @@ public class RailPlayerMovement : MonoBehaviour
     }
     
     
-    public void AddDodgeAccumulationUpgrade(int amount)
+    public void UpgradeDodgeAccumulationBy(int amount)
     {
         _maxDodgeAccumulation += amount;
-        if (_maxDodgeAccumulation > player.GameSettings.MaxPlayerDodgeAccumulation)
+        if (_maxDodgeAccumulation > player.GameSettings.MaxDodgeAccumulation)
         {
-            _maxDodgeAccumulation = player.GameSettings.MaxPlayerDodgeAccumulation;
+            _maxDodgeAccumulation = player.GameSettings.MaxDodgeAccumulation;
         }
         
         _dodgeAccumulationRateTimer = dodgeAccumulationRate;
@@ -378,7 +372,7 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void OnMove(InputAction.CallbackContext context)
     {
-        if (!_allowMovement || !player.IsAlive())
+        if (!_allowMovement || !player.Health.IsAlive())
         {
             _horizontalInput = 0f;
             _verticalInput = 0f;
@@ -400,7 +394,7 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void OnDodgeLeft(InputAction.CallbackContext context)
     {
-        if (!enableDodging || !_allowMovement || !player.IsAlive()) return;
+        if (!_allowMovement || !player.Health.IsAlive()) return;
 
         Dodge(Vector3.left);
     }
@@ -410,14 +404,14 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void OnDodgeRight(InputAction.CallbackContext context)
     {
-        if (!enableDodging || !_allowMovement || !player.IsAlive()) return;
+        if (!_allowMovement || !player.Health.IsAlive()) return;
         
         Dodge(Vector3.right);
     }
     
     private void OnDodgeFreeform(InputAction.CallbackContext context)
     {
-        if (!enableDodging || !_allowMovement || !player.IsAlive()) return;
+        if (!_allowMovement || !player.Health.IsAlive()) return;
 
 
         switch (_horizontalInput)

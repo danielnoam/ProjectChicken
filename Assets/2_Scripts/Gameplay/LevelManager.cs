@@ -109,8 +109,8 @@ public class LevelManager : MonoBehaviour
 
         if (player)
         {
-            player.ResourceCollector.OnResourceCollected += OnPlayerCollectedResource;
-            player.OnDeath += OnPlayerDeath;
+            player.ResourceCollector.OnResourceCollected += CollectedResource;
+            player.Health.OnDeath += Death;
             player.OnPause += OnPlayerPaused;
         }
 
@@ -132,8 +132,8 @@ public class LevelManager : MonoBehaviour
         
         if (player)
         {
-            player.ResourceCollector.OnResourceCollected -= OnPlayerCollectedResource;
-            player.OnDeath -= OnPlayerDeath;
+            player.ResourceCollector.OnResourceCollected -= CollectedResource;
+            player.Health.OnDeath -= Death;
             player.OnPause -= OnPlayerPaused;
         }
         if (storeManager)
@@ -169,7 +169,7 @@ public class LevelManager : MonoBehaviour
         SetNextStage();
     }
 
-    private void OnPlayerDeath()
+    private void Death()
     {
         StartCoroutine(RestartSavePoint());
     }
@@ -327,9 +327,7 @@ public class LevelManager : MonoBehaviour
         var newSavePoint = new SavePointInformation(
             currentStageIndex,
             _currentScore, 
-            player.CurrentHealth, 
-            player.CurrentShield, 
-            player.CurrentCurrency, 
+            player.ResourceCollector.CurrentCurrency, 
             player.Upgrades,
             playerSpecialWeapon
             );
@@ -373,7 +371,7 @@ public class LevelManager : MonoBehaviour
         OnScoreChanged?.Invoke(_currentScore);
     }
     
-    private void OnPlayerCollectedResource(Resource resource)
+    private void CollectedResource(Resource resource)
     {
         if (!resource) return;
         

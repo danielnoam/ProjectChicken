@@ -69,7 +69,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void OnEnable()
     {
-        player.OnDeath += OnDeath;
+        player.Health.OnDeath += OnDeath;
         playerInput.OnProcessedLookEvent += OnProcessedLook;
         playerInput.OnAttackEvent += OnAttack;
         playerInput.OnAttack2Event += OnAttack2;
@@ -83,7 +83,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void OnDisable()
     {
-        player.OnDeath -= OnDeath;
+        player.Health.OnDeath -= OnDeath;
         playerInput.OnProcessedLookEvent -= OnProcessedLook;
         playerInput.OnAttackEvent -= OnAttack;
         playerInput.OnAttack2Event -= OnAttack2;
@@ -192,7 +192,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void HandleAimLock()
     {
-        if (!playerInput.CurrentControlScheme.aimLock || !_allowAiming || !player.IsAlive())
+        if (!playerInput.CurrentControlScheme.aimLock || !_allowAiming || !player.Health.IsAlive())
         {
             if (_isAimLocked)
             {
@@ -251,7 +251,7 @@ public class RailPlayerAiming : MonoBehaviour
     {
         if (_isAimLocked) return;
         
-        ChickenController newTarget = GetEnemyTarget(playerInput.CurrentControlScheme.aimLockRadius);
+        ChickenController newTarget = GetTarget(playerInput.CurrentControlScheme.aimLockRadius);
         if (newTarget && _currentAimLockTarget != newTarget)
         {
             _currentAimLockTarget = newTarget;
@@ -278,7 +278,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void OnProcessedLook(Vector2 processedLookInput)
     {
-        if (!_allowAiming || !player.IsAlive()) return;
+        if (!_allowAiming || !player.Health.IsAlive()) return;
         _processedLookInput = processedLookInput;
         _noInputTimer = 0f;
     }
@@ -371,7 +371,7 @@ public class RailPlayerAiming : MonoBehaviour
     
     #region Helper Methods -------------------------------------------------------------------------
     
-    public ChickenController GetEnemyTarget(float radius)
+    public ChickenController GetTarget(float radius)
     {
         
         Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
@@ -406,7 +406,7 @@ public class RailPlayerAiming : MonoBehaviour
         return null; 
     }
     
-    public ChickenController[] GetEnemyTargets(int maxTargets, float radius)
+    public ChickenController[] GetTargets(int maxTargets, float radius)
     {
         Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
         Collider[] hitColliders = Physics.OverlapSphere(aimWorldPosition.position, radius);
@@ -505,4 +505,6 @@ public class RailPlayerAiming : MonoBehaviour
     
     #endif 
     #endregion Editor -------------------------------------------------------------------------
+
+
 }

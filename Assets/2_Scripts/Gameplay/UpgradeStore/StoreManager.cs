@@ -137,9 +137,9 @@ public class StoreManager : MonoBehaviour
 
     private void RerollEggs()
     {
-        if (player.CurrentCurrency < _currentRerollCost) return;
+        if (player.ResourceCollector.CurrentCurrency < _currentRerollCost) return;
         
-        player.UpdateCurrency(-_currentRerollCost);
+        player.ResourceCollector.UpdateCurrency(-_currentRerollCost);
         _currentRerollCost += rerollCostIncrease;
         _currentRerollCost = Mathf.Clamp(_currentRerollCost, baseRerollCost, maxRerollCost);
         rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Reroll ({_currentRerollCost})";

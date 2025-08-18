@@ -149,12 +149,12 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
         
         
         Vector3 enemySplinePosition = owner.LevelManager.EnemyPosition;
-        Vector3 currentAimPosition = owner.PlayerAiming.AimWorldPosition.position + aimOffset;
+        Vector3 currentAimPosition = owner.Aiming.AimWorldPosition.position + aimOffset;
         _aimOffsetFromSpline = currentAimPosition - enemySplinePosition;
         UpdateTargetPosition();
         
         
-        Vector3 baseAimDirection = (owner.PlayerAiming.AimWorldPosition.position - transform.position).normalized;
+        Vector3 baseAimDirection = (owner.Aiming.AimWorldPosition.position - transform.position).normalized;
         StartDirection = (baseAimDirection + aimOffset).normalized;
         rigidBody.rotation = Quaternion.LookRotation(StartDirection);
         
@@ -183,12 +183,12 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
         
         
         Vector3 enemySplinePosition = owner.LevelManager.EnemyPosition;
-        Vector3 currentAimPosition = owner.PlayerAiming.AimWorldPosition.position + aimOffset;
+        Vector3 currentAimPosition = owner.Aiming.AimWorldPosition.position + aimOffset;
         _aimOffsetFromSpline = currentAimPosition - enemySplinePosition;
         UpdateTargetPosition();
         
         
-        Vector3 baseAimDirection = (owner.PlayerAiming.AimWorldPosition.position - transform.position).normalized;
+        Vector3 baseAimDirection = (owner.Aiming.AimWorldPosition.position - transform.position).normalized;
         StartDirection = (baseAimDirection + aimOffset).normalized;
         rigidBody.rotation = Quaternion.LookRotation(StartDirection);
         
