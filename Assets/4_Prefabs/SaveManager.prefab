@@ -44,10 +44,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2d679a1ed2b2c54ea741eb353fb8fc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaultVolumeSettings:
+    masterVolume: 1
+    sfxVolume: 1
+    musicVolume: 1
   defaultKeyboardMouseScheme:
     invertY: 0
     invertX: 0
-    aimSensitivity: 1
+    aimSensitivity: 2
     deadZone: 0
     magnitudeToSensitivityCurve:
       serializedVersion: 2

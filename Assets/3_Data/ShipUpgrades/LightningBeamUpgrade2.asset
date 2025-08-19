@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Lightning Beam Upgrade 2
   itemDescription: Cook more chickens with each beam!
+  itemIcon: {fileID: 0}
   itemGfx: {fileID: 682982969330921429, guid: 9a613ff7fb78f9e44ac869ca2a357781, type: 3}
   itemRarity: 2
   itemNeededToUnlock:
@@ -48,8 +49,8 @@ MonoBehaviour:
       type: {class: BehaviorChainOnHit, ns: , asm: Assembly-CSharp}
       data:
         targetsRadiusCheck: 10
-        maxTargets: 7
-        baseDamage: 11
+        maxTargets: 6
+        baseDamage: 14
         baseForce: 11
         stun: 0
         baseStunChance: 0.05

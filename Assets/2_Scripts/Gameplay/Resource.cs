@@ -111,7 +111,7 @@ public class Resource : MonoBehaviour
 
         _currentLifetime -= Time.deltaTime;
         
-        if (_currentLifetime <= despawnAnimationDuration && !_scaleAnimation.isAlive)
+        if (_currentLifetime <= (despawnAnimationDuration+0.05f) && !_scaleAnimation.isAlive)
         {
             resourceGfx.localScale = Vector3.one;
             _scaleAnimation = Sequence.Create()

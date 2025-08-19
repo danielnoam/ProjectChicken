@@ -383,8 +383,11 @@ public class LevelManager : MonoBehaviour
 
     #endregion
     
-    
+#if UNITY_EDITOR
     #region Editor -----------------------------------------------------------------------------------------------
+
+
+    
 
     private void OnDrawGizmos()
     {
@@ -440,5 +443,5 @@ public class LevelManager : MonoBehaviour
 
     #endregion Editor -----------------------------------------------------------------------------------------------
 
-
+#endif
 }

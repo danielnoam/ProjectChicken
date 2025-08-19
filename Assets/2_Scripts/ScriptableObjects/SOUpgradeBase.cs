@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 using VInspector;
 
 public enum UpgradeRarity
@@ -16,6 +17,7 @@ public abstract class SOUpgradeBase : ScriptableObject
     [Header("Upgrade Information")]
     [SerializeField] protected string itemName = "A name";
     [SerializeField] protected string itemDescription = "Does something";
+    [SerializeField] protected Image itemIcon;
     [SerializeField] protected GameObject itemGfx;
     [SerializeField] protected UpgradeRarity itemRarity = UpgradeRarity.Common;
     [SerializeField] protected SOUpgradeBase[] itemNeededToUnlock = Array.Empty<SOUpgradeBase>();
@@ -23,6 +25,7 @@ public abstract class SOUpgradeBase : ScriptableObject
     
     public string ItemName => itemName;
     public string ItemDescription => itemDescription;
+    public Image ItemIcon => itemIcon;
     public GameObject ItemGfx => itemGfx;
     public UpgradeRarity ItemRarity => itemRarity;
     public SOUpgradeBase[] ItemNeededToUnlock => itemNeededToUnlock;

@@ -17,6 +17,7 @@ public class UpgradeEgg : MonoBehaviour
     [SerializeField] private CanvasGroup mainCanvasGroup;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
+    [SerializeField] protected Image iconImage;
     [SerializeField] private Transform upgradeGfxHolder;
 
     private SOUpgradeBase _upgrade;
@@ -48,6 +49,7 @@ public class UpgradeEgg : MonoBehaviour
         _upgrade = upgrade;
         nameText.text = upgrade.ItemName;
         descriptionText.text = upgrade.ItemDescription;
+        iconImage = upgrade.ItemIcon;
         
         Instantiate(_upgrade.ItemGfx, upgradeGfxHolder);
         

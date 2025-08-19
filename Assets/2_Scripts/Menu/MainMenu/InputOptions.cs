@@ -1,20 +1,46 @@
-using System;
+
+using DNExtensions;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class InputOptions : MonoBehaviour
 {
+    
+    [Header("Settings")]
+    [SerializeField, MinMaxRange(0.1f,10f)] private RangedFloat sensitivityRange = new RangedFloat(0.1f, 2f);
+    
+    
     [Header("References")]
     [SerializeField] private Slider keyboardAimSensitivity;
+    [SerializeField] private TextMeshProUGUI keyboardAimSensitivityText;
     [SerializeField] private Toggle keyboardInvertY;
     [SerializeField] private Toggle keyboardInvertX;
     [SerializeField] private Slider gamepadAimSensitivity;
+    [SerializeField] private TextMeshProUGUI gamepadAimSensitivityText;
     [SerializeField] private Toggle gamepadInvertY;
     [SerializeField] private Toggle gamepadInvertX;
 
     private ControlSchemeSettings _keyboardControlSchemeSettings;
     private ControlSchemeSettings _gamepadControlSchemeSettings;
 
+
+    private void OnValidate()
+    {
+        if (keyboardAimSensitivity)
+        {
+            keyboardAimSensitivity.minValue = sensitivityRange.minValue;
+            keyboardAimSensitivity.maxValue = sensitivityRange.maxValue;
+        }
+        
+        if (gamepadAimSensitivity)
+        {
+            gamepadAimSensitivity.minValue = sensitivityRange.minValue;
+            gamepadAimSensitivity.maxValue = sensitivityRange.maxValue;
+        }
+
+        
+    }
 
     private void Awake()
     {
@@ -26,6 +52,7 @@ public class InputOptions : MonoBehaviour
         if (keyboardAimSensitivity)
         {
             keyboardAimSensitivity.value = _keyboardControlSchemeSettings.aimSensitivity;
+            keyboardAimSensitivityText.text = _keyboardControlSchemeSettings.aimSensitivity.ToString("0.0");
             keyboardAimSensitivity.onValueChanged.AddListener(SetKeyboardSchemeAimSensitivity);
         }
         
@@ -45,6 +72,7 @@ public class InputOptions : MonoBehaviour
         if (gamepadAimSensitivity)
         {
             gamepadAimSensitivity.value = _gamepadControlSchemeSettings.aimSensitivity;
+            gamepadAimSensitivityText.text = _gamepadControlSchemeSettings.aimSensitivity.ToString("0.0");
             gamepadAimSensitivity.onValueChanged.AddListener(SetGamepadSchemeAimSensitivity);
         }
         
@@ -64,6 +92,7 @@ public class InputOptions : MonoBehaviour
     private void SetKeyboardSchemeAimSensitivity(float value)
     {
         _keyboardControlSchemeSettings.aimSensitivity = value;
+        keyboardAimSensitivityText.text = value.ToString("0.0");
         SaveManager.UpdateKeyboardControlScheme(_keyboardControlSchemeSettings);
     }
     
@@ -82,6 +111,7 @@ public class InputOptions : MonoBehaviour
     private void SetGamepadSchemeAimSensitivity(float value)
     {
         _gamepadControlSchemeSettings.aimSensitivity = value;
+        gamepadAimSensitivityText.text = value.ToString("0.0");
         SaveManager.UpdateGamepadControlScheme(_gamepadControlSchemeSettings);
     }
     

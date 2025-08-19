@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Lightning Beam Upgrade 1
   itemDescription: The lightning beam jumps to nearby chickens!
+  itemIcon: {fileID: 0}
   itemGfx: {fileID: 682982969330921429, guid: ce75fb195b0ab314cb5356b98d83df50, type: 3}
   itemRarity: 2
   itemNeededToUnlock: []
@@ -48,7 +49,7 @@ MonoBehaviour:
       data:
         targetsRadiusCheck: 10
         maxTargets: 5
-        baseDamage: 10
+        baseDamage: 13
         baseForce: 10
         stun: 0
         baseStunChance: 0.05

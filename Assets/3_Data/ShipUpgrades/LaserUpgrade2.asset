@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Laser Upgrade 2
   itemDescription: Now shoots three lasers!
+  itemIcon: {fileID: 0}
   itemGfx: {fileID: 682982969330921429, guid: bf2cd7b501508c14e8723a3389ce300c, type: 3}
   itemRarity: 2
   itemNeededToUnlock:
@@ -82,7 +83,7 @@ MonoBehaviour:
     - rid: 4047855707409612906
       type: {class: BehaviorDamageOnImpact, ns: , asm: Assembly-CSharp}
       data:
-        damage: 35
+        damage: 50
     - rid: 4047855707409612907
       type: {class: BehaviorPushOnImpact, ns: , asm: Assembly-CSharp}
       data:
