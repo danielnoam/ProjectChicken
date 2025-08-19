@@ -390,11 +390,51 @@ public class LevelManager : MonoBehaviour
     {
         // Draw player position
         Gizmos.color = Color.green;
-        Gizmos.DrawSphere(playerPosition, 0.3f);
-            
+        Gizmos.DrawSphere(playerPosition, 0.5f);
+        Vector3 playerSplinePosition = playerPosition;
+        Vector3[] localCorners = new Vector3[]
+        {
+            new Vector3(-gameSettings.PlayerBoundary.x, -gameSettings.PlayerBoundary.y, 0),
+            new Vector3(gameSettings.PlayerBoundary.x, -gameSettings.PlayerBoundary.y, 0),  
+            new Vector3(gameSettings.PlayerBoundary.x, gameSettings.PlayerBoundary.y, 0),   
+            new Vector3(-gameSettings.PlayerBoundary.x, gameSettings.PlayerBoundary.y, 0)  
+        };
+        Vector3[] worldCorners = new Vector3[4];
+        for (int i = 0; i < 4; i++)
+        {
+            worldCorners[i] = playerSplinePosition + localCorners[i];
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            int nextIndex = (i + 1) % 4;
+            Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
+        }
+        UnityEditor.Handles.Label(playerSplinePosition + Vector3.up * (gameSettings.PlayerBoundary.y + 1f), "Player Boundaries");
+        
+        
         // Draw enemy position
         Gizmos.color = Color.red;
-        Gizmos.DrawSphere(enemyPosition, 0.3f);
+        Gizmos.DrawSphere(enemyPosition, 0.5f);
+        Vector3 crosshairSplinePosition = enemyPosition;
+        Vector3[] localCorners1 = new Vector3[]
+        {
+            new Vector3(-gameSettings.EnemyBoundary.x, -gameSettings.EnemyBoundary.y, 0),
+            new Vector3(gameSettings.EnemyBoundary.x, -gameSettings.EnemyBoundary.y, 0),
+            new Vector3(gameSettings.EnemyBoundary.x, gameSettings.EnemyBoundary.y, 0),
+            new Vector3(-gameSettings.EnemyBoundary.x, gameSettings.EnemyBoundary.y, 0)
+        };
+        Vector3[] worldCorners1 = new Vector3[4];
+        for (int i = 0; i < 4; i++)
+        {
+            worldCorners1[i] = crosshairSplinePosition + localCorners1[i];
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            int nextIndex = (i + 1) % 4;
+            Gizmos.DrawLine(worldCorners1[i], worldCorners1[nextIndex]);
+        }
+        UnityEditor.Handles.Label(crosshairSplinePosition + Vector3.up * (gameSettings.EnemyBoundary.y + 1f), "Enemy Boundaries");
+
 
     }
 

@@ -58,7 +58,9 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
                 break;
         }
         
+        Quaternion newRotation = Quaternion.LookRotation(newPosition - projectile.Rigidbody.position, Vector3.up);
         projectile.Rigidbody?.MovePosition(newPosition);
+        projectile.Rigidbody?.MoveRotation(newRotation);
     }
     
 
@@ -214,34 +216,7 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     
     
     
-    public ChickenController[] GetTargets(Vector3 position,int maxTargets, float radius)
-    {
-        Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
-        Collider[] hitColliders = Physics.OverlapSphere(position, radius);
-        
-        foreach (Collider hitCollider in hitColliders)
-        {
-            if (hitCollider.TryGetComponent(out ChickenController enemy))
-            {
-                float distance = Vector3.Distance(position, enemy.transform.position);
-                enemyDistances[enemy] = distance;
-            }
-        }
-        
-        List<ChickenController> sortedEnemies = new List<ChickenController>(enemyDistances.Keys);
-        sortedEnemies.Sort((a, b) => enemyDistances[a].CompareTo(enemyDistances[b]));
-        
-        int targetCount = Mathf.Min(maxTargets, sortedEnemies.Count);
-        ChickenController[] targets = new ChickenController[targetCount];
-        for (int i = 0; i < targetCount; i++)
-        {
-            targets[i] = sortedEnemies[i];
-        }
-        
-        return targets;
-    }
-    
-    public ChickenController GetTarget(Vector3 position, float radius)
+    private ChickenController GetTarget(Vector3 position, float radius)
     {
         
         Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();

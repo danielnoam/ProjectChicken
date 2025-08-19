@@ -53,6 +53,10 @@ Material:
         m_Texture: {fileID: 8900000, guid: fb0d1ac89e505ce4dad693d06f654afd, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _StarsTexture_1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -69,6 +73,8 @@ Material:
     m_Floats:
     - Vector1_01254a41763b429cb33b364bf1814cf9: 0
     - Vector1_e797322cc6194612ab007424c6b53a3b: 0
+    - _Add_Stars_Opacity: 0.2
+    - _Add_Stars_Rotation_Speed: 1
     - _CloudsEmissionPower: 1
     - _CloudsOpacityExp: 1
     - _CloudsOpacityPower: 0
@@ -85,6 +91,7 @@ Material:
     - _DarkCloudsRotationSpeed: 0.01
     - _DarkCloudsThicker: 1
     - _FinalPower: 0.12
+    - _Posterize_Amount: 10
     - _QueueControl: 0
     - _QueueOffset: 0
     - _RIMENABLED: 0
@@ -92,13 +99,18 @@ Material:
     - _RotationClouds: 0.05
     - _RotationDarkClouds: -1.05
     - _RotationStars: 0.06
+    - _Rotation_Add_Stars: 0
     - _StarsEmissionPower: 4
+    - _StarsEmissionPower_1: 4
     - _StarsExp: 1
     - _StarsExpNegate: 1
+    - _StarsExpNegate_1: 1
+    - _StarsExp_1: 1
     - _StarsRotationSpeed: 0.01
     m_Colors:
     - _CloudsRampColorTint: {r: 1, g: 1, b: 1, a: 1}
     - _RotationAxis: {r: 0.25, g: 0, b: 0, a: 0}
     - _StarsColorTint: {r: 1, g: 1, b: 1, a: 1}
+    - _StarsColorTint_1: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

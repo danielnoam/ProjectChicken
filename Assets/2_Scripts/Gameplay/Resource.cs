@@ -100,6 +100,8 @@ public class Resource : MonoBehaviour
 
 
 
+    
+    
 
     #region State Management ---------------------------------------------------------------------------------------
 
@@ -111,7 +113,10 @@ public class Resource : MonoBehaviour
         
         if (_currentLifetime <= despawnAnimationDuration && !_scaleAnimation.isAlive)
         {
-            PlayDespawnEffects();
+            resourceGfx.localScale = Vector3.one;
+            _scaleAnimation = Sequence.Create()
+                .Group(Tween.PunchScale(resourceGfx, strength: Vector3.one * magnetizedPunchStrength/2, frequency: 2, duration: despawnAnimationDuration/2, easeBetweenShakes: Ease.InOutBounce))
+                .Chain(Tween.Scale(resourceGfx, endValue: Vector3.zero, duration: despawnAnimationDuration/2, ease: Ease.OutSine));
         }
         
         if (_currentLifetime <= 0f)
@@ -126,7 +131,10 @@ public class Resource : MonoBehaviour
         
         _currentState = ResourceState.Magnetized;
         _playerTransform = playerTransform;
-        PlayMagnetizedEffects();
+        
+        if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
+        resourceGfx.localScale = Vector3.one;
+        _scaleAnimation = Sequence.Create(Tween.PunchScale(resourceGfx, Vector3.one * magnetizedPunchStrength, frequency:5, duration: magnetizedPunchDuration));
     }
     
     
@@ -139,18 +147,29 @@ public class Resource : MonoBehaviour
     public void ResourceCollected()
     {
         if (_currentState == ResourceState.Collected) return;
-        
         _currentState = ResourceState.Collected;
-        PlayCollectionEffects();
-        if (_scaleAnimation.isAlive) _scaleAnimation.OnComplete((() => { Destroy(gameObject); }));
+        
+        if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
+        if (collectionSfx)
+        {
+            collectionSfx.PlayAtPoint(transform.position);
+        }
+        
+        if (collectionEffect)
+        {
+            Instantiate(collectionEffect, transform.position, Quaternion.identity);
+        }
+        Destroy(gameObject);
     }
 
     public void ForceDespawn()
     {
-        if (_currentState == ResourceState.Collected) return;
-        
-        PlayDespawnEffects();
-        if (_scaleAnimation.isAlive) _scaleAnimation.OnComplete((() => { Destroy(gameObject); }));
+        if (_currentState is ResourceState.Collected or ResourceState.Magnetized) return;
+        if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
+        _scaleAnimation = Sequence.Create()
+            .Group(Tween.PunchScale(resourceGfx, strength: Vector3.one * magnetizedPunchStrength/2, frequency: 2, duration: despawnAnimationDuration/2, easeBetweenShakes: Ease.InOutBounce))
+            .Chain(Tween.Scale(resourceGfx, endValue: Vector3.zero, duration: despawnAnimationDuration/2, ease: Ease.OutSine)) 
+            .OnComplete((() => { Destroy(gameObject); }));
     }
 
 
@@ -165,8 +184,7 @@ public class Resource : MonoBehaviour
         }
         _currentVelocity = Vector3.zero;
         
-
-
+        
         if (gameSettings)
         {
             _movementBoundaryX = gameSettings.PlayerBoundary.x;
@@ -177,7 +195,13 @@ public class Resource : MonoBehaviour
            UpdateBoundaryTargetPosition(); 
         }
         
-        PlaySpawnEffects();
+        _rotationAxis = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
+        resourceGfx.eulerAngles = new Vector3(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
+        
+        spawnSfx?.Play(audioSource);
+        if (spawnEffect) Instantiate(spawnEffect, transform.position, Quaternion.identity);
+        if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
+        _scaleAnimation = Sequence.Create(Tween.Scale(resourceGfx, startValue: Vector3.one * 0.5f, endValue:Vector3.one, duration: spawnAnimationDuration, ease: Ease.InOutBounce));
 
     }
     
@@ -250,12 +274,6 @@ public class Resource : MonoBehaviour
         _currentVelocity = Vector3.Lerp(_currentVelocity, _targetVelocity, acceleration * Time.deltaTime);
     }
     
-    #endregion Movement ---------------------------------------------------------------------------------------
-    
-    
-
-    #region Effects ---------------------------------------------------------------------------------------
-
     
     private void RotateGfx()
     {
@@ -264,68 +282,22 @@ public class Resource : MonoBehaviour
         resourceGfx.Rotate(_rotationAxis, rotationSpeed * Time.deltaTime, Space.Self);
     }
 
-    private void PlaySpawnEffects()
-    {
-        _rotationAxis = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
-        resourceGfx.eulerAngles = new Vector3(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
-        
-        if (spawnSfx)
-        {
-            spawnSfx.Play(audioSource);
-        }
-        
-        if (spawnEffect)
-        {
-            Instantiate(spawnEffect, transform.position, Quaternion.identity);
-        }
-        
-        if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
-        _scaleAnimation = Sequence.Create(Tween.Scale(resourceGfx, startValue: Vector3.one * 0.5f, endValue:Vector3.one, duration: spawnAnimationDuration, ease: Ease.InOutBounce));
-    }
+    
+    #endregion Movement ---------------------------------------------------------------------------------------
     
     
-    private void PlayDespawnEffects()
-    {
-        if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
-        resourceGfx.localScale = Vector3.one;
-        _scaleAnimation = Sequence.Create()
-            .Group(Tween.PunchScale(resourceGfx, strength: Vector3.one * magnetizedPunchStrength/2, frequency: 2, duration: despawnAnimationDuration/2, easeBetweenShakes: Ease.InOutBounce))
-            .Chain(Tween.Scale(resourceGfx, endValue: Vector3.zero, duration: despawnAnimationDuration/2, ease: Ease.OutSine));
-        
-    }
-    private void PlayCollectionEffects()
-    {
-        if (collectionSfx)
-        {
-            collectionSfx.PlayAtPoint(transform.position);
-        }
-        
-        if (collectionEffect)
-        {
-            Instantiate(collectionEffect, transform.position, Quaternion.identity);
-        }
-    }
-    
-    
-    private void PlayMagnetizedEffects()
-    {
-        if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
-        resourceGfx.localScale = Vector3.one;
-        _scaleAnimation = Sequence.Create(Tween.PunchScale(resourceGfx, Vector3.one * magnetizedPunchStrength, frequency:5, duration: magnetizedPunchDuration));
-    }
-
-    #endregion Effects ---------------------------------------------------------------------------------------
 
     
     private void OnDrawGizmos()
     {
-        // Draw the current boundary target position
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(_currentBoundaryTargetPosition, 1.5f);
-    
-        // Optional: Draw a line from the resource to the target
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(transform.position, _currentBoundaryTargetPosition);
+        if (_currentState == ResourceState.MovingToBoundary)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(_currentBoundaryTargetPosition, 1.5f);
+        
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(transform.position, _currentBoundaryTargetPosition);
+        }
     }
  
 }

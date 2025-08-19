@@ -169,10 +169,12 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
     }
     
     
-    public void SetUpProjectile(RailPlayer owner, WeaponInstance weaponInstance, ChickenController target, List<ProjectileBehaviorBase> projectileBehaviors, Vector3 aimOffset = default)
+
+    
+    public void SetUpProjectile(RailPlayer owner, WeaponInstance weaponInstance, ChickenController target, List<ProjectileBehaviorBase> projectileBehaviors)
     {
         if (_isInitialized) return;
-
+        
         StartTime = Time.time;
         WeaponInstance = weaponInstance;
         WeaponData = weaponInstance.WeaponData;
@@ -183,13 +185,13 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
         
         
         Vector3 enemySplinePosition = owner.LevelManager.EnemyPosition;
-        Vector3 currentAimPosition = owner.Aiming.AimWorldPosition.position + aimOffset;
+        Vector3 currentAimPosition = owner.Aiming.AimWorldPosition.position;
         _aimOffsetFromSpline = currentAimPosition - enemySplinePosition;
         UpdateTargetPosition();
         
         
         Vector3 baseAimDirection = (owner.Aiming.AimWorldPosition.position - transform.position).normalized;
-        StartDirection = (baseAimDirection + aimOffset).normalized;
+        StartDirection = (baseAimDirection).normalized;
         rigidBody.rotation = Quaternion.LookRotation(StartDirection);
         
         

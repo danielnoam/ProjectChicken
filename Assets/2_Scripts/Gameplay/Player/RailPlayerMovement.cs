@@ -426,47 +426,5 @@ public class RailPlayerMovement : MonoBehaviour
     }
 
     #endregion Input Handling --------------------------------------------------------------------------------------
-
     
-    
-    #if UNITY_EDITOR
-    #region Editor -------------------------------------------------------------------------------------
-
-    private void OnDrawGizmos()
-    {
-        // Draw boundaries from the actual player position on spline (with pathOffset)
-        if (player.LevelManager)
-        {
-            Vector3 playerSplinePosition = player.LevelManager.PlayerPosition;
-            
-            // Create boundary corners in local spline space, then transform to world space
-            Vector3[] localCorners = new Vector3[]
-            {
-                new Vector3(-MovementBoundaryX, -MovementBoundaryY, 0), // Bottom-left
-                new Vector3(MovementBoundaryX, -MovementBoundaryY, 0),  // Bottom-right
-                new Vector3(MovementBoundaryX, MovementBoundaryY, 0),   // Top-right
-                new Vector3(-MovementBoundaryX, MovementBoundaryY, 0)   // Top-left
-            };
-            
-            // Transform corners to world space using spline rotation
-            Vector3[] worldCorners = new Vector3[4];
-            for (int i = 0; i < 4; i++)
-            {
-                worldCorners[i] = playerSplinePosition + localCorners[i];
-            }
-
-            Gizmos.color = Color.blue;
-            // Draw boundary rectangle
-            for (int i = 0; i < 4; i++)
-            {
-                int nextIndex = (i + 1) % 4;
-                Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
-            }
-            
-            UnityEditor.Handles.Label(playerSplinePosition + Vector3.up * (MovementBoundaryY + 0.5f), "Player Boundaries");
-        }
-    }
-
-    #endregion Editor -------------------------------------------------------------------------------------
-    #endif
 }
