@@ -925,6 +925,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.F5))
         {
             UpgradeCurrentWeapon();
+            ResetHeat();
         }
     }
 

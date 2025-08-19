@@ -29,7 +29,6 @@ public class SOWeaponUpgrade : SOUpgradeBase
     [SerializeField, Min(0.1f)] private float targetCheckRadius = 4f;
     [EndIf]
     
-    [Header("Barrel Offsets")]
     [SerializeField] private bool overrideBarrelAimOffsets;
     [ShowIf("overrideBarrelAimOffsets")]
     [SerializeField, Tooltip("Offset applied to aim direction for each barrel")] 
