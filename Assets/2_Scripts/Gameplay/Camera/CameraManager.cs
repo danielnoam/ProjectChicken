@@ -418,6 +418,13 @@ public class CameraManager : MonoBehaviour
         // Restore the original sign
         return remappedInput * Mathf.Sign(input);
     }
+    
+    public Transform OutroCameraPosition()
+    {
+        return !outroCamera ? transform : outroCamera.transform;
+    }
 
     #endregion Helpers ---------------------------------------------------------------------------------------------------------
+
+
 }

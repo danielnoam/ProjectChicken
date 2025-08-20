@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using KBCore.Refs;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
@@ -13,8 +14,8 @@ public class StoreManager : MonoBehaviour
     
     [Header("Settings")]
     [SerializeField, Min(1)] private int availableUpgrades = 3;
-    [SerializeField] private int baseRerollCost = 50;
-    [SerializeField] private int rerollCostIncrease = 50;
+    [SerializeField] private int baseRerollCost = 5;
+    [SerializeField] private int rerollCostIncrease = 15;
     [SerializeField] private int maxRerollCost = 300;
     
     [Header("Gfx")]
@@ -31,8 +32,8 @@ public class StoreManager : MonoBehaviour
     [SerializeField] private Button closeStoreButton;
     [SerializeField] private Button rerollButton;
     [SerializeField] private UpgradeEgg upgradeEggPrefab;
-    [SerializeField] private LevelManager levelManager;
-    [SerializeField] private RailPlayer player;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
 
 
     private readonly List<SOUpgradeBase> _storeUpgradesPool = new List<SOUpgradeBase>();
@@ -55,6 +56,8 @@ public class StoreManager : MonoBehaviour
         {
             player = FindFirstObjectByType<RailPlayer>();
         }
+        
+        this.ValidateRefs();
     }
 
     private void Awake()
@@ -113,14 +116,19 @@ public class StoreManager : MonoBehaviour
     
     private void OnStageChanged(SOLevelStage stage)
     {
-        if (!stage || stage.StageType != StageType.Store) return;
+        if (!stage || stage.StageType != StageType.Store && _isOpen == false) return;
+
+        if (stage.StageType != StageType.Store && _isOpen)
+        {
+            CloseStore();
+            return;
+        } 
         
-        store.transform.position = levelManager.EnemyPosition;
-        
-        SetStoreUpgradesPool(stage.UpgradesPool.ToList());
-        
+
         if (_storeUpgradesPool is { Count: > 0 })
         {
+            store.transform.position = levelManager.EnemyPosition;
+            SetStoreUpgradesPool(stage.UpgradesPool.ToList());
             OpenStore();
         }
         else
@@ -143,6 +151,7 @@ public class StoreManager : MonoBehaviour
         _currentRerollCost += rerollCostIncrease;
         _currentRerollCost = Mathf.Clamp(_currentRerollCost, baseRerollCost, maxRerollCost);
         rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Reroll ({_currentRerollCost})";
+        rerollButton.interactable = player.ResourceCollector.CurrentCurrency < _currentRerollCost;
         
         if (_storeSequence.isAlive) _storeSequence.Stop();
         _storeSequence = Sequence.Create();
@@ -158,12 +167,16 @@ public class StoreManager : MonoBehaviour
     
     private void OpenStore()
     {
-        if (_storeSequence.isAlive) _storeSequence.Stop();
+        if (_isOpen) return;
+        _isOpen = true;
+        
+
 
         storeGfx.gameObject.SetActive(true);
-        _isOpen = true;
+        rerollButton.interactable = player.ResourceCollector.CurrentCurrency < _currentRerollCost;
         captain.OnStoreOpen();
         
+        if (_storeSequence.isAlive) _storeSequence.Stop();
         _storeSequence = Sequence.Create()
             .Group(Tween.Alpha(canvasGroup, 1, animationDuration));
         
@@ -182,8 +195,12 @@ public class StoreManager : MonoBehaviour
 
     private void CloseStore()
     {
-        if (_storeSequence.isAlive) _storeSequence.Stop();
+        if (_isOpen == false) return;
+        _isOpen = true;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
         
+        if (_storeSequence.isAlive) _storeSequence.Stop();
         _storeSequence = Sequence.Create()
             .ChainCallback(() =>
             {
@@ -196,9 +213,6 @@ public class StoreManager : MonoBehaviour
             .Group(Tween.Alpha(canvasGroup, 0, animationDuration))    
             .OnComplete(() =>
             {
-                canvasGroup.interactable = false;
-                canvasGroup.blocksRaycasts = false;
-                _isOpen = false;
                 storeGfx.gameObject.SetActive(false);
                 OnStoreClosed?.Invoke();
             });

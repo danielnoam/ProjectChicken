@@ -17,7 +17,7 @@ public class UpgradeEgg : MonoBehaviour
     [SerializeField] private CanvasGroup mainCanvasGroup;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
-    [SerializeField] protected Image iconImage;
+    [SerializeField] private Image iconImage;
     [SerializeField] private Transform upgradeGfxHolder;
 
     private SOUpgradeBase _upgrade;
@@ -33,7 +33,7 @@ public class UpgradeEgg : MonoBehaviour
         _startPosition = transform.localPosition;
         _startScale = transform.localScale;
         _startRotation = transform.localEulerAngles;
-        button.onClick.AddListener(OnSelect);
+        button.onClick.AddListener(SelectUpgrade);
         Reset(false);
 
     }
@@ -50,7 +50,6 @@ public class UpgradeEgg : MonoBehaviour
         nameText.text = upgrade.ItemName;
         descriptionText.text = upgrade.ItemDescription;
         iconImage = upgrade.ItemIcon;
-        
         Instantiate(_upgrade.ItemGfx, upgradeGfxHolder);
         
         if (_animationSequence.isAlive) _animationSequence.Stop();
@@ -68,7 +67,6 @@ public class UpgradeEgg : MonoBehaviour
         _upgrade = null;
         transform.localScale = _startScale;
         transform.localEulerAngles = _startRotation;
-        upgradeInfoGroup.alpha = 0f;
         foreach (Transform child in upgradeGfxHolder)
         {
             Destroy(child.gameObject);
@@ -77,19 +75,23 @@ public class UpgradeEgg : MonoBehaviour
         if (!animate)
         {
             mainCanvasGroup.alpha = 0f;
+            upgradeInfoGroup.alpha = 0f;
             transform.localPosition = new Vector3(transform.localPosition.x, yOffset,transform.localPosition.z);
         }
         else
         {
             _animationSequence = Sequence.Create()
                 .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
+                .Group(Tween.Alpha(upgradeInfoGroup, 0, animationDuration))
                 .Group(Tween.LocalPositionY(transform, yOffset, animationDuration))
                 ;
         }
     }
     
-    private void OnSelect()
+    private void SelectUpgrade()
     {
+        if (!_upgrade) return;
+        
         if (_animationSequence.isAlive) _animationSequence.Stop();
         _animationSequence = Sequence.Create()
                 .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
@@ -100,11 +102,22 @@ public class UpgradeEgg : MonoBehaviour
 
     private void OnMouseEnter()
     {
+        if (!_upgrade) return;
+        
         upgradeInfoGroup.alpha = 1f;
     }
 
     private void OnMouseExit()
     {
+        if (!_upgrade) return;
+        
         upgradeInfoGroup.alpha = 0f;
     }
+
+    private void OnMouseUpAsButton()
+    {
+        SelectUpgrade();
+    }
+    
+    
 }

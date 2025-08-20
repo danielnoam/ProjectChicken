@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class RailPlayerInput : InputReaderBase
 {
     [SerializeField] private StoreManager storeManager;
+    [SerializeField] private OutroScreen outroScreen;
     
     private InputActionMap _playerActionMap;
     private InputAction _moveAction;
@@ -41,6 +42,7 @@ public class RailPlayerInput : InputReaderBase
         base.OnValidate();
         if (!playerInput) playerInput = GetComponent<PlayerInput>();
         if (!storeManager) storeManager = FindFirstObjectByType<StoreManager>();
+        if (!outroScreen) outroScreen = FindFirstObjectByType<OutroScreen>();
     }
     
     protected override void Awake()
@@ -88,8 +90,14 @@ public class RailPlayerInput : InputReaderBase
         if (SaveManager.Instance) SaveManager.Instance.OnSettingsDataChanged += UpdateControlSchemeSettings;
         if (storeManager)
         {
-            storeManager.OnStoreOpened += OnStoreOpened;
-            storeManager.OnStoreClosed += OnStoreClosed;
+            storeManager.OnStoreOpened += () => SetCursorVisibility(true);
+            storeManager.OnStoreClosed += () => SetCursorVisibility(false);
+        }
+
+        if (outroScreen)
+        {
+            outroScreen.OnScreenOpend += () => SetCursorVisibility(true);
+            outroScreen.OnScreenClosed += () => SetCursorVisibility(false);
         }
     }
     
@@ -110,21 +118,6 @@ public class RailPlayerInput : InputReaderBase
         playerInput.onDeviceLost -= OnDeviceLost;
         playerInput.onControlsChanged -= OnControlsChanged;
         if (SaveManager.Instance) SaveManager.Instance.OnSettingsDataChanged -= UpdateControlSchemeSettings;
-        if (storeManager)
-        {
-            storeManager.OnStoreOpened -= OnStoreOpened;
-            storeManager.OnStoreClosed -= OnStoreClosed;
-        }
-    }
-    
-    private void OnStoreOpened()
-    {
-        SetCursorVisibility(true);
-    }
-    
-    private void OnStoreClosed()
-    {
-        SetCursorVisibility(false);
     }
     
 

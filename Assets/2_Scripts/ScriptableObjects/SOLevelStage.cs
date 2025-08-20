@@ -1,4 +1,5 @@
 using System;
+using DNExtensions;
 using DNExtensions.VFXManager;
 using UnityEngine;
 using VInspector;
@@ -21,6 +22,11 @@ public class SOLevelStage : ScriptableObject
     [SerializeField, Min(0.1f)] private float stageDuration = 5;
     [EndIf]
     
+    [ShowIf("stageType", StageType.Outro)]
+    [SerializeField] private bool showOutroMenu;
+    [SerializeField] private SceneField nextLevel;
+    [EndIf]
+    
     [ShowIf("stageType", StageType.Store)]
     [SerializeField] private SOUpgradeBase[] upgradesPool = Array.Empty<SOUpgradeBase>();
     [EndIf]
@@ -39,6 +45,8 @@ public class SOLevelStage : ScriptableObject
     public float StageWorldSpeed => stageWorldSpeed;
     public float StageDuration => stageDuration;
     public string StageTitle => stageTitle;
+    public bool ShowOutroMenu => showOutroMenu;
+    public SceneField NextLevel => nextLevel;
     public SerializedDictionary<ChickenController, int> EnemyWave => enemyWave;
     public float DelayBeforeNextStage => delayBeforeNextStage;
     public int WaveScoreWorth =>  waveScoreWorth;

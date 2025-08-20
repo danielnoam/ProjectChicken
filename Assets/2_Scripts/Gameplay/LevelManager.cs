@@ -31,6 +31,7 @@ public class LevelManager : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private OutroScreen outroScreen;
     [SerializeField, Scene(Flag.EditableAnywhere)] private StoreManager storeManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
@@ -91,26 +92,20 @@ public class LevelManager : MonoBehaviour
         PrimeTweenConfig.warnTweenOnDisabledTarget = false;
         PrimeTweenConfig.warnZeroDuration = false;
     }
-
-
-    private void Start()
-    {
-        StartLevel();
-    }
-
+    
     private void OnEnable()
     {
         if (enemySpawner)
         {
-            enemySpawner.OnEnemyWaveSpawned += EnemySpawned;
-            enemySpawner.OnEnemyWaveCleared += EnemyCleared;
+            enemySpawner.OnEnemyWaveSpawned += OnEnemySpawned;
+            enemySpawner.OnEnemyWaveCleared += OnEnemiesCleared;
             enemySpawner.OnEnemyDeath += OnEnemyDeath;
         }
 
         if (player)
         {
-            player.ResourceCollector.OnResourceCollected += CollectedResource;
-            player.Health.OnDeath += Death;
+            player.ResourceCollector.OnResourceCollected += OnPlayerCollectedResource;
+            player.Health.OnDeath += OnPlayerDeath;
             player.OnPause += OnPlayerPaused;
         }
 
@@ -125,15 +120,15 @@ public class LevelManager : MonoBehaviour
     {
         if (enemySpawner)
         {
-            enemySpawner.OnEnemyWaveSpawned -= EnemySpawned;
-            enemySpawner.OnEnemyWaveCleared -= EnemyCleared;
+            enemySpawner.OnEnemyWaveSpawned -= OnEnemySpawned;
+            enemySpawner.OnEnemyWaveCleared -= OnEnemiesCleared;
             enemySpawner.OnEnemyDeath -= OnEnemyDeath;
         }
         
         if (player)
         {
-            player.ResourceCollector.OnResourceCollected -= CollectedResource;
-            player.Health.OnDeath -= Death;
+            player.ResourceCollector.OnResourceCollected -= OnPlayerCollectedResource;
+            player.Health.OnDeath -= OnPlayerDeath;
             player.OnPause -= OnPlayerPaused;
         }
         if (storeManager)
@@ -141,8 +136,16 @@ public class LevelManager : MonoBehaviour
             storeManager.OnStoreClosed -= OnStoreClosed;
         }
     }
+
+
+    private void Start()
+    {
+        StartLevel();
+    }
+
+
     
-    private void EnemyCleared(int scoreWorth)
+    private void OnEnemiesCleared(int scoreWorth)
     {
         if (!currentStage || currentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
         
@@ -151,7 +154,7 @@ public class LevelManager : MonoBehaviour
         SetNextStage(currentStage.DelayBeforeNextStage);
     }
     
-    private void EnemySpawned()
+    private void OnEnemySpawned()
     {
         enemiesLeft = enemySpawner.ActiveEnemyCount;
     }
@@ -169,16 +172,23 @@ public class LevelManager : MonoBehaviour
         SetNextStage();
     }
 
-    private void Death()
+    private void OnPlayerDeath()
     {
         StartCoroutine(RestartSavePoint());
     }
 
     private void OnPlayerPaused()
     {
-        StartCoroutine(ReturnToMainMenu(0.1f));
+        ReturnToMainMenu();
     }
     
+    private void OnPlayerCollectedResource(Resource resource)
+    {
+        if (!resource) return;
+        
+        int score = resource.ScoreWorth;
+        AddScore(score);
+    }
     
     
     #region Stage Management ---------------------------------------------------------------------------------
@@ -269,12 +279,20 @@ public class LevelManager : MonoBehaviour
         _settingStageFlag = false;
         OnStageChanged?.Invoke(newStage);
 
+
         if (newStage.IsTimeBasedStage)
         {
             if (newStage.StageType == StageType.Outro)
             {
-                StartCoroutine(ReturnToMainMenu(newStage.StageDuration));
-                SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, _currentScore);
+                
+                if (newStage.ShowOutroMenu)
+                {
+                    outroScreen.Show(currentStage.NextLevel == null);
+                }
+                else
+                {
+                    ReturnToMainMenu(newStage.StageDuration);
+                }
             }
             else
             {
@@ -282,6 +300,7 @@ public class LevelManager : MonoBehaviour
                 SetNextStage(newStage.StageDuration);
             }
         }
+
         
     }
 
@@ -297,14 +316,29 @@ public class LevelManager : MonoBehaviour
         SetStage(newStateIndex);
     }
 
-    private IEnumerator ReturnToMainMenu(float delay)
+
+
+    public void ReturnToMainMenu(float delay = 0)
+    {
+        SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, _currentScore);
+        if (delay > 0) StartCoroutine(DelayReturnToMainMenu(delay));
+        else TransitionManager.TransitionToScene(gameSettings.MainMenuScene, level.OutroVFXSequence);
+    }
+
+
+    public void LoadNextLevel()
+    {
+        if (!level || !currentStage || currentStage.NextLevel == null) return;
+        
+        TransitionManager.TransitionToScene(currentStage.NextLevel, level.OutroVFXSequence);
+    }
+    
+    private IEnumerator DelayReturnToMainMenu(float delay)
     {
         yield return new WaitForSeconds(delay);
 
         TransitionManager.TransitionToScene(gameSettings.MainMenuScene, level.OutroVFXSequence);
-
     }
-    
 
     private IEnumerator RestartSavePoint()
     {
@@ -371,17 +405,11 @@ public class LevelManager : MonoBehaviour
         OnScoreChanged?.Invoke(_currentScore);
     }
     
-    private void CollectedResource(Resource resource)
-    {
-        if (!resource) return;
-        
-        int score = resource.ScoreWorth;
-        AddScore(score);
-    }
-    
-    
 
-    #endregion
+    #endregion Score Management ---------------------------------------------------------------------------------
+    
+    
+    
     
 #if UNITY_EDITOR
     #region Editor -----------------------------------------------------------------------------------------------

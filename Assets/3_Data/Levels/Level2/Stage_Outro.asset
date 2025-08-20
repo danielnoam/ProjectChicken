@@ -14,18 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageTitle: 
   stageWorldSpeed: 1
-  stageVFXSequence: {fileID: 11400000, guid: 6b3d95219570c4e4eafbbbb4671f44cb, type: 2}
   showHUD: 0
   allowPlayerMovement: 0
   allowPlayerShootingAndAiming: 0
-  playerPositionOffset: {x: 0, y: 0, z: 0}
   stageType: 4
   stageDuration: 7
+  showOutroMenu: 1
+  nextLevel:
+    sceneAsset: {fileID: 102900000, guid: 50af9d94c345ef8499df72eb194d19bb, type: 3}
+    sceneName: Level3
+    scenePath: Assets/1_Scenes/GameScenes/Level3.unity
   upgradesPool:
-    internalItems: []
-  enemyPositionOffset: {x: 0, y: 0, z: 0}
+  - {fileID: 0}
   delayBeforeNextStage: 1
-  waveScore: 1000
+  waveScoreWorth: 1000
   enemyWave:
     serializedKvps: []
     dividerPos: 0.33

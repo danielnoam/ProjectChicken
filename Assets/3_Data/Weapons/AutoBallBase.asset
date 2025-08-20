@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponWeaponIcon: {fileID: 21300000, guid: bd8e812cfd5a9b84cb501353c4d8eba1, type: 3}
   weaponType: 0
   weaponLimitation: 1
-  heatPerShot: 2
+  heatPerShot: 1
   timeLimit: 20
   ammoLimit: 3
   fireRate: 0.1
@@ -26,6 +26,8 @@ MonoBehaviour:
   weaponUpgrades: []
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: 14e001c3c26e24543956a33a00868bc9, type: 3}
   projectileLifetime: 2
+  barrelAimOffsets:
+  - {x: 0, y: 0, z: 0}
   projectileBehaviors:
   - rid: 3357952825749667913
   - rid: 4047855503621750870
