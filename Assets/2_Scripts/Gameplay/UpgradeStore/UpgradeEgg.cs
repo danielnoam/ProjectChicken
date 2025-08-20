@@ -6,10 +6,14 @@ using UnityEngine.UI;
 
 public class UpgradeEgg : MonoBehaviour
 {
-    [Header("Animation")]
+    [Header("Show/Hide Animation")]
     [SerializeField] private float animationDuration = 1.5f;
     [SerializeField] private Ease animationEase = Ease.InOutBack;
     [SerializeField] private float yOffset = -150;
+    
+    [Header("Info Animation")]
+    [SerializeField] private float infoAnimationDuration = 0.25f;
+    [SerializeField] private Ease infoAnimationEase = Ease.OutBack;
     
     [Header("Reference")]
     [SerializeField] private Button button;
@@ -24,7 +28,9 @@ public class UpgradeEgg : MonoBehaviour
     private Vector3 _startPosition;
     private Vector3 _startScale;
     private Vector3 _startRotation;
+    private Vector3 _upgradeInfoGroupStartScale;
     private Sequence _animationSequence;
+    private Sequence _upgradeInfoSequence;
 
     public event Action<SOUpgradeBase> OnUpgradeSelected;
 
@@ -33,6 +39,7 @@ public class UpgradeEgg : MonoBehaviour
         _startPosition = transform.localPosition;
         _startScale = transform.localScale;
         _startRotation = transform.localEulerAngles;
+        _upgradeInfoGroupStartScale = upgradeInfoGroup.transform.localScale;
         button.onClick.AddListener(SelectUpgrade);
         Reset(false);
 
@@ -104,14 +111,20 @@ public class UpgradeEgg : MonoBehaviour
     {
         if (!_upgrade) return;
         
-        upgradeInfoGroup.alpha = 1f;
+        if (_upgradeInfoSequence.isAlive) _upgradeInfoSequence.Stop();
+        _upgradeInfoSequence = Sequence.Create()
+                .Group(Tween.Alpha(upgradeInfoGroup, 1f, infoAnimationDuration * 0.7f))
+                .Group(Tween.Scale(upgradeInfoGroup.transform, _upgradeInfoGroupStartScale, infoAnimationDuration, infoAnimationEase));
     }
 
     private void OnMouseExit()
     {
         if (!_upgrade) return;
         
-        upgradeInfoGroup.alpha = 0f;
+        if (_upgradeInfoSequence.isAlive) _upgradeInfoSequence.Stop();
+        _upgradeInfoSequence = Sequence.Create()
+            .Group(Tween.Alpha(upgradeInfoGroup, 0f, infoAnimationDuration * 0.5f))
+            .Group(Tween.Scale(upgradeInfoGroup.transform, Vector3.zero, infoAnimationDuration, infoAnimationEase));
     }
 
     private void OnMouseUpAsButton()

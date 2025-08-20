@@ -32,7 +32,7 @@ public class LevelManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
     [SerializeField, Scene(Flag.EditableAnywhere)] private OutroScreen outroScreen;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private StoreManager storeManager;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private UpgradeStore upgradeStore;
     [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     
@@ -70,9 +70,9 @@ public class LevelManager : MonoBehaviour
             enemySpawner = FindFirstObjectByType<EnemySpawner>();
         }
         
-        if (!storeManager)
+        if (!upgradeStore)
         {
-            storeManager = FindFirstObjectByType<StoreManager>();
+            upgradeStore = FindFirstObjectByType<UpgradeStore>();
         }
 
         UpdatePlayerAndEnemyPositions();
@@ -109,9 +109,9 @@ public class LevelManager : MonoBehaviour
             player.OnPause += OnPlayerPaused;
         }
 
-        if (storeManager)
+        if (upgradeStore)
         {
-            storeManager.OnStoreClosed += OnStoreClosed;
+            upgradeStore.OnStoreClosed += UpgradeStoreClosed;
         }
     }
     
@@ -131,9 +131,9 @@ public class LevelManager : MonoBehaviour
             player.Health.OnDeath -= OnPlayerDeath;
             player.OnPause -= OnPlayerPaused;
         }
-        if (storeManager)
+        if (upgradeStore)
         {
-            storeManager.OnStoreClosed -= OnStoreClosed;
+            upgradeStore.OnStoreClosed -= UpgradeStoreClosed;
         }
     }
 
@@ -165,7 +165,7 @@ public class LevelManager : MonoBehaviour
         AddScore(enemy.ScoreValue);
     }
     
-    private void OnStoreClosed()
+    private void UpgradeStoreClosed()
     {
         if (!currentStage || currentStage.StageType != StageType.Store) return;
         

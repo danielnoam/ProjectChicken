@@ -6,8 +6,7 @@ using UnityEngine.InputSystem;
 
 public class RailPlayerInput : InputReaderBase
 {
-    [SerializeField] private StoreManager storeManager;
-    [SerializeField] private OutroScreen outroScreen;
+    [SerializeField, Self, HideInInspector] private RailPlayer player;
     
     private InputActionMap _playerActionMap;
     private InputAction _moveAction;
@@ -41,8 +40,6 @@ public class RailPlayerInput : InputReaderBase
     {
         base.OnValidate();
         if (!playerInput) playerInput = GetComponent<PlayerInput>();
-        if (!storeManager) storeManager = FindFirstObjectByType<StoreManager>();
-        if (!outroScreen) outroScreen = FindFirstObjectByType<OutroScreen>();
     }
     
     protected override void Awake()
@@ -87,18 +84,15 @@ public class RailPlayerInput : InputReaderBase
         playerInput.onDeviceRegained += OnDeviceRegained;
         playerInput.onDeviceLost += OnDeviceLost;
         playerInput.onControlsChanged += OnControlsChanged;
-        if (SaveManager.Instance) SaveManager.Instance.OnSettingsDataChanged += UpdateControlSchemeSettings;
-        if (storeManager)
+        if (SaveManager.Instance)
         {
-            storeManager.OnStoreOpened += () => SetCursorVisibility(true);
-            storeManager.OnStoreClosed += () => SetCursorVisibility(false);
+            SaveManager.Instance.OnSettingsDataChanged += UpdateControlSchemeSettings;
+        }
+        if (player.LevelManager)
+        {
+            player.LevelManager.OnStageChanged += OnStageChanged;
         }
 
-        if (outroScreen)
-        {
-            outroScreen.OnScreenOpend += () => SetCursorVisibility(true);
-            outroScreen.OnScreenClosed += () => SetCursorVisibility(false);
-        }
     }
     
 
@@ -117,9 +111,17 @@ public class RailPlayerInput : InputReaderBase
         playerInput.onDeviceRegained -= OnDeviceRegained;
         playerInput.onDeviceLost -= OnDeviceLost;
         playerInput.onControlsChanged -= OnControlsChanged;
-        if (SaveManager.Instance) SaveManager.Instance.OnSettingsDataChanged -= UpdateControlSchemeSettings;
+        if (SaveManager.Instance)
+        {
+            SaveManager.Instance.OnSettingsDataChanged -= UpdateControlSchemeSettings;
+        }
+        if (player.LevelManager)
+        {
+            player.LevelManager.OnStageChanged -= OnStageChanged;
+        }
     }
     
+
 
     private void OnDeviceRegained(PlayerInput input)
     {
@@ -134,6 +136,33 @@ public class RailPlayerInput : InputReaderBase
     private void OnControlsChanged(PlayerInput input)
     {
         SetActiveControlScheme(input);
+    }
+    
+    private void OnStageChanged(SOLevelStage stage)
+    {
+        if (!stage) return;
+
+        switch (stage.StageType)
+        {
+            case StageType.Checkpoint:
+                SetCursorVisibility(false);
+                break;
+            case StageType.Store:
+                SetCursorVisibility(true);
+                break;
+            case StageType.EnemyWave:
+                SetCursorVisibility(false);
+                break;
+            case StageType.Intro:
+                SetCursorVisibility(false);
+                break;
+            case StageType.Outro:
+                SetCursorVisibility(true);
+                break;
+            default:
+                SetCursorVisibility(false);
+                break;
+        }
     }
     
     

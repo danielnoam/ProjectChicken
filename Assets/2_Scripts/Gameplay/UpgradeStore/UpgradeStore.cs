@@ -8,9 +8,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class StoreManager : MonoBehaviour
+public class UpgradeStore : MonoBehaviour
 {
-    public static StoreManager Instance { get; private set; }
+    public static UpgradeStore Instance { get; private set; }
     
     [Header("Settings")]
     [SerializeField, Min(1)] private int availableUpgrades = 3;
@@ -24,7 +24,6 @@ public class StoreManager : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
-    [SerializeField] private Transform store;
     [SerializeField] private Transform storeGfx;
     [SerializeField] private Transform eggHolder;
     [SerializeField] private CaptainCock captain;
@@ -58,6 +57,12 @@ public class StoreManager : MonoBehaviour
         }
         
         this.ValidateRefs();
+
+
+        if (levelManager)
+        {
+            transform.transform.position = levelManager.EnemyPosition;
+        }
     }
 
     private void Awake()
@@ -87,7 +92,8 @@ public class StoreManager : MonoBehaviour
         for (int i = 0; i < availableUpgrades; i++)
         {
             var position = startPosition + offsetBetweenUpgrades * i;
-            var egg = Instantiate(upgradeEggPrefab, position, Quaternion.identity, eggHolder);
+            var egg = Instantiate(upgradeEggPrefab, eggHolder);
+            egg.transform.localPosition = position;
             _upgradeEggs.Add(egg);
             egg.OnUpgradeSelected += OnUpgradeSelected;
         }
@@ -116,19 +122,17 @@ public class StoreManager : MonoBehaviour
     
     private void OnStageChanged(SOLevelStage stage)
     {
-        if (!stage || stage.StageType != StageType.Store && _isOpen == false) return;
-
+        if (!stage || stage.StageType == StageType.Store && _isOpen) return;
+        
         if (stage.StageType != StageType.Store && _isOpen)
         {
             CloseStore();
             return;
         } 
-        
 
+        SetStoreUpgradesPool(stage.UpgradesPool.ToList());
         if (_storeUpgradesPool is { Count: > 0 })
         {
-            store.transform.position = levelManager.EnemyPosition;
-            SetStoreUpgradesPool(stage.UpgradesPool.ToList());
             OpenStore();
         }
         else
@@ -169,8 +173,6 @@ public class StoreManager : MonoBehaviour
     {
         if (_isOpen) return;
         _isOpen = true;
-        
-
 
         storeGfx.gameObject.SetActive(true);
         rerollButton.interactable = player.ResourceCollector.CurrentCurrency < _currentRerollCost;
@@ -196,7 +198,7 @@ public class StoreManager : MonoBehaviour
     private void CloseStore()
     {
         if (_isOpen == false) return;
-        _isOpen = true;
+        _isOpen = false;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
         

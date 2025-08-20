@@ -73,7 +73,15 @@ public class RailPlayerMovement : MonoBehaviour
     public event Action<float> OnDodgeCooldownUpdated;
     public event Action<int> OnDodgeCountChanged;
 
-    private void OnValidate() { this.ValidateRefs(); }
+    private void OnValidate()
+    {
+        this.ValidateRefs();
+
+        if (player.LevelManager && !Application.isPlaying)
+        {
+            transform.position = player.LevelManager.PlayerPosition;
+        }
+    }
 
 
     private void Awake()
