@@ -10698,6 +10698,7 @@ MonoBehaviour:
   formationCount: 2
   formationSpacing: 5
   useRandomPlacement: 1
+  regenerateOnFormationChange: 0
   maxPlacementAttempts: 100
   gizmoColor: {r: 1, g: 0, b: 0, a: 1}
   gizmoSize: 0.5
@@ -10761,7 +10762,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 125, y: 80}
+  m_Size: {x: 200, y: 125}
   m_EdgeRadius: 0
 --- !u!114 &2046359984
 MonoBehaviour:

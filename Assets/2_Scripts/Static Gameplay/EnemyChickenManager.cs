@@ -32,10 +32,11 @@ public class EnemyChickenManager : MonoBehaviour
     private List<GameObject> allRegisteredChickens = new List<GameObject>();
     
     // Formation change detection
-    private int previousSlotCount = 0;
+    private int previousSlotCount = -1; // Initialize to -1 to ensure first check triggers
     private FormationCreator.FormationType previousFormationType;
     private float formationCheckTimer = 0f;
     private float stateRefreshTimer = 0f;
+    private bool hasInitializedFormation = false; // Track if we've done initial setup
 
     void Start()
     {
@@ -45,15 +46,13 @@ public class EnemyChickenManager : MonoBehaviour
             if (formationCreator == null)
             {
                 Debug.LogError("EnemyChickenManager: No FormationCreator found! Please assign one in the inspector.");
+                return;
             }
         }
         
-        // Initialize formation tracking
-        if (formationCreator != null)
-        {
-            previousSlotCount = formationCreator.GetFormationSlots().Count;
-            previousFormationType = formationCreator.currentFormation;
-        }
+        // Don't initialize formation tracking here - let Update() handle the first detection
+        // This ensures we detect the initial formation as a "change"
+        Debug.Log("EnemyChickenManager: Started, waiting for formation initialization...");
     }
 
     void Update()
@@ -61,7 +60,7 @@ public class EnemyChickenManager : MonoBehaviour
         if (formationCreator == null)
             return;
             
-        // Check for formation changes
+        // Check for formation changes (including initial setup)
         if (autoReassignOnFormationChange)
         {
             formationCheckTimer += Time.deltaTime;
@@ -89,10 +88,21 @@ public class EnemyChickenManager : MonoBehaviour
         int currentSlotCount = formationCreator.GetFormationSlots().Count;
         FormationCreator.FormationType currentFormationType = formationCreator.currentFormation;
         
-        // Check if formation type or slot count changed
-        if (currentFormationType != previousFormationType || currentSlotCount != previousSlotCount)
+        // Check if this is the first initialization or if formation changed
+        bool isInitialSetup = !hasInitializedFormation;
+        bool formationTypeChanged = currentFormationType != previousFormationType;
+        bool slotCountChanged = currentSlotCount != previousSlotCount;
+        
+        if (isInitialSetup || formationTypeChanged || slotCountChanged)
         {
-            Debug.Log($"EnemyChickenManager: Formation changed from {previousFormationType} ({previousSlotCount} slots) to {currentFormationType} ({currentSlotCount} slots). Reassigning all chickens...");
+            if (isInitialSetup)
+            {
+                Debug.Log($"EnemyChickenManager: Initial formation setup detected - {currentFormationType} with {currentSlotCount} slots. Assigning all chickens...");
+            }
+            else
+            {
+                Debug.Log($"EnemyChickenManager: Formation changed from {previousFormationType} ({previousSlotCount} slots) to {currentFormationType} ({currentSlotCount} slots). Reassigning all chickens...");
+            }
             
             ReassignAllChickens();
             
@@ -105,6 +115,7 @@ public class EnemyChickenManager : MonoBehaviour
             // Update tracking variables
             previousSlotCount = currentSlotCount;
             previousFormationType = currentFormationType;
+            hasInitializedFormation = true;
         }
     }
 
@@ -174,10 +185,18 @@ public class EnemyChickenManager : MonoBehaviour
         }
 
         // Force the chicken to update its state based on assignment
-        EnemyChickenRegistration registration = chicken.GetComponent<EnemyChickenRegistration>();
-        if (registration != null)
+        // But only if we have initialized the formation
+        if (hasInitializedFormation)
         {
-            registration.ForceStateUpdate();
+            EnemyChickenRegistration registration = chicken.GetComponent<EnemyChickenRegistration>();
+            if (registration != null)
+            {
+                registration.ForceStateUpdate();
+            }
+        }
+        else
+        {
+            Debug.Log($"EnemyChickenManager: Chicken {chicken.name} registered but formation not yet initialized. Will update state once formation is ready.");
         }
 
         return true;
@@ -247,11 +266,14 @@ public class EnemyChickenManager : MonoBehaviour
         waitingChickens.RemoveAt(0);
         slotAssignments[slotIndex] = waitingChicken;
         
-        // Force the chicken to update its state
-        EnemyChickenRegistration registration = waitingChicken.GetComponent<EnemyChickenRegistration>();
-        if (registration != null)
+        // Force the chicken to update its state (only if formation is initialized)
+        if (hasInitializedFormation)
         {
-            registration.ForceStateUpdate();
+            EnemyChickenRegistration registration = waitingChicken.GetComponent<EnemyChickenRegistration>();
+            if (registration != null)
+            {
+                registration.ForceStateUpdate();
+            }
         }
     }
 
@@ -384,6 +406,7 @@ public class EnemyChickenManager : MonoBehaviour
         Debug.Log($"Chickens: {allRegisteredChickens.Count} registered | {slotAssignments.Count} assigned | {waitingChickens.Count} waiting");
         Debug.Log($"Auto-reassign: {(autoReassignOnFormationChange ? "Enabled" : "Disabled")}");
         Debug.Log($"Auto-refresh: {(autoRefreshChickenStates ? "Enabled" : "Disabled")}");
+        Debug.Log($"Formation Initialized: {hasInitializedFormation}");
         Debug.Log("");
         
         // Show assigned chickens
@@ -495,6 +518,15 @@ public class EnemyChickenManager : MonoBehaviour
         Debug.Log($"EnemyChickenManager: Auto-refresh chicken states {(autoRefreshChickenStates ? "enabled" : "disabled")}");
     }
 
+    // NEW: Manual method to force formation initialization detection
+    [ContextMenu("Force Formation Initialization")]
+    public void ForceFormationInitialization()
+    {
+        hasInitializedFormation = false;
+        previousSlotCount = -1;
+        Debug.Log("EnemyChickenManager: Reset formation initialization. Next update will detect formation as new.");
+    }
+
     // Draw gizmos for assigned slots and subscribed chickens
     void OnDrawGizmos()
     {
@@ -568,4 +600,5 @@ public class EnemyChickenManager : MonoBehaviour
     public int AssignedChickensCount => slotAssignments.Count;
     public int WaitingChickensCount => waitingChickens.Count;
     public int AvailableSlots => formationCreator != null ? formationCreator.GetFormationSlots().Count - slotAssignments.Count : 0;
+    public bool HasInitializedFormation => hasInitializedFormation; // NEW: Public property to check initialization state
 }
