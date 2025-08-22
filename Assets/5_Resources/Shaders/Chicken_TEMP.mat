@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Chromatic Aboration
-  m_Shader: {fileID: -6465566751694194690, guid: 1cd8a1c051b77ce429c26123c05c0a64, type: 3}
+  m_Name: Chicken_TEMP
+  m_Shader: {fileID: 4800000, guid: b8d410e1607d92c449b591b075e1266b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -18,7 +18,8 @@ Material:
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
-  disabledShaderPasses: []
+  disabledShaderPasses:
+  - MOTIONVECTORS
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -37,15 +38,21 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Contrast: 10000
-    - _CutOut: 10
-    - _Exposure: 5
-    - _On: 0
-    - _Size: 50
-    m_Colors:
-    - _Blue_Offset: {r: -0.005, g: 0.005, b: 0.005, a: 0}
-    - _Green_Offset: {r: -0.005, g: 0.005, b: -0.0055, a: 0}
-    - _Red_Offset: {r: 0.005, g: -0.005, b: 0.005, a: 0}
-    - _Speed: {r: 0.05, g: 0, b: 0, a: 0}
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
+--- !u!114 &7421845217950275925
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 9
