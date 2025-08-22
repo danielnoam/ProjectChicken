@@ -10695,14 +10695,16 @@ MonoBehaviour:
   circleRadius: 17.5
   fitWithinCollider: 1
   boundaryPadding: 1
-  formationCount: 2
+  formationCount: 3
   formationSpacing: 5
   useRandomPlacement: 1
-  regenerateOnFormationChange: 0
   maxPlacementAttempts: 100
+  validateFormationChanges: 1
+  autoAdjustOnValidationFail: 1
   gizmoColor: {r: 1, g: 0, b: 0, a: 1}
   gizmoSize: 0.5
   showColliderBounds: 1
+  validationErrorColor: {r: 1, g: 0, b: 1, a: 1}
 --- !u!4 &2046359982
 Transform:
   m_ObjectHideFlags: 0
@@ -10762,7 +10764,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 200, y: 125}
+  m_Size: {x: 200, y: 115}
   m_EdgeRadius: 0
 --- !u!114 &2046359984
 MonoBehaviour:
