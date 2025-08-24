@@ -21,35 +21,18 @@ public class RailPlayerResourceCollector : MonoBehaviour
     {
         this.ValidateRefs();
     }
-
-    private void Awake()
-    {
-        CurrentCurrency = 0;
-        _currentMagnetRadius = player.GameSettings ? player.GameSettings.BaseMagnetRadius : 0;
-        
-        _collectionActions.Add(ResourceType.Currency, (resource) => UpdateCurrency(resource.CurrencyWorth));
-        _collectionActions.Add(ResourceType.HealthPack, (resource) => player.Health.HealHealth(resource.HealthWorth));
-        _collectionActions.Add(ResourceType.ShieldPack, (resource) => player.Health.HealShield(resource.ShieldWorth));
-        _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => player.WeaponSystem.SetSpecialWeapon(resource.WeaponData));
-    }
     
     private void OnEnable()
     {
         player.LevelManager.OnStageChanged += OnStageChanged;
-        player.LevelManager.OnRestartedFromSavePoint += RestartedFromSavePoint;
     }
     
     private void OnDisable()
     {
         player.LevelManager.OnStageChanged -= OnStageChanged;
-        player.LevelManager.OnRestartedFromSavePoint -= RestartedFromSavePoint;
     }
     
-    private void Start()
-    {
-        OnCurrencyChanged?.Invoke(CurrentCurrency);
-    }
-    
+
     private void Update()
     {
         CheckResourcesInRange();
@@ -75,11 +58,18 @@ public class RailPlayerResourceCollector : MonoBehaviour
         }
     }
     
-    private void RestartedFromSavePoint(SavePointInformation savePoint)
+
+    public void SetUp()
     {
-        if (savePoint == null) return;
+        _collectionActions.Clear();
         
-        CurrentCurrency = savePoint.PlayerCurrency;
+        _collectionActions.Add(ResourceType.Currency, (resource) => UpdateCurrency(resource.CurrencyWorth));
+        _collectionActions.Add(ResourceType.HealthPack, (resource) => player.Health.HealHealth(resource.HealthWorth));
+        _collectionActions.Add(ResourceType.ShieldPack, (resource) => player.Health.HealShield(resource.ShieldWorth));
+        _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => player.WeaponSystem.SetSpecialWeapon(resource.WeaponData));
+        
+        _currentMagnetRadius = 0;
+        CurrentCurrency = 0;
         OnCurrencyChanged?.Invoke(CurrentCurrency);
     }
 

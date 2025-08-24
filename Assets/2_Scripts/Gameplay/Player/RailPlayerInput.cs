@@ -144,7 +144,7 @@ public class RailPlayerInput : InputReaderBase
 
         switch (stage.StageType)
         {
-            case StageType.Checkpoint:
+            case StageType.Delay:
                 SetCursorVisibility(false);
                 break;
             case StageType.Store:

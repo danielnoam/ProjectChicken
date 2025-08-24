@@ -567,18 +567,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e4e746f509a4313ca65fc8fc548d668, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hudFadeDuration: 3
   cooldownIconColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
-  hudGroup: {fileID: 6058153400321184074}
   gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
-  healthAnimationDuration: 0.5
+  levelManager: {fileID: 0}
+  player: {fileID: 0}
+  hudFadeDuration: 3
+  dynamicHud: 1
+  hudPlayerMoveAmount: 6
+  hudReturnSpeed: 2
+  hudGroup: {fileID: 6058153400321184074}
   healthPunchDuration: 0.25
   healthPunchStrength: 0.5
+  healthPunchColor: {r: 1, g: 0.2028302, b: 0.2028302, a: 1}
   healthIcon: {fileID: 6185292691317434179}
   healthText: {fileID: 6839292622192208662}
   shieldAnimationDuration: 0.5
   shieldPunchDuration: 0.25
   shieldPunchStrength: 0.5
+  shieldPunchColor: {r: 0.21698111, g: 0.21698111, b: 1, a: 1}
   shieldIcon: {fileID: 6728258700460066580}
   shieldText: {fileID: 3929228718482953496}
   currencyAnimationDuration: 0.5
@@ -607,8 +613,6 @@ MonoBehaviour:
   pauseIconAnimationDuration: 0.2
   pauseIconFill: {fileID: 884242046296217277}
   pauseGroup: {fileID: 5199301963245156671}
-  levelManager: {fileID: 0}
-  player: {fileID: 0}
 --- !u!1 &3427337448478087212
 GameObject:
   m_ObjectHideFlags: 0

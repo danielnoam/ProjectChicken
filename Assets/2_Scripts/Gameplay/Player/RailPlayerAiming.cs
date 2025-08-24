@@ -56,17 +56,8 @@ public class RailPlayerAiming : MonoBehaviour
     
     
     private void OnValidate() { this.ValidateRefs(); }
-
-    private void Awake()
-    {
-        _allowAiming = true;
-        
-        // Take the aim world position out of the player's transform so when the player moves it will not affect the position setting of the aim position
-        // Don't change for now.
-        // The aim world position is also used in the player weapon system to hold the reticles
-        if (aimWorldPosition) aimWorldPosition.SetParent(null);
-    }
-
+    
+    
     private void OnEnable()
     {
         player.Health.OnDeath += OnDeath;
@@ -124,6 +115,17 @@ public class RailPlayerAiming : MonoBehaviour
                 _autoCenterRoutine = StartCoroutine(ReturnToCenter());
             }
         }
+    }
+
+
+    public void SetUp()
+    {
+        _allowAiming = true;
+        
+        // Take the aim world position out of the player's transform so when the player moves it will not affect the position setting of the aim position
+        // Don't change for now.
+        // The aim world position is also used in the player weapon system to hold the reticles
+        if (aimWorldPosition) aimWorldPosition.SetParent(null);
     }
     
         

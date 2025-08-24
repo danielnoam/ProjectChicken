@@ -60,6 +60,7 @@ public class RailPlayerMovement : MonoBehaviour
     private float _dodgeTimeCounter;
     private float _currentDodgeRoll;
     private Vector3 _dodgeDirection;
+
     private Tween _dodgeTween;
     private Vector2 _normalizedMovementPosition;
     private Coroutine _autoCenterRoutine;
@@ -67,8 +68,11 @@ public class RailPlayerMovement : MonoBehaviour
     private float MovementBoundaryY => player.GameSettings ? player.GameSettings.PlayerBoundary.y : 6f;
     
     
+    public Vector3 InputDirection { get; private set; }
     public bool IsDodging => _isDodging;
     public Vector2 NormalizedMovementPosition => _normalizedMovementPosition;
+
+    
     public event Action OnDodge;
     public event Action<float> OnDodgeCooldownUpdated;
     public event Action<int> OnDodgeCountChanged;
@@ -83,19 +87,8 @@ public class RailPlayerMovement : MonoBehaviour
         }
     }
 
-
-    private void Awake()
-    {
-        _allowMovement = true;
-        _maxDodgeAccumulation = player.GameSettings.BaseDodgeAccumulation;
-        _currentDodgeRemining = player.GameSettings.BaseDodgeAccumulation;
-    }
-
-    private void Start()
-    {
-        OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer/dodgeCooldown);
-        OnDodgeCountChanged?.Invoke(_currentDodgeRemining);
-    }
+    
+    
 
     private void OnEnable()
     {
@@ -108,7 +101,6 @@ public class RailPlayerMovement : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged += OnStageChanged;
-            player.LevelManager.OnRestartedFromSavePoint += OnRestartedFromSavePoint;
         }
         
     }
@@ -124,14 +116,18 @@ public class RailPlayerMovement : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged -= OnStageChanged;
-            player.LevelManager.OnRestartedFromSavePoint -= OnRestartedFromSavePoint;
         }
     }
 
 
-    private void OnRestartedFromSavePoint(SavePointInformation savePointInformation)
+    public void SetUp()
     {
+        _allowMovement = true;
+        _maxDodgeAccumulation = player.GameSettings.BaseDodgeAccumulation;
         _currentDodgeRemining = _maxDodgeAccumulation;
+        
+        OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer/dodgeCooldown);
+        OnDodgeCountChanged?.Invoke(_currentDodgeRemining);
     }
 
     private void Update()
@@ -184,18 +180,18 @@ public class RailPlayerMovement : MonoBehaviour
 
         if (!_isDodging)
         {
-            Vector3 inputDirection = new Vector3(_horizontalInput, _verticalInput, 0);
+            InputDirection = new Vector3(_horizontalInput, _verticalInput, 0);
 
-            if (inputDirection != Vector3.zero)
+            if (InputDirection != Vector3.zero)
             {
-                _targetOffsetFromSpline += inputDirection * (maxMoveSpeed * Time.fixedDeltaTime);
+                _targetOffsetFromSpline += InputDirection * (maxMoveSpeed * Time.fixedDeltaTime);
                 _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
                 _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
                 _targetOffsetFromSpline.z = 0; 
             }
             
 
-            float lerpSpeed = inputDirection != Vector3.zero ? acceleration : deceleration;
+            float lerpSpeed = InputDirection != Vector3.zero ? acceleration : deceleration;
             _currentOffsetFromSpline = Vector3.Lerp(_currentOffsetFromSpline, _targetOffsetFromSpline, lerpSpeed * Time.fixedDeltaTime);
         }
         else

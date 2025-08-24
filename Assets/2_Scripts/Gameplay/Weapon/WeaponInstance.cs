@@ -42,7 +42,6 @@ public class WeaponInstance
     {
         ControllerVibrationSource = controllerVibrationSource;
         CinemachineImpulseSource = cinemachineImpulseSource;
-        ApplyWeaponUpgrade(player);
         
         // Hide all GFX first
         if (weaponGfx) weaponGfx.gameObject.SetActive(false);
@@ -55,6 +54,8 @@ public class WeaponInstance
                 if (asset.UpgradeGfx) asset.UpgradeGfx.gameObject.SetActive(false);
             }
         }
+        
+        ApplyWeaponUpgrade(player);
     }
 
     
@@ -125,8 +126,8 @@ public class WeaponInstance
             }
         }
     }
-    
 
+    
     
     
     public void UpdateReticleVisibility(bool allowShooting)

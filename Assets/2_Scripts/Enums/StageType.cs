@@ -3,7 +3,7 @@
 
 public enum StageType
 {
-    Checkpoint,
+    Delay,
     Store,
     EnemyWave,
     Intro,

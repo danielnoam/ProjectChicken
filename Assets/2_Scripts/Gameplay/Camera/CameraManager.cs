@@ -275,7 +275,7 @@ public class CameraManager : MonoBehaviour
 
         switch (stage.StageType)
         {
-            case StageType.Checkpoint:
+            case StageType.Delay:
                 SetActiveCamera(followCamera);
                 break;
             case StageType.Store:

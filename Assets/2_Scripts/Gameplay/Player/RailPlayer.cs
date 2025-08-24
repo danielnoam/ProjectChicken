@@ -40,6 +40,7 @@ public class RailPlayer : MonoBehaviour
     
     
     private float _pauseTimer;
+    private int _currentScore;
     private bool _pauseInputHeld;
     
     public List<SOUpgradeBase> Upgrades { get; private set; } = new List<SOUpgradeBase>();
@@ -66,8 +67,16 @@ public class RailPlayer : MonoBehaviour
             levelManager = FindFirstObjectByType<LevelManager>();
         }
     }
-    
-    
+
+    private void Awake()
+    {
+        aiming.SetUp();
+        movement.SetUp();
+        health.SetUp();
+        resourceCollector.SetUp();
+        weaponSystem.SetUp();
+    }
+
     private void OnEnable()
     {
         levelManager.OnRestartedFromSavePoint += RestartedFromSavePoint;
@@ -99,7 +108,16 @@ public class RailPlayer : MonoBehaviour
     {
         if (savePoint == null) return;
 
+        health.SetUp();
+        resourceCollector.SetUp();
+        movement.SetUp();
+        weaponSystem.SetUp(savePoint.PlayerSpecialWeapon);
+        
         Upgrades = savePoint.PlayerUpgrades;
+        foreach (var upgrade in savePoint.PlayerUpgrades)
+        {
+            upgrade.ApplyUpgrade(this);
+        }
     }
     
     private void OnPauseAction(InputAction.CallbackContext context)
@@ -122,7 +140,7 @@ public class RailPlayer : MonoBehaviour
 
     
     
-    #region Upgrades
+    #region Upgrades ---------------------------------------------------------------------------------
     
     public void AddHealthUpgrade(SOUpgradeBase upgrade, int amount)
     {
@@ -187,7 +205,8 @@ public class RailPlayer : MonoBehaviour
         return highestUpgrade;
     }
     
-    #endregion
+    #endregion Upgrades ---------------------------------------------------------------------------------
+    
     
 
     #region Camera Helpers

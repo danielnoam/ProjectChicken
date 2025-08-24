@@ -7,7 +7,6 @@ public class SOGameSettings : ScriptableObject
 {
     [Header("General")]
     [SerializeField, Min(0)] private float timeToPause = 3f;
-    [SerializeField, Min(0)] private int scoreBonusThreshold = 50000;
     [SerializeField] private SceneField mainMenuScene;
     
     
@@ -36,7 +35,6 @@ public class SOGameSettings : ScriptableObject
     
 
     public float TimeToPause => timeToPause;
-    public int ScoreBonusThreshold => scoreBonusThreshold;
     public SceneField MainMenuScene => mainMenuScene;
     
     
@@ -46,8 +44,6 @@ public class SOGameSettings : ScriptableObject
     public Vector2 EnemyBoundary => enemyBoundary;
     public float PlayerPositionMultiplier => playerPositionMultiplier;
     public float EnemyPositionMultiplier => enemyPositionMultiplier;
-    
-    
     
     
     

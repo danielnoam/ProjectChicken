@@ -107,7 +107,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public WeaponInstance BaseWeaponInstance => _baseWeaponInstance;
     public WeaponInstance CurrentSpecialWeaponInstance => _currentSpecialWeaponInstance;
 
-    
+
+    public event Action OnWeaponUsed;
     public event Action<WeaponInstance,WeaponInstance> OnSpecialWeaponSwitchedEvent;
     public event Action<WeaponInstance> OnSpecialWeaponDisabledEvent;
     public event Action<WeaponInstance> OnBaseWeaponSwitchedEvent;
@@ -147,42 +148,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             windowSizeRange = new Vector2(windowSizeRange.y, windowSizeRange.x);
         }
     }
-
-    private void Awake()
-    {
-        foreach (var weapon in weapons)
-        {
-            weapon.SetUpWeaponInstance(player, controllerVibrationSource, impulseSource);
-        }
-        
-        _allowShooting = true;
-        _maxHeat = player.GameSettings.BaseMaxHeat;
-        _currentHeat = 0f;
-
-    }
-
-    private void Start()
-    {
-        if (weapons.Count >= 0)
-        {
-            SetBaseWeapon(weapons[0]);
-        }
-
-        
-        // Setup in a case there is no active level manager to set stage
-        if (!player.LevelManager)
-        {
-            targetReticle?.Show();
-            targetReticle?.ForceChangeAimLockSize(targetReticleAimLockSize);
-            if (_activeWeaponInstance == null)
-            {
-                if (_currentSpecialWeaponInstance != null) _activeWeaponInstance = _currentSpecialWeaponInstance;
-                else if (_baseWeaponInstance != null) _activeWeaponInstance = _baseWeaponInstance;
-                
-                _activeWeaponInstance?.OnWeaponSelected(_allowShooting);
-            }
-        }
-    }
+    
 
     private void OnEnable()
     {
@@ -196,7 +162,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged += OnStageChanged;
-            player.LevelManager.OnRestartedFromSavePoint += RestartedFromSavePoint;
         }
     }
     
@@ -214,9 +179,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged -= OnStageChanged;
-            player.LevelManager.OnRestartedFromSavePoint -= RestartedFromSavePoint;
         }
     }
+
+
 
 
     private void Update()
@@ -271,20 +237,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
 
     
-    private void RestartedFromSavePoint(SavePointInformation savePoint)
-    {
-        if (savePoint == null) return;
-
-        if (savePoint.PlayerSpecialWeapon)
-        {
-            SetSpecialWeapon(savePoint.PlayerSpecialWeapon);
-        }
-        else
-        {
-            ResetHeat();
-        }
-    }
-    
     private void OnAimLock(bool state, ChickenController target)
     {
         if (!_allowShooting) return;
@@ -313,6 +265,64 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         var normalizedHeat = heat / _maxHeat;
         targetReticle?.SetEmissionStrength(normalizedHeat);
         _activeWeaponInstance?.OnHeatChanged(normalizedHeat);
+    }
+    
+    
+    public void SetUp(WeaponInstance activeWeapon = null)
+    {
+        _allowShooting = true;
+        _overHeated = false;
+        _overHeatedCooldown = false;
+        _inMiniGameWindow = false;
+        _miniGameAttempted = false;
+        _attackInputHeld = false;
+        _maxHeat = player.GameSettings.BaseMaxHeat;
+        _currentHeat = 0f;
+        _lastFireTimer = 0f;
+        
+        
+        foreach (var weapon in weapons)
+        {
+            weapon.SetUpWeaponInstance(player, controllerVibrationSource, impulseSource);
+        }
+
+        SetBaseWeapon(weapons[0]);
+
+
+        // Set active weapon
+        if (activeWeapon != null)
+        {
+            _activeWeaponInstance = activeWeapon;
+            _activeWeaponInstance?.OnWeaponSelected(_allowShooting);
+        }
+        else
+        {
+            if (_activeWeaponInstance == null)
+            {
+                if (_currentSpecialWeaponInstance != null) _activeWeaponInstance = _currentSpecialWeaponInstance;
+                else if (_baseWeaponInstance != null) _activeWeaponInstance = _baseWeaponInstance;
+                
+                _activeWeaponInstance?.OnWeaponSelected(_allowShooting);
+            }
+        }
+        
+        
+        // Show/hide reticle
+        if (player.LevelManager && player.LevelManager.CurrentStage)
+        {
+            if (!player.LevelManager.CurrentStage.AllowPlayerShootingAndAiming)
+            {
+                targetReticle?.Hide();
+                _activeWeaponInstance?.OnWeaponDeselected();
+            }
+        }
+
+        
+        
+        OnBaseWeaponSwitchedEvent?.Invoke(_baseWeaponInstance);
+        OnSpecialWeaponSwitchedEvent?.Invoke(_previousSpecialWeaponInstance, _currentSpecialWeaponInstance);
+        OnWeaponHeatResetEvent?.Invoke();
+        
     }
 
 
@@ -459,6 +469,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         
         weaponInstance.OnWeaponUsed(player);
         targetReticle?.PunchReticleSize(targetReticlePunchStrength, targetReticlePunchDuration);
+        OnWeaponUsed?.Invoke();
     }
 
     #endregion Weapon Usage ----------------------------------------------------------------------------------------------------
@@ -729,8 +740,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _activeWeaponInstance = newWeapon;
         _activeWeaponInstance.OnWeaponSelected(_allowShooting);
         weaponSwitchSfx?.Play(audioSource);
-        OnSpecialWeaponCooldownUpdatedEvent?.Invoke(newWeapon,_specialWeaponFireRateCooldown);
-        OnSpecialWeaponSwitchedEvent?.Invoke(_previousSpecialWeaponInstance, newWeapon);
+        OnSpecialWeaponCooldownUpdatedEvent?.Invoke(_activeWeaponInstance,_specialWeaponFireRateCooldown);
+        OnSpecialWeaponSwitchedEvent?.Invoke(_previousSpecialWeaponInstance, _activeWeaponInstance);
     }
     
     
@@ -753,6 +764,20 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _baseWeaponFireRateCooldown = 0;
         _baseWeaponInstance = weapon;
         OnBaseWeaponSwitchedEvent?.Invoke(_baseWeaponInstance);
+    }
+
+    private void SetBaseWeapon(SOWeaponData weaponData)
+    {
+        if (!weaponData) return;
+
+        foreach (var weaponInfo in weapons)
+        {
+            if (weaponInfo.baseWeaponData == weaponData)
+            {
+                SetBaseWeapon(weaponInfo);
+                break;
+            }
+        }
     }
 
     

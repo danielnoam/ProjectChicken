@@ -1,6 +1,5 @@
 using System;
 using DNExtensions;
-using DNExtensions.VFXManager;
 using UnityEngine;
 using VInspector;
 
@@ -10,6 +9,7 @@ public class SOLevelStage : ScriptableObject
     [Header("Stage Settings")]
     [SerializeField] private string stageTitle = "";
     [SerializeField, Range(0f,2f)] private float stageWorldSpeed = 1f;
+    [SerializeField] private bool isCheckpoint;
     [SerializeField] private bool showHUD = true;
     [SerializeField] private bool allowPlayerMovement = true;
     [SerializeField] private bool allowPlayerShootingAndAiming = true;
@@ -45,17 +45,16 @@ public class SOLevelStage : ScriptableObject
     public float StageWorldSpeed => stageWorldSpeed;
     public float StageDuration => stageDuration;
     public string StageTitle => stageTitle;
+    public bool IsCheckpoint => isCheckpoint;
     public bool ShowOutroMenu => showOutroMenu;
     public SceneField NextLevel => nextLevel;
     public SerializedDictionary<ChickenController, int> EnemyWave => enemyWave;
     public float DelayBeforeNextStage => delayBeforeNextStage;
     public int WaveScoreWorth =>  waveScoreWorth;
     public FormationSettings FormationSettings => formationSettings;
-    public bool IsTimeBasedStage => stageType is StageType.Checkpoint or StageType.Intro or StageType.Outro;
-    public bool IsSavePointStage => stageType is StageType.Intro or StageType.Checkpoint or StageType.Store;
+    public bool IsTimeBasedStage => stageType is StageType.Delay or StageType.Intro or StageType.Outro;
     public bool AllowPlayerMovement => allowPlayerMovement;
     public bool AllowPlayerShootingAndAiming => allowPlayerShootingAndAiming;
-
     public bool ShowHUD => showHUD;
     public  SOUpgradeBase[] UpgradesPool => upgradesPool;
     

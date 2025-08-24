@@ -27,15 +27,19 @@ public class RailPlayerHealth : MonoBehaviour
     [SerializeField] private ControllerVibrationEffectSettings healthDamagedVibrationSettings;
     [SerializeField] private ControllerVibrationEffectSettings deathVibrationSettings;
     
-    [Header("Audio")]
+    [Header("SFX/VFX")]
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
     [SerializeField] private SOAudioEvent healthDamageSfx;
+    [SerializeField] private ParticleSystem healthDamageParticleEffect;
     [SerializeField] private SOAudioEvent healthHealedSfx;
     [SerializeField] private SOAudioEvent shieldDamageSfx;
+    [SerializeField] private ParticleSystem shieldDamageParticleEffect;
     [SerializeField] private SOAudioEvent shieldStartRegenSfx;
     [SerializeField] private SOAudioEvent shieldRegeneratedSfx;
     [SerializeField] private SOAudioEvent shieldDepletedSfx;
+    [SerializeField] private ParticleSystem shieldDepletedParticleEffect;
     [SerializeField] private SOAudioEvent deathSfx;
+    [SerializeField] private ParticleSystem deathParticleEffect;
     
     [Header("References")]
     [SerializeField, Self, HideInInspector] private RailPlayer player;
@@ -52,6 +56,7 @@ public class RailPlayerHealth : MonoBehaviour
     
 
     public event Action OnDeath;
+    public event Action OnDamaged;
     public event Action<int> OnHealthChanged;
     public event Action<float> OnShieldChanged;
     
@@ -62,44 +67,15 @@ public class RailPlayerHealth : MonoBehaviour
         this.ValidateRefs();
     }
     
-    private void Awake()
-    {
-        CurrentHealth = player.GameSettings.BaseHealth;
-        CurrentShield = player.GameSettings.BaseShield;
-        MaxShield = player.GameSettings.BaseShield;
-    }
-    
-    private void Start()
-    {
-        OnHealthChanged?.Invoke(CurrentHealth);
-        OnShieldChanged?.Invoke(CurrentShield);
-    }
-    
-    private void OnEnable()
-    {
-        if (player.LevelManager)
-        {
-            player.LevelManager.OnRestartedFromSavePoint += OnRestartedFromSavePoint;
-        }
-    }
-    
-    private void OnDisable()
-    {
-        if (player.LevelManager)
-        {
-            player.LevelManager.OnRestartedFromSavePoint -= OnRestartedFromSavePoint;
-        }
-    }
     
     private void Update()
     {
         CheckDamageCooldown();
     }
     
-    private void OnRestartedFromSavePoint(SavePointInformation savePoint)
+
+    public void SetUp()
     {
-        if (savePoint == null) return;
-        
         CurrentHealth = player.GameSettings.BaseHealth;
         CurrentShield = player.GameSettings.BaseShield;
         MaxShield = player.GameSettings.BaseShield;
@@ -108,13 +84,17 @@ public class RailPlayerHealth : MonoBehaviour
         OnShieldChanged?.Invoke(CurrentShield);
     }
     
-    #region Damage System
+    
+    
+    #region Damage System ------------------------------------------------------------------------------------------
     
     public void TakeDamage(float damage)
     {
         if (damage <= 0 || !IsAlive() || player.Movement.IsDodging) return;
         
         StopShieldRegen();
+        
+        OnDamaged?.Invoke();
         
         if (ShieldActive())
         {
@@ -143,6 +123,7 @@ public class RailPlayerHealth : MonoBehaviour
     private void Die()
     {
         deathSfx?.Play(audioSource);
+        if (deathParticleEffect) deathParticleEffect.Play();
         controllerVibrationSource.Vibrate(deathVibrationSettings);
         
         if (cinemachineImpulseSource)
@@ -160,7 +141,8 @@ public class RailPlayerHealth : MonoBehaviour
         OnDeath?.Invoke();
     }
     
-    #endregion
+    #endregion Damage System ------------------------------------------------------------------------------------------
+    
     
     #region Health Management
     
@@ -188,6 +170,7 @@ public class RailPlayerHealth : MonoBehaviour
                 cinemachineImpulseSource.GenerateImpulseWithForce(healthDamagedShakeSettings.intensity);
             }
             
+            if (healthDamageParticleEffect) healthDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(healthDamagedVibrationSettings);
             healthDamageSfx?.Play(audioSource);
         }
@@ -210,6 +193,7 @@ public class RailPlayerHealth : MonoBehaviour
     }
     
     #endregion
+    
     
     #region Shield Management
     
@@ -260,6 +244,7 @@ public class RailPlayerHealth : MonoBehaviour
             CurrentShield = 0;
             DamageHealth();
             shieldDepletedSfx?.Play(audioSource);
+            if (shieldDepletedParticleEffect) shieldDepletedParticleEffect.Play();
         }
         else
         {
@@ -275,6 +260,7 @@ public class RailPlayerHealth : MonoBehaviour
                 cinemachineImpulseSource.GenerateImpulseWithForce(shieldDamagedShakeSettings.intensity);
             }
             
+            if (shieldDamageParticleEffect) shieldDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(shieldDamagedVibrationSettings);
             shieldDamageSfx?.Play(audioSource);
         }
@@ -324,7 +310,6 @@ public class RailPlayerHealth : MonoBehaviour
     }
     
     #endregion
-    
     
     
     #region Helper Methods

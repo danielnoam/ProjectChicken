@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Core.Attributes;
 using DNExtensions.VFXManager;
 using KBCore.Refs;
@@ -37,20 +38,22 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     
 
-    private Coroutine _stageChangeCoroutine;
+
+    private int _currentScore;
     private float _currentPathSpeed;
     private bool _settingStageFlag;
-    private int _bonusThresholdCounter;
     private SavePointInformation _currentSavePoint;
-    private int _currentScore;
+    private SavePointInformation _startSavePoint;
+    private Coroutine _stageChangeCoroutine;
+
     
     public Vector3 PlayerPosition => playerPosition;
     public Vector3 EnemyPosition => enemyPosition;
+    public SOLevelStage CurrentStage => currentStage;
     public static float WorldSpeed = 1f;
     
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
-    public event Action OnBonusThresholdReached;
     public event Action<SavePointInformation> OnRestartedFromSavePoint;
     
 
@@ -91,6 +94,7 @@ public class LevelManager : MonoBehaviour
         
         PrimeTweenConfig.warnTweenOnDisabledTarget = false;
         PrimeTweenConfig.warnZeroDuration = false;
+        WorldSpeed = 1f;
     }
     
     private void OnEnable()
@@ -174,7 +178,7 @@ public class LevelManager : MonoBehaviour
 
     private void OnPlayerDeath()
     {
-        StartCoroutine(RestartSavePoint());
+        StartCoroutine(RestartFromSavePointRoutine());
     }
 
     private void OnPlayerPaused()
@@ -201,9 +205,10 @@ public class LevelManager : MonoBehaviour
             if (debugLog) Debug.LogError("No level defined!");
             return;
         }
+        
 
+        
         levelStages = level.LevelStages;
-        WorldSpeed = 1f;
         
         if (levelStages == null || levelStages.Length == 0)
         {
@@ -211,6 +216,7 @@ public class LevelManager : MonoBehaviour
             return;
         }
         
+        _startSavePoint = new SavePointInformation(currentStageIndex, 0, 0, new List<SOUpgradeBase>(), player.WeaponSystem.CurrentSpecialWeaponInstance);
         ResetScore();
         SetStage(0);
     }
@@ -264,28 +270,24 @@ public class LevelManager : MonoBehaviour
         
         if (debugLog) Debug.Log("Set stage to: " + newStage.name);
         
+        
+        _settingStageFlag = false;
         currentStageIndex = newStageIndex;
         currentStage = newStage;
         
-        Tween.Custom(
-            startValue: WorldSpeed,
-            endValue: newStage.StageWorldSpeed, 
-            duration: 0.5f, 
-            onValueChange:(value) => WorldSpeed = value);
-        
-        UpdateReachedSavePoint(newStage);
+        Tween.Custom(startValue: WorldSpeed, endValue: newStage.StageWorldSpeed, duration: 0.5f, onValueChange:(value) => WorldSpeed = value);
+        if (currentStage.IsCheckpoint) SaveLevelProgress();
         UpdatePlayerAndEnemyPositions();
         
-        _settingStageFlag = false;
-        OnStageChanged?.Invoke(newStage);
+        OnStageChanged?.Invoke(currentStage);
 
 
-        if (newStage.IsTimeBasedStage)
+        if (currentStage.IsTimeBasedStage)
         {
-            if (newStage.StageType == StageType.Outro)
+            if (currentStage.StageType == StageType.Outro)
             {
                 
-                if (newStage.ShowOutroMenu)
+                if (currentStage.ShowOutroMenu)
                 {
                     outroScreen.Show(currentStage.NextLevel == null);
                 }
@@ -296,8 +298,8 @@ public class LevelManager : MonoBehaviour
             }
             else
             {
-                if (newStage.StageType == StageType.Intro) VFXManager.Instance?.PlayVFX(level.IntroVFXSequence);
-                SetNextStage(newStage.StageDuration);
+                if (currentStage.StageType == StageType.Intro) VFXManager.Instance?.PlayVFX(level.IntroVFXSequence);
+                SetNextStage(currentStage.StageDuration);
             }
         }
 
@@ -340,30 +342,35 @@ public class LevelManager : MonoBehaviour
         TransitionManager.TransitionToScene(gameSettings.MainMenuScene, level.OutroVFXSequence);
     }
 
-    private IEnumerator RestartSavePoint()
+    private IEnumerator RestartFromSavePointRoutine()
     {
-        if (_currentSavePoint == null) yield break;
-        
         yield return new WaitForSeconds(5f);
         
-        SetStage(_currentSavePoint.StageIndex);
-        _currentScore = _currentSavePoint.Score;
-        OnScoreChanged?.Invoke(_currentScore);
-        OnRestartedFromSavePoint?.Invoke(_currentSavePoint);
+        if (_currentSavePoint == null)
+        {
+            StartLevel();
+            OnRestartedFromSavePoint?.Invoke(_startSavePoint);
+        }
+        else
+        {
+            SetStage(_currentSavePoint.StageIndex);
+            _currentScore = _currentSavePoint.Score;
+            OnScoreChanged?.Invoke(_currentScore);
+            OnRestartedFromSavePoint?.Invoke(_currentSavePoint);
+        }
+        
     }
 
-    private void UpdateReachedSavePoint(SOLevelStage stage)
+    private void SaveLevelProgress()
     {
-        if (!stage || !stage.IsSavePointStage || _currentSavePoint != null && _currentSavePoint.StageIndex == currentStageIndex) return;
-
-        var playerSpecialWeapon = player.WeaponSystem.CurrentSpecialWeaponInstance?.WeaponData;
+        if (!currentStage || _currentSavePoint != null && _currentSavePoint.StageIndex == currentStageIndex) return;
         
         var newSavePoint = new SavePointInformation(
             currentStageIndex,
             _currentScore, 
             player.ResourceCollector.CurrentCurrency, 
             player.Upgrades,
-            playerSpecialWeapon
+            player.WeaponSystem.CurrentSpecialWeaponInstance
             );
             
         _currentSavePoint = newSavePoint;
@@ -380,28 +387,18 @@ public class LevelManager : MonoBehaviour
     #endregion Stage Management ---------------------------------------------------------------------------------
     
     
+    
     #region Score Management ---------------------------------------------------------------------------------
 
     private void AddScore(int score)
     {
         _currentScore += score;
-        _bonusThresholdCounter -= score;
-        
         OnScoreChanged?.Invoke(_currentScore);
-        
-        if (_bonusThresholdCounter <= 0)
-        {
-            OnBonusThresholdReached?.Invoke();
-            _bonusThresholdCounter = gameSettings.ScoreBonusThreshold;
-        }
-
     }
 
     private void ResetScore()
     {
         _currentScore = 0;
-        _bonusThresholdCounter = gameSettings.ScoreBonusThreshold;
-        
         OnScoreChanged?.Invoke(_currentScore);
     }
     

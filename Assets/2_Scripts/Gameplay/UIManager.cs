@@ -1,7 +1,5 @@
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using DNExtensions;
 using KBCore.Refs;
 using TMPro;
 using UnityEngine;
@@ -19,59 +17,67 @@ public class UIManager : MonoBehaviour
     
     
     [Header("General")]
-    [SerializeField] private float hudFadeDuration = 3f;
     [SerializeField] private Color cooldownIconColor = Color.grey;
-    [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
     [SerializeField] private SOGameSettings gameSettings;
+    [SerializeField] private LevelManager levelManager;
+    [SerializeField] private RailPlayer player;
+    
+    [Header("HUD")]
+    [SerializeField] private float hudFadeDuration = 3f;
+    [SerializeField, Tooltip("Hud position is affected by player movement")] private bool dynamicHud = true;
+    [SerializeField, Tooltip("How much the hud moves by the base player movement")] private float hudPlayerMoveAmount = 6f;
+    [SerializeField, Tooltip("How fast the hud will return to zero")] private float hudReturnSpeed = 2f;
+    [SerializeField, Tooltip("How fast the hud offset will return to  zero")] private float hudOffsetReturnSpeed = 1.5f;
+    [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
     
     [Header("Health")]
-    [SerializeField] private float healthPunchDuration = 0.2f;
+    [SerializeField] private float healthPunchDuration = 0.25f;
     [SerializeField] private float healthPunchStrength = 0.5f;
     [SerializeField] private Color healthPunchColor = Color.red;
     [SerializeField] private Image healthIcon;
     [SerializeField] private TextMeshProUGUI healthText;
     
     [Header("Shield")]
-    [SerializeField] private float shieldAnimationDuration = 0.7f;
-    [SerializeField] private float shieldPunchDuration = 0.2f;
+    [SerializeField] private float shieldAnimationDuration = 0.5f;
+    [SerializeField] private float shieldPunchDuration = 0.25f;
     [SerializeField] private float shieldPunchStrength = 0.5f;
     [SerializeField] private Color shieldPunchColor = Color.blue;
     [SerializeField] private Image shieldIcon;
     [SerializeField] private TextMeshProUGUI shieldText;
     
     [Header("Currency")]
-    [SerializeField] private float currencyAnimationDuration = 0.7f;
-    [SerializeField] private float currencyPunchDuration = 0.2f;
-    [SerializeField] private float currencyPunchStrength = 0.2f;
+    [SerializeField] private float currencyAnimationDuration = 0.5f;
+    [SerializeField] private float currencyPunchDuration = 0.25f;
+    [SerializeField] private float currencyPunchStrength = 0.5f;
     [SerializeField, Min(0), Tooltip("The difference between the previous currency and the current currency that must be reached to trigger a big currency animation")] 
     private int bigCurrencyDifference = 4;
     [SerializeField] private Image currencyIcon;
     [SerializeField] private TextMeshProUGUI currencyText;
     
     [Header("Dodge")]
-    [SerializeField] private float dodgePunchDuration = 0.2f;
-    [SerializeField] private float dodgePunchStrength = 0.2f;
+    [SerializeField] private float dodgePunchDuration = 0.25f;
+    [SerializeField] private float dodgePunchStrength = 0.5f;
     [SerializeField] private Image dodgeIcon;
     [SerializeField] private TextMeshProUGUI dodgeCountText;
     
     [Header("Weapons")]
-    [SerializeField] private float weaponAnimationDuration = 0.2f;
-    [SerializeField] private float weaponPunchDuration = 0.2f;
-    [SerializeField] private float weaponPunchStrength = 0.2f;
+    [SerializeField] private float weaponAnimationDuration = 0.5f;
+    [SerializeField] private float weaponPunchDuration = 0.25f;
+    [SerializeField] private float weaponPunchStrength = 0.5f;
     [SerializeField] private Image weaponIcon;
     [SerializeField] private Image secondaryWeaponIcon;
     
     [Header("Score")]
-    [SerializeField] private float scoreAnimationDuration = 0.2f;
-    [SerializeField] private float scorePunchDuration = 0.2f;
-    [SerializeField] private float scorePunchStrength = 0.2f;
+    [SerializeField] private float scoreAnimationDuration = 0.5f;
+    [SerializeField] private float scorePunchDuration = 0.25f;
+    [SerializeField] private float scorePunchStrength = 0.5f;
     [SerializeField, Min(0), Tooltip("The difference between the previous score and the current score that must be reached to trigger a big score animation")] 
     private int bigScoreDifference = 200;
     [SerializeField, Min(0), Tooltip("How many 0 is the score made out of")] private int scoreDigits = 7;
     [SerializeField] private TextMeshProUGUI scoreText;
     
     [Header("Wave Title")]
-    [SerializeField] private float waveTitleAnimationDuration = 0.2f;
+    [SerializeField] private float waveTitleAnimationDuration = 1.5f;
     [SerializeField] private TextMeshProUGUI waveTitleText;
     
     [Header("Pause Icon")]
@@ -79,12 +85,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image pauseIconFill;
     [SerializeField] private CanvasGroup pauseGroup;
     
-    [Header("Scene References")] 
-    [SerializeField] private LevelManager levelManager;
-    [SerializeField] private RailPlayer player;
-
     
-    private readonly Dictionary<Image, bool> _healthIcons = new Dictionary<Image, bool>();
+
     private Color _secondaryWeaponStartColor;
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
@@ -94,6 +96,7 @@ public class UIManager : MonoBehaviour
     private Sequence _playerHealthSequence;
     private Sequence _playerCurrencySequence;
     private Sequence _playerShieldSequence;
+    private Sequence _playerShieldPunchSequence;
     private Sequence _waveTitleSequence;
     private Sequence _pauseSequence;
     private int _previousScore;
@@ -102,6 +105,8 @@ public class UIManager : MonoBehaviour
     private int _playerCurrency;
     private int _playerHealth;
     private float _playerShield;
+    private Vector3 _targetHudPosition;
+    private Vector3 _hudPositionOffset;
 
 
 
@@ -139,17 +144,19 @@ public class UIManager : MonoBehaviour
         if (player)
         {
             player.OnPauseTimerChanged += OnPauseTimerChanged;
-            player.Health.OnDeath += OnDeath;
+            player.Health.OnDeath += OnPlayerDeath;
+            player.Health.OnDamaged += OnPlayerDamaged;
             player.Health.OnHealthChanged += OnPlayerHealthChanged;
             player.Health.OnShieldChanged += OnPlayerShieldChanged;
             player.ResourceCollector.OnCurrencyChanged += OnPlayerCurrencyChanged;
+            player.WeaponSystem.OnWeaponUsed += OnPlayerWeaponUsed;
             player.WeaponSystem.OnSpecialWeaponSwitchedEvent += SpecialWeaponSystemSwitched;
             player.WeaponSystem.OnSpecialWeaponCooldownUpdatedEvent += SpecialWeaponSystemCooldownUpdated;
             player.WeaponSystem.OnBaseWeaponCooldownUpdatedEvent += BaseWeaponSystemCooldownUpdated;
             player.WeaponSystem.OnBaseWeaponSwitchedEvent += BaseWeaponSystemSwitched;
             player.WeaponSystem.OnSpecialWeaponDisabledEvent += SpecialWeaponSystemDisabled;
             player.Movement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
-            player.Movement.OnDodge += OnDodge;
+            player.Movement.OnDodge += OnPlayerDodge;
             player.Movement.OnDodgeCountChanged += OnDodgeCountChanged;
         }
 
@@ -161,22 +168,25 @@ public class UIManager : MonoBehaviour
     }
 
 
+
     private void OnDisable()
     {
         if (player)
         {
             player.OnPauseTimerChanged -= OnPauseTimerChanged;
-            player.Health.OnDeath -= OnDeath;
+            player.Health.OnDeath -= OnPlayerDeath;
+            player.Health.OnDamaged -= OnPlayerDamaged;
             player.Health.OnHealthChanged -= OnPlayerHealthChanged;
             player.Health.OnShieldChanged -= OnPlayerShieldChanged;
             player.ResourceCollector.OnCurrencyChanged -= OnPlayerCurrencyChanged;
+            player.WeaponSystem.OnWeaponUsed -= OnPlayerWeaponUsed;
             player.WeaponSystem.OnSpecialWeaponSwitchedEvent -= SpecialWeaponSystemSwitched;
             player.WeaponSystem.OnSpecialWeaponCooldownUpdatedEvent -= SpecialWeaponSystemCooldownUpdated;
             player.WeaponSystem.OnBaseWeaponCooldownUpdatedEvent -= BaseWeaponSystemCooldownUpdated;
             player.WeaponSystem.OnBaseWeaponSwitchedEvent -= BaseWeaponSystemSwitched;
             player.WeaponSystem.OnSpecialWeaponDisabledEvent -= SpecialWeaponSystemDisabled;
             player.Movement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
-            player.Movement.OnDodge -= OnDodge;
+            player.Movement.OnDodge -= OnPlayerDodge;
             player.Movement.OnDodgeCountChanged -= OnDodgeCountChanged;
         }
         
@@ -192,12 +202,14 @@ public class UIManager : MonoBehaviour
     private void Update()
     {
         scoreText.text = _score.ToString($"D{scoreDigits}");
-        if (healthText) healthText.text = _playerHealth.ToString();
+        healthText.text = _playerHealth.ToString();
         shieldText.text = $"{_playerShield:F0}%";
         currencyText.text = _playerCurrency.ToString();
+        UpdateHudOffset();
     }
-    
-    
+
+
+
     private void SetUpUI()
     {
         _weaponStartColor = weaponIcon.color;
@@ -237,6 +249,37 @@ public class UIManager : MonoBehaviour
     
     }
     
+    private void UpdateHudOffset()
+    {
+        if (!dynamicHud || !player) 
+        {
+            hudGroup.transform.localPosition = Vector3.zero;
+            _hudPositionOffset = Vector3.zero;
+            _targetHudPosition = Vector3.zero;
+            return;
+        }
+
+        _targetHudPosition = new Vector3(
+            player.Movement.InputDirection.x * hudPlayerMoveAmount + _hudPositionOffset.x,
+            player.Movement.InputDirection.y * hudPlayerMoveAmount + _hudPositionOffset.y,
+            0);
+        
+        hudGroup.transform.localPosition = Vector3.Lerp(hudGroup.transform.localPosition, _targetHudPosition, Time.deltaTime * hudReturnSpeed);
+        _hudPositionOffset = Vector3.Lerp(_hudPositionOffset, Vector3.zero, Time.deltaTime * hudReturnSpeed);
+
+    }
+
+    [VInspector.Button]
+    private void AddHudOffset(Vector2 direction, float strength)
+    {
+        direction.Normalize();
+        _hudPositionOffset = new Vector3(
+            _hudPositionOffset.x + direction.x * strength,
+            _hudPositionOffset.y + direction.y * strength,
+            0);
+    }
+
+    
 
     private void ToggleHUD(bool state)
     {
@@ -255,10 +298,12 @@ public class UIManager : MonoBehaviour
             .Group(Tween.Alpha(waveTitleText, startDelay: 0.5f, startValue: 0, endValue: 1, duration: waveTitleAnimationDuration/0.6f))
             .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.4f));
     }
+
     
     
-    
-    
+
+
+    #region Events ------------------------------------------------------------------------------------------------
 
     private void OnStageChanged(SOLevelStage stage)
     {
@@ -269,10 +314,21 @@ public class UIManager : MonoBehaviour
     }
     
     
-    private void OnDeath()
+    private void OnPlayerDeath()
     {
         FadeHUD(false);
     }
+    
+    private void OnPlayerDamaged()
+    {
+        AddHudOffset(Random.insideUnitCircle, 20f);
+    }
+    
+    private void OnPlayerWeaponUsed()
+    {
+        AddHudOffset(Random.insideUnitCircle, 5f);
+    }
+
     
     private void OnPlayerHealthChanged(int currentHealth)
     {
@@ -280,7 +336,7 @@ public class UIManager : MonoBehaviour
         _playerHealthSequence = Sequence.Create()
             .Group(Tween.PunchScale(healthIcon.transform, strength: Vector3.one * healthPunchStrength, duration: healthPunchDuration));
         
-        if (currentHealth > _playerHealth)
+        if (_playerHealth < currentHealth)
         {
             _playerHealthSequence.Group(Tween.Color(healthIcon, healthIcon.color, healthPunchColor, healthPunchDuration));
             _playerHealthSequence.Chain(Tween.Color(healthIcon, healthPunchColor, Color.white, healthPunchDuration));
@@ -291,8 +347,8 @@ public class UIManager : MonoBehaviour
 
     private void OnPlayerShieldChanged(float currentShield)
     {
-        if (_playerShieldSequence.isAlive) _playerShieldSequence.Stop();
         
+        if (_playerShieldSequence.isAlive) _playerShieldSequence.Stop();
         if (currentShield < _playerShield)
         {
             _playerShieldSequence = Sequence.Create()
@@ -301,15 +357,21 @@ public class UIManager : MonoBehaviour
                     endValue: currentShield,
                     duration: shieldAnimationDuration,
                     onValueChange: value => _playerShield = Mathf.RoundToInt(value)));
+
         }
         else
         {
             _playerShield = currentShield;
         }
         
+        
         if (currentShield >= player.Health.MaxShield - 1)
         {
-            Tween.PunchScale(shieldIcon.transform, strength: Vector3.one * shieldPunchStrength, duration: shieldPunchDuration);
+            if (_playerShieldPunchSequence.isAlive) _playerShieldPunchSequence.Stop();
+            _playerShieldPunchSequence = Sequence.Create()
+                    .Group(Tween.PunchScale(shieldIcon.transform, strength: Vector3.one * shieldPunchStrength, duration: shieldPunchDuration))
+                    .Group(Tween.Color(shieldIcon, healthIcon.color, shieldPunchColor, healthPunchDuration))
+                    .Chain(Tween.Color(shieldIcon, shieldPunchColor, Color.white, healthPunchDuration));
         }
 
     }
@@ -419,7 +481,7 @@ public class UIManager : MonoBehaviour
         }
     }
     
-    private void OnDodge()
+    private void OnPlayerDodge()
     {
         dodgeIcon.color = cooldownIconColor;
     }
@@ -470,5 +532,9 @@ public class UIManager : MonoBehaviour
         }
     }
     
+
+    #endregion Events ------------------------------------------------------------------------------------------------
+
+
     
 }
