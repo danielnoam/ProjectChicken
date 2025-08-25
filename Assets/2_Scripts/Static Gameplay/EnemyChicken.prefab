@@ -701,6 +701,7 @@ MonoBehaviour:
   autoUnregisterOnDestroy: 1
   autoManageState: 1
   showDebugLogs: 0
+  majorSlotChangeThreshold: 2
 --- !u!114 &8824006632455104043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -728,21 +729,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d17657332306a6b4a91f3127dfb48d1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialMovementDuration: 5
-  formationMovementDuration: 2
+  movementDuration: 2
   durationVariationRange: 1.5
   movementCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
+      time: -0.0024080817
+      value: 0.0013863852
+      inSlope: -0.44465813
+      outSlope: -0.44465813
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.32131526
     - serializedVersion: 3
       time: 0.80639875
       value: 1.0078566
@@ -766,8 +766,11 @@ MonoBehaviour:
     m_RotationOrder: 4
   trackSlotChanges: 1
   slotChangeDetectionInterval: 0.1
-  trackSlotWhileInCombat: 1
-  combatSlotDistanceThreshold: 1
+  followingSpeed: 50
+  followingDistanceThreshold: 0.1
+  maxMovementResets: 2
+  maxMovementTime: 100
+  enableMovementFailsafe: 1
   moveToSpawnWhenIdle: 1
   spawnAreaTag: ChickenSpawner
   spawnAreaArrivalDistance: 0.5

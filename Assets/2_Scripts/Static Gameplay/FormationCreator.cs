@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -57,15 +58,34 @@ public class FormationCreator : MonoBehaviour
         // Store initial formation type
         previousFormationType = currentFormation;
         
-        // Initial generation
+        // Use coroutine to ensure proper initialization timing
+        StartCoroutine(InitializeFormationWithDelay());
+    }
+
+    // New coroutine to handle proper initialization timing
+    IEnumerator InitializeFormationWithDelay()
+    {
+        // Wait one frame to ensure all components are fully initialized
+        yield return null;
+        
+        // Generate initial formation
         GenerateFormation();
         
+        // Apply random placement if enabled
         if (useRandomPlacement)
         {
             placer.RandomizeAllPositions();
+            // Regenerate after randomization
+            GenerateFormation();
         }
         
+        // Force update all visualization components
+        ForceUpdateVisualization();
+        
+        // Mark as initialized
         hasBeenInitialized = true;
+        
+        Debug.Log($"FormationCreator: Successfully initialized with {currentFormation} formation ({formationSlots.Count} slots)");
     }
 
     void Update()
@@ -126,6 +146,46 @@ public class FormationCreator : MonoBehaviour
             // No validation - just update shapes
             GenerateFormation();
         }
+        
+        // Force update visualization after formation type change
+        ForceUpdateVisualization();
+    }
+
+    // New method to force update all visualization components
+    void ForceUpdateVisualization()
+    {
+        // Force boundary manager to update
+        if (boundaryManager != null)
+        {
+            // Try to call a refresh method if it exists
+            var refreshMethod = boundaryManager.GetType().GetMethod("RefreshBoundaries");
+            refreshMethod?.Invoke(boundaryManager, null);
+            
+            // Or call Update method if it exists
+            var updateMethod = boundaryManager.GetType().GetMethod("UpdateBoundaries");
+            updateMethod?.Invoke(boundaryManager, null);
+        }
+        
+        // Force visualizer to update
+        if (visualizer != null)
+        {
+            // Try to call a refresh method if it exists
+            var refreshMethod = visualizer.GetType().GetMethod("RefreshVisualization");
+            refreshMethod?.Invoke(visualizer, null);
+            
+            // Or call Update method if it exists
+            var updateMethod = visualizer.GetType().GetMethod("UpdateVisualization");
+            updateMethod?.Invoke(visualizer, null);
+        }
+        
+        // Force a repaint in editor
+        #if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            EditorUtility.SetDirty(this);
+            SceneView.RepaintAll();
+        }
+        #endif
     }
 
     // Main formation generation method
@@ -140,7 +200,11 @@ public class FormationCreator : MonoBehaviour
         // Place formations using placer
         formationSlots = placer.PlaceFormations(baseFormation);
         
-        Debug.Log($"FormationCreator: Generated {currentFormation} formation with {formationSlots.Count} total slots");
+        // After generation, ensure visualization is updated
+        if (hasBeenInitialized)
+        {
+            ForceUpdateVisualization();
+        }
     }
 
     // Public methods for external control
@@ -163,6 +227,20 @@ public class FormationCreator : MonoBehaviour
         
         placer.RandomizeAllPositions();
         GenerateFormation();
+    }
+
+    [ContextMenu("Force Update Visualization")]
+    public void ForceUpdateVisualizationMenu()
+    {
+        ForceUpdateVisualization();
+        Debug.Log("FormationCreator: Forced visualization update");
+    }
+
+    [ContextMenu("Reinitialize Formation")]
+    public void ReinitializeFormation()
+    {
+        hasBeenInitialized = false;
+        StartCoroutine(InitializeFormationWithDelay());
     }
 
     // Get all current formation slot positions in world space
@@ -203,9 +281,12 @@ public class FormationCreator : MonoBehaviour
         }
         else if (!Application.isPlaying)
         {
-            // In edit mode, generate for preview
+            // In edit mode, generate for preview and force visualization update
             if (generator == null) InitializeComponents();
             GenerateFormation();
+            
+            // Force update visualization in edit mode
+            Invoke(nameof(ForceUpdateVisualization), 0.1f);
         }
     }
 }
@@ -235,6 +316,21 @@ public class FormationCreatorEditor : UnityEditor.Editor
             }
         }
         
+        // New button to force visualization update
+        if (GUILayout.Button("Force Update Visualization", GUILayout.Height(25)))
+        {
+            formationCreator.ForceUpdateVisualizationMenu();
+        }
+        
+        // Reinitialize button for debugging
+        if (Application.isPlaying)
+        {
+            if (GUILayout.Button("Reinitialize Formation", GUILayout.Height(25)))
+            {
+                formationCreator.ReinitializeFormation();
+            }
+        }
+        
         // Show validation status if validator exists
         if (formationCreator.Validator != null && formationCreator.Validator.ValidateFormationChanges && formationCreator.useRandomPlacement)
         {
@@ -249,8 +345,18 @@ public class FormationCreatorEditor : UnityEditor.Editor
             }
         }
         
-        // Show collider info
+        // Show initialization status
         GUILayout.Space(5);
+        if (formationCreator.HasBeenInitialized)
+        {
+            EditorGUILayout.HelpBox("✓ Formation properly initialized with boundary visualization", MessageType.Info);
+        }
+        else if (Application.isPlaying)
+        {
+            EditorGUILayout.HelpBox("⏳ Formation initializing...", MessageType.Warning);
+        }
+        
+        // Show collider info
         if (formationCreator.GetComponent<BoxCollider2D>() == null)
         {
             EditorGUILayout.HelpBox("No BoxCollider2D found! Add a BoxCollider2D to constrain formations within bounds.", MessageType.Warning);

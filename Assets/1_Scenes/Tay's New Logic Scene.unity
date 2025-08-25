@@ -10670,6 +10670,12 @@ GameObject:
   - component: {fileID: 2046359981}
   - component: {fileID: 2046359984}
   - component: {fileID: 2046359983}
+  - component: {fileID: 2046359989}
+  - component: {fileID: 2046359988}
+  - component: {fileID: 2046359987}
+  - component: {fileID: 2046359986}
+  - component: {fileID: 2046359985}
+  - component: {fileID: 2046359990}
   m_Layer: 0
   m_Name: Enemy Formation Manager
   m_TagString: Untagged
@@ -10693,18 +10699,10 @@ MonoBehaviour:
   spacing: 7
   slotsPerSide: 5
   circleRadius: 17.5
-  fitWithinCollider: 1
-  boundaryPadding: 1
-  formationCount: 3
+  formationCount: 2
   formationSpacing: 5
   useRandomPlacement: 1
   maxPlacementAttempts: 100
-  validateFormationChanges: 1
-  autoAdjustOnValidationFail: 1
-  gizmoColor: {r: 1, g: 0, b: 0, a: 1}
-  gizmoSize: 0.5
-  showColliderBounds: 1
-  validationErrorColor: {r: 1, g: 0, b: 1, a: 1}
 --- !u!4 &2046359982
 Transform:
   m_ObjectHideFlags: 0
@@ -10786,9 +10784,100 @@ MonoBehaviour:
   debugSlotSize: 0.3
   autoReassignOnFormationChange: 1
   formationCheckInterval: 0.1
+  majorPositionChangeThreshold: 3
   autoRefreshChickenStates: 1
   stateRefreshInterval: 1
   forceStateUpdateOnReassign: 1
+--- !u!114 &2046359985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046359980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4701fd83e3548554aa1db6c125a5c2a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoColor: {r: 1, g: 0, b: 0, a: 1}
+  gizmoSize: 0.5
+  showColliderBounds: 1
+  validationErrorColor: {r: 1, g: 0, b: 1, a: 1}
+--- !u!114 &2046359986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046359980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d29fa83a6418d9f48ab176cf7f0c81aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fitWithinCollider: 1
+  boundaryPadding: 0.9
+--- !u!114 &2046359987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046359980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 065ffa79bf9b6d54ba4f2ae2b2359000, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  validateFormationChanges: 1
+  autoAdjustOnValidationFail: 1
+--- !u!114 &2046359988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046359980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 363059b0dce1d2743bc84411c9597568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2046359989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046359980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc5a4aa7a0ad1d4a9525d0408ca8824, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2046359990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046359980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 801cb900bddde544d8367f57c3601b7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableBreathing: 0
+  minScale: 0.7
+  maxScale: 1.3
+  baseCycleTime: 6
+  enableCycleVariation: 1
+  cycleTimeVariation: 2
+  useRandomPhaseOffset: 1
+  useSmoothCurve: 1
+  startImmediately: 1
+  showDebugLogs: 0
 --- !u!1001 &2047690832
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11490,26 +11579,6 @@ PrefabInstance:
     - target: {fileID: 4926867982838879230, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6441098358043672622, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      propertyPath: movementCurve.m_Curve.Array.data[0].time
-      value: -0.0024080817
-      objectReference: {fileID: 0}
-    - target: {fileID: 6441098358043672622, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      propertyPath: movementCurve.m_Curve.Array.data[0].value
-      value: 0.0013863852
-      objectReference: {fileID: 0}
-    - target: {fileID: 6441098358043672622, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      propertyPath: movementCurve.m_Curve.Array.data[0].inSlope
-      value: -0.44465813
-      objectReference: {fileID: 0}
-    - target: {fileID: 6441098358043672622, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      propertyPath: movementCurve.m_Curve.Array.data[0].outSlope
-      value: -0.44465813
-      objectReference: {fileID: 0}
-    - target: {fileID: 6441098358043672622, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      propertyPath: movementCurve.m_Curve.Array.data[0].outWeight
-      value: 0.32131526
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}
