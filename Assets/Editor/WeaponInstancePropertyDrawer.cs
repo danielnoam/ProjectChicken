@@ -13,8 +13,8 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
         // Early return if property is null
         if (property == null) return;
         
-        // Get the weaponData property with null check
-        SerializedProperty weaponDataProp = property.FindPropertyRelative("baseWeaponData");
+        // Get the weaponData property with null check (corrected field name)
+        SerializedProperty weaponDataProp = property.FindPropertyRelative("weaponData");
         if (weaponDataProp == null) return;
         
         // Get the parent array to determine the index
@@ -26,16 +26,16 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
         
         if (weaponDataProp.objectReferenceValue != null)
         {
-            SOWeaponData weaponDataData = weaponDataProp.objectReferenceValue as SOWeaponData;
-            if (weaponDataData != null && !string.IsNullOrEmpty(weaponDataData.WeaponName))
+            SOWeaponData weaponData = weaponDataProp.objectReferenceValue as SOWeaponData;
+            if (weaponData != null && !string.IsNullOrEmpty(weaponData.WeaponName))
             {
                 if (arrayIndex == 0)
                 {
-                    customLabel = weaponDataData.WeaponName + " (Starting Weapon)";
+                    customLabel = weaponData.WeaponName + " (Starting Weapon)";
                 }
                 else
                 {
-                    customLabel = weaponDataData.WeaponName + " (Special Weapon)";
+                    customLabel = weaponData.WeaponName + " (Special Weapon)";
                 }
             }
         }
@@ -57,8 +57,8 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
             
             float yPos = position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             
-            // Draw weaponData field
-            SerializedProperty weaponData = property.FindPropertyRelative("baseWeaponData");
+            // Draw weaponData field (corrected field name)
+            SerializedProperty weaponData = property.FindPropertyRelative("weaponData");
             if (weaponData != null)
             {
                 EditorGUI.PropertyField(
@@ -79,8 +79,8 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
                 yPos += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             }
             
-            // Draw weaponReticle field
-            SerializedProperty weaponReticle = property.FindPropertyRelative("reticleVisualsController");
+            // Draw weaponReticle field (corrected field name)
+            SerializedProperty weaponReticle = property.FindPropertyRelative("weaponReticle");
             if (weaponReticle != null)
             {
                 EditorGUI.PropertyField(
@@ -140,8 +140,8 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
         
         if (property.isExpanded)
         {
-            // Add height for each base field with null checks
-            SerializedProperty weaponData = property.FindPropertyRelative("baseWeaponData");
+            // Add height for each base field with null checks (corrected field names)
+            SerializedProperty weaponData = property.FindPropertyRelative("weaponData");
             if (weaponData != null)
                 height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             
@@ -149,7 +149,7 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
             if (weaponGfx != null)
                 height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             
-            SerializedProperty weaponReticle = property.FindPropertyRelative("reticleVisualsController");
+            SerializedProperty weaponReticle = property.FindPropertyRelative("weaponReticle");
             if (weaponReticle != null)
                 height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             
@@ -168,8 +168,8 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
                 }
             }
             
-            // Check if we need upgrade section
-            SerializedProperty weaponDataProp = property.FindPropertyRelative("baseWeaponData");
+            // Check if we need upgrade section (corrected field name)
+            SerializedProperty weaponDataProp = property.FindPropertyRelative("weaponData");
             if (weaponDataProp != null && ShouldShowUpgradeSection(weaponDataProp.objectReferenceValue as SOWeaponData))
             {
                 // Add height for upgrade assets array
@@ -218,7 +218,7 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
     
     private void AutoSyncUpgradeAssets(SerializedProperty property)
     {
-        SerializedProperty weaponDataProp = property.FindPropertyRelative("baseWeaponData");
+        SerializedProperty weaponDataProp = property.FindPropertyRelative("weaponData");
         SerializedProperty upgradeAssetsProp = property.FindPropertyRelative("upgradeAssets");
         
         if (weaponDataProp?.objectReferenceValue == null || upgradeAssetsProp == null) return;

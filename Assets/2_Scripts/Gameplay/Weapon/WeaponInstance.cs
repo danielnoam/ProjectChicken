@@ -1,5 +1,4 @@
 ﻿using DNExtensions;
-using PrimeTween;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -7,11 +6,11 @@ using UnityEngine;
 public class WeaponUpgradeAssets
 {
     [SerializeField] private SOWeaponUpgrade upgrade;
-    [SerializeField] private Transform upgradeGfx;
+    [SerializeField] private WeaponGfx upgradeGfx;
     [SerializeField] private Transform[] upgradeBarrels;
     
     public SOWeaponUpgrade Upgrade => upgrade;
-    public Transform UpgradeGfx => upgradeGfx;
+    public WeaponGfx UpgradeGfx => upgradeGfx;
     public Transform[] UpgradeBarrels => upgradeBarrels;
     
     public WeaponUpgradeAssets(SOWeaponUpgrade upgrade)
@@ -23,21 +22,19 @@ public class WeaponUpgradeAssets
 [System.Serializable]
 public class WeaponInstance
 {
-    public SOWeaponData baseWeaponData;
-    public Transform weaponGfx;
-    public ReticleVisualsController reticleVisualsController;
+    public SOWeaponData weaponData;
+    public WeaponGfx weaponGfx;
+    public ReticleVisualsController weaponReticle;
     public Transform[] weaponBarrels;
     public WeaponUpgradeAssets[] upgradeAssets;
 
     
     public SOWeaponData WeaponData { get; private set; }
-    public Transform CurrentWeaponGfx { get; private set; }
+    public WeaponGfx CurrentWeaponGfx { get; private set; }
     public Transform[] CurrentWeaponBarrels { get; private set; }
     public ControllerVibrationSource  ControllerVibrationSource { get; private set; }
     public CinemachineImpulseSource CinemachineImpulseSource {  get; private set; }
     
-    
-    private Sequence _weaponSequence;
     
     
 
@@ -46,15 +43,14 @@ public class WeaponInstance
         ControllerVibrationSource = controllerVibrationSource;
         CinemachineImpulseSource = cinemachineImpulseSource;
         
-        // Hide all GFX first
-        if (weaponGfx) weaponGfx.gameObject.SetActive(false);
-    
-        // Hide all upgrade GFX
+        weaponGfx?.gameObject.SetActive(true);
+        weaponGfx?.Hide(false);
         if (upgradeAssets != null)
         {
             foreach (var asset in upgradeAssets)
             {
-                if (asset.UpgradeGfx) asset.UpgradeGfx.gameObject.SetActive(false);
+                asset?.UpgradeGfx?.gameObject.SetActive(true);
+                asset?.UpgradeGfx?.Hide(false);
             }
         }
         
@@ -77,23 +73,23 @@ public class WeaponInstance
     
     public void ApplyWeaponUpgrade(RailPlayer player)
     {
-        WeaponData = baseWeaponData;
+        WeaponData = weaponData;
         CurrentWeaponGfx = weaponGfx;
         CurrentWeaponBarrels = weaponBarrels;
     
-        if (baseWeaponData.WeaponUpgrades.Count == 0) return;
+        if (weaponData.WeaponUpgrades.Count == 0) return;
     
         // Get the highest level upgrade the player owns
-        SOWeaponUpgrade activeWeaponUpgrade = player.GetHighestWeaponUpgrade(baseWeaponData);
+        SOWeaponUpgrade activeWeaponUpgrade = player.GetHighestWeaponUpgrade(weaponData);
     
         if (activeWeaponUpgrade)
         {
             // Create a new runtime instance of weapon data
             WeaponData = ScriptableObject.CreateInstance<SOWeaponData>();
-            WeaponData.name = baseWeaponData.name + "_Upgraded";
+            WeaponData.name = weaponData.name + "_Upgraded";
 
             // Copy all base values from original
-            WeaponData.CopyBaseWeaponData(baseWeaponData);
+            WeaponData.CopyBaseWeaponData(weaponData);
             WeaponData.ApplyUpgradeData(activeWeaponUpgrade);
         
             // Find the upgrade assets for this specific upgrade
@@ -131,55 +127,34 @@ public class WeaponInstance
     }
 
     
-    
-    
-    public void UpdateReticleVisibility(bool allowShooting)
-    {
-        if (allowShooting)
-        {
-            reticleVisualsController?.Show();
-        }
-        else
-        {
-            reticleVisualsController?.Hide();
-        }
-    }
-
-
-    private void ChangeGfxVisibility(bool isVisible)
-    {
-        if (!CurrentWeaponGfx) return;
-        
-        if (_weaponSequence.isAlive) _weaponSequence.Stop();
-        
-        if (isVisible) CurrentWeaponGfx.gameObject.SetActive(true);
-        
-        _weaponSequence = Sequence.Create()
-            .Group(Tween.Scale(CurrentWeaponGfx, isVisible ? Vector3.zero : Vector3.one, isVisible ? Vector3.one : Vector3.zero, 0.2f));
-        
-        if (!isVisible) _weaponSequence.OnComplete(() => CurrentWeaponGfx.gameObject.SetActive(false));
-    }
-    
 
     #region Events ---------------------------------------------------------------------------------------------
 
     public void OnWeaponSelected(bool allowShooting)
     {
-        ChangeGfxVisibility(true);
-        UpdateReticleVisibility(allowShooting);
+        CurrentWeaponGfx.Show();
+        
+        if (allowShooting)
+        {
+            weaponReticle?.Show();
+        }
+        else
+        {
+            weaponReticle?.Hide();
+        }
     }
     
     public void OnWeaponDeselected()
     {
-        ChangeGfxVisibility(false);
-        reticleVisualsController?.Hide();
+        CurrentWeaponGfx?.Hide();
+        weaponReticle?.Hide();
     }
 
     
     public void OnWeaponUsed(RailPlayer owner)
     {
-        reticleVisualsController?.PunchReticleSize(0.25f, 0.5f, 0.03f);
-        
+        weaponReticle?.PunchReticleSize(0.25f, 0.5f, 0.03f);
+        CurrentWeaponGfx?.AnimateUsage();
 
         if (WeaponData && CurrentWeaponBarrels != null)
         {
@@ -214,22 +189,22 @@ public class WeaponInstance
     public void OnHeatChanged(float heat)
     {
         var normalizedHeat = heat;
-        reticleVisualsController?.SetEmissionStrength(normalizedHeat);
+        weaponReticle?.SetEmissionStrength(normalizedHeat);
     }
 
     public void OnWeaponOverheat()
     {
-        reticleVisualsController?.PunchReticleSize(1f, 0.5f, 0.03f);
+        weaponReticle?.PunchReticleSize(1f, 0.5f, 0.03f);
     }
 
     public void OnAimLocked()
     {
-        reticleVisualsController?.EnableAimLockSize(0.4f);
+        weaponReticle?.EnableAimLockSize(0.4f);
     }
     
     public void OnAimUnlocked(float duration = 0.4f)
     {
-        reticleVisualsController?.DisableAimLockSize(duration);
+        weaponReticle?.DisableAimLockSize(duration);
     }
     
     #endregion Events ---------------------------------------------------------------------------------------------

@@ -477,6 +477,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8089445713225865547}
+  - component: {fileID: 4277878802220881289}
   m_Layer: 6
   m_Name: MissileWeaponUpgrade2Gfx
   m_TagString: Untagged
@@ -501,6 +502,18 @@ Transform:
   - {fileID: 7275149474422493339}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4277878802220881289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 758294339415765342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &976691777901207769
 GameObject:
   m_ObjectHideFlags: 0
@@ -541,6 +554,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8445288471549559756}
+  - component: {fileID: 6953243760073169257}
   m_Layer: 6
   m_Name: MissileWeaponGfx
   m_TagString: Untagged
@@ -565,6 +579,18 @@ Transform:
   - {fileID: 5650638735609317618}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6953243760073169257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009640644081572378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1241682214362845021
 GameObject:
   m_ObjectHideFlags: 0
@@ -699,6 +725,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4913251172318160832}
+  - component: {fileID: 9148763544090368506}
   m_Layer: 6
   m_Name: LaserWeaponGfx
   m_TagString: Untagged
@@ -723,6 +750,18 @@ Transform:
   - {fileID: 3537693180872267810}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9148763544090368506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1455829922312574277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1469337419846519585
 GameObject:
   m_ObjectHideFlags: 0
@@ -791,6 +830,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2591645915025464599}
+  - component: {fileID: 4814767739234009434}
   m_Layer: 6
   m_Name: LightningWeaponGfx
   m_TagString: Untagged
@@ -815,6 +855,18 @@ Transform:
   - {fileID: 188962324070582139}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4814767739234009434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506644416565149069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1513579192478133159
 GameObject:
   m_ObjectHideFlags: 0
@@ -2987,14 +3039,14 @@ MonoBehaviour:
   allowStartWeaponWithSpecialWeapon: 0
   specialWeaponsArePermanent: 1
   weapons:
-  - baseWeaponData: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
-    weaponGfx: {fileID: 4913251172318160832}
-    reticleVisualsController: {fileID: 942245884214204724}
+  - weaponData: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
+    weaponGfx: {fileID: 9148763544090368506}
+    weaponReticle: {fileID: 942245884214204724}
     weaponBarrels:
     - {fileID: 3537693180872267810}
     upgradeAssets:
     - upgrade: {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
-      upgradeGfx: {fileID: 5440797147934545249}
+      upgradeGfx: {fileID: 6934502825742476924}
       upgradeBarrels:
       - {fileID: 819401831055353416}
       - {fileID: 2611113368659313327}
@@ -3004,37 +3056,37 @@ MonoBehaviour:
       - {fileID: 5279975602761945885}
       - {fileID: 1024374304308692334}
       - {fileID: 7208341972547315151}
-  - baseWeaponData: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
-    weaponGfx: {fileID: 8445288471549559756}
-    reticleVisualsController: {fileID: 4800777414530687514}
+  - weaponData: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
+    weaponGfx: {fileID: 6953243760073169257}
+    weaponReticle: {fileID: 4800777414530687514}
     weaponBarrels:
     - {fileID: 5650638735609317618}
     upgradeAssets:
     - upgrade: {fileID: 11400000, guid: caa3ae67362bd314399b4bd2ba6e4eef, type: 2}
-      upgradeGfx: {fileID: 2121152290324340280}
+      upgradeGfx: {fileID: 3211662955689377728}
       upgradeBarrels:
       - {fileID: 2638490947488030541}
     - upgrade: {fileID: 11400000, guid: ab973da60211b7147bb6d445426db471, type: 2}
-      upgradeGfx: {fileID: 8089445713225865547}
+      upgradeGfx: {fileID: 4277878802220881289}
       upgradeBarrels:
       - {fileID: 7275149474422493339}
-  - baseWeaponData: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
-    weaponGfx: {fileID: 2591645915025464599}
-    reticleVisualsController: {fileID: 7452997770777450716}
+  - weaponData: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
+    weaponGfx: {fileID: 4814767739234009434}
+    weaponReticle: {fileID: 7452997770777450716}
     weaponBarrels:
     - {fileID: 188962324070582139}
     upgradeAssets:
     - upgrade: {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
-      upgradeGfx: {fileID: 2436690946287421014}
+      upgradeGfx: {fileID: 1024818665771638710}
       upgradeBarrels:
       - {fileID: 234878593337753374}
     - upgrade: {fileID: 11400000, guid: edf5b49190bc5f14cb523dda726bc824, type: 2}
-      upgradeGfx: {fileID: 8735831726041448600}
+      upgradeGfx: {fileID: 6771078599112636905}
       upgradeBarrels:
       - {fileID: 386664422728198157}
-  - baseWeaponData: {fileID: 11400000, guid: 0b9da28535a5fb944b9dfa31864911a7, type: 2}
-    weaponGfx: {fileID: 4913251172318160832}
-    reticleVisualsController: {fileID: 2456777011304124103}
+  - weaponData: {fileID: 11400000, guid: 0b9da28535a5fb944b9dfa31864911a7, type: 2}
+    weaponGfx: {fileID: 9148763544090368506}
+    weaponReticle: {fileID: 2456777011304124103}
     weaponBarrels:
     - {fileID: 3537693180872267810}
     upgradeAssets: []
@@ -3890,6 +3942,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2436690946287421014}
+  - component: {fileID: 1024818665771638710}
   m_Layer: 6
   m_Name: LightningWeaponUpgrade1Gfx
   m_TagString: Untagged
@@ -3914,6 +3967,18 @@ Transform:
   - {fileID: 234878593337753374}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1024818665771638710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6232713312622443426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6271107796300875885
 GameObject:
   m_ObjectHideFlags: 0
@@ -4552,6 +4617,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5376523754529709805}
+  - component: {fileID: 2274892177298178912}
   m_Layer: 6
   m_Name: LaserWeaponUpgrade2Gfx
   m_TagString: Untagged
@@ -4580,6 +4646,18 @@ Transform:
   - {fileID: 7208341972547315151}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2274892177298178912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7292442819659317882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7435196585936209036
 GameObject:
   m_ObjectHideFlags: 0
@@ -4589,6 +4667,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2121152290324340280}
+  - component: {fileID: 3211662955689377728}
   m_Layer: 6
   m_Name: MissileWeaponUpgrade1Gfx
   m_TagString: Untagged
@@ -4613,6 +4692,18 @@ Transform:
   - {fileID: 2638490947488030541}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3211662955689377728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7435196585936209036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7548742608537942725
 GameObject:
   m_ObjectHideFlags: 0
@@ -4622,6 +4713,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5440797147934545249}
+  - component: {fileID: 6934502825742476924}
   m_Layer: 6
   m_Name: LaserWeaponUpgrade1Gfx
   m_TagString: Untagged
@@ -4648,6 +4740,18 @@ Transform:
   - {fileID: 2611113368659313327}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6934502825742476924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7548742608537942725}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7559550728214180309
 GameObject:
   m_ObjectHideFlags: 0
@@ -5171,6 +5275,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8735831726041448600}
+  - component: {fileID: 6771078599112636905}
   m_Layer: 6
   m_Name: LightningWeaponUpgrade2Gfx
   m_TagString: Untagged
@@ -5195,6 +5300,18 @@ Transform:
   - {fileID: 386664422728198157}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6771078599112636905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8387778059644159578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8399613674000869028
 GameObject:
   m_ObjectHideFlags: 0

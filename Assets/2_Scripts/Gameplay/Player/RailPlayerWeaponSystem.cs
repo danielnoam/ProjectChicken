@@ -710,7 +710,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         foreach (var weaponInfo in weapons)
         {
-            if (weaponInfo.baseWeaponData == weaponData)
+            if (weaponInfo.weaponData == weaponData)
             {
                 SetSpecialWeapon(weaponInfo);
                 break;
@@ -746,7 +746,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         foreach (var weaponInstance in weapons)
         {
-            if (weaponInstance.baseWeaponData == weaponUpgrade.BaseWeapon)
+            if (weaponInstance.weaponData == weaponUpgrade.BaseWeapon)
             {
                 weaponInstance.ApplyWeaponUpgrade(player);
             }
