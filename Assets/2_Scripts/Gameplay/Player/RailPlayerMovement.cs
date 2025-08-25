@@ -261,24 +261,19 @@ public class RailPlayerMovement : MonoBehaviour
     
         shipModel.localRotation = Quaternion.Euler(finalEuler);
     }
-
+    
+    
     private IEnumerator ReturnToCenter()
     {
-        while (true)
+        while (_targetOffsetFromSpline.magnitude > 0.01f)
         {
-            if (_targetOffsetFromSpline != Vector3.zero)
-            {
-                _targetOffsetFromSpline = Vector3.Lerp(_targetOffsetFromSpline, Vector3.zero, 1f * Time.deltaTime);
-            }
-            else
-            {
-                yield break;
-                
-            }
-            
+            _targetOffsetFromSpline = Vector3.Lerp(_targetOffsetFromSpline, Vector3.zero, 1f * Time.deltaTime);
             yield return null;
         }
+        
+        _targetOffsetFromSpline = Vector3.zero;
     }
+
     
     
     #endregion Movement  --------------------------------------------------------------------------------------

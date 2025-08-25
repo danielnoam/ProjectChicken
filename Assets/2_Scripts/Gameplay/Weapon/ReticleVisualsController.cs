@@ -6,39 +6,43 @@ using PrimeTween;
 using UnityEngine;
 using VInspector;
 
-public class WeaponReticle : MonoBehaviour
+public class ReticleVisualsController : MonoBehaviour
 {
     [Header("Emission")]
+    [SerializeField] private bool emissionEffectsAlpha = true;
     [SerializeField, Range(0,1)] private float emissionStrength = 1;
     [SerializeField, MinMaxRange(0f,1f)] private RangedFloat emissionRange = new(0.1f, 1f);
-    [SerializeField] private bool emissionEffectsAlpha = true;
-    [SerializeField] private List<Renderer> reticleRenderers = new List<Renderer>();
 
+    [Header("Size")]
+    [SerializeField] private float aimLockSize = 0.5f;
     
     [Header("References")]
     [SerializeField] private Transform punchTransform;
+    [SerializeField] private Transform aimLockTransform;
+    [SerializeField] private List<Renderer> reticleRenderers = new List<Renderer>();
 
     private bool _isVisible;
     private bool _isAimLocked;
     private float _baseSize;
-    private float _aimLockSize;
     private float _currentHeat;
     private Tween _sizeTween;
     private Tween _punchTween;
+    private Tween _aimLockTween;
     private readonly List<Material> _reticleMaterials = new List<Material>();
     private static readonly int EmissionStrength = Shader.PropertyToID("_EmissionStrength");
     private static readonly int EmissionEnabled = Shader.PropertyToID("_EmissionEnabled");
     private static readonly int BaseColor = Shader.PropertyToID("_BaseColor"); 
-    private float DefaultSize => _isAimLocked ? _aimLockSize : _baseSize;
 
 
 
     private void Awake()
     {
         _baseSize = transform.localScale.x;
-        _aimLockSize = _baseSize / 2;
-        _isVisible = false;
+        aimLockTransform.localScale = Vector3.one;
+        punchTransform.localScale = Vector3.one;
         transform.localScale = Vector3.zero;
+        _isVisible = false;
+        _isAimLocked = false;
         
         GetMaterialsFromRenderers();
         UpdateMaterialsAlpha(0f);
@@ -49,7 +53,7 @@ public class WeaponReticle : MonoBehaviour
     public void Show()
     {
         _isVisible = true;
-        TweenReticleSize(DefaultSize, 0.5f);
+        TweenReticleSize(_baseSize, 0.5f);
     }
     
     public void Hide()
@@ -67,7 +71,7 @@ public class WeaponReticle : MonoBehaviour
         _isAimLocked = true;
         if (_isVisible)
         {
-            TweenReticleSize(_aimLockSize,duration);
+            TweenAimLockSize(aimLockSize, duration);
         }
     }
     
@@ -78,18 +82,13 @@ public class WeaponReticle : MonoBehaviour
         _isAimLocked = false;
         if (_isVisible)
         {
-            TweenReticleSize(_baseSize, duration);
+            TweenAimLockSize(1, duration);
         }
-    }
-    
-    public void ForceChangeBaseSize(float size)
-    {
-        _baseSize = size;
     }
     
     public void ForceChangeAimLockSize(float size)
     {
-        _aimLockSize = size;
+        aimLockSize = size;
     }
     
     public void SetEmissionStrength(float strength)
@@ -98,6 +97,7 @@ public class WeaponReticle : MonoBehaviour
         UpdateMaterialsEmissionStrength(emissionStrength);
     }
     
+
     
 
     #region Material -----------------------------------------------------------------------------------------------
@@ -190,7 +190,17 @@ public class WeaponReticle : MonoBehaviour
                 }
             });
     }
-
+    
+    private void TweenAimLockSize(float size, float duration, float delay = 0f)
+    {
+        if (!_isVisible || !aimLockTransform) return;
+        
+        if (Mathf.Approximately(aimLockTransform.localScale.x, size)) return;
+        
+        if (_aimLockTween.isAlive) _aimLockTween.Stop();
+        _aimLockTween = Tween.Scale(aimLockTransform, endValue: Vector3.one * size, duration, Ease.InOutBack, startDelay: delay);
+    }
+    
     public void PunchReticleSize(float strength, float duration, float delay = 0f)
     {
         if (!_isVisible) return;
@@ -198,7 +208,6 @@ public class WeaponReticle : MonoBehaviour
         if (_punchTween.isAlive) _punchTween.Stop();
         punchTransform.localScale = Vector3.one;
         _punchTween = Tween.PunchScale(punchTransform,Vector3.one * strength, startDelay: delay, duration: duration);
-        
     }
 
     #endregion Size -----------------------------------------------------------------------------------

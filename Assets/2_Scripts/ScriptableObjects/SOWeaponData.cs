@@ -21,8 +21,6 @@ public class SOWeaponData : ScriptableObject
     [SerializeField, Min(0)] private float fireRate = 1f;
     [SerializeField, Min(0), Tooltip("0 = Infinite targets")] private int maxTargets = 1;
     [SerializeField, Min(0.1f)] private float targetCheckRadius = 3f;
-    
-    [Header("Weapon Upgrades")]
     [SerializeField] private List<SOWeaponUpgrade> weaponUpgrades = new List<SOWeaponUpgrade>();
     
     [ShowIf("weaponType", WeaponType.Projectile)]
@@ -38,6 +36,9 @@ public class SOWeaponData : ScriptableObject
     [SerializeReference] private List<HitscanBehaviorBase> hitscanBehaviors = new List<HitscanBehaviorBase>();
     [EndIf]
     
+    [Header("Spread And Recoil")]
+    [SerializeField] private float recoilStrength = 1f;
+    
     [Header("Fire Effect")]
     [SerializeField] private SOAudioEvent fireSound;
     [SerializeField] private ParticleSystem fireEffectPrefab;
@@ -46,7 +47,9 @@ public class SOWeaponData : ScriptableObject
     [SerializeField] private SOAudioEvent impactSound;
     [SerializeField] private ParticleSystem impactEffectPrefab;
 
-    // Properties
+
+    
+    
     public string WeaponName => weaponName;
     public string WeaponDescription => weaponDescription;
     public Sprite WeaponIcon => weaponWeaponIcon;
@@ -67,10 +70,11 @@ public class SOWeaponData : ScriptableObject
     public ParticleSystem FireEffectPrefab => fireEffectPrefab;
     public SOAudioEvent ImpactSound => impactSound;
     public ParticleSystem ImpactEffectPrefab => impactEffectPrefab;
-    
-    // Barrel offset property
     public Vector3[] BarrelAimOffsets => barrelAimOffsets;
+    public float RecoilStrength => recoilStrength;
 
+    
+    
     private void OnValidate()
     {
         foreach (var upgrade in weaponUpgrades.ToList())
@@ -86,10 +90,9 @@ public class SOWeaponData : ScriptableObject
             }
         }
         
-        // Ensure at least one barrel offset exists
         if (barrelAimOffsets == null || barrelAimOffsets.Length == 0)
         {
-            barrelAimOffsets = new Vector3[] { Vector3.zero };
+            barrelAimOffsets = new[] { Vector3.zero };
         }
     }
 
@@ -179,9 +182,8 @@ public class SOWeaponData : ScriptableObject
         targetCheckRadius = source.TargetCheckRadius;
         weaponUpgrades = source.WeaponUpgrades;
         
-        // Copy barrel offsets
         barrelAimOffsets = new Vector3[source.barrelAimOffsets.Length];
-        System.Array.Copy(source.barrelAimOffsets, barrelAimOffsets, source.barrelAimOffsets.Length);
+        Array.Copy(source.barrelAimOffsets, barrelAimOffsets, source.barrelAimOffsets.Length);
 
         if (weaponType == WeaponType.Projectile)
         {
@@ -211,8 +213,7 @@ public class SOWeaponData : ScriptableObject
         projectileBehaviors = upgrade.ProjectileBehaviors;
         hitscanBehaviors = upgrade.HitscanBehaviors;
         
-        // Apply barrel offset overrides if the upgrade has them
-        if (upgrade.BarrelAimOffsets != null && upgrade.BarrelAimOffsets.Length > 0)
+        if (upgrade.BarrelAimOffsets is { Length: > 0 })
         {
             barrelAimOffsets = new Vector3[upgrade.BarrelAimOffsets.Length];
             Array.Copy(upgrade.BarrelAimOffsets, barrelAimOffsets, upgrade.BarrelAimOffsets.Length);

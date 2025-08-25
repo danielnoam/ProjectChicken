@@ -1,4 +1,5 @@
 
+using System.Collections;
 using DNExtensions;
 using KBCore.Refs;
 using TMPro;
@@ -24,11 +25,18 @@ public class UIManager : MonoBehaviour
     
     [Header("HUD")]
     [SerializeField] private float hudFadeDuration = 3f;
+    [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
+    
+    [Header("Dynamic Hud")]
     [SerializeField, Tooltip("Hud position is affected by player movement")] private bool dynamicHud = true;
     [SerializeField, Tooltip("How much the hud moves by the base player movement")] private float hudPlayerMoveAmount = 6f;
     [SerializeField, Tooltip("How fast the hud will return to zero")] private float hudReturnSpeed = 2f;
-    [SerializeField, Tooltip("How fast the hud offset will return to  zero")] private float hudOffsetReturnSpeed = 1.5f;
-    [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
+    [SerializeField, Tooltip("Maximum shake intensity")] private float maxShakeIntensity = 15f;
+    [SerializeField, Tooltip("How fast shake decays")] private float shakeDecayRate = 5f;
+    [SerializeField, Tooltip("Shake frequency multiplier")] private float shakeFrequency = 10f;
+    [SerializeField, Tooltip("Maximum shake rotation in degrees")] private float maxShakeRotation = 2f;
+    
+    
     
     [Header("Health")]
     [SerializeField] private float healthPunchDuration = 0.25f;
@@ -106,7 +114,11 @@ public class UIManager : MonoBehaviour
     private int _playerHealth;
     private float _playerShield;
     private Vector3 _targetHudPosition;
-    private Vector3 _hudPositionOffset;
+    private Vector3 _shakeOffset;
+    private float _currentShakeIntensity;
+    private float _shakeTimer;
+    private Quaternion _originalHudRotation;
+    private float _currentShakeRotation;
 
 
 
@@ -205,13 +217,14 @@ public class UIManager : MonoBehaviour
         healthText.text = _playerHealth.ToString();
         shieldText.text = $"{_playerShield:F0}%";
         currencyText.text = _playerCurrency.ToString();
-        UpdateHudOffset();
+        UpdateDynamicHUD();
     }
 
 
 
     private void SetUpUI()
     {
+        _originalHudRotation = hudGroup.transform.localRotation;
         _weaponStartColor = weaponIcon.color;
         _secondaryWeaponStartColor = secondaryWeaponIcon.color;
         _dodgeStartColor = dodgeIcon.color;
@@ -249,42 +262,7 @@ public class UIManager : MonoBehaviour
     
     }
     
-    private void UpdateHudOffset()
-    {
-        if (!dynamicHud || !player) 
-        {
-            hudGroup.transform.localPosition = Vector3.zero;
-            _hudPositionOffset = Vector3.zero;
-            _targetHudPosition = Vector3.zero;
-            return;
-        }
 
-        _targetHudPosition = new Vector3(
-            player.Movement.InputDirection.x * hudPlayerMoveAmount + _hudPositionOffset.x,
-            player.Movement.InputDirection.y * hudPlayerMoveAmount + _hudPositionOffset.y,
-            0);
-        
-        hudGroup.transform.localPosition = Vector3.Lerp(hudGroup.transform.localPosition, _targetHudPosition, Time.deltaTime * hudReturnSpeed);
-        _hudPositionOffset = Vector3.Lerp(_hudPositionOffset, Vector3.zero, Time.deltaTime * hudReturnSpeed);
-
-    }
-
-    [VInspector.Button]
-    private void AddHudOffset(Vector2 direction, float strength)
-    {
-        direction.Normalize();
-        _hudPositionOffset = new Vector3(
-            _hudPositionOffset.x + direction.x * strength,
-            _hudPositionOffset.y + direction.y * strength,
-            0);
-    }
-
-    
-
-    private void ToggleHUD(bool state)
-    {
-        hudGroup.alpha = state ? 1f : 0;
-    }
     
     
     private void UpdateStageTitle(string title)
@@ -299,8 +277,115 @@ public class UIManager : MonoBehaviour
             .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.4f));
     }
 
+
+
+    #region HUD ------------------------------------------------------------------------------------------------
+
+    private void ToggleHUD(bool state)
+    {
+        hudGroup.alpha = state ? 1f : 0;
+    }
     
     
+    private void UpdateDynamicHUD()
+    {
+        if (!dynamicHud || !player) 
+        {
+            hudGroup.transform.localPosition = Vector3.zero;
+            hudGroup.transform.localRotation = _originalHudRotation;
+            return;
+        }
+
+        // Calculate base target position from player input
+        _targetHudPosition = new Vector3(
+            player.Movement.InputDirection.x * hudPlayerMoveAmount,
+            player.Movement.InputDirection.y * hudPlayerMoveAmount,
+            0
+        );
+
+        // Update shake
+        UpdateShake();
+
+        // Combine position with shake
+        Vector3 finalPosition = _targetHudPosition + _shakeOffset;
+        
+        // Apply position smoothly
+        hudGroup.transform.localPosition = Vector3.Lerp(
+            hudGroup.transform.localPosition, 
+            finalPosition, 
+            Time.deltaTime * hudReturnSpeed
+        );
+
+        Quaternion shakeRotation = Quaternion.AngleAxis(_currentShakeRotation, Vector3.forward);
+        hudGroup.transform.localRotation = _originalHudRotation * shakeRotation;
+    }
+
+    
+    
+    private void UpdateShake()
+    {
+        if (!dynamicHud || _currentShakeIntensity <= 0.01f)
+        {
+            _shakeOffset = Vector3.zero;
+            _currentShakeRotation = 0f;
+            return;
+        }
+
+        // Update shake timer
+        _shakeTimer += Time.deltaTime * shakeFrequency;
+        
+        // Generate shake using Perlin noise for smoother movement
+        float shakeX = (Mathf.PerlinNoise(_shakeTimer, 0f) - 0.5f) * 2f;
+        float shakeY = (Mathf.PerlinNoise(0f, _shakeTimer) - 0.5f) * 2f;
+        
+        _shakeOffset = new Vector3(
+            shakeX * _currentShakeIntensity,
+            shakeY * _currentShakeIntensity,
+            0
+        );
+
+
+        _currentShakeRotation = (Mathf.PerlinNoise(_shakeTimer * 1.5f, _shakeTimer * 1.5f) - 0.5f) * maxShakeRotation * (_currentShakeIntensity / maxShakeIntensity);
+        _currentShakeIntensity = Mathf.Lerp(_currentShakeIntensity, 0f, Time.deltaTime * shakeDecayRate);
+    }
+
+
+    private void AddHudShake(float intensity, float duration = -1f)
+    {
+        if (!dynamicHud) return;
+        
+        _currentShakeIntensity = Mathf.Max(_currentShakeIntensity, Mathf.Clamp(intensity, 0f, maxShakeIntensity));
+        
+        if (duration > 0f)
+        {
+            StartCoroutine(ShakeForDuration(duration));
+        }
+    }
+
+    private IEnumerator ShakeForDuration(float duration)
+    {
+        float startIntensity = _currentShakeIntensity;
+        float elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            _currentShakeIntensity = Mathf.Lerp(startIntensity, 0f, t);
+            yield return null;
+        }
+        
+        _currentShakeIntensity = 0f;
+    }
+    
+    
+    private void ShakeLight() => AddHudShake(1.5f, 0.2f);
+    private void ShakeMedium() => AddHudShake(7f, 0.4f);
+    private void ShakeHeavy() => AddHudShake(maxShakeIntensity, 0.8f);
+
+    #endregion HUD ------------------------------------------------------------------------------------------------
+    
+
 
 
     #region Events ------------------------------------------------------------------------------------------------
@@ -316,17 +401,24 @@ public class UIManager : MonoBehaviour
     
     private void OnPlayerDeath()
     {
+        ShakeHeavy();
         FadeHUD(false);
     }
     
     private void OnPlayerDamaged()
     {
-        AddHudOffset(Random.insideUnitCircle, 20f);
+        ShakeMedium();
     }
     
     private void OnPlayerWeaponUsed()
     {
-        AddHudOffset(Random.insideUnitCircle, 5f);
+        ShakeLight();
+    }
+    
+    private void OnPlayerDodge()
+    {
+        dodgeIcon.color = cooldownIconColor;
+        ShakeMedium();
     }
 
     
@@ -481,10 +573,6 @@ public class UIManager : MonoBehaviour
         }
     }
     
-    private void OnPlayerDodge()
-    {
-        dodgeIcon.color = cooldownIconColor;
-    }
     
     private void OnPauseTimerChanged(float time)
     {

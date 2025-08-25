@@ -113,7 +113,6 @@ public class Resource : MonoBehaviour
         
         if (_currentLifetime <= (despawnAnimationDuration+0.05f) && !_scaleAnimation.isAlive)
         {
-            resourceGfx.localScale = Vector3.one;
             _scaleAnimation = Sequence.Create()
                 .Group(Tween.PunchScale(resourceGfx, strength: Vector3.one * magnetizedPunchStrength/2, frequency: 2, duration: despawnAnimationDuration/2, easeBetweenShakes: Ease.InOutBounce))
                 .Chain(Tween.Scale(resourceGfx, endValue: Vector3.zero, duration: despawnAnimationDuration/2, ease: Ease.OutSine));

@@ -25,18 +25,21 @@ public class WeaponInstance
 {
     public SOWeaponData baseWeaponData;
     public Transform weaponGfx;
-    public WeaponReticle weaponReticle;
+    public ReticleVisualsController reticleVisualsController;
     public Transform[] weaponBarrels;
     public WeaponUpgradeAssets[] upgradeAssets;
 
-
-    private Sequence _weaponSequence;
     
     public SOWeaponData WeaponData { get; private set; }
     public Transform CurrentWeaponGfx { get; private set; }
     public Transform[] CurrentWeaponBarrels { get; private set; }
     public ControllerVibrationSource  ControllerVibrationSource { get; private set; }
     public CinemachineImpulseSource CinemachineImpulseSource {  get; private set; }
+    
+    
+    private Sequence _weaponSequence;
+    
+    
 
     public void SetUpWeaponInstance(RailPlayer player, ControllerVibrationSource controllerVibrationSource, CinemachineImpulseSource cinemachineImpulseSource)
     {
@@ -134,11 +137,11 @@ public class WeaponInstance
     {
         if (allowShooting)
         {
-            weaponReticle?.Show();
+            reticleVisualsController?.Show();
         }
         else
         {
-            weaponReticle?.Hide();
+            reticleVisualsController?.Hide();
         }
     }
 
@@ -168,15 +171,14 @@ public class WeaponInstance
     
     public void OnWeaponDeselected()
     {
-
         ChangeGfxVisibility(false);
-        weaponReticle?.Hide();
+        reticleVisualsController?.Hide();
     }
 
     
     public void OnWeaponUsed(RailPlayer owner)
     {
-        weaponReticle?.PunchReticleSize(0.25f, 0.5f, 0.03f);
+        reticleVisualsController?.PunchReticleSize(0.25f, 0.5f, 0.03f);
         
 
         if (WeaponData && CurrentWeaponBarrels != null)
@@ -212,22 +214,22 @@ public class WeaponInstance
     public void OnHeatChanged(float heat)
     {
         var normalizedHeat = heat;
-        weaponReticle?.SetEmissionStrength(normalizedHeat);
+        reticleVisualsController?.SetEmissionStrength(normalizedHeat);
     }
 
     public void OnWeaponOverheat()
     {
-        weaponReticle?.PunchReticleSize(1f, 0.5f, 0.03f);
+        reticleVisualsController?.PunchReticleSize(1f, 0.5f, 0.03f);
     }
 
     public void OnAimLocked()
     {
-        weaponReticle?.EnableAimLockSize(0.4f);
+        reticleVisualsController?.EnableAimLockSize(0.4f);
     }
     
     public void OnAimUnlocked(float duration = 0.4f)
     {
-        weaponReticle?.DisableAimLockSize(duration);
+        reticleVisualsController?.DisableAimLockSize(duration);
     }
     
     #endregion Events ---------------------------------------------------------------------------------------------

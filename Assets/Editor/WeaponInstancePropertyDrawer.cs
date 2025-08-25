@@ -80,7 +80,7 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
             }
             
             // Draw weaponReticle field
-            SerializedProperty weaponReticle = property.FindPropertyRelative("weaponReticle");
+            SerializedProperty weaponReticle = property.FindPropertyRelative("reticleVisualsController");
             if (weaponReticle != null)
             {
                 EditorGUI.PropertyField(
@@ -149,7 +149,7 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
             if (weaponGfx != null)
                 height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             
-            SerializedProperty weaponReticle = property.FindPropertyRelative("weaponReticle");
+            SerializedProperty weaponReticle = property.FindPropertyRelative("reticleVisualsController");
             if (weaponReticle != null)
                 height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             

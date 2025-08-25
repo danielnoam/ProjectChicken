@@ -48,7 +48,6 @@ public class RailPlayerAiming : MonoBehaviour
     public Vector3 AimDirection => _aimDirection;
     public Transform AimWorldPosition => aimWorldPosition;
     public Vector2 NormalizedAimPosition => _normalizedAimPosition;
-    public ChickenController CurrentAimLockTarget => _currentAimLockTarget;
     
     public event Action<bool, ChickenController> OnAimLockStateChange; 
 
@@ -142,8 +141,17 @@ public class RailPlayerAiming : MonoBehaviour
             0
         );
 
-        aimWorldPosition.position = boundaryCenter + localOffset;
-        _aimDirection = (aimWorldPosition.position - transform.position).normalized;
+        Vector3 targetPosition = boundaryCenter + localOffset;
+        
+        if (!float.IsNaN(targetPosition.x) && !float.IsNaN(targetPosition.y) && !float.IsNaN(targetPosition.z))
+        {
+            aimWorldPosition.position = targetPosition;
+            _aimDirection = (aimWorldPosition.position - transform.position).normalized;
+        }
+        else
+        {
+            Debug.Log($"NaN detected in target position: {targetPosition}");
+        }
     }
     
     private void HandleAutoCenter()
@@ -170,22 +178,13 @@ public class RailPlayerAiming : MonoBehaviour
     
     private IEnumerator ReturnToCenter()
     {
-        while (true)
+        while (_normalizedAimPosition.magnitude > 0.01f)
         {
-            if (_normalizedAimPosition != Vector2.zero)
-            {
-                _normalizedAimPosition = Vector2.Lerp(_normalizedAimPosition, Vector3.zero, 1f * Time.deltaTime);
-            }
-            else
-            {
-                yield break;
-                
-            }
-            
+            _normalizedAimPosition = Vector2.Lerp(_normalizedAimPosition, Vector2.zero, 1f * Time.deltaTime);
             yield return null;
         }
+        _normalizedAimPosition = Vector2.zero;
     }
-
 
     #endregion Aiming --------------------------------------------------------------------------------------------------------
     

@@ -27,6 +27,8 @@ public class RailPlayer : MonoBehaviour
     [SerializeField] private Transform storeCameraLookAtTarget;
     
     [Header("References")]
+    [SerializeField] private SOGameSettings gameSettings;
+    [SerializeField] private LevelManager levelManager;
     [SerializeField, Self, HideInInspector] private RailPlayerInput input;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming aiming;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement movement;
@@ -35,8 +37,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerHealth health;
     [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
     [SerializeField, Self, HideInInspector] private CinemachineImpulseSource cinemachineImpulseSource;
-    [SerializeField] private SOGameSettings gameSettings;
-    [SerializeField] private LevelManager levelManager;
+
     
     
     private float _pauseTimer;

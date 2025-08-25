@@ -572,40 +572,44 @@ MonoBehaviour:
   levelManager: {fileID: 0}
   player: {fileID: 0}
   hudFadeDuration: 3
+  hudGroup: {fileID: 6058153400321184074}
   dynamicHud: 1
   hudPlayerMoveAmount: 6
   hudReturnSpeed: 2
-  hudGroup: {fileID: 6058153400321184074}
+  maxShakeIntensity: 15
+  shakeDecayRate: 5
+  shakeFrequency: 10
+  maxShakeRotation: 2
   healthPunchDuration: 0.25
   healthPunchStrength: 0.5
   healthPunchColor: {r: 1, g: 0.2028302, b: 0.2028302, a: 1}
   healthIcon: {fileID: 6185292691317434179}
   healthText: {fileID: 6839292622192208662}
   shieldAnimationDuration: 0.5
-  shieldPunchDuration: 0.25
-  shieldPunchStrength: 0.5
+  shieldPunchDuration: 0.2
+  shieldPunchStrength: 0.4
   shieldPunchColor: {r: 0.21698111, g: 0.21698111, b: 1, a: 1}
   shieldIcon: {fileID: 6728258700460066580}
   shieldText: {fileID: 3929228718482953496}
   currencyAnimationDuration: 0.5
-  currencyPunchDuration: 0.25
-  currencyPunchStrength: 0.5
+  currencyPunchDuration: 0.2
+  currencyPunchStrength: 0.4
   bigCurrencyDifference: 4
   currencyIcon: {fileID: 4001879575052676839}
   currencyText: {fileID: 4121902089785820340}
-  dodgePunchDuration: 0.25
-  dodgePunchStrength: 0.5
+  dodgePunchDuration: 0.2
+  dodgePunchStrength: 0.4
   dodgeIcon: {fileID: 5313684611191140054}
   dodgeCountText: {fileID: 1351573030967703018}
   weaponAnimationDuration: 0.5
-  weaponPunchDuration: 0.25
-  weaponPunchStrength: 0.5
+  weaponPunchDuration: 0.2
+  weaponPunchStrength: 0.4
   weaponIcon: {fileID: 8676211038320735240}
   secondaryWeaponIcon: {fileID: 4906413324886361572}
   scoreAnimationDuration: 0.5
-  scorePunchDuration: 0.25
-  scorePunchStrength: 0.5
-  bigScoreDifference: 200
+  scorePunchDuration: 0.2
+  scorePunchStrength: 0.2
+  bigScoreDifference: 100
   scoreDigits: 7
   scoreText: {fileID: 7203632396681476659}
   waveTitleAnimationDuration: 1.5

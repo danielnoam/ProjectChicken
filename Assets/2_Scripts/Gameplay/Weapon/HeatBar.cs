@@ -23,7 +23,6 @@ public class HeatBar : MonoBehaviour
     
     
     [Header("References")]
-    [SerializeField] private RailPlayer player;
     [SerializeField] private RailPlayerWeaponSystem weaponSystem;
     [SerializeField] private CanvasGroup heatBarGroup;
     [SerializeField] private Image heatBar;
@@ -44,7 +43,6 @@ public class HeatBar : MonoBehaviour
 
     private void Awake()
     {
-
         if (heatBar)
         {
             _heatBarMaterial = new Material(heatBar.material);
@@ -55,6 +53,7 @@ public class HeatBar : MonoBehaviour
         _overheatBarHeight = heatBar.rectTransform.sizeDelta.y;
         _miniGameActiveColor = miniGameWindow.color;
         miniGameWindow.color = Color.clear;
+        heatBarGroup.alpha = 0f;
         heatBar.fillAmount = 0f;
         barText.alpha = 0;
         SetEmissionStrength(0);
@@ -68,7 +67,7 @@ public class HeatBar : MonoBehaviour
         weaponSystem.OnWeaponHeatMiniGameWindowCreatedEvent += OnWeaponHeatMiniGameWindowCreated;
         weaponSystem.OnWeaponHeatMiniGameFailedEvent += OnOnWeaponHeatMiniGameFailed;
         weaponSystem.OnWeaponHeatMiniGameSucceededEvent += OnOnWeaponHeatMiniGameSucceeded;
-        weaponSystem.OnAllowShootingChangedEvent += OnAllowShootingChangedEvent;
+        weaponSystem.OnAllowShootingChangedEvent += OnAllowShootingChanged;
     }
 
 
@@ -76,16 +75,16 @@ public class HeatBar : MonoBehaviour
 
     private void OnDisable()
     {
+        
         weaponSystem.OnWeaponHeatUpdatedEvent -= OnHeatUpdated;
         weaponSystem.OnWeaponOverheatedEvent -= OnOverheated;
         weaponSystem.OnWeaponHeatResetEvent -= OnHeatReset;
         weaponSystem.OnWeaponHeatMiniGameWindowCreatedEvent -= OnWeaponHeatMiniGameWindowCreated;
         weaponSystem.OnWeaponHeatMiniGameFailedEvent -= OnOnWeaponHeatMiniGameFailed;
         weaponSystem.OnWeaponHeatMiniGameSucceededEvent -= OnOnWeaponHeatMiniGameSucceeded;
-        weaponSystem.OnAllowShootingChangedEvent -= OnAllowShootingChangedEvent;
+        weaponSystem.OnAllowShootingChangedEvent -= OnAllowShootingChanged;
     }
-    
-    
+
     private void SetEmissionStrength(float strength)
     {
         if (!_heatBarMaterial) return;
@@ -94,7 +93,7 @@ public class HeatBar : MonoBehaviour
         _heatBarMaterial.SetFloat(EmissionStrength, emissionStrength);
     }
     
-    private void OnAllowShootingChangedEvent(bool state)
+    private void OnAllowShootingChanged(bool state)
     {
         if (_heatBarGroupSequence.isAlive) _heatBarGroupSequence.Stop();
         _heatBarGroupSequence = Sequence.Create()

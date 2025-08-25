@@ -1,5 +1,37 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1631242697400483
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3476322528166181020}
+  m_Layer: 7
+  m_Name: AimLockTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3476322528166181020
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1631242697400483}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 6776964019177118187}
+  m_Father: {fileID: 1655734070457128625}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &120450199067473350
 GameObject:
   m_ObjectHideFlags: 0
@@ -26,14 +58,14 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.6666667, y: 1.6666667, z: 1.6666667}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4427349332268593404}
   - {fileID: 1702473692287887470}
   - {fileID: 1278482546038799162}
   - {fileID: 8265641016216794607}
-  m_Father: {fileID: 3790990538868093353}
+  m_Father: {fileID: 8752013385722006519}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &251451234106377697
 GameObject:
@@ -141,7 +173,6 @@ MonoBehaviour:
   miniGameAnimationDuration: 0.3
   miniGamePunchDuration: 0.6
   miniGamePunchStrength: 0.2
-  player: {fileID: 0}
   weaponSystem: {fileID: 3423310960035294283}
   heatBarGroup: {fileID: 4346653012270481198}
   heatBar: {fileID: 4032922386872106941}
@@ -233,6 +264,38 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &310514090297941146
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8752013385722006519}
+  m_Layer: 7
+  m_Name: AimLockTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8752013385722006519
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310514090297941146}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 5143968757658090375}
+  m_Father: {fileID: 3790990538868093353}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &480355550129143890
 GameObject:
   m_ObjectHideFlags: 0
@@ -614,7 +677,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.6666667, y: 1.6666667, z: 1.6666667}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6872626249865925162}
@@ -625,7 +688,7 @@ Transform:
   - {fileID: 6614294421624645909}
   - {fileID: 2186492483446085493}
   - {fileID: 6946000909653881720}
-  m_Father: {fileID: 1655734070457128625}
+  m_Father: {fileID: 3476322528166181020}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1455829922312574277
 GameObject:
@@ -690,7 +753,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 5170456632490657193}
+  - {fileID: 5195178626210929267}
   m_Father: {fileID: 5369474610807630919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2456777011304124103
@@ -705,18 +768,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8a1ac04dd8f1d84c977b7d01d74870e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  emissionEffectsAlpha: 0
   emissionStrength: 1
   emissionRange:
     minValue: 0.1
     maxValue: 1
-  emissionEffectsAlpha: 0
+  aimLockSize: 0.5
+  punchTransform: {fileID: 5170456632490657193}
+  aimLockTransform: {fileID: 5195178626210929267}
   reticleRenderers:
   - {fileID: 5022044165417545323}
   - {fileID: 4317489346689356038}
   - {fileID: 7628995704809813630}
   - {fileID: 3558174509910864628}
   - {fileID: 1228446762727484811}
-  punchTransform: {fileID: 5170456632490657193}
 --- !u!1 &1506644416565149069
 GameObject:
   m_ObjectHideFlags: 0
@@ -1139,14 +1204,14 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.6666667, y: 1.6666667, z: 1.6666667}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5829169123053976795}
   - {fileID: 4486165507181737557}
   - {fileID: 7505649629923921561}
   - {fileID: 3385265377747687933}
-  m_Father: {fileID: 6174838063405869257}
+  m_Father: {fileID: 5757944950620773722}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2440519371583176229
 GameObject:
@@ -1467,7 +1532,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 7925574344398128321}
+  - {fileID: 5757944950620773722}
   m_Father: {fileID: 5369474610807630919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &942245884214204724
@@ -1482,17 +1547,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8a1ac04dd8f1d84c977b7d01d74870e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  emissionEffectsAlpha: 0
   emissionStrength: 1
   emissionRange:
     minValue: 0.1
     maxValue: 1
-  emissionEffectsAlpha: 0
+  aimLockSize: 0.5
+  punchTransform: {fileID: 7925574344398128321}
+  aimLockTransform: {fileID: 5757944950620773722}
   reticleRenderers:
   - {fileID: 3954000043469550707}
   - {fileID: 3701714565008483880}
   - {fileID: 2267080844491920373}
   - {fileID: 8642202346870350222}
-  punchTransform: {fileID: 7925574344398128321}
 --- !u!1 &3268326099539182593
 GameObject:
   m_ObjectHideFlags: 0
@@ -1872,6 +1939,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 1
+--- !u!1 &4399558169118625163
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5195178626210929267}
+  m_Layer: 7
+  m_Name: AimLockTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5195178626210929267
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4399558169118625163}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 5170456632490657193}
+  m_Father: {fileID: 2072634995185843995}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4511896480804958776
 GameObject:
   m_ObjectHideFlags: 0
@@ -1958,6 +2057,38 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &4512432133832332913
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7663175646733205558}
+  m_Layer: 7
+  m_Name: AimLockTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7663175646733205558
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4512432133832332913}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2338327964849211494}
+  m_Father: {fileID: 9176107525415905054}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4753078052114610090
 GameObject:
   m_ObjectHideFlags: 0
@@ -2486,6 +2617,8 @@ MonoBehaviour:
   followCameraTarget: {fileID: 7239159908269156373}
   storeCameraTarget: {fileID: 8469364165154082126}
   storeCameraLookAtTarget: {fileID: 5369474610807630919}
+  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
+  levelManager: {fileID: 0}
   input: {fileID: 8438971806570489096}
   aiming: {fileID: 890854243081262160}
   movement: {fileID: 7233717465822237952}
@@ -2494,8 +2627,6 @@ MonoBehaviour:
   health: {fileID: 5634933364791774554}
   controllerVibrationSource: {fileID: 284695675551663708}
   cinemachineImpulseSource: {fileID: 3917683547680578920}
-  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
-  levelManager: {fileID: 0}
 --- !u!114 &8438971806570489096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2695,12 +2826,16 @@ MonoBehaviour:
       m_RotationOrder: 4
   audioSource: {fileID: 6485381765733721381}
   healthDamageSfx: {fileID: 0}
+  healthDamageParticleEffect: {fileID: 0}
   healthHealedSfx: {fileID: 0}
   shieldDamageSfx: {fileID: 11400000, guid: d2d3e99fb5af65241a4debcb6162257a, type: 2}
+  shieldDamageParticleEffect: {fileID: 0}
   shieldStartRegenSfx: {fileID: 11400000, guid: d7dedcc5555a51447abef07f15cef2c8, type: 2}
   shieldRegeneratedSfx: {fileID: 11400000, guid: bc47d05a62c00dd4785060c06155c96d, type: 2}
   shieldDepletedSfx: {fileID: 11400000, guid: 37b968dd3a5328b478e0c33c3645f263, type: 2}
+  shieldDepletedParticleEffect: {fileID: 0}
   deathSfx: {fileID: 0}
+  deathParticleEffect: {fileID: 0}
   player: {fileID: 2233603387570671912}
   controllerVibrationSource: {fileID: 284695675551663708}
   cinemachineImpulseSource: {fileID: 3917683547680578920}
@@ -2854,7 +2989,7 @@ MonoBehaviour:
   weapons:
   - baseWeaponData: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
     weaponGfx: {fileID: 4913251172318160832}
-    weaponReticle: {fileID: 942245884214204724}
+    reticleVisualsController: {fileID: 942245884214204724}
     weaponBarrels:
     - {fileID: 3537693180872267810}
     upgradeAssets:
@@ -2871,7 +3006,7 @@ MonoBehaviour:
       - {fileID: 7208341972547315151}
   - baseWeaponData: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
     weaponGfx: {fileID: 8445288471549559756}
-    weaponReticle: {fileID: 4800777414530687514}
+    reticleVisualsController: {fileID: 4800777414530687514}
     weaponBarrels:
     - {fileID: 5650638735609317618}
     upgradeAssets:
@@ -2885,7 +3020,7 @@ MonoBehaviour:
       - {fileID: 7275149474422493339}
   - baseWeaponData: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
     weaponGfx: {fileID: 2591645915025464599}
-    weaponReticle: {fileID: 7452997770777450716}
+    reticleVisualsController: {fileID: 7452997770777450716}
     weaponBarrels:
     - {fileID: 188962324070582139}
     upgradeAssets:
@@ -2899,7 +3034,7 @@ MonoBehaviour:
       - {fileID: 386664422728198157}
   - baseWeaponData: {fileID: 11400000, guid: 0b9da28535a5fb944b9dfa31864911a7, type: 2}
     weaponGfx: {fileID: 4913251172318160832}
-    weaponReticle: {fileID: 2456777011304124103}
+    reticleVisualsController: {fileID: 2456777011304124103}
     weaponBarrels:
     - {fileID: 3537693180872267810}
     upgradeAssets: []
@@ -2969,14 +3104,7 @@ MonoBehaviour:
       m_RotationOrder: 4
   dodgeReleasesHeat: 1
   heatReleased: 25
-  targetReticleAimLockSize: 2.5
-  targetReticleAimLockDuration: 0.6
-  targetReticleOverheatPunchStrength: 1.2
-  targetReticlePunchStrength: 0.2
-  targetReticlePunchDuration: 0.3
   audioSource: {fileID: 1022034889576220707}
-  reticleHolder: {fileID: 5369474610807630919}
-  targetReticle: {fileID: 5521281316630439350}
   weaponSwitchSfx: {fileID: 0}
   weaponOverheatSfx: {fileID: 11400000, guid: 7ad50aeb9c2a07149856f950872b5fd4, type: 2}
   weaponHeatResetSfx: {fileID: 11400000, guid: 561cd25779a5fb64cb6612dd49a39b31, type: 2}
@@ -3222,6 +3350,38 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &5413556257859887675
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5757944950620773722}
+  m_Layer: 7
+  m_Name: AimLockTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5757944950620773722
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5413556257859887675}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 7925574344398128321}
+  m_Father: {fileID: 6174838063405869257}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5417812899039912925
 GameObject:
   m_ObjectHideFlags: 0
@@ -4100,7 +4260,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.6666667, y: 1.6666667, z: 1.6666667}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6495795871882145557}
@@ -4108,7 +4268,7 @@ Transform:
   - {fileID: 1237028769001195486}
   - {fileID: 8625209834021844651}
   - {fileID: 5934898279825074087}
-  m_Father: {fileID: 2072634995185843995}
+  m_Father: {fileID: 5195178626210929267}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6733198310510752398
 GameObject:
@@ -4337,7 +4497,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7038913254111384637}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4350,7 +4510,7 @@ Transform:
   - {fileID: 7760073319258387616}
   - {fileID: 207580416751063560}
   - {fileID: 9007440082179790824}
-  m_Father: {fileID: 9176107525415905054}
+  m_Father: {fileID: 7663175646733205558}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7140552154262556562
 GameObject:
@@ -5044,6 +5204,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9176107525415905054}
+  - component: {fileID: 4327830240018898875}
   - component: {fileID: 5521281316630439350}
   m_Layer: 7
   m_Name: TargetReticle
@@ -5065,9 +5226,27 @@ Transform:
   m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 2338327964849211494}
+  - {fileID: 7663175646733205558}
   m_Father: {fileID: 5369474610807630919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4327830240018898875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8399613674000869028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6804a803a4024c269f30abcff58d51e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aimLockDuration: 0.6
+  overheatPunchStrength: 1.2
+  normalPunchStrength: 0.2
+  punchDuration: 0.3
+  reticle: {fileID: 5521281316630439350}
+  player: {fileID: 2233603387570671912}
 --- !u!114 &5521281316630439350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5080,11 +5259,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8a1ac04dd8f1d84c977b7d01d74870e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  emissionEffectsAlpha: 0
   emissionStrength: 1
   emissionRange:
     minValue: 0.1
     maxValue: 1
-  emissionEffectsAlpha: 0
+  aimLockSize: 2.5
+  punchTransform: {fileID: 2338327964849211494}
+  aimLockTransform: {fileID: 7663175646733205558}
   reticleRenderers:
   - {fileID: 8026457023098140983}
   - {fileID: 8993276472557018972}
@@ -5094,7 +5276,6 @@ MonoBehaviour:
   - {fileID: 219285135356931742}
   - {fileID: 4208656679078098340}
   - {fileID: 6724299620791783669}
-  punchTransform: {fileID: 2338327964849211494}
 --- !u!1 &8563685080792428195
 GameObject:
   m_ObjectHideFlags: 0
@@ -5234,7 +5415,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 5143968757658090375}
+  - {fileID: 8752013385722006519}
   m_Father: {fileID: 5369474610807630919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4800777414530687514
@@ -5249,17 +5430,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8a1ac04dd8f1d84c977b7d01d74870e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  emissionEffectsAlpha: 0
   emissionStrength: 1
   emissionRange:
     minValue: 0.1
     maxValue: 1
-  emissionEffectsAlpha: 0
+  aimLockSize: 0.5
+  punchTransform: {fileID: 5143968757658090375}
+  aimLockTransform: {fileID: 8752013385722006519}
   reticleRenderers:
   - {fileID: 1445691226714708908}
   - {fileID: 6187236964504006385}
   - {fileID: 4135655409000580243}
   - {fileID: 1744674984524784899}
-  punchTransform: {fileID: 5143968757658090375}
 --- !u!1 &8680117356106722540
 GameObject:
   m_ObjectHideFlags: 0
@@ -5376,7 +5559,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 6776964019177118187}
+  - {fileID: 3476322528166181020}
   m_Father: {fileID: 5369474610807630919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7452997770777450716
@@ -5391,11 +5574,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8a1ac04dd8f1d84c977b7d01d74870e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  emissionEffectsAlpha: 0
   emissionStrength: 1
   emissionRange:
     minValue: 0.1
     maxValue: 1
-  emissionEffectsAlpha: 0
+  aimLockSize: 0.5
+  punchTransform: {fileID: 6776964019177118187}
+  aimLockTransform: {fileID: 3476322528166181020}
   reticleRenderers:
   - {fileID: 2797940402119788746}
   - {fileID: 3149968215603376845}
@@ -5405,7 +5591,6 @@ MonoBehaviour:
   - {fileID: 7022256400578633095}
   - {fileID: 6675292182593283073}
   - {fileID: 6317577960617544784}
-  punchTransform: {fileID: 6776964019177118187}
 --- !u!1 &8802662561648209402
 GameObject:
   m_ObjectHideFlags: 0
