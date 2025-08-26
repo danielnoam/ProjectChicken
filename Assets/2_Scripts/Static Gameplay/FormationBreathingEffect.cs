@@ -9,7 +9,7 @@ public class FormationBreathingEffect : MonoBehaviour
     [Header("Breathing Effect Settings")]
     [Tooltip("Toggle the breathing effect on/off")]
     public bool enableBreathing = true;
-    
+
     [Header("Breathing Range")]
     [Tooltip("Minimum scale factor (0.5 = 50% of original size)")]
     [Range(0.1f, 1.5f)]
@@ -17,12 +17,12 @@ public class FormationBreathingEffect : MonoBehaviour
     [Tooltip("Maximum scale factor (1.5 = 150% of original size)")]
     [Range(0.5f, 3f)]
     public float maxScale = 1.3f;
-    
+
     [Header("Animation Settings")]
     [Tooltip("Base time in seconds for one complete cycle (min to max to min)")]
     [Range(1f, 20f)]
     public float baseCycleTime = 4f;
-    
+
     [Header("Cycle Variation Settings")]
     [Tooltip("Enable individual cycle time variation per formation")]
     public bool enableCycleVariation = true;
@@ -31,7 +31,7 @@ public class FormationBreathingEffect : MonoBehaviour
     public float cycleTimeVariation = 2f;
     [Tooltip("Add random phase offset to each formation")]
     public bool useRandomPhaseOffset = true;
-    
+
     [Header("Advanced Settings")]
     [Tooltip("Use smooth sine wave instead of linear transitions")]
     public bool useSmoothCurve = true;
@@ -39,45 +39,43 @@ public class FormationBreathingEffect : MonoBehaviour
     public bool startImmediately = true;
     [Tooltip("Show debug logs for breathing effect")]
     public bool showDebugLogs = false;
-    
+
     // Components
     private FormationCreator formationCreator;
-    
+
     // Animation state
     private bool isInitialized = false;
     private bool previousEnableBreathing = false;
     private float breathingStartTime;
     private FormationCreator.FormationType currentFormationType;
     private float blendInDuration = 1f;
-    
-    // Formation tracking
+
+    // Original values storage
+    private float originalSpacing;
+    private float originalCircleRadius;
+    private bool hasStoredOriginalValues = false;
+
+    // Formation tracking for individual breathing cycles
     [System.Serializable]
-    public class FormationData
+    public class FormationBreathingData
     {
-        public List<Vector3> originalSlots;
-        public Vector3 centerPosition;
         public float effectiveCycleTime;
         public float phaseOffset;
         public float currentScale;
         public float startingScale;
-        public int startSlotIndex;
-        public int slotCount;
-        
-        public FormationData()
+
+        public FormationBreathingData()
         {
-            originalSlots = new List<Vector3>();
-            centerPosition = Vector3.zero;
+            effectiveCycleTime = 4f;
+            phaseOffset = 0f;
             currentScale = 1f;
             startingScale = 1f;
-            startSlotIndex = 0;
-            slotCount = 0;
         }
     }
-    
-    private List<FormationData> formations = new List<FormationData>();
-    private List<Vector3> originalGlobalSlots = new List<Vector3>();
+
+    private List<FormationBreathingData> formationBreathingData = new List<FormationBreathingData>();
     private bool needsFormationDataUpdate = true;
-    
+
     void Awake()
     {
         formationCreator = GetComponent<FormationCreator>();
@@ -88,44 +86,48 @@ public class FormationBreathingEffect : MonoBehaviour
             return;
         }
     }
-    
+
     void Start()
     {
         previousEnableBreathing = enableBreathing;
         currentFormationType = formationCreator.currentFormation;
         ValidateRanges();
+
+        // Store original values
+        StoreOriginalValues();
+
         isInitialized = true;
-        
+
         // Start breathing effect if enabled
         if (enableBreathing && startImmediately)
         {
             StartBreathing();
         }
-        
+
         if (showDebugLogs)
         {
             Debug.Log($"FormationBreathingEffect: Initialized with {currentFormationType} formation");
         }
     }
-    
+
     void Update()
     {
         if (!isInitialized || formationCreator == null)
             return;
-        
+
         // Check if formation type changed
         if (currentFormationType != formationCreator.currentFormation)
         {
             HandleFormationTypeChange();
         }
-        
+
         // Check if we need to update formation data
-        if (needsFormationDataUpdate || (formationCreator.FormationSlots != null && formationCreator.FormationSlots.Count != originalGlobalSlots.Count))
+        if (needsFormationDataUpdate)
         {
-            UpdateFormationData();
+            UpdateFormationBreathingData();
             needsFormationDataUpdate = false;
         }
-        
+
         // Check if enableBreathing state changed
         if (enableBreathing != previousEnableBreathing)
         {
@@ -147,30 +149,47 @@ public class FormationBreathingEffect : MonoBehaviour
             }
             previousEnableBreathing = enableBreathing;
         }
-        
+
         // Only continue if breathing is enabled
         if (!enableBreathing)
             return;
-            
+
         // Update the breathing animation
         UpdateBreathingAnimation();
     }
-    
+
+    void StoreOriginalValues()
+    {
+        if (!hasStoredOriginalValues)
+        {
+            originalSpacing = formationCreator.spacing;
+            originalCircleRadius = formationCreator.circleRadius;
+            hasStoredOriginalValues = true;
+
+            if (showDebugLogs)
+            {
+                Debug.Log($"FormationBreathingEffect: Stored original values - Spacing: {originalSpacing}, Radius: {originalCircleRadius}");
+            }
+        }
+    }
+
     void HandleFormationTypeChange()
     {
         FormationCreator.FormationType oldType = currentFormationType;
         currentFormationType = formationCreator.currentFormation;
-        
+
         if (showDebugLogs)
         {
             Debug.Log($"FormationBreathingEffect: Formation type changed from {oldType} to {currentFormationType} - rebuilding data");
         }
-        
-        // Force complete rebuild of formation data
-        formations.Clear();
-        originalGlobalSlots.Clear();
+
+        // Store new original values for the new formation type
+        StoreOriginalValues();
+
+        // Force complete rebuild of formation breathing data
+        formationBreathingData.Clear();
         needsFormationDataUpdate = true;
-        
+
         // If breathing was active, restart it properly
         if (enableBreathing)
         {
@@ -178,189 +197,144 @@ public class FormationBreathingEffect : MonoBehaviour
             Invoke("RestartBreathingAfterFormationChange", 0.1f);
         }
     }
-    
+
     void RestartBreathingAfterFormationChange()
     {
-        if (formationCreator.FormationSlots == null || formationCreator.FormationSlots.Count == 0)
-        {
-            Invoke("RestartBreathingAfterFormationChange", 0.1f); // Try again next frame
-            return;
-        }
-        
-        UpdateFormationData();
+        UpdateFormationBreathingData();
         breathingStartTime = Time.time;
-        
+
         // Initialize starting scales for all formations
-        for (int i = 0; i < formations.Count; i++)
+        for (int i = 0; i < formationBreathingData.Count; i++)
         {
-            formations[i].startingScale = 1f; // Start from normal scale
-            formations[i].currentScale = 1f;
+            formationBreathingData[i].startingScale = 1f; // Start from normal scale
+            formationBreathingData[i].currentScale = 1f;
         }
-        
+
         if (showDebugLogs)
         {
-            Debug.Log($"FormationBreathingEffect: Restarted breathing for {currentFormationType} with {formations.Count} formations");
+            Debug.Log($"FormationBreathingEffect: Restarted breathing for {currentFormationType} with {formationBreathingData.Count} formations");
         }
     }
-    
-    void UpdateFormationData()
+
+    void UpdateFormationBreathingData()
     {
-        // Store original formation slots
-        if (formationCreator.FormationSlots != null && formationCreator.FormationSlots.Count > 0)
-        {
-            originalGlobalSlots.Clear();
-            originalGlobalSlots.AddRange(formationCreator.FormationSlots);
-        }
-        else
-        {
-            return; // No formation slots to work with yet
-        }
-        
-        // Calculate current scales before clearing formation data
-        List<float> previousScales = new List<float>();
-        for (int i = 0; i < formations.Count; i++)
-        {
-            previousScales.Add(formations[i].currentScale);
-        }
-        
-        formations.Clear();
-        
-        // Generate base formation to understand slot distribution
-        List<Vector3> baseFormation = formationCreator.Generator.GenerateFormation(formationCreator.currentFormation);
-        int slotsPerFormation = baseFormation.Count;
+        formationBreathingData.Clear();
+
         int formationCount = formationCreator.formationCount;
-        
+
         if (showDebugLogs)
         {
-            Debug.Log($"FormationBreathingEffect: Updating data - FormationType: {formationCreator.currentFormation}, SlotsPerFormation: {slotsPerFormation}, FormationCount: {formationCount}, TotalSlots: {originalGlobalSlots.Count}");
+            Debug.Log($"FormationBreathingEffect: Updating breathing data for {formationCount} formations");
         }
-        
-        // Create formation data for each formation
+
+        // Create breathing data for each formation
         for (int i = 0; i < formationCount; i++)
         {
-            FormationData formData = new FormationData();
-            
+            FormationBreathingData breathData = new FormationBreathingData();
+
             // Calculate cycle time variation
-            float variation = enableCycleVariation ? 
+            float variation = enableCycleVariation ?
                 Random.Range(-cycleTimeVariation, cycleTimeVariation) : 0f;
-            formData.effectiveCycleTime = Mathf.Max(0.5f, baseCycleTime + variation);
-            
+            breathData.effectiveCycleTime = Mathf.Max(0.5f, baseCycleTime + variation);
+
             // Calculate phase offset
-            formData.phaseOffset = useRandomPhaseOffset ? 
+            breathData.phaseOffset = useRandomPhaseOffset ?
                 Random.Range(0f, 2f * Mathf.PI) : 0f;
-            
-            // Initialize scales - preserve previous scale if available
-            formData.currentScale = (i < previousScales.Count) ? previousScales[i] : 1f;
-            formData.startingScale = formData.currentScale;
-            
-            // Calculate slot indices for this formation
-            formData.startSlotIndex = i * slotsPerFormation;
-            formData.slotCount = slotsPerFormation;
-            
-            // Extract original slots for this formation and calculate center
-            Vector3 centerSum = Vector3.zero;
-            int actualSlotCount = 0;
-            
-            for (int j = 0; j < slotsPerFormation && (formData.startSlotIndex + j) < originalGlobalSlots.Count; j++)
-            {
-                Vector3 slot = originalGlobalSlots[formData.startSlotIndex + j];
-                formData.originalSlots.Add(slot);
-                centerSum += slot;
-                actualSlotCount++;
-            }
-            
-            // Calculate formation center
-            if (actualSlotCount > 0)
-            {
-                formData.centerPosition = centerSum / actualSlotCount;
-                formData.slotCount = actualSlotCount; // Update with actual count
-            }
-            
-            formations.Add(formData);
-            
+
+            // Initialize scales
+            breathData.currentScale = 1f;
+            breathData.startingScale = 1f;
+
+            formationBreathingData.Add(breathData);
+
             if (showDebugLogs)
             {
-                Debug.Log($"FormationBreathingEffect: Formation {i} - Cycle: {formData.effectiveCycleTime:F2}s, Phase: {formData.phaseOffset:F2}, StartingScale: {formData.startingScale:F2}, Slots: {formData.slotCount}, Center: {formData.centerPosition}");
+                Debug.Log($"FormationBreathingEffect: Formation {i} - Cycle: {breathData.effectiveCycleTime:F2}s, Phase: {breathData.phaseOffset:F2}, Scale: {breathData.currentScale:F2}");
             }
         }
-        
+
         if (showDebugLogs)
         {
-            Debug.Log($"FormationBreathingEffect: Completed data update with {formations.Count} formations");
+            Debug.Log($"FormationBreathingEffect: Completed breathing data update with {formationBreathingData.Count} formations");
         }
     }
-    
+
     void UpdateBreathingAnimation()
     {
-        if (formations.Count == 0 || originalGlobalSlots.Count == 0)
+        if (formationBreathingData.Count == 0)
             return;
-            
+
         float elapsedTime = Time.time - breathingStartTime;
         float blendFactor = Mathf.Clamp01(elapsedTime / blendInDuration);
-        
+
+        // Calculate global breathing scale (average of all formations for parameter modification)
+        float totalScale = 0f;
+        int validFormations = 0;
+
         // Process each formation individually to calculate scales
-        for (int formationIndex = 0; formationIndex < formations.Count; formationIndex++)
+        for (int formationIndex = 0; formationIndex < formationBreathingData.Count; formationIndex++)
         {
-            FormationData formData = formations[formationIndex];
-            
+            FormationBreathingData breathData = formationBreathingData[formationIndex];
+
             // Calculate target breathing scale for this specific formation
-            float adjustedTime = elapsedTime + (formData.phaseOffset / (2f * Mathf.PI)) * formData.effectiveCycleTime;
-            float cycleProgress = (adjustedTime % formData.effectiveCycleTime) / formData.effectiveCycleTime;
-            
+            float adjustedTime = elapsedTime + (breathData.phaseOffset / (2f * Mathf.PI)) * breathData.effectiveCycleTime;
+            float cycleProgress = (adjustedTime % breathData.effectiveCycleTime) / breathData.effectiveCycleTime;
+
             float targetBreathingScale = CalculateBreathingScale(cycleProgress);
-            
+
             // Blend from starting scale to breathing pattern
-            float blendedScale = Mathf.Lerp(formData.startingScale, targetBreathingScale, blendFactor);
-            formData.currentScale = blendedScale;
+            float blendedScale = Mathf.Lerp(breathData.startingScale, targetBreathingScale, blendFactor);
+            breathData.currentScale = blendedScale;
+
+            totalScale += blendedScale;
+            validFormations++;
         }
-        
-        // Apply breathing transformations directly to FormationSlots
-        ApplyBreathingTransforms();
-        
+
+        // Apply breathing effect by modifying FormationCreator parameters
+        if (validFormations > 0)
+        {
+            float averageScale = totalScale / validFormations;
+            ApplyBreathingToFormationParameters(averageScale);
+        }
+
+        // Trigger formation regeneration
+        formationCreator.GenerateFormation();
+
         // Debug info (only occasionally to avoid spam)
         if (showDebugLogs && Time.frameCount % 120 == 0) // Every 2 seconds at 60fps
         {
-            Debug.Log($"Breathing: Elapsed={elapsedTime:F1}s, BlendFactor={blendFactor:F2}, Formations={formations.Count}");
-            for (int i = 0; i < Mathf.Min(3, formations.Count); i++) // Show first 3 formations
-            {
-                Debug.Log($"  Formation {i}: StartScale={formations[i].startingScale:F2}, CurrentScale={formations[i].currentScale:F2}");
-            }
+            float averageScale = validFormations > 0 ? totalScale / validFormations : 1f;
+            Debug.Log($"Breathing: Elapsed={elapsedTime:F1}s, BlendFactor={blendFactor:F2}, AvgScale={averageScale:F2}, Formations={formationBreathingData.Count}");
         }
     }
-    
-    void ApplyBreathingTransforms()
+
+    void ApplyBreathingToFormationParameters(float scale)
     {
-        if (formations.Count == 0 || originalGlobalSlots.Count == 0)
-            return;
-            
-        // Apply breathing scale to each formation independently
-        for (int formationIndex = 0; formationIndex < formations.Count; formationIndex++)
+        // Apply breathing scale to formation generation parameters
+        switch (currentFormationType)
         {
-            FormationData formData = formations[formationIndex];
-            
-            // Apply breathing scale to this formation's slots
-            for (int slotIndex = 0; slotIndex < formData.originalSlots.Count; slotIndex++)
-            {
-                int globalSlotIndex = formData.startSlotIndex + slotIndex;
-                if (globalSlotIndex < formationCreator.FormationSlots.Count)
-                {
-                    Vector3 originalSlot = formData.originalSlots[slotIndex];
-                    
-                    // Scale relative to formation center
-                    Vector3 offset = originalSlot - formData.centerPosition;
-                    Vector3 scaledOffset = offset * formData.currentScale;
-                    Vector3 scaledSlot = formData.centerPosition + scaledOffset;
-                    
-                    formationCreator.FormationSlots[globalSlotIndex] = scaledSlot;
-                }
-            }
+            case FormationCreator.FormationType.Square:
+            case FormationCreator.FormationType.Triangle:
+            case FormationCreator.FormationType.VShape:
+                formationCreator.spacing = originalSpacing * scale;
+                break;
+
+            case FormationCreator.FormationType.Circle:
+                formationCreator.circleRadius = originalCircleRadius * scale;
+                break;
+        }
+
+        // Force boundary manager to recalculate effective values
+        if (formationCreator.BoundaryManager != null)
+        {
+            formationCreator.BoundaryManager.CalculateEffectiveValues();
         }
     }
-    
+
     float CalculateBreathingScale(float cycleProgress)
     {
         float normalizedValue;
-        
+
         if (useSmoothCurve)
         {
             // Simple sine wave
@@ -379,11 +353,11 @@ public class FormationBreathingEffect : MonoBehaviour
                 normalizedValue = 2f - (cycleProgress * 2f); // 1 to 0
             }
         }
-        
+
         // Map normalized value to scale range
         return Mathf.Lerp(minScale, maxScale, normalizedValue);
     }
-    
+
     void ValidateRanges()
     {
         // Validate scale range
@@ -394,25 +368,25 @@ public class FormationBreathingEffect : MonoBehaviour
             minScale = maxScale;
             maxScale = temp;
         }
-        
+
         if (minScale <= 0f)
         {
             Debug.LogWarning("FormationBreathingEffect: minScale must be positive. Setting to 0.1f");
             minScale = 0.1f;
         }
-        
+
         // Validate cycle time variation
         if (cycleTimeVariation < 0f)
         {
             cycleTimeVariation = 0f;
         }
-        
+
         if (baseCycleTime - cycleTimeVariation <= 0.5f)
         {
             cycleTimeVariation = baseCycleTime - 0.6f;
         }
     }
-    
+
     // Public methods for external control
     [ContextMenu("Start Breathing")]
     public void StartBreathing()
@@ -422,56 +396,75 @@ public class FormationBreathingEffect : MonoBehaviour
             Debug.LogWarning("FormationBreathingEffect: Component not initialized yet.");
             return;
         }
-        
+
         enableBreathing = true;
         previousEnableBreathing = true;
         breathingStartTime = Time.time;
-        
+
+        // Store original values if not already stored
+        StoreOriginalValues();
+
         // Force update formation data
-        UpdateFormationData();
-        
-        // Store current scale for each formation (for smooth blending)
-        for (int i = 0; i < formations.Count; i++)
+        UpdateFormationBreathingData();
+
+        // Initialize starting scales for all formations
+        for (int i = 0; i < formationBreathingData.Count; i++)
         {
-            formations[i].startingScale = formations[i].currentScale; // Start from current scale
+            formationBreathingData[i].startingScale = 1f; // Start from normal scale
+            formationBreathingData[i].currentScale = 1f;
         }
-        
-        Debug.Log($"FormationBreathingEffect: Breathing started with {formations.Count} formations");
+
+        Debug.Log($"FormationBreathingEffect: Breathing started with {formationBreathingData.Count} formations");
     }
-    
+
     [ContextMenu("Stop Breathing")]
     public void StopBreathing()
     {
         enableBreathing = false;
         previousEnableBreathing = false;
-        
-        // Restore original formation slots
-        if (originalGlobalSlots.Count > 0 && formationCreator.FormationSlots.Count == originalGlobalSlots.Count)
+
+        // Restore original formation parameters
+        RestoreOriginalParameters();
+
+        // Regenerate formation with original parameters
+        formationCreator.GenerateFormation();
+
+        Debug.Log($"FormationBreathingEffect: Breathing stopped - restored original parameters");
+    }
+
+    void RestoreOriginalParameters()
+    {
+        if (hasStoredOriginalValues)
         {
-            for (int i = 0; i < originalGlobalSlots.Count; i++)
+            formationCreator.spacing = originalSpacing;
+            formationCreator.circleRadius = originalCircleRadius;
+
+            // Force boundary manager to recalculate effective values
+            if (formationCreator.BoundaryManager != null)
             {
-                formationCreator.FormationSlots[i] = originalGlobalSlots[i];
+                formationCreator.BoundaryManager.CalculateEffectiveValues();
             }
         }
-        
-        Debug.Log($"FormationBreathingEffect: Breathing stopped - restored original formation");
     }
-    
+
     [ContextMenu("Reset Formation")]
     public void ResetFormation()
     {
         if (formationCreator != null && isInitialized)
         {
+            // Store original values from current FormationCreator state
+            StoreOriginalValues();
+
             // Force regeneration of formation
             formationCreator.GenerateFormation();
             needsFormationDataUpdate = true;
-            
+
             // If breathing is active, restart with new formation data
             if (enableBreathing)
             {
                 StartBreathing();
             }
-            
+
             Debug.Log($"FormationBreathingEffect: Formation reset");
         }
     }
@@ -480,17 +473,17 @@ public class FormationBreathingEffect : MonoBehaviour
     public void RegenerateBreathingVariations()
     {
         needsFormationDataUpdate = true;
-        
+
         if (enableBreathing)
         {
             StartBreathing(); // This will regenerate the data
         }
         else
         {
-            UpdateFormationData();
+            UpdateFormationBreathingData();
         }
-        
-        Debug.Log($"FormationBreathingEffect: Regenerated variations for {formations.Count} formations");
+
+        Debug.Log($"FormationBreathingEffect: Regenerated variations for {formationBreathingData.Count} formations");
     }
 
     [ContextMenu("Print Current Status")]
@@ -501,25 +494,33 @@ public class FormationBreathingEffect : MonoBehaviour
             Debug.Log("FormationBreathingEffect: Not initialized yet");
             return;
         }
-        
+
         Debug.Log($"=== BREATHING EFFECT STATUS ===");
         Debug.Log($"Breathing Enabled: {enableBreathing}");
         Debug.Log($"Formation Type: {currentFormationType}");
-        Debug.Log($"Formation Count: {formations.Count}");
+        Debug.Log($"Formation Count: {formationBreathingData.Count}");
         Debug.Log($"Base Cycle Time: {baseCycleTime:F1}s");
         Debug.Log($"Cycle Variation: {(enableCycleVariation ? "Enabled" : "Disabled")} (±{cycleTimeVariation:F1}s)");
         Debug.Log($"Scale Range: {minScale:F2} to {maxScale:F2}");
-        
+        Debug.Log($"Original Values - Spacing: {originalSpacing:F2}, Radius: {originalCircleRadius:F2}");
+
+        if (enableBreathing)
+        {
+            float currentSpacing = formationCreator.spacing;
+            float currentRadius = formationCreator.circleRadius;
+            Debug.Log($"Current Values - Spacing: {currentSpacing:F2}, Radius: {currentRadius:F2}");
+        }
+
         // Show individual formation data
-        if (enableBreathing && formations.Count > 0)
+        if (enableBreathing && formationBreathingData.Count > 0)
         {
             Debug.Log("=== INDIVIDUAL FORMATION DATA ===");
-            for (int i = 0; i < formations.Count; i++)
+            for (int i = 0; i < formationBreathingData.Count; i++)
             {
-                FormationData data = formations[i];
+                FormationBreathingData data = formationBreathingData[i];
                 float progress = GetFormationCycleProgress(i);
                 string phase = GetFormationPhase(i);
-                Debug.Log($"Formation {i}: Cycle={data.effectiveCycleTime:F1}s, Scale={data.currentScale:F2}, Progress={progress * 100:F1}%, Phase={phase}, Slots={data.slotCount}");
+                Debug.Log($"Formation {i}: Cycle={data.effectiveCycleTime:F1}s, Scale={data.currentScale:F2}, Progress={progress * 100:F1}%, Phase={phase}");
             }
         }
     }
@@ -530,7 +531,7 @@ public class FormationBreathingEffect : MonoBehaviour
         showDebugLogs = !showDebugLogs;
         Debug.Log($"FormationBreathingEffect: Debug logs {(showDebugLogs ? "enabled" : "disabled")}");
     }
-    
+
     // Toggle breathing effect
     public void ToggleBreathing()
     {
@@ -543,77 +544,77 @@ public class FormationBreathingEffect : MonoBehaviour
             StartBreathing();
         }
     }
-    
+
     // Set new scale range
     public void SetScaleRange(float newMinScale, float newMaxScale)
     {
         minScale = newMinScale;
         maxScale = newMaxScale;
         ValidateRanges();
-        
+
         Debug.Log($"FormationBreathingEffect: Scale range set to {minScale:F2} - {maxScale:F2}");
     }
-    
+
     // Set cycle time
     public void SetCycleTime(float newCycleTime)
     {
         float oldCycleTime = baseCycleTime;
         baseCycleTime = Mathf.Clamp(newCycleTime, 1f, 20f);
         ValidateRanges();
-        
+
         // Update all formation data proportionally
         float timeScale = baseCycleTime / oldCycleTime;
-        for (int i = 0; i < formations.Count; i++)
+        for (int i = 0; i < formationBreathingData.Count; i++)
         {
-            formations[i].effectiveCycleTime *= timeScale;
+            formationBreathingData[i].effectiveCycleTime *= timeScale;
         }
-        
+
         Debug.Log($"FormationBreathingEffect: Base cycle time set to {baseCycleTime} seconds");
     }
-    
+
     // Set cycle variation settings
     public void SetCycleVariation(bool enabled, float variation)
     {
         enableCycleVariation = enabled;
         cycleTimeVariation = Mathf.Max(0f, variation);
         ValidateRanges();
-        
+
         RegenerateBreathingVariations();
-        
+
         Debug.Log($"FormationBreathingEffect: Cycle variation {(enabled ? "enabled" : "disabled")} with ±{cycleTimeVariation:F1}s variation");
     }
-    
+
     // Properties for external access
     public bool IsBreathing => enableBreathing;
     public bool CycleVariationEnabled => enableCycleVariation;
     public float CycleTimeVariation => cycleTimeVariation;
-    public int FormationCount => formations.Count;
+    public int FormationCount => formationBreathingData.Count;
     public float MinScale => minScale;
     public float MaxScale => maxScale;
-    
+
     // Get the current progress through the base breathing cycle (0 to 1)
-    public float CycleProgress 
-    { 
-        get 
+    public float CycleProgress
+    {
+        get
         {
             if (!enableBreathing || !isInitialized) return 0f;
             float elapsedTime = Time.time - breathingStartTime;
             return (elapsedTime % baseCycleTime) / baseCycleTime;
         }
     }
-    
+
     // Get individual formation progress
     public float GetFormationCycleProgress(int formationIndex)
     {
-        if (!enableBreathing || !isInitialized || formationIndex >= formations.Count || formationIndex < 0)
+        if (!enableBreathing || !isInitialized || formationIndex >= formationBreathingData.Count || formationIndex < 0)
             return 0f;
-            
-        FormationData data = formations[formationIndex];
+
+        FormationBreathingData data = formationBreathingData[formationIndex];
         float elapsedTime = Time.time - breathingStartTime;
         float adjustedTime = elapsedTime + (data.phaseOffset / (2f * Mathf.PI)) * data.effectiveCycleTime;
         return (adjustedTime % data.effectiveCycleTime) / data.effectiveCycleTime;
     }
-    
+
     // Get blend factor (how much we've transitioned from starting scale to breathing pattern)
     public float BlendFactor
     {
@@ -624,43 +625,43 @@ public class FormationBreathingEffect : MonoBehaviour
             return Mathf.Clamp01(elapsedTime / blendInDuration);
         }
     }
-    
+
     // Get individual formation scale
     public float GetFormationScale(int formationIndex)
     {
-        if (!enableBreathing || !isInitialized || formationIndex >= formations.Count || formationIndex < 0)
+        if (!enableBreathing || !isInitialized || formationIndex >= formationBreathingData.Count || formationIndex < 0)
             return 1f;
-            
-        return formations[formationIndex].currentScale;
+
+        return formationBreathingData[formationIndex].currentScale;
     }
-    
+
     // Get individual formation effective cycle time
     public float GetFormationCycleTime(int formationIndex)
     {
-        if (formationIndex >= formations.Count || formationIndex < 0)
+        if (formationIndex >= formationBreathingData.Count || formationIndex < 0)
             return baseCycleTime;
-            
-        return formations[formationIndex].effectiveCycleTime;
+
+        return formationBreathingData[formationIndex].effectiveCycleTime;
     }
-    
+
     // Get current breathing phase as a string for debugging
     public string GetCurrentPhase()
     {
         if (!enableBreathing || !isInitialized) return "Stopped";
-        
+
         float blendFactor = BlendFactor;
         if (blendFactor < 1f)
         {
             return $"Blending In ({blendFactor * 100:F0}%)";
         }
-        
-        if (enableCycleVariation && formations.Count > 1)
+
+        if (enableCycleVariation && formationBreathingData.Count > 1)
         {
             return "Multi-Formation Breathing";
         }
-        
+
         float progress = CycleProgress;
-        
+
         if (useSmoothCurve)
         {
             float cosWave = Mathf.Cos(progress * 2f * Mathf.PI);
@@ -681,21 +682,21 @@ public class FormationBreathingEffect : MonoBehaviour
                 return "Contracting (Linear)";
         }
     }
-    
+
     // Get individual formation phase
     public string GetFormationPhase(int formationIndex)
     {
-        if (!enableBreathing || !isInitialized || formationIndex >= formations.Count || formationIndex < 0)
+        if (!enableBreathing || !isInitialized || formationIndex >= formationBreathingData.Count || formationIndex < 0)
             return "Stopped";
-        
+
         float blendFactor = BlendFactor;
         if (blendFactor < 1f)
         {
             return $"Blending ({blendFactor * 100:F0}%)";
         }
-            
+
         float progress = GetFormationCycleProgress(formationIndex);
-        
+
         if (useSmoothCurve)
         {
             float cosWave = Mathf.Cos(progress * 2f * Mathf.PI);
@@ -716,12 +717,12 @@ public class FormationBreathingEffect : MonoBehaviour
                 return "Contracting";
         }
     }
-    
+
     // Handle inspector changes
     void OnValidate()
     {
         ValidateRanges();
-        
+
         if (Application.isPlaying && isInitialized)
         {
             // Check if enableBreathing state changed
@@ -737,18 +738,27 @@ public class FormationBreathingEffect : MonoBehaviour
                 }
                 previousEnableBreathing = enableBreathing;
             }
-            
+
             // Mark that we need to update formation data on next frame
             needsFormationDataUpdate = true;
         }
     }
-    
+
     void OnDisable()
     {
+        // Restore original parameters when disabled
+        RestoreOriginalParameters();
+
         if (showDebugLogs && isInitialized)
         {
-            Debug.Log($"FormationBreathingEffect: Disabled");
+            Debug.Log($"FormationBreathingEffect: Disabled and restored original parameters");
         }
+    }
+
+    void OnDestroy()
+    {
+        // Ensure parameters are restored when component is destroyed
+        RestoreOriginalParameters();
     }
 }
 
@@ -759,86 +769,86 @@ public class FormationBreathingEffectEditor : UnityEditor.Editor
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
-        
+
         FormationBreathingEffect breathingEffect = (FormationBreathingEffect)target;
-        
+
         GUILayout.Space(10);
-        
+
         // Runtime controls
         if (Application.isPlaying)
         {
             EditorGUILayout.LabelField("Runtime Controls", EditorStyles.boldLabel);
-            
+
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button(breathingEffect.IsBreathing ? "Stop Breathing" : "Start Breathing", GUILayout.Height(30)))
             {
                 breathingEffect.ToggleBreathing();
             }
-            
+
             if (GUILayout.Button("Reset Formation", GUILayout.Height(30)))
             {
                 breathingEffect.ResetFormation();
             }
             EditorGUILayout.EndHorizontal();
-            
+
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Regenerate Variations", GUILayout.Height(25)))
             {
                 breathingEffect.RegenerateBreathingVariations();
             }
-            
+
             if (GUILayout.Button("Print Status", GUILayout.Height(25)))
             {
                 breathingEffect.PrintCurrentStatus();
             }
             EditorGUILayout.EndHorizontal();
-            
+
             // Show current values
             GUILayout.Space(5);
             EditorGUILayout.LabelField("Current Info", EditorStyles.boldLabel);
-            
+
             FormationCreator fc = breathingEffect.GetComponent<FormationCreator>();
             if (fc != null)
             {
                 EditorGUILayout.LabelField($"Formation Type: {fc.currentFormation}");
                 EditorGUILayout.LabelField($"Formation Count: {fc.formationCount}");
-                
+
                 if (breathingEffect.CycleVariationEnabled)
                 {
                     EditorGUILayout.LabelField($"Cycle Variation: ±{breathingEffect.CycleTimeVariation:F1}s");
                 }
-                
+
                 EditorGUILayout.LabelField($"Scale Range: {breathingEffect.MinScale:F2} - {breathingEffect.MaxScale:F2}");
-                
+
                 if (breathingEffect.IsBreathing)
                 {
                     EditorGUILayout.LabelField($"Phase: {breathingEffect.GetCurrentPhase()}");
                     EditorGUILayout.LabelField($"Cycle Progress: {breathingEffect.CycleProgress * 100:F1}%");
                     EditorGUILayout.LabelField($"Blend Factor: {breathingEffect.BlendFactor * 100:F1}%");
-                    
+
                     // Show progress bars
                     Rect progressRect = GUILayoutUtility.GetRect(0, 16, GUILayout.ExpandWidth(true));
                     EditorGUI.ProgressBar(progressRect, breathingEffect.CycleProgress, "Breathing Cycle");
-                    
+
                     Rect blendRect = GUILayoutUtility.GetRect(0, 16, GUILayout.ExpandWidth(true));
                     EditorGUI.ProgressBar(blendRect, breathingEffect.BlendFactor, "Blend Factor");
-                    
+
                     // Show individual formation progress
                     if (breathingEffect.CycleVariationEnabled && breathingEffect.FormationCount > 1)
                     {
                         GUILayout.Space(5);
                         EditorGUILayout.LabelField("Individual Formations", EditorStyles.boldLabel);
-                        
+
                         for (int i = 0; i < Mathf.Min(6, breathingEffect.FormationCount); i++)
                         {
                             float progress = breathingEffect.GetFormationCycleProgress(i);
                             float scale = breathingEffect.GetFormationScale(i);
                             string phase = breathingEffect.GetFormationPhase(i);
-                            
+
                             Rect formationRect = GUILayoutUtility.GetRect(0, 16, GUILayout.ExpandWidth(true));
                             EditorGUI.ProgressBar(formationRect, progress, $"F{i}: {phase} (Scale: {scale:F2})");
                         }
-                        
+
                         if (breathingEffect.FormationCount > 6)
                         {
                             EditorGUILayout.LabelField($"... and {breathingEffect.FormationCount - 6} more formations");
@@ -851,7 +861,23 @@ public class FormationBreathingEffectEditor : UnityEditor.Editor
                 }
             }
         }
-        
+
+        // Effect stacking info
+        GUILayout.Space(5);
+        FormationRotationEffect rotationEffect = breathingEffect.GetComponent<FormationRotationEffect>();
+        if (rotationEffect != null)
+        {
+            if (breathingEffect.IsBreathing && rotationEffect.IsRotating)
+            {
+                EditorGUILayout.HelpBox("✓ Both breathing and rotation effects are active!\n\nBreathing modifies formation size parameters, rotation spins the formations.", MessageType.Info);
+            }
+            else if (breathingEffect.IsBreathing || rotationEffect.IsRotating)
+            {
+                string activeEffect = breathingEffect.IsBreathing ? "breathing" : "rotation";
+                EditorGUILayout.HelpBox($"Currently running: {activeEffect} effect only", MessageType.None);
+            }
+        }
+
         // Validation
         GUILayout.Space(5);
         FormationCreator formationCreator = breathingEffect.GetComponent<FormationCreator>();
@@ -861,8 +887,8 @@ public class FormationBreathingEffectEditor : UnityEditor.Editor
         }
         else
         {
-            EditorGUILayout.HelpBox("✓ Breathing effect ready - works independently", MessageType.Info);
-            
+            EditorGUILayout.HelpBox("✓ Breathing effect ready - modifies formation generation parameters", MessageType.Info);
+
             if (breathingEffect.CycleVariationEnabled)
             {
                 EditorGUILayout.HelpBox($"✓ Each formation breathes independently with ±{breathingEffect.CycleTimeVariation:F1}s variation", MessageType.Info);
