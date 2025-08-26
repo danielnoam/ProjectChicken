@@ -4912,7 +4912,7 @@ GameObject:
   - component: {fileID: 7712476815832204209}
   - component: {fileID: 3468393451226245406}
   m_Layer: 0
-  m_Name: ChickenSeconderyExplosion
+  m_Name: ChickenExplosion_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9828,8 +9828,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 99.6, y: 0, z: -30}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5271383043240442025}
   - {fileID: 1896875023525032181}
@@ -14708,7 +14708,7 @@ GameObject:
   - component: {fileID: 8421905123755913772}
   - component: {fileID: 3848287161316090557}
   m_Layer: 0
-  m_Name: ChickenExplosion (1)
+  m_Name: ChickenExplosion_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19874,7 +19874,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 5
+      scalar: 14
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -20257,8 +20257,8 @@ ParticleSystem:
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
-    m_Position: {x: 0, y: 0, z: 0}
-    m_Rotation: {x: 90, y: 0, z: 0}
+    m_Position: {x: 0, y: 0, z: -0.19}
+    m_Rotation: {x: 0, y: 0, z: 0}
     m_Scale: {x: 1, y: 1, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
@@ -20955,7 +20955,7 @@ ParticleSystem:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
         key1: {r: 1, g: 1, b: 1, a: 0}
-        key2: {r: 0.5283019, g: 0.14626989, b: 0, a: 1}
+        key2: {r: 0.5283019, g: 0.14626989, b: 0, a: 0}
         key3: {r: 1, g: 1, b: 1, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
         key5: {r: 0, g: 0, b: 0, a: 0}
@@ -20971,7 +20971,7 @@ ParticleSystem:
         ctime7: 0
         atime0: 0
         atime1: 61102
-        atime2: 65535
+        atime2: 61102
         atime3: 65535
         atime4: 65535
         atime5: 0
@@ -24469,7 +24469,7 @@ ParticleSystemRenderer:
   m_VertexStreams: 00010304
   m_UseCustomTrailVertexStreams: 0
   m_TrailVertexStreams: 00010304
-  m_Mesh: {fileID: 4711208715938537054, guid: 6982979735cf41449801c972aee5c8c9, type: 3}
+  m_Mesh: {fileID: -661190288192018244, guid: a9128c876326133458a77b1407ab040c, type: 3}
   m_Mesh1: {fileID: 0}
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
