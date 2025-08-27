@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af6742f32a1c21340a76700ed0474757, type: 3}
+  m_Name: Formation Breathing Effect
+  m_EditorClassIdentifier: 
+  minScale: 0.7
+  maxScale: 1.3
+  cycleTime: 4
+  useSmoothCurve: 1
+  enableCycleVariation: 1
+  cycleVariation: 2
+  useRandomPhase: 1
+  enableFiniteDuration: 1
+  effectDuration: 30
+  returnTransitionTime: 3

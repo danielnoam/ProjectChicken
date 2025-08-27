@@ -10865,28 +10865,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2046359980}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 862682587d3e815409fdd508181e64b6, type: 3}
+  m_Script: {fileID: 11500000, guid: 2047864809b89af48978bf36921c5a3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  breathingConfig: {fileID: 11400000, guid: 827337dc2f247a9468741d5571b3606c, type: 2}
+  rotationConfig: {fileID: 11400000, guid: babd3e3990ce3914ea21b721b315f904, type: 2}
   enableBreathing: 0
   enableRotation: 0
-  breathingMinScale: 0.75
-  breathingMaxScale: 1.25
-  breathingCycleTime: 8
-  breathingUseSmoothCurve: 1
-  breathingEnableCycleVariation: 1
-  breathingCycleVariation: 2
-  breathingUseRandomPhase: 1
-  rotationSpeed: 25
-  rotationEnableSpeedVariation: 1
-  rotationSpeedVariation: 15
-  rotationAllowRandomDirection: 1
-  rotationUseRandomStartingAngle: 1
-  enableSpinBurst: 1
-  spinBurstMinInterval: 3
-  spinBurstMaxInterval: 6
-  spinBurstDuration: 1.5
-  spinBurstSpeedMultiplier: 4
 --- !u!1001 &2047690832
 PrefabInstance:
   m_ObjectHideFlags: 0
