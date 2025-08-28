@@ -74,9 +74,11 @@ public class RailPlayerHealth : MonoBehaviour
     }
     
 
-    public void SetUp()
+    public void SetUp(int health)
     {
-        CurrentHealth = player.GameSettings.BaseHealth;
+        if (health < player.GameSettings.BaseHealth) health = player.GameSettings.BaseHealth;
+        
+        CurrentHealth = health;
         CurrentShield = player.GameSettings.BaseShield;
         MaxShield = player.GameSettings.BaseShield;
         

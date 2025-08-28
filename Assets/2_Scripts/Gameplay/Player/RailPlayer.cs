@@ -44,7 +44,7 @@ public class RailPlayer : MonoBehaviour
     private int _currentScore;
     private bool _pauseInputHeld;
     
-    public List<SOUpgradeBase> Upgrades { get; private set; } = new List<SOUpgradeBase>();
+    public Dictionary<SOUpgradeBase, int> Upgrades { get; private set; } = new Dictionary<SOUpgradeBase, int>();
     public RailPlayerAiming Aiming => aiming;
     public RailPlayerWeaponSystem WeaponSystem => weaponSystem;
     public RailPlayerMovement Movement => movement;
@@ -71,21 +71,24 @@ public class RailPlayer : MonoBehaviour
 
     private void Awake()
     {
+        Upgrades.Clear();
         aiming.SetUp();
         movement.SetUp();
-        health.SetUp();
+        health.SetUp(gameSettings.BaseHealth);
         resourceCollector.SetUp();
         weaponSystem.SetUp();
     }
 
     private void OnEnable()
     {
+        levelManager.OnRunProgressLoaded += OnRunProgressLoaded;
         levelManager.OnRestartedFromSavePoint += RestartedFromSavePoint;
         input.OnPauseActionEvent += OnPauseAction;
     }
     
     private void OnDisable()
     {
+        levelManager.OnRunProgressLoaded -= OnRunProgressLoaded;
         levelManager.OnRestartedFromSavePoint -= RestartedFromSavePoint;
         input.OnPauseActionEvent -= OnPauseAction;
     }
@@ -104,20 +107,57 @@ public class RailPlayer : MonoBehaviour
     }
     
 
+    private void OnRunProgressLoaded(RunProgressData runProgress)
+    {
+        if (runProgress == null) return;
+
+        Upgrades.Clear();
+        health.SetUp(runProgress.PlayerHealth);
+        resourceCollector.SetUp(runProgress.PlayerCurrency);
+        weaponSystem.SetUp(runProgress.PlayerSpecialWeapon);
+        movement.SetUp();
+        aiming.SetUp();
+        
+        if (runProgress.PlayerUpgrades != null)
+        {
+            Upgrades = runProgress.PlayerUpgrades;
+            
+            var upgradesCopy = new Dictionary<SOUpgradeBase, int>(runProgress.PlayerUpgrades);
+            foreach (var upgrade in upgradesCopy)
+            {
+                upgrade.Key.ApplyUpgrade(this);
+            }
+        }
+        else
+        {
+            Upgrades = new Dictionary<SOUpgradeBase, int>();
+        }
+    }
     
-    private void RestartedFromSavePoint(SavePointInformation savePoint)
+    private void RestartedFromSavePoint(SavePointData savePoint)
     {
         if (savePoint == null) return;
 
-        health.SetUp();
-        resourceCollector.SetUp();
-        movement.SetUp();
+        Upgrades.Clear();
+        health.SetUp(savePoint.PlayerHealth);
+        resourceCollector.SetUp(savePoint.PlayerCurrency);
         weaponSystem.SetUp(savePoint.PlayerSpecialWeapon);
+        movement.SetUp();
+        aiming.SetUp();
         
-        Upgrades = savePoint.PlayerUpgrades;
-        foreach (var upgrade in savePoint.PlayerUpgrades)
+        if (savePoint.PlayerUpgrades != null)
         {
-            upgrade.ApplyUpgrade(this);
+            Upgrades = savePoint.PlayerUpgrades;
+            
+            var upgradesCopy = new Dictionary<SOUpgradeBase, int>(savePoint.PlayerUpgrades);
+            foreach (var upgrade in upgradesCopy)
+            {
+                upgrade.Key.ApplyUpgrade(this);
+            }
+        }
+        else
+        {
+            Upgrades = new Dictionary<SOUpgradeBase, int>();
         }
     }
     
@@ -145,44 +185,49 @@ public class RailPlayer : MonoBehaviour
     
     public void AddHealthUpgrade(SOUpgradeBase upgrade, int amount)
     {
-        Upgrades.Add(upgrade);
+        // Upgrades.Add(upgrade);
         health.UpgradeHealthBy(amount);
     }
     
     public void AddMaxShieldUpgrade(SOUpgradeBase upgrade, float amount)
     {
-        Upgrades.Add(upgrade);
+        Upgrades[upgrade] = GetUpgradeCount(upgrade) + 1;
         health.UpgradeMaxShieldBy(amount);
     }
     
     public void AddMagnetSizeUpgrade(SOUpgradeBase upgrade, float amount)
     {
-        Upgrades.Add(upgrade);
+        Upgrades[upgrade] = GetUpgradeCount(upgrade) + 1;
         resourceCollector.UpgradeMagnetSizeBy(amount);
     }
     
     public void AddWeaponUpgrade(SOUpgradeBase upgrade, SOWeaponUpgrade weaponUpgrade)
     {
-        Upgrades.Add(upgrade);
+        Upgrades[upgrade] = GetUpgradeCount(upgrade) + 1;
         weaponSystem.AddWeaponUpgrade(weaponUpgrade);
     }
     
     public void AddMaxHeatUpgrade(SOUpgradeBase upgrade, float amount)
     {
-        Upgrades.Add(upgrade);
+        Upgrades[upgrade] = GetUpgradeCount(upgrade) + 1;
         weaponSystem.AddMaxHeatUpgrade(amount);
     }
     
     public void AddDodgeUpgrade(SOUpgradeBase upgrade, int amount)
     {
-        Upgrades.Add(upgrade);
+        Upgrades[upgrade] = GetUpgradeCount(upgrade) + 1;
         movement.UpgradeDodgeAccumulationBy(amount);
     }
     
-    public bool HasUpgrade(int itemID)
+    public bool HasUpgrade(SOUpgradeBase upgrade)
     {
-        if (itemID == 0 || Upgrades.Count <= 0) return false;
-        return Upgrades.Any(upgrade => upgrade.ItemID == itemID);
+        return Upgrades.ContainsKey(upgrade);
+    }
+
+    
+    public int GetUpgradeCount(SOUpgradeBase upgrade)
+    {
+        return Upgrades.GetValueOrDefault(upgrade, 0);
     }
     
     public SOWeaponUpgrade GetHighestWeaponUpgrade(SOWeaponData weaponData)
@@ -193,7 +238,7 @@ public class RailPlayer : MonoBehaviour
         for (int i = 0; i < weaponData.WeaponUpgrades.Count; i++)
         {
             var weaponUpgrade = weaponData.WeaponUpgrades[i];
-            if (HasUpgrade(weaponUpgrade.ItemID))
+            if (HasUpgrade(weaponUpgrade))
             {
                 if (i > highestIndex)
                 {

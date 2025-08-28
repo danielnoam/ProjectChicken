@@ -22,16 +22,6 @@ public class RailPlayerResourceCollector : MonoBehaviour
         this.ValidateRefs();
     }
     
-    private void OnEnable()
-    {
-        player.LevelManager.OnStageChanged += OnStageChanged;
-    }
-    
-    private void OnDisable()
-    {
-        player.LevelManager.OnStageChanged -= OnStageChanged;
-    }
-    
 
     private void Update()
     {
@@ -48,18 +38,9 @@ public class RailPlayerResourceCollector : MonoBehaviour
         }
     }
     
-    private void OnStageChanged(SOLevelStage stage)
-    {
-        if (!stage) return;
-        
-        if (stage.StageType == StageType.Outro)
-        {
-            SaveManager.UpdatePlayerCurrency(CurrentCurrency);
-        }
-    }
     
 
-    public void SetUp()
+    public void SetUp(int currency = 0)
     {
         _collectionActions.Clear();
         
@@ -69,7 +50,7 @@ public class RailPlayerResourceCollector : MonoBehaviour
         _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => player.WeaponSystem.SetSpecialWeapon(resource.WeaponData));
         
         _currentMagnetRadius = 0;
-        CurrentCurrency = 0;
+        CurrentCurrency = currency;
         OnCurrencyChanged?.Invoke(CurrentCurrency);
     }
 

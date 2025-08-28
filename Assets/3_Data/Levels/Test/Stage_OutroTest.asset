@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageTitle: 
   stageWorldSpeed: 1
+  isCheckpoint: 0
   showHUD: 0
   allowPlayerMovement: 0
   allowPlayerShootingAndAiming: 0
@@ -21,9 +22,9 @@ MonoBehaviour:
   stageDuration: 7
   showOutroMenu: 1
   nextLevel:
-    sceneAsset: {fileID: 0}
-    sceneName: 
-    scenePath: 
+    sceneAsset: {fileID: 102900000, guid: f9b5500be9ac5534da9b71be18753d2e, type: 3}
+    sceneName: Level1
+    scenePath: Assets/1_Scenes/GameScenes/Level1.unity
   upgradesPool:
   - {fileID: 0}
   delayBeforeNextStage: 1

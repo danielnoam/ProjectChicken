@@ -242,25 +242,9 @@ public class UpgradeStore : MonoBehaviour
 
         foreach (var upgrade in newPool)
         {
-            
             if (!upgrade) continue;
-            if (player.HasUpgrade(upgrade.ItemID)) continue;
-
-            bool hasRequiredItems = true;
-    
-            if (upgrade.ItemNeededToUnlock is { Length: > 0 })
-            {
-                foreach (var requiredItem in upgrade.ItemNeededToUnlock)
-                {
-                    if (requiredItem && !player.HasUpgrade(requiredItem.ItemID))
-                    {
-                        hasRequiredItems = false;
-                        break;
-                    }
-                }
-            }
         
-            if (hasRequiredItems)
+            if (upgrade.CanBeOfferedToPlayer(player))
             {
                 _storeUpgradesPool.Add(upgrade);
             }

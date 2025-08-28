@@ -42,8 +42,8 @@ public class LevelManager : MonoBehaviour
     private int _currentScore;
     private float _currentPathSpeed;
     private bool _settingStageFlag;
-    private SavePointInformation _currentSavePoint;
-    private SavePointInformation _startSavePoint;
+    private SavePointData _currentSavePoint;
+    private SavePointData _startSavePoint;
     private Coroutine _stageChangeCoroutine;
 
     
@@ -54,7 +54,8 @@ public class LevelManager : MonoBehaviour
     
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
-    public event Action<SavePointInformation> OnRestartedFromSavePoint;
+    public event Action<SavePointData> OnRestartedFromSavePoint;
+    public event Action<RunProgressData> OnRunProgressLoaded;
     
 
 
@@ -206,8 +207,6 @@ public class LevelManager : MonoBehaviour
             return;
         }
         
-
-        
         levelStages = level.LevelStages;
         
         if (levelStages == null || levelStages.Length == 0)
@@ -216,7 +215,14 @@ public class LevelManager : MonoBehaviour
             return;
         }
         
-        _startSavePoint = new SavePointInformation(currentStageIndex, 0, 0, new List<SOUpgradeBase>(), player.WeaponSystem.CurrentSpecialWeaponInstance);
+
+        var runProgress = SaveManager.GetRunProgressData();
+        OnRunProgressLoaded?.Invoke(runProgress);
+        
+        _startSavePoint = new SavePointData(currentStageIndex, 0, gameSettings.BaseHealth, 0,new Dictionary<SOUpgradeBase, int>(), player.WeaponSystem.CurrentSpecialWeaponInstance?.weaponData);
+        _currentSavePoint = null;
+
+        
         ResetScore();
         SetStage(0);
     }
@@ -289,7 +295,7 @@ public class LevelManager : MonoBehaviour
                 
                 if (currentStage.ShowOutroMenu)
                 {
-                    outroScreen.Show(currentStage.NextLevel == null);
+                    outroScreen.Show(currentStage.NextLevel.IsSceneValid());
                 }
                 else
                 {
@@ -323,6 +329,7 @@ public class LevelManager : MonoBehaviour
     public void ReturnToMainMenu(float delay = 0)
     {
         SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, _currentScore);
+        SaveManager.ResetRunProgressData();
         if (delay > 0) StartCoroutine(DelayReturnToMainMenu(delay));
         else TransitionManager.TransitionToScene(gameSettings.MainMenuScene, level.OutroVFXSequence);
     }
@@ -332,6 +339,8 @@ public class LevelManager : MonoBehaviour
     {
         if (!level || !currentStage || currentStage.NextLevel == null) return;
         
+        var runProgress = new RunProgressData(player.Health.CurrentHealth, player.ResourceCollector.CurrentCurrency, player.Upgrades, player.WeaponSystem.CurrentSpecialWeaponInstance.weaponData);
+        SaveManager.UpdateRunProgress(runProgress);
         TransitionManager.TransitionToScene(currentStage.NextLevel, level.OutroVFXSequence);
     }
     
@@ -365,12 +374,13 @@ public class LevelManager : MonoBehaviour
     {
         if (!currentStage || _currentSavePoint != null && _currentSavePoint.StageIndex == currentStageIndex) return;
         
-        var newSavePoint = new SavePointInformation(
+        var newSavePoint = new SavePointData(
             currentStageIndex,
             _currentScore, 
+            player.Health.CurrentHealth,
             player.ResourceCollector.CurrentCurrency, 
             player.Upgrades,
-            player.WeaponSystem.CurrentSpecialWeaponInstance
+            player.WeaponSystem.CurrentSpecialWeaponInstance.weaponData
             );
             
         _currentSavePoint = newSavePoint;

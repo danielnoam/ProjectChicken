@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using PrimeTween;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VInspector;
-using DNExtensions.Button;
 
 [DefaultExecutionOrder(-1)]
 [SelectionBase]
@@ -17,12 +17,15 @@ public class SaveManager : MonoBehaviour
     private static string _settingsDataPath;
     private static PlayerProgressData _playerProgressData;
     private static string _playerProgressDataPath;
+    private static RunProgressData _runProgressData;
+    private static string _runProgressDataPath;
     private static bool _initialized;
     private static int _sceneChangeCount;
-
     
     public event Action OnSettingsDataChanged;
     
+    [Header("References")]
+    [SerializeField] private SOGameSettings gameSettings;
     
     [Header("Default Settings")]
     [SerializeField] private VolumeSettings defaultVolumeSettings = new (1,1,1);
@@ -96,6 +99,9 @@ public class SaveManager : MonoBehaviour
         LoadSettingsDataFromFile();
         _initialized = true;
         _sceneChangeCount = 0;
+        
+        _runProgressDataPath = Path.Combine(Application.persistentDataPath, "RunProgress.json");
+        LoadRunProgressDataFromFile();
 
 
         SceneManager.activeSceneChanged -= OnActiveSceneChanged;
@@ -126,6 +132,7 @@ public class SaveManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         SaveAllDataToFiles();
+        ResetRunProgressData();
     }
 
     private void OnApplicationPause(bool pauseStatus)
@@ -145,7 +152,7 @@ public class SaveManager : MonoBehaviour
         SaveSettingsDataToFile();
     }
 
-    [DNExtensions.Button.Button(ButtonPlayMode.OnlyWhenPlaying)]
+
     private static void SavePlayerProgressDataToFile()
     {
         if (!Application.isPlaying || !_initialized) return;
@@ -189,8 +196,8 @@ public class SaveManager : MonoBehaviour
     
 
     
-    [DNExtensions.Button.Button(ButtonPlayMode.OnlyWhenPlaying)]
-    private static void DeletePlayerProgressDataAndFile()
+    [Button]
+    private static void ResetPlayerProgressData()
     {
         if (!Application.isPlaying || !_initialized) return;
         
@@ -211,7 +218,7 @@ public class SaveManager : MonoBehaviour
     
     
     
-    [DNExtensions.Button.Button(ButtonPlayMode.OnlyWhenPlaying)]
+
     private static void SaveSettingsDataToFile()
     {
         if (!_initialized) return;
@@ -264,8 +271,8 @@ public class SaveManager : MonoBehaviour
     }
 
 
-    [DNExtensions.Button.Button(ButtonPlayMode.OnlyWhenPlaying)]
-    private static void DeleteSettingsDataAndFile()
+    [Button]
+    private static void ResetSettingsData()
     {
         if (!_initialized) return;
 
@@ -289,6 +296,68 @@ public class SaveManager : MonoBehaviour
         
         Instance?.OnSettingsDataChanged?.Invoke();
     }
+    
+    
+    
+    private static void SaveRunProgressDataToFile()
+    {
+        if (!_initialized) return;
+
+        try
+        {
+            string jsonData = JsonUtility.ToJson(_runProgressData, true);
+            File.WriteAllText(_runProgressDataPath, jsonData);
+            Debug.Log("Run progress saved successfully!");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to save run progress: {e.Message}");
+        }
+    }
+    
+    private static void LoadRunProgressDataFromFile()
+    {
+        try
+        {
+            if (File.Exists(_runProgressDataPath))
+            {
+                string jsonData = File.ReadAllText(_runProgressDataPath);
+                _runProgressData = JsonUtility.FromJson<RunProgressData>(jsonData);
+            }
+            else
+            {
+                _runProgressData = new RunProgressData(Instance.gameSettings.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
+                // Debug.Log("No run progress file found. Created new run progress data.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to load run progress: {e.Message}");
+            _runProgressData = new RunProgressData(Instance.gameSettings.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
+        }
+    }
+    
+    public static void ResetRunProgressData()
+    {
+        if (!_initialized) return;
+
+        try
+        {
+            if (File.Exists(_runProgressDataPath))
+            {
+                File.Delete(_runProgressDataPath);
+                _runProgressData = new RunProgressData(Instance.gameSettings.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
+                Debug.Log("Run progress file deleted and reset to default.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to delete run progress file: {e.Message}");
+        }
+        
+    }
+    
+    
 
     #endregion File Handling ----------------------------------------------------------------------------------------------------------------------------
     
@@ -324,24 +393,16 @@ public class SaveManager : MonoBehaviour
         }
     }
     
-
-    public static void UpdatePlayerCurrency(int currency)
+    
+    
+    public static void UpdateRunProgress(RunProgressData newRunProgress)
     {
         EnsureInitialized();
-        _playerProgressData.currency = currency;
+        _runProgressData = newRunProgress;
+        SaveRunProgressDataToFile();
     }
     
-    public static void UpdatePlayerBoughtItems(int itemID)
-    {
-        EnsureInitialized();
-
-        if (!HasStoreItem(itemID))
-        {
-            _playerProgressData.boughtItems.Add(itemID);
-            SavePlayerProgressDataToFile();
-        }
-    }
-
+    
     public static void  UpdateKeyboardControlScheme(ControlSchemeSettings newSettings)
     {
         EnsureInitialized();
@@ -385,33 +446,22 @@ public class SaveManager : MonoBehaviour
         return progress;
     }
     
+    public static PlayerProgressData GetPlayerProgressData()
+    {
+        EnsureInitialized();
+        return _playerProgressData;
+    }
     
-    public static int GetCurrency()
+    public static RunProgressData GetRunProgressData()
     {
         EnsureInitialized();
-        
-        return _playerProgressData?.currency ?? 0;
+        return _runProgressData;
     }
-
-    public static bool HasStoreItem(int itemID)
-    {
-        EnsureInitialized();
-
-        foreach (var item in _playerProgressData.boughtItems)
-        {
-            if (itemID == item)
-            {
-                return true;
-            }
-        }
-        
-        return false;
-    }
+    
     
     public static ControlSchemeSettings GetKeyboardControlScheme()
     {
         EnsureInitialized();
-
         return _settingsData.keyboardMouseScheme;
     }
     
@@ -436,7 +486,7 @@ public class SaveManager : MonoBehaviour
     #region Editor --------------------------------------------------------------------------------------------------------------------------
 
     
-    [DNExtensions.Button.Button()]
+    [Button]
     private void OpenSaveFolder()
     {
         string saveFolder = Application.persistentDataPath;

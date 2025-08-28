@@ -10,13 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b78c8ba4c744b00aba58c2d75f69530, type: 3}
-  m_Name: HealthUpgrade2
+  m_Name: HealthUpgrade
   m_EditorClassIdentifier: 
-  itemName: Health Upgrade 1
+  itemID: -1680474618
+  itemName: Health Upgrade
   itemDescription: Add 1 hit point
+  itemIcon: {fileID: 0}
   itemGfx: {fileID: 682982969330921429, guid: 686fabb6776f0fb4189091c6bab7bb70, type: 3}
   itemRarity: 1
-  itemNeededToUnlock:
-  - {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
-  itemID: -1680474618
+  isStackable: 1
+  maxStacks: 100
+  itemNeededToUnlock: []
   healthUpgradeAmount: 1

@@ -141,7 +141,7 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
         
         StartTime = Time.time;
         WeaponInstance = weaponInstance;
-        WeaponData = weaponInstance.WeaponData;
+        WeaponData = weaponInstance.CurrentWeaponData;
         Target = target;
         _owner = owner;
         _lifetime = WeaponData.ProjectileLifetime;
@@ -177,7 +177,7 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
         
         StartTime = Time.time;
         WeaponInstance = weaponInstance;
-        WeaponData = weaponInstance.WeaponData;
+        WeaponData = weaponInstance.CurrentWeaponData;
         Target = target;
         _owner = owner;
         _lifetime = WeaponData.ProjectileLifetime;

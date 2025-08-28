@@ -39,46 +39,46 @@ public class UIManager : MonoBehaviour
     
     
     [Header("Health")]
-    [SerializeField] private float healthPunchDuration = 0.25f;
-    [SerializeField] private float healthPunchStrength = 0.5f;
+    [SerializeField] private float healthPunchDuration = 0.2f;
+    [SerializeField] private float healthPunchStrength = 0.4f;
     [SerializeField] private Color healthPunchColor = Color.red;
     [SerializeField] private Image healthIcon;
     [SerializeField] private TextMeshProUGUI healthText;
     
     [Header("Shield")]
     [SerializeField] private float shieldAnimationDuration = 0.5f;
-    [SerializeField] private float shieldPunchDuration = 0.25f;
-    [SerializeField] private float shieldPunchStrength = 0.5f;
+    [SerializeField] private float shieldPunchDuration = 0.2f;
+    [SerializeField] private float shieldPunchStrength = 0.4f;
     [SerializeField] private Color shieldPunchColor = Color.blue;
     [SerializeField] private Image shieldIcon;
     [SerializeField] private TextMeshProUGUI shieldText;
     
     [Header("Currency")]
     [SerializeField] private float currencyAnimationDuration = 0.5f;
-    [SerializeField] private float currencyPunchDuration = 0.25f;
-    [SerializeField] private float currencyPunchStrength = 0.5f;
+    [SerializeField] private float currencyPunchDuration = 0.2f;
+    [SerializeField] private float currencyPunchStrength = 0.4f;
     [SerializeField, Min(0), Tooltip("The difference between the previous currency and the current currency that must be reached to trigger a big currency animation")] 
     private int bigCurrencyDifference = 4;
     [SerializeField] private Image currencyIcon;
     [SerializeField] private TextMeshProUGUI currencyText;
     
     [Header("Dodge")]
-    [SerializeField] private float dodgePunchDuration = 0.25f;
-    [SerializeField] private float dodgePunchStrength = 0.5f;
+    [SerializeField] private float dodgePunchDuration = 0.2f;
+    [SerializeField] private float dodgePunchStrength = 0.4f;
     [SerializeField] private Image dodgeIcon;
     [SerializeField] private TextMeshProUGUI dodgeCountText;
     
     [Header("Weapons")]
     [SerializeField] private float weaponAnimationDuration = 0.5f;
-    [SerializeField] private float weaponPunchDuration = 0.25f;
-    [SerializeField] private float weaponPunchStrength = 0.5f;
+    [SerializeField] private float weaponPunchDuration = 0.2f;
+    [SerializeField] private float weaponPunchStrength = 0.4f;
     [SerializeField] private Image weaponIcon;
     [SerializeField] private Image secondaryWeaponIcon;
     
     [Header("Score")]
     [SerializeField] private float scoreAnimationDuration = 0.5f;
-    [SerializeField] private float scorePunchDuration = 0.25f;
-    [SerializeField] private float scorePunchStrength = 0.5f;
+    [SerializeField] private float scorePunchDuration = 0.2f;
+    [SerializeField] private float scorePunchStrength = 0.2f;
     [SerializeField, Min(0), Tooltip("The difference between the previous score and the current score that must be reached to trigger a big score animation")] 
     private int bigScoreDifference = 200;
     [SerializeField, Min(0), Tooltip("How many 0 is the score made out of")] private int scoreDigits = 7;
@@ -473,7 +473,7 @@ public class UIManager : MonoBehaviour
     {
         if (newWeaponInstance != null)
         {
-            weaponIcon.sprite = newWeaponInstance.WeaponData.WeaponIcon;
+            weaponIcon.sprite = newWeaponInstance.CurrentWeaponData.WeaponIcon;
             Tween.Alpha(secondaryWeaponIcon, endValue: 1f, duration: weaponAnimationDuration);
             Tween.PunchScale(weaponIcon.transform, strength: Vector3.one * weaponPunchStrength, duration: weaponPunchDuration);
         }
@@ -481,8 +481,8 @@ public class UIManager : MonoBehaviour
         {
             if (player.WeaponSystem.BaseWeaponInstance != null)
             {
-                weaponIcon.sprite = player.WeaponSystem.BaseWeaponInstance.WeaponData.WeaponIcon;
-               secondaryWeaponIcon.sprite = player.WeaponSystem.BaseWeaponInstance.WeaponData.WeaponIcon;
+                weaponIcon.sprite = player.WeaponSystem.BaseWeaponInstance.CurrentWeaponData.WeaponIcon;
+               secondaryWeaponIcon.sprite = player.WeaponSystem.BaseWeaponInstance.CurrentWeaponData.WeaponIcon;
             }
             Tween.Alpha(secondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
         }
@@ -491,7 +491,7 @@ public class UIManager : MonoBehaviour
         
     private void SpecialWeaponSystemDisabled(WeaponInstance weapon)
     {
-        if (player.WeaponSystem.BaseWeaponInstance != null) weaponIcon.sprite = player.WeaponSystem.BaseWeaponInstance.WeaponData.WeaponIcon;
+        if (player.WeaponSystem.BaseWeaponInstance != null) weaponIcon.sprite = player.WeaponSystem.BaseWeaponInstance.CurrentWeaponData.WeaponIcon;
         Tween.Alpha(secondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
 
     }
@@ -502,12 +502,12 @@ public class UIManager : MonoBehaviour
         
         if (player.WeaponSystem.CurrentSpecialWeaponInstance != null)
         {
-            secondaryWeaponIcon.sprite = weapon.WeaponData.WeaponIcon;
+            secondaryWeaponIcon.sprite = weapon.CurrentWeaponData.WeaponIcon;
             Tween.Alpha(secondaryWeaponIcon, endValue: 1f, duration: weaponAnimationDuration);
         }
         else
         {
-            weaponIcon.sprite = weapon.WeaponData.WeaponIcon;
+            weaponIcon.sprite = weapon.CurrentWeaponData.WeaponIcon;
             Tween.Alpha(secondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
         }
     }
@@ -516,13 +516,13 @@ public class UIManager : MonoBehaviour
     {
         if (specialWeaponInstance == null) return;
         
-        float fillAmount = 1f - (cooldown / specialWeaponInstance.WeaponData.FireRate);
+        float fillAmount = 1f - (cooldown / specialWeaponInstance.CurrentWeaponData.FireRate);
         weaponIcon.color = Color.Lerp(cooldownIconColor, _weaponStartColor, fillAmount);
     }
     
     private void BaseWeaponSystemCooldownUpdated(WeaponInstance baseWeaponInstance, float cooldown)
     {
-        float fillAmount = 1f - (cooldown / baseWeaponInstance.WeaponData.FireRate);
+        float fillAmount = 1f - (cooldown / baseWeaponInstance.CurrentWeaponData.FireRate);
         
         if (player.WeaponSystem.CurrentSpecialWeaponInstance != null)
         {

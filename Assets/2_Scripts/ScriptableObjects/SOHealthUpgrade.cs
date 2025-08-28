@@ -21,4 +21,12 @@ public class SOHealthUpgrade : SOUpgradeBase
     {
         player?.AddHealthUpgrade(this,healthUpgradeAmount);
     }
+    
+    public override bool CanBeOfferedToPlayer(RailPlayer player)
+    {
+        if (!base.CanBeOfferedToPlayer(player)) return false;
+        if (player.Health.CurrentHealth >= player.GameSettings.MaxHealth) return false;
+    
+        return true;
+    }
 }

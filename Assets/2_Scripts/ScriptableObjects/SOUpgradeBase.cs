@@ -13,6 +13,7 @@ public enum UpgradeRarity
 
 public abstract class SOUpgradeBase : ScriptableObject
 {
+    [SerializeField, ReadOnly] protected int itemID;
     
     [Header("Upgrade Information")]
     [SerializeField] protected string itemName = "A name";
@@ -20,18 +21,27 @@ public abstract class SOUpgradeBase : ScriptableObject
     [SerializeField] protected Image itemIcon;
     [SerializeField] protected GameObject itemGfx;
     [SerializeField] protected UpgradeRarity itemRarity = UpgradeRarity.Common;
+    [SerializeField] protected bool isStackable;
+    [ShowIf("isStackable"),SerializeField, Min(1)] protected int maxStacks = 1;[EndIf]
     [SerializeField] protected SOUpgradeBase[] itemNeededToUnlock = Array.Empty<SOUpgradeBase>();
-    [SerializeField, ReadOnly] protected int itemID;
+
     
     public string ItemName => itemName;
     public string ItemDescription => itemDescription;
     public Image ItemIcon => itemIcon;
     public GameObject ItemGfx => itemGfx;
     public UpgradeRarity ItemRarity => itemRarity;
+    public bool IsStackable => isStackable;
+    public int MaxStacks => maxStacks;
     public SOUpgradeBase[] ItemNeededToUnlock => itemNeededToUnlock;
     public int ItemID => itemID;
-    
-    
+
+
+    private void OnValidate()
+    {
+        if (!isStackable) maxStacks = 1;
+    }
+
     private void OnEnable()
     {
         EnsureUniqueID();
@@ -45,7 +55,29 @@ public abstract class SOUpgradeBase : ScriptableObject
             itemID = Guid.NewGuid().GetHashCode();
         }
     }
+    
+    public virtual bool CanBeOfferedToPlayer(RailPlayer player)
+    {
+        
+        if (!IsStackable && player.HasUpgrade(this)) return false;
+    
+        if (IsStackable && player.GetUpgradeCount(this) >= MaxStacks) return false;
+        
+        if (ItemNeededToUnlock is { Length: > 0 })
+        {
+            foreach (var requiredItem in ItemNeededToUnlock)
+            {
+                if (requiredItem && !player.HasUpgrade(requiredItem))
+                {
+                    return false;
+                }
+            }
+        }
+    
+        return true;
+    }
 
     public abstract void ApplyUpgrade(RailPlayer player);
+    
 
 }

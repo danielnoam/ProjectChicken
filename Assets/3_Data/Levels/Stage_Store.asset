@@ -14,15 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageTitle: 
   stageWorldSpeed: 0
-  stageVFXSequence: {fileID: 0}
+  isCheckpoint: 0
   showHUD: 1
   allowPlayerMovement: 0
   allowPlayerShootingAndAiming: 0
   stageType: 1
   stageDuration: 5
+  showOutroMenu: 0
+  nextLevel:
+    sceneAsset: {fileID: 0}
+    sceneName: 
+    scenePath: 
   upgradesPool:
   - {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
-  - {fileID: 11400000, guid: ac36cf9333c9a2d4aa93ff5a55f35954, type: 2}
   - {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
   - {fileID: 11400000, guid: 12cc92c87d933784fa7101edef57d18c, type: 2}
   - {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
@@ -38,6 +42,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2c87496b851da1c4588f2b1c6b034814, type: 2}
   - {fileID: 11400000, guid: e1d77b5c74f521645983a6bca8641d0b, type: 2}
   delayBeforeNextStage: 1
+  waveScoreWorth: 1000
   enemyWave:
     serializedKvps: []
     dividerPos: 0.33

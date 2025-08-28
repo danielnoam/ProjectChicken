@@ -29,7 +29,7 @@ public class WeaponInstance
     public WeaponUpgradeAssets[] upgradeAssets;
 
     
-    public SOWeaponData WeaponData { get; private set; }
+    public SOWeaponData CurrentWeaponData { get; private set; }
     public WeaponGfx CurrentWeaponGfx { get; private set; }
     public Transform[] CurrentWeaponBarrels { get; private set; }
     public ControllerVibrationSource  ControllerVibrationSource { get; private set; }
@@ -73,7 +73,7 @@ public class WeaponInstance
     
     public void ApplyWeaponUpgrade(RailPlayer player)
     {
-        WeaponData = weaponData;
+        CurrentWeaponData = weaponData;
         CurrentWeaponGfx = weaponGfx;
         CurrentWeaponBarrels = weaponBarrels;
     
@@ -85,12 +85,12 @@ public class WeaponInstance
         if (activeWeaponUpgrade)
         {
             // Create a new runtime instance of weapon data
-            WeaponData = ScriptableObject.CreateInstance<SOWeaponData>();
-            WeaponData.name = weaponData.name + "_Upgraded";
+            CurrentWeaponData = ScriptableObject.CreateInstance<SOWeaponData>();
+            CurrentWeaponData.name = weaponData.name + "_Upgraded";
 
             // Copy all base values from original
-            WeaponData.CopyBaseWeaponData(weaponData);
-            WeaponData.ApplyUpgradeData(activeWeaponUpgrade);
+            CurrentWeaponData.CopyBaseWeaponData(weaponData);
+            CurrentWeaponData.ApplyUpgradeData(activeWeaponUpgrade);
         
             // Find the upgrade assets for this specific upgrade
             WeaponUpgradeAssets upgradeAsset = GetUpgradeAssets(activeWeaponUpgrade);
@@ -163,20 +163,20 @@ public class WeaponInstance
 
         var direction = (Random.insideUnitSphere).normalized;
         direction.z = 0;
-        direction *= WeaponData.SpreadStrength;
+        direction *= CurrentWeaponData.SpreadStrength;
         
         CurrentWeaponGfx?.AnimateUsage();
         weaponReticle?.PunchReticleSize(0.25f, 0.5f, 0.03f);
         weaponReticle?.PunchReticlePosition(direction, 0.5f, 0.03f);
 
-        if (WeaponData && CurrentWeaponBarrels != null)
+        if (CurrentWeaponData && CurrentWeaponBarrels != null)
         {
-            switch (WeaponData.WeaponType)
+            switch (CurrentWeaponData.WeaponType)
             {
                 case WeaponType.Projectile:
                     
                     
-                    Vector3[] barrelOffsets = WeaponData.BarrelAimOffsets;
+                    Vector3[] barrelOffsets = CurrentWeaponData.BarrelAimOffsets;
                     for (int i = 0; i < CurrentWeaponBarrels.Length; i++)
                     {
                         var barrelPosition = CurrentWeaponBarrels[i];
@@ -227,18 +227,18 @@ public class WeaponInstance
 
     private void FireProjectileWeapon(RailPlayer owner, Vector3 position, Vector3 aimOffset)
     {
-        if (!WeaponData.PlayerProjectilePrefab) return;
+        if (!CurrentWeaponData.PlayerProjectilePrefab) return;
     
-        if (WeaponData.MaxTargets == 1)
+        if (CurrentWeaponData.MaxTargets == 1)
         {
-            InstantiateProjectile(owner, position, owner.Aiming.GetTarget(WeaponData.TargetCheckRadius), aimOffset);
+            InstantiateProjectile(owner, position, owner.Aiming.GetTarget(CurrentWeaponData.TargetCheckRadius), aimOffset);
         } 
         else
         {
-            ChickenController[] enemies = WeaponData.MaxTargets switch
+            ChickenController[] enemies = CurrentWeaponData.MaxTargets switch
             {
-                0 => owner.Aiming.GetTargets(999, WeaponData.TargetCheckRadius),
-                > 1 => owner.Aiming.GetTargets(WeaponData.MaxTargets, WeaponData.TargetCheckRadius),
+                0 => owner.Aiming.GetTargets(999, CurrentWeaponData.TargetCheckRadius),
+                > 1 => owner.Aiming.GetTargets(CurrentWeaponData.MaxTargets, CurrentWeaponData.TargetCheckRadius),
                 _ => System.Array.Empty<ChickenController>()
             };
 
@@ -261,7 +261,7 @@ public class WeaponInstance
     
     private void InstantiateProjectile(RailPlayer owner, Vector3 spawnPosition, ChickenController target = null, Vector3 aimOffset = default)
     {
-        GameObject projectileObj = ObjectPooler.GetObjectFromPool(WeaponData.PlayerProjectilePrefab.gameObject, spawnPosition, Quaternion.identity);
+        GameObject projectileObj = ObjectPooler.GetObjectFromPool(CurrentWeaponData.PlayerProjectilePrefab.gameObject, spawnPosition, Quaternion.identity);
         if (projectileObj && projectileObj.TryGetComponent(out PlayerProjectile projectile))
         {
             projectile.SetUpProjectile(owner, this, target, aimOffset);
@@ -278,22 +278,22 @@ public class WeaponInstance
         PlayFireEffect(startPosition, Quaternion.identity);
         
         // weaponData.HitscanBehaviors now contains the upgraded behaviors
-        foreach (var behavior in WeaponData.HitscanBehaviors)
+        foreach (var behavior in CurrentWeaponData.HitscanBehaviors)
         {
             behavior.OnStart(this, owner);
         }
 
-        if (WeaponData.MaxTargets == 1)
+        if (CurrentWeaponData.MaxTargets == 1)
         {
-            ChickenController enemy = owner.Aiming.GetTarget(WeaponData.TargetCheckRadius);
+            ChickenController enemy = owner.Aiming.GetTarget(CurrentWeaponData.TargetCheckRadius);
             HitscanHit(owner, enemy);
         } 
         else
         {
-            ChickenController[] enemies = WeaponData.MaxTargets switch
+            ChickenController[] enemies = CurrentWeaponData.MaxTargets switch
             {
-                0 => owner.Aiming.GetTargets(999, WeaponData.TargetCheckRadius),
-                > 1 => owner.Aiming.GetTargets(WeaponData.MaxTargets, WeaponData.TargetCheckRadius),
+                0 => owner.Aiming.GetTargets(999, CurrentWeaponData.TargetCheckRadius),
+                > 1 => owner.Aiming.GetTargets(CurrentWeaponData.MaxTargets, CurrentWeaponData.TargetCheckRadius),
                 _ => System.Array.Empty<ChickenController>()
             };
             foreach (ChickenController enemy in enemies)
@@ -302,7 +302,7 @@ public class WeaponInstance
             }
         }
         
-        foreach (var behavior in WeaponData.HitscanBehaviors)
+        foreach (var behavior in CurrentWeaponData.HitscanBehaviors)
         {
             behavior.OnEnd(this, owner);
         }
@@ -312,7 +312,7 @@ public class WeaponInstance
     {
         if (!enemy) return;
 
-        foreach (var behavior in WeaponData.HitscanBehaviors)
+        foreach (var behavior in CurrentWeaponData.HitscanBehaviors)
         {
             behavior.OnHit(this, owner, enemy);
         }
@@ -327,34 +327,34 @@ public class WeaponInstance
     
     public void PlayImpactEffect(Vector3 position, Quaternion rotation)
     {
-        if (WeaponData.ImpactEffectPrefab)
+        if (CurrentWeaponData.ImpactEffectPrefab)
         {
-            Object.Instantiate(WeaponData.ImpactEffectPrefab.gameObject, position, rotation);
+            Object.Instantiate(CurrentWeaponData.ImpactEffectPrefab.gameObject, position, rotation);
         }
         
-        if (WeaponData.ImpactSound)
+        if (CurrentWeaponData.ImpactSound)
         {
-            WeaponData.ImpactSound.PlayAtPoint(position);
+            CurrentWeaponData.ImpactSound.PlayAtPoint(position);
         }
         
     }
     
     public void PlayFireEffect(Vector3 position, Quaternion rotation, AudioSource audioSource = null)
     {
-        if (WeaponData.FireEffectPrefab)
+        if (CurrentWeaponData.FireEffectPrefab)
         {
-            Object.Instantiate(WeaponData.FireEffectPrefab.gameObject, position, rotation);
+            Object.Instantiate(CurrentWeaponData.FireEffectPrefab.gameObject, position, rotation);
         }
         
-        if (WeaponData.FireSound)
+        if (CurrentWeaponData.FireSound)
         {
             if (audioSource)
             {
-                WeaponData.FireSound.Play(audioSource);
+                CurrentWeaponData.FireSound.Play(audioSource);
             }
             else
             {
-                WeaponData.FireSound.PlayAtPoint(position);
+                CurrentWeaponData.FireSound.PlayAtPoint(position);
             }
         }
     }
