@@ -155,7 +155,7 @@ public class UpgradeStore : MonoBehaviour
         _currentRerollCost += rerollCostIncrease;
         _currentRerollCost = Mathf.Clamp(_currentRerollCost, baseRerollCost, maxRerollCost);
         rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Reroll ({_currentRerollCost})";
-        rerollButton.interactable = player.ResourceCollector.CurrentCurrency < _currentRerollCost;
+        rerollButton.interactable = player.ResourceCollector.CurrentCurrency >= _currentRerollCost;
         
         if (_storeSequence.isAlive) _storeSequence.Stop();
         _storeSequence = Sequence.Create();
@@ -175,7 +175,7 @@ public class UpgradeStore : MonoBehaviour
         _isOpen = true;
 
         storeGfx.gameObject.SetActive(true);
-        rerollButton.interactable = player.ResourceCollector.CurrentCurrency < _currentRerollCost;
+        rerollButton.interactable = player.ResourceCollector.CurrentCurrency >= _currentRerollCost;
         captain.OnStoreOpen();
         
         if (_storeSequence.isAlive) _storeSequence.Stop();

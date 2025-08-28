@@ -26,8 +26,9 @@ public class ReticleVisualsController : MonoBehaviour
     private float _baseSize;
     private float _currentHeat;
     private Tween _sizeTween;
-    private Tween _punchTween;
-    private Tween _aimLockTween;
+    private Tween _punchSizeTween;
+    private Tween _aimLockSizeTween;
+    private Tween _punchPositionTween;
     private readonly List<Material> _reticleMaterials = new List<Material>();
     private static readonly int EmissionStrength = Shader.PropertyToID("_EmissionStrength");
     private static readonly int EmissionEnabled = Shader.PropertyToID("_EmissionEnabled");
@@ -197,21 +198,41 @@ public class ReticleVisualsController : MonoBehaviour
         
         if (Mathf.Approximately(aimLockTransform.localScale.x, size)) return;
         
-        if (_aimLockTween.isAlive) _aimLockTween.Stop();
-        _aimLockTween = Tween.Scale(aimLockTransform, endValue: Vector3.one * size, duration, Ease.InOutBack, startDelay: delay);
+        if (_aimLockSizeTween.isAlive) _aimLockSizeTween.Stop();
+        _aimLockSizeTween = Tween.Scale(aimLockTransform, endValue: Vector3.one * size, duration, Ease.InOutBack, startDelay: delay);
     }
     
     public void PunchReticleSize(float strength, float duration, float delay = 0f)
     {
         if (!_isVisible) return;
         
-        if (_punchTween.isAlive) _punchTween.Stop();
+        if (_punchSizeTween.isAlive) _punchSizeTween.Stop();
         punchTransform.localScale = Vector3.one;
-        _punchTween = Tween.PunchScale(punchTransform,Vector3.one * strength, startDelay: delay, duration: duration);
+        _punchSizeTween = Tween.PunchScale(punchTransform,Vector3.one * strength, startDelay: delay, duration: duration);
     }
 
     #endregion Size -----------------------------------------------------------------------------------
 
+
+    #region Position  -----------------------------------------------------------------------------------------------
+
+    
+    public void PunchReticlePosition(Vector3 strength, float duration, float delay = 0f)
+    {
+        if (!_isVisible || strength == Vector3.zero) return;
+        
+
+        if (_punchPositionTween.isAlive) _punchPositionTween.Stop();
+        _punchPositionTween = Tween.PunchLocalPosition(punchTransform, strength, frequency: 1, startDelay: delay, duration: duration);
+
+        _punchPositionTween.OnComplete((() =>
+        {
+            _punchPositionTween = Tween.LocalPosition(punchTransform, Vector3.zero, startDelay: delay, duration: 0.5f, ease: Ease.InOutSine);
+        }));
+    }
+
+    #endregion Position  -----------------------------------------------------------------------------------------------
+    
     
 
 #if UNITY_EDITOR
@@ -225,7 +246,6 @@ public class ReticleVisualsController : MonoBehaviour
     }
     
     #endregion Editor -----------------------------------------------------------------------------------------------
-    
 #endif
 
 }

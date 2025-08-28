@@ -126,13 +126,18 @@ public class WeaponInstance
         }
     }
 
+    public bool TryUseWeapon(RailPlayer owner)
+    {
+        OnWeaponUsed(owner);
+        return true;
+    }
     
 
     #region Events ---------------------------------------------------------------------------------------------
 
     public void OnWeaponSelected(bool allowShooting)
     {
-        CurrentWeaponGfx.Show();
+        CurrentWeaponGfx?.Show();
         
         if (allowShooting)
         {
@@ -151,10 +156,18 @@ public class WeaponInstance
     }
 
     
-    public void OnWeaponUsed(RailPlayer owner)
+
+    
+    private void OnWeaponUsed(RailPlayer owner)
     {
-        weaponReticle?.PunchReticleSize(0.25f, 0.5f, 0.03f);
+
+        var direction = (Random.insideUnitSphere).normalized;
+        direction.z = 0;
+        direction *= WeaponData.SpreadStrength;
+        
         CurrentWeaponGfx?.AnimateUsage();
+        weaponReticle?.PunchReticleSize(0.25f, 0.5f, 0.03f);
+        weaponReticle?.PunchReticlePosition(direction, 0.5f, 0.03f);
 
         if (WeaponData && CurrentWeaponBarrels != null)
         {
@@ -170,7 +183,7 @@ public class WeaponInstance
                         if (barrelPosition)
                         {
                             Vector3 aimOffset = i < barrelOffsets.Length ? barrelOffsets[i] : Vector3.zero;
-                            FireProjectileWeapon(owner, barrelPosition.position, aimOffset);
+                            FireProjectileWeapon(owner, barrelPosition.position, aimOffset + direction);
                         }
                     }
                     break;

@@ -7657,6 +7657,8 @@ MonoBehaviour:
   animationDuration: 0.75
   leverPressedRotation: {x: -108.215, y: 0, z: 0}
   animationEase: 30
+  leverPullingSfx: {fileID: 0}
+  leverPressedSfx: {fileID: 0}
   cameraShakeSettings:
     impulseShape: 4
     intensity: 0.2
@@ -7713,6 +7715,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+  vfxSequenceOnLaunch: {fileID: 11400000, guid: 5a9d38360fa57774fb030d1bdfee0b4a, type: 2}
   emissionColorOn: {r: 16, g: 0, b: 0, a: 1}
   emissionColorOff: {r: 0, g: 0, b: 0, a: 1}
   pulseSpeed: 2
@@ -7720,7 +7723,6 @@ MonoBehaviour:
   levelSelection: {fileID: 3606786417390792711}
   leverPivotTransform: {fileID: 2622464642161738408}
   selectedLevelLight: {fileID: 1843843695627849194}
-  leverPressedSfx: {fileID: 0}
 --- !u!114 &8061098590432954240 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3873938212205651291, guid: 96a61e8e0c28fc949afa0af21e7828a8, type: 3}

@@ -45,7 +45,7 @@ public class TargetReticle : MonoBehaviour
     }
     
 
-    private void OnWeaponUsed()
+    private void OnWeaponUsed(WeaponInstance weaponInstance)
     {
         reticle?.PunchReticleSize(normalPunchStrength, punchDuration);
     }

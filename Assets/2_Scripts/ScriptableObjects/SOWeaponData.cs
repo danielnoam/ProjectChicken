@@ -21,6 +21,7 @@ public class SOWeaponData : ScriptableObject
     [SerializeField, Min(0)] private float fireRate = 1f;
     [SerializeField, Min(0), Tooltip("0 = Infinite targets")] private int maxTargets = 1;
     [SerializeField, Min(0.1f)] private float targetCheckRadius = 3f;
+    [SerializeField, Min(0)] private float spreadStrength = 1f;
     [SerializeField] private List<SOWeaponUpgrade> weaponUpgrades = new List<SOWeaponUpgrade>();
     
     [ShowIf("weaponType", WeaponType.Projectile)]
@@ -35,9 +36,6 @@ public class SOWeaponData : ScriptableObject
     [Header("Hitscan Settings")]
     [SerializeReference] private List<HitscanBehaviorBase> hitscanBehaviors = new List<HitscanBehaviorBase>();
     [EndIf]
-    
-    [Header("Spread And Recoil")]
-    [SerializeField] private float recoilStrength = 1f;
     
     [Header("Fire Effect")]
     [SerializeField] private SOAudioEvent fireSound;
@@ -71,7 +69,7 @@ public class SOWeaponData : ScriptableObject
     public SOAudioEvent ImpactSound => impactSound;
     public ParticleSystem ImpactEffectPrefab => impactEffectPrefab;
     public Vector3[] BarrelAimOffsets => barrelAimOffsets;
-    public float RecoilStrength => recoilStrength;
+    public float SpreadStrength => spreadStrength;
 
     
     

@@ -92,7 +92,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public WeaponInstance CurrentSpecialWeaponInstance { get; private set; }
 
 
-    public event Action OnWeaponUsed;
+    public event Action<WeaponInstance> OnWeaponUsed;
     public event Action<WeaponInstance,WeaponInstance> OnSpecialWeaponSwitchedEvent;
     public event Action<WeaponInstance> OnSpecialWeaponDisabledEvent;
     public event Action<WeaponInstance> OnBaseWeaponSwitchedEvent;
@@ -430,8 +430,11 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         if (weaponInstance == null) return;
         
-        weaponInstance.OnWeaponUsed(player);
-        OnWeaponUsed?.Invoke();
+        if (weaponInstance.TryUseWeapon(player))
+        {
+            OnWeaponUsed?.Invoke(weaponInstance);
+        }
+
     }
 
     #endregion Weapon Usage ----------------------------------------------------------------------------------------------------

@@ -198,7 +198,8 @@ namespace DNExtensions.VFXManager
         public float PlayVFX(SOVFEffectsSequence vfxSequence)
         {
             if (!vfxSequence) return 0;
-            ResetActiveEffects();
+            
+            if (!vfxSequence.EffectIsAdditive) ResetActiveEffects();
 
             _currentSequence = vfxSequence;
             var vfxDuration = _currentSequence.PlayEffects();

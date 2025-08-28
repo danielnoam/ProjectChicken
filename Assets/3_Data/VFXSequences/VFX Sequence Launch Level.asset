@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de20f28ea40c22c43978f33a09f060b4, type: 3}
+  m_Name: VFX Sequence Launch Level
+  m_EditorClassIdentifier: 
+  sequenceDuration: 4
+  resetEffectsOnComplete: 1
+  effectIsAdditive: 1
+  effects:
+  - rid: 6887788976916136024
+  - rid: 6887788976916136025
+  - rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6887788976916136024
+      type: {class: SetLensDistortion, ns: DNExtensions.VFXManager, asm: Assembly-CSharp-firstpass}
+      data:
+        duration:
+          minValue: 0
+          maxValue: 0.85037404
+        useDefaultIntensity: 0
+        startIntensity: 0
+        endIntensity: 0.7
+        intensityEase: 24
+        animateXMultiplier: 1
+        useDefaultXMultiplier: 0
+        startXMultiplier: 0
+        endXMultiplier: 1
+        xMultiplierEase: 1
+        animateYMultiplier: 1
+        useDefaultYMultiplier: 0
+        startYMultiplier: 0
+        endYMultiplier: 1
+        yMultiplierEase: 1
+        animateCenter: 0
+        useDefaultCenter: 0
+        startCenter: {x: 0.5, y: 0.5}
+        endCenter: {x: 0.5, y: 0.5}
+        centerEase: 1
+        animateScale: 0
+        useDefaultScale: 0
+        startScale: 1
+        endScale: 1
+        scaleEase: 1
+    - rid: 6887788976916136025
+      type: {class: SetChromaticAberration, ns: DNExtensions.VFXManager, asm: Assembly-CSharp-firstpass}
+      data:
+        duration:
+          minValue: 0.40157142
+          maxValue: 0.86905277
+        useDefaultIntensity: 0
+        startIntensity: 0
+        endIntensity: 0.5
+        ease: 1

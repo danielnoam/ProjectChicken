@@ -146,7 +146,7 @@ public class HeatBar : MonoBehaviour
     private void OnWeaponHeatMiniGameWindowCreated(float regenTime, float windowDuration, float windowStartTime)
     {
         float normalizedWindowSize = Mathf.Clamp01(windowDuration / regenTime);
-        float windowHeight = _overheatBarHeight * normalizedWindowSize;
+        float windowHeight = _overheatBarHeight * (normalizedWindowSize * 0.9f); // 0.9 to leave some padding
 
         // Set the size of the mini-game window
         miniGameWindow.rectTransform.sizeDelta = new Vector2(

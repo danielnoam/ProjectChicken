@@ -14,10 +14,12 @@ namespace DNExtensions.VFXManager
         [Header("Sequence Settings")]
         [SerializeField, Min(0f)] private float sequenceDuration = 1f;
         [SerializeField] private bool resetEffectsOnComplete = true;
+        [SerializeField] private bool effectIsAdditive;
         [SerializeReference] private VFEffectsEffectBase[] effects;
 
 
         private Sequence _sequence;
+        public bool EffectIsAdditive => effectIsAdditive;
 
 
         [Button]

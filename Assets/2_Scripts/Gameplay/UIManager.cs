@@ -27,7 +27,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float hudFadeDuration = 3f;
     [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
     
-    [Header("Dynamic Hud")]
+    [Header("Dynamic HUD")]
     [SerializeField, Tooltip("Hud position is affected by player movement")] private bool dynamicHud = true;
     [SerializeField, Tooltip("How much the hud moves by the base player movement")] private float hudPlayerMoveAmount = 6f;
     [SerializeField, Tooltip("How fast the hud will return to zero")] private float hudReturnSpeed = 2f;
@@ -84,9 +84,9 @@ public class UIManager : MonoBehaviour
     [SerializeField, Min(0), Tooltip("How many 0 is the score made out of")] private int scoreDigits = 7;
     [SerializeField] private TextMeshProUGUI scoreText;
     
-    [Header("Wave Title")]
-    [SerializeField] private float waveTitleAnimationDuration = 1.5f;
-    [SerializeField] private TextMeshProUGUI waveTitleText;
+    [Header("Stage Title")]
+    [SerializeField] private float stageTitleAnimationDuration = 1.5f;
+    [SerializeField] private TextMeshProUGUI stageTitleText;
     
     [Header("Pause Icon")]
     [SerializeField] private float pauseIconAnimationDuration = 0.2f;
@@ -105,7 +105,7 @@ public class UIManager : MonoBehaviour
     private Sequence _playerCurrencySequence;
     private Sequence _playerShieldSequence;
     private Sequence _playerShieldPunchSequence;
-    private Sequence _waveTitleSequence;
+    private Sequence _stageTitleSequence;
     private Sequence _pauseSequence;
     private int _previousScore;
     private int _score;
@@ -230,7 +230,7 @@ public class UIManager : MonoBehaviour
         _dodgeStartColor = dodgeIcon.color;
         pauseGroup.alpha = 0f;
         pauseIconFill.fillAmount = 0f;
-        waveTitleText.alpha = 0f;
+        stageTitleText.alpha = 0f;
         _previousScore = 0;
         _score = 0;
         _previousPlayerCurrency = 0;
@@ -267,14 +267,14 @@ public class UIManager : MonoBehaviour
     
     private void UpdateStageTitle(string title)
     {
-        if (_waveTitleSequence.isAlive) _waveTitleSequence.Stop();
+        if (_stageTitleSequence.isAlive) _stageTitleSequence.Stop();
             
-        waveTitleText.alpha = 0f;
-        waveTitleText.text = title;
+        stageTitleText.alpha = 0f;
+        stageTitleText.text = title;
         
-        _waveTitleSequence = Sequence.Create()
-            .Group(Tween.Alpha(waveTitleText, startDelay: 0.5f, startValue: 0, endValue: 1, duration: waveTitleAnimationDuration/0.6f))
-            .Chain(Tween.Alpha(waveTitleText, 0, waveTitleAnimationDuration/0.4f));
+        _stageTitleSequence = Sequence.Create()
+            .Group(Tween.Alpha(stageTitleText, startDelay: 0.5f, startValue: 0, endValue: 1, duration: stageTitleAnimationDuration/0.6f))
+            .Chain(Tween.Alpha(stageTitleText, 0, stageTitleAnimationDuration/0.4f));
     }
 
 
@@ -379,9 +379,9 @@ public class UIManager : MonoBehaviour
     }
     
     
-    private void ShakeLight() => AddHudShake(1.5f, 0.2f);
-    private void ShakeMedium() => AddHudShake(7f, 0.4f);
-    private void ShakeHeavy() => AddHudShake(maxShakeIntensity, 0.8f);
+    private void ShakeHUDLight() => AddHudShake(1.5f, 0.2f);
+    private void ShakeHUDMedium() => AddHudShake(7f, 0.4f);
+    private void ShakeHUDHeavy() => AddHudShake(maxShakeIntensity, 0.8f);
 
     #endregion HUD ------------------------------------------------------------------------------------------------
     
@@ -401,24 +401,24 @@ public class UIManager : MonoBehaviour
     
     private void OnPlayerDeath()
     {
-        ShakeHeavy();
+        ShakeHUDHeavy();
         FadeHUD(false);
     }
     
     private void OnPlayerDamaged()
     {
-        ShakeMedium();
+        ShakeHUDMedium();
     }
     
-    private void OnPlayerWeaponUsed()
+    private void OnPlayerWeaponUsed(WeaponInstance weaponInstance)
     {
-        ShakeLight();
+        ShakeHUDLight();
     }
     
     private void OnPlayerDodge()
     {
         dodgeIcon.color = cooldownIconColor;
-        ShakeMedium();
+        ShakeHUDMedium();
     }
 
     
