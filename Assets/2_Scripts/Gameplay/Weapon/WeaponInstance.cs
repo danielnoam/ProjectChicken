@@ -125,12 +125,6 @@ public class WeaponInstance
             }
         }
     }
-
-    public bool TryUseWeapon(RailPlayer owner)
-    {
-        OnWeaponUsed(owner);
-        return true;
-    }
     
 
     #region Events ---------------------------------------------------------------------------------------------
@@ -154,11 +148,9 @@ public class WeaponInstance
         CurrentWeaponGfx?.Hide();
         weaponReticle?.Hide();
     }
-
     
-
     
-    private void OnWeaponUsed(RailPlayer owner)
+    public void OnWeaponUsed(RailPlayer owner)
     {
 
         var direction = (Random.insideUnitSphere).normalized;

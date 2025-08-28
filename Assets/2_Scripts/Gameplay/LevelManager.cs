@@ -219,7 +219,7 @@ public class LevelManager : MonoBehaviour
         var runProgress = SaveManager.GetRunProgressData();
         OnRunProgressLoaded?.Invoke(runProgress);
         
-        _startSavePoint = new SavePointData(currentStageIndex, 0, gameSettings.BaseHealth, 0,new Dictionary<SOUpgradeBase, int>(), player.WeaponSystem.CurrentSpecialWeaponInstance?.weaponData);
+        _startSavePoint = new SavePointData(currentStageIndex, 0, gameSettings.BaseHealth, 0,new Dictionary<SOUpgradeBase, int>(), player.WeaponSystem.ActiveWeaponInstance?.weaponData);
         _currentSavePoint = null;
 
         
@@ -339,7 +339,7 @@ public class LevelManager : MonoBehaviour
     {
         if (!level || !currentStage || currentStage.NextLevel == null) return;
         
-        var runProgress = new RunProgressData(player.Health.CurrentHealth, player.ResourceCollector.CurrentCurrency, player.Upgrades, player.WeaponSystem.CurrentSpecialWeaponInstance.weaponData);
+        var runProgress = new RunProgressData(player.Health.CurrentHealth, player.ResourceCollector.CurrentCurrency, player.Upgrades, player.WeaponSystem.ActiveWeaponInstance?.weaponData);
         SaveManager.UpdateRunProgress(runProgress);
         TransitionManager.TransitionToScene(currentStage.NextLevel, level.OutroVFXSequence);
     }
@@ -380,7 +380,7 @@ public class LevelManager : MonoBehaviour
             player.Health.CurrentHealth,
             player.ResourceCollector.CurrentCurrency, 
             player.Upgrades,
-            player.WeaponSystem.CurrentSpecialWeaponInstance.weaponData
+            player.WeaponSystem.ActiveWeaponInstance?.weaponData
             );
             
         _currentSavePoint = newSavePoint;

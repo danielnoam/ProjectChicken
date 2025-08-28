@@ -114,7 +114,7 @@ public class RailPlayer : MonoBehaviour
         Upgrades.Clear();
         health.SetUp(runProgress.PlayerHealth);
         resourceCollector.SetUp(runProgress.PlayerCurrency);
-        weaponSystem.SetUp(runProgress.PlayerSpecialWeapon);
+        weaponSystem.SetUp(runProgress.PlayerActiveWeapon);
         movement.SetUp();
         aiming.SetUp();
         
@@ -141,7 +141,7 @@ public class RailPlayer : MonoBehaviour
         Upgrades.Clear();
         health.SetUp(savePoint.PlayerHealth);
         resourceCollector.SetUp(savePoint.PlayerCurrency);
-        weaponSystem.SetUp(savePoint.PlayerSpecialWeapon);
+        weaponSystem.SetUp(savePoint.PlayerActiveWeapon);
         movement.SetUp();
         aiming.SetUp();
         

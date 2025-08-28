@@ -47,7 +47,7 @@ public class RailPlayerResourceCollector : MonoBehaviour
         _collectionActions.Add(ResourceType.Currency, (resource) => UpdateCurrency(resource.CurrencyWorth));
         _collectionActions.Add(ResourceType.HealthPack, (resource) => player.Health.HealHealth(resource.HealthWorth));
         _collectionActions.Add(ResourceType.ShieldPack, (resource) => player.Health.HealShield(resource.ShieldWorth));
-        _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => player.WeaponSystem.SetSpecialWeapon(resource.WeaponData));
+        _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => player.WeaponSystem.SetActiveWeapon(resource.WeaponData));
         
         _currentMagnetRadius = 0;
         CurrentCurrency = currency;

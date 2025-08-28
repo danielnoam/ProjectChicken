@@ -14,11 +14,6 @@ using VInspector;
 [RequireComponent(typeof(ControllerVibrationSource))]
 public class RailPlayerWeaponSystem : MonoBehaviour
 {
-    [Header("Weapons Settings")]
-    [Tooltip("If true, the player can use the start weapon with a special weapon, using a different button.")]
-    [SerializeField] private bool allowStartWeaponWithSpecialWeapon;
-    [Tooltip("Special weapons are permanent, and don't change after limit reached (heat, ammo, time)")]
-    [SerializeField] private bool specialWeaponsArePermanent = true;
     [SerializeField] private List<WeaponInstance> weapons = new List<WeaponInstance>();
     
     [Foldout("Heat System")]
@@ -61,9 +56,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
 
     private bool _attackInputHeld;
-    private bool _attack2InputHeld;
-    private WeaponInstance _activeWeaponInstance;
-    private WeaponInstance _previousSpecialWeaponInstance;
+    private WeaponInstance _previousActiveWeaponInstance;
     private Coroutine _overHeatCooldownRoutine;
     private bool _overHeated; 
     private bool _overHeatedCooldown;
@@ -71,10 +64,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private bool _miniGameAttempted;
     private float _lastFireTimer;
     private float _currentHeat;
-    private float _baseWeaponFireRateCooldown;
-    private float _specialWeaponFireRateCooldown;
-    private float _specialWeaponTime;
-    private float _specialWeaponAmmo;
+    private float _weaponFireRateCooldown;
+    private float _weaponTime;
+    private float _weaponAmmo;
 
 
     public bool IsInOverheat => _overHeated || _overHeatedCooldown;
@@ -82,17 +74,12 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     public float MaxWeaponHeat { get; private set; }
 
-    public WeaponInstance BaseWeaponInstance { get; private set; }
-
-    public WeaponInstance CurrentSpecialWeaponInstance { get; private set; }
+    public WeaponInstance ActiveWeaponInstance { get; private set; }
 
 
     public event Action<WeaponInstance> OnWeaponUsed;
-    public event Action<WeaponInstance,WeaponInstance> OnSpecialWeaponSwitchedEvent;
-    public event Action<WeaponInstance> OnSpecialWeaponDisabledEvent;
-    public event Action<WeaponInstance> OnBaseWeaponSwitchedEvent;
-    public event Action<WeaponInstance,float> OnBaseWeaponCooldownUpdatedEvent;
-    public event Action<WeaponInstance,float> OnSpecialWeaponCooldownUpdatedEvent;
+    public event Action<WeaponInstance,WeaponInstance> OnActiveWeaponSwitchedEvent;
+    public event Action<WeaponInstance,float> OnActiveWeaponCooldownUpdatedEvent;
     public event Action<float> OnWeaponHeatUpdatedEvent;
     public event Action OnWeaponOverheatedEvent;
     public event Action OnWeaponHeatResetEvent;
@@ -133,7 +120,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         OnWeaponHeatUpdatedEvent += OnHeatUpdated;
         playerInput.OnAttackEvent += OnAttack;
-        playerInput.OnAttack2Event += OnAttack2;
         playerMovement.OnDodge += OnDodge;
         playerAiming.OnAimLockStateChange += OnAimLock;
         player.Health.OnDeath += OnDeath;
@@ -149,7 +135,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         OnWeaponHeatUpdatedEvent -= OnHeatUpdated;
         playerInput.OnAttackEvent -= OnAttack;
-        playerInput.OnAttack2Event -= OnAttack2;
         playerMovement.OnDodge -= OnDodge;
         playerAiming.OnAimLockStateChange -= OnAimLock;
         player.Health.OnDeath -= OnDeath;
@@ -182,17 +167,15 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         if (AllowShooting)
         {
-            if (_activeWeaponInstance == null)
+            if (ActiveWeaponInstance == null && weapons.Count > 0)
             {
-                if (CurrentSpecialWeaponInstance != null) _activeWeaponInstance = CurrentSpecialWeaponInstance;
-                else if (BaseWeaponInstance != null) _activeWeaponInstance = BaseWeaponInstance;
+                ActiveWeaponInstance = weapons[0];
             }
-            _activeWeaponInstance?.OnWeaponSelected(AllowShooting);
-
+            ActiveWeaponInstance?.OnWeaponSelected(AllowShooting);
         }
         else
         {
-            _activeWeaponInstance?.OnWeaponDeselected();
+            ActiveWeaponInstance?.OnWeaponDeselected();
         }
     }
     
@@ -218,30 +201,29 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
         if (state)
         {
-            _activeWeaponInstance?.OnAimLocked();
+            ActiveWeaponInstance?.OnAimLocked();
         }
         else
         {
-            _activeWeaponInstance?.OnAimUnlocked();
+            ActiveWeaponInstance?.OnAimUnlocked();
         }
     }
     
     private void OnDeath()
     {
         AllowShooting = false;
-        _activeWeaponInstance?.OnWeaponDeselected();
+        ActiveWeaponInstance?.OnWeaponDeselected();
     }
     
     private void OnHeatUpdated(float heat)
     {
         var normalizedHeat = heat / MaxWeaponHeat;
-        _activeWeaponInstance?.OnHeatChanged(normalizedHeat);
+        ActiveWeaponInstance?.OnHeatChanged(normalizedHeat);
     }
     
     
     public void SetUp(SOWeaponData activeWeapon = null)
     {
-        AllowShooting = true;
         _overHeated = false;
         _overHeatedCooldown = false;
         _inMiniGameWindow = false;
@@ -250,38 +232,24 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         MaxWeaponHeat = player.GameSettings.BaseMaxHeat;
         _currentHeat = 0f;
         _lastFireTimer = 0f;
-        
-        
         foreach (var weapon in weapons)
         {
             weapon.SetUpWeaponInstance(player, controllerVibrationSource, impulseSource);
         }
 
-        SetBaseWeapon(weapons[0]);
 
-
-        // Set active weapon
-        if (activeWeapon != null)
+        if (activeWeapon)
         {
-            SetSpecialWeapon(activeWeapon);
-            _activeWeaponInstance?.OnWeaponSelected(AllowShooting);
+            SetActiveWeapon(activeWeapon);
         }
-        else
+        else if (weapons.Count > 0)
         {
-            if (_activeWeaponInstance == null)
-            {
-                if (CurrentSpecialWeaponInstance != null) _activeWeaponInstance = CurrentSpecialWeaponInstance;
-                else if (BaseWeaponInstance != null) _activeWeaponInstance = BaseWeaponInstance;
-                
-                _activeWeaponInstance?.OnWeaponDeselected();
-            }
+            SetActiveWeapon(weapons[0]);
         }
         
-        
-        OnBaseWeaponSwitchedEvent?.Invoke(BaseWeaponInstance);
-        OnSpecialWeaponSwitchedEvent?.Invoke(_previousSpecialWeaponInstance, CurrentSpecialWeaponInstance);
+        ActiveWeaponInstance?.OnWeaponSelected(AllowShooting);
+        OnActiveWeaponSwitchedEvent?.Invoke(_previousActiveWeaponInstance, ActiveWeaponInstance);
         OnWeaponHeatResetEvent?.Invoke();
-        
     }
 
 
@@ -289,98 +257,22 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     private void FireActiveWeapon()
     {
-        if (!AllowShooting) return;
+        if (!AllowShooting || ActiveWeaponInstance == null || !(_weaponFireRateCooldown <= 0)) return;
         
-        if (CurrentSpecialWeaponInstance != null)
+        switch (ActiveWeaponInstance.CurrentWeaponData.WeaponLimitation)
         {
-            FireSpecialWeapon();
-        }
-        else
-        {
-            FireBaseWeapon();
-        }
-    }
-    
-    private void FireBaseWeapon()
-    {
-        if (BaseWeaponInstance == null || !(_baseWeaponFireRateCooldown <= 0)) return;
-        
-        if (BaseWeaponInstance.CurrentWeaponData.WeaponLimitation == WeaponLimitation.HeatBased)
-        {
-            if (IsInOverheat)
-            { 
-                if (overHeatMiniGame)
-                {
-                    if (_inMiniGameWindow)
-                    {
-                        HeatMiniGameSucceeded();
-                    }
-                    else if (_overHeatedCooldown)
-                    {
-                        HeatMiniGameFailed();
-                    }
-                }
-                
-                return;
-            }
-            
-            _currentHeat += BaseWeaponInstance.CurrentWeaponData.HeatPerShot;
-            _lastFireTimer = timeBeforeRegen;
-            if (_currentHeat >= MaxWeaponHeat)
-            {
-                SetOverheating();
-            }
-            
-            OnWeaponHeatUpdatedEvent?.Invoke(_currentHeat);
-        }
-
-        if (_activeWeaponInstance != BaseWeaponInstance)
-        {
-            _activeWeaponInstance?.OnWeaponDeselected();
-            _activeWeaponInstance = BaseWeaponInstance;
-            _activeWeaponInstance.OnWeaponSelected(AllowShooting);
-        }
-        UseWeapon(_activeWeaponInstance);
-        _baseWeaponFireRateCooldown = BaseWeaponInstance.CurrentWeaponData.FireRate;
-        OnBaseWeaponCooldownUpdatedEvent?.Invoke(BaseWeaponInstance,_baseWeaponFireRateCooldown);
-    }
-
-    private void FireSpecialWeapon()
-    {
-        if (CurrentSpecialWeaponInstance == null || !(_specialWeaponFireRateCooldown <= 0)) return;
-        
-        
-        switch (CurrentSpecialWeaponInstance.CurrentWeaponData.WeaponLimitation)
-        {
-            case WeaponLimitation.AmmoBased when _specialWeaponAmmo > 0:
-                _specialWeaponAmmo -= 1;
+            case WeaponLimitation.AmmoBased:
+                if (_weaponAmmo <= 0) return;
+                _weaponAmmo -= 1;
                 break;
-            case WeaponLimitation.AmmoBased when _specialWeaponAmmo <= 0:
-            {
-                if (!specialWeaponsArePermanent)
-                {
-                    DisableSpecialWeapon();
-                }
-                return;
-            }
-            case WeaponLimitation.TimeBased when _specialWeaponTime <= 0:
-                    
-                if (!specialWeaponsArePermanent)
-                {
-                    DisableSpecialWeapon();
-                }
-                return;
+                
+            case WeaponLimitation.TimeBased:
+                if (_weaponTime <= 0) return;
+                break;
+                
             case WeaponLimitation.HeatBased:
-            {
-
                 if (IsInOverheat)
-                {
-                    if (!specialWeaponsArePermanent)
-                    {
-                        DisableSpecialWeapon();
-                        return;
-                    } 
-                    
+                { 
                     if (overHeatMiniGame)
                     {
                         if (_inMiniGameWindow)
@@ -392,45 +284,27 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                             HeatMiniGameFailed();
                         }
                     }
-
                     return;
                 }
-
-                _currentHeat += CurrentSpecialWeaponInstance.CurrentWeaponData.HeatPerShot;
+                
+                _currentHeat += ActiveWeaponInstance.CurrentWeaponData.HeatPerShot;
                 _lastFireTimer = timeBeforeRegen;
                 if (_currentHeat >= MaxWeaponHeat)
                 {
-                    SetOverheating(); 
+                    SetOverheating();
                 }
-                    
+                
                 OnWeaponHeatUpdatedEvent?.Invoke(_currentHeat);
-            }
                 break;
         }
-
-        if (_activeWeaponInstance != CurrentSpecialWeaponInstance)
-        {
-            _activeWeaponInstance?.OnWeaponDeselected();
-            _activeWeaponInstance = CurrentSpecialWeaponInstance;
-            _activeWeaponInstance.OnWeaponSelected(AllowShooting);
-        }
-        UseWeapon(_activeWeaponInstance);
-        _specialWeaponFireRateCooldown = CurrentSpecialWeaponInstance.CurrentWeaponData.FireRate;
-        OnSpecialWeaponCooldownUpdatedEvent?.Invoke(CurrentSpecialWeaponInstance,_specialWeaponFireRateCooldown);
-    }
-    
-    
-
-    private void UseWeapon(WeaponInstance weaponInstance)
-    {
-        if (weaponInstance == null) return;
         
-        if (weaponInstance.TryUseWeapon(player))
-        {
-            OnWeaponUsed?.Invoke(weaponInstance);
-        }
-
+        ActiveWeaponInstance.OnWeaponUsed(player);
+        OnWeaponUsed?.Invoke(ActiveWeaponInstance);
+        
+        _weaponFireRateCooldown = ActiveWeaponInstance.CurrentWeaponData.FireRate;
+        OnActiveWeaponCooldownUpdatedEvent?.Invoke(ActiveWeaponInstance, _weaponFireRateCooldown);
     }
+    
 
     #endregion Weapon Usage ----------------------------------------------------------------------------------------------------
     
@@ -439,17 +313,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     private void UpdateFireRateCooldown()
     {
-        if (_baseWeaponFireRateCooldown > 0)
+        if (_weaponFireRateCooldown > 0)
         {
-            _baseWeaponFireRateCooldown -= Time.deltaTime;
-            OnBaseWeaponCooldownUpdatedEvent?.Invoke(BaseWeaponInstance,_baseWeaponFireRateCooldown);
-            
-        }
-
-        if (_specialWeaponFireRateCooldown > 0)
-        {
-            _specialWeaponFireRateCooldown -= Time.deltaTime;
-            OnSpecialWeaponCooldownUpdatedEvent?.Invoke(CurrentSpecialWeaponInstance,_specialWeaponFireRateCooldown);
+            _weaponFireRateCooldown -= Time.deltaTime;
+            OnActiveWeaponCooldownUpdatedEvent?.Invoke(ActiveWeaponInstance, _weaponFireRateCooldown);
         }
     }
 
@@ -483,16 +350,19 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void UpdateWeaponTime()
     {
-        if (CurrentSpecialWeaponInstance != null && CurrentSpecialWeaponInstance.CurrentWeaponData.WeaponLimitation == WeaponLimitation.TimeBased)
+        if (ActiveWeaponInstance != null && ActiveWeaponInstance.CurrentWeaponData.WeaponLimitation == WeaponLimitation.TimeBased)
         {
-
-            if (_specialWeaponTime > 0)
+            if (_weaponTime > 0)
             {
-                _specialWeaponTime -= Time.deltaTime;
+                _weaponTime -= Time.deltaTime;
             }
-            else if (_specialWeaponTime <= 0 && !specialWeaponsArePermanent)
+            else if (_weaponTime <= 0)
             {
-                DisableSpecialWeapon();
+                // Switch back to start weapon (weapons[0]) when time runs out
+                if (weapons.Count > 0)
+                {
+                    SetActiveWeapon(weapons[0]);
+                }
             }
         }
     }
@@ -514,7 +384,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _inMiniGameWindow = false;
         if (overHeatResetsGame) _miniGameAttempted = false;
         weaponOverheatSfx?.Play(audioSource);
-        CurrentSpecialWeaponInstance?.OnWeaponOverheat();
+        ActiveWeaponInstance?.OnWeaponOverheat();
         controllerVibrationSource.Vibrate(vibrationOnOverheatSettings);
         
         OnWeaponOverheatedEvent?.Invoke();
@@ -669,56 +539,54 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     #region Weapon Management --------------------------------------------------------------------------------------
     
     
-    private void SetSpecialWeapon(WeaponInstance newWeapon)
+    private void SetActiveWeapon(WeaponInstance newWeapon)
     {
         if (newWeapon == null) return;
         
-        if (CurrentSpecialWeaponInstance == newWeapon)
+        if (ActiveWeaponInstance == newWeapon)
         {
-            _specialWeaponFireRateCooldown = 0;
+            _weaponFireRateCooldown = 0;
             switch (newWeapon.CurrentWeaponData.WeaponLimitation)
             {
                 case WeaponLimitation.AmmoBased:
-                    _specialWeaponAmmo = newWeapon.CurrentWeaponData.AmmoLimit;
+                    _weaponAmmo = newWeapon.CurrentWeaponData.AmmoLimit;
                     break;
                 case WeaponLimitation.TimeBased:
-                    _specialWeaponTime = newWeapon.CurrentWeaponData.TimeLimit;
+                    _weaponTime = newWeapon.CurrentWeaponData.TimeLimit;
                     break;
             }
             ResetHeat();
             return;
         }
         
-        // Disable the previous special Weapon if it is active
-        if (CurrentSpecialWeaponInstance != null)
+        // Disable the previous weapon if it is active
+        if (ActiveWeaponInstance != null)
         {
-            CurrentSpecialWeaponInstance.OnWeaponDeselected();
-            _previousSpecialWeaponInstance = CurrentSpecialWeaponInstance;
+            ActiveWeaponInstance.OnWeaponDeselected();
+            _previousActiveWeaponInstance = ActiveWeaponInstance;
         }
 
         // Set the new Weapon
-        CurrentSpecialWeaponInstance = newWeapon;
-        _specialWeaponFireRateCooldown = 0;
+        ActiveWeaponInstance = newWeapon;
+        _weaponFireRateCooldown = 0;
         switch (newWeapon.CurrentWeaponData.WeaponLimitation)
         {
             case WeaponLimitation.AmmoBased:
-                _specialWeaponAmmo = newWeapon.CurrentWeaponData.AmmoLimit;
+                _weaponAmmo = newWeapon.CurrentWeaponData.AmmoLimit;
                 break;
             case WeaponLimitation.TimeBased:
-                _specialWeaponTime = newWeapon.CurrentWeaponData.TimeLimit;
+                _weaponTime = newWeapon.CurrentWeaponData.TimeLimit;
                 break;
         }
         ResetHeat();
-        _activeWeaponInstance?.OnWeaponDeselected();
-        _activeWeaponInstance = newWeapon;
-        _activeWeaponInstance.OnWeaponSelected(AllowShooting);
+        ActiveWeaponInstance.OnWeaponSelected(AllowShooting);
         weaponSwitchSfx?.Play(audioSource);
-        OnSpecialWeaponCooldownUpdatedEvent?.Invoke(_activeWeaponInstance,_specialWeaponFireRateCooldown);
-        OnSpecialWeaponSwitchedEvent?.Invoke(_previousSpecialWeaponInstance, _activeWeaponInstance);
+        OnActiveWeaponCooldownUpdatedEvent?.Invoke(ActiveWeaponInstance, _weaponFireRateCooldown);
+        OnActiveWeaponSwitchedEvent?.Invoke(_previousActiveWeaponInstance, ActiveWeaponInstance);
     }
     
     
-    public void SetSpecialWeapon(SOWeaponData weaponData)
+    public void SetActiveWeapon(SOWeaponData weaponData)
     {
         if (!weaponData) return;
 
@@ -726,34 +594,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             if (weaponInfo.weaponData == weaponData)
             {
-                SetSpecialWeapon(weaponInfo);
+                SetActiveWeapon(weaponInfo);
                 break;
             }
-        }
-    }
-    
-    private void SetBaseWeapon(WeaponInstance weapon)
-    {
-        ResetHeat();
-        _baseWeaponFireRateCooldown = 0;
-        BaseWeaponInstance = weapon;
-        OnBaseWeaponSwitchedEvent?.Invoke(BaseWeaponInstance);
-    }
-    
-    
-    private void DisableSpecialWeapon()
-    {
-        if (!Application.isPlaying || CurrentSpecialWeaponInstance == null) return;
-        
-        CurrentSpecialWeaponInstance.OnWeaponDeselected();
-        _previousSpecialWeaponInstance = CurrentSpecialWeaponInstance;
-        CurrentSpecialWeaponInstance = null;
-        OnSpecialWeaponDisabledEvent?.Invoke(_previousSpecialWeaponInstance);
-
-        if (BaseWeaponInstance != null)
-        {
-            _activeWeaponInstance = BaseWeaponInstance;
-            _activeWeaponInstance.OnWeaponSelected(AllowShooting);
         }
     }
 
@@ -764,37 +607,23 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             if (weaponInstance.weaponData == weaponUpgrade.BaseWeapon)
             {
                 weaponInstance.ApplyWeaponUpgrade(player);
-                SetSpecialWeapon(weaponInstance);
+                SetActiveWeapon(weaponInstance);
             }
         }
-        
-
     }
     
     private void UpgradeCurrentWeapon()
     {
-        if (CurrentSpecialWeaponInstance != null)
+        if (ActiveWeaponInstance != null)
         {
-            // Get the next upgrade for the special weapon
-            SOWeaponUpgrade nextUpgrade = GetNextWeaponUpgrade(CurrentSpecialWeaponInstance.CurrentWeaponData);
+            // Get the next upgrade for the active weapon
+            SOWeaponUpgrade nextUpgrade = GetNextWeaponUpgrade(ActiveWeaponInstance.CurrentWeaponData);
             if (nextUpgrade)
             {
                 // Add the upgrade to player's upgrade list first
                 player.Upgrades.Add(nextUpgrade, 1);
                 // Then apply the upgrade
-                CurrentSpecialWeaponInstance.ApplyWeaponUpgrade(player);
-            }
-        }
-        else if (BaseWeaponInstance != null)
-        {
-            // Get the next upgrade for the base weapon
-            SOWeaponUpgrade nextUpgrade = GetNextWeaponUpgrade(BaseWeaponInstance.CurrentWeaponData);
-            if (nextUpgrade)
-            {
-                // Add the upgrade to player's upgrade list first
-                player.Upgrades.Add(nextUpgrade, 1);
-                // Then apply the upgrade
-                BaseWeaponInstance.ApplyWeaponUpgrade(player);
+                ActiveWeaponInstance.ApplyWeaponUpgrade(player);
             }
         }
     }
@@ -849,26 +678,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             _attackInputHeld = false;
         }
     }
-    
-    private void OnAttack2(InputAction.CallbackContext context)
-    {
-        if (!allowStartWeaponWithSpecialWeapon) return;
-        
-        if (!AllowShooting || !player.Health.IsAlive())
-        {
-            _attack2InputHeld = false;
-            return;
-        }
-        
-        if (context.started)
-        {
-            _attack2InputHeld = true;
-        }
-        else if (context.canceled)
-        {
-            _attack2InputHeld = false;
-        }
-    }
 
     private void CheckAttackInputs()
     {
@@ -877,38 +686,46 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             FireActiveWeapon();
         }
         
-        if (_attack2InputHeld && allowStartWeaponWithSpecialWeapon && CurrentSpecialWeaponInstance != null)
-        {
-            FireBaseWeapon();
-        }
-        
         if (Input.GetKeyDown(KeyCode.F1))
         {
-            var weapon = weapons[1];
-            if (weapon.CurrentWeaponData)
+            if (weapons.Count > 1)
             {
-                SetSpecialWeapon(weapon);
+                var weapon = weapons[1];
+                if (weapon.CurrentWeaponData)
+                {
+                    SetActiveWeapon(weapon);
+                }
             }
         }
         else if (Input.GetKeyDown(KeyCode.F2))
         {
-            var weapon = weapons[2];
-            if (weapon.CurrentWeaponData)
+            if (weapons.Count > 2)
             {
-                SetSpecialWeapon(weapon);
+                var weapon = weapons[2];
+                if (weapon.CurrentWeaponData)
+                {
+                    SetActiveWeapon(weapon);
+                }
             }
         }
         else if (Input.GetKeyDown(KeyCode.F3))
         {
-            var weapon = weapons[3];
-            if (weapon.CurrentWeaponData)
+            if (weapons.Count > 3)
             {
-                SetSpecialWeapon(weapon);
+                var weapon = weapons[3];
+                if (weapon.CurrentWeaponData)
+                {
+                    SetActiveWeapon(weapon);
+                }
             }
         }
         else if (Input.GetKeyDown(KeyCode.F4))
         {
-            DisableSpecialWeapon();
+            // Switch back to start weapon (weapons[0])
+            if (weapons.Count > 0)
+            {
+                SetActiveWeapon(weapons[0]);
+            }
         }
         else if (Input.GetKeyDown(KeyCode.F5))
         {
@@ -918,9 +735,4 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     }
 
     #endregion Input Handling --------------------------------------------------------------------------------------
-
-
-
 }
-
-

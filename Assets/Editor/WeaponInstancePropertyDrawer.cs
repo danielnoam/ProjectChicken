@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections.Generic;
 
 namespace Editor
 {
@@ -31,11 +30,11 @@ public class WeaponInstancePropertyDrawer : PropertyDrawer
             {
                 if (arrayIndex == 0)
                 {
-                    customLabel = weaponData.WeaponName + " (Starting Weapon)";
+                    customLabel = weaponData.WeaponName + " (Default Weapon)";
                 }
                 else
                 {
-                    customLabel = weaponData.WeaponName + " (Special Weapon)";
+                    customLabel = weaponData.WeaponName;
                 }
             }
         }

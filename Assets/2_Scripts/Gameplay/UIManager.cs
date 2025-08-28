@@ -1,6 +1,4 @@
-
 using System.Collections;
-using DNExtensions;
 using KBCore.Refs;
 using TMPro;
 using UnityEngine;
@@ -23,9 +21,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private RailPlayer player;
     
+    
     [Header("HUD")]
     [SerializeField] private float hudFadeDuration = 3f;
     [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
+    
     
     [Header("Dynamic HUD")]
     [SerializeField, Tooltip("Hud position is affected by player movement")] private bool dynamicHud = true;
@@ -35,7 +35,6 @@ public class UIManager : MonoBehaviour
     [SerializeField, Tooltip("How fast shake decays")] private float shakeDecayRate = 5f;
     [SerializeField, Tooltip("Shake frequency multiplier")] private float shakeFrequency = 10f;
     [SerializeField, Tooltip("Maximum shake rotation in degrees")] private float maxShakeRotation = 2f;
-    
     
     
     [Header("Health")]
@@ -69,11 +68,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI dodgeCountText;
     
     [Header("Weapons")]
-    [SerializeField] private float weaponAnimationDuration = 0.5f;
     [SerializeField] private float weaponPunchDuration = 0.2f;
     [SerializeField] private float weaponPunchStrength = 0.4f;
     [SerializeField] private Image weaponIcon;
-    [SerializeField] private Image secondaryWeaponIcon;
     
     [Header("Score")]
     [SerializeField] private float scoreAnimationDuration = 0.5f;
@@ -94,8 +91,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private CanvasGroup pauseGroup;
     
     
-
-    private Color _secondaryWeaponStartColor;
+    
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
     private Sequence _keybindsSequence;
@@ -162,11 +158,8 @@ public class UIManager : MonoBehaviour
             player.Health.OnShieldChanged += OnPlayerShieldChanged;
             player.ResourceCollector.OnCurrencyChanged += OnPlayerCurrencyChanged;
             player.WeaponSystem.OnWeaponUsed += OnPlayerWeaponUsed;
-            player.WeaponSystem.OnSpecialWeaponSwitchedEvent += SpecialWeaponSystemSwitched;
-            player.WeaponSystem.OnSpecialWeaponCooldownUpdatedEvent += SpecialWeaponSystemCooldownUpdated;
-            player.WeaponSystem.OnBaseWeaponCooldownUpdatedEvent += BaseWeaponSystemCooldownUpdated;
-            player.WeaponSystem.OnBaseWeaponSwitchedEvent += BaseWeaponSystemSwitched;
-            player.WeaponSystem.OnSpecialWeaponDisabledEvent += SpecialWeaponSystemDisabled;
+            player.WeaponSystem.OnActiveWeaponSwitchedEvent += OnPlayerActiveWeaponSwitched;
+            player.WeaponSystem.OnActiveWeaponCooldownUpdatedEvent += OnPlayerActiveWeaponCooldownUpdated;
             player.Movement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
             player.Movement.OnDodge += OnPlayerDodge;
             player.Movement.OnDodgeCountChanged += OnDodgeCountChanged;
@@ -192,11 +185,8 @@ public class UIManager : MonoBehaviour
             player.Health.OnShieldChanged -= OnPlayerShieldChanged;
             player.ResourceCollector.OnCurrencyChanged -= OnPlayerCurrencyChanged;
             player.WeaponSystem.OnWeaponUsed -= OnPlayerWeaponUsed;
-            player.WeaponSystem.OnSpecialWeaponSwitchedEvent -= SpecialWeaponSystemSwitched;
-            player.WeaponSystem.OnSpecialWeaponCooldownUpdatedEvent -= SpecialWeaponSystemCooldownUpdated;
-            player.WeaponSystem.OnBaseWeaponCooldownUpdatedEvent -= BaseWeaponSystemCooldownUpdated;
-            player.WeaponSystem.OnBaseWeaponSwitchedEvent -= BaseWeaponSystemSwitched;
-            player.WeaponSystem.OnSpecialWeaponDisabledEvent -= SpecialWeaponSystemDisabled;
+            player.WeaponSystem.OnActiveWeaponSwitchedEvent -= OnPlayerActiveWeaponSwitched;
+            player.WeaponSystem.OnActiveWeaponCooldownUpdatedEvent -= OnPlayerActiveWeaponCooldownUpdated;
             player.Movement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
             player.Movement.OnDodge -= OnPlayerDodge;
             player.Movement.OnDodgeCountChanged -= OnDodgeCountChanged;
@@ -226,7 +216,6 @@ public class UIManager : MonoBehaviour
     {
         _originalHudRotation = hudGroup.transform.localRotation;
         _weaponStartColor = weaponIcon.color;
-        _secondaryWeaponStartColor = secondaryWeaponIcon.color;
         _dodgeStartColor = dodgeIcon.color;
         pauseGroup.alpha = 0f;
         pauseIconFill.fillAmount = 0f;
@@ -469,73 +458,22 @@ public class UIManager : MonoBehaviour
     }
     
 
-    private void SpecialWeaponSystemSwitched(WeaponInstance previousWeaponInstance, WeaponInstance newWeaponInstance)
+    private void OnPlayerActiveWeaponSwitched(WeaponInstance previousWeaponInstance, WeaponInstance newWeaponInstance)
     {
-        if (newWeaponInstance != null)
-        {
-            weaponIcon.sprite = newWeaponInstance.CurrentWeaponData.WeaponIcon;
-            Tween.Alpha(secondaryWeaponIcon, endValue: 1f, duration: weaponAnimationDuration);
-            Tween.PunchScale(weaponIcon.transform, strength: Vector3.one * weaponPunchStrength, duration: weaponPunchDuration);
-        }
-        else
-        {
-            if (player.WeaponSystem.BaseWeaponInstance != null)
-            {
-                weaponIcon.sprite = player.WeaponSystem.BaseWeaponInstance.CurrentWeaponData.WeaponIcon;
-               secondaryWeaponIcon.sprite = player.WeaponSystem.BaseWeaponInstance.CurrentWeaponData.WeaponIcon;
-            }
-            Tween.Alpha(secondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
-        }
+        if (newWeaponInstance == null) return;
+        
+        weaponIcon.sprite = newWeaponInstance.CurrentWeaponData.WeaponIcon;
+        Tween.PunchScale(weaponIcon.transform, strength: Vector3.one * weaponPunchStrength, duration: weaponPunchDuration);
     }
     
-        
-    private void SpecialWeaponSystemDisabled(WeaponInstance weapon)
-    {
-        if (player.WeaponSystem.BaseWeaponInstance != null) weaponIcon.sprite = player.WeaponSystem.BaseWeaponInstance.CurrentWeaponData.WeaponIcon;
-        Tween.Alpha(secondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
-
-    }
-
-    private void BaseWeaponSystemSwitched(WeaponInstance weapon)
-    {
-        if (weapon == null) return;
-        
-        if (player.WeaponSystem.CurrentSpecialWeaponInstance != null)
-        {
-            secondaryWeaponIcon.sprite = weapon.CurrentWeaponData.WeaponIcon;
-            Tween.Alpha(secondaryWeaponIcon, endValue: 1f, duration: weaponAnimationDuration);
-        }
-        else
-        {
-            weaponIcon.sprite = weapon.CurrentWeaponData.WeaponIcon;
-            Tween.Alpha(secondaryWeaponIcon, endValue: 0f, duration: weaponAnimationDuration);
-        }
-    }
-
-    private void SpecialWeaponSystemCooldownUpdated(WeaponInstance specialWeaponInstance, float cooldown)
+    
+    private void OnPlayerActiveWeaponCooldownUpdated(WeaponInstance specialWeaponInstance, float cooldown)
     {
         if (specialWeaponInstance == null) return;
         
         float fillAmount = 1f - (cooldown / specialWeaponInstance.CurrentWeaponData.FireRate);
         weaponIcon.color = Color.Lerp(cooldownIconColor, _weaponStartColor, fillAmount);
     }
-    
-    private void BaseWeaponSystemCooldownUpdated(WeaponInstance baseWeaponInstance, float cooldown)
-    {
-        float fillAmount = 1f - (cooldown / baseWeaponInstance.CurrentWeaponData.FireRate);
-        
-        if (player.WeaponSystem.CurrentSpecialWeaponInstance != null)
-        {
-            secondaryWeaponIcon.color = Color.Lerp(Color.clear, _secondaryWeaponStartColor, fillAmount);
-        }
-        else
-        {
-            weaponIcon.color = Color.Lerp(cooldownIconColor, _weaponStartColor, fillAmount);
-        }
-    }
-    
-    
-    
     
     
     private void OnPlayerCurrencyChanged(int newCurrency)
