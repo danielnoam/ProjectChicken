@@ -514,6 +514,7 @@ GameObject:
   - component: {fileID: 8824006632455104043}
   - component: {fileID: 6441098358043672622}
   - component: {fileID: 8069820876864793074}
+  - component: {fileID: 2733919210489267741}
   m_Layer: 3
   m_Name: EnemyChicken
   m_TagString: Enemy
@@ -766,6 +767,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   trackSlotChanges: 1
   slotChangeDetectionInterval: 0.1
+  slotDistanceThreshold: 1
   followingSpeed: 50
   followingDistanceThreshold: 0.1
   maxMovementResets: 2
@@ -794,6 +796,23 @@ MonoBehaviour:
   rotationSpeed: 2
   useSmootRotation: 1
   lockYAxis: 1
+--- !u!114 &2733919210489267741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4673152547086385400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8211f6738d8d8dc4f93d9750a47f111e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eggPrefab: {fileID: 2910271167061673307, guid: 95a8f201965e5244aa003a4bef8241a2, type: 3}
+  eggSpawnPoint: {fileID: 7706267904213187422}
+  eggSpeed: 10
+  shootCooldown: 2
+  showDebugLogs: 0
 --- !u!1 &4889101049602211096
 GameObject:
   m_ObjectHideFlags: 0

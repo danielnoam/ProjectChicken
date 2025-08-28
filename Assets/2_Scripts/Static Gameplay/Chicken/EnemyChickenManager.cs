@@ -45,8 +45,6 @@ public class EnemyChickenManager : MonoBehaviour
                 return;
             }
         }
-        
-        Debug.Log("EnemyChickenManager: Started, waiting for formation initialization...");
     }
 
     void Update()
@@ -176,8 +174,6 @@ public class EnemyChickenManager : MonoBehaviour
                 }
             }
         }
-        
-        Debug.Log($"EnemyChickenManager: Forced state update on {allRegisteredChickens.Count} chickens");
     }
 
     Vector3 GetFormationCenter()
@@ -252,10 +248,6 @@ public class EnemyChickenManager : MonoBehaviour
             {
                 registration.ForceStateUpdate();
             }
-        }
-        else
-        {
-            Debug.Log($"EnemyChickenManager: Chicken {chicken.name} registered but formation not yet initialized. Will update state once formation is ready.");
         }
 
         return true;

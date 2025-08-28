@@ -277,9 +277,7 @@ public class FormationPlacer : MonoBehaviour
 
     // Public method to randomize all formation positions
     public void RandomizeAllPositions()
-    {
-        Debug.Log("FormationPlacer: Randomizing all formation positions...");
-        
+    {        
         // Clear existing positions
         formationCenters.Clear();
         formationBounds.Clear();
