@@ -35,7 +35,6 @@ public class ChickenCombatManagerV2 : MonoBehaviour
     private float lastSingleFireTime = 0f;
     private float lastAttackPatternChangeTime = 0f;
     private AttackType lastAttackType = AttackType.None;
-    private int lastSingleFireChickenIndex = -1; // Track which chicken fired last for rotation
     private Transform player;
 
     void Start()
@@ -148,9 +147,6 @@ public class ChickenCombatManagerV2 : MonoBehaviour
 
         if (showDebugLogs)
             Debug.Log($"ChickenCombatManagerV2: Found {allCombatChickens.Count} combat chickens");
-
-        // Reset single fire rotation when chicken list changes
-        lastSingleFireChickenIndex = -1;
     }
 
     void TriggerBurstAttack()
@@ -168,16 +164,22 @@ public class ChickenCombatManagerV2 : MonoBehaviour
             return;
         }
 
-        // Take up to maxSimultaneousAttacks chickens and make them attack
-        int attackersToUse = Mathf.Min(maxSimultaneousAttacks, availableAttackers.Count);
+        // Randomly select chickens for burst attack
+        List<ChickenCombatBehaviorV2> selectedChickens = SelectRandomChickens(availableAttackers, maxSimultaneousAttacks);
 
-        for (int i = 0; i < attackersToUse; i++)
+        foreach (ChickenCombatBehaviorV2 chicken in selectedChickens)
         {
-            ExecuteEggAttack(availableAttackers[i]);
+            ExecuteEggAttack(chicken);
         }
 
         if (showDebugLogs)
-            Debug.Log($"ChickenCombatManagerV2: BURST ATTACK - {attackersToUse} chickens fired from {availableAttackers.Count} available");
+        {
+            Debug.Log($"ChickenCombatManagerV2: BURST ATTACK - {selectedChickens.Count} chickens fired from {availableAttackers.Count} available");
+            foreach (var chicken in selectedChickens)
+            {
+                Debug.Log($"  Burst attacker: {chicken.gameObject.name}");
+            }
+        }
     }
 
     void TriggerSingleFireAttack()
@@ -195,15 +197,15 @@ public class ChickenCombatManagerV2 : MonoBehaviour
             return;
         }
 
-        // Select next chicken in rotation
-        ChickenCombatBehaviorV2 selectedChicken = SelectNextSingleFireChicken(availableAttackers);
+        // Randomly select one chicken for single fire attack
+        ChickenCombatBehaviorV2 selectedChicken = SelectRandomChicken(availableAttackers);
 
         if (selectedChicken != null)
         {
             ExecuteEggAttack(selectedChicken);
 
             if (showDebugLogs)
-                Debug.Log($"ChickenCombatManagerV2: SINGLE FIRE ATTACK - {selectedChicken.gameObject.name} fired (index {lastSingleFireChickenIndex})");
+                Debug.Log($"ChickenCombatManagerV2: SINGLE FIRE ATTACK - {selectedChicken.gameObject.name} fired randomly from {availableAttackers.Count} available");
         }
         else
         {
@@ -212,28 +214,51 @@ public class ChickenCombatManagerV2 : MonoBehaviour
         }
     }
 
-    ChickenCombatBehaviorV2 SelectNextSingleFireChicken(List<ChickenCombatBehaviorV2> availableChickens)
+    // NEW: Select a random chicken from available list
+    ChickenCombatBehaviorV2 SelectRandomChicken(List<ChickenCombatBehaviorV2> availableChickens)
     {
         if (availableChickens.Count == 0)
             return null;
 
-        // If this is the first single fire or we need to reset rotation
-        if (lastSingleFireChickenIndex == -1 || lastSingleFireChickenIndex >= availableChickens.Count)
-        {
-            lastSingleFireChickenIndex = 0;
-        }
-        else
-        {
-            // Move to next chicken in rotation
-            lastSingleFireChickenIndex = (lastSingleFireChickenIndex + 1) % availableChickens.Count;
-        }
-
-        ChickenCombatBehaviorV2 selectedChicken = availableChickens[lastSingleFireChickenIndex];
+        int randomIndex = Random.Range(0, availableChickens.Count);
+        ChickenCombatBehaviorV2 selectedChicken = availableChickens[randomIndex];
 
         if (showDebugLogs)
-            Debug.Log($"ChickenCombatManagerV2: Selected chicken {selectedChicken.gameObject.name} for single fire (index {lastSingleFireChickenIndex} of {availableChickens.Count})");
+            Debug.Log($"ChickenCombatManagerV2: Randomly selected chicken {selectedChicken.gameObject.name} (index {randomIndex} of {availableChickens.Count})");
 
         return selectedChicken;
+    }
+
+    // NEW: Select multiple random chickens from available list (for burst attacks)
+    List<ChickenCombatBehaviorV2> SelectRandomChickens(List<ChickenCombatBehaviorV2> availableChickens, int maxCount)
+    {
+        List<ChickenCombatBehaviorV2> selectedChickens = new List<ChickenCombatBehaviorV2>();
+
+        if (availableChickens.Count == 0)
+            return selectedChickens;
+
+        int chickensToSelect = Mathf.Min(maxCount, availableChickens.Count);
+
+        // Create a copy of the available chickens list to avoid modifying the original
+        List<ChickenCombatBehaviorV2> chickenPool = new List<ChickenCombatBehaviorV2>(availableChickens);
+
+        // Randomly select chickens without duplicates
+        for (int i = 0; i < chickensToSelect; i++)
+        {
+            if (chickenPool.Count == 0)
+                break;
+
+            int randomIndex = Random.Range(0, chickenPool.Count);
+            ChickenCombatBehaviorV2 selectedChicken = chickenPool[randomIndex];
+
+            selectedChickens.Add(selectedChicken);
+            chickenPool.RemoveAt(randomIndex); // Remove to avoid selecting the same chicken twice
+
+            if (showDebugLogs)
+                Debug.Log($"ChickenCombatManagerV2: Randomly selected chicken {selectedChicken.gameObject.name} for burst attack ({i + 1} of {chickensToSelect})");
+        }
+
+        return selectedChickens;
     }
 
     List<ChickenCombatBehaviorV2> GetAvailableAttackers()
@@ -390,7 +415,7 @@ public class ChickenCombatManagerV2 : MonoBehaviour
         Debug.Log($"Total Combat Chickens: {TotalCombatChickens}");
         Debug.Log($"Available Attackers: {AvailableAttackers}");
         Debug.Log($"BURST ATTACK - Interval: {burstAttackInterval}s, Max Simultaneous: {maxSimultaneousAttacks}");
-        Debug.Log($"SINGLE FIRE - Interval: {singleFireInterval}s, Last Chicken Index: {lastSingleFireChickenIndex}");
+        Debug.Log($"SINGLE FIRE - Interval: {singleFireInterval}s, Random Selection: ENABLED");
         Debug.Log($"PATTERN CHANGE - Cooldown: {attackPatternChangeCooldown}s, Last Attack Type: {lastAttackType}");
         Debug.Log($"Burst Fire Chance: {burstFireChance}% (1-{burstFireChance})");
         Debug.Log($"Next Burst Attack In: {(NextBurstAttackTime - Time.time):F1}s");
@@ -434,10 +459,6 @@ public class ChickenCombatManagerV2 : MonoBehaviour
                     // Show combat-ready chickens with green gizmo
                     bool canAttack = chicken.IsReadyToAttack;
                     Gizmos.color = canAttack ? Color.green : Color.red;
-
-                    // Highlight the chicken that will fire next in single fire mode
-                    if (canAttack && i == lastSingleFireChickenIndex)
-                        Gizmos.color = Color.yellow;
 
                     Gizmos.DrawWireSphere(chicken.transform.position + Vector3.up * 2f, 0.5f);
                 }

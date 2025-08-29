@@ -57,7 +57,7 @@ public class ChickenEggV2 : MonoBehaviour
         // Check if we hit the player
         if (other.CompareTag("Player"))
         {
-            Debug.LogError("Egg Hit Player");
+            Debug.LogWarning("Egg Hit Player");
 
             if (showDebugLogs)
                 Debug.Log($"Egg {gameObject.name}: Hit player {other.gameObject.name}");
