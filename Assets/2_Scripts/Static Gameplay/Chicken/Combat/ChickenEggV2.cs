@@ -47,9 +47,6 @@ public class ChickenEggV2 : MonoBehaviour
     {
         velocity = direction.normalized * speed;
         isInitialized = true;
-
-        if (showDebugLogs)
-            Debug.Log($"Egg {gameObject.name}: Initialized with velocity {velocity}");
     }
 
     void OnTriggerEnter(Collider other)

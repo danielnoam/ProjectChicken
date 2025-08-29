@@ -9575,18 +9575,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 2027921469}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de997d5e977bfa2458cab9f8522a9100, type: 3}
+  m_Script: {fileID: 11500000, guid: a2a3fb4ec34104c4184643bcd5074e1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  burstAttackInterval: 3
-  maxSimultaneousAttacks: 6
-  singleFireInterval: 1
-  burstFireChance: 10
+  attackLootTable: {fileID: 11400000, guid: 72746f0027cd99846831e5f0e88b8586, type: 2}
   enableCombat: 1
-  eggSpeed: 25
-  attackPatternChangeCooldown: 3
-  showDebugLogs: 0
-  showAttackGizmos: 1
+  eggSpeed: 20
+  attackPatternChangeCooldown: 8
+  showDebugLogs: 1
+  showAttackGizmos: 0
+  showSelectionLogs: 0
 --- !u!1 &2046359980
 GameObject:
   m_ObjectHideFlags: 0
@@ -9629,7 +9627,7 @@ MonoBehaviour:
   slotsPerSide: 5
   circleRadius: 17.5
   formationCount: 2
-  formationSpacing: 20
+  formationSpacing: 25
   useRandomPlacement: 1
   maxPlacementAttempts: 100
 --- !u!4 &2046359982

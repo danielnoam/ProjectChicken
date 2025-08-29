@@ -14,17 +14,11 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
 
     void Start()
     {
-        Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Starting initialization...");
-
         stateController = GetComponent<ChickenStateController>();
 
         if (stateController == null)
         {
             Debug.LogError($"ChickenCombatBehaviorV2 on {gameObject.name}: No ChickenStateController found!");
-        }
-        else
-        {
-            Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Found ChickenStateController, current state: {stateController.CurrentState}");
         }
 
         // Find player
@@ -32,11 +26,6 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
         if (playerObj != null)
         {
             player = playerObj.transform;
-            Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Found player: {player.name}");
-        }
-        else
-        {
-            Debug.LogWarning($"ChickenCombatBehaviorV2 on {gameObject.name}: No player found with 'Player' tag!");
         }
 
         // If no egg spawn point assigned, use this transform
@@ -45,26 +34,11 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
             eggSpawnPoint = transform;
             Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Using chicken transform as egg spawn point");
         }
-        else
-        {
-            Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Using assigned egg spawn point: {eggSpawnPoint.name}");
-        }
 
         if (eggPrefab == null)
         {
             Debug.LogError($"ChickenCombatBehaviorV2 on {gameObject.name}: No egg prefab assigned!");
         }
-        else
-        {
-            Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Egg prefab assigned: {eggPrefab.name}");
-        }
-
-        Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Initialization complete!");
-    }
-
-    void Update()
-    {
-        // No longer needed since cooldown moved to manager
     }
 
     public bool CanAttack()
