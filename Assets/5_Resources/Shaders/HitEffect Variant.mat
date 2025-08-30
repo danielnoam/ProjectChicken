@@ -10,7 +10,7 @@ Material:
   m_Name: HitEffect Variant
   m_Shader: {fileID: -6465566751694194690, guid: a1581adaf83babb45a0372453ad93c31, type: 3}
   m_Parent: {fileID: 2100000, guid: 5e739135864d001448dfd02328eb3dfc, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_ModifiedSerializedProperties: 4
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -26,9 +26,11 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Frequency: 10
-    - _Ripple_Fallofff: -0.05
-    - _Ripple_Speed: 20
+    - _Frequency: 8.92
+    - _Max_Redius: 0.2
+    - _Ripple_Fallofff: 0.05
+    - _Ripple_Speed: 40
+    - _Strength: 0.46
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
