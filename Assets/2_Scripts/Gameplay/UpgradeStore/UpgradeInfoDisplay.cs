@@ -2,9 +2,10 @@ using System;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UpgradeInfoDisplay : MonoBehaviour
+public class UpgradeInfoDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Settings")]
     [SerializeField] private bool alwaysShowDetails;
@@ -13,7 +14,6 @@ public class UpgradeInfoDisplay : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private RectTransform rectTransform;
-    [SerializeField] private BoxCollider boxCollider;
     [SerializeField] private Image upgradeIcon;
     [SerializeField] private TextMeshProUGUI upgradeNameText;
     [SerializeField] private TextMeshProUGUI upgradeDescriptionText;
@@ -28,7 +28,6 @@ public class UpgradeInfoDisplay : MonoBehaviour
     private void Awake()
     {
         _baseHeight = rectTransform.sizeDelta.y;
-        _colliderBaseHeight = boxCollider.size.y;
     }
 
     public void SetInfo(SOUpgradeBase upgrade)
@@ -57,14 +56,12 @@ public class UpgradeInfoDisplay : MonoBehaviour
         if (animated)
         {
             _detailSequence = Sequence.Create()
-                .Group(Tween.UISizeDelta(rectTransform, new Vector2(rectTransform.sizeDelta.x, fullHeight), 0.25f));
+                .Group(Tween.UISizeDelta(rectTransform, new Vector2(rectTransform.sizeDelta.x, fullHeight), 0.2f));
         }
         else
         {
             rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, fullHeight);
         }
-
-        boxCollider.size = new Vector2(boxCollider.size.x, colliderFullSize);
     }
     
     private void HideDetails(bool animated = true)
@@ -73,25 +70,24 @@ public class UpgradeInfoDisplay : MonoBehaviour
         if (animated)
         {
             _detailSequence = Sequence.Create()
-                .Group(Tween.UISizeDelta(rectTransform, new Vector2(rectTransform.sizeDelta.x, _baseHeight), 0.25f));
+                .Group(Tween.UISizeDelta(rectTransform, new Vector2(rectTransform.sizeDelta.x, _baseHeight), 0.2f));
         }
         else
         {
             rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _baseHeight);
         }
-
-        boxCollider.size = new Vector2(boxCollider.size.x, _colliderBaseHeight);
+        
     }
 
     
-    public void OnMouseEnter()
+    
+    public void OnPointerEnter(PointerEventData eventData)
     {
         if (alwaysShowDetails) return;
-        
         ShowDetails();
     }
-    
-    public void OnMouseExit()
+
+    public void OnPointerExit(PointerEventData eventData)
     {
         if (alwaysShowDetails) return;
         

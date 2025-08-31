@@ -1,12 +1,14 @@
-using System;
+
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using PrimeTween;
+using UnityEngine.UI;
 
 public class PlayerUpgradesDisplay : MonoBehaviour
 {
     [Header("References")]
+    [SerializeField] private Image backgroundImage;
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Transform playerUpgradesHolder;
     [SerializeField] private UpgradeInfoDisplay upgradeInfoDisplayPrefab;
@@ -64,8 +66,8 @@ public class PlayerUpgradesDisplay : MonoBehaviour
         if (_displaySequence.isAlive) _displaySequence.Stop();
         
         _displaySequence = Sequence.Create()
-            .Group(Tween.Alpha(canvasGroup, 1f, 0.25f))
-            .Group(Tween.UISizeDelta(_rectTransform, _fullSize, 0.25f));
+            .Group(Tween.Alpha(canvasGroup, 1f, 0.2f))
+            .Group(Tween.UISizeDelta(_rectTransform, _fullSize, 0.3f));
     }
     
     private void HideDisplay()
@@ -73,8 +75,8 @@ public class PlayerUpgradesDisplay : MonoBehaviour
         if (_displaySequence.isAlive) _displaySequence.Stop();
         
         _displaySequence = Sequence.Create()
-            .Group(Tween.Alpha(canvasGroup, 0f, 0.25f))
-            .Group(Tween.UISizeDelta(_rectTransform, new Vector2(_fullSize.x, 0), 0.25f));
+            .Group(Tween.Alpha(canvasGroup, 0f, 0.2f))
+            .Group(Tween.UISizeDelta(_rectTransform, new Vector2(_fullSize.x, 0), 0.3f));
     }
     
     public void ClearUpgrades()
@@ -90,4 +92,5 @@ public class PlayerUpgradesDisplay : MonoBehaviour
         _playerUpgrades.Clear();
         HideDisplay();
     }
+    
 }
