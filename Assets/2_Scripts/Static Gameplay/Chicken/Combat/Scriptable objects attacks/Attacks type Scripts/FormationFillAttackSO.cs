@@ -5,6 +5,8 @@ using System.Collections.Generic;
 public class FormationFillAttackSO : BaseChickenAttackSO
 {
     [Header("Formation Fill Settings")]
+    [Range(1, 10)]
+    public int minEmptySlotsRequired = 2; // Minimum empty slots needed for attack to be available
     public bool preferClosestChickenToSlot = true;
     [Range(0f, 1f)]
     public float randomnessWeight = 0.3f; // 0 = always closest, 1 = completely random
@@ -21,15 +23,17 @@ public class FormationFillAttackSO : BaseChickenAttackSO
             return false;
         }
 
-        // Check if there are empty formation slots
-        // NOTE: This assumes you have a formation manager component
-        // You'll need to implement IFormationManager interface or similar
-        bool hasEmptySlots = CheckForEmptyFormationSlots(manager);
+        // Check if there are enough empty formation slots
+        int emptySlotCount = GetEmptyFormationSlotCount(manager);
         
-        if (!hasEmptySlots)
-            LogDebug("No empty formation slots available");
-            
-        return hasEmptySlots;
+        if (emptySlotCount < minEmptySlotsRequired)
+        {
+            LogDebug($"Not enough empty slots available ({emptySlotCount}/{minEmptySlotsRequired} required)");
+            return false;
+        }
+        
+        LogDebug($"Formation fill requirements met: {availableChickens.Count} chickens available, {emptySlotCount} empty slots (need {minEmptySlotsRequired})");
+        return true;
     }
 
     public override void Execute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager)
@@ -67,19 +71,23 @@ public class FormationFillAttackSO : BaseChickenAttackSO
         }
     }
 
-    bool CheckForEmptyFormationSlots(ChickenCombatManagerV4 manager)
+    int GetEmptyFormationSlotCount(ChickenCombatManagerV4 manager)
     {
-        // Find the EnemyChickenManager in the scene
         var enemyChickenManager = FindObjectOfType<EnemyChickenManager>();
         if (enemyChickenManager != null)
         {
-            bool hasEmptySlots = enemyChickenManager.AvailableSlots > 0;
-            LogDebug($"Formation check: {enemyChickenManager.AvailableSlots} empty slots available");
-            return hasEmptySlots;
+            int emptySlotCount = enemyChickenManager.AvailableSlots;
+            LogDebug($"Empty slot count: {emptySlotCount}");
+            return emptySlotCount;
         }
         
-        LogDebug("No EnemyChickenManager found - cannot check for empty slots");
-        return false;
+        LogDebug("No EnemyChickenManager found - cannot count empty slots");
+        return 0;
+    }
+
+    bool CheckForEmptyFormationSlots(ChickenCombatManagerV4 manager)
+    {
+        return GetEmptyFormationSlotCount(manager) > 0;
     }
 
     List<Vector3> GetEmptyFormationSlots(ChickenCombatManagerV4 manager)

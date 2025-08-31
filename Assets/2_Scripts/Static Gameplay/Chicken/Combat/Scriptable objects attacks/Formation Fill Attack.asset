@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Formation Fill Attack
   m_EditorClassIdentifier: 
   attackInterval: 0.25
-  usesBeforePatternChange: 7
+  usesBeforePatternChange: 10
   showDebugLogs: 1
+  minEmptySlotsRequired: 6
   preferClosestChickenToSlot: 0
-  randomnessWeight: 0.3
+  randomnessWeight: 1
