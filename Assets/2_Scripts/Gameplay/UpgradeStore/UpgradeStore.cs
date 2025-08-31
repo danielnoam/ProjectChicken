@@ -7,7 +7,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 public class UpgradeStore : MonoBehaviour
 {
     public static UpgradeStore Instance { get; private set; }
@@ -30,17 +29,13 @@ public class UpgradeStore : MonoBehaviour
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Button closeStoreButton;
     [SerializeField] private Button rerollButton;
-    [SerializeField] private CanvasGroup playerUpgradesCanvasGroup;
-    [SerializeField] private Transform playerUpgradesHolder;
-    [SerializeField] private SmallUpgradeInfo smallUpgradeInfoPrefab;
+    [SerializeField] private PlayerUpgradesDisplay playerUpgradesDisplay;
     [SerializeField] private UpgradeEgg upgradeEggPrefab;
     [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
 
-
     private readonly List<SOUpgradeBase> _storeUpgradesPool = new List<SOUpgradeBase>();
     private readonly List<UpgradeEgg> _upgradeEggs = new List<UpgradeEgg>();
-    private readonly List<SmallUpgradeInfo> _playerUpgrades = new List<SmallUpgradeInfo>();
     private bool _isOpen;
     private int _currentRerollCost;
     private Sequence _storeSequence;
@@ -61,7 +56,6 @@ public class UpgradeStore : MonoBehaviour
         }
         
         this.ValidateRefs();
-
 
         if (levelManager)
         {
@@ -90,7 +84,6 @@ public class UpgradeStore : MonoBehaviour
         rerollButton.onClick.AddListener(RerollEggs);
         rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Reroll ({baseRerollCost})";
 
-
         // Set the upgrades position with offset
         var startPosition = Vector3.zero - offsetBetweenUpgrades;
         for (int i = 0; i < availableUpgrades; i++)
@@ -101,10 +94,7 @@ public class UpgradeStore : MonoBehaviour
             _upgradeEggs.Add(egg);
             egg.OnUpgradeSelected += OnUpgradeSelected;
         }
-
     }
-
-
 
     private void OnEnable()
     {
@@ -116,12 +106,10 @@ public class UpgradeStore : MonoBehaviour
 
     private void OnDisable()
     {
-        
         if (levelManager)
         {
             levelManager.OnStageChanged -= OnStageChanged;
         }
-        
     }
     
     private void OnStageChanged(SOLevelStage stage)
@@ -148,7 +136,6 @@ public class UpgradeStore : MonoBehaviour
     private void OnUpgradeSelected(SOUpgradeBase upgrade)
     {
         upgrade.ApplyUpgrade(player);
-        UpdatePlayerUpgrades();
         CloseStore();
     }
 
@@ -173,7 +160,6 @@ public class UpgradeStore : MonoBehaviour
         SetEggsUpgrades();
     }
     
-    
     private void OpenStore()
     {
         if (_isOpen) return;
@@ -182,7 +168,7 @@ public class UpgradeStore : MonoBehaviour
         storeGfx.gameObject.SetActive(true);
         rerollButton.interactable = player.ResourceCollector.CurrentCurrency >= _currentRerollCost;
         captain.OnStoreOpen();
-        UpdatePlayerUpgrades();
+        playerUpgradesDisplay.UpdatePlayerUpgrades(player);
         
         if (_storeSequence.isAlive) _storeSequence.Stop();
         _storeSequence = Sequence.Create()
@@ -199,14 +185,13 @@ public class UpgradeStore : MonoBehaviour
         });
     }
 
-
-
     private void CloseStore()
     {
         if (_isOpen == false) return;
         _isOpen = false;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
+        playerUpgradesDisplay.ClearUpgrades();
         
         if (_storeSequence.isAlive) _storeSequence.Stop();
         _storeSequence = Sequence.Create()
@@ -226,19 +211,6 @@ public class UpgradeStore : MonoBehaviour
             });
     }
     
-
-    private float GetWeightByRarity(UpgradeRarity rarity)
-    {
-        return rarity switch
-        {
-            UpgradeRarity.Common => 100f,
-            UpgradeRarity.Uncommon => 60f,
-            UpgradeRarity.Rare => 30f,
-            UpgradeRarity.Epic => 10f,
-            _ => 50f
-        };
-    }
-
 
     private void SetStoreUpgradesPool(List<SOUpgradeBase> newPool)
     {
@@ -272,8 +244,7 @@ public class UpgradeStore : MonoBehaviour
             var index1 = index;
             _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade, index1 * 0.5f));
         }
-    
-        // Hide remaining eggs that don't have upgrades
+        
         for (var index = validEggCount; index < _upgradeEggs.Count; index++)
         {
             var egg = _upgradeEggs[index];
@@ -305,41 +276,16 @@ public class UpgradeStore : MonoBehaviour
     
         return null;
     }
-
-    private void UpdatePlayerUpgrades()
+    
+    private float GetWeightByRarity(UpgradeRarity rarity)
     {
-        if (!player || player.Upgrades.Count == 0)
+        return rarity switch
         {
-            playerUpgradesCanvasGroup.alpha = 0;
-            return;
-        }
-        
-        foreach (var playerUpgradeInfo in _playerUpgrades)
-        {
-            if (playerUpgradeInfo)
-            {
-                Destroy(playerUpgradeInfo.gameObject);
-            }
-        }
-        
-        _playerUpgrades.Clear();
-        var playerUpgrades = player.Upgrades.Keys.ToList();
-        
-        foreach (var upgrade in playerUpgrades)
-        {
-            if (!upgrade) continue;
-            
-            var existingInfo = _playerUpgrades.FirstOrDefault(info => info && info.Upgrade == upgrade);
-            if (!existingInfo)
-            {
-                var smallUpgradeInfo = Instantiate(smallUpgradeInfoPrefab, playerUpgradesHolder);
-                smallUpgradeInfo.SetInfo(upgrade);
-                _playerUpgrades.Add(smallUpgradeInfo);
-            }
-        }
-        
-        playerUpgradesCanvasGroup.alpha = _playerUpgrades.Count > 0 ? 1f : 0f;
+            UpgradeRarity.Common => 100f,
+            UpgradeRarity.Uncommon => 60f,
+            UpgradeRarity.Rare => 30f,
+            UpgradeRarity.Epic => 10f,
+            _ => 50f
+        };
     }
-
-
 }

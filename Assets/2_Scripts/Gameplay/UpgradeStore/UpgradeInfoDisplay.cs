@@ -4,8 +4,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SmallUpgradeInfo : MonoBehaviour
+public class UpgradeInfoDisplay : MonoBehaviour
 {
+    [Header("Settings")]
+    [SerializeField] private bool alwaysShowDetails;
     [SerializeField] private float fullHeight = 100f;
     [SerializeField] private float colliderFullSize = 100;
 
@@ -33,19 +35,35 @@ public class SmallUpgradeInfo : MonoBehaviour
     {
         if (!upgrade) return;
         
-        HideDetails(false);
+        if (alwaysShowDetails)
+        {
+           ShowDetails(false);
+        }
+        else
+        {
+            HideDetails(false);
+        }
+        
         Upgrade = upgrade;
         if (upgrade.ItemIcon) upgradeIcon.sprite = upgrade.ItemIcon.sprite;
         upgradeNameText.text = upgrade.ItemName;
         upgradeDescriptionText.text = upgrade.ItemDescription;
     }
     
-    private void ShowDetails()
+    private void ShowDetails(bool animated = true)
     {
+
         if (_detailSequence.isAlive) _detailSequence.Stop();
-        _detailSequence = Sequence.Create()
-            .Group(Tween.UISizeDelta(rectTransform, new Vector2(rectTransform.sizeDelta.x, fullHeight), 0.25f));
-        
+        if (animated)
+        {
+            _detailSequence = Sequence.Create()
+                .Group(Tween.UISizeDelta(rectTransform, new Vector2(rectTransform.sizeDelta.x, fullHeight), 0.25f));
+        }
+        else
+        {
+            rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, fullHeight);
+        }
+
         boxCollider.size = new Vector2(boxCollider.size.x, colliderFullSize);
     }
     
@@ -68,11 +86,15 @@ public class SmallUpgradeInfo : MonoBehaviour
     
     public void OnMouseEnter()
     {
+        if (alwaysShowDetails) return;
+        
         ShowDetails();
     }
     
     public void OnMouseExit()
     {
+        if (alwaysShowDetails) return;
+        
         HideDetails();
     }
 }

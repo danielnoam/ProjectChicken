@@ -13,8 +13,9 @@ GameObject:
   - component: {fileID: 7305661074213249373}
   - component: {fileID: 9186402951275017537}
   - component: {fileID: 3586904088124481915}
+  - component: {fileID: 8977382028626238798}
   m_Layer: 5
-  m_Name: PlayerUpgradesScrollView
+  m_Name: PlayerUpgradesDisplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -39,7 +40,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 590, y: -75}
+  m_AnchoredPosition: {x: 800, y: -75}
   m_SizeDelta: {x: 200, y: 450}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1951491502767192369
@@ -122,6 +123,21 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8977382028626238798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 58104030176552515}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e99eaf918aedcb499ae76db410733c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvasGroup: {fileID: 7305661074213249373}
+  playerUpgradesHolder: {fileID: 6841323728093894573}
+  upgradeInfoDisplayPrefab: {fileID: 5554822412154441730, guid: 928db93f76af75445bf4b336772f3f1c, type: 3}
 --- !u!1 &232808010782723521
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,7 +307,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.9661457}
+  m_AnchoredPosition: {x: 0, y: 17.000952}
   m_SizeDelta: {x: 0, y: 450}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &7114034718432459102
@@ -737,7 +753,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -980,7 +996,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1040,7 +1056,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3566901695721196625}
   m_HandleRect: {fileID: 4842860290201402508}
   m_Direction: 2
-  m_Value: 0.94316727
+  m_Value: -0.0000556497
   m_Size: 0.9622222
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1105,9 +1121,7 @@ MonoBehaviour:
   canvasGroup: {fileID: 9151987992877166731}
   closeStoreButton: {fileID: 8025480043361990059}
   rerollButton: {fileID: 8356642916159181571}
-  playerUpgradesCanvasGroup: {fileID: 7305661074213249373}
-  playerUpgradesHolder: {fileID: 6841323728093894573}
-  smallUpgradeInfoPrefab: {fileID: 5554822412154441730, guid: 928db93f76af75445bf4b336772f3f1c, type: 3}
+  playerUpgradesDisplay: {fileID: 8977382028626238798}
   upgradeEggPrefab: {fileID: 5191593688329016279, guid: ac70961ca0172944099e50fea330a0bb, type: 3}
   levelManager: {fileID: 98154818553496101}
   player: {fileID: 0}
@@ -1169,7 +1183,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1527,7 +1541,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1671,11 +1685,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 589
+      value: 800
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 332
+      value: 395
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1874,11 +1888,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 589
+      value: 800
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 242
+      value: 305
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
