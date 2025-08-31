@@ -19,6 +19,8 @@ public class AttackLootTableSO : ScriptableObject
         public float chancePercentage = 10f;
         public bool lockPercentage = false; // Lock this percentage from auto-balancing
         
+
+        
         // Helper properties
         public string AttackName => attackAsset?.AttackName ?? "None";
         public bool IsValid => attackAsset != null;
@@ -137,6 +139,11 @@ public class AttackLootTableSO : ScriptableObject
     
     public BaseChickenAttackSO SelectRandomAttack()
     {
+        return SelectRandomAttack(null); // Use overload with no exclusions
+    }
+    
+    public BaseChickenAttackSO SelectRandomAttack(AttackType? excludeAttackType)
+    {
         if (attackEntries.Count == 0)
         {
             if (showDebugLogs)
@@ -144,13 +151,21 @@ public class AttackLootTableSO : ScriptableObject
             return null;
         }
         
-        // Remove invalid entries
+        // Remove invalid entries and excluded attack types
         var validEntries = attackEntries.Where(x => x.IsValid && x.chancePercentage > 0f).ToList();
+        
+        if (excludeAttackType.HasValue)
+        {
+            validEntries = validEntries.Where(x => x.attackAsset.AttackType != excludeAttackType.Value).ToList();
+            
+            if (showDebugLogs)
+                Debug.Log($"AttackLootTable '{name}': Excluding {excludeAttackType.Value} attacks from selection");
+        }
         
         if (validEntries.Count == 0)
         {
             if (showDebugLogs)
-                Debug.LogWarning($"AttackLootTable '{name}': No valid attack entries with >0% chance");
+                Debug.LogWarning($"AttackLootTable '{name}': No valid attack entries with >0% chance (after exclusions)");
             return null;
         }
         
@@ -161,11 +176,15 @@ public class AttackLootTableSO : ScriptableObject
             return validEntries[0].attackAsset;
         }
         
-        // Generate random value between 0 and 100
-        float randomValue = Random.Range(0f, 100f);
+        // Normalize percentages for available entries
+        float totalValidPercentage = validEntries.Sum(x => x.chancePercentage);
+        if (totalValidPercentage <= 0f) return validEntries[0].attackAsset;
+        
+        // Generate random value between 0 and total valid percentage
+        float randomValue = Random.Range(0f, totalValidPercentage);
         
         if (showDebugLogs)
-            Debug.Log($"AttackLootTable '{name}': Random roll: {randomValue:F2}%");
+            Debug.Log($"AttackLootTable '{name}': Random roll: {randomValue:F2} out of {totalValidPercentage:F2}");
         
         // Find which attack this random value corresponds to
         float cumulativePercentage = 0f;
@@ -205,6 +224,8 @@ public class AttackLootTableSO : ScriptableObject
         var entry = attackEntries.FirstOrDefault(x => x.attackAsset == attackAsset);
         return entry?.chancePercentage ?? 0f;
     }
+    
+
     
     public void SetAttackChance(BaseChickenAttackSO attackAsset, float percentage)
     {

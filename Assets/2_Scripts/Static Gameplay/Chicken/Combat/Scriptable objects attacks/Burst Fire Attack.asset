@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bdb9ca2f4935cb4484f847ef93256f9, type: 3}
   m_Name: Burst Fire Attack
   m_EditorClassIdentifier: 
-  attackInterval: 3
+  attackInterval: 2.5
+  usesBeforePatternChange: 3
   showDebugLogs: 0
-  maxSimultaneousAttacks: 5
-  minChickensRequired: 5
+  maxSimultaneousAttacks: 10
+  minChickensRequired: 10
