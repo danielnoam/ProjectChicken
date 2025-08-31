@@ -30,6 +30,9 @@ public class UpgradeStore : MonoBehaviour
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Button closeStoreButton;
     [SerializeField] private Button rerollButton;
+    [SerializeField] private CanvasGroup playerUpgradesCanvasGroup;
+    [SerializeField] private Transform playerUpgradesHolder;
+    [SerializeField] private SmallUpgradeInfo smallUpgradeInfoPrefab;
     [SerializeField] private UpgradeEgg upgradeEggPrefab;
     [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
@@ -37,6 +40,7 @@ public class UpgradeStore : MonoBehaviour
 
     private readonly List<SOUpgradeBase> _storeUpgradesPool = new List<SOUpgradeBase>();
     private readonly List<UpgradeEgg> _upgradeEggs = new List<UpgradeEgg>();
+    private readonly List<SmallUpgradeInfo> _playerUpgrades = new List<SmallUpgradeInfo>();
     private bool _isOpen;
     private int _currentRerollCost;
     private Sequence _storeSequence;
@@ -144,6 +148,7 @@ public class UpgradeStore : MonoBehaviour
     private void OnUpgradeSelected(SOUpgradeBase upgrade)
     {
         upgrade.ApplyUpgrade(player);
+        UpdatePlayerUpgrades();
         CloseStore();
     }
 
@@ -177,6 +182,7 @@ public class UpgradeStore : MonoBehaviour
         storeGfx.gameObject.SetActive(true);
         rerollButton.interactable = player.ResourceCollector.CurrentCurrency >= _currentRerollCost;
         captain.OnStoreOpen();
+        UpdatePlayerUpgrades();
         
         if (_storeSequence.isAlive) _storeSequence.Stop();
         _storeSequence = Sequence.Create()
@@ -299,4 +305,41 @@ public class UpgradeStore : MonoBehaviour
     
         return null;
     }
+
+    private void UpdatePlayerUpgrades()
+    {
+        if (!player || player.Upgrades.Count == 0)
+        {
+            playerUpgradesCanvasGroup.alpha = 0;
+            return;
+        }
+        
+        foreach (var playerUpgradeInfo in _playerUpgrades)
+        {
+            if (playerUpgradeInfo)
+            {
+                Destroy(playerUpgradeInfo.gameObject);
+            }
+        }
+        
+        _playerUpgrades.Clear();
+        var playerUpgrades = player.Upgrades.Keys.ToList();
+        
+        foreach (var upgrade in playerUpgrades)
+        {
+            if (!upgrade) continue;
+            
+            var existingInfo = _playerUpgrades.FirstOrDefault(info => info && info.Upgrade == upgrade);
+            if (!existingInfo)
+            {
+                var smallUpgradeInfo = Instantiate(smallUpgradeInfoPrefab, playerUpgradesHolder);
+                smallUpgradeInfo.SetInfo(upgrade);
+                _playerUpgrades.Add(smallUpgradeInfo);
+            }
+        }
+        
+        playerUpgradesCanvasGroup.alpha = _playerUpgrades.Count > 0 ? 1f : 0f;
+    }
+
+
 }
