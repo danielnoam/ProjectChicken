@@ -1477,6 +1477,16 @@ MonoBehaviour:
   playerPosition: {x: -0, y: -0, z: -30}
   enemyPosition: {x: 0, y: 10.5, z: 30}
   levelStages: []
+  shipWarping:
+    color: {r: 0.023529412, g: 0.023529412, b: 0.023529412, a: 1}
+    warpIntensity: -1
+    scale: {x: 5, y: 5}
+    fallOff: 0
+    intensity: 0
+    speed: 1
+    density: 3.28
+    softness: -1.1
+    cutout: 20.46
   gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   outroScreen: {fileID: 5750040859959061250}
   upgradeStore: {fileID: 54411316279204509}

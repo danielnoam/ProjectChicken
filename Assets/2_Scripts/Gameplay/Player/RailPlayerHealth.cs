@@ -11,7 +11,8 @@ using VInspector;
 [RequireComponent(typeof(CinemachineImpulseSource))]
 public class RailPlayerHealth : MonoBehaviour
 {
-    
+    [Header("Hit Frames")]
+    [SerializeField, Min(0)] private float hitFrameDuration = 0.5f;
     
     [Header("Shield Regen Settings")]
     [SerializeField, Min(0)] private float shieldRegenCooldown = 3f;
@@ -27,6 +28,12 @@ public class RailPlayerHealth : MonoBehaviour
     [SerializeField] private ControllerVibrationEffectSettings healthDamagedVibrationSettings;
     [SerializeField] private ControllerVibrationEffectSettings deathVibrationSettings;
     
+    [Header("Fullscreen FX")]
+    [SerializeField] private PunchSettings healthDamageFsFX = new PunchSettings();
+    [SerializeField] private PunchSettings shieldDamageFsFX = new PunchSettings();
+    [SerializeField] private PunchSettings deathFsFX = new PunchSettings();
+    
+    
     [Header("SFX/VFX")]
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
     [SerializeField] private SOAudioEvent healthDamageSfx;
@@ -41,6 +48,9 @@ public class RailPlayerHealth : MonoBehaviour
     [SerializeField] private SOAudioEvent deathSfx;
     [SerializeField] private ParticleSystem deathParticleEffect;
     
+
+    
+    
     [Header("References")]
     [SerializeField, Self, HideInInspector] private RailPlayer player;
     [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
@@ -48,11 +58,13 @@ public class RailPlayerHealth : MonoBehaviour
     
     private float _damagedCooldown;
     private Coroutine _regenShieldCoroutine;
+    private float _hitFrameTimer;
     
 
     public int CurrentHealth { get; private set; }
     public float CurrentShield { get; private set; }
     public float MaxShield { get; private set; }
+    public bool InHitFrames => _hitFrameTimer > 0;
     
 
     public event Action OnDeath;
@@ -71,6 +83,7 @@ public class RailPlayerHealth : MonoBehaviour
     private void Update()
     {
         CheckDamageCooldown();
+        UpdateHitFrames();
     }
     
 
@@ -84,6 +97,10 @@ public class RailPlayerHealth : MonoBehaviour
         
         OnHealthChanged?.Invoke(CurrentHealth);
         OnShieldChanged?.Invoke(CurrentShield);
+        
+        if (deathParticleEffect && deathParticleEffect.isPlaying) deathParticleEffect.Stop();
+        
+        _hitFrameTimer = 0;
     }
     
     
@@ -124,9 +141,11 @@ public class RailPlayerHealth : MonoBehaviour
     
     private void Die()
     {
+        StopHitFrames();
         deathSfx?.Play(audioSource);
         if (deathParticleEffect) deathParticleEffect.Play();
         controllerVibrationSource.Vibrate(deathVibrationSettings);
+        FullScreenHitFXController.Instance?.Punch(deathFsFX, true);
         
         if (cinemachineImpulseSource)
         {
@@ -143,6 +162,30 @@ public class RailPlayerHealth : MonoBehaviour
         OnDeath?.Invoke();
     }
     
+    private void StartHitFrames()
+    {
+        _hitFrameTimer = hitFrameDuration;
+    }
+    
+    private void UpdateHitFrames()
+    {
+        if (_hitFrameTimer > 0)
+        {
+            _hitFrameTimer -= Time.deltaTime;
+            
+            if (_hitFrameTimer <= 0)
+            {
+                StopHitFrames();
+            }
+        }
+    }
+    
+    private void StopHitFrames()
+    {
+        _hitFrameTimer = 0;
+    }
+
+    
     #endregion Damage System ------------------------------------------------------------------------------------------
     
     
@@ -150,9 +193,12 @@ public class RailPlayerHealth : MonoBehaviour
     
     private void DamageHealth()
     {
-        if (!IsAlive()) return;
+        if (!IsAlive() || InHitFrames) return;
         
         CurrentHealth -= 1;
+        
+        StartHitFrames();
+        
         if (CurrentHealth <= 0)
         {
             CurrentHealth = 0;
@@ -174,6 +220,7 @@ public class RailPlayerHealth : MonoBehaviour
             
             if (healthDamageParticleEffect) healthDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(healthDamagedVibrationSettings);
+            FullScreenHitFXController.Instance?.Punch(healthDamageFsFX, true);
             healthDamageSfx?.Play(audioSource);
         }
         
@@ -190,6 +237,7 @@ public class RailPlayerHealth : MonoBehaviour
             CurrentHealth = player.GameSettings.MaxHealth;
         }
         
+        if (deathParticleEffect && deathParticleEffect.isPlaying) deathParticleEffect.Stop();
         healthHealedSfx?.Play(audioSource);
         OnHealthChanged?.Invoke(CurrentHealth);
     }
@@ -264,6 +312,7 @@ public class RailPlayerHealth : MonoBehaviour
             
             if (shieldDamageParticleEffect) shieldDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(shieldDamagedVibrationSettings);
+            FullScreenHitFXController.Instance?.Punch(shieldDamageFsFX);
             shieldDamageSfx?.Play(audioSource);
         }
         

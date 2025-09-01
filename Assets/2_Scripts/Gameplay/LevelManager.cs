@@ -14,7 +14,6 @@ using VInspector;
 [SelectionBase]
 public class LevelManager : MonoBehaviour
 {
-    
     public static LevelManager Instance { get; private set; }
     
         
@@ -29,6 +28,9 @@ public class LevelManager : MonoBehaviour
     [SerializeField, ReadOnly] public Vector3 playerPosition;
     [SerializeField, ReadOnly] public Vector3 enemyPosition;
     [SerializeField, ReadOnly] private SOLevelStage[] levelStages;
+    
+    [Header("Fullscreen FX")]
+    [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
     
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
@@ -184,7 +186,7 @@ public class LevelManager : MonoBehaviour
 
     private void OnPlayerPaused()
     {
-        ReturnToMainMenu();
+        ReturnToMainMenu(0);
     }
     
     private void OnPlayerCollectedResource(Resource resource)
@@ -304,7 +306,11 @@ public class LevelManager : MonoBehaviour
             }
             else
             {
-                if (currentStage.StageType == StageType.Intro) VFXManager.Instance?.PlayVFX(level.IntroVFXSequence);
+                if (currentStage.StageType == StageType.Intro)
+                {
+                    VFXManager.Instance?.PlayVFX(level.IntroVFXSequence);
+                    FullScreenHitFXController.Instance?.TransitionFrom(shipWarping, currentStage.StageDuration/3f);
+                }
                 SetNextStage(currentStage.StageDuration);
             }
         }
@@ -326,12 +332,22 @@ public class LevelManager : MonoBehaviour
 
 
 
-    public void ReturnToMainMenu(float delay = 0)
+    public void ReturnToMainMenu(float delay = 2)
     {
         SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, _currentScore);
         SaveManager.ResetRunProgressData();
-        if (delay > 0) StartCoroutine(DelayReturnToMainMenu(delay));
-        else TransitionManager.TransitionToScene(gameSettings.MainMenuScene, level.OutroVFXSequence);
+        if (delay > 0)
+        {
+            StartCoroutine(DelayReturnToMainMenu(delay));
+        }
+        else
+        {
+            if (level.OutroVFXSequence)
+            {
+                FullScreenHitFXController.Instance?.TransitionTo(shipWarping);
+            }
+            TransitionManager.TransitionToScene(gameSettings.MainMenuScene, level.OutroVFXSequence);
+        }
     }
 
 
@@ -342,6 +358,12 @@ public class LevelManager : MonoBehaviour
         var runProgress = new RunProgressData(player.Health.CurrentHealth, player.ResourceCollector.CurrentCurrency, player.Upgrades, player.WeaponSystem.ActiveWeaponInstance?.weaponData);
         SaveManager.UpdateRunProgress(runProgress);
         TransitionManager.TransitionToScene(currentStage.NextLevel, level.OutroVFXSequence);
+
+        if (level.OutroVFXSequence)
+        {
+            FullScreenHitFXController.Instance?.TransitionTo(shipWarping);
+        }
+
     }
     
     private IEnumerator DelayReturnToMainMenu(float delay)
@@ -349,6 +371,10 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         TransitionManager.TransitionToScene(gameSettings.MainMenuScene, level.OutroVFXSequence);
+        if (level.OutroVFXSequence)
+        {
+            FullScreenHitFXController.Instance?.TransitionTo(shipWarping);
+        }
     }
 
     private IEnumerator RestartFromSavePointRoutine()

@@ -46,9 +46,12 @@ public class MenuController : MonoBehaviour
     {
         this.ValidateRefs();
     }
+    
 
     private void Start()
     {
+        FullScreenCAController.Instance?.ToggleOff();
+        FullScreenHitFXController.Instance?.ToggleOff();
         menuLoopSfx?.Play(audioSource);
     }
 

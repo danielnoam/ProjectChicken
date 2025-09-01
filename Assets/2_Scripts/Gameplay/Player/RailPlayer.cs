@@ -16,8 +16,6 @@ using VInspector;
 [RequireComponent(typeof(RailPlayerWeaponSystem))]
 [RequireComponent(typeof(RailPlayerResourceCollector))]
 [RequireComponent(typeof(RailPlayerHealth))]
-[RequireComponent(typeof(ControllerVibrationSource))]
-[RequireComponent(typeof(CinemachineImpulseSource))]
 public class RailPlayer : MonoBehaviour
 {
     [Header("Camera Positions")]
@@ -35,8 +33,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem weaponSystem;
     [SerializeField, Self, HideInInspector] private RailPlayerResourceCollector resourceCollector;
     [SerializeField, Self, HideInInspector] private RailPlayerHealth health;
-    [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
-    [SerializeField, Self, HideInInspector] private CinemachineImpulseSource cinemachineImpulseSource;
+
 
     
     
