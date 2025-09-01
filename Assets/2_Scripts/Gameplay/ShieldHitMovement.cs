@@ -27,7 +27,10 @@ public class ShieldHitMovement : MonoBehaviour
    }
    public void HitShield(Vector3 hitPos)
    {
-      _renderer.material.SetVector("_HitPos", hitPos);
+      Vector3 localHitPos = transform.InverseTransformPoint(hitPos);
+      
+      _renderer.material.SetVector("_HitPos", localHitPos);
+      
       StopAllCoroutines();
       StartCoroutine(Coroutine_HitDisplacement());
      
