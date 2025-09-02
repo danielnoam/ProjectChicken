@@ -5405,6 +5405,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   _DisplacementMagnitude: 0.4
   _LerpSpeed: 2
+  _hitColor: {r: 0, g: 0, b: 0, a: 0}
+  renderers: []
 --- !u!23 &746078352
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10592,6 +10594,12 @@ MonoBehaviour:
     m_RotationOrder: 4
   _DisplacementMagnitude: 0.4
   _LerpSpeed: 2
+  _hitColor: {r: 1, g: 1, b: 1, a: 0}
+  renderers:
+  - {fileID: 974145370}
+  - {fileID: 1861507084}
+  - {fileID: 1750031777}
+  - {fileID: 1988233935}
 --- !u!64 &974145373
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -16094,6 +16102,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   _DisplacementMagnitude: 0.4
   _LerpSpeed: 2
+  _hitColor: {r: 0, g: 0, b: 0, a: 0}
+  renderers: []
 --- !u!64 &1750031780
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -16522,6 +16532,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   _DisplacementMagnitude: 0.4
   _LerpSpeed: 2
+  _hitColor: {r: 0, g: 0, b: 0, a: 0}
+  renderers: []
 --- !u!64 &1861507087
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -16698,6 +16710,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   _DisplacementMagnitude: 0.4
   _LerpSpeed: 2
+  _hitColor: {r: 0, g: 0, b: 0, a: 0}
+  renderers: []
 --- !u!64 &1988233938
 MeshCollider:
   m_ObjectHideFlags: 0

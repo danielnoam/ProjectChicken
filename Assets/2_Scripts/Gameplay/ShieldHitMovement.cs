@@ -7,9 +7,12 @@ public class ShieldHitMovement : MonoBehaviour
    [SerializeField] private AnimationCurve _DisplacementCurve;
    [SerializeField] float _DisplacementMagnitude;
    [SerializeField] float _LerpSpeed;
+   [SerializeField] private Color _hitColor;
+   [SerializeField] private Renderer[] renderers;
 
    void Start()
-   {
+   { 
+      //_renderer.material.SetColor("_HitColor", Color.black);
       _renderer = GetComponent<Renderer>();
    }
 
@@ -38,13 +41,27 @@ public class ShieldHitMovement : MonoBehaviour
 
    IEnumerator Coroutine_HitDisplacement()
    {
-      float lerp = 0;
-      while (lerp < 1)
+      float lerp = 0f;
+
+      while (lerp < 1f)
       {
-         _renderer.material.SetFloat("_DisplacementStrength", _DisplacementCurve.Evaluate(lerp) * 
-                                                              _DisplacementMagnitude);
+         foreach (Renderer rend in renderers)
+         {
+            Material mat = rend.material; // unique instance per object
+            mat.SetFloat("_DisplacementStrength", _DisplacementCurve.Evaluate(lerp) * _DisplacementMagnitude);
+            mat.SetColor("_HitColor", Color.Lerp(_hitColor, Color.black, lerp));
+         }
+
          lerp += Time.deltaTime * _LerpSpeed;
          yield return null;
+      }
+
+      // Ensure all renderers reset
+      foreach (Renderer rend in renderers)
+      {
+         Material mat = rend.material;
+         mat.SetFloat("_DisplacementStrength", 0);
+         mat.SetColor("_HitColor", Color.black);
       }
    }
 }
