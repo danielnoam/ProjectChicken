@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-3517478979471091367
+--- !u!114 &-3783461572457329877
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PS_Jet_Sparks
-  m_Shader: {fileID: -6465566751694194690, guid: 985ab2e2db519254f8174a320a6be45c, type: 3}
+  m_Name: ForceField_MAT
+  m_Shader: {fileID: -6465566751694194690, guid: 3466a13e48e12ce4a9089a2b9bb0de65, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -29,7 +29,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 4000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
@@ -37,12 +37,12 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _SampleTexture2D_e8814f879db74127a9c5d8a022e3a1d7_Texture_1_Texture2D:
-        m_Texture: {fileID: 0}
+    - _SampleTexture2D_38dd9d4c80134ab6a0545f309b4b69e6_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 2c7e4d82f94cc7747a797a91cfddd576, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Texture2D:
-        m_Texture: {fileID: 0}
+    - _SampleTexture2D_9fd180fce4cc40d092a03244c775122d_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 2c7e4d82f94cc7747a797a91cfddd576, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -59,11 +59,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Cllip: 0.5
-    - _Float: 0
-    - _QueueControl: 1
+    - _Fresnel_Power: 0.58
+    - _Fresnel_Scale: 1.68
+    - _QueueControl: 0
     - _QueueOffset: 0
-    - _custome_texture: 0
+    - _Sphere_UV: 1
+    - _Twirl_Strength: 55.01
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

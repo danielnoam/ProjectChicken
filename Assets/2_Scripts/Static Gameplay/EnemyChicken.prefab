@@ -515,6 +515,7 @@ GameObject:
   - component: {fileID: 6441098358043672622}
   - component: {fileID: 8069820876864793074}
   - component: {fileID: 2733919210489267741}
+  - component: {fileID: 1084284691073448971}
   m_Layer: 3
   m_Name: EnemyChicken
   m_TagString: Enemy
@@ -810,8 +811,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eggPrefab: {fileID: 2910271167061673307, guid: 95a8f201965e5244aa003a4bef8241a2, type: 3}
   eggSpawnPoint: {fileID: 7706267904213187422}
-  eggSpeed: 10
-  shootCooldown: 2
+  showDebugLogs: 0
+--- !u!114 &1084284691073448971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4673152547086385400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3de78a227ef22bf40b93d0fadb9b05a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 100
+  deathVFXPrefab: {fileID: 5788710262731426170, guid: 764fd9ae066dfbb4e94dba356abc7799, type: 3}
+  deathSFX: {fileID: 0}
+  deathVFXLifetime: 3
+  canTakeDamage: 1
+  invulnerabilityDuration: 0
+  showDamageNumbers: 1
   showDebugLogs: 0
 --- !u!1 &4889101049602211096
 GameObject:
