@@ -1,3 +1,4 @@
+using DNExtensions;
 using UnityEngine;
 
 public class ChickenCombatBehaviorV2 : MonoBehaviour
@@ -105,7 +106,7 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
         }
 
         // Spawn egg
-        GameObject egg = Instantiate(eggPrefab, eggSpawnPoint.position, Quaternion.LookRotation(shootDirection));
+        GameObject egg = ObjectPooler.GetObjectFromPool(eggPrefab, eggSpawnPoint.position, Quaternion.LookRotation(shootDirection));
 
         if (egg == null)
         {

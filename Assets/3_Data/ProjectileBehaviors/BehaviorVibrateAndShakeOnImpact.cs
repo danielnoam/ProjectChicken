@@ -27,7 +27,7 @@ public class BehaviorVibrateAndShakeOnImpact : ProjectileBehaviorBase
 
     }
 
-    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenStateController collision)
     {
         if (vibrateControllerOnImpact) projectile.WeaponInstance.ControllerVibrationSource.Vibrate(vibrationSettings);
 

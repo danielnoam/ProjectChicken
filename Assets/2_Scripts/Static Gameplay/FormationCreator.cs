@@ -90,8 +90,6 @@ public class FormationCreator : MonoBehaviour
 
     void Update()
     {
-        // Handle input
-        HandleInput();
         
         // Check for formation type changes
         if (hasBeenInitialized && currentFormation != previousFormationType)
@@ -118,20 +116,6 @@ public class FormationCreator : MonoBehaviour
         visualizer.Initialize(this, boundaryManager, placer, validator);
     }
 
-    void HandleInput()
-    {
-        // Cycle through formations with Tab key
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            CycleFormation();
-        }
-        
-        // Randomize positions with R key
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            RandomizeAllPositions();
-        }
-    }
 
     void HandleFormationTypeChange()
     {
@@ -278,15 +262,6 @@ public class FormationCreator : MonoBehaviour
         if (Application.isPlaying && hasBeenInitialized)
         {
             GenerateFormation();
-        }
-        else if (!Application.isPlaying)
-        {
-            // In edit mode, generate for preview and force visualization update
-            if (generator == null) InitializeComponents();
-            GenerateFormation();
-            
-            // Force update visualization in edit mode
-            Invoke(nameof(ForceUpdateVisualization), 0.1f);
         }
     }
 }

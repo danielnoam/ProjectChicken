@@ -9,7 +9,7 @@ public class BehaviorPushOnHit : HitscanBehaviorBase
     Vector3 _pushDirection = Vector3.zero;
     
 
-    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner,ChickenController target = null)
+    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner,ChickenStateController target = null)
     {
         if (target)
         {
@@ -22,12 +22,12 @@ public class BehaviorPushOnHit : HitscanBehaviorBase
 
     }
 
-    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ChickenController target)
+    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController target)
     {
         target?.ApplyForce(_pushDirection, pushForce);
     }
 
-    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner,ChickenController target = null)
+    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner,ChickenStateController target = null)
     {
 
     }

@@ -90,7 +90,7 @@ public class ResourceManager : MonoBehaviour
         if (stage.StageType == StageType.Store) RemoveAllResources();
     }
 
-    private void OnEnemyDeath(ChickenController enemy)
+    private void OnEnemyDeath(ChickenStateController enemy)
     {
         if (!enemy  || !enemy.LootTable) return;
 

@@ -17,7 +17,7 @@ public class BehaviorPushOnImpact : ProjectileBehaviorBase
 
     }
 
-    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenStateController collision)
     {
         collision?.ApplyForce(projectile.StartDirection, pushForce);
     }

@@ -39,7 +39,7 @@ public class RailPlayerAiming : MonoBehaviour
     private Vector2 _processedLookInput;
     private Vector2 _normalizedAimPosition;
     private Vector3 _aimDirection;
-    private ChickenController _currentAimLockTarget;
+    private ChickenStateController _currentAimLockTarget;
     private Coroutine _autoCenterRoutine;
     private float CrosshairBoundaryX => player.GameSettings ? player.GameSettings.EnemyBoundary.x : 25f;
     private float CrosshairBoundaryY => player.GameSettings ? player.GameSettings.EnemyBoundary.y : 15f;
@@ -49,7 +49,7 @@ public class RailPlayerAiming : MonoBehaviour
     public Transform AimWorldPosition => aimWorldPosition;
     public Vector2 NormalizedAimPosition => _normalizedAimPosition;
     
-    public event Action<bool, ChickenController> OnAimLockStateChange; 
+    public event Action<bool, ChickenStateController> OnAimLockStateChange; 
 
     
     
@@ -254,7 +254,7 @@ public class RailPlayerAiming : MonoBehaviour
     {
         if (_isAimLocked) return;
         
-        ChickenController newTarget = GetTarget(playerInput.CurrentControlScheme.aimLockRadius);
+        ChickenStateController newTarget = GetTarget(playerInput.CurrentControlScheme.aimLockRadius);
         if (newTarget && _currentAimLockTarget != newTarget)
         {
             _currentAimLockTarget = newTarget;
@@ -374,15 +374,15 @@ public class RailPlayerAiming : MonoBehaviour
     
     #region Helper Methods -------------------------------------------------------------------------
     
-    public ChickenController GetTarget(float radius)
+    public ChickenStateController GetTarget(float radius)
     {
         
-        Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
+        Dictionary<ChickenStateController, float> enemyDistances = new Dictionary<ChickenStateController, float>();
         Collider[] hitColliders = Physics.OverlapSphere(aimWorldPosition.position, radius);
         
         foreach (Collider hitCollider in hitColliders)
         {
-            if (hitCollider.TryGetComponent(out ChickenController enemy))
+            if (hitCollider.TryGetComponent(out ChickenStateController enemy))
             {
                 float distance = Vector3.Distance(aimWorldPosition.position, enemy.transform.position);
                 enemyDistances[enemy] = distance;
@@ -391,7 +391,7 @@ public class RailPlayerAiming : MonoBehaviour
         
         if (enemyDistances.Count > 0)
         {
-            ChickenController closestEnemy = null;
+            ChickenStateController closestEnemy = null;
             float minDistance = float.MaxValue;
             
             foreach (var kvp in enemyDistances)
@@ -409,25 +409,25 @@ public class RailPlayerAiming : MonoBehaviour
         return null; 
     }
     
-    public ChickenController[] GetTargets(int maxTargets, float radius)
+    public ChickenStateController[] GetTargets(int maxTargets, float radius)
     {
-        Dictionary<ChickenController, float> enemyDistances = new Dictionary<ChickenController, float>();
+        Dictionary<ChickenStateController, float> enemyDistances = new Dictionary<ChickenStateController, float>();
         Collider[] hitColliders = Physics.OverlapSphere(aimWorldPosition.position, radius);
         
         foreach (Collider hitCollider in hitColliders)
         {
-            if (hitCollider.TryGetComponent(out ChickenController enemy))
+            if (hitCollider.TryGetComponent(out ChickenStateController enemy))
             {
                 float distance = Vector3.Distance(aimWorldPosition.position, enemy.transform.position);
                 enemyDistances[enemy] = distance;
             }
         }
         
-        List<ChickenController> sortedEnemies = new List<ChickenController>(enemyDistances.Keys);
+        List<ChickenStateController> sortedEnemies = new List<ChickenStateController>(enemyDistances.Keys);
         sortedEnemies.Sort((a, b) => enemyDistances[a].CompareTo(enemyDistances[b]));
         
         int targetCount = Mathf.Min(maxTargets, sortedEnemies.Count);
-        ChickenController[] targets = new ChickenController[targetCount];
+        ChickenStateController[] targets = new ChickenStateController[targetCount];
         for (int i = 0; i < targetCount; i++)
         {
             targets[i] = sortedEnemies[i];

@@ -206,8 +206,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Continue run or return to main menu
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: dae6848a37d297645b8191bf8c96e54f, type: 2}
-  m_sharedMaterial: {fileID: -6208529094148832399, guid: dae6848a37d297645b8191bf8c96e54f, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e4eff3476c209e948802db6062ed92c7, type: 2}
+  m_sharedMaterial: {fileID: -9052665118247088319, guid: e4eff3476c209e948802db6062ed92c7, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1268,8 +1268,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Choose an Upgrade
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: dae6848a37d297645b8191bf8c96e54f, type: 2}
-  m_sharedMaterial: {fileID: -6208529094148832399, guid: dae6848a37d297645b8191bf8c96e54f, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e4eff3476c209e948802db6062ed92c7, type: 2}
+  m_sharedMaterial: {fileID: -9052665118247088319, guid: e4eff3476c209e948802db6062ed92c7, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1612,8 +1612,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4704154618621634553}
   m_HandleRect: {fileID: 5610219870644795921}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 0.99999994
+  m_Value: 1
+  m_Size: 0.9999999
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1634,6 +1634,14 @@ PrefabInstance:
       propertyPath: m_text
       value: Close Store
       objectReference: {fileID: 0}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_Pivot.x
       value: 1
@@ -1854,6 +1862,14 @@ PrefabInstance:
       value: Reroll
       objectReference: {fileID: 0}
     - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4294967295
       objectReference: {fileID: 0}
@@ -2003,6 +2019,14 @@ PrefabInstance:
       value: Continue
       objectReference: {fileID: 0}
     - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4294967295
       objectReference: {fileID: 0}
@@ -2131,6 +2155,14 @@ PrefabInstance:
       propertyPath: m_text
       value: Return
       objectReference: {fileID: 0}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

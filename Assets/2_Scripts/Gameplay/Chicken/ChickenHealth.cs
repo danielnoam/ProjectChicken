@@ -1,3 +1,5 @@
+using System;
+using DNExtensions;
 using UnityEngine;
 using VInspector;
 
@@ -9,19 +11,19 @@ public class ChickenHealth : MonoBehaviour
     
     [Header("Death Effects")]
     public GameObject deathVFXPrefab; // Particle system prefab to spawn on death
-    public AudioClip deathSFX; // Sound effect to play on death
+    public SOAudioEvent deathSfx;
     public float deathVFXLifetime = 3f; // How long the death VFX should last
     
     [Header("Damage Settings")]
     public bool canTakeDamage = true;
     public bool showDamageNumbers = true; // For debug - could be used for damage number UI later
+    public SOAudioEvent damageSfx;
     
     [Header("Debug")]
     public bool showDebugLogs = false;
     
     // Component references
     private ChickenStateController stateController;
-    private EnemyChickenRegistration registration;
     private ChickenMovementBehavior movementBehavior;
     private AudioSource audioSource;
     
@@ -31,15 +33,14 @@ public class ChickenHealth : MonoBehaviour
     private float invulnerabilityTimer = 0f;
     
     // Events - other scripts can subscribe to these
-    public System.Action<float> OnHealthChanged; // Called when health changes
-    public System.Action<float> OnDamageTaken; // Called when damage is taken
-    public System.Action OnDeath; // Called when chicken dies
+    public Action<float> OnHealthChanged; // Called when health changes
+    public Action<float> OnDamageTaken; // Called when damage is taken
+    public Action OnDeath; // Called when chicken dies
     
     void Start()
     {
         // Get component references
         stateController = GetComponent<ChickenStateController>();
-        registration = GetComponent<EnemyChickenRegistration>();
         movementBehavior = GetComponent<ChickenMovementBehavior>();
         audioSource = GetComponent<AudioSource>();
         
@@ -50,11 +51,6 @@ public class ChickenHealth : MonoBehaviour
         if (stateController == null)
         {
             Debug.LogWarning($"ChickenHealth on {gameObject.name}: No ChickenStateController found!");
-        }
-        
-        if (registration == null)
-        {
-            Debug.LogWarning($"ChickenHealth on {gameObject.name}: No EnemyChickenRegistration found!");
         }
         
         if (showDebugLogs)
@@ -78,6 +74,8 @@ public class ChickenHealth : MonoBehaviour
         }
     }
     
+
+    
     [Button]
     public void TakeDamage(float damage)
     {
@@ -100,11 +98,11 @@ public class ChickenHealth : MonoBehaviour
 
         if (showDebugLogs || showDamageNumbers)
         {
-            Debug.Log(
-                $"ChickenHealth on {gameObject.name}: Took {actualDamage} damage! HP: {currentHealth}/{maxHealth}");
+            Debug.Log($"ChickenHealth on {gameObject.name}: Took {actualDamage} damage! HP: {currentHealth}/{maxHealth}");
         }
 
         // Trigger events
+        damageSfx?.PlayAtPoint(transform.position);
         OnDamageTaken?.Invoke(actualDamage);
         OnHealthChanged?.Invoke(currentHealth);
         
@@ -137,8 +135,6 @@ public class ChickenHealth : MonoBehaviour
         if (showDebugLogs)
             Debug.Log($"ChickenHealth on {gameObject.name}: DYING!");
         
-        // Release from slot assignment
-        ReleaseFromSlot();
         
         // Play death effects
         PlayDeathEffects();
@@ -149,44 +145,13 @@ public class ChickenHealth : MonoBehaviour
         // Disable components that shouldn't work when dead
         DisableChickenComponents();
         
-        Destroy(gameObject,0.1f);
     }
-    
-    private void ReleaseFromSlot()
-    {
-        if (registration != null && registration.IsRegistered)
-        {
-            registration.UnregisterFromManager();
-            if (showDebugLogs)
-                Debug.Log($"ChickenHealth on {gameObject.name}: Released from slot assignment");
-        }
-    }
+
     
     private void PlayDeathEffects()
     {
         // Play death SFX
-        if (deathSFX != null)
-        {
-            if (audioSource != null)
-            {
-                audioSource.PlayOneShot(deathSFX);
-                if (showDebugLogs)
-                    Debug.Log($"ChickenHealth on {gameObject.name}: Played death SFX");
-            }
-            else
-            {
-                // Create temporary audio source if none exists
-                GameObject tempAudio = new GameObject("TempDeathAudio");
-                tempAudio.transform.position = transform.position;
-                AudioSource tempSource = tempAudio.AddComponent<AudioSource>();
-                tempSource.clip = deathSFX;
-                tempSource.Play();
-                Destroy(tempAudio, deathSFX.length);
-                
-                if (showDebugLogs)
-                    Debug.Log($"ChickenHealth on {gameObject.name}: Created temporary audio source for death SFX");
-            }
-        }
+        deathSfx?.PlayAtPoint(transform.position);
         
         // Spawn death VFX
         if (deathVFXPrefab != null)
@@ -280,6 +245,48 @@ public class ChickenHealth : MonoBehaviour
         }
     }
     
+    public void Revive()
+    {
+        if (!isDead) return;
+        
+        isDead = false;
+        currentHealth = maxHealth;
+        OnHealthChanged?.Invoke(currentHealth);
+        
+        // Re-enable components
+        if (movementBehavior != null)
+        {
+            movementBehavior.enabled = true;
+        }
+        
+        if (stateController != null)
+        {
+            stateController.allowStateTransitions = true;
+            stateController.ForceSetState(ChickenStateController.ChickenState.Idle);
+        }
+        
+        ChickenCombatBehaviorV2 combatBehavior = GetComponent<ChickenCombatBehaviorV2>();
+        if (combatBehavior != null)
+        {
+            combatBehavior.enabled = true;
+        }
+        
+        EnemyLookAtPlayer lookAtPlayer = GetComponent<EnemyLookAtPlayer>();
+        if (lookAtPlayer != null)
+        {
+            lookAtPlayer.enabled = true;
+        }
+        
+        Collider[] colliders = GetComponents<Collider>();
+        foreach (Collider col in colliders)
+        {
+            col.enabled = true;
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"ChickenHealth on {gameObject.name}: Revived with full health");
+    }
+    
     public void SetMaxHealth(float newMaxHealth, bool adjustCurrentHealth = true)
     {
         float oldMaxHealth = maxHealth;
@@ -348,17 +355,6 @@ public class ChickenHealth : MonoBehaviour
     [ContextMenu("Force Die")]
     void ContextMenuForceDie() => Die();
     
-    [ContextMenu("Print Health Status")]
-    void ContextMenuPrintStatus()
-    {
-        Debug.Log($"=== CHICKEN HEALTH STATUS: {gameObject.name} ===");
-        Debug.Log($"Health: {currentHealth}/{maxHealth} ({HealthPercentage:P1})");
-        Debug.Log($"Dead: {isDead}");
-        Debug.Log($"Can Take Damage: {canTakeDamage}");
-        Debug.Log($"Invulnerable: {isInvulnerable}" + (isInvulnerable ? $" ({invulnerabilityTimer:F2}s remaining)" : ""));
-        Debug.Log($"Low Health: {IsLowHealth}");
-        Debug.Log($"Full Health: {IsFullHealth}");
-        Debug.Log($"Death VFX Assigned: {(deathVFXPrefab != null ? "Yes" : "No")}");
-        Debug.Log($"Death SFX Assigned: {(deathSFX != null ? "Yes" : "No")}");
-    }
+
+
 }

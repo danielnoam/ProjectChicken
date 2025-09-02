@@ -195,7 +195,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
 
     
-    private void OnAimLock(bool state, ChickenController target)
+    private void OnAimLock(bool state, ChickenStateController target)
     {
         if (!AllowShooting) return;
 

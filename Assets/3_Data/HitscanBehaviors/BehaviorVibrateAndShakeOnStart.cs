@@ -15,7 +15,7 @@ public class BehaviorVibrateAndShakeOnStart : HitscanBehaviorBase
 
     
     
-    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner,ChickenController target = null)
+    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner,ChickenStateController target = null)
     {
         if (vibrateControllerOnFire) weaponInstance.ControllerVibrationSource.Vibrate(vibrationSettings);
         
@@ -28,12 +28,12 @@ public class BehaviorVibrateAndShakeOnStart : HitscanBehaviorBase
         }
     }
 
-    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ChickenController target)
+    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController target)
     {
 
     }
 
-    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner,ChickenController target = null)
+    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner,ChickenStateController target = null)
     {
 
     }

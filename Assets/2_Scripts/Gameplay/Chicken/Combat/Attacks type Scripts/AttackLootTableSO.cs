@@ -26,9 +26,6 @@ public class AttackLootTableSO : ScriptableObject
         public bool IsValid => attackAsset != null;
     }
     
-    // Cached values for performance
-    private float totalPercentage = 100f;
-    private bool needsRecalculation = true;
     
     void OnValidate()
     {
@@ -133,8 +130,6 @@ public class AttackLootTableSO : ScriptableObject
             float difference = 100f - actualTotal;
             unlockedEntries[0].chancePercentage = Mathf.Round((unlockedEntries[0].chancePercentage + difference) * 10f) / 10f;
         }
-        
-        needsRecalculation = true;
     }
     
     public BaseChickenAttackSO SelectRandomAttack()

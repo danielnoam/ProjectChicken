@@ -22,7 +22,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private bool visualizeSpawnArea = true;
 
     
-    private readonly HashSet<ChickenController> _activeEnemies = new HashSet<ChickenController>();
+    private readonly HashSet<ChickenStateController> _activeEnemies = new HashSet<ChickenStateController>();
     private SOLevelStage _currentStage;
 
     
@@ -35,7 +35,7 @@ public class EnemySpawner : MonoBehaviour
     
     public event Action OnEnemyWaveSpawned;
     public event Action<int> OnEnemyWaveCleared;
-    public event Action<ChickenController> OnEnemyDeath;
+    public event Action<ChickenStateController> OnEnemyDeath;
 
 
     private void OnValidate()
@@ -105,7 +105,7 @@ public class EnemySpawner : MonoBehaviour
         
         foreach (var enemy in _activeEnemies)
         {
-            enemy.OnDeath += UpdateEnemyCount;
+            enemy.OnDeathEvent += UpdateEnemyCount;
         }
     }
 
@@ -116,7 +116,7 @@ public class EnemySpawner : MonoBehaviour
         
         foreach (var enemy in _activeEnemies)
         {
-            enemy.OnDeath -= UpdateEnemyCount;
+            enemy.OnDeathEvent -= UpdateEnemyCount;
         }
     }
     
@@ -141,7 +141,7 @@ public class EnemySpawner : MonoBehaviour
     }
     
     
-    private void UpdateEnemyCount(ChickenController enemy)
+    private void UpdateEnemyCount(ChickenStateController enemy)
     {
         if (_currentStage && _currentStage.IsTimeBasedStage) return;
         
@@ -154,7 +154,7 @@ public class EnemySpawner : MonoBehaviour
             OnEnemyWaveCleared?.Invoke(_currentStage.WaveScoreWorth);
         }
         
-        enemy.OnDeath -= UpdateEnemyCount;
+        enemy.OnDeathEvent -= UpdateEnemyCount;
     }
     
     private void Death()
@@ -186,7 +186,7 @@ public class EnemySpawner : MonoBehaviour
     
     
     
-    private void SpawnEnemy(ChickenController enemyPrefab)
+    private void SpawnEnemy(ChickenStateController enemyPrefab)
     {
         if (!enemyPrefab) return;
 
@@ -196,28 +196,20 @@ public class EnemySpawner : MonoBehaviour
         // Pass the spawn position to the object pooler
         var enemyObject = ObjectPooler.GetObjectFromPool(enemyPrefab.gameObject, spawnPosition);
         
-        if (enemyObject.TryGetComponent<ChickenController>(out var enemy))
+        if (enemyObject.TryGetComponent<ChickenStateController>(out var enemy))
         {
             // Force immediate positioning to prevent any visual glitches
             ForceImmediatePosition(enemy, spawnPosition);
             
-            // Set spawn point for the chicken's behavior system WITHOUT moving the chicken
-            // We need to set the spawn point reference but not override the current position
-            if (enemy.GetComponent<ChickenIdleBehavior>() != null)
-            {
-                enemy.GetComponent<ChickenIdleBehavior>().SetSpawnPoint(enemySpawnPosition);
-            }
-            
-            // DON'T call enemy.SetSpawnPoint() as it overrides position
             
             // Add to tracking
-            enemy.OnDeath += UpdateEnemyCount;
+            enemy.OnDeathEvent += UpdateEnemyCount;
             _activeEnemies.Add(enemy);
         }
     }
 
     // Force immediate positioning before any frame updates
-    private void ForceImmediatePosition(ChickenController enemy, Vector3 targetPosition)
+    private void ForceImmediatePosition(ChickenStateController enemy, Vector3 targetPosition)
     {
         if (!enemy) return;
 
@@ -350,22 +342,13 @@ public class EnemySpawner : MonoBehaviour
     
     private void ClearEnemies()
     {
-        var enemiesToClear = new HashSet<ChickenController>(_activeEnemies);
+        var enemiesToClear = new HashSet<ChickenStateController>(_activeEnemies);
     
         foreach (var enemy in enemiesToClear)
         {
             if (enemy != null)
             {
-                enemy.OnDeath -= UpdateEnemyCount;
-                
-                // Clean velocities before returning to pool
-                Rigidbody rb = enemy.GetComponent<Rigidbody>();
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector3.zero;
-                    rb.angularVelocity = Vector3.zero;
-                }
-                
+                enemy.OnDeathEvent -= UpdateEnemyCount;
                 enemy.ReturnToPool();
             }
         }

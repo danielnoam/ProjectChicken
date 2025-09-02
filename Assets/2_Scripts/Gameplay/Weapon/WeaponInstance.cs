@@ -227,16 +227,16 @@ public class WeaponInstance
         } 
         else
         {
-            ChickenController[] enemies = CurrentWeaponData.MaxTargets switch
+            ChickenStateController[] enemies = CurrentWeaponData.MaxTargets switch
             {
                 0 => owner.Aiming.GetTargets(999, CurrentWeaponData.TargetCheckRadius),
                 > 1 => owner.Aiming.GetTargets(CurrentWeaponData.MaxTargets, CurrentWeaponData.TargetCheckRadius),
-                _ => System.Array.Empty<ChickenController>()
+                _ => System.Array.Empty<ChickenStateController>()
             };
 
             if (enemies.Length > 0)
             {
-                foreach (ChickenController enemy in enemies)
+                foreach (ChickenStateController enemy in enemies)
                 {
                     if (enemy)
                     {
@@ -251,7 +251,7 @@ public class WeaponInstance
         }
     }
     
-    private void InstantiateProjectile(RailPlayer owner, Vector3 spawnPosition, ChickenController target = null, Vector3 aimOffset = default)
+    private void InstantiateProjectile(RailPlayer owner, Vector3 spawnPosition, ChickenStateController target = null, Vector3 aimOffset = default)
     {
         GameObject projectileObj = ObjectPooler.GetObjectFromPool(CurrentWeaponData.PlayerProjectilePrefab.gameObject, spawnPosition, Quaternion.identity);
         if (projectileObj && projectileObj.TryGetComponent(out PlayerProjectile projectile))
@@ -277,18 +277,18 @@ public class WeaponInstance
 
         if (CurrentWeaponData.MaxTargets == 1)
         {
-            ChickenController enemy = owner.Aiming.GetTarget(CurrentWeaponData.TargetCheckRadius);
+            ChickenStateController enemy = owner.Aiming.GetTarget(CurrentWeaponData.TargetCheckRadius);
             HitscanHit(owner, enemy);
         } 
         else
         {
-            ChickenController[] enemies = CurrentWeaponData.MaxTargets switch
+            ChickenStateController[] enemies = CurrentWeaponData.MaxTargets switch
             {
                 0 => owner.Aiming.GetTargets(999, CurrentWeaponData.TargetCheckRadius),
                 > 1 => owner.Aiming.GetTargets(CurrentWeaponData.MaxTargets, CurrentWeaponData.TargetCheckRadius),
-                _ => System.Array.Empty<ChickenController>()
+                _ => System.Array.Empty<ChickenStateController>()
             };
-            foreach (ChickenController enemy in enemies)
+            foreach (ChickenStateController enemy in enemies)
             {
                 HitscanHit(owner, enemy);
             }
@@ -300,7 +300,7 @@ public class WeaponInstance
         }
     }
 
-    private void HitscanHit(RailPlayer owner, ChickenController enemy)
+    private void HitscanHit(RailPlayer owner, ChickenStateController enemy)
     {
         if (!enemy) return;
 

@@ -29,14 +29,14 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
     [SerializeField, Range(0f,1f)] private float chainFalloff = 0.8f;
 
 
-    private List<ChickenController> _targetsToHit;
+    private List<ChickenStateController> _targetsToHit;
     
-    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner, ChickenController target = null)
+    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController target = null)
     {
-        _targetsToHit = new List<ChickenController>();
+        _targetsToHit = new List<ChickenStateController>();
     }
 
-    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ChickenController target)
+    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController target)
     {
         // Hit the initial target
         if (target)
@@ -60,15 +60,15 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
     }
     
 
-    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner, ChickenController target = null)
+    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController target = null)
     {
         
     }
     
     
-    private IEnumerator ChainTargets(WeaponInstance weaponInstance, RailPlayer owner, ChickenController initialTarget)
+    private IEnumerator ChainTargets(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController initialTarget)
     {
-        ChickenController currentTarget = initialTarget;
+        ChickenStateController currentTarget = initialTarget;
         
         for (int chainCount = 1; chainCount < maxTargets; chainCount++)
         {
@@ -82,7 +82,7 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
                 if (!currentTarget) break;
             }
             
-            ChickenController nextTarget = FindClosestTarget(currentTarget.transform.position, _targetsToHit);
+            ChickenStateController nextTarget = FindClosestTarget(currentTarget.transform.position, _targetsToHit);
             
             if (!nextTarget) break;
             
@@ -116,7 +116,7 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
     
     
     
-    private ChickenController FindValidTargetFromHitList()
+    private ChickenStateController FindValidTargetFromHitList()
     {
         // Find the first valid (non-destroyed) target from our hit list
         for (int i = _targetsToHit.Count - 1; i >= 0; i--)
@@ -134,11 +134,11 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
         return null;
     }
     
-    private ChickenController FindClosestTarget(Vector3 fromPosition, List<ChickenController> excludeTargets)
+    private ChickenStateController FindClosestTarget(Vector3 fromPosition, List<ChickenStateController> excludeTargets)
     {
         Collider[] hitColliders = Physics.OverlapSphere(fromPosition, targetsRadiusCheck);
         
-        ChickenController closestTarget = null;
+        ChickenStateController closestTarget = null;
         float closestDistance = float.MaxValue;
         
         foreach (Collider hitCollider in hitColliders)
@@ -146,7 +146,7 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
             if (!hitCollider) continue;
             
             
-            if (hitCollider.TryGetComponent(out ChickenController chickenEnemy))
+            if (hitCollider.TryGetComponent(out ChickenStateController chickenEnemy))
             {
                 if (!chickenEnemy || excludeTargets.Contains(chickenEnemy)) continue;
             

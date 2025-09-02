@@ -188,6 +188,7 @@ public class RailPlayerHealth : MonoBehaviour
     
     #region Health Management
     
+    [Button]
     private void DamageHealth()
     {
         if (!IsAlive() || InHitFrames) return;
@@ -280,6 +281,7 @@ public class RailPlayerHealth : MonoBehaviour
         _damagedCooldown = 0;
     }
     
+    [Button]
     private void DamageShield(float damage)
     {
         if (damage <= 0 || !ShieldActive()) return;

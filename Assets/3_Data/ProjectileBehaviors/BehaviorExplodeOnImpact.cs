@@ -24,7 +24,7 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
 
     }
 
-    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenStateController collision)
     {
         // Get the collision point position
         Vector3 explosionCenter = collision.transform.position;
@@ -36,7 +36,7 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
         foreach (Collider hitCollider in hitColliders)
         {
             // Try to get ChickenEnemy component
-            ChickenController chickenEnemy = hitCollider.GetComponent<ChickenController>();
+            ChickenStateController chickenEnemy = hitCollider.GetComponent<ChickenStateController>();
             if (chickenEnemy)
             {
                 // Calculate distance from explosion center to chicken
@@ -57,7 +57,7 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
                 {
                     float finalStunTime = maxStunTime * distanceMultiplier;
                     chickenEnemy.ApplyConcussion(finalStunTime);
-                    chickenEnemy.ApplyTorque(forceDirection, finalForce * 3);
+                    chickenEnemy.ApplyForce(forceDirection, finalForce * 3);
                 }
 
             }

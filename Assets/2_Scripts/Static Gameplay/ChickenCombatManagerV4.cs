@@ -422,9 +422,10 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     {
         List<ChickenCombatBehaviorV2> available = new List<ChickenCombatBehaviorV2>();
 
+
         foreach (ChickenCombatBehaviorV2 chicken in allCombatChickens)
         {
-            if (chicken == null) continue;
+            if (!chicken) continue;
 
             if (chicken.IsReadyToAttack)
             {

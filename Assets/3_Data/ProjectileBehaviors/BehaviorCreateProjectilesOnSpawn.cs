@@ -15,12 +15,12 @@ public class BehaviorCreateProjectilesOnSpawn : ProjectileBehaviorBase
     [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors;
 
     
-    private List<ChickenController> _targets;
+    private List<ChickenStateController> _targets;
     private int _spawnedProjectiles;
 
     public override void OnSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
-        _targets = new List<ChickenController>();
+        _targets = new List<ChickenStateController>();
         _spawnedProjectiles = 0;
         _targets = owner.Aiming.GetTargets(maxProjectiles, targetRadius).ToList();
 
@@ -51,7 +51,7 @@ public class BehaviorCreateProjectilesOnSpawn : ProjectileBehaviorBase
 
     }
 
-    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenStateController collision)
     {
 
     }
@@ -62,7 +62,7 @@ public class BehaviorCreateProjectilesOnSpawn : ProjectileBehaviorBase
     }
     
     
-    private void SpawnProjectile(PlayerProjectile projectile, RailPlayer owner, Vector3 spawnPosition, ChickenController target)
+    private void SpawnProjectile(PlayerProjectile projectile, RailPlayer owner, Vector3 spawnPosition, ChickenStateController target)
     {
         GameObject spawnedObj = Object.Instantiate(projectilePrefab.gameObject, spawnPosition, Quaternion.identity);
         PlayerProjectile miniProjectile = spawnedObj.GetComponent<PlayerProjectile>();

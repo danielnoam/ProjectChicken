@@ -18,7 +18,7 @@ public class BehaviorStunOnImpact : ProjectileBehaviorBase
 
     }
 
-    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenStateController collision)
     {
         // Check if the stun should be applied based on chance
         if (UnityEngine.Random.Range(0f, 100f) > stunChance) return;

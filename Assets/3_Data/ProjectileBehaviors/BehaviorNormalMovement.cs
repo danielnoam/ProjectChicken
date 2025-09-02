@@ -52,6 +52,6 @@ public class BehaviorNormalMovement : ProjectileBehaviorBase
     
     
     public override void OnSpawn(PlayerProjectile projectile, RailPlayer owner) { }
-    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenController collision) { }
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenStateController collision) { }
     public override void OnDestroy(PlayerProjectile projectile, RailPlayer owner) { }
 }

@@ -1,6 +1,7 @@
+using DNExtensions;
 using UnityEngine;
 
-public class ChickenEggV2 : MonoBehaviour
+public class ChickenEggV2 : MonoBehaviour, IPooledObject
 {
     [Header("Egg Settings")]
     public float lifetime = 5f; // How long the egg exists before destroying itself
@@ -12,6 +13,9 @@ public class ChickenEggV2 : MonoBehaviour
     private Vector3 velocity;
     private float spawnTime;
     private bool isInitialized = false;
+    
+    [Header("Trail Settings")]
+    [SerializeField] private TrailRenderer trailVRenderer;
 
     void Start()
     {
@@ -51,17 +55,13 @@ public class ChickenEggV2 : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        // Check if we hit the player
         if (other.CompareTag("Player"))
         {
             Debug.LogWarning("Egg Hit Player");
 
-            if (showDebugLogs)
-                Debug.Log($"Egg {gameObject.name}: Hit player {other.gameObject.name}");
-
-            // Destroy the egg
-            Destroy(gameObject);
-            return;
+            if (showDebugLogs) Debug.Log($"Egg {gameObject.name}: Hit player {other.gameObject.name}");
+            
+            ReturnProjectileToPool();
         }
     }
 
@@ -74,4 +74,33 @@ public class ChickenEggV2 : MonoBehaviour
             Gizmos.DrawLine(transform.position, transform.position + velocity.normalized * 2f);
         }
     }
+    
+    #region Pool Object -------------------------------------------------------------------------
+
+    private void ReturnProjectileToPool()
+    {
+        isInitialized = false;
+        trailVRenderer.emitting = false;
+        ObjectPooler.ReturnObjectToPool(gameObject);
+    }
+    
+    public void OnPoolGet()
+    {
+
+        
+    }
+
+    public void OnPoolReturn()
+    {
+        trailVRenderer.emitting = false;
+    }
+
+    public void OnPoolRecycle()
+    {
+        trailVRenderer.emitting = false;
+    }
+    
+    
+
+    #endregion Pool Object -------------------------------------------------------------------------
 }

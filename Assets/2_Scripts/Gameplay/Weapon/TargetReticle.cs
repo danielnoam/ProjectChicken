@@ -79,7 +79,7 @@ public class TargetReticle : MonoBehaviour
         }
     }
 
-    private void OnAimLockStateChanged(bool isLocked, ChickenController target)
+    private void OnAimLockStateChanged(bool isLocked, ChickenStateController target)
     {
         if (!player.WeaponSystem.AllowShooting) return;
 

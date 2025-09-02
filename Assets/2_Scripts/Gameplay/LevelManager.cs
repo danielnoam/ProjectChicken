@@ -166,10 +166,10 @@ public class LevelManager : MonoBehaviour
         enemiesLeft = enemySpawner.ActiveEnemyCount;
     }
 
-    private void OnEnemyDeath(ChickenController enemy)
+    private void OnEnemyDeath(ChickenStateController enemy)
     {
         enemiesLeft = enemySpawner.ActiveEnemyCount;
-        AddScore(enemy.ScoreValue);
+        AddScore(enemy.ScoreWorth);
     }
     
     private void UpgradeStoreClosed()
