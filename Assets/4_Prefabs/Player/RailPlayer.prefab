@@ -2878,44 +2878,158 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   healthDamageFsFX:
-    punchDuration: 0.1
-    returnDuration: 2
+    duration: 0.7
+    intensityCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 2.4955804
+        outSlope: 2.4955804
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.1736111
+      - serializedVersion: 3
+        time: 0.3
+        value: 1
+        inSlope: -0.03854382
+        outSlope: -0.03854382
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.625
+        outWeight: 0.29166666
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1.3800988
+        outSlope: -1.3800988
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.10119047
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     punchSettings:
-      color: {r: 1, g: 0, b: 0, a: 1}
-      warpIntensity: -0.3
-      scale: {x: 2, y: 2}
-      fallOff: 1.05
-      intensity: 3
-      speed: 1
-      density: 4
-      softness: 7
-      cutout: 4.5
+      color: {r: 2.040403, g: 0.1924908, b: 0.1924908, a: 1}
+      warpIntensity: 0
+      scale: {x: 1, y: 1}
+      fallOff: 0
+      intensity: 150
+      speed: 0.2
+      density: 2
+      softness: -0.5
+      cutout: 2
   shieldDamageFsFX:
-    punchDuration: 0.1
-    returnDuration: 2
+    duration: 0.7
+    intensityCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: -0.10511191
+        outSlope: -0.10511191
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.6805555
+      - serializedVersion: 3
+        time: 0.3
+        value: 1
+        inSlope: 0.044590387
+        outSlope: 0.044590387
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.625
+        outWeight: 1
+      - serializedVersion: 3
+        time: 0.37889308
+        value: 1
+        inSlope: -0.016384542
+        outSlope: -0.016384542
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.99999964
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1.3800988
+        outSlope: -1.3800988
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.10119047
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     punchSettings:
-      color: {r: 0, g: 0.03502059, b: 1, a: 1}
-      warpIntensity: -0.3
-      scale: {x: 2, y: 2}
-      fallOff: 1.05
-      intensity: 5
-      speed: 0.7
-      density: 5.5
-      softness: 5
-      cutout: 5
-  deathFsFX:
-    punchDuration: 0.2
-    returnDuration: 2
-    punchSettings:
-      color: {r: 1, g: 0, b: 0, a: 1}
-      warpIntensity: -0.3
-      scale: {x: 2, y: 2}
-      fallOff: 1.05
-      intensity: 3
-      speed: 1
+      color: {r: 0, g: 0.20919418, b: 8, a: 1}
+      warpIntensity: 0
+      scale: {x: 1, y: 1}
+      fallOff: 0
+      intensity: 200
+      speed: 0.02
       density: 4
-      softness: 7
-      cutout: 4.5
+      softness: -1.12
+      cutout: 2
+  deathFsFX:
+    duration: 4
+    intensityCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 2.4955804
+        outSlope: 2.4955804
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.1736111
+      - serializedVersion: 3
+        time: 0.15
+        value: 1
+        inSlope: -0.03854382
+        outSlope: -0.03854382
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.625
+        outWeight: 0.29166666
+      - serializedVersion: 3
+        time: 0.25
+        value: 1
+        inSlope: -0.12543698
+        outSlope: -0.12543698
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 1
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1.3800988
+        outSlope: -1.3800988
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.10119047
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    punchSettings:
+      color: {r: 2.040403, g: 0.1924908, b: 0.1924908, a: 1}
+      warpIntensity: 0
+      scale: {x: 1, y: 1}
+      fallOff: 0
+      intensity: 150
+      speed: 0.2
+      density: 3
+      softness: -0.5
+      cutout: 2
   audioSource: {fileID: 6485381765733721381}
   healthDamageSfx: {fileID: 0}
   healthDamageParticleEffect: {fileID: 8241255843662105569}

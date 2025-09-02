@@ -27,12 +27,15 @@ public class HitFXSettings
 [Serializable]
 public class PunchSettings
 {
-    public float punchDuration = 0.3f;
-    public float returnDuration = 0.5f;
+    public float duration = 0.8f;
+    [Tooltip("Controls the intensity over time. X-axis: normalized time (0-1), Y-axis: effect intensity (0-1)")]
+    public AnimationCurve intensityCurve = new AnimationCurve(
+        new Keyframe(0f, 0f),
+        new Keyframe(0.5f, 1f),
+        new Keyframe(1f, 0f)
+    );
     public HitFXSettings punchSettings = new HitFXSettings();
 }
-
-
 
 public class FullScreenHitFXController : MonoBehaviour
 {
@@ -74,14 +77,12 @@ public class FullScreenHitFXController : MonoBehaviour
         ToggleOff();
     }
 
-
-    #region  Public methods
+    #region Public methods
 
     public void ToggleOff()
     {
         ApplySettings(offSettings);
     }
-    
     
     [Button]
     public void TransitionToOff(float duration = 1f)
@@ -102,32 +103,38 @@ public class FullScreenHitFXController : MonoBehaviour
         _currentTransition = StartCoroutine(TransitionCoroutine(customSettings, offSettings, duration));
     }
     
-    public void Punch(PunchSettings punchConfig, bool resetCurrentEffect = false)
+    public void Punch(PunchSettings punchConfig, bool resetCurrentEffect = true)
     {
         if (_currentTransition != null) StopCoroutine(_currentTransition);
-        if (resetCurrentEffect) ApplySettings(offSettings);
-        _currentTransition = StartCoroutine(PunchCoroutine(punchConfig.punchSettings, punchConfig.punchDuration, punchConfig.returnDuration));
+        _currentTransition = StartCoroutine(PunchCoroutine(punchConfig, resetCurrentEffect));
     }
-    
-
-    
 
     #endregion Public methods
 
-
     #region Private methods
 
-        private IEnumerator PunchCoroutine(HitFXSettings punchSettings, float punchDuration, float returnDuration)
+    private IEnumerator PunchCoroutine(PunchSettings punchConfig, bool resetCurrentEffect)
     {
-        HitFXSettings startSettings = GetCurrentSettingsFromMaterial();
+        HitFXSettings startSettings = resetCurrentEffect ? offSettings : GetCurrentSettingsFromMaterial();
+        float elapsed = 0f;
+    
+        while (elapsed < punchConfig.duration)
+        {
+            float normalizedTime = elapsed / punchConfig.duration;
+            float curveValue = punchConfig.intensityCurve.Evaluate(normalizedTime);
         
-        yield return StartCoroutine(TransitionCoroutine(startSettings, punchSettings, punchDuration, false));
-        yield return StartCoroutine(TransitionCoroutine(punchSettings, offSettings, returnDuration, false));
+            // Lerp from start settings to punch settings based on curve value
+            HitFXSettings current = LerpSettings(startSettings, punchConfig.punchSettings, curveValue);
+            ApplySettings(current);
         
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+    
+        // Ensure we end at the off state
+        ApplySettings(offSettings);
         _currentTransition = null;
     }
-    
-
     
     private IEnumerator TransitionCoroutine(HitFXSettings from, HitFXSettings to, float duration, bool clearCurrentTransition = true)
     {
@@ -205,8 +212,4 @@ public class FullScreenHitFXController : MonoBehaviour
     }
 
     #endregion Private methods
-    
-
-    
-
 }

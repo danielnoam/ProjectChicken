@@ -73,7 +73,6 @@ public class RailPlayerHealth : MonoBehaviour
     public event Action<float> OnShieldChanged;
     
     
-    
     private void OnValidate()
     {
         this.ValidateRefs();
@@ -145,7 +144,7 @@ public class RailPlayerHealth : MonoBehaviour
         deathSfx?.Play(audioSource);
         if (deathParticleEffect) deathParticleEffect.Play();
         controllerVibrationSource.Vibrate(deathVibrationSettings);
-        FullScreenHitFXController.Instance?.Punch(deathFsFX, true);
+        FullScreenHitFXController.Instance?.Punch(deathFsFX);
         
         if (cinemachineImpulseSource)
         {
@@ -220,7 +219,7 @@ public class RailPlayerHealth : MonoBehaviour
             
             if (healthDamageParticleEffect) healthDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(healthDamagedVibrationSettings);
-            FullScreenHitFXController.Instance?.Punch(healthDamageFsFX, true);
+            FullScreenHitFXController.Instance?.Punch(healthDamageFsFX);
             healthDamageSfx?.Play(audioSource);
         }
         
@@ -313,6 +312,7 @@ public class RailPlayerHealth : MonoBehaviour
             if (shieldDamageParticleEffect) shieldDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(shieldDamagedVibrationSettings);
             FullScreenHitFXController.Instance?.Punch(shieldDamageFsFX);
+            Debug.Log("Playing shield damage SFX");
             shieldDamageSfx?.Play(audioSource);
         }
         

@@ -454,9 +454,9 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1941103197289240201}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.099999994, y: 0.099999994, z: 0.099999994}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7287719664908854512}
@@ -468,7 +468,7 @@ RectTransform:
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 0}
 --- !u!223 &3442116170915264900
 Canvas:
   m_ObjectHideFlags: 0
@@ -478,7 +478,7 @@ Canvas:
   m_GameObject: {fileID: 1941103197289240201}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 2
+  m_RenderMode: 0
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -504,17 +504,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &3664884757084410498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1478,15 +1478,15 @@ MonoBehaviour:
   enemyPosition: {x: 0, y: 10.5, z: 30}
   levelStages: []
   shipWarping:
-    color: {r: 0.023529412, g: 0.023529412, b: 0.023529412, a: 1}
-    warpIntensity: -1
-    scale: {x: 5, y: 5}
-    fallOff: 0
-    intensity: 0
-    speed: 1
-    density: 3.28
-    softness: -1.1
-    cutout: 20.46
+    color: {r: 0.4716981, g: 0.4716981, b: 0.4716981, a: 1}
+    warpIntensity: 0
+    scale: {x: 1, y: 1}
+    fallOff: 0.5
+    intensity: 100
+    speed: 0.5
+    density: 10.5
+    softness: -0.4
+    cutout: 1
   gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   outroScreen: {fileID: 5750040859959061250}
   upgradeStore: {fileID: 54411316279204509}
@@ -2068,11 +2068,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 150
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -90.00001
+      value: -150
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2193,11 +2193,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -150
+      value: -200
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -90.00001
+      value: -150
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

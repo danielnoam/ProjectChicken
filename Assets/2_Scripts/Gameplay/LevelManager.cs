@@ -309,7 +309,7 @@ public class LevelManager : MonoBehaviour
                 if (currentStage.StageType == StageType.Intro)
                 {
                     VFXManager.Instance?.PlayVFX(level.IntroVFXSequence);
-                    FullScreenHitFXController.Instance?.TransitionFrom(shipWarping, currentStage.StageDuration/3f);
+                    FullScreenHitFXController.Instance?.TransitionFrom(shipWarping, currentStage.StageDuration/2f);
                 }
                 SetNextStage(currentStage.StageDuration);
             }

@@ -151,6 +151,8 @@ public class RailPlayerAiming : MonoBehaviour
         else
         {
             Debug.Log($"NaN detected in target position: {targetPosition}");
+            aimWorldPosition.position = boundaryCenter + transform.forward * 10f;
+            _aimDirection = transform.forward;
         }
     }
     
