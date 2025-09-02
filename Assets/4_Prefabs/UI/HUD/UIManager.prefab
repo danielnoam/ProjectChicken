@@ -580,6 +580,14 @@ MonoBehaviour:
   shakeDecayRate: 5
   shakeFrequency: 10
   maxShakeRotation: 2
+  hudHealthDamageColor: {r: 1, g: 0.26100624, b: 0.26100624, a: 0.5882353}
+  hudShieldDamageColor: {r: 0.19811308, g: 0.19811308, b: 1, a: 0.5882353}
+  hudColorPunchDuration: 0.3
+  hudElementsToColor:
+  - {fileID: 1525084355539849278}
+  - {fileID: 8792595159575123364}
+  - {fileID: 9049674565646993910}
+  - {fileID: 3901646637325737081}
   healthPunchDuration: 0.2
   healthPunchStrength: 0.4
   healthPunchColor: {r: 1, g: 0.2028302, b: 0.2028302, a: 1}
@@ -601,11 +609,9 @@ MonoBehaviour:
   dodgePunchStrength: 0.4
   dodgeIcon: {fileID: 5313684611191140054}
   dodgeCountText: {fileID: 1351573030967703018}
-  weaponAnimationDuration: 0.5
   weaponPunchDuration: 0.2
   weaponPunchStrength: 0.4
   weaponIcon: {fileID: 8676211038320735240}
-  secondaryWeaponIcon: {fileID: 4906413324886361572}
   scoreAnimationDuration: 0.5
   scorePunchDuration: 0.2
   scorePunchStrength: 0.2
@@ -2316,17 +2322,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
---- !u!114 &4906413324886361572 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
-  m_PrefabInstance: {fileID: 6185139784477031446}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!224 &7706304544046228434 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}

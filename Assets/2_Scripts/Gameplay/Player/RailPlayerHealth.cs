@@ -48,8 +48,6 @@ public class RailPlayerHealth : MonoBehaviour
     [SerializeField] private SOAudioEvent deathSfx;
     [SerializeField] private ParticleSystem deathParticleEffect;
     
-
-    
     
     [Header("References")]
     [SerializeField, Self, HideInInspector] private RailPlayer player;
@@ -312,7 +310,6 @@ public class RailPlayerHealth : MonoBehaviour
             if (shieldDamageParticleEffect) shieldDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(shieldDamagedVibrationSettings);
             FullScreenHitFXController.Instance?.Punch(shieldDamageFsFX);
-            Debug.Log("Playing shield damage SFX");
             shieldDamageSfx?.Play(audioSource);
         }
         

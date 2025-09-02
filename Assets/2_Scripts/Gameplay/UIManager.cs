@@ -1,9 +1,13 @@
+
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using KBCore.Refs;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using PrimeTween;
+using VInspector;
 
 
 
@@ -35,6 +39,12 @@ public class UIManager : MonoBehaviour
     [SerializeField, Tooltip("How fast shake decays")] private float shakeDecayRate = 5f;
     [SerializeField, Tooltip("Shake frequency multiplier")] private float shakeFrequency = 10f;
     [SerializeField, Tooltip("Maximum shake rotation in degrees")] private float maxShakeRotation = 2f;
+    
+    [Header("Color HUD")]
+    [SerializeField] private Color hudHealthDamageColor = Color.red;
+    [SerializeField] private Color hudShieldDamageColor = Color.blue;
+    [SerializeField] private float hudColorPunchDuration = 0.2f;
+    [SerializeField] private Graphic[] hudElementsToColor;
     
     
     [Header("Health")]
@@ -94,8 +104,8 @@ public class UIManager : MonoBehaviour
     
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
-    private Sequence _keybindsSequence;
     private Sequence _hudSequence;
+    private Sequence _hudColorSequence;
     private Sequence _scoreSequence;
     private Sequence _playerHealthSequence;
     private Sequence _playerCurrencySequence;
@@ -115,7 +125,7 @@ public class UIManager : MonoBehaviour
     private float _shakeTimer;
     private Quaternion _originalHudRotation;
     private float _currentShakeRotation;
-
+    private Dictionary<Graphic, Color> _hudElementsColor;
 
 
     private void OnValidate()
@@ -214,6 +224,7 @@ public class UIManager : MonoBehaviour
 
     private void SetUpUI()
     {
+        SetUpHUDColors();
         _originalHudRotation = hudGroup.transform.localRotation;
         _weaponStartColor = weaponIcon.color;
         _dodgeStartColor = dodgeIcon.color;
@@ -251,7 +262,6 @@ public class UIManager : MonoBehaviour
     
     }
     
-
     
     
     private void UpdateStageTitle(string title)
@@ -267,6 +277,75 @@ public class UIManager : MonoBehaviour
     }
 
 
+    #region HUD Color --------------------------------------------------------------------------------------------
+
+    
+    [Button]
+    private void FindAllHUDElements()
+    {
+        if (!hudGroup) return;
+    
+        hudElementsToColor =  Array.Empty<Graphic>();
+        hudElementsToColor = hudGroup.GetComponentsInChildren<Graphic>(includeInactive: true);
+    }
+    
+    private void SetUpHUDColors()
+    {
+        if (hudElementsToColor == null || hudElementsToColor.Length == 0) return;
+        
+        _hudElementsColor = new Dictionary<Graphic, Color>();
+        foreach (var graphic in hudElementsToColor)
+        {
+            if (graphic && !_hudElementsColor.ContainsKey(graphic))
+            {
+                _hudElementsColor.Add(graphic, graphic.color);
+            }
+        }
+    }
+    
+    
+    
+    private void PunchHUDColor(Color targetColor, float duration)
+    {
+        if (_hudElementsColor == null || _hudElementsColor.Count == 0) return;
+    
+        if (_hudColorSequence.isAlive) _hudColorSequence.Stop();
+        _hudColorSequence = Sequence.Create();
+
+        foreach (var (graphic, originalColor) in _hudElementsColor)
+        {
+            if (!graphic) continue;
+            _hudColorSequence.Group(Tween.Color(graphic, graphic.color, targetColor, duration / 2f));
+        }
+        
+        bool isFirst = true;
+        foreach (var (graphic, originalColor) in _hudElementsColor)
+        {
+            if (!graphic) continue;
+        
+            if (isFirst)
+            {
+                _hudColorSequence.Chain(Tween.Color(graphic, targetColor, originalColor, duration / 2f));
+                isFirst = false;
+            }
+            else
+            {
+                _hudColorSequence.Group(Tween.Color(graphic, targetColor, originalColor, duration / 2f));
+            }
+        }
+    }
+    
+    
+    [Button]
+    private void PunchHUDHealthColor() => PunchHUDColor(hudHealthDamageColor, hudColorPunchDuration);
+    [Button]
+    private void PunchHUDShieldColor() => PunchHUDColor(hudShieldDamageColor,hudColorPunchDuration);
+    
+    
+
+    #endregion HUD Color --------------------------------------------------------------------------------------------
+    
+    
 
     #region HUD ------------------------------------------------------------------------------------------------
 
@@ -320,10 +399,9 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        // Update shake timer
+
         _shakeTimer += Time.deltaTime * shakeFrequency;
         
-        // Generate shake using Perlin noise for smoother movement
         float shakeX = (Mathf.PerlinNoise(_shakeTimer, 0f) - 0.5f) * 2f;
         float shakeY = (Mathf.PerlinNoise(0f, _shakeTimer) - 0.5f) * 2f;
         
@@ -419,6 +497,8 @@ public class UIManager : MonoBehaviour
         
         if (_playerHealth < currentHealth)
         {
+            PunchHUDHealthColor();
+            
             _playerHealthSequence.Group(Tween.Color(healthIcon, healthIcon.color, healthPunchColor, healthPunchDuration));
             _playerHealthSequence.Chain(Tween.Color(healthIcon, healthPunchColor, Color.white, healthPunchDuration));
         }
@@ -432,13 +512,15 @@ public class UIManager : MonoBehaviour
         if (_playerShieldSequence.isAlive) _playerShieldSequence.Stop();
         if (currentShield < _playerShield)
         {
+            PunchHUDShieldColor();
+            
             _playerShieldSequence = Sequence.Create()
                 .Group(Tween.Custom(
                     startValue: _playerShield, 
                     endValue: currentShield,
                     duration: shieldAnimationDuration,
                     onValueChange: value => _playerShield = Mathf.RoundToInt(value)));
-
+            
         }
         else
         {
