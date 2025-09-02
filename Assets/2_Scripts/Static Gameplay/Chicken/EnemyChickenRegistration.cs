@@ -7,20 +7,20 @@ public class EnemyChickenRegistration : MonoBehaviour
     public bool autoUnregisterOnDestroy = true;
     
     [Header("State Management")]
-    public bool autoManageState = true; // Automatically manage chicken state based on slot assignment
-    public bool showDebugLogs = false; // Local debug logs for this chicken
+    public bool autoManageState = true;
+    public bool showDebugLogs = false;
+    public float majorSlotChangeThreshold = 2f; // Distance threshold to detect major slot repositioning
 
     private EnemyChickenManager manager;
     private ChickenStateController stateController;
     private ChickenMovementBehavior movementBehavior;
     private bool isRegistered = false;
-    private bool wasAssignedLastFrame = false; // Track assignment status
-    private int lastKnownSlotIndex = -1; // Track slot changes
-    private Vector3? lastKnownSlotPosition = null; // Track slot position changes
+    private bool wasAssignedLastFrame = false;
+    private int lastKnownSlotIndex = -1;
+    private Vector3? lastKnownSlotPosition = null;
 
     void Start()
     {
-        // Get the required components
         stateController = GetComponent<ChickenStateController>();
         movementBehavior = GetComponent<ChickenMovementBehavior>();
         
@@ -38,7 +38,6 @@ public class EnemyChickenRegistration : MonoBehaviour
 
     void Update()
     {
-        // Automatically manage state based on slot assignment
         if (autoManageState && isRegistered && stateController != null)
         {
             UpdateStateBasedOnAssignment();
@@ -53,7 +52,6 @@ public class EnemyChickenRegistration : MonoBehaviour
         }
     }
 
-    // Update chicken state based on slot assignment
     void UpdateStateBasedOnAssignment()
     {
         bool isCurrentlyAssigned = IsAssignedToSlot();
@@ -68,14 +66,14 @@ public class EnemyChickenRegistration : MonoBehaviour
                 
             if (isCurrentlyAssigned)
             {
-                // Just got assigned to a slot - transition to MovingToSlotOnce
-                stateController.SetMovingToSlotOnce();
+                // Just got assigned to a slot - transition to MovingToSlot
+                stateController.SetMovingToSlot();
                 if (showDebugLogs)
-                    Debug.Log($"Chicken {gameObject.name}: Got slot assignment, setting to MovingToSlotOnce");
+                    Debug.Log($"Chicken {gameObject.name}: Got slot assignment, setting to MovingToSlot");
             }
             else
             {
-                // Lost slot assignment (slot became unavailable) - go to idle
+                // Lost slot assignment - go to idle
                 stateController.SetIdle();
                 if (showDebugLogs)
                     Debug.Log($"Chicken {gameObject.name}: Lost slot assignment, setting to Idle");
@@ -85,57 +83,87 @@ public class EnemyChickenRegistration : MonoBehaviour
             lastKnownSlotIndex = currentSlotIndex;
             lastKnownSlotPosition = currentSlotPosition;
         }
-        // Check if slot index or position changed while still assigned
+        // Check if slot changed while still assigned
         else if (isCurrentlyAssigned && (currentSlotIndex != lastKnownSlotIndex || 
                 (currentSlotPosition.HasValue && lastKnownSlotPosition.HasValue && 
                  Vector3.Distance(currentSlotPosition.Value, lastKnownSlotPosition.Value) > 0.1f)))
         {
-            if (showDebugLogs)
-                Debug.Log($"Chicken {gameObject.name}: Slot changed from {lastKnownSlotIndex} to {currentSlotIndex}");
-                
-            // Slot changed - if we're in combat, go to MovingInsideFormation
-            if (stateController.IsInCombat)
+            float slotMovementDistance = 0f;
+            bool isMajorSlotChange = false;
+            
+            // Calculate how far the slot moved
+            if (currentSlotPosition.HasValue && lastKnownSlotPosition.HasValue)
             {
-                stateController.SetMovingInsideFormation();
-                if (showDebugLogs)
-                    Debug.Log($"Chicken {gameObject.name}: Slot changed while in combat, setting to MovingInsideFormation");
+                slotMovementDistance = Vector3.Distance(currentSlotPosition.Value, lastKnownSlotPosition.Value);
+                isMajorSlotChange = slotMovementDistance > majorSlotChangeThreshold;
+            }
+            else if (currentSlotIndex != lastKnownSlotIndex)
+            {
+                // Slot index changed - always consider this major
+                isMajorSlotChange = true;
+            }
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"Chicken {gameObject.name}: Slot changed from {lastKnownSlotIndex} to {currentSlotIndex}, movement distance: {slotMovementDistance:F2}, major change: {isMajorSlotChange}");
+            }
+                
+            // Slot changed - behavior depends on current state and type of change
+            if (stateController.IsFollowingSlot)
+            {
+                if (isMajorSlotChange)
+                {
+                    // Major change - go back to MovingToSlot for proper movement
+                    stateController.SetMovingToSlot();
+                    if (showDebugLogs)
+                        Debug.Log($"Chicken {gameObject.name}: Major slot change detected, transitioning to MovingToSlot");
+                }
+                else
+                {
+                    // Minor change - stay in FollowingSlot, movement behavior will handle it
+                    if (showDebugLogs)
+                        Debug.Log($"Chicken {gameObject.name}: Minor slot change, staying in FollowingSlot");
+                }
             }
             else if (stateController.IsIdle)
             {
                 // If we're idle but have a slot, we should move to it
-                stateController.SetMovingToSlotOnce();
+                stateController.SetMovingToSlot();
                 if (showDebugLogs)
-                    Debug.Log($"Chicken {gameObject.name}: Was idle but got new slot, setting to MovingToSlotOnce");
+                    Debug.Log($"Chicken {gameObject.name}: Was idle but got new slot, setting to MovingToSlot");
+            }
+            else if (stateController.IsMovingToSlot)
+            {
+                // Already moving to slot, movement behavior will update the target
+                if (showDebugLogs)
+                    Debug.Log($"Chicken {gameObject.name}: Slot changed while moving, letting movement behavior handle it");
             }
             
             lastKnownSlotIndex = currentSlotIndex;
             lastKnownSlotPosition = currentSlotPosition;
         }
-        // Handle edge cases
-        else if (!isCurrentlyAssigned && !stateController.IsIdle)
+        // Handle edge cases where state and assignment are out of sync
+        else if (!isCurrentlyAssigned && !stateController.IsIdle && !stateController.IsConcussed)
         {
-            // Ensure idle state when not assigned and not already idle
+            // No assignment but not idle (and not concussed) - force to idle
             stateController.SetIdle();
             if (showDebugLogs)
                 Debug.Log($"Chicken {gameObject.name}: No assignment but not idle, forcing to Idle");
         }
         else if (isCurrentlyAssigned && stateController.IsIdle)
         {
-            // If we have a slot but we're idle, we should be moving to slot
-            // This fixes the bug where chickens get stuck in idle with a slot assigned
-            stateController.SetMovingToSlotOnce();
+            // Has assignment but idle - should be moving to slot
+            stateController.SetMovingToSlot();
             if (showDebugLogs)
-                Debug.Log($"Chicken {gameObject.name}: Has slot but was idle, setting to MovingToSlotOnce");
+                Debug.Log($"Chicken {gameObject.name}: Has slot but was idle, setting to MovingToSlot");
         }
     }
 
-    // Find and register with the manager
     public void RegisterWithManager()
     {
         if (isRegistered)
             return;
 
-        // Try to find the manager in the scene
         if (manager == null)
         {
             manager = FindObjectOfType<EnemyChickenManager>();
@@ -147,12 +175,10 @@ public class EnemyChickenRegistration : MonoBehaviour
             return;
         }
 
-        // Register with the manager
         if (manager.RegisterChicken(gameObject))
         {
             isRegistered = true;
             
-            // Initialize state based on assignment
             if (autoManageState && stateController != null)
             {
                 wasAssignedLastFrame = IsAssignedToSlot();
@@ -161,9 +187,9 @@ public class EnemyChickenRegistration : MonoBehaviour
                 
                 if (wasAssignedLastFrame)
                 {
-                    stateController.SetMovingToSlotOnce();
+                    stateController.SetMovingToSlot();
                     if (showDebugLogs)
-                        Debug.Log($"Chicken {gameObject.name}: Registered with slot, setting to MovingToSlotOnce");
+                        Debug.Log($"Chicken {gameObject.name}: Registered with slot, setting to MovingToSlot");
                 }
                 else
                 {
@@ -182,7 +208,6 @@ public class EnemyChickenRegistration : MonoBehaviour
         }
     }
 
-    // Unregister from the manager
     public void UnregisterFromManager()
     {
         if (!isRegistered || manager == null)
@@ -195,7 +220,6 @@ public class EnemyChickenRegistration : MonoBehaviour
             lastKnownSlotIndex = -1;
             lastKnownSlotPosition = null;
             
-            // Set to idle when unregistered
             if (autoManageState && stateController != null)
             {
                 stateController.SetIdle();
@@ -206,7 +230,6 @@ public class EnemyChickenRegistration : MonoBehaviour
         }
     }
 
-    // Force unregister and re-register (useful for respawning)
     public void ReregisterWithManager()
     {
         if (isRegistered)
@@ -216,7 +239,6 @@ public class EnemyChickenRegistration : MonoBehaviour
         RegisterWithManager();
     }
 
-    // Get the assigned slot index from the manager
     public int GetAssignedSlotIndex()
     {
         if (!isRegistered || manager == null)
@@ -225,7 +247,6 @@ public class EnemyChickenRegistration : MonoBehaviour
         return manager.GetChickenSlotIndex(gameObject);
     }
 
-    // Get the world position of the assigned slot
     public Vector3? GetAssignedSlotPosition()
     {
         if (!isRegistered || manager == null)
@@ -234,13 +255,11 @@ public class EnemyChickenRegistration : MonoBehaviour
         return manager.GetChickenSlotPosition(gameObject);
     }
 
-    // Check if this chicken is assigned to a slot
     public bool IsAssignedToSlot()
     {
         return GetAssignedSlotIndex() != -1;
     }
 
-    // Force a state update (useful when assignments change)
     public void ForceStateUpdate()
     {
         if (!isRegistered || !autoManageState || stateController == null)
@@ -255,61 +274,57 @@ public class EnemyChickenRegistration : MonoBehaviour
             Debug.Log($"Chicken {gameObject.name}: Force state update - Assigned: {isCurrentlyAssigned}, Slot: {currentSlotIndex}, Current State: {stateController.CurrentState}");
         }
         
-        if (isCurrentlyAssigned && (stateController.IsIdle || (!stateController.IsMovingToSlotOnce && !stateController.IsMovingInsideFormation && !stateController.IsInCombat)))
+        if (isCurrentlyAssigned)
         {
-            // Has slot but not in proper state - force to MovingToSlotOnce
-            stateController.SetMovingToSlotOnce();
-            wasAssignedLastFrame = true;
-            lastKnownSlotIndex = currentSlotIndex;
-            lastKnownSlotPosition = currentSlotPosition;
-            
-            if (showDebugLogs)
-                Debug.Log($"Chicken {gameObject.name}: Force update - setting to MovingToSlotOnce");
-        }
-        else if (!isCurrentlyAssigned && !stateController.IsIdle)
-        {
-            // No slot but not idle - force to idle
-            stateController.SetIdle();
-            wasAssignedLastFrame = false;
-            lastKnownSlotIndex = -1;
-            lastKnownSlotPosition = null;
-            
-            if (showDebugLogs)
-                Debug.Log($"Chicken {gameObject.name}: Force update - setting to Idle");
+            // Has slot - determine proper state
+            if (stateController.IsIdle)
+            {
+                // Has slot but idle - should be moving to slot
+                stateController.SetMovingToSlot();
+                if (showDebugLogs)
+                    Debug.Log($"Chicken {gameObject.name}: Force update - has slot but idle, setting to MovingToSlot");
+            }
+            // If already MovingToSlot or FollowingSlot, leave it as is
+            // If Concussed, leave it as is (concussion should be handled separately)
         }
         else
         {
-            // Update tracking
-            wasAssignedLastFrame = isCurrentlyAssigned;
-            lastKnownSlotIndex = currentSlotIndex;
-            lastKnownSlotPosition = currentSlotPosition;
+            // No slot - should be idle (unless concussed)
+            if (!stateController.IsIdle && !stateController.IsConcussed)
+            {
+                stateController.SetIdle();
+                if (showDebugLogs)
+                    Debug.Log($"Chicken {gameObject.name}: Force update - no slot, setting to Idle");
+            }
         }
         
-        // Also refresh movement behavior if available
+        // Update tracking
+        wasAssignedLastFrame = isCurrentlyAssigned;
+        lastKnownSlotIndex = currentSlotIndex;
+        lastKnownSlotPosition = currentSlotPosition;
+        
+        // Refresh movement behavior
         if (movementBehavior != null)
         {
             movementBehavior.RefreshMovementState();
         }
     }
 
-    // Refresh state without forcing changes (lighter than ForceStateUpdate)
     public void RefreshState()
     {
         if (!isRegistered || !autoManageState || stateController == null)
             return;
             
-        // Just update our tracking variables and let normal Update handle state changes
+        // Light refresh - just update tracking variables and let Update handle changes
         bool isCurrentlyAssigned = IsAssignedToSlot();
         int currentSlotIndex = GetAssignedSlotIndex();
         Vector3? currentSlotPosition = GetAssignedSlotPosition();
         
-        // Only update if something actually changed
         if (isCurrentlyAssigned != wasAssignedLastFrame || 
             currentSlotIndex != lastKnownSlotIndex ||
             (currentSlotPosition.HasValue && lastKnownSlotPosition.HasValue && 
              Vector3.Distance(currentSlotPosition.Value, lastKnownSlotPosition.Value) > 0.1f))
         {
-            // Let the next Update() cycle handle the state change
             if (showDebugLogs)
                 Debug.Log($"Chicken {gameObject.name}: Refresh detected change - will update state next frame");
         }
@@ -321,36 +336,43 @@ public class EnemyChickenRegistration : MonoBehaviour
     public ChickenStateController StateController => stateController;
     public ChickenMovementBehavior MovementBehavior => movementBehavior;
 
-    // Context menu for testing in editor
+    // Context menu methods
     [ContextMenu("Register with Manager")]
-    void ContextMenuRegister()
-    {
-        RegisterWithManager();
-    }
+    void ContextMenuRegister() => RegisterWithManager();
 
     [ContextMenu("Unregister from Manager")]
-    void ContextMenuUnregister()
-    {
-        UnregisterFromManager();
-    }
+    void ContextMenuUnregister() => UnregisterFromManager();
 
     [ContextMenu("Force Fix State")]
-    void ContextMenuForceFixState()
-    {
-        ForceStateUpdate();
-    }
+    void ContextMenuForceFixState() => ForceStateUpdate();
 
     [ContextMenu("Refresh State")]
-    void ContextMenuRefreshState()
-    {
-        RefreshState();
-    }
+    void ContextMenuRefreshState() => RefreshState();
 
     [ContextMenu("Toggle Debug Logs")]
     void ContextMenuToggleDebugLogs()
     {
         showDebugLogs = !showDebugLogs;
         Debug.Log($"Chicken {gameObject.name}: Debug logs {(showDebugLogs ? "enabled" : "disabled")}");
+    }
+
+    [ContextMenu("Test Major Slot Change")]
+    void ContextMenuTestMajorSlotChange()
+    {
+        if (stateController != null && stateController.IsFollowingSlot)
+        {
+            // Simulate a major slot change by setting last known position far away
+            Vector3? currentPos = GetAssignedSlotPosition();
+            if (currentPos.HasValue)
+            {
+                lastKnownSlotPosition = currentPos.Value + Vector3.right * (majorSlotChangeThreshold + 1f);
+                Debug.Log($"Chicken {gameObject.name}: Simulated major slot change for testing");
+            }
+        }
+        else
+        {
+            Debug.Log($"Chicken {gameObject.name}: Must be in FollowingSlot state to test major slot change");
+        }
     }
 
     [ContextMenu("Print Assignment Info")]
@@ -372,17 +394,18 @@ public class EnemyChickenRegistration : MonoBehaviour
         Debug.Log($"Slot Position: {(slotPosition.HasValue ? slotPosition.Value.ToString() : "None")}");
         Debug.Log($"Was Assigned Last Frame: {wasAssignedLastFrame}");
         Debug.Log($"Last Known Slot: {lastKnownSlotIndex}");
-        Debug.Log($"Last Known Position: {(lastKnownSlotPosition.HasValue ? lastKnownSlotPosition.Value.ToString() : "None")}");
+        Debug.Log($"Major Slot Change Threshold: {majorSlotChangeThreshold:F2}");
 
         if (stateController != null)
         {
             Debug.Log($"Current State: {stateController.CurrentState}");
+            Debug.Log($"Can Attack: {stateController.CanAttack}");
         }
         
         if (movementBehavior != null)
         {
             Debug.Log($"Is Moving: {movementBehavior.IsCurrentlyMoving}");
-            Debug.Log($"Moving To Spawn: {movementBehavior.IsMovingToSpawn}");
+            Debug.Log($"Is Actively Following: {movementBehavior.IsActivelyFollowing}");
         }
     }
 }
