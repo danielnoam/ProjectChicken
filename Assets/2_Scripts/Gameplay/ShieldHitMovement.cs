@@ -9,6 +9,7 @@ public class ShieldHitMovement : MonoBehaviour
    [SerializeField] float _LerpSpeed;
    [SerializeField] private Color _hitColor;
    [SerializeField] private Renderer[] renderers;
+   //s[SerializeField] private Texture _HitTex;
 
    void Start()
    { 
@@ -47,9 +48,10 @@ public class ShieldHitMovement : MonoBehaviour
       {
          foreach (Renderer rend in renderers)
          {
-            Material mat = rend.material; // unique instance per object
+            Material mat = rend.material; 
             mat.SetFloat("_DisplacementStrength", _DisplacementCurve.Evaluate(lerp) * _DisplacementMagnitude);
             mat.SetColor("_HitColor", Color.Lerp(_hitColor, Color.black, lerp));
+            //mat.SetTexture(_HitTex);
          }
 
          lerp += Time.deltaTime * _LerpSpeed;

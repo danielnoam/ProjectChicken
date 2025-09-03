@@ -10594,12 +10594,9 @@ MonoBehaviour:
     m_RotationOrder: 4
   _DisplacementMagnitude: 0.4
   _LerpSpeed: 2
-  _hitColor: {r: 1, g: 1, b: 1, a: 0}
+  _hitColor: {r: 0.509434, g: 1, b: 0.99003464, a: 0}
   renderers:
   - {fileID: 974145370}
-  - {fileID: 1861507084}
-  - {fileID: 1750031777}
-  - {fileID: 1988233935}
 --- !u!64 &974145373
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -15823,6 +15820,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1554183862}
+  - component: {fileID: 1554183863}
   m_Layer: 0
   m_Name: Shield
   m_TagString: Untagged
@@ -15849,6 +15847,69 @@ Transform:
   - {fileID: 1988233934}
   m_Father: {fileID: 3727182894853981934}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1554183863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554183861}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98552b53b67ee194b84a810119e1d619, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _DisplacementCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: -0.00082068116
+      value: 1.0029434
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.30160034
+      value: 0.0022075055
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.54944605
+      value: 0.99558496
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.9979483
+      value: 0.0007358352
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _DisplacementMagnitude: 0.4
+  _LerpSpeed: 2
+  _hitColor: {r: 0, g: 0, b: 0, a: 0}
+  renderers:
+  - {fileID: 974145370}
+  - {fileID: 1861507084}
+  - {fileID: 1750031777}
+  - {fileID: 1988233935}
+  - {fileID: 746078352}
 --- !u!1 &1604359119
 GameObject:
   m_ObjectHideFlags: 0
@@ -16102,8 +16163,9 @@ MonoBehaviour:
     m_RotationOrder: 4
   _DisplacementMagnitude: 0.4
   _LerpSpeed: 2
-  _hitColor: {r: 0, g: 0, b: 0, a: 0}
-  renderers: []
+  _hitColor: {r: 0.509434, g: 1, b: 0.99003464, a: 0}
+  renderers:
+  - {fileID: 1750031777}
 --- !u!64 &1750031780
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -16532,8 +16594,9 @@ MonoBehaviour:
     m_RotationOrder: 4
   _DisplacementMagnitude: 0.4
   _LerpSpeed: 2
-  _hitColor: {r: 0, g: 0, b: 0, a: 0}
-  renderers: []
+  _hitColor: {r: 0.509434, g: 1, b: 0.99003464, a: 0}
+  renderers:
+  - {fileID: 1861507084}
 --- !u!64 &1861507087
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -16710,8 +16773,9 @@ MonoBehaviour:
     m_RotationOrder: 4
   _DisplacementMagnitude: 0.4
   _LerpSpeed: 2
-  _hitColor: {r: 0, g: 0, b: 0, a: 0}
-  renderers: []
+  _hitColor: {r: 0.509434, g: 1, b: 0.99003464, a: 0}
+  renderers:
+  - {fileID: 1988233935}
 --- !u!64 &1988233938
 MeshCollider:
   m_ObjectHideFlags: 0
