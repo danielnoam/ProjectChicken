@@ -17,6 +17,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     public bool showAttackGizmos = false;
     public bool showSelectionLogs = false;
     public bool showPatternChangeLogs = true;
+    public bool showRegistrationLogs = false;
 
     // Timing management for each attack type
     [System.Serializable]
@@ -24,42 +25,42 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     {
         public BaseChickenAttackSO attackAsset;
         public float lastAttackTime = 0f;
-        
+
         public bool IsReady => Time.time - lastAttackTime >= attackAsset.AttackInterval;
         public float TimeUntilReady => Mathf.Max(0f, attackAsset.AttackInterval - (Time.time - lastAttackTime));
-        
+
         public void MarkAttackExecuted()
         {
             lastAttackTime = Time.time;
         }
-        
+
         public void ResetCooldown()
         {
             lastAttackTime = 0f;
         }
     }
 
-    // Private fields
-    private List<ChickenCombatBehaviorV2> allCombatChickens = new List<ChickenCombatBehaviorV2>();
+    // Private fields - CHANGED TO USE REGISTRATION SYSTEM
+    private List<ChickenCombatBehaviorV2> registeredCombatChickens = new List<ChickenCombatBehaviorV2>();
     private Dictionary<BaseChickenAttackSO, AttackTiming> attackTimings = new Dictionary<BaseChickenAttackSO, AttackTiming>();
-    
-    // Pattern change tracking - NEW SYSTEM
+
+    // Pattern change tracking
     private AttackType currentAttackType = AttackType.None;
     private int currentAttackTypeUseCount = 0;
     private bool isInPatternChangeCooldown = false;
     private float patternChangeCooldownStartTime = 0f;
-    private BaseChickenAttackSO nextAttackAfterCooldown = null; // The attack to use after cooldown
-    
+    private BaseChickenAttackSO nextAttackAfterCooldown = null;
+
     private Transform player;
 
     // Public properties
-    public int TotalCombatChickens => allCombatChickens.Count;
+    public int TotalCombatChickens => registeredCombatChickens.Count;
     public List<ChickenCombatBehaviorV2> GetAvailableAttackers() => GetAvailableAttackersInternal();
     public int AvailableAttackers => GetAvailableAttackersInternal().Count;
     public AttackType CurrentAttackType => currentAttackType;
     public int CurrentAttackTypeUseCount => currentAttackTypeUseCount;
     public bool IsInPatternChangeCooldown => isInPatternChangeCooldown;
-    public float PatternChangeCooldownTimeRemaining => isInPatternChangeCooldown ? 
+    public float PatternChangeCooldownTimeRemaining => isInPatternChangeCooldown ?
         Mathf.Max(0f, attackPatternChangeCooldown - (Time.time - patternChangeCooldownStartTime)) : 0f;
     public float EggSpeed => eggSpeed;
     public Transform Player => player;
@@ -86,9 +87,6 @@ public class ChickenCombatManagerV4 : MonoBehaviour
 
         // Initialize attack timings from loot table
         InitializeAttackTimings();
-
-        // Find all combat chickens
-        RefreshCombatChickens();
         LogLootTableStatus();
     }
 
@@ -124,7 +122,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
 
         // Get ready attacks (this includes individual attack cooldowns)
         var readyAttacks = GetReadyAttacksFromLootTable();
-        
+
         if (readyAttacks.Count == 0)
         {
             if (showSelectionLogs && Time.frameCount % 180 == 0)
@@ -134,7 +132,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
 
         // Select attack based on current pattern or initial selection
         var selectedAttack = SelectAttackFromLootTable(readyAttacks);
-        
+
         if (selectedAttack == null)
         {
             if (showSelectionLogs)
@@ -149,7 +147,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     void UpdatePatternChangeCooldown()
     {
         float cooldownTimeRemaining = PatternChangeCooldownTimeRemaining;
-        
+
         if (cooldownTimeRemaining <= 0f)
         {
             // Cooldown finished, switch to the pre-selected new attack type
@@ -169,12 +167,12 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     {
         // Exit cooldown state
         isInPatternChangeCooldown = false;
-        
+
         if (nextAttackAfterCooldown != null)
         {
             currentAttackType = nextAttackAfterCooldown.AttackType;
             currentAttackTypeUseCount = 0;
-            
+
             if (showPatternChangeLogs)
                 Debug.Log($"ChickenCombatManagerV4: PATTERN CHANGE COMPLETED - New attack type: {currentAttackType}");
         }
@@ -183,22 +181,22 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             // Fallback
             currentAttackType = AttackType.None;
             currentAttackTypeUseCount = 0;
-            
+
             if (showPatternChangeLogs)
                 Debug.LogWarning("ChickenCombatManagerV4: No next attack selected - resetting to None");
         }
-        
+
         nextAttackAfterCooldown = null;
     }
 
     void InitializeAttackTimings()
     {
         attackTimings.Clear();
-        
+
         if (attackLootTable == null) return;
-        
+
         var validAttacks = attackLootTable.GetValidAttacks();
-        
+
         foreach (var attackAsset in validAttacks)
         {
             if (attackAsset != null)
@@ -208,7 +206,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
                     attackAsset = attackAsset,
                     lastAttackTime = 0f
                 };
-                
+
                 attackTimings[attackAsset] = timing;
             }
         }
@@ -217,17 +215,17 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     List<BaseChickenAttackSO> GetReadyAttacksFromLootTable()
     {
         if (attackLootTable == null) return new List<BaseChickenAttackSO>();
-        
+
         List<BaseChickenAttackSO> readyAttacks = new List<BaseChickenAttackSO>();
         var validAttacks = attackLootTable.GetValidAttacks();
-        
+
         foreach (var attackAsset in validAttacks)
         {
             if (attackAsset != null && attackTimings.ContainsKey(attackAsset))
             {
                 var timing = attackTimings[attackAsset];
-                
-                // Check individual attack cooldown first - THIS IS CRITICAL
+
+                // Check individual attack cooldown first
                 if (!timing.IsReady)
                 {
                     if (showSelectionLogs)
@@ -240,7 +238,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
                 if (attackAsset.CanExecute(availableChickens, this))
                 {
                     readyAttacks.Add(attackAsset);
-                    
+
                     if (showSelectionLogs)
                         Debug.Log($"ChickenCombatManagerV4: {attackAsset.AttackName} is READY");
                 }
@@ -251,14 +249,14 @@ public class ChickenCombatManagerV4 : MonoBehaviour
                 }
             }
         }
-        
+
         return readyAttacks;
     }
 
     BaseChickenAttackSO SelectAttackFromLootTable(List<BaseChickenAttackSO> readyAttacks)
     {
         if (readyAttacks.Count == 0) return null;
-        
+
         // If we have a current attack type, only use attacks of that type
         if (currentAttackType != AttackType.None)
         {
@@ -288,10 +286,10 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     {
         if (specificAttacks.Count == 0) return null;
         if (specificAttacks.Count == 1) return specificAttacks[0];
-        
+
         // Create a temporary loot table with only specified attacks
         var tempEntries = new List<AttackLootTableSO.AttackEntry>();
-        
+
         foreach (var attack in specificAttacks)
         {
             float originalChance = attackLootTable.GetAttackChance(attack);
@@ -304,38 +302,38 @@ public class ChickenCombatManagerV4 : MonoBehaviour
                 });
             }
         }
-        
+
         if (tempEntries.Count == 0) return null;
         if (tempEntries.Count == 1) return tempEntries[0].attackAsset;
-        
+
         // Normalize percentages to sum to 100% for available attacks only
         float totalPercentage = tempEntries.Sum(x => x.chancePercentage);
         if (totalPercentage <= 0f) return specificAttacks[0]; // Fallback
-        
+
         // Generate random value between 0 and total percentage
         float randomValue = Random.Range(0f, totalPercentage);
-        
+
         if (showSelectionLogs)
             Debug.Log($"ChickenCombatManagerV4: Attack selection - Random roll: {randomValue:F2} out of {totalPercentage:F2}");
-        
+
         // Find which attack this random value corresponds to
         float cumulativePercentage = 0f;
         foreach (var entry in tempEntries)
         {
             cumulativePercentage += entry.chancePercentage;
-            
+
             if (showSelectionLogs)
                 Debug.Log($"  {entry.attackAsset.AttackName}: {entry.chancePercentage:F1}%, Cumulative: {cumulativePercentage:F1}%");
-            
+
             if (randomValue <= cumulativePercentage)
             {
                 if (showSelectionLogs)
                     Debug.Log($"  SELECTED: {entry.attackAsset.AttackName}!");
-                    
+
                 return entry.attackAsset;
             }
         }
-        
+
         // Fallback
         return tempEntries[tempEntries.Count - 1].attackAsset;
     }
@@ -343,14 +341,14 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     void ExecuteAttack(BaseChickenAttackSO selectedAttack)
     {
         var availableChickens = GetAvailableAttackersInternal();
-        
+
         if (showDebugLogs)
             Debug.Log($"ChickenCombatManagerV4: EXECUTING {selectedAttack.AttackName}!");
 
         // Execute the attack via ScriptableObject
         selectedAttack.Execute(availableChickens, this);
 
-        // Update individual attack timing - CRITICAL FOR PREVENTING SPAM
+        // Update individual attack timing
         if (attackTimings.ContainsKey(selectedAttack))
         {
             attackTimings[selectedAttack].MarkAttackExecuted();
@@ -365,13 +363,13 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     void UpdateAttackTypeUsage(BaseChickenAttackSO selectedAttack)
     {
         AttackType attackType = selectedAttack.AttackType;
-        
+
         // If this is a different attack type than current, reset the count
         if (currentAttackType != attackType)
         {
             currentAttackType = attackType;
             currentAttackTypeUseCount = 1;
-            
+
             if (showPatternChangeLogs)
                 Debug.Log($"ChickenCombatManagerV4: Started new attack pattern: {attackType} (Use 1)");
         }
@@ -379,14 +377,14 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         {
             // Same attack type, increment use count
             currentAttackTypeUseCount++;
-            
+
             if (showPatternChangeLogs)
                 Debug.Log($"ChickenCombatManagerV4: Continued attack pattern: {attackType} (Use {currentAttackTypeUseCount})");
         }
-        
+
         // Check if we've reached the use limit for this attack type
         int usesBeforeChange = selectedAttack.UsesBeforePatternChange;
-        
+
         if (currentAttackTypeUseCount >= usesBeforeChange)
         {
             StartPatternChangeCooldown(attackType, usesBeforeChange);
@@ -405,10 +403,10 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     {
         isInPatternChangeCooldown = true;
         patternChangeCooldownStartTime = Time.time;
-        
+
         // Pre-select the next attack type (different from current)
         nextAttackAfterCooldown = attackLootTable.SelectRandomAttack(currentAttackType);
-        
+
         if (showPatternChangeLogs)
         {
             Debug.Log($"ChickenCombatManagerV4: PATTERN CHANGE TRIGGERED!");
@@ -422,8 +420,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     {
         List<ChickenCombatBehaviorV2> available = new List<ChickenCombatBehaviorV2>();
 
-
-        foreach (ChickenCombatBehaviorV2 chicken in allCombatChickens)
+        foreach (ChickenCombatBehaviorV2 chicken in registeredCombatChickens)
         {
             if (!chicken) continue;
 
@@ -436,23 +433,13 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         return available;
     }
 
-    void RefreshCombatChickens()
-    {
-        allCombatChickens.Clear();
-        ChickenCombatBehaviorV2[] foundChickens = FindObjectsOfType<ChickenCombatBehaviorV2>();
-        allCombatChickens.AddRange(foundChickens);
-
-        if (showDebugLogs)
-            Debug.Log($"ChickenCombatManagerV4: Found {allCombatChickens.Count} combat chickens");
-    }
-
     void LogLootTableStatus()
     {
         if (!showDebugLogs || attackLootTable == null) return;
-            
+
         Debug.Log($"=== ATTACK LOOT TABLE STATUS: {attackLootTable.name} ===");
         var validAttacks = attackLootTable.GetValidAttacks();
-        
+
         foreach (var attack in validAttacks)
         {
             if (attackTimings.ContainsKey(attack))
@@ -461,41 +448,71 @@ public class ChickenCombatManagerV4 : MonoBehaviour
                 float chance = attackLootTable.GetAttackChance(attack);
                 int usesBeforeChange = attack.UsesBeforePatternChange;
                 string readyStatus = timing.IsReady ? "READY" : $"Not Ready ({timing.TimeUntilReady:F1}s)";
-                
+
                 Debug.Log($"  {attack.AttackName}: {chance:F1}% chance, {usesBeforeChange} uses before change - {readyStatus}");
             }
         }
     }
 
-    // Public management methods
-    public void RegisterChicken(ChickenCombatBehaviorV2 chicken)
+    // NEW REGISTRATION SYSTEM - Similar to EnemyChickenManager
+    public bool RegisterChickenForCombat(ChickenCombatBehaviorV2 chicken)
     {
-        if (chicken != null && !allCombatChickens.Contains(chicken))
+        if (chicken == null)
         {
-            allCombatChickens.Add(chicken);
-            if (showDebugLogs)
-                Debug.Log($"ChickenCombatManagerV4: Registered chicken {chicken.gameObject.name}");
+            if (showRegistrationLogs)
+                Debug.LogWarning("ChickenCombatManagerV4: Attempted to register null chicken for combat");
+            return false;
         }
+
+        if (registeredCombatChickens.Contains(chicken))
+        {
+            if (showRegistrationLogs)
+                Debug.Log($"ChickenCombatManagerV4: Chicken {chicken.gameObject.name} already registered for combat");
+            return false;
+        }
+
+        registeredCombatChickens.Add(chicken);
+
+        if (showRegistrationLogs)
+            Debug.Log($"ChickenCombatManagerV4: Registered chicken {chicken.gameObject.name} for combat ({registeredCombatChickens.Count} total)");
+
+        return true;
     }
 
+    public bool UnregisterChickenFromCombat(ChickenCombatBehaviorV2 chicken)
+    {
+        if (chicken == null) return false;
+
+        bool wasRegistered = registeredCombatChickens.Remove(chicken);
+
+        if (wasRegistered && showRegistrationLogs)
+            Debug.Log($"ChickenCombatManagerV4: Unregistered chicken {chicken.gameObject.name} from combat ({registeredCombatChickens.Count} total)");
+
+        return wasRegistered;
+    }
+
+    // Keep this method for backwards compatibility but mark it as obsolete
+    [System.Obsolete("Use RegisterChickenForCombat instead. This method is kept for backwards compatibility.")]
+    public void RegisterChicken(ChickenCombatBehaviorV2 chicken)
+    {
+        RegisterChickenForCombat(chicken);
+    }
+
+    // Keep this method for backwards compatibility but mark it as obsolete  
+    [System.Obsolete("Use UnregisterChickenFromCombat instead. This method is kept for backwards compatibility.")]
     public void UnregisterChicken(ChickenCombatBehaviorV2 chicken)
     {
-        if (allCombatChickens.Contains(chicken))
-        {
-            allCombatChickens.Remove(chicken);
-            if (showDebugLogs)
-                Debug.Log($"ChickenCombatManagerV4: Unregistered chicken {chicken.gameObject.name}");
-        }
+        UnregisterChickenFromCombat(chicken);
     }
 
     public void SetLootTable(AttackLootTableSO newLootTable)
     {
         attackLootTable = newLootTable;
         InitializeAttackTimings();
-        
+
         // Reset pattern tracking when changing loot table
         ResetPatternTracking();
-        
+
         if (showDebugLogs)
             Debug.Log($"ChickenCombatManagerV4: Set new loot table: {newLootTable?.name ?? "None"}");
     }
@@ -506,9 +523,9 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         {
             timing.ResetCooldown();
         }
-        
+
         ResetPatternTracking();
-        
+
         if (showDebugLogs)
             Debug.Log("ChickenCombatManagerV4: All cooldowns and pattern tracking reset");
     }
@@ -520,7 +537,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         isInPatternChangeCooldown = false;
         patternChangeCooldownStartTime = 0f;
         nextAttackAfterCooldown = null;
-        
+
         if (showPatternChangeLogs)
             Debug.Log("ChickenCombatManagerV4: Pattern tracking reset");
     }
@@ -538,7 +555,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     public void ForceAttackNow(BaseChickenAttackSO attackAsset)
     {
         if (attackAsset == null) return;
-        
+
         var availableChickens = GetAvailableAttackersInternal();
         if (attackAsset.CanExecute(availableChickens, this))
         {
@@ -559,27 +576,14 @@ public class ChickenCombatManagerV4 : MonoBehaviour
                 Debug.Log("ChickenCombatManagerV4: Already in pattern change cooldown");
             return;
         }
-        
+
         StartPatternChangeCooldown(currentAttackType, currentAttackTypeUseCount);
-        
+
         if (showPatternChangeLogs)
             Debug.Log("ChickenCombatManagerV4: Forced pattern change initiated");
     }
 
     // Context Menu Methods
-    [ContextMenu("Refresh Combat Chickens")]
-    void ContextMenuRefreshChickens()
-    {
-        RefreshCombatChickens();
-    }
-
-    [ContextMenu("Refresh Attack Timings")]
-    void ContextMenuRefreshTimings()
-    {
-        InitializeAttackTimings();
-        LogLootTableStatus();
-    }
-
     [ContextMenu("Reset All Cooldowns")]
     void ContextMenuResetAllCooldowns()
     {
@@ -616,18 +620,18 @@ public class ChickenCombatManagerV4 : MonoBehaviour
 
         Debug.Log("=== TESTING LOOT TABLE SELECTION ===");
         Dictionary<string, int> results = new Dictionary<string, int>();
-        
+
         for (int i = 0; i < 10; i++)
         {
             var readyAttacks = GetReadyAttacksFromLootTable();
             var selected = SelectAttackFromLootTable(readyAttacks);
             string attackName = selected?.AttackName ?? "None";
-            
+
             if (!results.ContainsKey(attackName))
                 results[attackName] = 0;
             results[attackName]++;
         }
-        
+
         Debug.Log("Results from 10 selections:");
         foreach (var kvp in results)
         {
@@ -656,10 +660,10 @@ public class ChickenCombatManagerV4 : MonoBehaviour
 
         LogLootTableStatus();
 
-        if (allCombatChickens.Count > 0)
+        if (registeredCombatChickens.Count > 0)
         {
-            Debug.Log("\nCHICKEN DETAILS:");
-            foreach (var chicken in allCombatChickens)
+            Debug.Log("\nREGISTERED COMBAT CHICKENS:");
+            foreach (var chicken in registeredCombatChickens)
             {
                 if (chicken != null)
                 {
@@ -675,13 +679,30 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         }
     }
 
+    [ContextMenu("Clean Up Null References")]
+    void ContextMenuCleanupNullRefs()
+    {
+        int originalCount = registeredCombatChickens.Count;
+        registeredCombatChickens.RemoveAll(chicken => chicken == null);
+        int removedCount = originalCount - registeredCombatChickens.Count;
+
+        if (removedCount > 0)
+        {
+            Debug.Log($"ChickenCombatManagerV4: Cleaned up {removedCount} null chicken references");
+        }
+        else
+        {
+            Debug.Log("ChickenCombatManagerV4: No null references found");
+        }
+    }
+
     void OnDrawGizmos()
     {
         if (!showAttackGizmos) return;
 
-        if (allCombatChickens.Count > 0)
+        if (registeredCombatChickens.Count > 0)
         {
-            foreach (var chicken in allCombatChickens)
+            foreach (var chicken in registeredCombatChickens)
             {
                 if (chicken != null)
                 {
@@ -691,7 +712,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
                 }
             }
         }
-        
+
         // Show pattern change cooldown status
         if (isInPatternChangeCooldown)
         {
