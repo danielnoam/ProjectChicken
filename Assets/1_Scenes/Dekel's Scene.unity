@@ -258,7 +258,7 @@ MonoBehaviour:
   moveSpeed: 5
   enableRotation: 1
   rotationSpeed: {x: 43, y: 67, z: 91}
-  initialScale: 0.1
+  initialScale: 0
   minSize: 0.8
   maxSize: 1.5
   scaleDuration: 2
@@ -623,7 +623,7 @@ MonoBehaviour:
   moveSpeed: 5
   enableRotation: 1
   rotationSpeed: {x: 43, y: 67, z: 91}
-  initialScale: 0.1
+  initialScale: 0
   minSize: 0.8
   maxSize: 1.5
   scaleDuration: 2
@@ -806,7 +806,7 @@ MonoBehaviour:
   moveSpeed: 5
   enableRotation: 1
   rotationSpeed: {x: 43, y: 67, z: 91}
-  initialScale: 0.1
+  initialScale: 0
   minSize: 0.8
   maxSize: 1.5
   scaleDuration: 2
@@ -1060,7 +1060,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 6982979735cf41449801c972aee5c8c9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1117,7 +1117,7 @@ MonoBehaviour:
   moveSpeed: 5
   enableRotation: 1
   rotationSpeed: {x: 43, y: 67, z: 91}
-  initialScale: 0.1
+  initialScale: 0
   minSize: 0.8
   maxSize: 1.5
   scaleDuration: 2
@@ -1233,7 +1233,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 6982979735cf41449801c972aee5c8c9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1279,7 +1279,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1488126800}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a1f54dd99b326e45908d331c349e38e, type: 3}
   m_Name: 
@@ -1287,7 +1287,7 @@ MonoBehaviour:
   moveSpeed: 5
   enableRotation: 1
   rotationSpeed: {x: 43, y: 67, z: 91}
-  initialScale: 0.1
+  initialScale: 0
   minSize: 0.8
   maxSize: 1.5
   scaleDuration: 2
@@ -1421,7 +1421,7 @@ MonoBehaviour:
   moveSpeed: 5
   enableRotation: 1
   rotationSpeed: {x: 43, y: 67, z: 91}
-  initialScale: 0.1
+  initialScale: 0
   minSize: 0.8
   maxSize: 1.5
   scaleDuration: 2
@@ -1547,7 +1547,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2142469260}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a1f54dd99b326e45908d331c349e38e, type: 3}
   m_Name: 
@@ -1555,7 +1555,7 @@ MonoBehaviour:
   moveSpeed: 5
   enableRotation: 1
   rotationSpeed: {x: 43, y: 67, z: 91}
-  initialScale: 0.1
+  initialScale: 0
   minSize: 0.8
   maxSize: 1.5
   scaleDuration: 2
@@ -1569,6 +1569,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5720452172322586311, guid: a2d54fbdad08e804795243700a80793f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6308591022137005959, guid: a2d54fbdad08e804795243700a80793f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -469.05005
@@ -1615,7 +1619,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6685398692377234749, guid: a2d54fbdad08e804795243700a80793f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2570,10 +2574,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Earth
       objectReference: {fileID: 0}
-    - target: {fileID: 1156885055244083539, guid: a9d0f3fc3c13f1049bc4ea7b5dcb71bf, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1965192834532801513, guid: a9d0f3fc3c13f1049bc4ea7b5dcb71bf, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2334.6228
@@ -2613,6 +2613,38 @@ PrefabInstance:
     - target: {fileID: 1965192834532801513, guid: a9d0f3fc3c13f1049bc4ea7b5dcb71bf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076475857923723977, guid: a9d0f3fc3c13f1049bc4ea7b5dcb71bf, type: 3}
+      propertyPath: VelocityModule.y.scalar
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076475857923723977, guid: a9d0f3fc3c13f1049bc4ea7b5dcb71bf, type: 3}
+      propertyPath: VelocityModule.z.scalar
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076475857923723977, guid: a9d0f3fc3c13f1049bc4ea7b5dcb71bf, type: 3}
+      propertyPath: VelocityModule.y.minScalar
+      value: -5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076475857923723977, guid: a9d0f3fc3c13f1049bc4ea7b5dcb71bf, type: 3}
+      propertyPath: VelocityModule.z.minScalar
+      value: -5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076475857923723977, guid: a9d0f3fc3c13f1049bc4ea7b5dcb71bf, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076475857923723977, guid: a9d0f3fc3c13f1049bc4ea7b5dcb71bf, type: 3}
+      propertyPath: InitialModule.startSizeY.scalar
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076475857923723977, guid: a9d0f3fc3c13f1049bc4ea7b5dcb71bf, type: 3}
+      propertyPath: InitialModule.startSizeZ.scalar
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076475857923723977, guid: a9d0f3fc3c13f1049bc4ea7b5dcb71bf, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
