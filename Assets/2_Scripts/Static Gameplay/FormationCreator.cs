@@ -17,19 +17,19 @@ public class FormationCreator : MonoBehaviour
 
     [Header("Formation Settings")]
     public FormationType currentFormation = FormationType.Square;
-    
+
     [Header("Formation Spacing")]
     public float spacing = 2f; // For Square, Triangle, VShape formations
-    
+
     [Header("Formation Sizes")]
     public int slotsPerSide = 3; // For Square, Triangle, VShape formations
     public float circleRadius = 3f;
-    
+
     [Header("Multiple Formations")]
     [Range(1, 10)]
     public int formationCount = 1; // Number of formations (1-10)
     public float formationSpacing = 5f; // Minimum distance between formation bounding boxes
-    
+
     [Header("Random Placement")]
     public bool useRandomPlacement = true; // If false, uses old side-by-side placement
     [Range(10, 1000)]
@@ -41,7 +41,7 @@ public class FormationCreator : MonoBehaviour
     private FormationValidator validator;
     private FormationBoundaryManager boundaryManager;
     private FormationVisualizer visualizer;
-    
+
     // Formation state
     private List<Vector3> formationSlots = new List<Vector3>();
     private FormationType previousFormationType;
@@ -53,13 +53,58 @@ public class FormationCreator : MonoBehaviour
         InitializeComponents();
     }
 
+    void OnEnable()
+    {
+        // Subscribe to LevelManager events when this object becomes active
+        if (LevelManager.Instance != null)
+        {
+            LevelManager.Instance.OnStageChanged += OnStageChanged;
+        }
+    }
+
+    void OnDisable()
+    {
+        // Unsubscribe from LevelManager events when this object becomes inactive
+        if (LevelManager.Instance != null)
+        {
+            LevelManager.Instance.OnStageChanged -= OnStageChanged;
+        }
+    }
+
     void Start()
     {
         // Store initial formation type
         previousFormationType = currentFormation;
-        
+
         // Use coroutine to ensure proper initialization timing
         StartCoroutine(InitializeFormationWithDelay());
+    }
+
+    // Event handler for when the level stage changes
+    private void OnStageChanged(SOLevelStage newStage)
+    {
+        Debug.Log($"FormationCreator: Stage changed to {newStage.name}");
+
+        // Add your custom logic here based on the new stage
+        // Examples:
+        // - Change formation type based on stage type
+        // - Adjust spacing based on stage speed
+        // - Modify formation count for different difficulty levels
+
+        // Example implementation (uncomment and modify as needed):
+        /*
+        switch (newStage.StageType)
+        {
+            case StageType.EnemyWave:
+                currentFormation = FormationType.Circle; // Defensive formation
+                GenerateFormation();
+                break;
+            case StageType.Store:
+                currentFormation = FormationType.Square; // Relaxed formation
+                GenerateFormation();
+                break;
+        }
+        */
     }
 
     // New coroutine to handle proper initialization timing
@@ -67,10 +112,10 @@ public class FormationCreator : MonoBehaviour
     {
         // Wait one frame to ensure all components are fully initialized
         yield return null;
-        
+
         // Generate initial formation
         GenerateFormation();
-        
+
         // Apply random placement if enabled
         if (useRandomPlacement)
         {
@@ -78,19 +123,19 @@ public class FormationCreator : MonoBehaviour
             // Regenerate after randomization
             GenerateFormation();
         }
-        
+
         // Force update all visualization components
         ForceUpdateVisualization();
-        
+
         // Mark as initialized
         hasBeenInitialized = true;
-        
+
         Debug.Log($"FormationCreator: Successfully initialized with {currentFormation} formation ({formationSlots.Count} slots)");
     }
 
     void Update()
     {
-        
+
         // Check for formation type changes
         if (hasBeenInitialized && currentFormation != previousFormationType)
         {
@@ -107,7 +152,7 @@ public class FormationCreator : MonoBehaviour
         validator = GetComponent<FormationValidator>() ?? gameObject.AddComponent<FormationValidator>();
         boundaryManager = GetComponent<FormationBoundaryManager>() ?? gameObject.AddComponent<FormationBoundaryManager>();
         visualizer = GetComponent<FormationVisualizer>() ?? gameObject.AddComponent<FormationVisualizer>();
-        
+
         // Initialize components with references
         generator.Initialize(this);
         placer.Initialize(this, boundaryManager, validator);
@@ -120,7 +165,7 @@ public class FormationCreator : MonoBehaviour
     void HandleFormationTypeChange()
     {
         Debug.Log($"FormationCreator: Formation type changed from {previousFormationType} to {currentFormation}. Processing change...");
-        
+
         if (validator.ValidateFormationChanges && useRandomPlacement)
         {
             validator.HandleFormationTypeChange();
@@ -130,7 +175,7 @@ public class FormationCreator : MonoBehaviour
             // No validation - just update shapes
             GenerateFormation();
         }
-        
+
         // Force update visualization after formation type change
         ForceUpdateVisualization();
     }
@@ -144,32 +189,32 @@ public class FormationCreator : MonoBehaviour
             // Try to call a refresh method if it exists
             var refreshMethod = boundaryManager.GetType().GetMethod("RefreshBoundaries");
             refreshMethod?.Invoke(boundaryManager, null);
-            
+
             // Or call Update method if it exists
             var updateMethod = boundaryManager.GetType().GetMethod("UpdateBoundaries");
             updateMethod?.Invoke(boundaryManager, null);
         }
-        
+
         // Force visualizer to update
         if (visualizer != null)
         {
             // Try to call a refresh method if it exists
             var refreshMethod = visualizer.GetType().GetMethod("RefreshVisualization");
             refreshMethod?.Invoke(visualizer, null);
-            
+
             // Or call Update method if it exists
             var updateMethod = visualizer.GetType().GetMethod("UpdateVisualization");
             updateMethod?.Invoke(visualizer, null);
         }
-        
+
         // Force a repaint in editor
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (!Application.isPlaying)
         {
             EditorUtility.SetDirty(this);
             SceneView.RepaintAll();
         }
-        #endif
+#endif
     }
 
     // Main formation generation method
@@ -177,13 +222,13 @@ public class FormationCreator : MonoBehaviour
     {
         // Clear existing slots
         formationSlots.Clear();
-        
+
         // Generate base formation using generator
         List<Vector3> baseFormation = generator.GenerateFormation(currentFormation);
-        
+
         // Place formations using placer
         formationSlots = placer.PlaceFormations(baseFormation);
-        
+
         // After generation, ensure visualization is updated
         if (hasBeenInitialized)
         {
@@ -208,7 +253,7 @@ public class FormationCreator : MonoBehaviour
             Debug.Log("FormationCreator: Random placement is disabled, cannot randomize positions");
             return;
         }
-        
+
         placer.RandomizeAllPositions();
         GenerateFormation();
     }
@@ -244,7 +289,7 @@ public class FormationCreator : MonoBehaviour
     public FormationValidator Validator => validator;
     public FormationBoundaryManager BoundaryManager => boundaryManager;
     public FormationVisualizer Visualizer => visualizer;
-    
+
     // Properties for settings access
     public List<Vector3> FormationSlots => formationSlots;
     public bool HasBeenInitialized => hasBeenInitialized;
@@ -273,16 +318,16 @@ public class FormationCreatorEditor : UnityEditor.Editor
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
-        
+
         FormationCreator formationCreator = (FormationCreator)target;
-        
+
         GUILayout.Space(10);
-        
+
         if (GUILayout.Button("Cycle to Next Formation", GUILayout.Height(30)))
         {
             formationCreator.CycleFormation();
         }
-        
+
         if (formationCreator.useRandomPlacement)
         {
             if (GUILayout.Button("Randomize All Positions", GUILayout.Height(25)))
@@ -290,13 +335,13 @@ public class FormationCreatorEditor : UnityEditor.Editor
                 formationCreator.RandomizeAllPositions();
             }
         }
-        
+
         // New button to force visualization update
         if (GUILayout.Button("Force Update Visualization", GUILayout.Height(25)))
         {
             formationCreator.ForceUpdateVisualizationMenu();
         }
-        
+
         // Reinitialize button for debugging
         if (Application.isPlaying)
         {
@@ -305,7 +350,7 @@ public class FormationCreatorEditor : UnityEditor.Editor
                 formationCreator.ReinitializeFormation();
             }
         }
-        
+
         // Show validation status if validator exists
         if (formationCreator.Validator != null && formationCreator.Validator.ValidateFormationChanges && formationCreator.useRandomPlacement)
         {
@@ -319,7 +364,7 @@ public class FormationCreatorEditor : UnityEditor.Editor
                 EditorGUILayout.HelpBox($"⚠ Formation validation: {formationCreator.Validator.InvalidFormationCount} formations repositioned due to conflicts", MessageType.Warning);
             }
         }
-        
+
         // Show initialization status
         GUILayout.Space(5);
         if (formationCreator.HasBeenInitialized)
@@ -330,7 +375,7 @@ public class FormationCreatorEditor : UnityEditor.Editor
         {
             EditorGUILayout.HelpBox("⏳ Formation initializing...", MessageType.Warning);
         }
-        
+
         // Show collider info
         if (formationCreator.GetComponent<BoxCollider2D>() == null)
         {
@@ -340,7 +385,7 @@ public class FormationCreatorEditor : UnityEditor.Editor
         {
             EditorGUILayout.HelpBox("Formation will be automatically scaled to fit within the BoxCollider2D bounds.", MessageType.Info);
         }
-        
+
         // Show usage info
         if (formationCreator.useRandomPlacement)
         {
