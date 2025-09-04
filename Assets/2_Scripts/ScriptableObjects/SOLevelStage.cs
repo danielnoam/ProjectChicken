@@ -35,7 +35,7 @@ public class SOLevelStage : ScriptableObject
     [SerializeField, Min(0)] private float delayBeforeNextStage = 1f;
     [SerializeField, Min(0)] private int waveScoreWorth = 1000;
     [SerializeField] private SerializedDictionary<ChickenStateController,int> enemyWave = new SerializedDictionary<ChickenStateController, int>();
-    [SerializeField] private FormationSettings formationSettings = new FormationSettings();
+    [SerializeField] private FormationStageData formationStageData = new FormationStageData();
     [EndIf]
     
 
@@ -51,7 +51,7 @@ public class SOLevelStage : ScriptableObject
     public SerializedDictionary<ChickenStateController, int> EnemyWave => enemyWave;
     public float DelayBeforeNextStage => delayBeforeNextStage;
     public int WaveScoreWorth =>  waveScoreWorth;
-    public FormationSettings FormationSettings => formationSettings;
+    public FormationStageData FormationStageData => formationStageData;
     public bool IsTimeBasedStage => stageType is StageType.Delay or StageType.Intro or StageType.Outro;
     public bool AllowPlayerMovement => allowPlayerMovement;
     public bool AllowPlayerShootingAndAiming => allowPlayerShootingAndAiming;
