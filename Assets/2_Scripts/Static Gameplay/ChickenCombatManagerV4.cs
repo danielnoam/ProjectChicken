@@ -2,6 +2,15 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
+[System.Serializable]
+public class AttackEntry
+{
+    public BaseChickenAttackSO attackAsset;
+    [Range(0f, 100f)] public float chancePercentage = 10f;
+}
+
+
+
 public class ChickenCombatManagerV4 : MonoBehaviour
 {
     [Header("Attack Configuration")]
@@ -284,20 +293,22 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         }
     }
 
+
+    
     BaseChickenAttackSO SelectFromSpecificAttacks(List<BaseChickenAttackSO> specificAttacks)
     {
         if (specificAttacks.Count == 0) return null;
         if (specificAttacks.Count == 1) return specificAttacks[0];
         
         // Create a temporary loot table with only specified attacks
-        var tempEntries = new List<AttackLootTableSO.AttackEntry>();
+        var tempEntries = new List<AttackEntry>();
         
         foreach (var attack in specificAttacks)
         {
             float originalChance = attackLootTable.GetAttackChance(attack);
             if (originalChance > 0f)
             {
-                tempEntries.Add(new AttackLootTableSO.AttackEntry
+                tempEntries.Add(new AttackEntry
                 {
                     attackAsset = attack,
                     chancePercentage = originalChance
@@ -407,7 +418,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         patternChangeCooldownStartTime = Time.time;
         
         // Pre-select the next attack type (different from current)
-        nextAttackAfterCooldown = attackLootTable.SelectRandomAttack(currentAttackType);
+        nextAttackAfterCooldown = attackLootTable.SelectRandomAttackThatIsNot(completedAttackType);
         
         if (showPatternChangeLogs)
         {

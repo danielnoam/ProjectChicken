@@ -1,3 +1,4 @@
+using System;
 using DNExtensions;
 using UnityEngine;
 
@@ -5,23 +6,22 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
 {
     [Header("Egg Settings")]
     public float lifetime = 5f; // How long the egg exists before destroying itself
-    public bool useGravity = false; // Whether egg should be affected by gravity
+    public bool useGravity; // Whether egg should be affected by gravity
 
     [Header("Debug")]
-    public bool showDebugLogs = false;
+    public bool showDebugLogs;
 
     private Vector3 velocity;
     private float spawnTime;
-    private bool isInitialized = false;
+    private bool isInitialized;
     
     [Header("Trail Settings")]
     [SerializeField] private TrailRenderer trailVRenderer;
 
-    void Start()
+    private void Awake()
     {
         spawnTime = Time.time;
-
-        // Set up rigidbody if present
+        
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
@@ -29,7 +29,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
         }
     }
 
-    void Update()
+    private void Update()
     {
         // Move the egg if initialized
         if (isInitialized)
@@ -40,9 +40,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
         // Destroy after lifetime
         if (Time.time - spawnTime >= lifetime)
         {
-            if (showDebugLogs)
-                Debug.Log($"Egg {gameObject.name}: Destroyed after {lifetime} seconds");
-
+            if (showDebugLogs) Debug.Log($"Egg {gameObject.name}: Destroyed after {lifetime} seconds");
             Destroy(gameObject);
         }
     }
@@ -53,27 +51,32 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
         isInitialized = true;
     }
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        
+        if (other.TryGetComponent(out ShieldHitMovement shieldHitMovement))
         {
-            Debug.LogWarning("Egg Hit Player");
-
+            shieldHitMovement.HitShield(transform.position);
+        }
+        
+        if (other.TryGetComponent(out RailPlayer player))
+        {
             if (showDebugLogs) Debug.Log($"Egg {gameObject.name}: Hit player {other.gameObject.name}");
-            
+            player.Health.TakeDamage(25);
             ReturnProjectileToPool();
         }
     }
 
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
         if (isInitialized)
         {
-            // Draw velocity direction
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, transform.position + velocity.normalized * 2f);
         }
     }
+    
+    
     
     #region Pool Object -------------------------------------------------------------------------
 

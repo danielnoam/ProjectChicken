@@ -13,16 +13,17 @@ MonoBehaviour:
   m_Name: Attack Loot Table
   m_EditorClassIdentifier: 
   attackEntries:
-  - attackAsset: {fileID: 11400000, guid: b02217bdccdde0742b997dd8b1f3a0bf, type: 2}
-    chancePercentage: 0
-    lockPercentage: 0
-  - attackAsset: {fileID: 11400000, guid: 9ead985b1c769ac4aa8654564e7ec381, type: 2}
-    chancePercentage: 10
-    lockPercentage: 1
-  - attackAsset: {fileID: 11400000, guid: dcebe41714641db4eaeaebab24bf889d, type: 2}
-    chancePercentage: 0
-    lockPercentage: 0
-  - attackAsset: {fileID: 11400000, guid: 8b48a6f776e1186458d103ea7e94d462, type: 2}
-    chancePercentage: 90
-    lockPercentage: 1
+    internalItems:
+    - item: {fileID: 11400000, guid: dcebe41714641db4eaeaebab24bf889d, type: 2}
+      chance: 33
+      isLocked: 0
+    - item: {fileID: 11400000, guid: 9ead985b1c769ac4aa8654564e7ec381, type: 2}
+      chance: 33
+      isLocked: 0
+    - item: {fileID: 11400000, guid: b02217bdccdde0742b997dd8b1f3a0bf, type: 2}
+      chance: 33
+      isLocked: 0
+    - item: {fileID: 11400000, guid: 8b48a6f776e1186458d103ea7e94d462, type: 2}
+      chance: 1
+      isLocked: 0
   showDebugLogs: 0

@@ -107,6 +107,25 @@ namespace DNExtensions
 
             return internalItems[index].chance;
         }
+        
+        
+        /// <summary>
+        /// Get the index of a specific item, or -1 if not found
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public int GetIndex(T item)
+        {
+            for (int i = 0; i < internalItems.Length; i++)
+            {
+                if (EqualityComparer<T>.Default.Equals(internalItems[i].item, item))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
 
         /// <summary>
         /// Set the locked state for an item at the specified index
