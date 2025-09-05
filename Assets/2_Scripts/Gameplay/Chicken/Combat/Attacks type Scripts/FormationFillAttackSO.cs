@@ -7,9 +7,6 @@ public class FormationFillAttackSO : BaseChickenAttackSO
     [Header("Formation Fill Settings")]
     [Range(1, 10)]
     public int minEmptySlotsRequired = 2; // Minimum empty slots needed for attack to be available
-    public bool preferClosestChickenToSlot = true;
-    [Range(0f, 1f)]
-    public float randomnessWeight = 0.3f; // 0 = always closest, 1 = completely random
 
     public override AttackType AttackType => AttackType.FormationFill;
     public override string AttackName => "Formation Fill Attack";
@@ -57,8 +54,8 @@ public class FormationFillAttackSO : BaseChickenAttackSO
         // Select a random empty slot
         Vector3 targetSlot = emptySlots[Random.Range(0, emptySlots.Count)];
 
-        // Select chicken for repositioning
-        ChickenCombatBehaviorV2 selectedChicken = SelectChickenForRepositioning(availableChickens, targetSlot);
+        // Select a random chicken for repositioning
+        ChickenCombatBehaviorV2 selectedChicken = SelectRandomChicken(availableChickens);
 
         if (selectedChicken != null)
         {
@@ -69,6 +66,20 @@ public class FormationFillAttackSO : BaseChickenAttackSO
         {
             LogWarning("Failed to select chicken for formation filling");
         }
+    }
+
+    ChickenCombatBehaviorV2 SelectRandomChicken(List<ChickenCombatBehaviorV2> availableChickens)
+    {
+        if (availableChickens.Count == 0)
+            return null;
+
+        // Pure random selection - same chicken can be selected multiple times
+        int randomIndex = Random.Range(0, availableChickens.Count);
+        ChickenCombatBehaviorV2 selectedChicken = availableChickens[randomIndex];
+        
+        LogDebug($"Selected {selectedChicken.gameObject.name} (index {randomIndex}) using random selection for formation fill");
+        
+        return selectedChicken;
     }
 
     int GetEmptyFormationSlotCount(ChickenCombatManagerV4 manager)
@@ -83,11 +94,6 @@ public class FormationFillAttackSO : BaseChickenAttackSO
         
         LogDebug("No EnemyChickenManager found - cannot count empty slots");
         return 0;
-    }
-
-    bool CheckForEmptyFormationSlots(ChickenCombatManagerV4 manager)
-    {
-        return GetEmptyFormationSlotCount(manager) > 0;
     }
 
     List<Vector3> GetEmptyFormationSlots(ChickenCombatManagerV4 manager)
@@ -111,64 +117,6 @@ public class FormationFillAttackSO : BaseChickenAttackSO
         }
         
         return emptySlots;
-    }
-
-    ChickenCombatBehaviorV2 SelectChickenForRepositioning(List<ChickenCombatBehaviorV2> availableChickens, Vector3 targetSlot)
-    {
-        if (availableChickens.Count == 0)
-            return null;
-
-        if (availableChickens.Count == 1)
-            return availableChickens[0];
-
-        ChickenCombatBehaviorV2 selectedChicken = null;
-
-        if (preferClosestChickenToSlot && randomnessWeight < 1f)
-        {
-            selectedChicken = SelectBasedOnDistanceToSlot(availableChickens, targetSlot);
-        }
-        else
-        {
-            // Pure random selection
-            int randomIndex = Random.Range(0, availableChickens.Count);
-            selectedChicken = availableChickens[randomIndex];
-        }
-
-        if (selectedChicken != null)
-        {
-            string selectionMethod = preferClosestChickenToSlot && randomnessWeight < 1f ? "distance-based" : "random";
-            LogDebug($"Selected {selectedChicken.gameObject.name} using {selectionMethod} selection for slot at {targetSlot}");
-        }
-
-        return selectedChicken;
-    }
-
-    ChickenCombatBehaviorV2 SelectBasedOnDistanceToSlot(List<ChickenCombatBehaviorV2> availableChickens, Vector3 targetSlot)
-    {
-        // Weighted selection between closest and random
-        if (Random.Range(0f, 1f) <= randomnessWeight)
-        {
-            // Random selection
-            return availableChickens[Random.Range(0, availableChickens.Count)];
-        }
-        else
-        {
-            // Find closest chicken to target slot
-            ChickenCombatBehaviorV2 closestChicken = null;
-            float closestDistance = float.MaxValue;
-
-            foreach (var chicken in availableChickens)
-            {
-                float distance = Vector3.Distance(chicken.transform.position, targetSlot);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestChicken = chicken;
-                }
-            }
-
-            return closestChicken;
-        }
     }
 
     void ExecuteFormationFill(ChickenCombatBehaviorV2 chicken, Vector3 targetSlot, ChickenCombatManagerV4 manager)
@@ -262,5 +210,3 @@ public class FormationFillAttackSO : BaseChickenAttackSO
         }
     }
 }
-
-// Removed fictional interfaces - using existing system instead

@@ -44,15 +44,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2a3fb4ec34104c4184643bcd5074e1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackLootTable: {fileID: 11400000, guid: 72746f0027cd99846831e5f0e88b8586, type: 2}
   enableCombat: 1
   eggSpeed: 20
-  attackPatternChangeCooldown: 5
+  attackCooldown: 3
+  maxAttackRetries: 5
+  attackLootTable: {fileID: 11400000, guid: 72746f0027cd99846831e5f0e88b8586, type: 2}
+  fallbackAttack: {fileID: 11400000, guid: 9ead985b1c769ac4aa8654564e7ec381, type: 2}
   showDebugLogs: 0
   showAttackGizmos: 0
-  showSelectionLogs: 0
-  showPatternChangeLogs: 0
   showRegistrationLogs: 0
+  registeredCombatChickens: []
 --- !u!1 &1639361775149368580
 GameObject:
   m_ObjectHideFlags: 0
