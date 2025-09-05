@@ -1194,13 +1194,21 @@ PrefabInstance:
       value: EnemyManager
       objectReference: {fileID: 0}
     - target: {fileID: 8215287246607141139, guid: 3d232dd9ec89c7740bccb1560c653f82, type: 3}
+      propertyPath: defaultAttack
+      value: 
+      objectReference: {fileID: 11400000, guid: 9ead985b1c769ac4aa8654564e7ec381, type: 2}
+    - target: {fileID: 8215287246607141139, guid: 3d232dd9ec89c7740bccb1560c653f82, type: 3}
       propertyPath: showDebugLogs
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8215287246607141139, guid: 3d232dd9ec89c7740bccb1560c653f82, type: 3}
       propertyPath: attackCooldown
-      value: 0.22
+      value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 8215287246607141139, guid: 3d232dd9ec89c7740bccb1560c653f82, type: 3}
+      propertyPath: fallbackAttack
+      value: 
+      objectReference: {fileID: 11400000, guid: 9ead985b1c769ac4aa8654564e7ec381, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

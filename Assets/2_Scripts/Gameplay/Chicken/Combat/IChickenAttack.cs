@@ -16,10 +16,13 @@ public interface IChickenAttack
 public abstract class BaseChickenAttackSO : ScriptableObject, IChickenAttack
 {
     [Header("Base Attack Settings")]
-    public float attackInterval = 1f;
+    public float attackInterval = 1f; // The time in seconds that takes to attack (0.5f means 2 attacks per seconds)
     [Range(1, 20)]
-    public int usesBeforePatternChange = 5; // How many times this attack can be used before triggering pattern change
+    public int usesBeforePatternChange = 3; // How many times this attack can be used before triggering pattern change Cooldown
+    [Range(1, 20)]
+    public int minChickensRequired = 1; //The minimum amount of chickens that needs to be registered to activate this attack
     public bool showDebugLogs = true;
+
 
     public abstract AttackType AttackType { get; }
     public abstract string AttackName { get; }
