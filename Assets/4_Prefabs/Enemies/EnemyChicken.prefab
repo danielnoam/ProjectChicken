@@ -234,8 +234,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   autoRegisterOnStart: 1
   autoUnregisterOnDestroy: 1
+  autoCombatRegistration: 1
   autoManageState: 1
   showDebugLogs: 0
+  showCombatRegistrationLogs: 0
   majorSlotChangeThreshold: 2
 --- !u!114 &8824006632455104043
 MonoBehaviour:
@@ -361,7 +363,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   currentHealth: 100
-  deathVFXPrefab: {fileID: 5788710262731426170, guid: 764fd9ae066dfbb4e94dba356abc7799, type: 3}
+  deathVFXPrefab: {fileID: 5788710262731426170, guid: 206ba47305ee8ec4288ddc4033b9469d, type: 3}
   deathSfx: {fileID: 11400000, guid: 8564a5dd3420bf646b3807326223f693, type: 2}
   deathVFXLifetime: 3
   canTakeDamage: 1

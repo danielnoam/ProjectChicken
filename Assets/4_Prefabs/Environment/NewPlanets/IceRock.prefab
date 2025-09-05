@@ -79,58 +79,5 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6982979735cf41449801c972aee5c8c9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4938550286426218594}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6982979735cf41449801c972aee5c8c9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 5220055725201022036}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6982979735cf41449801c972aee5c8c9, type: 3}
---- !u!1 &7644282122330361758 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 6982979735cf41449801c972aee5c8c9, type: 3}
-  m_PrefabInstance: {fileID: 7409718566810022607}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &4938550286426218594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7644282122330361758}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a1f54dd99b326e45908d331c349e38e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 5
-  enableRotation: 1
-  rotationSpeed: {x: 43, y: 67, z: 91}
-  initialScale: 0
-  minSize: 0.8
-  maxSize: 1.5
-  scaleDuration: 2
-  fadeOutDuration: 1
-  destroyDelay: 2
---- !u!65 &5220055725201022036
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7644282122330361758}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2.0002656, y: 2.0003052, z: 1.9993997}
-  m_Center: {x: 0, y: -0.000000059604634, z: -4.2351647e-22}

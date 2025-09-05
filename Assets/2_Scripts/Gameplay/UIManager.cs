@@ -41,6 +41,7 @@ public class UIManager : MonoBehaviour
     [SerializeField, Tooltip("Maximum shake rotation in degrees")] private float maxShakeRotation = 2f;
     
     [Header("Color HUD")]
+    [SerializeField] private bool enableHudColorChange = true;
     [SerializeField] private Color hudHealthDamageColor = Color.red;
     [SerializeField] private Color hudShieldDamageColor = Color.blue;
     [SerializeField] private float hudColorPunchDuration = 0.2f;
@@ -307,7 +308,7 @@ public class UIManager : MonoBehaviour
     
     private void PunchHUDColor(Color targetColor, float duration)
     {
-        if (_hudElementsColor == null || _hudElementsColor.Count == 0) return;
+        if (_hudElementsColor == null || _hudElementsColor.Count == 0 || !enableHudColorChange) return;
     
         if (_hudColorSequence.isAlive) _hudColorSequence.Stop();
         _hudColorSequence = Sequence.Create();
@@ -363,21 +364,18 @@ public class UIManager : MonoBehaviour
             hudGroup.transform.localRotation = _originalHudRotation;
             return;
         }
-
-        // Calculate base target position from player input
+        
         _targetHudPosition = new Vector3(
             player.Movement.InputDirection.x * hudPlayerMoveAmount,
             player.Movement.InputDirection.y * hudPlayerMoveAmount,
             0
         );
 
-        // Update shake
+
         UpdateShake();
 
-        // Combine position with shake
+
         Vector3 finalPosition = _targetHudPosition + _shakeOffset;
-        
-        // Apply position smoothly
         hudGroup.transform.localPosition = Vector3.Lerp(
             hudGroup.transform.localPosition, 
             finalPosition, 
@@ -417,7 +415,7 @@ public class UIManager : MonoBehaviour
     }
 
 
-    private void AddHudShake(float intensity, float duration = -1f)
+    private void AddHudShake(float intensity, float duration = 1f)
     {
         if (!dynamicHud) return;
         
@@ -446,7 +444,7 @@ public class UIManager : MonoBehaviour
     }
     
     
-    private void ShakeHUDLight() => AddHudShake(1.5f, 0.2f);
+    private void ShakeHUDLight() => AddHudShake(2.5f, 0.2f);
     private void ShakeHUDMedium() => AddHudShake(7f, 0.4f);
     private void ShakeHUDHeavy() => AddHudShake(maxShakeIntensity, 0.8f);
 

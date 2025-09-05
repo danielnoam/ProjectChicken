@@ -5,40 +5,34 @@ using UnityEngine;
 public class ChickenEggV2 : MonoBehaviour, IPooledObject
 {
     [Header("Egg Settings")]
-    public float lifetime = 5f; // How long the egg exists before destroying itself
-    public bool useGravity; // Whether egg should be affected by gravity
-
-    [Header("Debug")]
+    public float lifetime = 5f;
     public bool showDebugLogs;
 
-    private Vector3 velocity;
-    private float spawnTime;
-    private bool isInitialized;
-    
-    [Header("Trail Settings")]
+    [Header("References")]
     [SerializeField] private TrailRenderer trailVRenderer;
+    
+    
+    private Vector3 _velocity;
+    private float _spawnTime;
+    private bool _isInitialized;
+    
+
 
     private void Awake()
     {
-        spawnTime = Time.time;
-        
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.useGravity = useGravity;
-        }
+        _spawnTime = Time.time;
     }
 
     private void Update()
     {
         // Move the egg if initialized
-        if (isInitialized)
-        {
-            transform.position += velocity * Time.deltaTime;
-        }
+        if (!_isInitialized) return;
+            
+        
+        transform.position += _velocity * Time.deltaTime;
 
         // Destroy after lifetime
-        if (Time.time - spawnTime >= lifetime)
+        if (Time.time - _spawnTime >= lifetime)
         {
             if (showDebugLogs) Debug.Log($"Egg {gameObject.name}: Destroyed after {lifetime} seconds");
             Destroy(gameObject);
@@ -47,8 +41,8 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
 
     public void Initialize(Vector3 direction, float speed)
     {
-        velocity = direction.normalized * speed;
-        isInitialized = true;
+        _velocity = direction.normalized * speed;
+        _isInitialized = true;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -69,10 +63,10 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
 
     private void OnDrawGizmos()
     {
-        if (isInitialized)
+        if (_isInitialized)
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(transform.position, transform.position + velocity.normalized * 2f);
+            Gizmos.DrawLine(transform.position, transform.position + _velocity.normalized * 2f);
         }
     }
     
@@ -82,7 +76,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
 
     private void ReturnProjectileToPool()
     {
-        isInitialized = false;
+        _isInitialized = false;
         trailVRenderer.emitting = false;
         ObjectPooler.ReturnObjectToPool(gameObject);
     }

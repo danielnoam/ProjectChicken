@@ -100,7 +100,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98552b53b67ee194b84a810119e1d619, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _DisplacementCurve:
+  renderer: {fileID: 3623737571499830398}
+  displacementMagnitude: 0.7
+  displacementCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -142,11 +144,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _DisplacementMagnitude: 0.4
-  _LerpSpeed: 2
-  _hitColor: {r: 0.509434, g: 1, b: 0.99003464, a: 0}
-  renderers:
-  - {fileID: 3623737571499830398}
+  displacementLerpSpeed: 2
+  hitColor: {r: 0, g: 1, b: 0.9764706, a: 1}
+  colorLerpSpeed: 1
 --- !u!64 &9068469261397833574
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -304,7 +304,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98552b53b67ee194b84a810119e1d619, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _DisplacementCurve:
+  renderer: {fileID: 7468795884699924900}
+  displacementMagnitude: 0.7
+  displacementCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -346,11 +348,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _DisplacementMagnitude: 0.4
-  _LerpSpeed: 2
-  _hitColor: {r: 0.509434, g: 1, b: 0.99003464, a: 0}
-  renderers:
-  - {fileID: 7468795884699924900}
+  displacementLerpSpeed: 2
+  hitColor: {r: 0, g: 1, b: 0.9764706, a: 1}
+  colorLerpSpeed: 1
 --- !u!64 &3326297803322475330
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -473,7 +473,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98552b53b67ee194b84a810119e1d619, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _DisplacementCurve:
+  renderer: {fileID: 3537392588172422632}
+  displacementMagnitude: 0.7
+  displacementCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -515,11 +517,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _DisplacementMagnitude: 0.4
-  _LerpSpeed: 2
-  _hitColor: {r: 0.509434, g: 1, b: 0.99003464, a: 0}
-  renderers:
-  - {fileID: 3537392588172422632}
+  displacementLerpSpeed: 2
+  hitColor: {r: 0, g: 1, b: 0.9764706, a: 1}
+  colorLerpSpeed: 1
 --- !u!64 &4486879021068472383
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -642,7 +642,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98552b53b67ee194b84a810119e1d619, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _DisplacementCurve:
+  renderer: {fileID: 8809479740002443158}
+  displacementMagnitude: 0.7
+  displacementCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -684,11 +686,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _DisplacementMagnitude: 0.4
-  _LerpSpeed: 2
-  _hitColor: {r: 0.509434, g: 1, b: 0.99003464, a: 0}
-  renderers:
-  - {fileID: 8809479740002443158}
+  displacementLerpSpeed: 2
+  hitColor: {r: 0, g: 1, b: 0.9764706, a: 1}
+  colorLerpSpeed: 1
 --- !u!64 &5211836258018012101
 MeshCollider:
   m_ObjectHideFlags: 0

@@ -3,77 +3,90 @@ using UnityEngine;
 
 public class ShieldHitMovement : MonoBehaviour
 {
-   private static readonly int HitPos = Shader.PropertyToID("_HitPos");
-   private static readonly int HitColor = Shader.PropertyToID("_HitColor");
-   private static readonly int DisplacementStrength = Shader.PropertyToID("_DisplacementStrength");
+    private static readonly int Alpha = Shader.PropertyToID("_Alpha");
+    private static readonly int HitPos = Shader.PropertyToID("_HitPos");
+    private static readonly int HitColor = Shader.PropertyToID("_HitColor");
+    private static readonly int DisplacementStrength = Shader.PropertyToID("_DisplacementStrength");
+    
+    
+    [SerializeField] private new Renderer renderer;
+    [SerializeField] private float displacementMagnitude;
+    [SerializeField] private AnimationCurve displacementCurve;
+    [SerializeField] private float displacementLerpSpeed;
+    [SerializeField] private Color hitColor;
+    [SerializeField] private float colorLerpSpeed;
 
 
-   [SerializeField] private AnimationCurve _DisplacementCurve;
-   [SerializeField] private float _DisplacementMagnitude;
-   [SerializeField] private float _LerpSpeed;
-   [SerializeField] private Color _hitColor;
-   [SerializeField] private Renderer[] renderers;
-   //s[SerializeField] private Texture _HitTex;
-   
-   private Renderer _renderer;
-   private Camera _camera;
+  
+    private Camera _camera;
+    private Material _material;
+    private Coroutine _hitDisplacementCoroutine;
 
-   private void Awake()
-   {
-      _camera = Camera.main;
-      //_renderer.material.SetColor("_HitColor", Color.black);
-      _renderer = GetComponent<Renderer>();
-   }
+    private void Awake()
+    {
+        _camera = Camera.main;
+        _material = renderer.material;
+    }
 
-   private void Update()
-   {
-      if (!_camera) return;
-      
-      if (Input.GetMouseButtonDown(0))
-      {
-         Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
-         if (Physics.Raycast(ray, out var hit))
-         {
-            HitShield(hit.point);
-         }
-      }
-
-   }
-   public void HitShield(Vector3 hitPos)
-   {
-      Vector3 localHitPos = transform.InverseTransformPoint(hitPos);
-      
-      _renderer.material.SetVector(HitPos, localHitPos);
-      
-      StopAllCoroutines();
-      StartCoroutine(Coroutine_HitDisplacement());
+    private void Update()
+    {
+        if (!_camera) return;
      
-   }
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out var hit))
+            {
+                HitShield(hit.point);
+            }
+        }
+    }
 
-   private IEnumerator Coroutine_HitDisplacement()
-   {
-      float lerp = 0f;
 
-      while (lerp < 1f)
-      {
-         foreach (Renderer rend in renderers)
-         {
-            Material mat = rend.material; 
-            mat.SetFloat(DisplacementStrength, _DisplacementCurve.Evaluate(lerp) * _DisplacementMagnitude);
-            mat.SetColor(HitColor, Color.Lerp(_hitColor, Color.black, lerp));
-            //mat.SetTexture(_HitTex);
-         }
+    private IEnumerator HitDisplacementRoutine()
+    {
+        float colorLerp = 0f;
+        float displacementLerp = 0f;
 
-         lerp += Time.deltaTime * _LerpSpeed;
-         yield return null;
-      }
 
-      // Ensure all renderers reset
-      foreach (Renderer rend in renderers)
-      {
-         Material mat = rend.material;
-         mat.SetFloat(DisplacementStrength, 0);
-         mat.SetColor(HitColor, Color.black);
-      }
-   }
+        while (colorLerp < 1f || displacementLerp < 1f)
+        {
+            if (colorLerp < 1f)
+            {
+                _material.SetColor(HitColor, Color.Lerp(hitColor, Color.black, colorLerp));
+                colorLerp += Time.deltaTime * colorLerpSpeed;
+            }
+            
+            if (displacementLerp < 1f)
+            {
+                _material.SetFloat(DisplacementStrength, displacementCurve.Evaluate(displacementLerp) * displacementMagnitude);
+                displacementLerp += Time.deltaTime * displacementLerpSpeed;
+            }
+
+            yield return null;
+        }
+
+
+        _material.SetFloat(DisplacementStrength, 0);
+        _material.SetColor(HitColor, Color.black);
+        _hitDisplacementCoroutine = null;
+    }
+    
+    public void HitShield(Vector3 hitPos)
+    {
+        Vector3 localHitPos = transform.InverseTransformPoint(hitPos);
+     
+        _material.SetVector(HitPos, localHitPos);
+        
+        if (_hitDisplacementCoroutine != null)
+        {
+            StopCoroutine(_hitDisplacementCoroutine);
+        }
+        _hitDisplacementCoroutine = StartCoroutine(HitDisplacementRoutine());
+    }
+
+    public void SetAlpha(float alpha)
+    {
+        _material.SetFloat(Alpha, alpha);
+    }
 }

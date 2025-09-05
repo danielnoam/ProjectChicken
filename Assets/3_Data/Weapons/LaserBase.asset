@@ -23,7 +23,7 @@ MonoBehaviour:
   fireRate: 0.15
   maxTargets: 1
   targetCheckRadius: 4
-  recoilStrength: 2
+  spreadStrength: 1
   weaponUpgrades:
   - {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
   - {fileID: 11400000, guid: 12cc92c87d933784fa7101edef57d18c, type: 2}
@@ -41,7 +41,7 @@ MonoBehaviour:
   fireSound: {fileID: 11400000, guid: e971bc54a3f9999aaacf79a252c19c12, type: 2}
   fireEffectPrefab: {fileID: 0}
   impactSound: {fileID: 11400000, guid: ca5580e59bab65b42a64c5ca5924a136, type: 2}
-  impactEffectPrefab: {fileID: 0}
+  impactEffectPrefab: {fileID: 2325566527072732932, guid: 9a8ec282dddf4cc41bc75cec0842f196, type: 3}
   references:
     version: 2
     RefIds:

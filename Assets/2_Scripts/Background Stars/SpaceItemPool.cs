@@ -184,7 +184,7 @@ public class SpaceItemPool : MonoBehaviour
     // Static method to find a pool by name
     public static SpaceItemPool FindPoolByName(string name)
     {
-        SpaceItemPool[] allPools = FindObjectsOfType<SpaceItemPool>();
+        SpaceItemPool[] allPools = FindObjectsByType<SpaceItemPool>( FindObjectsSortMode.None);
         foreach (SpaceItemPool pool in allPools)
         {
             if (pool.poolName == name)
@@ -198,7 +198,7 @@ public class SpaceItemPool : MonoBehaviour
     // Static method to find a pool that contains a specific prefab
     public static SpaceItemPool FindPoolWithPrefab(GameObject prefab)
     {
-        SpaceItemPool[] allPools = FindObjectsOfType<SpaceItemPool>();
+        SpaceItemPool[] allPools = FindObjectsByType<SpaceItemPool>( FindObjectsSortMode.None);
         foreach (SpaceItemPool pool in allPools)
         {
             if (pool.itemPrefabs.Contains(prefab))

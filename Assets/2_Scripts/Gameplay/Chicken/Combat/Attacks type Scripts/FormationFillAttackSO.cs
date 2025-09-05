@@ -73,7 +73,7 @@ public class FormationFillAttackSO : BaseChickenAttackSO
 
     int GetEmptyFormationSlotCount(ChickenCombatManagerV4 manager)
     {
-        var enemyChickenManager = FindObjectOfType<EnemyChickenManager>();
+        var enemyChickenManager = FindFirstObjectByType<EnemyChickenManager>();
         if (enemyChickenManager != null)
         {
             int emptySlotCount = enemyChickenManager.AvailableSlots;
@@ -94,7 +94,7 @@ public class FormationFillAttackSO : BaseChickenAttackSO
     {
         List<Vector3> emptySlots = new List<Vector3>();
         
-        var enemyChickenManager = FindObjectOfType<EnemyChickenManager>();
+        var enemyChickenManager = FindFirstObjectByType<EnemyChickenManager>();
         if (enemyChickenManager != null && enemyChickenManager.formationCreator != null)
         {
             var allSlots = enemyChickenManager.formationCreator.GetFormationSlots();
@@ -183,7 +183,7 @@ public class FormationFillAttackSO : BaseChickenAttackSO
         if (stateController != null)
         {
             // Find the EnemyChickenManager to handle the reassignment
-            var enemyChickenManager = FindObjectOfType<EnemyChickenManager>();
+            var enemyChickenManager = FindFirstObjectByType<EnemyChickenManager>();
             if (enemyChickenManager != null)
             {
                 // Find which slot index corresponds to our target position

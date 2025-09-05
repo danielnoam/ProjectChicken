@@ -574,12 +574,13 @@ MonoBehaviour:
   hudFadeDuration: 3
   hudGroup: {fileID: 6058153400321184074}
   dynamicHud: 1
-  hudPlayerMoveAmount: 6
+  hudPlayerMoveAmount: 7
   hudReturnSpeed: 2
   maxShakeIntensity: 15
   shakeDecayRate: 5
   shakeFrequency: 10
   maxShakeRotation: 2
+  enableHudColorChange: 0
   hudHealthDamageColor: {r: 1, g: 0.26100624, b: 0.26100624, a: 0.5882353}
   hudShieldDamageColor: {r: 0.19811308, g: 0.19811308, b: 1, a: 0.5882353}
   hudColorPunchDuration: 0.3
@@ -1739,7 +1740,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 45, y: 45}
+  m_AnchoredPosition: {x: 41.1, y: 42.1}
   m_SizeDelta: {x: 25, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8253909395388165074
@@ -1804,7 +1805,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 4
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -2499,6 +2500,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2365411069947930411, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     - target: {fileID: 1107596585647818963, guid: b5f26602cc95e30438805faaf740082f, type: 3}
+      propertyPath: playerInput
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1107596585647818963, guid: b5f26602cc95e30438805faaf740082f, type: 3}
       propertyPath: inputAction.m_Name
       value: Input
       objectReference: {fileID: 0}
@@ -2672,6 +2677,10 @@ PrefabInstance:
       propertyPath: inputAction
       value: 
       objectReference: {fileID: 2365411069947930411, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    - target: {fileID: 1107596585647818963, guid: b5f26602cc95e30438805faaf740082f, type: 3}
+      propertyPath: playerInput
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1107596585647818963, guid: b5f26602cc95e30438805faaf740082f, type: 3}
       propertyPath: inputAction.m_Name
       value: Input

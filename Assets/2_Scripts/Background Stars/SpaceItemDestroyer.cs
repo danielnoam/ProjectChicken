@@ -147,7 +147,7 @@ public class SpaceItemDestroyer : MonoBehaviour
         string itemName = item.name.Replace("(Clone)", "").Trim();
         
         // Search through all pools to find matching prefab
-        SpaceItemPool[] allPools = FindObjectsOfType<SpaceItemPool>();
+        SpaceItemPool[] allPools = FindObjectsByType<SpaceItemPool>(FindObjectsSortMode.None);
         foreach (SpaceItemPool pool in allPools)
         {
             foreach (GameObject prefab in pool.itemPrefabs)
@@ -166,10 +166,8 @@ public class SpaceItemDestroyer : MonoBehaviour
     public void ProcessItemImmediately(GameObject itemObject)
     {
         SpaceItemBehavior spaceItem = itemObject.GetComponent<SpaceItemBehavior>();
-        if (spaceItem != null && !itemsBeingDestroyed.Contains(itemObject))
+        if (spaceItem != null && itemsBeingDestroyed.Add(itemObject))
         {
-            itemsBeingDestroyed.Add(itemObject);
-            
             if (useObjectPool && itemPool != null)
             {
                 ReturnToPool(spaceItem, itemObject);

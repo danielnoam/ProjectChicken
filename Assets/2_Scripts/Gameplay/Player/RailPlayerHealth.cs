@@ -264,6 +264,7 @@ public class RailPlayerHealth : MonoBehaviour
         }
     }
     
+    
     private void StopShieldRegen()
     {
         if (_regenShieldCoroutine != null)
@@ -286,14 +287,15 @@ public class RailPlayerHealth : MonoBehaviour
     {
         if (damage <= 0 || !ShieldActive()) return;
         
+        StopShieldRegen();
         CurrentShield -= damage;
         
         if (CurrentShield < 0)
         {
             CurrentShield = 0;
-            DamageHealth();
             shieldDepletedSfx?.Play(audioSource);
             if (shieldDepletedParticleEffect) shieldDepletedParticleEffect.Play();
+            FullScreenHitFXController.Instance?.Punch(shieldDamageFsFX);
         }
         else
         {
@@ -311,7 +313,6 @@ public class RailPlayerHealth : MonoBehaviour
             
             if (shieldDamageParticleEffect) shieldDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(shieldDamagedVibrationSettings);
-            FullScreenHitFXController.Instance?.Punch(shieldDamageFsFX);
             shieldDamageSfx?.Play(audioSource);
         }
         
