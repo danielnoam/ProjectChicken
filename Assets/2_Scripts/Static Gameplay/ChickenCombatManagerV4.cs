@@ -11,6 +11,10 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     [Header("Attack Configuration")]
     public AttackLootTableSO attackLootTable;
     
+    [Header("Fallback Attack")]
+    [Tooltip("This attack will be used when no other attacks from the loot table can be executed")]
+    public BaseChickenAttackSO fallbackAttack;
+    
     [Header("Debug")]
     public bool showDebugLogs = true;
     public bool showAttackGizmos = false;
@@ -18,13 +22,20 @@ public class ChickenCombatManagerV4 : MonoBehaviour
 
     [Header("Registered Chickens (Read Only)")]
     [SerializeField] private List<ChickenCombatBehaviorV2> registeredCombatChickens = new List<ChickenCombatBehaviorV2>();
+
+    [Header("Combat Status (Read Only)")]
+
+    [SerializeField] private BaseChickenAttackSO currentAttackSO;
+    [SerializeField] private int usesBeforePatternChange = 0;
+    [SerializeField] private int usesRemaining = 0;
     
     // Combat state management
     private CombatState currentState = CombatState.WaitingForChickens;
     private float stateTimer = 0f;
     private BaseChickenAttackSO currentAttack = null;
-    private int currentAttackUses = 0;
+    private int currentAttackUsesInternal = 0;
     private float nextAttackTime = 0f;
+    private bool usingFallbackAttack = false; // Track if we're using the fallback
     
     private Transform player;
 
@@ -46,7 +57,8 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     public AttackLootTableSO AttackLootTable => attackLootTable;
     public CombatState CurrentState => currentState;
     public BaseChickenAttackSO CurrentAttack => currentAttack;
-    public int CurrentAttackUses => currentAttackUses;
+    public int CurrentAttackUses => currentAttackUsesInternal;
+    public bool IsUsingFallbackAttack => usingFallbackAttack;
 
     void Start()
     {
@@ -71,8 +83,19 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             Debug.Log($"ChickenCombatManagerV4: Attack loot table '{attackLootTable.name}' loaded with {attackLootTable.GetValidAttacks().Count} valid attacks");
         }
 
+        // Validate fallback attack
+        if (fallbackAttack == null)
+        {
+            Debug.LogWarning("ChickenCombatManagerV4: No fallback attack assigned! Combat may fail if no attacks can be executed.");
+        }
+        else if (showDebugLogs)
+        {
+            Debug.Log($"ChickenCombatManagerV4: Fallback attack '{fallbackAttack.AttackName}' assigned");
+        }
+
         // Initialize combat state
         ResetCombatState();
+        UpdateInspectorFields();
     }
 
     void Update()
@@ -93,6 +116,26 @@ public class ChickenCombatManagerV4 : MonoBehaviour
 
         // Update combat state machine
         UpdateCombatStateMachine();
+        
+        // Update inspector fields for real-time feedback
+        UpdateInspectorFields();
+    }
+
+    private void UpdateInspectorFields()
+    {
+        // Update combat status fields for inspector
+        if (currentAttack != null)
+        {
+            currentAttackSO = currentAttack;
+            usesBeforePatternChange = currentAttack.UsesBeforePatternChange;
+            usesRemaining = Mathf.Max(0, currentAttack.UsesBeforePatternChange - currentAttackUsesInternal);
+        }
+        else
+        {
+            currentAttackSO = null;
+            usesBeforePatternChange = 0;
+            usesRemaining = 0;
+        }
     }
 
     private void UpdateCombatStateMachine()
@@ -159,13 +202,17 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         }
 
         // Check if we've used up this attack pattern
-        if (currentAttackUses >= currentAttack.UsesBeforePatternChange)
+        if (currentAttackUsesInternal >= currentAttack.UsesBeforePatternChange)
         {
             if (showDebugLogs)
-                Debug.Log($"ChickenCombatManagerV4: Attack '{currentAttack.AttackName}' used {currentAttackUses} times, starting pattern change cooldown");
+            {
+                string attackSource = usingFallbackAttack ? " (fallback)" : "";
+                Debug.Log($"ChickenCombatManagerV4: Attack '{currentAttack.AttackName}'{attackSource} used {currentAttackUsesInternal} times, starting pattern change cooldown");
+            }
             
             currentAttack = null;
-            currentAttackUses = 0;
+            currentAttackUsesInternal = 0;
+            usingFallbackAttack = false;
             StartPatternCooldown();
             return;
         }
@@ -181,6 +228,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     {
         currentState = CombatState.PatternCooldown;
         stateTimer = PatternChangeCooldown;
+        usingFallbackAttack = false;
         
         if (showDebugLogs)
             Debug.Log($"ChickenCombatManagerV4: Starting pattern cooldown for {PatternChangeCooldown} seconds");
@@ -190,8 +238,8 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     {
         if (attackLootTable == null)
         {
-            Debug.LogWarning("ChickenCombatManagerV4: No attack loot table assigned, cannot select attack");
-            ResetCombatState();
+            Debug.LogWarning("ChickenCombatManagerV4: No attack loot table assigned, trying fallback attack");
+            TryUseFallbackAttack();
             return;
         }
 
@@ -206,7 +254,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             return;
         }
 
-        // Select a random attack that can be executed
+        // Select a random attack that can be executed from loot table
         BaseChickenAttackSO selectedAttack = null;
         int attempts = 0;
         int maxAttempts = 10; // Prevent infinite loop
@@ -223,18 +271,63 @@ public class ChickenCombatManagerV4 : MonoBehaviour
 
         if (selectedAttack != null)
         {
+            // Successfully found an attack from loot table
             currentAttack = selectedAttack;
-            currentAttackUses = 0;
+            currentAttackUsesInternal = 0;
             currentState = CombatState.Attacking;
             nextAttackTime = Time.time; // Attack immediately
+            usingFallbackAttack = false;
             
             if (showDebugLogs)
                 Debug.Log($"ChickenCombatManagerV4: Selected attack '{currentAttack.AttackName}' (Type: {currentAttack.AttackType})");
         }
         else
         {
+            // No attack found from loot table, try fallback
             if (showDebugLogs)
-                Debug.LogWarning($"ChickenCombatManagerV4: Could not find executable attack after {maxAttempts} attempts, starting cooldown");
+                Debug.LogWarning($"ChickenCombatManagerV4: Could not find executable attack after {maxAttempts} attempts, trying fallback attack");
+            
+            TryUseFallbackAttack();
+        }
+    }
+
+    private void TryUseFallbackAttack()
+    {
+        if (fallbackAttack == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("ChickenCombatManagerV4: No fallback attack assigned, starting cooldown");
+            
+            StartPatternCooldown();
+            return;
+        }
+
+        var availableChickens = GetAvailableAttackersInternal();
+        if (availableChickens.Count == 0)
+        {
+            if (showDebugLogs)
+                Debug.Log("ChickenCombatManagerV4: No available attackers for fallback attack, starting cooldown");
+            
+            StartPatternCooldown();
+            return;
+        }
+
+        // Check if fallback attack can be executed
+        if (fallbackAttack.CanExecute(availableChickens, this))
+        {
+            currentAttack = fallbackAttack;
+            currentAttackUsesInternal = 0;
+            currentState = CombatState.Attacking;
+            nextAttackTime = Time.time; // Attack immediately
+            usingFallbackAttack = true;
+            
+            if (showDebugLogs)
+                Debug.Log($"ChickenCombatManagerV4: Using fallback attack '{currentAttack.AttackName}' (Type: {currentAttack.AttackType})");
+        }
+        else
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("ChickenCombatManagerV4: Even fallback attack cannot be executed, starting cooldown");
             
             StartPatternCooldown();
         }
@@ -255,8 +348,9 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         // Check if attack can still be executed
         if (!currentAttack.CanExecute(availableChickens, this))
         {
+            string attackSource = usingFallbackAttack ? " (fallback)" : "";
             if (showDebugLogs)
-                Debug.Log($"ChickenCombatManagerV4: Attack '{currentAttack.AttackName}' can no longer be executed");
+                Debug.Log($"ChickenCombatManagerV4: Attack '{currentAttack.AttackName}'{attackSource} can no longer be executed");
             
             StartPatternCooldown();
             return;
@@ -264,22 +358,26 @@ public class ChickenCombatManagerV4 : MonoBehaviour
 
         // Execute the attack
         currentAttack.Execute(availableChickens, this);
-        currentAttackUses++;
+        currentAttackUsesInternal++;
         
         // Set next attack time
         nextAttackTime = Time.time + currentAttack.AttackInterval;
         
         if (showDebugLogs)
-            Debug.Log($"ChickenCombatManagerV4: Executed '{currentAttack.AttackName}' (Use {currentAttackUses}/{currentAttack.UsesBeforePatternChange})");
+        {
+            string attackSource = usingFallbackAttack ? " (fallback)" : "";
+            Debug.Log($"ChickenCombatManagerV4: Executed '{currentAttack.AttackName}'{attackSource} (Use {currentAttackUsesInternal}/{currentAttack.UsesBeforePatternChange})");
+        }
     }
 
     private void ResetCombatState()
     {
         currentState = CombatState.WaitingForChickens;
         currentAttack = null;
-        currentAttackUses = 0;
+        currentAttackUsesInternal = 0;
         stateTimer = 0f;
         nextAttackTime = 0f;
+        usingFallbackAttack = false;
         
         if (showDebugLogs)
             Debug.Log("ChickenCombatManagerV4: Combat state reset to WaitingForChickens");
@@ -412,13 +510,27 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         {
             Debug.Log("ChickenCombatManagerV4: Forcing pattern change");
             currentAttack = null;
-            currentAttackUses = 0;
+            currentAttackUsesInternal = 0;
+            usingFallbackAttack = false;
             StartPatternCooldown();
         }
         else
         {
             Debug.Log($"ChickenCombatManagerV4: Cannot force pattern change in state: {currentState}");
         }
+    }
+
+    [ContextMenu("Force Fallback Attack")]
+    void ContextMenuForceFallbackAttack()
+    {
+        if (fallbackAttack == null)
+        {
+            Debug.LogWarning("ChickenCombatManagerV4: No fallback attack assigned!");
+            return;
+        }
+
+        Debug.Log("ChickenCombatManagerV4: Forcing fallback attack");
+        TryUseFallbackAttack();
     }
 
     [ContextMenu("Print Combat Status")]
@@ -429,12 +541,14 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         Debug.Log($"Current State: {currentState}");
         Debug.Log($"State Timer: {stateTimer:F2}s");
         Debug.Log($"Current Attack: {(currentAttack != null ? currentAttack.AttackName : "None")}");
-        Debug.Log($"Attack Uses: {currentAttackUses}");
+        Debug.Log($"Using Fallback Attack: {usingFallbackAttack}");
+        Debug.Log($"Attack Uses: {currentAttackUsesInternal}");
         Debug.Log($"Next Attack Time: {(nextAttackTime > Time.time ? (nextAttackTime - Time.time).ToString("F2") + "s" : "Ready")}");
         Debug.Log($"Total Combat Chickens: {TotalCombatChickens}");
         Debug.Log($"Available Attackers: {AvailableAttackers}");
         Debug.Log($"Player Found: {(player != null ? "Yes" : "No")}");
         Debug.Log($"Attack Loot Table: {(attackLootTable != null ? attackLootTable.name : "None")}");
+        Debug.Log($"Fallback Attack: {(fallbackAttack != null ? fallbackAttack.AttackName : "None")}");
 
         if (attackLootTable != null)
         {
@@ -517,6 +631,13 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         if (transform.position != Vector3.zero)
         {
             Gizmos.DrawWireCube(transform.position + Vector3.up * 3f, Vector3.one * 0.5f);
+            
+            // Show fallback indicator if using fallback attack
+            if (usingFallbackAttack && currentState == CombatState.Attacking)
+            {
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawWireCube(transform.position + Vector3.up * 4f, Vector3.one * 0.3f);
+            }
         }
 
         if (registeredCombatChickens.Count > 0)
