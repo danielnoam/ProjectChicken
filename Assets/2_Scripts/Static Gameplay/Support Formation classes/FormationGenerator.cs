@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using VInspector.Libs;
 
 public class FormationGenerator : MonoBehaviour
 {
@@ -54,15 +55,9 @@ public class FormationGenerator : MonoBehaviour
     void GenerateCircleFormation(List<Vector3> formation)
     {
         float effectiveRadius = creator.BoundaryManager.EffectiveRadius;
-        int totalSlots = creator.ActualSlotCount;
-        
-        if (totalSlots == 1)
-        {
-            // Single slot at center
-            formation.Add(Vector3.zero);
-            return;
-        }
-        
+        int totalSlots = creator.ActualSlotCount * 1.5f.RoundToInt();
+
+        formation.Add(Vector3.zero);
         // Distribute slots evenly around the circle
         for (int i = 0; i < totalSlots; i++)
         {

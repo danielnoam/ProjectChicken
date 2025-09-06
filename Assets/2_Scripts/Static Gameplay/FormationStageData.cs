@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using VInspector;
+using VInspector.Libs;
 
 [Serializable]
 public class FormationStageData
@@ -45,9 +46,9 @@ public class FormationStageData
     {
         formationType = FormationCreator.FormationType.Square;
         formationCount = 1;
-        numberOfSlots = 6;
-        spacing = 10f;
-        circleRadius = 10f;
+        numberOfSlots = 9;
+        spacing = 2f;
+        circleRadius = 3f;
         useRandomPlacement = true;
         formationSpacing = 5f;
         maxPlacementAttempts = 100;
@@ -211,7 +212,7 @@ public class FormationStageData
                 return $"Square formation: {actualSlots} slots ({sideLength}x{sideLength}), spacing {spacing:F1}";
                 
             case FormationCreator.FormationType.Circle:
-                return $"Circle formation: {actualSlots} slots, radius {circleRadius:F1}";
+                return $"Circle formation: {actualSlots} slots (1.5x requested {numberOfSlots}), radius {circleRadius:F1}";
                 
             case FormationCreator.FormationType.Triangle:
                 int rows = Mathf.CeilToInt((-1f + Mathf.Sqrt(1f + 8f * numberOfSlots)) / 2f);
@@ -239,8 +240,8 @@ public class FormationStageData
         formationType = FormationCreator.FormationType.Square;
         formationCount = 1;
         numberOfSlots = 9;
-        spacing = 2f;
-        circleRadius = 3f;
+        spacing = 8f;
+        circleRadius = 22.5f;
         useRandomPlacement = true;
         formationSpacing = 5f;
         maxPlacementAttempts = 100;

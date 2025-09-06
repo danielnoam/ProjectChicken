@@ -46,7 +46,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
         if (Time.time - spawnTime >= lifetime)
         {
             if (showDebugLogs) Debug.Log($"Egg {gameObject.name}: Destroyed after {lifetime} seconds");
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
     }
 
