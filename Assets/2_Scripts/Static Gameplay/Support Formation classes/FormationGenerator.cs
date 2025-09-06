@@ -36,13 +36,17 @@ public class FormationGenerator : MonoBehaviour
     void GenerateSquareFormation(List<Vector3> formation)
     {
         float effectiveSpacing = creator.BoundaryManager.EffectiveSpacing;
-        int halfSize = creator.slotsPerSide / 2;
+        int sideLength = creator.CalculatedSideLength;
+        int halfSize = (sideLength - 1) / 2;
         
-        for (int x = -halfSize; x <= halfSize; x++)
+        // Generate grid centered at origin
+        for (int x = 0; x < sideLength; x++)
         {
-            for (int y = -halfSize; y <= halfSize; y++)
+            for (int y = 0; y < sideLength; y++)
             {
-                formation.Add(new Vector3(x * effectiveSpacing, y * effectiveSpacing, 0));
+                float xPos = (x - halfSize) * effectiveSpacing;
+                float yPos = (y - halfSize) * effectiveSpacing;
+                formation.Add(new Vector3(xPos, yPos, 0));
             }
         }
     }
@@ -50,8 +54,16 @@ public class FormationGenerator : MonoBehaviour
     void GenerateCircleFormation(List<Vector3> formation)
     {
         float effectiveRadius = creator.BoundaryManager.EffectiveRadius;
-        int totalSlots = creator.slotsPerSide * 4; // More slots for smoother circle
+        int totalSlots = creator.ActualSlotCount;
         
+        if (totalSlots == 1)
+        {
+            // Single slot at center
+            formation.Add(Vector3.zero);
+            return;
+        }
+        
+        // Distribute slots evenly around the circle
         for (int i = 0; i < totalSlots; i++)
         {
             float angle = (i * 2 * Mathf.PI) / totalSlots;
@@ -59,28 +71,26 @@ public class FormationGenerator : MonoBehaviour
             float y = Mathf.Sin(angle) * effectiveRadius;
             formation.Add(new Vector3(x, y, 0));
         }
-        
-        // Add center slot
-        formation.Add(Vector3.zero);
     }
 
     void GenerateTriangleFormation(List<Vector3> formation)
     {
         float effectiveSpacing = creator.BoundaryManager.EffectiveSpacing;
+        int rows = creator.CalculatedRows;
         
-        // Create an equilateral triangle formation centered at origin
-        float triangleHeight = (creator.slotsPerSide - 1) * effectiveSpacing * 0.866f; // Total height of triangle
-        float centerOffset = triangleHeight * 0.5f; // Offset to center the triangle
+        // Calculate triangle height and center offset
+        float triangleHeight = (rows - 1) * effectiveSpacing * 0.866f; // sin(60°) for equilateral triangle
+        float centerOffsetY = triangleHeight * 0.5f; // Offset to center the triangle
         
-        for (int row = 0; row < creator.slotsPerSide; row++)
+        for (int row = 0; row < rows; row++)
         {
             int slotsInRow = row + 1;
-            float rowOffset = -row * effectiveSpacing * 0.866f + centerOffset; // Apply center offset
+            float rowY = -row * effectiveSpacing * 0.866f + centerOffsetY; // Apply center offset
             
             for (int col = 0; col < slotsInRow; col++)
             {
                 float x = (col - (slotsInRow - 1) * 0.5f) * effectiveSpacing;
-                formation.Add(new Vector3(x, rowOffset, 0));
+                formation.Add(new Vector3(x, rowY, 0));
             }
         }
     }
@@ -88,16 +98,17 @@ public class FormationGenerator : MonoBehaviour
     void GenerateVShapeFormation(List<Vector3> formation)
     {
         float effectiveSpacing = creator.BoundaryManager.EffectiveSpacing;
+        int slotsPerSide = creator.CalculatedSlotsPerSide;
         
         // Calculate offset to center the V shape properly
-        float maxY = creator.slotsPerSide * effectiveSpacing * 0.707f; // sin(45°)
+        float maxY = slotsPerSide * effectiveSpacing * 0.707f; // sin(45°)
         float centerOffsetY = -maxY * 0.5f; // Center the V shape vertically
         
         // Center slot
         formation.Add(new Vector3(0, centerOffsetY, 0));
         
         // Create V shape with two angled lines
-        for (int i = 1; i <= creator.slotsPerSide; i++)
+        for (int i = 1; i <= slotsPerSide; i++)
         {
             // Left side of V (45 degree angle)
             float x1 = -i * effectiveSpacing * 0.707f; // cos(45°)
@@ -111,26 +122,29 @@ public class FormationGenerator : MonoBehaviour
         }
     }
 
-    // Calculate the theoretical bounds of a single formation
+    // Calculate the theoretical bounds of a single formation based on original parameters
     public Vector2 CalculateFormationBounds(FormationCreator.FormationType formationType)
     {
         switch (formationType)
         {
             case FormationCreator.FormationType.Square:
-                int halfSize = creator.slotsPerSide / 2;
-                return new Vector2(halfSize * creator.spacing * 2, halfSize * creator.spacing * 2);
+                int sideLength = creator.CalculatedSideLength;
+                float squareSize = (sideLength - 1) * creator.spacing;
+                return new Vector2(squareSize, squareSize);
                 
             case FormationCreator.FormationType.Circle:
                 return new Vector2(creator.circleRadius * 2, creator.circleRadius * 2);
                 
             case FormationCreator.FormationType.Triangle:
-                float triangleWidth = (creator.slotsPerSide - 1) * creator.spacing;
-                float triangleHeight = (creator.slotsPerSide - 1) * creator.spacing * 0.866f;
+                int rows = creator.CalculatedRows;
+                float triangleWidth = (rows - 1) * creator.spacing;
+                float triangleHeight = (rows - 1) * creator.spacing * 0.866f;
                 return new Vector2(triangleWidth, triangleHeight);
                 
             case FormationCreator.FormationType.VShape:
-                float vWidth = creator.slotsPerSide * creator.spacing * 1.414f; // 2 * slotsPerSide * 0.707
-                float vHeight = creator.slotsPerSide * creator.spacing * 0.707f; // sin(45°)
+                int slotsPerSide = creator.CalculatedSlotsPerSide;
+                float vWidth = slotsPerSide * creator.spacing * 1.414f; // 2 * slotsPerSide * 0.707
+                float vHeight = slotsPerSide * creator.spacing * 0.707f; // sin(45°)
                 return new Vector2(vWidth, vHeight);
                 
             default:
@@ -144,26 +158,50 @@ public class FormationGenerator : MonoBehaviour
         switch (formationType)
         {
             case FormationCreator.FormationType.Square:
-                int halfSize = creator.slotsPerSide / 2;
-                return new Vector2(halfSize * creator.BoundaryManager.EffectiveSpacing * 2, 
-                                   halfSize * creator.BoundaryManager.EffectiveSpacing * 2);
+                int sideLength = creator.CalculatedSideLength;
+                float squareSize = (sideLength - 1) * creator.BoundaryManager.EffectiveSpacing;
+                return new Vector2(squareSize, squareSize);
                 
             case FormationCreator.FormationType.Circle:
                 return new Vector2(creator.BoundaryManager.EffectiveRadius * 2, 
                                    creator.BoundaryManager.EffectiveRadius * 2);
                 
             case FormationCreator.FormationType.Triangle:
-                float triangleWidth = (creator.slotsPerSide - 1) * creator.BoundaryManager.EffectiveSpacing;
-                float triangleHeight = (creator.slotsPerSide - 1) * creator.BoundaryManager.EffectiveSpacing * 0.866f;
+                int rows = creator.CalculatedRows;
+                float triangleWidth = (rows - 1) * creator.BoundaryManager.EffectiveSpacing;
+                float triangleHeight = (rows - 1) * creator.BoundaryManager.EffectiveSpacing * 0.866f;
                 return new Vector2(triangleWidth, triangleHeight);
                 
             case FormationCreator.FormationType.VShape:
-                float vWidth = creator.slotsPerSide * creator.BoundaryManager.EffectiveSpacing * 1.414f;
-                float vHeight = creator.slotsPerSide * creator.BoundaryManager.EffectiveSpacing * 0.707f;
+                int slotsPerSide = creator.CalculatedSlotsPerSide;
+                float vWidth = slotsPerSide * creator.BoundaryManager.EffectiveSpacing * 1.414f;
+                float vHeight = slotsPerSide * creator.BoundaryManager.EffectiveSpacing * 0.707f;
                 return new Vector2(vWidth, vHeight);
                 
             default:
                 return Vector2.zero;
+        }
+    }
+    
+    // Helper method to get formation info for debugging
+    public string GetFormationInfo(FormationCreator.FormationType formationType)
+    {
+        switch (formationType)
+        {
+            case FormationCreator.FormationType.Square:
+                return $"Square: {creator.CalculatedSideLength}x{creator.CalculatedSideLength} = {creator.ActualSlotCount} slots";
+                
+            case FormationCreator.FormationType.Triangle:
+                return $"Triangle: {creator.CalculatedRows} rows = {creator.ActualSlotCount} slots";
+                
+            case FormationCreator.FormationType.Circle:
+                return $"Circle: {creator.ActualSlotCount} slots";
+                
+            case FormationCreator.FormationType.VShape:
+                return $"V-Shape: 1 center + {creator.CalculatedSlotsPerSide}×2 sides = {creator.ActualSlotCount} slots";
+                
+            default:
+                return formationType.ToString();
         }
     }
 }

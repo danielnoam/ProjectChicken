@@ -11,11 +11,11 @@ public class FormationStageData
     [Tooltip("Number of formation instances to spawn")]
     [SerializeField, Range(1, 10)] private int formationCount;
     
+    [Tooltip("Total number of slots desired (will be rounded up to fit formation shape)")]
+    [SerializeField, Min(1)] private int numberOfSlots;
+    
     [Tooltip("Spacing between slots in Square, Triangle, and VShape formations")]
     [SerializeField, Min(0.1f), HideIf("formationType", FormationCreator.FormationType.Circle)] private float spacing;
-    
-    [Tooltip("Number of slots per side for Square, Triangle, and VShape formations")]
-    [SerializeField, Min(2), HideIf("formationType", FormationCreator.FormationType.Circle)] private int slotsPerSide;
     
     [Tooltip("Radius of the circle formation")]
     [SerializeField, Min(0.1f), ShowIf("formationType", FormationCreator.FormationType.Circle)] private float circleRadius;
@@ -33,8 +33,8 @@ public class FormationStageData
     // Public properties to access the settings
     public FormationCreator.FormationType FormationType => formationType;
     public int FormationCount => formationCount;
+    public int NumberOfSlots => numberOfSlots;
     public float Spacing => spacing;
-    public int SlotsPerSide => slotsPerSide;
     public float CircleRadius => circleRadius;
     public bool UseRandomPlacement => useRandomPlacement;
     public float FormationSpacing => formationSpacing;
@@ -45,9 +45,9 @@ public class FormationStageData
     {
         formationType = FormationCreator.FormationType.Square;
         formationCount = 1;
-        spacing = 2f;
-        slotsPerSide = 3;
-        circleRadius = 3f;
+        numberOfSlots = 6;
+        spacing = 10f;
+        circleRadius = 10f;
         useRandomPlacement = true;
         formationSpacing = 5f;
         maxPlacementAttempts = 100;
@@ -58,8 +58,8 @@ public class FormationStageData
     {
         formationType = other.formationType;
         formationCount = other.formationCount;
+        numberOfSlots = other.numberOfSlots;
         spacing = other.spacing;
-        slotsPerSide = other.slotsPerSide;
         circleRadius = other.circleRadius;
         useRandomPlacement = other.useRandomPlacement;
         formationSpacing = other.formationSpacing;
@@ -77,8 +77,8 @@ public class FormationStageData
         
         formationCreator.currentFormation = formationType;
         formationCreator.formationCount = formationCount;
+        formationCreator.numberOfSlots = numberOfSlots;
         formationCreator.spacing = spacing;
-        formationCreator.slotsPerSide = slotsPerSide;
         formationCreator.circleRadius = circleRadius;
         formationCreator.useRandomPlacement = useRandomPlacement;
         formationCreator.formationSpacing = formationSpacing;
@@ -99,8 +99,8 @@ public class FormationStageData
         
         formationType = formationCreator.currentFormation;
         formationCount = formationCreator.formationCount;
+        numberOfSlots = formationCreator.numberOfSlots;
         spacing = formationCreator.spacing;
-        slotsPerSide = formationCreator.slotsPerSide;
         circleRadius = formationCreator.circleRadius;
         useRandomPlacement = formationCreator.useRandomPlacement;
         formationSpacing = formationCreator.formationSpacing;
@@ -112,8 +112,8 @@ public class FormationStageData
     {
         return a.FormationType == b.FormationType &&
                a.FormationCount == b.FormationCount &&
+               a.NumberOfSlots == b.NumberOfSlots &&
                Mathf.Approximately(a.Spacing, b.Spacing) &&
-               a.SlotsPerSide == b.SlotsPerSide &&
                Mathf.Approximately(a.CircleRadius, b.CircleRadius) &&
                a.UseRandomPlacement == b.UseRandomPlacement &&
                Mathf.Approximately(a.FormationSpacing, b.FormationSpacing) &&
@@ -154,10 +154,10 @@ public class FormationStageData
         if (formationCount < 1 || formationCount > 10)
             return false;
             
-        if (spacing <= 0)
+        if (numberOfSlots < 1)
             return false;
             
-        if (slotsPerSide < 2)
+        if (spacing <= 0)
             return false;
             
         if (circleRadius <= 0)
@@ -172,22 +172,65 @@ public class FormationStageData
         return true;
     }
     
-    // Get a description of the current formation settings
-    public string GetFormationDescription()
+    // Calculate what the actual slot count would be for the current settings
+    public int CalculateActualSlotCount()
     {
         switch (formationType)
         {
             case FormationCreator.FormationType.Square:
-                return $"Square formation: {slotsPerSide}x{slotsPerSide} slots, spacing {spacing:F1}";
-            case FormationCreator.FormationType.Circle:
-                return $"Circle formation: radius {circleRadius:F1}";
+                int sideLength = Mathf.CeilToInt(Mathf.Sqrt(numberOfSlots));
+                return sideLength * sideLength;
+                
             case FormationCreator.FormationType.Triangle:
-                return $"Triangle formation: {slotsPerSide} rows, spacing {spacing:F1}";
+                // Find smallest triangular number >= numberOfSlots
+                int rows = Mathf.CeilToInt((-1f + Mathf.Sqrt(1f + 8f * numberOfSlots)) / 2f);
+                return rows * (rows + 1) / 2;
+                
+            case FormationCreator.FormationType.Circle:
+                return numberOfSlots; // Circle can accommodate exact number
+                
             case FormationCreator.FormationType.VShape:
-                return $"V-Shape formation: {slotsPerSide} slots per side, spacing {spacing:F1}";
+                // V-shape has 1 center + 2*slotsPerSide
+                int slotsPerSide = Mathf.CeilToInt((numberOfSlots - 1) / 2f);
+                return 1 + 2 * slotsPerSide;
+                
+            default:
+                return numberOfSlots;
+        }
+    }
+    
+    // Get a description of the current formation settings
+    public string GetFormationDescription()
+    {
+        int actualSlots = CalculateActualSlotCount();
+        
+        switch (formationType)
+        {
+            case FormationCreator.FormationType.Square:
+                int sideLength = Mathf.CeilToInt(Mathf.Sqrt(numberOfSlots));
+                return $"Square formation: {actualSlots} slots ({sideLength}x{sideLength}), spacing {spacing:F1}";
+                
+            case FormationCreator.FormationType.Circle:
+                return $"Circle formation: {actualSlots} slots, radius {circleRadius:F1}";
+                
+            case FormationCreator.FormationType.Triangle:
+                int rows = Mathf.CeilToInt((-1f + Mathf.Sqrt(1f + 8f * numberOfSlots)) / 2f);
+                return $"Triangle formation: {actualSlots} slots ({rows} rows), spacing {spacing:F1}";
+                
+            case FormationCreator.FormationType.VShape:
+                int slotsPerSide = Mathf.CeilToInt((numberOfSlots - 1) / 2f);
+                return $"V-Shape formation: {actualSlots} slots ({slotsPerSide} per side), spacing {spacing:F1}";
+                
             default:
                 return formationType.ToString();
         }
+    }
+    
+    // Get formation efficiency (how close actual slots are to requested)
+    public float GetFormationEfficiency()
+    {
+        int actualSlots = CalculateActualSlotCount();
+        return (float)numberOfSlots / actualSlots;
     }
     
     // Reset to default values
@@ -195,8 +238,8 @@ public class FormationStageData
     {
         formationType = FormationCreator.FormationType.Square;
         formationCount = 1;
+        numberOfSlots = 9;
         spacing = 2f;
-        slotsPerSide = 3;
         circleRadius = 3f;
         useRandomPlacement = true;
         formationSpacing = 5f;

@@ -248,32 +248,33 @@ public class FormationValidator : MonoBehaviour
         if (!creator.useRandomPlacement || boundaryManager.BoxCollider2D == null)
             return false;
             
-        // Try reducing formation size parameters
+        // Store original formation parameters
         float originalSpacing = creator.spacing;
         float originalRadius = creator.circleRadius;
-        int originalSlotsPerSide = creator.slotsPerSide;
+        int originalNumberOfSlots = creator.numberOfSlots;
         
-        // Try reducing by 10% steps up to 50%
+        // Try reducing formation size parameters by 10% steps up to 50%
         for (float reduction = 0.1f; reduction <= 0.5f; reduction += 0.1f)
         {
             creator.spacing = originalSpacing * (1f - reduction);
             creator.circleRadius = originalRadius * (1f - reduction);
-            creator.slotsPerSide = Mathf.Max(2, Mathf.RoundToInt(originalSlotsPerSide * (1f - reduction * 0.5f))); // Reduce slots more gradually
+            // Reduce number of slots more gradually
+            creator.numberOfSlots = Mathf.Max(1, Mathf.RoundToInt(originalNumberOfSlots * (1f - reduction * 0.5f)));
             
-            // Recalculate boundary values
+            // Recalculate formation parameters and boundary values
             boundaryManager.CalculateEffectiveValues();
             
             if (ValidateFormationChangeAtExistingPositions())
             {
-                Debug.Log($"FormationValidator: Auto-adjustment successful with {reduction * 100}% size reduction");
+                Debug.Log($"FormationValidator: Auto-adjustment successful with {reduction * 100}% size reduction (slots: {originalNumberOfSlots} → {creator.numberOfSlots})");
                 return true;
             }
         }
         
-        // Restoration if adjustment failed
+        // Restore original values if adjustment failed
         creator.spacing = originalSpacing;
         creator.circleRadius = originalRadius;
-        creator.slotsPerSide = originalSlotsPerSide;
+        creator.numberOfSlots = originalNumberOfSlots;
         boundaryManager.CalculateEffectiveValues();
         
         return false;

@@ -23,7 +23,7 @@ public class FormationCreator : MonoBehaviour
     public float spacing = 2f; // For Square, Triangle, VShape formations
 
     [Header("Formation Sizes")]
-    public int slotsPerSide = 3; // For Square, Triangle, VShape formations
+    public int numberOfSlots = 9; // Total number of slots desired
     public float circleRadius = 3f;
 
     [Header("Multiple Formations")]
@@ -38,6 +38,7 @@ public class FormationCreator : MonoBehaviour
 
     [Header("References")]
     [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
+    
     // Components
     private FormationGenerator generator;
     private FormationPlacer placer;
@@ -50,13 +51,16 @@ public class FormationCreator : MonoBehaviour
     private FormationType previousFormationType;
     private bool hasBeenInitialized = false;
 
-    
-    
-    
+    // Calculated values (read-only, calculated from numberOfSlots)
+    public int ActualSlotCount { get; private set; }
+    public int CalculatedSideLength { get; private set; } // For square formations
+    public int CalculatedRows { get; private set; } // For triangle formations
+    public int CalculatedSlotsPerSide { get; private set; } // For V-shape formations
     
     void Awake()
     {
         previousFormationType = currentFormation;
+        CalculateFormationParameters();
         InitializeComponents();
         StartCoroutine(InitializeFormationWithDelay());
     }
@@ -77,7 +81,6 @@ public class FormationCreator : MonoBehaviour
         {
             levelManager.OnStageChanged -= OnStageChanged;
         }
-    
     }
 
     // Event handler for when the level stage changes
@@ -89,10 +92,46 @@ public class FormationCreator : MonoBehaviour
         {
             currentFormation = formation.FormationType;
             formationCount = formation.FormationCount;
-            slotsPerSide = formation.SlotsPerSide;
+            numberOfSlots = formation.NumberOfSlots;
+            spacing = formation.Spacing;
+            circleRadius = formation.CircleRadius;
+            useRandomPlacement = formation.UseRandomPlacement;
+            formationSpacing = formation.FormationSpacing;
+            maxPlacementAttempts = formation.MaxPlacementAttempts;
+            CalculateFormationParameters();
         }
-        
+    }
 
+    // Calculate the actual formation parameters based on numberOfSlots
+    void CalculateFormationParameters()
+    {
+        switch (currentFormation)
+        {
+            case FormationType.Square:
+                CalculatedSideLength = Mathf.CeilToInt(Mathf.Sqrt(numberOfSlots));
+                ActualSlotCount = CalculatedSideLength * CalculatedSideLength;
+                break;
+                
+            case FormationType.Triangle:
+                // Find smallest triangular number >= numberOfSlots
+                // Triangular number formula: n(n+1)/2
+                // Solve for n: n >= (-1 + sqrt(1 + 8*numberOfSlots))/2
+                CalculatedRows = Mathf.CeilToInt((-1f + Mathf.Sqrt(1f + 8f * numberOfSlots)) / 2f);
+                ActualSlotCount = CalculatedRows * (CalculatedRows + 1) / 2;
+                break;
+                
+            case FormationType.Circle:
+                // Circle can accommodate exact number of slots
+                ActualSlotCount = numberOfSlots;
+                break;
+                
+            case FormationType.VShape:
+                // V-shape has 1 center + 2*slotsPerSide
+                // So slotsPerSide = (numberOfSlots - 1) / 2, rounded up
+                CalculatedSlotsPerSide = Mathf.CeilToInt((numberOfSlots - 1) / 2f);
+                ActualSlotCount = 1 + 2 * CalculatedSlotsPerSide;
+                break;
+        }
     }
 
     // New coroutine to handle proper initialization timing
@@ -118,12 +157,11 @@ public class FormationCreator : MonoBehaviour
         // Mark as initialized
         hasBeenInitialized = true;
 
-        Debug.Log($"FormationCreator: Successfully initialized with {currentFormation} formation ({formationSlots.Count} slots)");
+        Debug.Log($"FormationCreator: Successfully initialized with {currentFormation} formation ({ActualSlotCount} slots from requested {numberOfSlots})");
     }
 
     void Update()
     {
-
         // Check for formation type changes
         if (hasBeenInitialized && currentFormation != previousFormationType)
         {
@@ -149,10 +187,12 @@ public class FormationCreator : MonoBehaviour
         visualizer.Initialize(this, boundaryManager, placer, validator);
     }
 
-
     void HandleFormationTypeChange()
     {
         Debug.Log($"FormationCreator: Formation type changed from {previousFormationType} to {currentFormation}. Processing change...");
+
+        // Recalculate parameters for new formation type
+        CalculateFormationParameters();
 
         if (validator.ValidateFormationChanges && useRandomPlacement)
         {
@@ -208,6 +248,9 @@ public class FormationCreator : MonoBehaviour
     // Main formation generation method
     public void GenerateFormation()
     {
+        // Recalculate parameters in case numberOfSlots changed
+        CalculateFormationParameters();
+        
         // Clear existing slots
         formationSlots.Clear();
 
@@ -292,6 +335,12 @@ public class FormationCreator : MonoBehaviour
     // Regenerate formation when values change in inspector
     void OnValidate()
     {
+        // Ensure numberOfSlots is at least 1
+        numberOfSlots = Mathf.Max(1, numberOfSlots);
+        
+        // Recalculate parameters when values change
+        CalculateFormationParameters();
+        
         if (Application.isPlaying && hasBeenInitialized)
         {
             GenerateFormation();
@@ -312,6 +361,28 @@ public class FormationCreatorEditor : UnityEditor.Editor
         DrawDefaultInspector();
 
         FormationCreator formationCreator = (FormationCreator)target;
+
+        // Show calculated values
+        if (formationCreator.numberOfSlots > 0)
+        {
+            GUILayout.Space(5);
+            EditorGUILayout.LabelField("Calculated Values", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"Requested Slots: {formationCreator.numberOfSlots}");
+            EditorGUILayout.LabelField($"Actual Slots: {formationCreator.ActualSlotCount}");
+            
+            switch (formationCreator.currentFormation)
+            {
+                case FormationCreator.FormationType.Square:
+                    EditorGUILayout.LabelField($"Grid Size: {formationCreator.CalculatedSideLength}x{formationCreator.CalculatedSideLength}");
+                    break;
+                case FormationCreator.FormationType.Triangle:
+                    EditorGUILayout.LabelField($"Rows: {formationCreator.CalculatedRows}");
+                    break;
+                case FormationCreator.FormationType.VShape:
+                    EditorGUILayout.LabelField($"Slots Per Side: {formationCreator.CalculatedSlotsPerSide}");
+                    break;
+            }
+        }
 
         GUILayout.Space(10);
 
@@ -391,11 +462,13 @@ public class FormationCreatorEditor : UnityEditor.Editor
         switch (fc.currentFormation)
         {
             case FormationCreator.FormationType.Square:
+                return $"({fc.ActualSlotCount} slots in {fc.CalculatedSideLength}x{fc.CalculatedSideLength} grid, Spacing: {fc.spacing})";
             case FormationCreator.FormationType.Triangle:
+                return $"({fc.ActualSlotCount} slots in {fc.CalculatedRows} rows, Spacing: {fc.spacing})";
             case FormationCreator.FormationType.VShape:
-                return $"(Size: {fc.slotsPerSide} slots, Spacing: {fc.spacing})";
+                return $"({fc.ActualSlotCount} slots with {fc.CalculatedSlotsPerSide} per side, Spacing: {fc.spacing})";
             case FormationCreator.FormationType.Circle:
-                return $"(Radius: {fc.circleRadius})";
+                return $"({fc.ActualSlotCount} slots, Radius: {fc.circleRadius})";
             default:
                 return "";
         }

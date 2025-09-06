@@ -32,7 +32,7 @@ MonoBehaviour:
   enemyWave:
     serializedKvps:
     - Key: {fileID: 8824006632455104043, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      Value: 10
+      Value: 20
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
@@ -40,19 +40,9 @@ MonoBehaviour:
   formationStageData:
     formationType: 1
     formationCount: 2
+    numberOfSlots: 10
     spacing: 2
-    slotsPerSide: 3
-    circleRadius: 3
+    circleRadius: 5
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
-  formationSettings:
-    formationType: 1
-    formationPosition: 0
-    formationCount: 1
-    vShapeCount: 7
-    squareSize: 5
-    triangleRows: 4
-    circleCount: 12
-    gridSize: {x: 5, y: 3}
-    gridFillsBoundary: 1
