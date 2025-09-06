@@ -29,6 +29,11 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
         }
     }
 
+    private void OnEnable()
+    {
+        spawnTime = Time.time;
+    }
+
     private void Update()
     {
         // Move the egg if initialized

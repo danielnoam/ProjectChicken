@@ -9,12 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bdf4184092513545aae23da4a01803f, type: 3}
-  m_Name: Formation Fill Attack
+  m_Script: {fileID: 11500000, guid: c3cd461214f5e3b4594c8041117af894, type: 3}
+  m_Name: Scramble Formation Attack
   m_EditorClassIdentifier: 
-  attackInterval: 0.25
-  usesBeforePatternChange: 10
-  showDebugLogs: 0
-  minEmptySlotsRequired: 6
-  preferClosestChickenToSlot: 0
-  randomnessWeight: 1
+  attackInterval: 1
+  usesBeforePatternChange: 3
+  minChickensRequired: 1
+  showDebugLogs: 1
+  forceStateUpdate: 1
+  playScrambleEffect: 0

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using VInspector;
 
 public class EnemyChickenManager : MonoBehaviour
 {
@@ -541,7 +542,97 @@ public class EnemyChickenManager : MonoBehaviour
             Debug.Log("No chickens registered.");
         }
     }
+    /// <summary>
+    /// Scrambles all chickens by unregistering them from their current slots 
+    /// and reassigning them to random new slots in the formation
+    /// </summary>
+    [Button]
+    // Add this method to your EnemyChickenManager class
 
+/// <summary>
+/// Scrambles all chickens by randomly distributing them among all available formation slots
+/// </summary>
+public void ScrambleAllChickens()
+{
+    if (allRegisteredChickens.Count == 0)
+    {
+        Debug.Log("EnemyChickenManager: No chickens to scramble.");
+        return;
+    }
+
+    if (formationCreator == null)
+    {
+        Debug.LogError("EnemyChickenManager: Cannot scramble - no FormationCreator assigned!");
+        return;
+    }
+
+    List<Vector3> formationSlots = formationCreator.GetFormationSlots();
+    if (formationSlots.Count == 0)
+    {
+        Debug.LogWarning("EnemyChickenManager: Cannot scramble - no formation slots available!");
+        return;
+    }
+
+    Debug.Log($"EnemyChickenManager: Scrambling {allRegisteredChickens.Count} chickens among {formationSlots.Count} formation slots...");
+
+    // Clear all current assignments
+    slotAssignments.Clear();
+    waitingChickens.Clear();
+
+    // Create a list of all available slot indices
+    List<int> availableSlotIndices = new List<int>();
+    for (int i = 0; i < formationSlots.Count; i++)
+    {
+        availableSlotIndices.Add(i);
+    }
+
+    // Shuffle the available slot indices
+    ShuffleList(availableSlotIndices);
+
+    // Assign chickens to random slots
+    int assignedCount = 0;
+    foreach (GameObject chicken in allRegisteredChickens)
+    {
+        if (assignedCount < availableSlotIndices.Count)
+        {
+            // Assign chicken to a random slot
+            int randomSlotIndex = availableSlotIndices[assignedCount];
+            slotAssignments[randomSlotIndex] = chicken;
+            assignedCount++;
+        }
+        else
+        {
+            // No more slots available, add to waiting list
+            waitingChickens.Add(chicken);
+        }
+    }
+
+    // Force state updates for all chickens to reflect new assignments
+    if (forceStateUpdateOnReassign)
+    {
+        ForceUpdateAllChickenStates();
+    }
+    else
+    {
+        RefreshAllChickenStates();
+    }
+
+    Debug.Log($"EnemyChickenManager: Scramble complete! {slotAssignments.Count} assigned to random slots, {waitingChickens.Count} waiting.");
+}
+    /// <summary>
+    /// Fisher-Yates shuffle algorithm to randomize a list
+    /// </summary>
+    /// <param name="list">The list to shuffle</param>
+    private void ShuffleList<T>(List<T> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int randomIndex = Random.Range(0, i + 1);
+            T temp = list[i];
+            list[i] = list[randomIndex];
+            list[randomIndex] = temp;
+        }
+    }
     [ContextMenu("Force Reassign All Chickens")]
     public void ForceReassignAllChickens()
     {
