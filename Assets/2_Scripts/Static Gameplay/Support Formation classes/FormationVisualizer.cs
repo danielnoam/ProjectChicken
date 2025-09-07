@@ -16,11 +16,10 @@ public class FormationVisualizer : MonoBehaviour
     
     [Header("References")]
     [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
-
-    private FormationCreator creator;
-    private FormationBoundaryManager boundaryManager;
-    private FormationPlacer placer;
-    private FormationValidator validator;
+    [SerializeField, Self(Flag.EditableAnywhere)] private FormationCreator creator;
+    [SerializeField, Self(Flag.EditableAnywhere)] private FormationBoundaryManager boundaryManager;
+    [SerializeField, Self(Flag.EditableAnywhere)] private FormationPlacer placer;
+    [SerializeField, Self(Flag.EditableAnywhere)] private FormationValidator validator;
 
     private void OnValidate()
     {
@@ -40,40 +39,6 @@ public class FormationVisualizer : MonoBehaviour
     // Draw gizmos to visualize formation slots
     public void OnDrawGizmos()
     {
-        if (creator == null)
-        {
-            if (levelManager)
-            {
-                Gizmos.DrawSphere(levelManager.EnemyPosition, 0.5f);
-                Gizmos.color = Color.red;
-                Vector3 crosshairSplinePosition = levelManager.EnemyPosition;
-                Vector3[] localCorners1 = new Vector3[]
-                {
-                    new Vector3(-levelManager.EnemyBoundary.x, -levelManager.EnemyBoundary.y, 0),
-                    new Vector3(levelManager.EnemyBoundary.x, -levelManager.EnemyBoundary.y, 0),
-                    new Vector3(levelManager.EnemyBoundary.x, levelManager.EnemyBoundary.y, 0),
-                    new Vector3(-levelManager.EnemyBoundary.x, levelManager.EnemyBoundary.y, 0)
-                };
-                Vector3[] worldCorners1 = new Vector3[4];
-                for (int i = 0; i < 4; i++)
-                {
-                    worldCorners1[i] = crosshairSplinePosition + localCorners1[i];
-                }
-                for (int i = 0; i < 4; i++)
-                {
-                    int nextIndex = (i + 1) % 4;
-                    Gizmos.DrawLine(worldCorners1[i], worldCorners1[nextIndex]);
-                }
-#if UNITY_EDITOR
-                Handles.Label(crosshairSplinePosition + Vector3.up * (levelManager.EnemyBoundary.y + 1f), "Enemy Boundaries");
-#endif
-            }
-
-            return;
-        }
-
-
-
         DrawFormationSlots();
         DrawFormationBoundingBoxes();
         DrawColliderBounds();

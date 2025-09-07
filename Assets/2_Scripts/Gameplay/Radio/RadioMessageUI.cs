@@ -9,7 +9,8 @@ public class RadioMessageUI : MonoBehaviour
         [Header("Settings")]
         [SerializeField] private float showDuration = 0.5f;
         [SerializeField] private float hideDuration = 0.5f;
-        [SerializeField] private float visibleDuration = 3f;
+        [SerializeField] private Ease ease = Ease.InOutQuart;
+        [SerializeField] private Vector2 hiddenPosition = new Vector2(0,0);
         
         
         [Header("References")]
@@ -19,14 +20,16 @@ public class RadioMessageUI : MonoBehaviour
         
         private Sequence _hideSequence;
         private Sequence _showSequence;
-        private Vector2 _messageUISize;
+        private Vector2 _shownPosition;
         private RectTransform _messageUIRectTransform;
+        
+        public event Action OnMessageHidden;
 
         private void Awake()
         {
                 _messageUIRectTransform = (RectTransform)transform;
-                _messageUISize = _messageUIRectTransform.sizeDelta;
-                _messageUIRectTransform.sizeDelta = new Vector2(-_messageUISize.x*2, 0);
+                _shownPosition = _messageUIRectTransform.anchoredPosition;
+                _messageUIRectTransform.anchoredPosition = hiddenPosition;
         }
 
 
@@ -42,12 +45,20 @@ public class RadioMessageUI : MonoBehaviour
                 if (_hideSequence.isAlive) _showSequence.ChainDelay(_hideSequence.duration);
                 _showSequence.ChainCallback((() =>
                         {
-                                senderNameText.text = message.Sender.Name;
-                                senderNameImage.sprite = message.Sender.Icon;
+                                if (message.Sender) senderNameText.text = message.Sender.Name;
+                                if (message.Sender && message.Sender.Icon)
+                                {
+                                        senderNameImage.gameObject.SetActive(true);
+                                        senderNameImage.sprite = message.Sender.Icon;
+                                }
+                                else
+                                {
+                                        senderNameImage.gameObject.SetActive(false);
+                                }
                                 messageText.text = message.Message;
                         }));
-                _showSequence.Chain(Tween.UIAnchoredPosition(_messageUIRectTransform,new Vector2(-_messageUISize.x*2,0), Vector2.zero, showDuration, Ease.InOutQuart));
-                _showSequence.ChainDelay(visibleDuration);
+                _showSequence.Chain(Tween.UIAnchoredPosition(_messageUIRectTransform,hiddenPosition, _shownPosition, showDuration, ease));
+                _showSequence.ChainDelay(message.Duration);
                 _showSequence.OnComplete(HideMessage);
 
         }
@@ -56,10 +67,11 @@ public class RadioMessageUI : MonoBehaviour
         {
                 if (_hideSequence.isAlive) _hideSequence.Stop();
                 if (_showSequence.isAlive) _showSequence.Stop();
-                
-                
-                _hideSequence = Sequence.Create();
-                _hideSequence.Chain(Tween.UIAnchoredPosition(_messageUIRectTransform, new Vector2(-_messageUISize.x*2,0), hideDuration, Ease.InOutQuart));
+
+
+                _hideSequence = Sequence.Create()
+                        .Chain(Tween.UIAnchoredPosition(_messageUIRectTransform, hiddenPosition, hideDuration, ease))
+                        .OnComplete(() => OnMessageHidden?.Invoke());
         }
         
 }

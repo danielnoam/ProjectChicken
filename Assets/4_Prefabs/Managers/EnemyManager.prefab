@@ -180,7 +180,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.35}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -190,7 +190,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 89.7, y: 60.5}
+  m_Size: {x: 140, y: 70}
   m_EdgeRadius: 0
 --- !u!114 &701044888967083671
 MonoBehaviour:
@@ -289,6 +289,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fitWithinCollider: 1
   boundaryPadding: 0.9
+  levelManager: {fileID: 0}
+  boxCollider2D: {fileID: 1165005325188798125}
 --- !u!114 &2518773913054610891
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305,6 +307,11 @@ MonoBehaviour:
   gizmoSize: 0.5
   showColliderBounds: 1
   validationErrorColor: {r: 1, g: 0, b: 1, a: 1}
+  levelManager: {fileID: 0}
+  creator: {fileID: 701044888967083671}
+  boundaryManager: {fileID: 8011380554561875517}
+  placer: {fileID: 4107841149945682667}
+  validator: {fileID: 2304444061845754819}
 --- !u!114 &964188254427928406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -433,15 +440,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2201409f3a268ec4facd993593460610, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerStats: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
-  enemySpawnPosition: {fileID: 5300218107644586220}
-  levelManager: {fileID: 0}
-  player: {fileID: 0}
   spawnAreaBig: {fileID: 1107404672971552676}
   spawnAreaBlocker: {fileID: 6367799676245317950}
   maxSpawnAttempts: 50
   minDistanceFromBlocker: 0.5
   visualizeSpawnArea: 0
+  enemySpawnPosition: {fileID: 5300218107644586220}
+  levelManager: {fileID: 0}
+  player: {fileID: 0}
 --- !u!1 &8548514679401556076
 GameObject:
   m_ObjectHideFlags: 0

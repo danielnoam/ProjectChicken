@@ -8,6 +8,7 @@ public class SOLevelStage : ScriptableObject
 {
     [Header("Stage Settings")]
     [SerializeField] private string stageTitle = "";
+    [SerializeField] private SORadioMessage stageRadioMessage;
     [SerializeField, Range(0f,2f)] private float stageWorldSpeed = 1f;
     [SerializeField] private bool isCheckpoint;
     [SerializeField] private bool showHUD = true;
@@ -45,6 +46,7 @@ public class SOLevelStage : ScriptableObject
     public float StageWorldSpeed => stageWorldSpeed;
     public float StageDuration => stageDuration;
     public string StageTitle => stageTitle;
+    public SORadioMessage StageRadioMessage => stageRadioMessage;
     public bool IsCheckpoint => isCheckpoint;
     public bool ShowOutroMenu => showOutroMenu;
     public SceneField NextLevel => nextLevel;

@@ -41,8 +41,8 @@ public class RailPlayerAiming : MonoBehaviour
     private Vector3 _aimDirection;
     private ChickenStateController _currentAimLockTarget;
     private Coroutine _autoCenterRoutine;
-    private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundary.x : 25f;
-    private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundary.y : 15f;
+    private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundarySize.x : 25f;
+    private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundarySize.y : 15f;
 
 
     public Vector3 AimDirection => _aimDirection;

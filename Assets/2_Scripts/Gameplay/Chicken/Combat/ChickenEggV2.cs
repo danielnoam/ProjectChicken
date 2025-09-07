@@ -39,6 +39,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
         _spawnTime = Time.time;
         _velocity = direction.normalized * speed;
         _isInitialized = true;
+        trailVRenderer.emitting = true;
     }
 
     private void OnTriggerEnter(Collider other)

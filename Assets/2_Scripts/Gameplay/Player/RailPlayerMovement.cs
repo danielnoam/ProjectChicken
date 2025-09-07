@@ -64,8 +64,8 @@ public class RailPlayerMovement : MonoBehaviour
     private Tween _dodgeTween;
     private Vector2 _normalizedMovementPosition;
     private Coroutine _autoCenterRoutine;
-    private float MovementBoundaryX => player.LevelManager ? player.LevelManager.PlayerBoundary.x : 10f;
-    private float MovementBoundaryY => player.LevelManager ? player.LevelManager.PlayerBoundary.y : 6f;
+    private float MovementBoundaryX => player.LevelManager ? player.LevelManager.PlayerBoundarySize.x : 10f;
+    private float MovementBoundaryY => player.LevelManager ? player.LevelManager.PlayerBoundarySize.y : 6f;
     
     
     public Vector3 InputDirection { get; private set; }

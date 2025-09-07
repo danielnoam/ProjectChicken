@@ -137,12 +137,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce55ca4a0def3ca4c9f08ba19a99d858, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  outlineWidthRange: {x: 0, y: 2}
-  thinOutlineDistance: 90
-  thickOutlineDistance: 110
+  outlineWidthRange:
+    minValue: 0
+    maxValue: 3
+  thinOutlineDistance: 25
+  thickOutlineDistance: 15
   outline: {fileID: 2259061312799018022}
   distance: 0
-  cam: {fileID: 0}
 --- !u!1 &8281311011478373999
 GameObject:
   m_ObjectHideFlags: 0

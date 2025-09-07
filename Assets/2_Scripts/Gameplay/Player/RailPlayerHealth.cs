@@ -156,6 +156,8 @@ public class RailPlayerHealth : MonoBehaviour
             cinemachineImpulseSource.GenerateImpulseWithForce(deathShakeSettings.intensity);
         }
         
+
+        
         OnDeath?.Invoke();
     }
     
@@ -220,6 +222,8 @@ public class RailPlayerHealth : MonoBehaviour
             controllerVibrationSource.Vibrate(healthDamagedVibrationSettings);
             FullScreenHitFXController.Instance?.Punch(healthDamageFsFX);
             healthDamageSfx?.Play(audioSource);
+            
+
         }
         
         OnHealthChanged?.Invoke(CurrentHealth);
@@ -290,7 +294,7 @@ public class RailPlayerHealth : MonoBehaviour
         StopShieldRegen();
         CurrentShield -= damage;
         
-        if (CurrentShield < 0)
+        if (CurrentShield < 1)
         {
             CurrentShield = 0;
             shieldDepletedSfx?.Play(audioSource);

@@ -1,50 +1,73 @@
+using System;
+using KBCore.Refs;
 using UnityEngine;
 
 public class FormationBoundaryManager : MonoBehaviour
 {
     [Header("Boundary Settings")]
     public bool fitWithinCollider = true;
-    [Range(0.1f, 1f)]
-    public float boundaryPadding = 0.9f; // How much of the collider to use (90% by default)
-
-    private FormationCreator creator;
-    private BoxCollider2D boxCollider2D;
+    [Range(0.1f, 1f)] public float boundaryPadding = 0.9f; // How much of the collider to use (90% by default)
     
-    // Calculated effective values
-    private float effectiveSpacing;
-    private float effectiveRadius;
-    private float effectiveFormationSpacing;
+    [Header("References")]
+    [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
+    [SerializeField, Self(Flag.EditableAnywhere)] private BoxCollider2D boxCollider2D;
+
+    private FormationCreator _creator;
+    private float _effectiveSpacing;
+    private float _effectiveRadius;
+    private float _effectiveFormationSpacing;
+    
+    
+    public bool FitWithinCollider => fitWithinCollider;
+    public float BoundaryPadding => boundaryPadding;
+    public BoxCollider2D BoxCollider2D => boxCollider2D;
+    public Vector2 ColliderSize => boxCollider2D != null ? boxCollider2D.size * boundaryPadding : Vector2.zero;
+    public Vector2 ColliderOffset => boxCollider2D != null ? boxCollider2D.offset : Vector2.zero;
+    
+
+    private void OnValidate()
+    {
+        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>();
+        
+        UpdateBoundary();
+        
+        this.ValidateRefs();
+    }
 
     public void Initialize(FormationCreator formationCreator)
     {
-        creator = formationCreator;
-        boxCollider2D = GetComponent<BoxCollider2D>();
+        _creator = formationCreator;
+        CalculateEffectiveValues();
+    }
+    
+    public void UpdateBoundary()
+    {
+        if (!levelManager) return;
         
-        if (boxCollider2D == null)
-        {
-            Debug.LogWarning("FormationBoundaryManager: No BoxCollider2D found on " + gameObject.name + ". Formations will not be constrained.");
-        }
-        
+        boxCollider2D.size = levelManager.EnemyBoundarySize * 2;
+        boxCollider2D.offset = levelManager.EnemyPosition;
         CalculateEffectiveValues();
     }
 
     // Calculate scaling factors to fit within collider bounds
     public void CalculateEffectiveValues()
     {
+        if (_creator == null) return;
+        
         if (!fitWithinCollider || boxCollider2D == null)
         {
-            effectiveSpacing = creator.spacing;
-            effectiveRadius = creator.circleRadius;
-            effectiveFormationSpacing = creator.formationSpacing;
+            _effectiveSpacing = _creator.spacing;
+            _effectiveRadius = _creator.circleRadius;
+            _effectiveFormationSpacing = _creator.formationSpacing;
             return;
         }
 
         Vector2 colliderSize = boxCollider2D.size * boundaryPadding;
         
-        if (creator.useRandomPlacement)
+        if (_creator.useRandomPlacement)
         {
             // For random placement, scale based on single formation size
-            Vector2 singleFormationBounds = creator.Generator.CalculateFormationBounds(creator.currentFormation);
+            Vector2 singleFormationBounds = _creator.Generator.CalculateFormationBounds(_creator.currentFormation);
             
             // Calculate scaling factors for X and Y
             float scaleX = singleFormationBounds.x > 0 ? (colliderSize.x / singleFormationBounds.x) : 1f;
@@ -53,22 +76,22 @@ public class FormationBoundaryManager : MonoBehaviour
             // Use the smaller scale to ensure it fits in both dimensions
             float uniformScale = Mathf.Min(scaleX, scaleY, 1f); // Don't scale up, only down
             
-            effectiveSpacing = creator.spacing * uniformScale;
-            effectiveRadius = creator.circleRadius * uniformScale;
-            effectiveFormationSpacing = creator.formationSpacing * uniformScale;
+            _effectiveSpacing = _creator.spacing * uniformScale;
+            _effectiveRadius = _creator.circleRadius * uniformScale;
+            _effectiveFormationSpacing = _creator.formationSpacing * uniformScale;
         }
         else
         {
             // For side-by-side placement, use original logic
-            int actualCount = creator.formationCount;
+            int actualCount = _creator.formationCount;
 
             // Calculate the theoretical size of the formation without scaling
-            Vector2 formationBoundsCalc = creator.Generator.CalculateFormationBounds(creator.currentFormation);
+            Vector2 formationBoundsCalc = _creator.Generator.CalculateFormationBounds(_creator.currentFormation);
             
             // For multiple formations, account for spacing between them
             if (actualCount > 1)
             {
-                float totalWidth = formationBoundsCalc.x * actualCount + creator.formationSpacing * (actualCount - 1);
+                float totalWidth = formationBoundsCalc.x * actualCount + _creator.formationSpacing * (actualCount - 1);
                 formationBoundsCalc.x = totalWidth;
             }
 
@@ -79,9 +102,9 @@ public class FormationBoundaryManager : MonoBehaviour
             // Use the smaller scale to ensure it fits in both dimensions
             float uniformScale = Mathf.Min(scaleX, scaleY, 1f); // Don't scale up, only down
             
-            effectiveSpacing = creator.spacing * uniformScale;
-            effectiveRadius = creator.circleRadius * uniformScale;
-            effectiveFormationSpacing = creator.formationSpacing * uniformScale;
+            _effectiveSpacing = _creator.spacing * uniformScale;
+            _effectiveRadius = _creator.circleRadius * uniformScale;
+            _effectiveFormationSpacing = _creator.formationSpacing * uniformScale;
         }
     }
 
@@ -129,7 +152,7 @@ public class FormationBoundaryManager : MonoBehaviour
         get 
         { 
             CalculateEffectiveValues(); // Recalculate in case values changed
-            return effectiveSpacing; 
+            return _effectiveSpacing; 
         } 
     }
     
@@ -138,7 +161,7 @@ public class FormationBoundaryManager : MonoBehaviour
         get 
         { 
             CalculateEffectiveValues(); // Recalculate in case values changed
-            return effectiveRadius; 
+            return _effectiveRadius; 
         } 
     }
     
@@ -147,13 +170,9 @@ public class FormationBoundaryManager : MonoBehaviour
         get 
         { 
             CalculateEffectiveValues(); // Recalculate in case values changed
-            return effectiveFormationSpacing; 
+            return _effectiveFormationSpacing; 
         } 
     }
 
-    public bool FitWithinCollider => fitWithinCollider;
-    public float BoundaryPadding => boundaryPadding;
-    public BoxCollider2D BoxCollider2D => boxCollider2D;
-    public Vector2 ColliderSize => boxCollider2D != null ? boxCollider2D.size * boundaryPadding : Vector2.zero;
-    public Vector2 ColliderOffset => boxCollider2D != null ? boxCollider2D.offset : Vector2.zero;
+
 }

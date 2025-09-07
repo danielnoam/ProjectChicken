@@ -184,8 +184,8 @@ public class Resource : MonoBehaviour
         
         if (LevelManager.Instance)
         {
-            _movementBoundaryX = LevelManager.Instance.PlayerBoundary.x;
-            _movementBoundaryY = LevelManager.Instance.PlayerBoundary.y;
+            _movementBoundaryX = LevelManager.Instance.PlayerBoundarySize.x;
+            _movementBoundaryY = LevelManager.Instance.PlayerBoundarySize.y;
            float randomX = Random.Range(-_movementBoundaryX, _movementBoundaryX);
            float randomY = Random.Range(-_movementBoundaryY, _movementBoundaryY);
            _targetOffsetFromSpline = new Vector3(randomX, randomY, 0f);

@@ -1,16 +1,12 @@
-using System;
-using KBCore.Refs;
+using DNExtensions;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using VInspector;
-
 
 
 public class DistanceBasedOutline : MonoBehaviour
 {
 
     [Header("Settings")]
-    [SerializeField] private Vector2 outlineWidthRange = new Vector2(0f, 10f);
+    [SerializeField, MinMaxRange(0,10)] private RangedFloat outlineWidthRange = new (0f, 10f);
     [SerializeField] private float thinOutlineDistance = 80f;
     [SerializeField] private float thickOutlineDistance = 100f;
     
@@ -18,48 +14,25 @@ public class DistanceBasedOutline : MonoBehaviour
     [SerializeField] private Outline outline;
     
     [Header("Debug")]
-    [SerializeField, ReadOnly] private float distance;
-    [SerializeField, ReadOnly] private Camera cam;
-
-
-
+    [SerializeField, VInspector.ReadOnly] private float distance;
     
-    private void OnValidate()
+    
+    private RailPlayer _player;
+    
+    
+    private void OnEnable()
     {
-        
-        if (outlineWidthRange.x > outlineWidthRange.y)
-        {
-            outlineWidthRange.x = outlineWidthRange.y;
-        }
-        if (outlineWidthRange.y > 10f)
-        {
-            outlineWidthRange.y = 10f;
-        }
-        if (outlineWidthRange.x < 0)
-        {
-            outlineWidthRange.x = 0;
-        }
-        if (outlineWidthRange.y < 0)
-        {
-            outlineWidthRange.y = 0;
-        }
-    }
-
-    
-    
-    private void Start()
-    {
-        cam = Camera.main;
+        if (!_player) _player = FindFirstObjectByType<RailPlayer>();
     }
     
 
 
     private void Update()
     {
-        if (!cam) return;
+        if (!_player) return;
         
-        distance = Vector3.Distance(transform.position, cam.transform.position);
-        var outlineWidth = Mathf.InverseLerp(thinOutlineDistance, thickOutlineDistance, distance);
-        outline.OutlineWidth = Mathf.Lerp(outlineWidthRange.x, outlineWidthRange.y, outlineWidth);
+        distance = Vector3.Distance(transform.position, _player.transform.position);
+        var outlineWidth = Mathf.InverseLerp(thickOutlineDistance, thinOutlineDistance,distance);
+        outline.OutlineWidth = Mathf.Lerp(outlineWidthRange.maxValue, outlineWidthRange.minValue, outlineWidth);
     }
 }

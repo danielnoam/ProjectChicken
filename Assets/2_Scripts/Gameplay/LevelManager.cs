@@ -18,21 +18,19 @@ public class LevelManager : MonoBehaviour
     public static LevelManager Instance { get; private set; }
     
     [Header("General")]
-    [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(45f,30f);
-    [SerializeField, Min(0)] private Vector2 playerBoundary = new Vector2(40f,25f);
+    [SerializeField, Min(0)] private Vector2 enemyBoundarySize = new Vector2(45f,30f);
+    [SerializeField, Min(0)] private Vector2 playerBoundarySize = new Vector2(40f,25f);
     [SerializeField] private Vector3 playerBoundaryOffset;
     [SerializeField] private Vector3 enemyBoundaryOffset;
-    [SerializeField] private float playerPositionMultiplier = -30f;
-    [SerializeField] private float enemyPositionMultiplier = 30f;
-        
+    
     [Header("Level")]
     [SerializeField, CreateEditableAsset] private SOLevel level;
     [SerializeField] private bool debugLog;
     [SerializeField, VInspector.ReadOnly] private SOLevelStage currentStage;
     [SerializeField, VInspector.ReadOnly] private int currentStageIndex;
     [SerializeField, VInspector.ReadOnly] private int enemiesLeft;
-    [SerializeField, VInspector.ReadOnly] public Vector3 playerPosition;
-    [SerializeField, VInspector.ReadOnly] public Vector3 enemyPosition;
+    [SerializeField, VInspector.ReadOnly] private Vector3 playerPosition;
+    [SerializeField, VInspector.ReadOnly] private Vector3 enemyPosition;
     [SerializeField, VInspector.ReadOnly] private SOLevelStage[] levelStages;
 
     
@@ -43,6 +41,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private OutroScreen outroScreen;
     [SerializeField, Scene(Flag.EditableAnywhere)] private UpgradeStore upgradeStore;
     [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
+    [SerializeField, Self(Flag.EditableAnywhere)] private FormationBoundaryManager boundaryManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
     
@@ -57,8 +56,8 @@ public class LevelManager : MonoBehaviour
     
     public static float WorldSpeed = 1f;
     
-    public Vector2 PlayerBoundary => playerBoundary;
-    public Vector2 EnemyBoundary => enemyBoundary;
+    public Vector2 PlayerBoundarySize => playerBoundarySize;
+    public Vector2 EnemyBoundarySize => enemyBoundarySize;
     public Vector3 PlayerPosition => playerPosition;
     public Vector3 EnemyPosition => enemyPosition;
     public SOLevelStage CurrentStage => currentStage;
@@ -73,8 +72,6 @@ public class LevelManager : MonoBehaviour
 
     private void OnValidate()
     {
-
-        this.ValidateRefs();
         
         if (!player)
         {
@@ -90,8 +87,21 @@ public class LevelManager : MonoBehaviour
         {
             upgradeStore = FindFirstObjectByType<UpgradeStore>();
         }
+        
+        if (!outroScreen)
+        {
+            outroScreen = FindFirstObjectByType<OutroScreen>();
+        }
+        
+        if (!boundaryManager)
+        {
+            boundaryManager = FindFirstObjectByType<FormationBoundaryManager>();
+        }
+        
+        this.ValidateRefs();
 
         UpdatePlayerAndEnemyPositions();
+        if (boundaryManager) boundaryManager.UpdateBoundary();
     }
 
     private void Awake()
@@ -424,8 +434,8 @@ public class LevelManager : MonoBehaviour
     
     private void UpdatePlayerAndEnemyPositions()
     {
-        enemyPosition = (Vector3.forward + enemyBoundaryOffset) * enemyPositionMultiplier;
-        playerPosition = (Vector3.forward + playerBoundaryOffset) * playerPositionMultiplier;
+        enemyPosition = (Vector3.forward + enemyBoundaryOffset);
+        playerPosition = (Vector3.forward + playerBoundaryOffset);
     }
 
 

@@ -97,7 +97,7 @@ MonoBehaviour:
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 28
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
@@ -227,6 +227,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93db432623884554ab3424bb874f1ae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDuration: 0.5
+  hideDuration: 0.5
+  ease: 13
+  hiddenPosition: {x: 0, y: 0}
   senderNameText: {fileID: 1740258558208752218}
   senderNameImage: {fileID: 5597280215785118705}
   messageText: {fileID: 2942686778124260991}
@@ -374,10 +378,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8034395639819861132}
     m_Modifications:
-    - target: {fileID: 1279324872152709618, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: 37601feff2fb1dd4ab47f9610db80238, type: 3}
     - target: {fileID: 4549846161069514692, guid: a02f790eb11483d679fa1cc04f0d1c82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

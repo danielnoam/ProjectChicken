@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Stage_EnemyWaveTest
   m_EditorClassIdentifier: 
   stageTitle: 
+  stageRadioMessage: {fileID: 11400000, guid: 1f219cb0bc29a8845bc3afb5cc15f2e6, type: 2}
   stageWorldSpeed: 1
   isCheckpoint: 0
   showHUD: 1
@@ -46,13 +47,3 @@ MonoBehaviour:
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
-  formationSettings:
-    formationType: 1
-    formationPosition: 0
-    formationCount: 1
-    vShapeCount: 7
-    squareSize: 5
-    triangleRows: 4
-    circleCount: 12
-    gridSize: {x: 5, y: 3}
-    gridFillsBoundary: 1

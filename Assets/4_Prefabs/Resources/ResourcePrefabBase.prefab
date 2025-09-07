@@ -9,6 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 182738610769909749}
+  - component: {fileID: 575520122336027777}
+  - component: {fileID: 95521373953400794}
   m_Layer: 0
   m_Name: Gfx
   m_TagString: Untagged
@@ -31,6 +33,43 @@ Transform:
   m_Children: []
   m_Father: {fileID: 940408246834933977}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &575520122336027777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3718000275177302511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 3
+  outlineColor: {r: 1, g: 0.7535186, b: 0.086274505, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!114 &95521373953400794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3718000275177302511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce55ca4a0def3ca4c9f08ba19a99d858, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineWidthRange:
+    minValue: 0
+    maxValue: 3
+  thinOutlineDistance: 25
+  thickOutlineDistance: 15
+  outline: {fileID: 575520122336027777}
+  distance: 0
 --- !u!1 &3909718786344204849
 GameObject:
   m_ObjectHideFlags: 0
@@ -220,7 +259,6 @@ MonoBehaviour:
   shieldWorth: 50
   weapons:
     internalItems: []
-  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
 --- !u!1 &6821767693025774091
 GameObject:
   m_ObjectHideFlags: 0
