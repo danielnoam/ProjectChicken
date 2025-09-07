@@ -107,9 +107,9 @@ public class RailPlayerResourceCollector : MonoBehaviour
     public void UpgradeMagnetSizeBy(float amount)
     {
         _currentMagnetRadius += amount;
-        if (_currentMagnetRadius > player.GameSettings.MaxMagnetSize)
+        if (_currentMagnetRadius > player.PlayerStats.MaxMagnetSize)
         {
-            _currentMagnetRadius = player.GameSettings.MaxMagnetSize;
+            _currentMagnetRadius = player.PlayerStats.MaxMagnetSize;
         }
     }
     

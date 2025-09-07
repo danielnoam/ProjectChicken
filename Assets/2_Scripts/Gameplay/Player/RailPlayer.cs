@@ -1,13 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using DNExtensions;
 using KBCore.Refs;
-using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using VInspector;
 
 [SelectionBase]
 [RequireComponent(typeof(RailPlayerInput))]
@@ -18,6 +13,9 @@ using VInspector;
 [RequireComponent(typeof(RailPlayerHealth))]
 public class RailPlayer : MonoBehaviour
 {
+    [Header("General")]
+    [SerializeField, Min(0)] private float timeToPause = 2f;
+    
     [Header("Camera Positions")]
     [SerializeField] private Transform cameraPositions;
     [SerializeField] private Transform followCameraTarget;
@@ -25,7 +23,7 @@ public class RailPlayer : MonoBehaviour
     [SerializeField] private Transform storeCameraLookAtTarget;
     
     [Header("References")]
-    [SerializeField] private SOGameSettings gameSettings;
+    [SerializeField] private SOPlayerStats playerStats;
     [SerializeField] private LevelManager levelManager;
     [SerializeField, Self, HideInInspector] private RailPlayerInput input;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming aiming;
@@ -48,7 +46,7 @@ public class RailPlayer : MonoBehaviour
     public RailPlayerResourceCollector ResourceCollector => resourceCollector;
     public RailPlayerHealth Health => health;
     public LevelManager LevelManager => levelManager;
-    public SOGameSettings GameSettings => gameSettings;
+    public SOPlayerStats PlayerStats => playerStats;
     
 
     public event Action<float> OnPauseTimerChanged;
@@ -71,7 +69,7 @@ public class RailPlayer : MonoBehaviour
         Upgrades.Clear();
         aiming.SetUp();
         movement.SetUp();
-        health.SetUp(gameSettings.BaseHealth);
+        health.SetUp(playerStats.BaseHealth);
         resourceCollector.SetUp();
         weaponSystem.SetUp();
     }
@@ -95,8 +93,8 @@ public class RailPlayer : MonoBehaviour
         if (_pauseInputHeld)
         {
             _pauseTimer += Time.deltaTime;
-            OnPauseTimerChanged?.Invoke(_pauseTimer / gameSettings.TimeToPause);
-            if (_pauseTimer >= gameSettings.TimeToPause)
+            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
+            if (_pauseTimer >= timeToPause)
             {
                 OnPause?.Invoke();
             }
@@ -166,13 +164,13 @@ public class RailPlayer : MonoBehaviour
         {
             _pauseInputHeld = true;
             _pauseTimer = 0f;
-            OnPauseTimerChanged?.Invoke(_pauseTimer / gameSettings.TimeToPause);
+            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
         }
         else if (context.canceled)
         {
             _pauseInputHeld = false;
             _pauseTimer = 0f;
-            OnPauseTimerChanged?.Invoke(_pauseTimer / gameSettings.TimeToPause);
+            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
         }
     }
 

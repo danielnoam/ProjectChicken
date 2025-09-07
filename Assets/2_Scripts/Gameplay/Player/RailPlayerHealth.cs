@@ -86,11 +86,11 @@ public class RailPlayerHealth : MonoBehaviour
 
     public void SetUp(int health)
     {
-        if (health < player.GameSettings.BaseHealth) health = player.GameSettings.BaseHealth;
+        if (health < player.PlayerStats.BaseHealth) health = player.PlayerStats.BaseHealth;
         
         CurrentHealth = health;
-        CurrentShield = player.GameSettings.BaseShield;
-        MaxShield = player.GameSettings.BaseShield;
+        CurrentShield = player.PlayerStats.BaseShield;
+        MaxShield = player.PlayerStats.BaseShield;
         
         OnHealthChanged?.Invoke(CurrentHealth);
         OnShieldChanged?.Invoke(CurrentShield);
@@ -230,9 +230,9 @@ public class RailPlayerHealth : MonoBehaviour
         if (amount <= 0) return;
         
         CurrentHealth += amount;
-        if (CurrentHealth > player.GameSettings.MaxHealth)
+        if (CurrentHealth > player.PlayerStats.MaxHealth)
         {
-            CurrentHealth = player.GameSettings.MaxHealth;
+            CurrentHealth = player.PlayerStats.MaxHealth;
         }
         
         if (deathParticleEffect && deathParticleEffect.isPlaying) deathParticleEffect.Stop();
@@ -351,7 +351,7 @@ public class RailPlayerHealth : MonoBehaviour
     {
         MaxShield += amount;
         
-        float maxPossibleShield = player.GameSettings ? player.GameSettings.MaxShield : float.MaxValue;
+        float maxPossibleShield = player.PlayerStats ? player.PlayerStats.MaxShield : float.MaxValue;
         if (MaxShield > maxPossibleShield)
         {
             MaxShield = maxPossibleShield;

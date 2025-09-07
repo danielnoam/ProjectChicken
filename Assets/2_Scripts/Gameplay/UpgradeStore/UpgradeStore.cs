@@ -22,7 +22,7 @@ public class UpgradeStore : MonoBehaviour
     [SerializeField] private Vector3 offsetBetweenUpgrades = new Vector3(25,0,0);
     
     [Header("References")]
-    [SerializeField] private SOGameSettings gameSettings;
+    [SerializeField] private SOPlayerStats playerStats;
     [SerializeField] private Transform storeGfx;
     [SerializeField] private Transform eggHolder;
     [SerializeField] private CaptainCock captain;

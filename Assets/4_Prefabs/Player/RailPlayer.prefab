@@ -2668,11 +2668,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47818a8b6ad449f448a1ebb60dee421a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timeToPause: 2
   cameraPositions: {fileID: 578094112693646351}
   followCameraTarget: {fileID: 7239159908269156373}
   storeCameraTarget: {fileID: 8469364165154082126}
   storeCameraLookAtTarget: {fileID: 5369474610807630919}
-  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
+  playerStats: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   levelManager: {fileID: 0}
   input: {fileID: 8438971806570489096}
   aiming: {fileID: 890854243081262160}
@@ -6482,11 +6483,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activeShieldAlphaRange:
-    minValue: 0.1
+    minValue: 0.05
     maxValue: 0.35
   alphaChangeDuration: 0.3
   player: {fileID: 2233603387570671912}
-  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   shieldHits:
   - {fileID: 3327191438843666597}
   - {fileID: 2658627898680020527}

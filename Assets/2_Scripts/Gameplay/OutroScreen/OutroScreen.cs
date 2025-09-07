@@ -11,7 +11,6 @@ public class OutroScreen : MonoBehaviour
     [SerializeField] private float animationDuration = 0.5f;
 
     [Header("References")]
-    [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Button returnButton;
     [SerializeField] private Button continueButton;
@@ -20,7 +19,7 @@ public class OutroScreen : MonoBehaviour
     
     
     private Sequence _outroScreenSequence;
-    public event Action OnScreenOpend;
+    public event Action OnScreenOpened;
     public event Action OnScreenClosed;
     
     private void OnValidate()
@@ -86,7 +85,7 @@ public class OutroScreen : MonoBehaviour
         
         _outroScreenSequence = Sequence.Create()
             .Group(Tween.Alpha(canvasGroup, 1, animationDuration))
-            .OnComplete((() => OnScreenOpend?.Invoke()));
+            .OnComplete((() => OnScreenOpened?.Invoke()));
     }
 
     public void Hide(bool animate)

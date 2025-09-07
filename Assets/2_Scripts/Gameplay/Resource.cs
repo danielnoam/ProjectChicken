@@ -41,8 +41,6 @@ public class Resource : MonoBehaviour
     [SerializeField, Min(1), ShowIf("resourceType", ResourceType.ShieldPack)] private int shieldWorth = 50;[EndIf]
     [SerializeField, ShowIf("resourceType", ResourceType.SpecialWeapon)] private ChanceList<SOWeaponData> weapons = new ChanceList<SOWeaponData>();[EndIf] 
     
-    [Header("References")]
-    [SerializeField] private SOGameSettings gameSettings;
 
     
     private ResourceState _currentState;
@@ -184,10 +182,10 @@ public class Resource : MonoBehaviour
         _currentVelocity = Vector3.zero;
         
         
-        if (gameSettings)
+        if (LevelManager.Instance)
         {
-            _movementBoundaryX = gameSettings.PlayerBoundary.x;
-            _movementBoundaryY = gameSettings.PlayerBoundary.y;
+            _movementBoundaryX = LevelManager.Instance.PlayerBoundary.x;
+            _movementBoundaryY = LevelManager.Instance.PlayerBoundary.y;
            float randomX = Random.Range(-_movementBoundaryX, _movementBoundaryX);
            float randomY = Random.Range(-_movementBoundaryY, _movementBoundaryY);
            _targetOffsetFromSpline = new Vector3(randomX, randomY, 0f);

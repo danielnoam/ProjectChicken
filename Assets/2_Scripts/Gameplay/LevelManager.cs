@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Core.Attributes;
+using DNExtensions;
 using DNExtensions.VFXManager;
 using KBCore.Refs;
 using PrimeTween;
@@ -16,28 +17,34 @@ public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance { get; private set; }
     
+    [Header("General")]
+    [SerializeField, Min(0)] private Vector2 enemyBoundary = new Vector2(45f,30f);
+    [SerializeField, Min(0)] private Vector2 playerBoundary = new Vector2(40f,25f);
+    [SerializeField] private Vector3 playerBoundaryOffset;
+    [SerializeField] private Vector3 enemyBoundaryOffset;
+    [SerializeField] private float playerPositionMultiplier = -30f;
+    [SerializeField] private float enemyPositionMultiplier = 30f;
         
     [Header("Level")]
     [SerializeField, CreateEditableAsset] private SOLevel level;
-    
-    [Header("Debug")]
     [SerializeField] private bool debugLog;
-    [SerializeField, ReadOnly] private SOLevelStage currentStage;
-    [SerializeField, ReadOnly] private int currentStageIndex;
-    [SerializeField, ReadOnly] private int enemiesLeft;
-    [SerializeField, ReadOnly] public Vector3 playerPosition;
-    [SerializeField, ReadOnly] public Vector3 enemyPosition;
-    [SerializeField, ReadOnly] private SOLevelStage[] levelStages;
+    [SerializeField, VInspector.ReadOnly] private SOLevelStage currentStage;
+    [SerializeField, VInspector.ReadOnly] private int currentStageIndex;
+    [SerializeField, VInspector.ReadOnly] private int enemiesLeft;
+    [SerializeField, VInspector.ReadOnly] public Vector3 playerPosition;
+    [SerializeField, VInspector.ReadOnly] public Vector3 enemyPosition;
+    [SerializeField, VInspector.ReadOnly] private SOLevelStage[] levelStages;
+
     
-    [Header("Fullscreen FX")]
-    [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
-    
+
     [Header("References")]
-    [SerializeField] private SOGameSettings gameSettings;
+    [SerializeField] private SOPlayerStats playerStats;
+    [SerializeField] private SceneField mainMenuScene;
     [SerializeField, Scene(Flag.EditableAnywhere)] private OutroScreen outroScreen;
     [SerializeField, Scene(Flag.EditableAnywhere)] private UpgradeStore upgradeStore;
     [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
+    [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
     
 
 
@@ -47,12 +54,15 @@ public class LevelManager : MonoBehaviour
     private SavePointData _currentSavePoint;
     private SavePointData _startSavePoint;
     private Coroutine _stageChangeCoroutine;
-
     
+    public static float WorldSpeed = 1f;
+    
+    public Vector2 PlayerBoundary => playerBoundary;
+    public Vector2 EnemyBoundary => enemyBoundary;
     public Vector3 PlayerPosition => playerPosition;
     public Vector3 EnemyPosition => enemyPosition;
     public SOLevelStage CurrentStage => currentStage;
-    public static float WorldSpeed = 1f;
+    
     
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
@@ -221,7 +231,7 @@ public class LevelManager : MonoBehaviour
         var runProgress = SaveManager.GetRunProgressData();
         OnRunProgressLoaded?.Invoke(runProgress);
         
-        _startSavePoint = new SavePointData(currentStageIndex, 0, gameSettings.BaseHealth, 0,new Dictionary<SOUpgradeBase, int>(), player.WeaponSystem.ActiveWeaponInstance?.weaponData);
+        _startSavePoint = new SavePointData(currentStageIndex, 0, playerStats.BaseHealth, 0,new Dictionary<SOUpgradeBase, int>(), player.WeaponSystem.ActiveWeaponInstance?.weaponData);
         _currentSavePoint = null;
 
         
@@ -346,7 +356,7 @@ public class LevelManager : MonoBehaviour
             {
                 FullScreenHitFXController.Instance?.TransitionTo(shipWarping);
             }
-            TransitionManager.TransitionToScene(gameSettings.MainMenuScene, level.OutroVFXSequence);
+            TransitionManager.TransitionToScene(mainMenuScene, level.OutroVFXSequence);
         }
     }
 
@@ -370,7 +380,7 @@ public class LevelManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        TransitionManager.TransitionToScene(gameSettings.MainMenuScene, level.OutroVFXSequence);
+        TransitionManager.TransitionToScene(mainMenuScene, level.OutroVFXSequence);
         if (level.OutroVFXSequence)
         {
             FullScreenHitFXController.Instance?.TransitionTo(shipWarping);
@@ -414,8 +424,8 @@ public class LevelManager : MonoBehaviour
     
     private void UpdatePlayerAndEnemyPositions()
     {
-        enemyPosition = (Vector3.forward + gameSettings.EnemyBoundaryOffset) * gameSettings.EnemyPositionMultiplier;
-        playerPosition = (Vector3.forward + gameSettings.PlayerBoundaryOffset) * gameSettings.PlayerPositionMultiplier;
+        enemyPosition = (Vector3.forward + enemyBoundaryOffset) * enemyPositionMultiplier;
+        playerPosition = (Vector3.forward + playerBoundaryOffset) * playerPositionMultiplier;
     }
 
 
@@ -441,68 +451,4 @@ public class LevelManager : MonoBehaviour
 
     #endregion Score Management ---------------------------------------------------------------------------------
     
-    
-    
-    
-#if UNITY_EDITOR
-    #region Editor -----------------------------------------------------------------------------------------------
-
-
-    
-
-    private void OnDrawGizmos()
-    {
-        // Draw player position
-        Gizmos.color = Color.green;
-        Gizmos.DrawSphere(playerPosition, 0.5f);
-        Vector3 playerSplinePosition = playerPosition;
-        Vector3[] localCorners = new Vector3[]
-        {
-            new Vector3(-gameSettings.PlayerBoundary.x, -gameSettings.PlayerBoundary.y, 0),
-            new Vector3(gameSettings.PlayerBoundary.x, -gameSettings.PlayerBoundary.y, 0),  
-            new Vector3(gameSettings.PlayerBoundary.x, gameSettings.PlayerBoundary.y, 0),   
-            new Vector3(-gameSettings.PlayerBoundary.x, gameSettings.PlayerBoundary.y, 0)  
-        };
-        Vector3[] worldCorners = new Vector3[4];
-        for (int i = 0; i < 4; i++)
-        {
-            worldCorners[i] = playerSplinePosition + localCorners[i];
-        }
-        for (int i = 0; i < 4; i++)
-        {
-            int nextIndex = (i + 1) % 4;
-            Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
-        }
-        UnityEditor.Handles.Label(playerSplinePosition + Vector3.up * (gameSettings.PlayerBoundary.y + 1f), "Player Boundaries");
-        
-        
-        // Draw enemy position
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(enemyPosition, 0.5f);
-        Vector3 crosshairSplinePosition = enemyPosition;
-        Vector3[] localCorners1 = new Vector3[]
-        {
-            new Vector3(-gameSettings.EnemyBoundary.x, -gameSettings.EnemyBoundary.y, 0),
-            new Vector3(gameSettings.EnemyBoundary.x, -gameSettings.EnemyBoundary.y, 0),
-            new Vector3(gameSettings.EnemyBoundary.x, gameSettings.EnemyBoundary.y, 0),
-            new Vector3(-gameSettings.EnemyBoundary.x, gameSettings.EnemyBoundary.y, 0)
-        };
-        Vector3[] worldCorners1 = new Vector3[4];
-        for (int i = 0; i < 4; i++)
-        {
-            worldCorners1[i] = crosshairSplinePosition + localCorners1[i];
-        }
-        for (int i = 0; i < 4; i++)
-        {
-            int nextIndex = (i + 1) % 4;
-            Gizmos.DrawLine(worldCorners1[i], worldCorners1[nextIndex]);
-        }
-        UnityEditor.Handles.Label(crosshairSplinePosition + Vector3.up * (gameSettings.EnemyBoundary.y + 1f), "Enemy Boundaries");
-
-
-    }
-
-    #endregion Editor -----------------------------------------------------------------------------------------------
-
-#endif
 }

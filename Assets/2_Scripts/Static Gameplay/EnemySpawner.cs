@@ -7,12 +7,6 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     public static EnemySpawner Instance { get; private set; }
-    
-    [Header("References")]
-    [SerializeField] private SOGameSettings gameSettings;
-    [SerializeField] private Transform enemySpawnPosition;
-    [SerializeField] private LevelManager levelManager;
-    [SerializeField] private RailPlayer player;
 
     [Header("Spawn Area Configuration")]
     [SerializeField] private BoxCollider spawnAreaBig;
@@ -20,6 +14,11 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private int maxSpawnAttempts = 50;
     [SerializeField] private float minDistanceFromBlocker = 0.5f;
     [SerializeField] private bool visualizeSpawnArea = true;
+    
+    [Header("References")]
+    [SerializeField] private Transform enemySpawnPosition;
+    [SerializeField] private LevelManager levelManager;
+    [SerializeField] private RailPlayer player;
 
     
     private readonly HashSet<ChickenStateController> _activeEnemies = new HashSet<ChickenStateController>();
@@ -28,9 +27,6 @@ public class EnemySpawner : MonoBehaviour
     
     public int ActiveEnemyCount => _activeEnemies.Count;
     
-    // Public access to spawn area colliders for other systems
-    public BoxCollider SpawnAreaBig => spawnAreaBig;
-    public BoxCollider SpawnAreaBlocker => spawnAreaBlocker;
     
     
     public event Action OnEnemyWaveSpawned;

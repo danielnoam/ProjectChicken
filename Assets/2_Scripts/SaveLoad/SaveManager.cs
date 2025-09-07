@@ -25,7 +25,7 @@ public class SaveManager : MonoBehaviour
     public event Action OnSettingsDataChanged;
     
     [Header("References")]
-    [SerializeField] private SOGameSettings gameSettings;
+    [SerializeField] private SOPlayerStats playerStats;
     
     [Header("Default Settings")]
     [SerializeField] private VolumeSettings defaultVolumeSettings = new (1,1,1);
@@ -326,14 +326,14 @@ public class SaveManager : MonoBehaviour
             }
             else
             {
-                _runProgressData = new RunProgressData(Instance.gameSettings.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
+                _runProgressData = new RunProgressData(Instance.playerStats.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
                 // Debug.Log("No run progress file found. Created new run progress data.");
             }
         }
         catch (Exception e)
         {
             Debug.LogError($"Failed to load run progress: {e.Message}");
-            _runProgressData = new RunProgressData(Instance.gameSettings.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
+            _runProgressData = new RunProgressData(Instance.playerStats.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
         }
     }
     
@@ -346,7 +346,7 @@ public class SaveManager : MonoBehaviour
             if (File.Exists(_runProgressDataPath))
             {
                 File.Delete(_runProgressDataPath);
-                _runProgressData = new RunProgressData(Instance.gameSettings.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
+                _runProgressData = new RunProgressData(Instance.playerStats.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
                 Debug.Log("Run progress file deleted and reset to default.");
             }
         }

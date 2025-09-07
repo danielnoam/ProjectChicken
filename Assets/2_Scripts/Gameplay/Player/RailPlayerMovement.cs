@@ -64,8 +64,8 @@ public class RailPlayerMovement : MonoBehaviour
     private Tween _dodgeTween;
     private Vector2 _normalizedMovementPosition;
     private Coroutine _autoCenterRoutine;
-    private float MovementBoundaryX => player.GameSettings ? player.GameSettings.PlayerBoundary.x : 10f;
-    private float MovementBoundaryY => player.GameSettings ? player.GameSettings.PlayerBoundary.y : 6f;
+    private float MovementBoundaryX => player.LevelManager ? player.LevelManager.PlayerBoundary.x : 10f;
+    private float MovementBoundaryY => player.LevelManager ? player.LevelManager.PlayerBoundary.y : 6f;
     
     
     public Vector3 InputDirection { get; private set; }
@@ -123,7 +123,7 @@ public class RailPlayerMovement : MonoBehaviour
     public void SetUp()
     {
         _allowMovement = true;
-        _maxDodgeAccumulation = player.GameSettings.BaseDodgeAccumulation;
+        _maxDodgeAccumulation = player.PlayerStats.BaseDodgeAccumulation;
         _currentDodgeRemining = _maxDodgeAccumulation;
         
         OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer/dodgeCooldown);
@@ -352,9 +352,9 @@ public class RailPlayerMovement : MonoBehaviour
     public void UpgradeDodgeAccumulationBy(int amount)
     {
         _maxDodgeAccumulation += amount;
-        if (_maxDodgeAccumulation > player.GameSettings.MaxDodgeAccumulation)
+        if (_maxDodgeAccumulation > player.PlayerStats.MaxDodgeAccumulation)
         {
-            _maxDodgeAccumulation = player.GameSettings.MaxDodgeAccumulation;
+            _maxDodgeAccumulation = player.PlayerStats.MaxDodgeAccumulation;
         }
         
         _dodgeAccumulationRateTimer = dodgeAccumulationRate;
@@ -425,5 +425,43 @@ public class RailPlayerMovement : MonoBehaviour
     }
 
     #endregion Input Handling --------------------------------------------------------------------------------------
+    
+    
+    #if UNITY_EDITOR
+    #region Editor -----------------------------------------------------------------------------------------------
+
+
+    
+
+    private void OnDrawGizmos()
+    {
+        // Draw player position
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(player.LevelManager.PlayerPosition, 0.5f);
+        Vector3 playerSplinePosition = player.LevelManager.PlayerPosition;
+        Vector3[] localCorners = new Vector3[]
+        {
+            new Vector3(-MovementBoundaryX, -MovementBoundaryY, 0),
+            new Vector3(MovementBoundaryX, -MovementBoundaryY, 0),  
+            new Vector3(MovementBoundaryX, MovementBoundaryY, 0),   
+            new Vector3(-MovementBoundaryX, MovementBoundaryY, 0)  
+        };
+        Vector3[] worldCorners = new Vector3[4];
+        for (int i = 0; i < 4; i++)
+        {
+            worldCorners[i] = playerSplinePosition + localCorners[i];
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            int nextIndex = (i + 1) % 4;
+            Gizmos.DrawLine(worldCorners[i], worldCorners[nextIndex]);
+        }
+        UnityEditor.Handles.Label(playerSplinePosition + Vector3.up * (MovementBoundaryY + 1f), "Player Boundaries");
+        
+    }
+
+    #endregion Editor -----------------------------------------------------------------------------------------------
+
+#endif
     
 }

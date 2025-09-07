@@ -21,7 +21,7 @@ public class UIManager : MonoBehaviour
     
     [Header("General")]
     [SerializeField] private Color cooldownIconColor = Color.grey;
-    [SerializeField] private SOGameSettings gameSettings;
+    [SerializeField] private SOPlayerStats playerStats;
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private RailPlayer player;
     
@@ -91,6 +91,7 @@ public class UIManager : MonoBehaviour
     private int bigScoreDifference = 200;
     [SerializeField, Min(0), Tooltip("How many 0 is the score made out of")] private int scoreDigits = 7;
     [SerializeField] private TextMeshProUGUI scoreText;
+    
     
     [Header("Stage Title")]
     [SerializeField] private float stageTitleAnimationDuration = 1.5f;

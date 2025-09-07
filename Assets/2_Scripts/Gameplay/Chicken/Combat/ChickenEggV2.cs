@@ -16,12 +16,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
     private float _spawnTime;
     private bool _isInitialized;
     
-
-
-    private void Awake()
-    {
-        _spawnTime = Time.time;
-    }
+    
 
     private void Update()
     {
@@ -35,12 +30,13 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
         if (Time.time - _spawnTime >= lifetime)
         {
             if (showDebugLogs) Debug.Log($"Egg {gameObject.name}: Destroyed after {lifetime} seconds");
-            Destroy(gameObject);
+            ReturnProjectileToPool();
         }
     }
 
     public void Initialize(Vector3 direction, float speed)
     {
+        _spawnTime = Time.time;
         _velocity = direction.normalized * speed;
         _isInitialized = true;
     }

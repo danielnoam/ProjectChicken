@@ -229,7 +229,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _inMiniGameWindow = false;
         _miniGameAttempted = false;
         _attackInputHeld = false;
-        MaxWeaponHeat = player.GameSettings.BaseMaxHeat;
+        MaxWeaponHeat = player.PlayerStats.BaseMaxHeat;
         _currentHeat = 0f;
         _lastFireTimer = 0f;
         foreach (var weapon in weapons)
@@ -350,19 +350,18 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void UpdateWeaponTime()
     {
-        if (ActiveWeaponInstance != null && ActiveWeaponInstance.CurrentWeaponData.WeaponLimitation == WeaponLimitation.TimeBased)
+        if (ActiveWeaponInstance == null || ActiveWeaponInstance.CurrentWeaponData.WeaponLimitation != WeaponLimitation.TimeBased) return;
+        
+        
+        if (_weaponTime > 0)
         {
-            if (_weaponTime > 0)
+            _weaponTime -= Time.deltaTime;
+        }
+        else if (_weaponTime <= 0)
+        {
+            if (weapons.Count > 0)
             {
-                _weaponTime -= Time.deltaTime;
-            }
-            else if (_weaponTime <= 0)
-            {
-                // Switch back to start weapon (weapons[0]) when time runs out
-                if (weapons.Count > 0)
-                {
-                    SetActiveWeapon(weapons[0]);
-                }
+                SetActiveWeapon(weapons[0]);
             }
         }
     }
@@ -521,9 +520,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public void AddMaxHeatUpgrade(float amount)
     {
         MaxWeaponHeat += amount;
-        if (MaxWeaponHeat > player.GameSettings.MaxHeat)
+        if (MaxWeaponHeat > player.PlayerStats.MaxHeat)
         {
-            MaxWeaponHeat = player.GameSettings.MaxHeat;
+            MaxWeaponHeat = player.PlayerStats.MaxHeat;
         }
         
         ResetHeat();

@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
+using KBCore.Refs;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -11,11 +13,21 @@ public class FormationVisualizer : MonoBehaviour
     public float gizmoSize = 0.5f;
     public bool showColliderBounds = true;
     public Color validationErrorColor = Color.magenta;
+    
+    [Header("References")]
+    [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
 
     private FormationCreator creator;
     private FormationBoundaryManager boundaryManager;
     private FormationPlacer placer;
     private FormationValidator validator;
+
+    private void OnValidate()
+    {
+        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>();
+        this.ValidateRefs();
+    }
+
 
     public void Initialize(FormationCreator formationCreator, FormationBoundaryManager boundary, FormationPlacer formationPlacer, FormationValidator formationValidator)
     {
@@ -29,7 +41,38 @@ public class FormationVisualizer : MonoBehaviour
     public void OnDrawGizmos()
     {
         if (creator == null)
+        {
+            if (levelManager)
+            {
+                Gizmos.DrawSphere(levelManager.EnemyPosition, 0.5f);
+                Gizmos.color = Color.red;
+                Vector3 crosshairSplinePosition = levelManager.EnemyPosition;
+                Vector3[] localCorners1 = new Vector3[]
+                {
+                    new Vector3(-levelManager.EnemyBoundary.x, -levelManager.EnemyBoundary.y, 0),
+                    new Vector3(levelManager.EnemyBoundary.x, -levelManager.EnemyBoundary.y, 0),
+                    new Vector3(levelManager.EnemyBoundary.x, levelManager.EnemyBoundary.y, 0),
+                    new Vector3(-levelManager.EnemyBoundary.x, levelManager.EnemyBoundary.y, 0)
+                };
+                Vector3[] worldCorners1 = new Vector3[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    worldCorners1[i] = crosshairSplinePosition + localCorners1[i];
+                }
+                for (int i = 0; i < 4; i++)
+                {
+                    int nextIndex = (i + 1) % 4;
+                    Gizmos.DrawLine(worldCorners1[i], worldCorners1[nextIndex]);
+                }
+#if UNITY_EDITOR
+                Handles.Label(crosshairSplinePosition + Vector3.up * (levelManager.EnemyBoundary.y + 1f), "Enemy Boundaries");
+#endif
+            }
+
             return;
+        }
+
+
 
         DrawFormationSlots();
         DrawFormationBoundingBoxes();
@@ -85,12 +128,16 @@ public class FormationVisualizer : MonoBehaviour
         // Draw collider bounds
         if (showColliderBounds && boundaryManager != null && boundaryManager.BoxCollider2D != null)
         {
-            Gizmos.color = Color.blue;
+            Gizmos.color = Color.red;
             Gizmos.matrix = transform.localToWorldMatrix;
             Vector3 center = new Vector3(boundaryManager.ColliderOffset.x, boundaryManager.ColliderOffset.y, 0);
             Vector3 size = new Vector3(boundaryManager.ColliderSize.x, boundaryManager.ColliderSize.y, 0.1f);
             Gizmos.DrawWireCube(center, size);
             Gizmos.matrix = Matrix4x4.identity; // Reset matrix
+
+            #if UNITY_EDITOR
+            Handles.Label(transform.position + transform.TransformDirection(center) + Vector3.up * (boundaryManager.ColliderSize.y / 2 + 0.5f), "Enemy Boundaries");
+            #endif
         }
     }
 

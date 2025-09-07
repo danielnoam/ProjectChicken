@@ -13,7 +13,6 @@ public class ShieldEffectManager : MonoBehaviour
     
     [Header("References")]
     [SerializeField, Parent(Flag.Editable)] private RailPlayer player;
-    [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private ShieldHitMovement[] shieldHits;
 
 
@@ -49,7 +48,7 @@ public class ShieldEffectManager : MonoBehaviour
         var alpha = 0f;
         if (shieldHealth >= 0.1f)
         {
-            var normalizedShieldHealth = shieldHealth / gameSettings.BaseShield;
+            var normalizedShieldHealth = shieldHealth / player.PlayerStats.BaseShield;
              alpha = Mathf.Lerp(activeShieldAlphaRange.minValue, activeShieldAlphaRange.maxValue, normalizedShieldHealth);
         }
 

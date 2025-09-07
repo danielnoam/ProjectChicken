@@ -690,7 +690,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animationDuration: 0.5
-  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   canvasGroup: {fileID: 9100803479185521892}
   returnButton: {fileID: 2750833704770667542}
   continueButton: {fileID: 8134003640888897226}
@@ -1115,7 +1114,7 @@ MonoBehaviour:
   maxRerollCost: 300
   animationDuration: 1
   offsetBetweenUpgrades: {x: 30, y: 0, z: 0}
-  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
+  playerStats: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   storeGfx: {fileID: 8325456232853324941}
   eggHolder: {fileID: 4126876949143536688}
   captain: {fileID: 3305861395961329739}
@@ -1469,6 +1468,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66b5b163cee51194294655b38566b6a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyBoundary: {x: 45, y: 30}
+  playerBoundary: {x: 40, y: 25}
+  playerBoundaryOffset: {x: 0, y: 0, z: 0}
+  enemyBoundaryOffset: {x: 0, y: 0.35, z: 0}
+  playerPositionMultiplier: -30
+  enemyPositionMultiplier: 30
   level: {fileID: 11400000, guid: 4e6975d244c6b7945bf6c79ef0372dc2, type: 2}
   debugLog: 0
   currentStage: {fileID: 0}
@@ -1477,6 +1482,15 @@ MonoBehaviour:
   playerPosition: {x: -0, y: -0, z: -30}
   enemyPosition: {x: 0, y: 10.5, z: 30}
   levelStages: []
+  playerStats: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
+  mainMenuScene:
+    sceneAsset: {fileID: 102900000, guid: 81ac6686a6faf384a8be7373c1b1ef15, type: 3}
+    sceneName: MainMenu
+    scenePath: Assets/1_Scenes/GameScenes/MainMenu.unity
+  outroScreen: {fileID: 5750040859959061250}
+  upgradeStore: {fileID: 54411316279204509}
+  enemySpawner: {fileID: 0}
+  player: {fileID: 0}
   shipWarping:
     color: {r: 0, g: 0, b: 0, a: 1}
     warpIntensity: 0
@@ -1487,11 +1501,6 @@ MonoBehaviour:
     density: 10.5
     softness: -0.4
     cutout: 1
-  gameSettings: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
-  outroScreen: {fileID: 5750040859959061250}
-  upgradeStore: {fileID: 54411316279204509}
-  enemySpawner: {fileID: 0}
-  player: {fileID: 0}
 --- !u!1 &8828607060782245050
 GameObject:
   m_ObjectHideFlags: 0
@@ -1613,7 +1622,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 5610219870644795921}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9999999
+  m_Size: 0.9999997
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
