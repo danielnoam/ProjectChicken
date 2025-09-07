@@ -14,6 +14,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
     private Vector3 velocity;
     private float spawnTime;
     private bool isInitialized;
+    private bool warningCreated = false; // Track if warning was created for this egg
     
     [Header("Trail Settings")]
     [SerializeField] private TrailRenderer trailVRenderer;
@@ -32,6 +33,13 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
     private void OnEnable()
     {
         spawnTime = Time.time;
+        warningCreated = false;
+    }
+
+    private void OnDisable()
+    {
+        // Remove warning when egg is disabled
+        RemoveWarning();
     }
 
     private void Update()
@@ -46,7 +54,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
         if (Time.time - spawnTime >= lifetime)
         {
             if (showDebugLogs) Debug.Log($"Egg {gameObject.name}: Destroyed after {lifetime} seconds");
-            gameObject.SetActive(false);
+            DeactivateEgg();
         }
     }
 
@@ -54,6 +62,48 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
     {
         velocity = direction.normalized * speed;
         isInitialized = true;
+        
+        // Create warning circle when egg is initialized
+        CreateWarning(transform.position, direction, speed);
+    }
+
+    private void CreateWarning(Vector3 startPosition, Vector3 direction, float speed)
+    {
+        if (warningCreated) return; // Prevent duplicate warnings
+        
+        if (EggWarningSystem.Instance != null)
+        {
+            EggWarningSystem.Instance.CreateWarning(this, startPosition, direction, speed);
+            warningCreated = true;
+            
+            if (showDebugLogs) 
+                Debug.Log($"Egg {gameObject.name}: Created warning circle");
+        }
+        else if (showDebugLogs)
+        {
+            Debug.LogWarning($"Egg {gameObject.name}: EggWarningSystem instance not found!");
+        }
+    }
+    
+    private void RemoveWarning()
+    {
+        if (!warningCreated) return;
+        
+        if (EggWarningSystem.Instance != null)
+        {
+            EggWarningSystem.Instance.RemoveWarning(this);
+            
+            if (showDebugLogs) 
+                Debug.Log($"Egg {gameObject.name}: Removed warning circle");
+        }
+        
+        warningCreated = false;
+    }
+    
+    private void DeactivateEgg()
+    {
+        RemoveWarning();
+        gameObject.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -87,6 +137,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
 
     private void ReturnProjectileToPool()
     {
+        RemoveWarning(); // Make sure warning is removed
         isInitialized = false;
         trailVRenderer.emitting = false;
         ObjectPooler.ReturnObjectToPool(gameObject);
@@ -94,18 +145,22 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
     
     public void OnPoolGet()
     {
-
-        
+        warningCreated = false;
+        trailVRenderer.emitting = true;
     }
 
     public void OnPoolReturn()
     {
+        RemoveWarning(); // Ensure warning is cleaned up
         trailVRenderer.emitting = false;
+        isInitialized = false;
     }
 
     public void OnPoolRecycle()
     {
+        RemoveWarning(); // Ensure warning is cleaned up
         trailVRenderer.emitting = false;
+        isInitialized = false;
     }
     
     

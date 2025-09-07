@@ -53,7 +53,7 @@ public class LevelManager : MonoBehaviour
     public Vector3 EnemyPosition => enemyPosition;
     public SOLevelStage CurrentStage => currentStage;
     public static float WorldSpeed = 1f;
-    
+    public Vector2 PlayerBoundarySize => gameSettings ? gameSettings.PlayerBoundary : Vector2.zero;
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
     public event Action<SavePointData> OnRestartedFromSavePoint;
