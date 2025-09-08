@@ -750,7 +750,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ad3bca90777eabc428e0470bbcf3eeea, type: 2}
   - {fileID: 11400000, guid: 7b475021ef193534588a51bfdf5a20da, type: 2}
   - {fileID: 11400000, guid: 27bb46dfaeef2d64e93eacbdbfab8684, type: 2}
-  enemyDeathMessageChance: 0.1
+  enemyDeathMessageChance: 0.05
   radioMessageUI: {fileID: 325849416025114903}
   audioSource: {fileID: 6093907579998539981}
   levelManager: {fileID: 98154818553496101}
@@ -1767,7 +1767,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66b5b163cee51194294655b38566b6a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyBoundarySize: {x: 70, y: 35}
+  enemyBoundarySize: {x: 60, y: 35}
   playerBoundarySize: {x: 40, y: 25}
   playerBoundaryOffset: {x: 0, y: 0, z: -30}
   enemyBoundaryOffset: {x: 0, y: 0.35, z: 30}
@@ -1917,8 +1917,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4704154618621634553}
   m_HandleRect: {fileID: 5610219870644795921}
   m_Direction: 0
-  m_Value: 1
-  m_Size: 0.9999997
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1938,6 +1938,10 @@ PrefabInstance:
     - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_text
       value: Close Store
+      objectReference: {fileID: 0}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_Pivot.x
@@ -2159,8 +2163,20 @@ PrefabInstance:
       value: Reroll
       objectReference: {fileID: 0}
     - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 17ae6f027dcbef2458c66bd5cf7be69f, type: 2}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -2948380699649485421, guid: 17ae6f027dcbef2458c66bd5cf7be69f, type: 2}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_Pivot.x

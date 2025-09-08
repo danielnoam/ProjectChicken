@@ -6,8 +6,6 @@ public class BurstFireAttackSO : BaseChickenAttackSO
 {
     [Header("Burst Fire Settings")]
     public int maxSimultaneousAttacks = 2;
-    [Range(1, 10)]
-    public int minChickensRequired = 2;
 
     public override AttackType AttackType => AttackType.BurstFire;
     public override string AttackName => "Burst Fire Attack";

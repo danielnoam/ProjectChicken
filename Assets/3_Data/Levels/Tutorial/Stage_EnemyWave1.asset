@@ -13,37 +13,44 @@ MonoBehaviour:
   m_Name: Stage_EnemyWave1
   m_EditorClassIdentifier: 
   stageTitle: 
-  stageWorldSpeed: 1
+  startRadioMessage: {fileID: 0}
+  worldSpeed: 1
   isCheckpoint: 0
   showHUD: 1
   allowPlayerMovement: 1
   allowPlayerShootingAndAiming: 1
+  events: []
   stageType: 2
   stageDuration: 15
+  delayBeforeNextStage: 3
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
     sceneName: 
     scenePath: 
+  allowToCloseStore: 1
   upgradesPool:
   - {fileID: 0}
-  delayBeforeNextStage: 3
   waveScoreWorth: 1000
   enemyWave:
     serializedKvps:
     - Key: {fileID: 8824006632455104043, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      Value: 16
+      Value: 1
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
     dividerPos: 0.33
-  formationSettings:
-    formationType: 1
-    formationPosition: 0
+  formationStageData:
+    formationType: 0
     formationCount: 1
-    vShapeCount: 7
-    squareSize: 4
-    triangleRows: 4
-    circleCount: 12
-    gridSize: {x: 5, y: 3}
-    gridFillsBoundary: 1
+    numberOfSlots: 9
+    spacing: 2
+    circleRadius: 3
+    useRandomPlacement: 1
+    formationSpacing: 5
+    maxPlacementAttempts: 100
+  requireAllTasks: 1
+  tasks: []
+  references:
+    version: 2
+    RefIds: []

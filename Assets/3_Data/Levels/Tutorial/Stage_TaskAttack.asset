@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
   m_Name: Stage_TaskAttack
   m_EditorClassIdentifier: 
-  stageTitle: 
+  stageTitle: Press LMB to shoot
   startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 1
@@ -28,6 +28,7 @@ MonoBehaviour:
     sceneAsset: {fileID: 0}
     sceneName: 
     scenePath: 
+  allowToCloseStore: 1
   upgradesPool:
   - {fileID: 0}
   waveScoreWorth: 1000
@@ -37,8 +38,8 @@ MonoBehaviour:
   formationStageData:
     formationType: 0
     formationCount: 1
+    numberOfSlots: 9
     spacing: 2
-    slotsPerSide: 3
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 5
@@ -52,7 +53,6 @@ MonoBehaviour:
     - rid: 15266906769195113
       type: {class: UseSpecificActionTask, ns: , asm: Assembly-CSharp}
       data:
-        taskDescription: 
-        isCompleted: 0
+        isCompleted: 1
         requiredAction: 3
         timesRequired: 3

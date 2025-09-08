@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
   m_Name: Stage_Task
   m_EditorClassIdentifier: 
-  stageTitle: 
+  stageTitle: Use WASD to move
   startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 0
@@ -29,6 +29,7 @@ MonoBehaviour:
     sceneAsset: {fileID: 0}
     sceneName: 
     scenePath: 
+  allowToCloseStore: 1
   upgradesPool:
   - {fileID: 0}
   waveScoreWorth: 1000
@@ -43,8 +44,8 @@ MonoBehaviour:
   formationStageData:
     formationType: 1
     formationCount: 2
+    numberOfSlots: 9
     spacing: 2
-    slotsPerSide: 3
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 5

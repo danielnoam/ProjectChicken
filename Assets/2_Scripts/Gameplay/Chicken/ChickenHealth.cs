@@ -106,14 +106,6 @@ public class ChickenHealth : MonoBehaviour
         OnDamageTaken?.Invoke(actualDamage);
         OnHealthChanged?.Invoke(currentHealth);
         
-        // Set concussed state when taking damage (if not dead)
-        if (currentHealth > 0f && stateController != null)
-        {
-            stateController.SetConcussed();
-            if (showDebugLogs)
-                Debug.Log($"ChickenHealth on {gameObject.name}: Set to Concussed state");
-        }
-        
         // Check if dead
         if (currentHealth <= 0f)
         {

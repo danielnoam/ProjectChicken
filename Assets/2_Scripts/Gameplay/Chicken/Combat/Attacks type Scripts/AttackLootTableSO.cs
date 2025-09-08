@@ -12,10 +12,6 @@ public class AttackLootTableSO : ScriptableObject
     [Header("Debug")]
     public bool showDebugLogs = true;
     
-
-
-
-    
     public BaseChickenAttackSO SelectRandomAttack()
     {
         if (attackEntries.Count == 0)

@@ -4,11 +4,6 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "New Single Fire Attack", menuName = "Chicken Combat/Attacks/Single Fire Attack")]
 public class SingleFireAttackSO : BaseChickenAttackSO
 {
-    [Header("Single Fire Settings")]
-    public bool preferClosestToPlayer = false;
-    [Range(0f, 1f)]
-    public float randomnessWeight = 1f; // 1 = completely random, 0 = always closest
-
     public override AttackType AttackType => AttackType.SingleFire;
     public override string AttackName => "Single Fire Attack";
 
@@ -32,13 +27,13 @@ public class SingleFireAttackSO : BaseChickenAttackSO
 
         LogDebug("EXECUTING!");
 
-        // Select chicken for attack
-        ChickenCombatBehaviorV2 selectedChicken = SelectChickenForAttack(availableChickens, manager);
+        // Always select a random chicken from the available pool
+        ChickenCombatBehaviorV2 selectedChicken = SelectRandomChicken(availableChickens);
 
         if (selectedChicken != null)
         {
             ExecuteChickenAttack(selectedChicken, manager);
-            LogDebug($"{selectedChicken.gameObject.name} fired from {availableChickens.Count} available");
+            LogDebug($"{selectedChicken.gameObject.name} fired from {availableChickens.Count} available chickens");
         }
         else
         {
@@ -46,62 +41,18 @@ public class SingleFireAttackSO : BaseChickenAttackSO
         }
     }
 
-    ChickenCombatBehaviorV2 SelectChickenForAttack(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager)
+    ChickenCombatBehaviorV2 SelectRandomChicken(List<ChickenCombatBehaviorV2> availableChickens)
     {
         if (availableChickens.Count == 0)
             return null;
 
-        if (availableChickens.Count == 1)
-            return availableChickens[0];
-
-        ChickenCombatBehaviorV2 selectedChicken = null;
-
-        if (preferClosestToPlayer && manager.Player != null && randomnessWeight < 1f)
-        {
-            selectedChicken = SelectBasedOnDistance(availableChickens, manager.Player);
-        }
-        else
-        {
-            // Pure random selection
-            int randomIndex = Random.Range(0, availableChickens.Count);
-            selectedChicken = availableChickens[randomIndex];
-        }
-
-        if (selectedChicken != null)
-        {
-            string selectionMethod = preferClosestToPlayer && randomnessWeight < 1f ? "distance-based" : "random";
-            LogDebug($"Selected {selectedChicken.gameObject.name} using {selectionMethod} selection");
-        }
-
+        // Pure random selection - same chicken can be selected multiple times
+        int randomIndex = Random.Range(0, availableChickens.Count);
+        ChickenCombatBehaviorV2 selectedChicken = availableChickens[randomIndex];
+        
+        LogDebug($"Selected {selectedChicken.gameObject.name} (index {randomIndex}) using random selection");
+        
         return selectedChicken;
-    }
-
-    ChickenCombatBehaviorV2 SelectBasedOnDistance(List<ChickenCombatBehaviorV2> availableChickens, Transform player)
-    {
-        // Weighted selection between closest and random
-        if (Random.Range(0f, 1f) <= randomnessWeight)
-        {
-            // Random selection
-            return availableChickens[Random.Range(0, availableChickens.Count)];
-        }
-        else
-        {
-            // Find closest chicken to player
-            ChickenCombatBehaviorV2 closestChicken = null;
-            float closestDistance = float.MaxValue;
-
-            foreach (var chicken in availableChickens)
-            {
-                float distance = Vector3.Distance(chicken.transform.position, player.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestChicken = chicken;
-                }
-            }
-
-            return closestChicken;
-        }
     }
 
     void ExecuteChickenAttack(ChickenCombatBehaviorV2 chicken, ChickenCombatManagerV4 manager)
