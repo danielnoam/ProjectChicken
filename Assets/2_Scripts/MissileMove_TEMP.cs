@@ -4,9 +4,15 @@ public class MissileMove_TEMP : MonoBehaviour
 {
     public float speed = 5f; // Choose your speed in the Inspector
 
-    void Update()
+    Rigidbody rb;
+
+    void Awake()
     {
-        // Move the object forward every frame
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        rb = GetComponent<Rigidbody>();
+    }
+
+    void FixedUpdate()
+    {
+        rb.MovePosition(transform.position + transform.forward * speed * Time.fixedDeltaTime);
     }
 }
