@@ -27,6 +27,7 @@ public class RadioManager : MonoBehaviour
     private SORadioMessage _currentMessage;
     private bool _messagePlaying;
     private int _playerHealth = 100;
+    private SOCharacter _currentSender;
     
     private void OnValidate()
     {
@@ -53,6 +54,7 @@ public class RadioManager : MonoBehaviour
     private void OnEnable()
     {
         radioMessageUI.OnMessageHidden += OnMessageHidden;
+        radioMessageUI.OnMessageCompleted += OnMessageCompleted;
         if (levelManager) levelManager.OnStageChanged += OnStageChanged;
         if (enemySpawner) enemySpawner.OnEnemyDeath += OnEnemyDeath;
         if (player)
@@ -66,6 +68,7 @@ public class RadioManager : MonoBehaviour
     private void OnDisable()
     {
         radioMessageUI.OnMessageHidden -= OnMessageHidden;
+        radioMessageUI.OnMessageCompleted -= OnMessageCompleted;
         if (levelManager) levelManager.OnStageChanged -= OnStageChanged;
         if (enemySpawner) enemySpawner.OnEnemyDeath -= OnEnemyDeath;
         if (player)
@@ -86,6 +89,21 @@ public class RadioManager : MonoBehaviour
     private void OnMessageHidden()
     {
         _messagePlaying = false;
+        _currentSender = null; // Reset current sender when message is completely hidden
+    }
+    
+    private void OnMessageCompleted()
+    {
+        if (_messages.Count == 0 || (_messages.Count > 0 && _messages[0].Sender != _currentSender))
+        {
+            _messagePlaying = false;
+            _currentSender = null;
+            radioMessageUI.HideMessage();
+        }
+        else
+        {
+            _messagePlaying = false;
+        }
     }
 
     private void OnPlayerHealthChanged(int health)
@@ -164,16 +182,39 @@ public class RadioManager : MonoBehaviour
 
     private void PlayMessage(SORadioMessage message)
     {
-        _messagePlaying = true;
-        _currentMessage = message;
-        message.AudioEvent?.Play(audioSource);
-        radioMessageUI.ShowMessage(message);
-    }
+        // Check if it's the same sender and we're currently showing a message
+        bool isSameSender = _currentSender == message.Sender && _currentSender;
     
+        if (isSameSender)
+        {
+            // Same sender - just update the message without hiding/showing
+            _messagePlaying = true;
+            _currentMessage = message;
+            message.AudioEvent?.Play(audioSource);
+            radioMessageUI.UpdateMessageOnly(message);
+        }
+        else
+        {
+            // Different sender or first message - do full show
+            if (_messagePlaying && _currentSender)
+            {
+                // Hide current message first if showing different sender
+                radioMessageUI.HideMessage();
+            }
+        
+            _messagePlaying = true;
+            _currentMessage = message;
+            _currentSender = message.Sender;
+            message.AudioEvent?.Play(audioSource);
+            radioMessageUI.ShowMessage(message);
+        }
+    }
+
     private void ClearMessages()
     {
         _messages.Clear();
         _currentMessage = null;
+        _currentSender = null; 
         radioMessageUI.HideMessage();
     }
     

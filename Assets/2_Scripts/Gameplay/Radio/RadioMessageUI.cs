@@ -1,5 +1,6 @@
 ﻿using System;
 using PrimeTween;
+using TMPEffects.Components;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,7 @@ public class RadioMessageUI : MonoBehaviour
         [SerializeField] private TextMeshProUGUI senderNameText;
         [SerializeField] private Image senderNameImage;
         [SerializeField] private TextMeshProUGUI messageText;
+        [SerializeField] private TMPWriter messageWriter;
         
         private Sequence _hideSequence;
         private Sequence _showSequence;
@@ -24,6 +26,7 @@ public class RadioMessageUI : MonoBehaviour
         private RectTransform _messageUIRectTransform;
         
         public event Action OnMessageHidden;
+        public event Action OnMessageCompleted;
 
         private void Awake()
         {
@@ -32,9 +35,10 @@ public class RadioMessageUI : MonoBehaviour
                 _messageUIRectTransform.anchoredPosition = hiddenPosition;
         }
 
-
         public void ShowMessage(SORadioMessage message)
         {
+                if (!message) return;
+                
                 if (_showSequence.isAlive)
                 {
                         _showSequence.Stop();
@@ -43,24 +47,45 @@ public class RadioMessageUI : MonoBehaviour
                 
                 _showSequence = Sequence.Create();
                 if (_hideSequence.isAlive) _showSequence.ChainDelay(_hideSequence.duration);
-                _showSequence.ChainCallback((() =>
+                _showSequence.ChainCallback(() =>
                         {
-                                if (message.Sender) senderNameText.text = message.Sender.Name;
-                                if (message.Sender && message.Sender.Icon)
+                                if (message.Sender)
                                 {
-                                        senderNameImage.gameObject.SetActive(true);
-                                        senderNameImage.sprite = message.Sender.Icon;
+                                        senderNameText.text = message.Sender.Name;
+                                        if (message.Sender.Icon)
+                                        {
+                                                senderNameImage.gameObject.SetActive(true);
+                                                senderNameImage.sprite = message.Sender.Icon;
+                                        }
+                                        else
+                                        {
+                                                senderNameImage.gameObject.SetActive(false);
+                                        }
                                 }
                                 else
                                 {
                                         senderNameImage.gameObject.SetActive(false);
                                 }
+                                
                                 messageText.text = message.Message;
-                        }));
+                                messageWriter.RestartWriter();
+                        });
                 _showSequence.Chain(Tween.UIAnchoredPosition(_messageUIRectTransform,hiddenPosition, _shownPosition, showDuration, ease));
                 _showSequence.ChainDelay(message.Duration);
-                _showSequence.OnComplete(HideMessage);
+                _showSequence.OnComplete(() => OnMessageCompleted?.Invoke());
+        }
 
+        public void UpdateMessageOnly(SORadioMessage message)
+        {
+                if (!message) return;
+                
+                messageText.text = message.Message;
+                messageWriter.RestartWriter();
+                
+                if (_showSequence.isAlive) _showSequence.Stop();
+                _showSequence = Sequence.Create()
+                        .ChainDelay(message.Duration)
+                        .OnComplete(() => OnMessageCompleted?.Invoke()); 
         }
 
         public void HideMessage()
@@ -68,10 +93,8 @@ public class RadioMessageUI : MonoBehaviour
                 if (_hideSequence.isAlive) _hideSequence.Stop();
                 if (_showSequence.isAlive) _showSequence.Stop();
 
-
                 _hideSequence = Sequence.Create()
                         .Chain(Tween.UIAnchoredPosition(_messageUIRectTransform, hiddenPosition, hideDuration, ease))
                         .OnComplete(() => OnMessageHidden?.Invoke());
         }
-        
 }

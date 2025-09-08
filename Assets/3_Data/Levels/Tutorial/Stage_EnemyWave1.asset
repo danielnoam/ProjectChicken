@@ -10,10 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_EnemyWaveTest 1
+  m_Name: Stage_EnemyWave1
   m_EditorClassIdentifier: 
   stageTitle: 
-  stageRadioMessage: {fileID: 0}
   stageWorldSpeed: 1
   isCheckpoint: 0
   showHUD: 1
@@ -28,22 +27,23 @@ MonoBehaviour:
     scenePath: 
   upgradesPool:
   - {fileID: 0}
-  delayBeforeNextStage: 1
+  delayBeforeNextStage: 3
   waveScoreWorth: 1000
   enemyWave:
     serializedKvps:
     - Key: {fileID: 8824006632455104043, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      Value: 10
+      Value: 16
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
     dividerPos: 0.33
-  formationStageData:
+  formationSettings:
     formationType: 1
-    formationCount: 2
-    spacing: 2
-    slotsPerSide: 3
-    circleRadius: 3
-    useRandomPlacement: 1
-    formationSpacing: 5
-    maxPlacementAttempts: 100
+    formationPosition: 0
+    formationCount: 1
+    vShapeCount: 7
+    squareSize: 4
+    triangleRows: 4
+    circleCount: 12
+    gridSize: {x: 5, y: 3}
+    gridFillsBoundary: 1

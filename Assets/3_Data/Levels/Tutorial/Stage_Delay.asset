@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_EnemyWaveTest 1
+  m_Name: Stage_Delay
   m_EditorClassIdentifier: 
   stageTitle: 
   stageRadioMessage: {fileID: 0}
   stageWorldSpeed: 1
-  isCheckpoint: 0
-  showHUD: 1
+  isCheckpoint: 1
+  showHUD: 0
   allowPlayerMovement: 1
   allowPlayerShootingAndAiming: 1
-  stageType: 2
-  stageDuration: 15
+  stageType: 0
+  stageDuration: 7
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -31,16 +31,11 @@ MonoBehaviour:
   delayBeforeNextStage: 1
   waveScoreWorth: 1000
   enemyWave:
-    serializedKvps:
-    - Key: {fileID: 8824006632455104043, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      Value: 10
-      index: 0
-      isKeyRepeated: 0
-      isKeyNull: 0
+    serializedKvps: []
     dividerPos: 0.33
   formationStageData:
-    formationType: 1
-    formationCount: 2
+    formationType: 0
+    formationCount: 1
     spacing: 2
     slotsPerSide: 3
     circleRadius: 3
