@@ -17,6 +17,8 @@ public class ResourceManager : MonoBehaviour
 
     private readonly List<Resource> _resources = new List<Resource>();
     
+    public int ActiveResourceCount => _resources.Count;
+    
     private void OnValidate()
     {
         if (!enemySpawner)
@@ -96,6 +98,11 @@ public class ResourceManager : MonoBehaviour
 
         SpawnResource(enemy.LootTable.RandomResource, enemy.transform.position, resourceHolder);
     }
+    
+    private void OnResourceDestroyed(Resource resource)
+    {
+        _resources.Remove(resource);
+    }
 
 
 
@@ -120,11 +127,21 @@ public class ResourceManager : MonoBehaviour
         
 
     }
-
-    private void OnResourceDestroyed(Resource resource)
+    
+    public Resource SpawnResource(Resource resource)
     {
-        _resources.Remove(resource);
+        return SpawnResource(resource, levelManager.EnemyPosition, resourceHolder);
     }
+
+    
+    [Button]
+    public void SpawnRandomResource()
+    {
+        if (!levelManager) return;
+        SpawnResource(debugTable.RandomResource);
+        
+    }
+
 
     [Button]
     private void RemoveAllResources()
@@ -138,11 +155,7 @@ public class ResourceManager : MonoBehaviour
     }
 
 
-    [Button]
-    private void SpawnRandomResource()
-    {
-        if (!levelManager) return;
-        SpawnResource(debugTable.RandomResource, levelManager.EnemyPosition, transform);
-        
-    }
+
+    
+
 }

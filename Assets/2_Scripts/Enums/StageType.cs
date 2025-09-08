@@ -8,4 +8,5 @@ public enum StageType
     EnemyWave,
     Intro,
     Outro,
+    Task
 }

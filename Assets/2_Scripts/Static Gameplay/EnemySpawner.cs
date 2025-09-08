@@ -182,23 +182,17 @@ public class EnemySpawner : MonoBehaviour
     
     
     
-    private void SpawnEnemy(ChickenStateController enemyPrefab)
+    public void SpawnEnemy(ChickenStateController enemyPrefab)
     {
         if (!enemyPrefab) return;
 
-        // Get a valid spawn position FIRST
+
         Vector3 spawnPosition = GetValidSpawnPosition();
-        
-        // Pass the spawn position to the object pooler
         var enemyObject = ObjectPooler.GetObjectFromPool(enemyPrefab.gameObject, spawnPosition);
         
         if (enemyObject.TryGetComponent<ChickenStateController>(out var enemy))
         {
-            // Force immediate positioning to prevent any visual glitches
             ForceImmediatePosition(enemy, spawnPosition);
-            
-            
-            // Add to tracking
             enemy.OnDeathEvent += UpdateEnemyCount;
             _activeEnemies.Add(enemy);
         }

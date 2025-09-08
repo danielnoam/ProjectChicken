@@ -29,10 +29,6 @@ public class LevelManager : MonoBehaviour
     [SerializeField, VInspector.ReadOnly] private SOLevelStage currentStage;
     [SerializeField, VInspector.ReadOnly] private int currentStageIndex;
     [SerializeField, VInspector.ReadOnly] private int enemiesLeft;
-    [SerializeField, VInspector.ReadOnly] private Vector3 playerPosition;
-    [SerializeField, VInspector.ReadOnly] private Vector3 enemyPosition;
-    [SerializeField, VInspector.ReadOnly] private SOLevelStage[] levelStages;
-
     
 
     [Header("References")]
@@ -42,25 +38,34 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private UpgradeStore upgradeStore;
     [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField, Self(Flag.EditableAnywhere)] private FormationBoundaryManager boundaryManager;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private ResourceManager resourceManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
     
 
 
     private int _currentScore;
+    private Vector3 _playerPosition;
+    private Vector3 _enemyPosition;
+    private SOLevelStage[] _levelStages;
+    private StageTask[] _currentStageTasks;
+    private StageEvent[] _currentStageEvents;
+    private int _completedTaskCount;
     private float _currentPathSpeed;
     private bool _settingStageFlag;
     private SavePointData _currentSavePoint;
     private SavePointData _startSavePoint;
     private Coroutine _stageChangeCoroutine;
-    
-    public static float WorldSpeed = 1f;
+
     
     public Vector2 PlayerBoundarySize => playerBoundarySize;
     public Vector2 EnemyBoundarySize => enemyBoundarySize;
-    public Vector3 PlayerPosition => playerPosition;
-    public Vector3 EnemyPosition => enemyPosition;
-    public SOLevelStage CurrentStage => currentStage;
+    public Vector3 PlayerPosition => _playerPosition;
+    public Vector3 EnemyPosition => _enemyPosition;
+    public RailPlayer Player => player;
+    public EnemySpawner EnemySpawner => enemySpawner;
+    public ResourceManager ResourceManager => resourceManager;
+    public int CurrentScore => _currentScore;
     
     
     public event Action<SOLevelStage> OnStageChanged;
@@ -68,6 +73,8 @@ public class LevelManager : MonoBehaviour
     public event Action<SavePointData> OnRestartedFromSavePoint;
     public event Action<RunProgressData> OnRunProgressLoaded;
     
+    
+    public static float WorldSpeed = 1f;
 
 
     private void OnValidate()
@@ -96,6 +103,11 @@ public class LevelManager : MonoBehaviour
         if (!boundaryManager)
         {
             boundaryManager = FindFirstObjectByType<FormationBoundaryManager>();
+        }
+        
+        if (!resourceManager)
+        {
+            resourceManager = FindFirstObjectByType<ResourceManager>();
         }
         
         this.ValidateRefs();
@@ -163,6 +175,11 @@ public class LevelManager : MonoBehaviour
             upgradeStore.OnStoreClosed -= UpgradeStoreClosed;
         }
     }
+    
+    private void OnDestroy()
+    {
+        CleanupCurrentTasks();
+    }
 
 
     private void Start()
@@ -170,7 +187,10 @@ public class LevelManager : MonoBehaviour
         StartLevel();
     }
 
-
+    private void Update()
+    {
+        UpdateStageEvents();
+    }
     
     private void OnEnemiesCleared(int scoreWorth)
     {
@@ -229,9 +249,9 @@ public class LevelManager : MonoBehaviour
             return;
         }
         
-        levelStages = level.LevelStages;
+        _levelStages = level.LevelStages;
         
-        if (levelStages == null || levelStages.Length == 0)
+        if (_levelStages == null || _levelStages.Length == 0)
         {
             if (debugLog) Debug.LogError("No level stages defined!");
             return;
@@ -256,7 +276,7 @@ public class LevelManager : MonoBehaviour
         
         
         int nextStageIndex = currentStageIndex + 1;
-        if (nextStageIndex < levelStages.Length)
+        if (nextStageIndex < _levelStages.Length)
         {
             
             _settingStageFlag = true;
@@ -284,10 +304,10 @@ public class LevelManager : MonoBehaviour
     
     private void SetStage(int newStageIndex)
     {
-        if (newStageIndex < 0 || newStageIndex >= levelStages.Length) return;
+        if (newStageIndex < 0 || newStageIndex >= _levelStages.Length) return;
         
 
-        SOLevelStage newStage = levelStages[newStageIndex];
+        SOLevelStage newStage = _levelStages[newStageIndex];
 
         if (!newStage)
         {
@@ -298,16 +318,22 @@ public class LevelManager : MonoBehaviour
         
         if (debugLog) Debug.Log("Set stage to: " + newStage.name);
         
-        
+        CleanupCurrentTasks();
+        CleanupCurrentEvents();
         _settingStageFlag = false;
         currentStageIndex = newStageIndex;
         currentStage = newStage;
         
-        Tween.Custom(startValue: WorldSpeed, endValue: newStage.StageWorldSpeed, duration: 0.5f, onValueChange:(value) => WorldSpeed = value);
+        Tween.Custom(startValue: WorldSpeed, endValue: newStage.WorldSpeed, duration: 0.5f, onValueChange:(value) => WorldSpeed = value);
         if (currentStage.IsCheckpoint) SaveLevelProgress();
         UpdatePlayerAndEnemyPositions();
         
+        
+
+        
         OnStageChanged?.Invoke(currentStage);
+        
+        InitializeStageEvents();
 
 
         if (currentStage.IsTimeBasedStage)
@@ -334,16 +360,19 @@ public class LevelManager : MonoBehaviour
                 SetNextStage(currentStage.StageDuration);
             }
         }
+        else if (currentStage.StageType == StageType.Task)
+        {
+            InitializeTaskStage();
+        }
 
         
     }
-
-
+    
 
     private IEnumerator ChangeStageAfterDelay(int newStateIndex, float delay)
     {
 
-        if (debugLog) Debug.Log("Setting stage: " + levelStages[newStateIndex].name + ", In " + delay);
+        if (debugLog) Debug.Log("Setting stage: " + _levelStages[newStateIndex].name + ", In " + delay);
 
         yield return new WaitForSeconds(delay);
 
@@ -396,6 +425,119 @@ public class LevelManager : MonoBehaviour
             FullScreenHitFXController.Instance?.TransitionTo(shipWarping);
         }
     }
+    
+    
+    private void UpdatePlayerAndEnemyPositions()
+    {
+        _enemyPosition = (Vector3.forward + enemyBoundaryOffset);
+        _playerPosition = (Vector3.forward + playerBoundaryOffset);
+    }
+
+
+
+    #endregion Stage Management ---------------------------------------------------------------------------------
+
+
+    #region Tasks  --------------------------------------------------------------------------------
+
+    
+    private void InitializeTaskStage()
+    {
+        if (currentStage.Tasks == null || currentStage.Tasks.Length == 0)
+        {
+            if (debugLog) Debug.LogWarning("Task stage has no tasks defined!");
+            SetNextStage();
+            return;
+        }
+    
+        _currentStageTasks = currentStage.Tasks;
+        _completedTaskCount = 0;
+    
+        foreach (var task in _currentStageTasks)
+        {
+            task.OnTaskCompleted += OnTaskCompleted;
+            task.Initialize(this);
+        }
+    
+        if (debugLog) Debug.Log($"Initialized {_currentStageTasks.Length} tasks for stage: {currentStage.name}");
+    }
+
+    private void OnTaskCompleted(StageTask completedTask)
+    {
+        _completedTaskCount++;
+    
+        if (debugLog) Debug.Log($"Task completed: {completedTask.TaskDescription} ({_completedTaskCount}/{_currentStageTasks.Length})");
+        
+        
+        bool shouldAdvance = currentStage.RequireAllTasks ? _completedTaskCount >= _currentStageTasks.Length : true;
+    
+        if (shouldAdvance)
+        {
+            if (debugLog) Debug.Log("All required tasks completed, advancing stage");
+            SetNextStage(currentStage.DelayBeforeNextStage);
+        }
+    }
+
+    private void CleanupCurrentTasks()
+    {
+        if (_currentStageTasks == null) return;
+        
+        
+        foreach (var task in _currentStageTasks)
+        {
+            task.OnTaskCompleted -= OnTaskCompleted;
+            task.Cleanup();
+        }
+        _currentStageTasks = null;
+    }
+
+    #endregion Tasks --------------------------------------------------------------------------------
+
+
+
+    #region Events --------------------------------------------------------------------------------
+
+    
+    private void InitializeStageEvents()
+    {
+        if (currentStage.Events == null || currentStage.Events.Length == 0) return;
+    
+        _currentStageEvents = currentStage.Events;
+    
+        foreach (var stageEvent in _currentStageEvents)
+        {
+            stageEvent.Initialize(this);
+        }
+    
+        if (debugLog) Debug.Log($"Initialized {_currentStageEvents.Length} events for stage: {currentStage.name}");
+    }
+
+    private void UpdateStageEvents()
+    {
+        if (_currentStageEvents == null) return;
+    
+        foreach (var stageEvent in _currentStageEvents)
+        {
+            stageEvent.Update(Time.deltaTime);
+        }
+    }
+
+    private void CleanupCurrentEvents()
+    {
+        if (_currentStageEvents == null) return;
+    
+        foreach (var stageEvent in _currentStageEvents)
+        {
+            stageEvent.Cleanup();
+        }
+        _currentStageEvents = null;
+    }
+    
+
+    #endregion Events --------------------------------------------------------------------------------
+    
+    
+    #region Save/Load -------------------------------------------------------------------------------
 
     private IEnumerator RestartFromSavePointRoutine()
     {
@@ -427,22 +569,12 @@ public class LevelManager : MonoBehaviour
             player.ResourceCollector.CurrentCurrency, 
             player.Upgrades,
             player.WeaponSystem.ActiveWeaponInstance?.weaponData
-            );
+        );
             
         _currentSavePoint = newSavePoint;
     }
-    
-    private void UpdatePlayerAndEnemyPositions()
-    {
-        enemyPosition = (Vector3.forward + enemyBoundaryOffset);
-        playerPosition = (Vector3.forward + playerBoundaryOffset);
-    }
 
-
-
-    #endregion Stage Management ---------------------------------------------------------------------------------
-    
-    
+    #endregion Save/Load -------------------------------------------------------------------------------
     
     #region Score Management ---------------------------------------------------------------------------------
 

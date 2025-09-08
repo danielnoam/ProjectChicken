@@ -136,7 +136,7 @@ public class RadioManager : MonoBehaviour
             ClearMessages();
         }
         
-        AddMessage(stage.StageRadioMessage);
+        AddMessage(stage.StartRadioMessage);
     }
     
     private void OnEnemyDeath(ChickenStateController enemy)
