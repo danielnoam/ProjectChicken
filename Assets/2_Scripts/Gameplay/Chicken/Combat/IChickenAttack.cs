@@ -52,6 +52,7 @@ public enum AttackType
     BurstFire,
     SingleFire,
     RapidFire,
-    FormationScramble
+    FormationScramble,
+    SquareFormation
     // Add more attack types as needed
 }

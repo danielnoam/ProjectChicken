@@ -821,6 +821,37 @@ MonoBehaviour:
   - {fileID: 7628995704809813630}
   - {fileID: 3558174509910864628}
   - {fileID: 1228446762727484811}
+--- !u!1 &1476497317284808522
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7316490623656321039}
+  m_Layer: 6
+  m_Name: ChickenAimPoint
+  m_TagString: Respawn
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7316490623656321039
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476497317284808522}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8474555558549935190}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1506644416565149069
 GameObject:
   m_ObjectHideFlags: 0
@@ -2422,6 +2453,7 @@ Transform:
   - {fileID: 578094112693646351}
   - {fileID: 7239159908269156373}
   - {fileID: 8469364165154082126}
+  - {fileID: 7316490623656321039}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &8177767816080453902

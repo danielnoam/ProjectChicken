@@ -6,7 +6,6 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
 {
     [Header("Egg Settings")]
     public float lifetime = 5f; // How long the egg exists before destroying itself
-    public bool useGravity; // Whether egg should be affected by gravity
 
     [Header("Debug")]
     public bool showDebugLogs;
@@ -18,18 +17,6 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
     
     [Header("Trail Settings")]
     [SerializeField] private TrailRenderer trailVRenderer;
-
-    private void Awake()
-    {
-        spawnTime = Time.time;
-        
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.useGravity = useGravity;
-        }
-    }
-
     private void OnEnable()
     {
         spawnTime = Time.time;
@@ -38,8 +25,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
 
     private void OnDisable()
     {
-        // Remove warning when egg is disabled
-        RemoveWarning();
+        OnPoolRecycle();
     }
 
     private void Update()
@@ -54,7 +40,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
         if (Time.time - spawnTime >= lifetime)
         {
             if (showDebugLogs) Debug.Log($"Egg {gameObject.name}: Destroyed after {lifetime} seconds");
-            DeactivateEgg();
+            ReturnProjectileToPool();
         }
     }
 
@@ -62,11 +48,37 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
     {
         velocity = direction.normalized * speed;
         isInitialized = true;
-        
-        // Create warning circle when egg is initialized
-        CreateWarning(transform.position, direction, speed);
-    }
 
+        // Only create warning if it hasn't been created already
+        // (Square formation attacks create warnings manually)
+        if (!warningCreated)
+        {
+            CreateWarning(transform.position, direction, speed);
+        }
+    }
+    /// <summary>
+    /// Initialize without creating a warning (for formation attacks that handle warnings manually)
+    /// </summary>
+    /// <param name="direction">Direction of movement</param>
+    /// <param name="speed">Speed of the egg</param>
+    /// <param name="skipWarning">If true, skips automatic warning creation</param>
+    public void Initialize(Vector3 direction, float speed, bool skipWarning)
+    {
+        spawnTime = Time.time;
+        velocity = direction.normalized * speed;
+        isInitialized = true;
+
+        if (!skipWarning && !warningCreated)
+        {
+            CreateWarning(transform.position, direction, speed);
+        }
+        else if (skipWarning)
+        {
+            warningCreated = true; // Mark as created to prevent duplicate warnings
+            if (showDebugLogs)
+                Debug.Log($"Egg {gameObject.name}: Skipped automatic warning creation");
+        }
+    }
     private void CreateWarning(Vector3 startPosition, Vector3 direction, float speed)
     {
         if (warningCreated) return; // Prevent duplicate warnings
@@ -99,13 +111,6 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
         
         warningCreated = false;
     }
-    
-    private void DeactivateEgg()
-    {
-        RemoveWarning();
-        gameObject.SetActive(false);
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         

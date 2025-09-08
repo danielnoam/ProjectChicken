@@ -372,6 +372,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &680251205 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8474555558549935190, guid: 0dc27c5e616b3bc4d89d1e222c4dae5d, type: 3}
+  m_PrefabInstance: {fileID: 3727182894853981933}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &789872763
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -552,6 +557,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 699010962104900856, guid: b7f3693730d4c744ebf00c96917e0657, type: 3}
+      propertyPath: pools.Array.data[4].preWarmPoolSize
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 699010962104900856, guid: b7f3693730d4c744ebf00c96917e0657, type: 3}
       propertyPath: pools.Array.data[7].preWarmPoolSize
       value: 15
       objectReference: {fileID: 0}
@@ -638,6 +647,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1233816862
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1233816863}
+  m_Layer: 6
+  m_Name: ChickenAimPoint
+  m_TagString: Respawn
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1233816863
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233816862}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 680251205}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1299216246
 PrefabInstance:
@@ -1319,7 +1359,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 8474555558549935190, guid: 0dc27c5e616b3bc4d89d1e222c4dae5d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1233816863}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0dc27c5e616b3bc4d89d1e222c4dae5d, type: 3}
 --- !u!1001 &4228898283931628017
@@ -1458,6 +1501,10 @@ PrefabInstance:
       propertyPath: cameraManager
       value: 
       objectReference: {fileID: 185128145}
+    - target: {fileID: 5883393727772295655, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
+      propertyPath: positionOffset.z
+      value: -8
+      objectReference: {fileID: 0}
     - target: {fileID: 6041196009084667819, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -1508,7 +1555,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6841323728093894573, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.0146556515
+      value: -0.0000072140247
       objectReference: {fileID: 0}
     - target: {fileID: 7470907808326705109, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_Size

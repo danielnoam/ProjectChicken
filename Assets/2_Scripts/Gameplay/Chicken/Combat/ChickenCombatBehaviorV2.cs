@@ -144,6 +144,98 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
         if (showDebugLogs)
             Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: EGG SHOT SUCCESSFULLY!");
     }
+    /// <summary>
+    /// Shoots an egg towards a specific target position instead of the player
+    /// </summary>
+    /// <param name="targetPosition">The world position to shoot towards</param>
+    /// <param name="speed">The speed of the egg</param>
+    public void ShootEggAtPosition(Vector3 targetPosition, float speed)
+    {
+        if (showDebugLogs)
+            Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: ShootEggAtPosition() called with target {targetPosition} and speed {speed}!");
+
+        if (!CanAttack())
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"ChickenCombatBehaviorV2 on {gameObject.name}: Cannot attack - State: {(stateController != null ? stateController.CurrentState.ToString() : "null")}");
+            return;
+        }
+
+        if (eggPrefab == null)
+        {
+            Debug.LogError($"ChickenCombatBehaviorV2 on {gameObject.name}: No egg prefab assigned!");
+            return;
+        }
+
+        // Calculate direction to target position
+        Vector3 shootDirection = (targetPosition - eggSpawnPoint.position).normalized;
+
+        if (showDebugLogs)
+        {
+            Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Shooting egg at custom position!");
+            Debug.Log($"  Spawn Position: {eggSpawnPoint.position}");
+            Debug.Log($"  Target Position: {targetPosition}");
+            Debug.Log($"  Shoot Direction: {shootDirection}");
+            Debug.Log($"  Egg Speed: {speed}");
+        }
+
+        // Spawn egg
+        GameObject egg = ObjectPooler.GetObjectFromPool(eggPrefab, eggSpawnPoint.position, Quaternion.LookRotation(shootDirection));
+
+        if (egg == null)
+        {
+            Debug.LogError($"ChickenCombatBehaviorV2 on {gameObject.name}: Failed to instantiate egg!");
+            return;
+        }
+
+        if (showDebugLogs)
+            Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Egg instantiated successfully: {egg.name}");
+
+        // Set egg velocity
+        ChickenEggV2 eggScript = egg.GetComponent<ChickenEggV2>();
+        if (eggScript != null)
+        {
+            // IMPORTANT: Initialize with skipWarning = true to prevent automatic warnings
+            eggScript.Initialize(shootDirection, speed, true);
+
+            // Create warning at the exact target position AFTER initializing egg
+            if (EggWarningSystem.Instance != null)
+            {
+                EggWarningSystem.Instance.CreateWarningAtTarget(eggScript, targetPosition);
+                if (showDebugLogs)
+                    Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Created warning at target position {targetPosition}");
+            }
+
+            if (showDebugLogs)
+                Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Egg initialized with ChickenEggV2 script (no auto warning)");
+        }
+        else
+        {
+            // Fallback: use rigidbody if no ChickenEgg script
+            Rigidbody rb = egg.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.linearVelocity = shootDirection * speed;
+
+                // Create warning even for rigidbody fallback
+                if (EggWarningSystem.Instance != null)
+                {
+                    // Create a dummy egg reference for tracking or just use the target position
+                    EggWarningSystem.Instance.CreateWarningAtTarget(null, targetPosition);
+                }
+
+                if (showDebugLogs)
+                    Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Egg velocity set via Rigidbody: {rb.linearVelocity}");
+            }
+            else
+            {
+                Debug.LogWarning($"ChickenCombatBehaviorV2 on {gameObject.name}: Egg has no ChickenEggV2 script or Rigidbody - it won't move!");
+            }
+        }
+
+        if (showDebugLogs)
+            Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: EGG SHOT AT CUSTOM POSITION SUCCESSFULLY!");
+    }
 
     // Public properties for the combat manager
     public bool IsReadyToAttack => CanAttack();

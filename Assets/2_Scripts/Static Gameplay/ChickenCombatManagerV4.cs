@@ -63,7 +63,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     void Start()
     {
         // Find player
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Respawn");
         if (playerObj != null)
         {
             player = playerObj.transform;
