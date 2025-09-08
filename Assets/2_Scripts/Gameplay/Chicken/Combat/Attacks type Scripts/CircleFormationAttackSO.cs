@@ -1,18 +1,19 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[CreateAssetMenu(fileName = "New Square Formation Attack", menuName = "Chicken Combat/Attacks/Square Formation Attack")]
-public class SquareFormationAttackSO : BaseChickenAttackSO
+[CreateAssetMenu(fileName = "New Circle Formation Attack", menuName = "Chicken Combat/Attacks/Circle Formation Attack")]
+public class CircleFormationAttackSO : BaseChickenAttackSO
 {
-    [Header("Square Formation Settings")]
-    [SerializeField] private float squareSize = 5f; // Size of the square around the player
-    [SerializeField] private int shotsPerSide = 3; // How many shots per side of the square (minimum 2)
-    [SerializeField] private float offsetFromPlayer = 2f; // How far the square should be from the player
+    [Header("Circle Formation Settings")]
+    [SerializeField] private float circleRadius = 4f; // Radius of the circle around the player
+    [SerializeField] private int numberOfShots = 8; // How many shots around the circle (minimum 3)
+    [SerializeField] private float offsetFromPlayer = 2f; // How far the circle should be from the player
     [SerializeField] private bool simultaneousShots = false; // If true, all chickens shoot at once, if false they shoot in sequence
     [SerializeField] private float shotDelay = 0.1f; // Delay between shots when simultaneousShots is false
+    [SerializeField] private float rotationOffset = 0f; // Rotation offset in degrees to rotate the entire circle pattern
 
-    public override AttackType AttackType => AttackType.SquareFormation;
-    public override string AttackName => "Square Formation";
+    public override AttackType AttackType => AttackType.CircleFormation;
+    public override string AttackName => "Circle Formation";
 
     private int currentShotIndex = 0;
     private List<Vector3> targetPositions = new List<Vector3>();
@@ -39,7 +40,7 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
     {
         if (!CanExecute(availableChickens, manager))
         {
-            LogWarning("Cannot execute Square Formation attack!");
+            LogWarning("Cannot execute Circle Formation attack!");
             return;
         }
 
@@ -48,16 +49,16 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
         {
             EggWarningSystem.Instance.ClearAllWarnings();
             if (showDebugLogs)
-                LogDebug("Cleared existing warnings before creating square formation");
+                LogDebug("Cleared existing warnings before creating circle formation");
         }
 
-        // Calculate square positions around the player
-        CalculateSquarePositions(manager.Player.position);
+        // Calculate circle positions around the player
+        CalculateCirclePositions(manager.Player.position);
 
         // Debug: Log calculated positions
         if (showDebugLogs)
         {
-            LogDebug($"Square formation calculated {targetPositions.Count} positions:");
+            LogDebug($"Circle formation calculated {targetPositions.Count} positions:");
             for (int i = 0; i < targetPositions.Count; i++)
             {
                 LogDebug($"  Position {i}: {targetPositions[i]}");
@@ -74,90 +75,67 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
         }
     }
 
-    private void CalculateSquarePositions(Vector3 playerPosition)
+    private void CalculateCirclePositions(Vector3 playerPosition)
     {
         targetPositions.Clear();
 
-        // Ensure minimum shots per side
-        int actualShotsPerSide = Mathf.Max(2, shotsPerSide);
+        // Ensure minimum shots around circle
+        int actualNumberOfShots = Mathf.Max(3, numberOfShots);
 
         // Get canvas boundaries
         Vector2 canvasBounds = GetCanvasBounds();
         if (canvasBounds == Vector2.zero)
         {
-            LogWarning("Could not get canvas bounds, using fallback square calculation");
-            CalculateSquarePositionsFallback(playerPosition, actualShotsPerSide);
+            LogWarning("Could not get canvas bounds, using fallback circle calculation");
+            CalculateCirclePositionsFallback(playerPosition, actualNumberOfShots);
             return;
         }
 
-        // Calculate the actual square bounds around the player
-        float halfSize = squareSize * 0.5f;
-        Vector3 squareCenter = playerPosition;
+        // Calculate the circle center around the player
+        Vector3 circleCenter = playerPosition;
 
-        // Add offset from player (push the square outward)
-        squareCenter += Vector3.forward * offsetFromPlayer;
+        // Add offset from player (push the circle outward)
+        circleCenter += Vector3.forward * offsetFromPlayer;
 
-        // Clamp square center to be within canvas bounds
+        // Clamp circle center to be within canvas bounds
         float canvasHalfWidth = canvasBounds.x * 0.5f;
         float canvasHalfHeight = canvasBounds.y * 0.5f;
 
-        squareCenter.x = Mathf.Clamp(squareCenter.x, -canvasHalfWidth + halfSize, canvasHalfWidth - halfSize);
-        squareCenter.y = Mathf.Clamp(squareCenter.y, -canvasHalfHeight + halfSize, canvasHalfHeight - halfSize);
+        // Calculate maximum allowed radius based on canvas bounds
+        float maxAllowedRadius = Mathf.Min(
+            canvasHalfWidth - Mathf.Abs(circleCenter.x),
+            canvasHalfHeight - Mathf.Abs(circleCenter.y)
+        );
 
-        // Adjust square size if it would extend beyond canvas
-        float maxSquareWidth = Mathf.Min(squareSize, (canvasHalfWidth - Mathf.Abs(squareCenter.x)) * 2f);
-        float maxSquareHeight = Mathf.Min(squareSize, (canvasHalfHeight - Mathf.Abs(squareCenter.y)) * 2f);
-        float adjustedSquareSize = Mathf.Min(maxSquareWidth, maxSquareHeight);
-        float adjustedHalfSize = adjustedSquareSize * 0.5f;
+        // Adjust circle radius if it would extend beyond canvas
+        float adjustedRadius = Mathf.Min(circleRadius, maxAllowedRadius);
 
-        if (showDebugLogs && adjustedSquareSize < squareSize)
+        if (showDebugLogs && adjustedRadius < circleRadius)
         {
-            LogDebug($"Square size adjusted from {squareSize} to {adjustedSquareSize} to fit canvas bounds");
+            LogDebug($"Circle radius adjusted from {circleRadius} to {adjustedRadius} to fit canvas bounds");
         }
 
-        // Calculate positions for each side of the square with canvas bounds
+        // Calculate positions around the circle
+        float angleStep = 360f / actualNumberOfShots;
+        float baseRotation = rotationOffset; // Apply rotation offset
 
-        // Top side (left to right)
-        for (int i = 0; i < actualShotsPerSide; i++)
+        for (int i = 0; i < actualNumberOfShots; i++)
         {
-            float t = (float)i / (actualShotsPerSide - 1); // 0 to 1
-            float x = Mathf.Lerp(-adjustedHalfSize, adjustedHalfSize, t);
-            Vector3 position = squareCenter + new Vector3(x, adjustedHalfSize, 0f);
+            // Calculate angle in radians
+            float angle = (baseRotation + (i * angleStep)) * Mathf.Deg2Rad;
+
+            // Calculate position using trigonometry
+            float x = Mathf.Cos(angle) * adjustedRadius;
+            float y = Mathf.Sin(angle) * adjustedRadius;
+
+            Vector3 position = circleCenter + new Vector3(x, y, 0f);
+
+            // Clamp position to canvas bounds
             position = ClampPositionToCanvas(position, canvasBounds);
             targetPositions.Add(position);
         }
 
-        // Right side (top to bottom, excluding corners)
-        for (int i = 1; i < actualShotsPerSide - 1; i++)
-        {
-            float t = (float)i / (actualShotsPerSide - 1); // 0 to 1
-            float y = Mathf.Lerp(adjustedHalfSize, -adjustedHalfSize, t);
-            Vector3 position = squareCenter + new Vector3(adjustedHalfSize, y, 0f);
-            position = ClampPositionToCanvas(position, canvasBounds);
-            targetPositions.Add(position);
-        }
-
-        // Bottom side (right to left)
-        for (int i = 0; i < actualShotsPerSide; i++)
-        {
-            float t = (float)i / (actualShotsPerSide - 1); // 0 to 1
-            float x = Mathf.Lerp(adjustedHalfSize, -adjustedHalfSize, t);
-            Vector3 position = squareCenter + new Vector3(x, -adjustedHalfSize, 0f);
-            position = ClampPositionToCanvas(position, canvasBounds);
-            targetPositions.Add(position);
-        }
-
-        // Left side (bottom to top, excluding corners)
-        for (int i = 1; i < actualShotsPerSide - 1; i++)
-        {
-            float t = (float)i / (actualShotsPerSide - 1); // 0 to 1
-            float y = Mathf.Lerp(-adjustedHalfSize, adjustedHalfSize, t);
-            Vector3 position = squareCenter + new Vector3(-adjustedHalfSize, y, 0f);
-            position = ClampPositionToCanvas(position, canvasBounds);
-            targetPositions.Add(position);
-        }
-
-        LogDebug($"Calculated {targetPositions.Count} target positions for square formation (canvas-constrained)");
+        LogDebug($"Calculated {targetPositions.Count} target positions for circle formation (canvas-constrained)");
     }
 
     private Vector2 GetCanvasBounds()
@@ -203,51 +181,29 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
         return position;
     }
 
-    private void CalculateSquarePositionsFallback(Vector3 playerPosition, int actualShotsPerSide)
+    private void CalculateCirclePositionsFallback(Vector3 playerPosition, int actualNumberOfShots)
     {
-        // Fallback calculation with a smaller, safer square size
-        float safeSquareSize = Mathf.Min(squareSize, 8f); // Max 8 units to stay safe
-        float halfSize = safeSquareSize * 0.5f;
-        Vector3 squareCenter = playerPosition;
+        // Fallback calculation with a smaller, safer circle radius
+        float safeRadius = Mathf.Min(circleRadius, 6f); // Max 6 units to stay safe
+        Vector3 circleCenter = playerPosition;
 
         // Add offset from player
-        squareCenter += Vector3.forward * offsetFromPlayer;
+        circleCenter += Vector3.forward * offsetFromPlayer;
 
-        // Calculate positions for each side of the square (same as before but with safe size)
+        // Calculate positions around the circle
+        float angleStep = 360f / actualNumberOfShots;
+        float baseRotation = rotationOffset;
 
-        // Top side (left to right)
-        for (int i = 0; i < actualShotsPerSide; i++)
+        for (int i = 0; i < actualNumberOfShots; i++)
         {
-            float t = (float)i / (actualShotsPerSide - 1);
-            float x = Mathf.Lerp(-halfSize, halfSize, t);
-            Vector3 position = squareCenter + new Vector3(x, halfSize, 0f);
-            targetPositions.Add(position);
-        }
+            // Calculate angle in radians
+            float angle = (baseRotation + (i * angleStep)) * Mathf.Deg2Rad;
 
-        // Right side (top to bottom, excluding corners)
-        for (int i = 1; i < actualShotsPerSide - 1; i++)
-        {
-            float t = (float)i / (actualShotsPerSide - 1);
-            float y = Mathf.Lerp(halfSize, -halfSize, t);
-            Vector3 position = squareCenter + new Vector3(halfSize, y, 0f);
-            targetPositions.Add(position);
-        }
+            // Calculate position using trigonometry
+            float x = Mathf.Cos(angle) * safeRadius;
+            float y = Mathf.Sin(angle) * safeRadius;
 
-        // Bottom side (right to left)
-        for (int i = 0; i < actualShotsPerSide; i++)
-        {
-            float t = (float)i / (actualShotsPerSide - 1);
-            float x = Mathf.Lerp(halfSize, -halfSize, t);
-            Vector3 position = squareCenter + new Vector3(x, -halfSize, 0f);
-            targetPositions.Add(position);
-        }
-
-        // Left side (bottom to top, excluding corners)
-        for (int i = 1; i < actualShotsPerSide - 1; i++)
-        {
-            float t = (float)i / (actualShotsPerSide - 1);
-            float y = Mathf.Lerp(-halfSize, halfSize, t);
-            Vector3 position = squareCenter + new Vector3(-halfSize, y, 0f);
+            Vector3 position = circleCenter + new Vector3(x, y, 0f);
             targetPositions.Add(position);
         }
 
@@ -256,7 +212,7 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
 
     private void ExecuteSimultaneousShots(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager)
     {
-        // All chickens shoot at random positions in the square simultaneously
+        // All chickens shoot at positions in the circle simultaneously
         for (int i = 0; i < availableChickens.Count && i < targetPositions.Count; i++)
         {
             ChickenCombatBehaviorV2 chicken = availableChickens[i];
@@ -265,7 +221,7 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
             ShootChickenAtPosition(chicken, targetPos, manager.EggSpeed);
         }
 
-        LogDebug($"Executed simultaneous square formation with {availableChickens.Count} chickens");
+        LogDebug($"Executed simultaneous circle formation with {availableChickens.Count} chickens");
     }
 
     private void ExecuteSequentialShots(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager)
@@ -306,10 +262,10 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
             return;
         }
 
-        // Use the new ShootEggAtPosition method to shoot at the specific square formation position
+        // Use the ShootEggAtPosition method to shoot at the specific circle formation position
         chicken.ShootEggAtPosition(targetPosition, speed);
 
-        LogDebug($"Chicken {chicken.gameObject.name} shooting towards square position {targetPosition}");
+        LogDebug($"Chicken {chicken.gameObject.name} shooting towards circle position {targetPosition}");
     }
 
     // Reset attack state when pattern changes
@@ -325,7 +281,7 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
     {
         if (targetPositions != null && targetPositions.Count > 0)
         {
-            Gizmos.color = Color.cyan;
+            Gizmos.color = Color.green;
 
             // Draw the target positions
             foreach (Vector3 pos in targetPositions)
@@ -333,14 +289,28 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
                 Gizmos.DrawWireSphere(pos, 0.2f);
             }
 
-            // Draw the square outline
-            if (targetPositions.Count >= 4)
+            // Draw the circle outline
+            if (targetPositions.Count >= 3)
             {
                 for (int i = 0; i < targetPositions.Count; i++)
                 {
                     int nextIndex = (i + 1) % targetPositions.Count;
                     Gizmos.DrawLine(targetPositions[i], targetPositions[nextIndex]);
                 }
+            }
+
+            // Draw circle center if we have positions
+            if (targetPositions.Count > 0)
+            {
+                Vector3 center = Vector3.zero;
+                foreach (Vector3 pos in targetPositions)
+                {
+                    center += pos;
+                }
+                center /= targetPositions.Count;
+
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawWireSphere(center, 0.3f);
             }
         }
     }
