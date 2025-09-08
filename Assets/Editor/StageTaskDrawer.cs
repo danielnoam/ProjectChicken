@@ -51,18 +51,6 @@ namespace Editor
             {
                 EditorGUI.indentLevel++;
                 
-                // Draw task description at the top for easy identification
-                var descriptionProperty = property.FindPropertyRelative("taskDescription");
-                if (descriptionProperty != null)
-                {
-                    var descRect = new Rect(contentRect.x, contentRect.y, contentRect.width, EditorGUIUtility.singleLineHeight);
-                    EditorGUI.PropertyField(descRect, descriptionProperty);
-                    
-                    // Adjust content rect for remaining properties
-                    contentRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-                    contentRect.height -= EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-                }
-                
                 // Draw all properties except taskDescription and isCompleted (runtime only)
                 var iterator = property.Copy();
                 var endProperty = iterator.GetEndProperty();
@@ -70,7 +58,7 @@ namespace Editor
                 
                 while (iterator.NextVisible(false) && !SerializedProperty.EqualContents(iterator, endProperty))
                 {
-                    if (iterator.name != "taskDescription" && iterator.name != "isCompleted")
+                    if (iterator.name != "isCompleted")
                     {
                         var propHeight = EditorGUI.GetPropertyHeight(iterator, true);
                         var propRect = new Rect(contentRect.x, contentRect.y, contentRect.width, propHeight);

@@ -25,7 +25,7 @@ public class SOLevelStage : ScriptableObject
     [EndIf]
     
     [ShowIf("IsEnemyOrTaskStage")] 
-    [SerializeField, Min(0)] private float delayBeforeNextStage = 1f;
+    [SerializeField, Min(0)] private float delayBeforeNextStage = 2f;
     [EndIf]
     
     [ShowIf("stageType", StageType.Outro)]
@@ -34,6 +34,7 @@ public class SOLevelStage : ScriptableObject
     [EndIf]
     
     [ShowIf("stageType", StageType.Store)]
+    [SerializeField] private bool allowToCloseStore = true;
     [SerializeField] private SOUpgradeBase[] upgradesPool = Array.Empty<SOUpgradeBase>();
     [EndIf]
     
@@ -63,6 +64,7 @@ public class SOLevelStage : ScriptableObject
     public StageEvent[] Events => events;
     public bool IsCheckpoint => isCheckpoint;
     public bool ShowOutroMenu => showOutroMenu;
+    public bool AllowToCloseStore => allowToCloseStore;
     public SceneField NextLevel => nextLevel;
     public SerializedDictionary<ChickenStateController, int> EnemyWave => enemyWave;
     public float DelayBeforeNextStage => delayBeforeNextStage;

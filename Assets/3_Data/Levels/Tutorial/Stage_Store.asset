@@ -13,18 +13,22 @@ MonoBehaviour:
   m_Name: Stage_Store
   m_EditorClassIdentifier: 
   stageTitle: 
-  stageWorldSpeed: 0
+  startRadioMessage: {fileID: 0}
+  worldSpeed: 1
   isCheckpoint: 0
   showHUD: 1
   allowPlayerMovement: 0
   allowPlayerShootingAndAiming: 0
+  events: []
   stageType: 1
   stageDuration: 5
+  delayBeforeNextStage: 1
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
     sceneName: 
     scenePath: 
+  allowToCloseStore: 0
   upgradesPool:
   - {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
   - {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
@@ -41,18 +45,21 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3b6370a96f1e8d04fae2fe1fdcc5614e, type: 2}
   - {fileID: 11400000, guid: 2c87496b851da1c4588f2b1c6b034814, type: 2}
   - {fileID: 11400000, guid: e1d77b5c74f521645983a6bca8641d0b, type: 2}
-  delayBeforeNextStage: 1
   waveScoreWorth: 1000
   enemyWave:
     serializedKvps: []
     dividerPos: 0.33
-  formationSettings:
+  formationStageData:
     formationType: 0
-    formationPosition: 0
     formationCount: 1
-    vShapeCount: 10
-    squareSize: 4
-    triangleRows: 4
-    circleCount: 12
-    gridSize: {x: 5, y: 3}
-    gridFillsBoundary: 1
+    spacing: 2
+    slotsPerSide: 3
+    circleRadius: 3
+    useRandomPlacement: 1
+    formationSpacing: 5
+    maxPlacementAttempts: 100
+  requireAllTasks: 1
+  tasks: []
+  references:
+    version: 2
+    RefIds: []

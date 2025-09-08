@@ -466,7 +466,7 @@ public class LevelManager : MonoBehaviour
     {
         _completedTaskCount++;
     
-        if (debugLog) Debug.Log($"Task completed: {completedTask.TaskDescription} ({_completedTaskCount}/{_currentStageTasks.Length})");
+        if (debugLog) Debug.Log($"Task completed: ({_completedTaskCount}/{_currentStageTasks.Length})");
         
         
         bool shouldAdvance = currentStage.RequireAllTasks ? _completedTaskCount >= _currentStageTasks.Length : true;

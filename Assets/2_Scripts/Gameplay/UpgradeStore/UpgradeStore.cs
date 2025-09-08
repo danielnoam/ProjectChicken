@@ -126,6 +126,7 @@ public class UpgradeStore : MonoBehaviour
         if (_storeUpgradesPool is { Count: > 0 })
         {
             OpenStore();
+            closeStoreButton.interactable = stage.AllowToCloseStore;
         }
         else
         {
@@ -165,6 +166,7 @@ public class UpgradeStore : MonoBehaviour
         if (_isOpen) return;
         _isOpen = true;
 
+        transform.transform.position = levelManager.EnemyPosition;
         storeGfx.gameObject.SetActive(true);
         rerollButton.interactable = player.ResourceCollector.CurrentCurrency >= _currentRerollCost;
         captain.OnStoreOpen();

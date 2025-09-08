@@ -52,26 +52,15 @@ namespace Editor
             {
                 EditorGUI.indentLevel++;
                 
-                // Draw event description at the top for easy identification
-                var descriptionProperty = property.FindPropertyRelative("eventDescription");
-                if (descriptionProperty != null)
-                {
-                    var descRect = new Rect(contentRect.x, contentRect.y, contentRect.width, EditorGUIUtility.singleLineHeight);
-                    EditorGUI.PropertyField(descRect, descriptionProperty);
-                    
-                    // Adjust content rect for remaining properties
-                    contentRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-                    contentRect.height -= EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-                }
                 
-                // Draw all properties except eventDescription and isActive (runtime only)
+                // Draw all properties except isActive (runtime only)
                 var iterator = property.Copy();
                 var endProperty = iterator.GetEndProperty();
                 iterator.NextVisible(true);
                 
                 while (iterator.NextVisible(false) && !SerializedProperty.EqualContents(iterator, endProperty))
                 {
-                    if (iterator.name != "eventDescription" && iterator.name != "isActive")
+                    if (iterator.name != "isActive")
                     {
                         var propHeight = EditorGUI.GetPropertyHeight(iterator, true);
                         var propRect = new Rect(contentRect.x, contentRect.y, contentRect.width, propHeight);

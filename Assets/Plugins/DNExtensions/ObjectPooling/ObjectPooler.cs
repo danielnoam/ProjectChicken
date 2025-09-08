@@ -11,7 +11,8 @@ namespace DNExtensions
     {
         public static ObjectPooler Instance { get; private set; }
 
-        [Header("Settings")] [SerializeField] private bool instantiateAsFallBack = true;
+        [Header("Settings")] 
+        [SerializeField] private bool instantiateAsFallBack = true;
         [SerializeField] private bool destroyAsFallBack = true;
         [SerializeField] private List<ObjectPool> pools = new List<ObjectPool>();
 
@@ -106,8 +107,7 @@ namespace DNExtensions
             }
         }
 
-        public static GameObject GetObjectFromPool(GameObject obj, Vector3 positon = default,
-            Quaternion rotation = default)
+        public static GameObject GetObjectFromPool(GameObject obj, Vector3 positon = default, Quaternion rotation = default)
         {
             if (Instance)
             {
@@ -129,6 +129,32 @@ namespace DNExtensions
 
             // Debug.LogError($"Can't get object, No object pooler in scene");
             return Instantiate(obj, positon, rotation);
+        }
+        
+        public static GameObject GetObjectFromPool(GameObject obj, Transform parent, Vector3 positon = default, Quaternion rotation = default)
+        {
+            if (Instance)
+            {
+                foreach (var pool in Instance.pools)
+                {
+                    if (pool.prefab == obj)
+                    {
+                       var pooledObject = pool.GetObjectFromPool(positon, rotation);
+                       if (parent) pooledObject.transform.SetParent(parent);
+                       return pooledObject;
+                    }
+                }
+
+                if (Instance.instantiateAsFallBack)
+                {
+                    // Debug.Log($"No pool found for {obj} was found, instantiating as fall back");
+                    var fallbackObject = Instantiate(obj, positon, rotation, parent);
+                    return fallbackObject;
+                }
+            }
+
+            // Debug.LogError($"Can't get object, No object pooler in scene");
+            return Instantiate(obj, positon, rotation, parent);
         }
 
 

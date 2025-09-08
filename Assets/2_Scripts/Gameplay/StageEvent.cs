@@ -3,10 +3,8 @@
 [System.Serializable]
 public abstract class StageEvent
 {
-    [SerializeField] protected string eventDescription;
     [SerializeField] protected bool isActive;
     
-    public string EventDescription => eventDescription;
     public bool IsActive => isActive;
     
     public abstract void Initialize(LevelManager levelManager);

@@ -16,10 +16,9 @@ namespace DNExtensions
         public GameObject prefab;
 
         [Tooltip("Adds the pool to don't destroy list")]
-        public bool dontDestroyOnLoad = true;
+        public bool dontDestroyOnLoad;
 
-        [Tooltip(
-            "If max pool size reached and there are no objects in inactive pool, recycle the last active object (this is not recommended, objects are notified that they have been recycled but it is not performant")]
+        [Tooltip("If max pool size reached and there are no objects in inactive pool, recycle the last active object (this is not recommended, objects are notified that they have been recycled but it is not performant")]
         public bool recycleActiveObjects;
 
         [Header("Pre Warm")] [Tooltip("Pre populate the pool")]
@@ -27,7 +26,8 @@ namespace DNExtensions
 
         public int preWarmPoolSize = 5;
 
-        [Header("Debug")] [SerializeField] private int poolSize;
+        [Header("Debug")] 
+        [SerializeField] private int poolSize;
         [SerializeField] private int activePoolCount;
         [SerializeField] private int inactivePoolCount;
 
@@ -35,9 +35,7 @@ namespace DNExtensions
         private readonly Queue<GameObject> _inactivePool = new Queue<GameObject>();
         private readonly HashSet<GameObject> _activePoolSet = new HashSet<GameObject>();
         private readonly HashSet<GameObject> _objectsBeingReturned = new HashSet<GameObject>();
-
-        private readonly Dictionary<GameObject, IPooledObject> _pooledObjects =
-            new Dictionary<GameObject, IPooledObject>();
+        private readonly Dictionary<GameObject, IPooledObject> _pooledObjects = new Dictionary<GameObject, IPooledObject>();
 
         private Transform _poolHolder;
         private bool _isInitialized;
@@ -140,6 +138,7 @@ namespace DNExtensions
 
                 _activePool.Remove(obj);
                 _activePoolSet.Remove(obj);
+                obj.transform.SetParent(_poolHolder);
 
                 _inactivePool.Enqueue(obj);
 

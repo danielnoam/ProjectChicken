@@ -3,10 +3,8 @@
 [System.Serializable]
 public abstract class StageTask
 {
-    [SerializeField] protected string taskDescription;
     [SerializeField] protected bool isCompleted;
     
-    public string TaskDescription => taskDescription;
     public bool IsCompleted => isCompleted;
     
     public event System.Action<StageTask> OnTaskCompleted;

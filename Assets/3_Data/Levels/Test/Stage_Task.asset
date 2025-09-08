@@ -23,7 +23,7 @@ MonoBehaviour:
   - rid: 15266906769195112
   stageType: 5
   stageDuration: 15
-  delayBeforeNextStage: 1
+  delayBeforeNextStage: 2
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -58,15 +58,13 @@ MonoBehaviour:
     - rid: 15266906769195111
       type: {class: CollectResourceTask, ns: , asm: Assembly-CSharp}
       data:
-        taskDescription: 
         isCompleted: 0
         targetAmount: 5
         resourceType: 0
     - rid: 15266906769195112
       type: {class: SpawnResourceEvent, ns: , asm: Assembly-CSharp}
       data:
-        eventDescription: 
         isActive: 0
         resourcePrefab: {fileID: 2318045658582117789, guid: b3f17779b6d49aa4bbe13f28e3094751, type: 3}
         maxActiveResources: 3
-        spawnInterval: 2
+        spawnInterval: 3

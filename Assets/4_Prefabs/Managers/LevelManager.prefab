@@ -1776,9 +1776,6 @@ MonoBehaviour:
   currentStage: {fileID: 0}
   currentStageIndex: 0
   enemiesLeft: 0
-  playerPosition: {x: 0, y: 0, z: -29}
-  enemyPosition: {x: 0, y: 0.35, z: 31}
-  levelStages: []
   playerStats: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   mainMenuScene:
     sceneAsset: {fileID: 102900000, guid: 81ac6686a6faf384a8be7373c1b1ef15, type: 3}
@@ -1788,6 +1785,7 @@ MonoBehaviour:
   upgradeStore: {fileID: 54411316279204509}
   enemySpawner: {fileID: 0}
   boundaryManager: {fileID: 0}
+  resourceManager: {fileID: 0}
   player: {fileID: 0}
   shipWarping:
     color: {r: 0, g: 0, b: 0, a: 1}
