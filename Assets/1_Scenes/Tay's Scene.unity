@@ -1148,6 +1148,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0ec4b4b137d45d58375459d55f74da8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &1804814235 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 4525068363431569470, guid: 3d232dd9ec89c7740bccb1560c653f82, type: 3}
+  m_PrefabInstance: {fileID: 1897613805567374488}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1828731749 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 98154818553496101, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
@@ -1264,6 +1269,10 @@ PrefabInstance:
       propertyPath: clampWarningsToCanvas
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2242176005695776044, guid: 3d232dd9ec89c7740bccb1560c653f82, type: 3}
+      propertyPath: targetCanvasTransform
+      value: 
+      objectReference: {fileID: 1804814235}
     - target: {fileID: 3385614828770924558, guid: 3d232dd9ec89c7740bccb1560c653f82, type: 3}
       propertyPath: m_TagString
       value: ChickenFormationManager
