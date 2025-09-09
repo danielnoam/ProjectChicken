@@ -374,7 +374,7 @@ public class CircleFormationAttackSO : BaseChickenAttackSO
         }
 
         // Use the ShootEggAtPosition method to shoot at the specific circle formation position
-        chicken.ShootEggAtPosition(targetPosition, speed);
+        chicken.ShootEggAtPosition(targetPosition, speed, deactivateWarningCircle);
 
         LogDebug($"Chicken {chicken.gameObject.name} shooting towards circle position {targetPosition}");
     }

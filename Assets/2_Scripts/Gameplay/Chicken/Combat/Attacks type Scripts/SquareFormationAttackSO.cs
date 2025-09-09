@@ -415,7 +415,7 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
         }
 
         // Use the new ShootEggAtPosition method to shoot at the specific square formation position
-        chicken.ShootEggAtPosition(targetPosition, speed);
+        chicken.ShootEggAtPosition(targetPosition, speed, deactivateWarningCircle);
 
         LogDebug($"Chicken {chicken.gameObject.name} shooting towards square position {targetPosition}");
     }

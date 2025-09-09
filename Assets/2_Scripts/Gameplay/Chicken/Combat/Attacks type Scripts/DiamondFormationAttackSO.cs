@@ -442,7 +442,7 @@ public class DiamondFormationAttackSO : BaseChickenAttackSO
         }
 
         // Use the ShootEggAtPosition method to shoot at the specific diamond formation position
-        chicken.ShootEggAtPosition(targetPosition, speed);
+        chicken.ShootEggAtPosition(targetPosition, speed, deactivateWarningCircle);
 
         LogDebug($"Chicken {chicken.gameObject.name} shooting towards diamond position {targetPosition}");
     }
