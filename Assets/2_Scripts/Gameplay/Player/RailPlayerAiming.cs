@@ -105,11 +105,11 @@ public class RailPlayerAiming : MonoBehaviour
         
         if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
 
-        if (_allowAiming != stage.AllowPlayerShootingAndAiming)
+        if (_allowAiming != stage.AllowPlayerAiming)
         {
-            _allowAiming = stage.AllowPlayerShootingAndAiming;
+            _allowAiming = stage.AllowPlayerAiming;
 
-            if (!stage.AllowPlayerShootingAndAiming)
+            if (!stage.AllowPlayerAiming)
             {
                 _autoCenterRoutine = StartCoroutine(ReturnToCenter());
             }

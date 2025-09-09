@@ -83,9 +83,9 @@ public class RadioMessageUI : MonoBehaviour
                 messageWriter.RestartWriter();
                 
                 if (_showSequence.isAlive) _showSequence.Stop();
-                _showSequence = Sequence.Create()
-                        .ChainDelay(message.Duration)
-                        .OnComplete(() => OnMessageCompleted?.Invoke()); 
+                _showSequence = Sequence.Create();
+                _showSequence.ChainDelay(message.Duration);
+                _showSequence.OnComplete(() => OnMessageCompleted?.Invoke()); 
         }
 
         public void HideMessage()

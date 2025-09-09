@@ -10,15 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_TaskOverheat
+  m_Name: Stage_TaskMovement
   m_EditorClassIdentifier: 
-  stageTitle: Try to overheat your weapon
-  startRadioMessage: {fileID: 0}
+  stageTitle: 
+  startRadioMessage: {fileID: 11400000, guid: 6e826790ca88ff549bd1da89372387cc, type: 2}
   worldSpeed: 1
   isCheckpoint: 1
-  showHUD: 1
-  allowPlayerMovement: 1
-  allowPlayerShootingAndAiming: 1
   events: []
   stageType: 5
   stageDuration: 7
@@ -47,7 +44,14 @@ MonoBehaviour:
   requireAllTasks: 1
   tasks:
   - rid: 15266906769195116
-  - rid: 15266906769195117
+  showHUD: 0
+  showStatsBar: 0
+  showScore: 0
+  allowPlayerMovement: 1
+  allowPlayerDodge: 0
+  allowPlayerAiming: 0
+  allowPlayerShooting: 0
+  allowPlayerHeatSystem: 0
   references:
     version: 2
     RefIds:
@@ -55,11 +59,5 @@ MonoBehaviour:
       type: {class: UseSpecificActionTask, ns: , asm: Assembly-CSharp}
       data:
         isCompleted: 1
-        requiredAction: 4
-        timesRequired: 1
-    - rid: 15266906769195117
-      type: {class: UseSpecificActionTask, ns: , asm: Assembly-CSharp}
-      data:
-        isCompleted: 1
-        requiredAction: 5
+        requiredAction: 0
         timesRequired: 1

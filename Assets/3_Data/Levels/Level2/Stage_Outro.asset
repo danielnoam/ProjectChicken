@@ -13,31 +13,42 @@ MonoBehaviour:
   m_Name: Stage_Outro
   m_EditorClassIdentifier: 
   stageTitle: 
-  stageWorldSpeed: 1
+  startRadioMessage: {fileID: 0}
+  worldSpeed: 1
+  isCheckpoint: 0
   showHUD: 0
   allowPlayerMovement: 0
-  allowPlayerShootingAndAiming: 0
+  allowPlayerDodge: 0
+  allowPlayerAiming: 0
+  allowPlayerShooting: 0
+  allowPlayerHeatSystem: 0
+  events: []
   stageType: 4
   stageDuration: 7
+  delayBeforeNextStage: 1
   showOutroMenu: 1
   nextLevel:
     sceneAsset: {fileID: 102900000, guid: 50af9d94c345ef8499df72eb194d19bb, type: 3}
     sceneName: Level3
     scenePath: Assets/1_Scenes/GameScenes/Level3.unity
+  allowToCloseStore: 1
   upgradesPool:
   - {fileID: 0}
-  delayBeforeNextStage: 1
   waveScoreWorth: 1000
   enemyWave:
     serializedKvps: []
     dividerPos: 0.33
-  formationSettings:
+  formationStageData:
     formationType: 0
-    formationPosition: 0
     formationCount: 1
-    vShapeCount: 10
-    squareSize: 4
-    triangleRows: 4
-    circleCount: 12
-    gridSize: {x: 5, y: 3}
-    gridFillsBoundary: 1
+    numberOfSlots: 9
+    spacing: 2
+    circleRadius: 3
+    useRandomPlacement: 1
+    formationSpacing: 5
+    maxPlacementAttempts: 100
+  requireAllTasks: 1
+  tasks: []
+  references:
+    version: 2
+    RefIds: []

@@ -1,4 +1,5 @@
 using System;
+using Core.Attributes;
 using DNExtensions;
 using UnityEngine;
 using VInspector;
@@ -8,14 +9,11 @@ public class SOLevelStage : ScriptableObject
 {
     [Header("Stage Settings")]
     [SerializeField] private string stageTitle = "";
-    [SerializeField] private SORadioMessage startRadioMessage;
+    [SerializeField, CreateEditableAsset] private SORadioMessage startRadioMessage;
     [SerializeField, Range(0f,2f)] private float worldSpeed = 1f;
     [SerializeField] private bool isCheckpoint;
-    [SerializeField] private bool showHUD = true;
-    [SerializeField] private bool allowPlayerMovement = true;
-    [SerializeField] private bool allowPlayerShootingAndAiming = true;
     [SerializeReference] private StageEvent[] events = Array.Empty<StageEvent>();
-
+    
     
     [Header("Type")]
     [SerializeField] private StageType stageType;
@@ -47,9 +45,20 @@ public class SOLevelStage : ScriptableObject
     [ShowIf("stageType", StageType.Task)]
     [SerializeField] private bool requireAllTasks = true;
     [SerializeReference] private StageTask[] tasks = Array.Empty<StageTask>();
-
     [EndIf]
 
+    
+    [Header("HUD")]
+    [SerializeField] private bool showHUD = true;
+    [SerializeField] private bool showStatsBar = true;
+    [SerializeField] private bool showScore = true;
+    
+    [Header("Player")]
+    [SerializeField] private bool allowPlayerMovement = true;
+    [SerializeField] private bool allowPlayerDodge = true;
+    [SerializeField] private bool allowPlayerAiming = true;
+    [SerializeField] private bool allowPlayerShooting = true;
+    [SerializeField] private bool allowPlayerHeatSystem = true;
 
     
     public bool IsTimeBasedStage => stageType is StageType.Delay or StageType.Intro or StageType.Outro;
@@ -71,8 +80,13 @@ public class SOLevelStage : ScriptableObject
     public int WaveScoreWorth =>  waveScoreWorth;
     public FormationStageData FormationStageData => formationStageData;
     public bool AllowPlayerMovement => allowPlayerMovement;
-    public bool AllowPlayerShootingAndAiming => allowPlayerShootingAndAiming;
+    public bool AllowPlayerAiming => allowPlayerAiming;
+    public bool AllowPlayerDodge => allowPlayerDodge;
+    public bool AllowPlayerShooting => allowPlayerShooting;
+    public bool AllowPlayerHeatSystem => allowPlayerHeatSystem;
     public bool ShowHUD => showHUD;
+    public bool ShowStatsBar => showStatsBar;
+    public bool ShowScore => showScore;
     public  SOUpgradeBase[] UpgradesPool => upgradesPool;
     public StageTask[] Tasks => tasks;
     public bool RequireAllTasks => requireAllTasks;

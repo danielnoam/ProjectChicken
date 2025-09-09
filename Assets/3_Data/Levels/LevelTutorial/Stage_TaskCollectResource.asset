@@ -12,13 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
   m_Name: Stage_TaskCollectResource
   m_EditorClassIdentifier: 
-  stageTitle: Collect 3 resources
-  startRadioMessage: {fileID: 0}
+  stageTitle: 
+  startRadioMessage: {fileID: 11400000, guid: 508660cd0d4cd574583610350217a9c6, type: 2}
   worldSpeed: 1
   isCheckpoint: 1
-  showHUD: 1
-  allowPlayerMovement: 1
-  allowPlayerShootingAndAiming: 1
   events:
   - rid: 5417711798190080089
   stageType: 5
@@ -48,6 +45,14 @@ MonoBehaviour:
   requireAllTasks: 1
   tasks:
   - rid: 5417711798190080088
+  showHUD: 1
+  showStatsBar: 1
+  showScore: 0
+  allowPlayerMovement: 1
+  allowPlayerDodge: 1
+  allowPlayerAiming: 1
+  allowPlayerShooting: 1
+  allowPlayerHeatSystem: 0
   references:
     version: 2
     RefIds:
@@ -60,7 +65,7 @@ MonoBehaviour:
     - rid: 5417711798190080089
       type: {class: SpawnResourceEvent, ns: , asm: Assembly-CSharp}
       data:
-        isActive: 0
+        isActive: 1
         resourcePrefab: {fileID: 2318045658582117789, guid: b3f17779b6d49aa4bbe13f28e3094751, type: 3}
         maxActiveResources: 3
         spawnInterval: 3

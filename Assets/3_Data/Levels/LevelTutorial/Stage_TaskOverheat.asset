@@ -10,22 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_Intro
+  m_Name: Stage_TaskOverheat
   m_EditorClassIdentifier: 
   stageTitle: 
-  startRadioMessage: {fileID: 0}
+  startRadioMessage: {fileID: 11400000, guid: 5df7209a617ecb64184df184ef4a5eda, type: 2}
   worldSpeed: 1
   isCheckpoint: 1
-  showHUD: 0
-  allowPlayerMovement: 0
-  allowPlayerDodge: 0
-  allowPlayerAiming: 0
-  allowPlayerShooting: 0
-  allowPlayerHeatSystem: 0
   events: []
-  stageType: 3
-  stageDuration: 5
-  delayBeforeNextStage: 1
+  stageType: 5
+  stageDuration: 7
+  delayBeforeNextStage: 2
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -48,7 +42,29 @@ MonoBehaviour:
     formationSpacing: 5
     maxPlacementAttempts: 100
   requireAllTasks: 1
-  tasks: []
+  tasks:
+  - rid: 15266906769195116
+  - rid: 15266906769195117
+  showHUD: 1
+  showStatsBar: 1
+  showScore: 0
+  allowPlayerMovement: 1
+  allowPlayerDodge: 1
+  allowPlayerAiming: 1
+  allowPlayerShooting: 1
+  allowPlayerHeatSystem: 1
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 15266906769195116
+      type: {class: UseSpecificActionTask, ns: , asm: Assembly-CSharp}
+      data:
+        isCompleted: 0
+        requiredAction: 4
+        timesRequired: 1
+    - rid: 15266906769195117
+      type: {class: UseSpecificActionTask, ns: , asm: Assembly-CSharp}
+      data:
+        isCompleted: 0
+        requiredAction: 5
+        timesRequired: 1

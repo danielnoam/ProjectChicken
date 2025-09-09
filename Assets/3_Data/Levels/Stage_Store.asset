@@ -18,7 +18,10 @@ MonoBehaviour:
   isCheckpoint: 0
   showHUD: 1
   allowPlayerMovement: 0
-  allowPlayerShootingAndAiming: 0
+  allowPlayerDodge: 0
+  allowPlayerAiming: 0
+  allowPlayerShooting: 0
+  allowPlayerHeatSystem: 0
   events: []
   stageType: 1
   stageDuration: 5
@@ -28,6 +31,7 @@ MonoBehaviour:
     sceneAsset: {fileID: 0}
     sceneName: 
     scenePath: 
+  allowToCloseStore: 1
   upgradesPool:
   - {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
   - {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
@@ -51,8 +55,8 @@ MonoBehaviour:
   formationStageData:
     formationType: 0
     formationCount: 1
+    numberOfSlots: 9
     spacing: 2
-    slotsPerSide: 3
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 5

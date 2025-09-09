@@ -71,10 +71,13 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
     public bool IsInOverheat => _overHeated || _overHeatedCooldown;
     public bool AllowShooting { get; private set; }
+    public bool EnableHeatSystem { get; private set; }
 
     public float MaxWeaponHeat { get; private set; }
 
     public WeaponInstance ActiveWeaponInstance { get; private set; }
+
+
 
 
     public event Action<WeaponInstance> OnWeaponUsed;
@@ -87,6 +90,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public event Action OnWeaponHeatMiniGameSucceededEvent;
     public event Action OnWeaponHeatMiniGameFailedEvent;
     public event Action<bool> OnAllowShootingChangedEvent;
+    public event Action<bool> OnHeatSystemEnabledChangedEvent;
     
 
     
@@ -162,7 +166,11 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     {
         if (!stage) return;
         
-        AllowShooting = stage.AllowPlayerShootingAndAiming;
+        EnableHeatSystem = stage.AllowPlayerHeatSystem;
+        OnHeatSystemEnabledChangedEvent?.Invoke(EnableHeatSystem);
+        if (!EnableHeatSystem) ResetHeat();
+        
+        AllowShooting = stage.AllowPlayerShooting;
         OnAllowShootingChangedEvent?.Invoke(AllowShooting);
 
         if (AllowShooting)
@@ -175,8 +183,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
         else
         {
-            ActiveWeaponInstance?.OnWeaponDeselected();
+            ActiveWeaponInstance?.OnWeaponDeselected(false);
         }
+        
     }
     
     private void OnDodge()
@@ -212,7 +221,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private void OnDeath()
     {
         AllowShooting = false;
-        ActiveWeaponInstance?.OnWeaponDeselected();
+        ActiveWeaponInstance?.OnWeaponDeselected(false);
     }
     
     private void OnHeatUpdated(float heat)
@@ -271,6 +280,9 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 break;
                 
             case WeaponLimitation.HeatBased:
+                
+                if (!EnableHeatSystem) break;
+
                 if (IsInOverheat)
                 { 
                     if (overHeatMiniGame)
@@ -323,7 +335,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void UpdateHeatRegeneration()
     {
-        // Heat regeneration
         if (!IsInOverheat && _currentHeat > 0)
         {
 

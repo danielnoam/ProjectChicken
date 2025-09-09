@@ -143,9 +143,9 @@ public class WeaponInstance
         }
     }
     
-    public void OnWeaponDeselected()
+    public void OnWeaponDeselected(bool hideWeaponGfx = true)
     {
-        CurrentWeaponGfx?.Hide();
+        if (hideWeaponGfx) CurrentWeaponGfx?.Hide();
         weaponReticle?.Hide();
     }
     

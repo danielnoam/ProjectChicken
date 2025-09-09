@@ -10,19 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_TaskMovement
+  m_Name: Stage_Delay
   m_EditorClassIdentifier: 
-  stageTitle: Use WASD to move
-  startRadioMessage: {fileID: 0}
+  stageTitle: 
+  startRadioMessage: {fileID: 11400000, guid: f15417407c8130941905676a3159e848, type: 2}
   worldSpeed: 1
   isCheckpoint: 1
-  showHUD: 0
-  allowPlayerMovement: 1
-  allowPlayerShootingAndAiming: 0
   events: []
-  stageType: 5
-  stageDuration: 7
-  delayBeforeNextStage: 2
+  stageType: 0
+  stageDuration: 4
+  delayBeforeNextStage: 1
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -45,14 +42,15 @@ MonoBehaviour:
     formationSpacing: 5
     maxPlacementAttempts: 100
   requireAllTasks: 1
-  tasks:
-  - rid: 15266906769195116
+  tasks: []
+  showHUD: 1
+  showStatsBar: 1
+  showScore: 0
+  allowPlayerMovement: 1
+  allowPlayerDodge: 1
+  allowPlayerAiming: 1
+  allowPlayerShooting: 1
+  allowPlayerHeatSystem: 1
   references:
     version: 2
-    RefIds:
-    - rid: 15266906769195116
-      type: {class: UseSpecificActionTask, ns: , asm: Assembly-CSharp}
-      data:
-        isCompleted: 1
-        requiredAction: 0
-        timesRequired: 1
+    RefIds: []

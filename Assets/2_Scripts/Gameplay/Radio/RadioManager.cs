@@ -86,18 +86,24 @@ public class RadioManager : MonoBehaviour
         PlayNextMessage();
     }
     
-    private void OnMessageHidden()
+    private void OnMessageHidden( )
     {
         _messagePlaying = false;
-        _currentSender = null; // Reset current sender when message is completely hidden
+        _currentSender = null;
     }
     
     private void OnMessageCompleted()
     {
+        if (_currentMessage && _currentMessage.IsPersistent)
+        {
+            _messagePlaying = false;
+            return;
+        }
+
         if (_messages.Count == 0 || (_messages.Count > 0 && _messages[0].Sender != _currentSender))
         {
             _messagePlaying = false;
-            _currentSender = null;
+            _currentSender = null; 
             radioMessageUI.HideMessage();
         }
         else
@@ -182,12 +188,11 @@ public class RadioManager : MonoBehaviour
 
     private void PlayMessage(SORadioMessage message)
     {
-        // Check if it's the same sender and we're currently showing a message
         bool isSameSender = _currentSender == message.Sender && _currentSender;
-    
-        if (isSameSender)
+        bool shouldReplace = (_currentMessage && _currentMessage.IsPersistent && !isSameSender) || message.IsImportant;
+
+        if (isSameSender && !shouldReplace)
         {
-            // Same sender - just update the message without hiding/showing
             _messagePlaying = true;
             _currentMessage = message;
             message.AudioEvent?.Play(audioSource);
@@ -195,13 +200,11 @@ public class RadioManager : MonoBehaviour
         }
         else
         {
-            // Different sender or first message - do full show
-            if (_messagePlaying && _currentSender)
+            if (_messagePlaying && (_currentSender || shouldReplace))
             {
-                // Hide current message first if showing different sender
                 radioMessageUI.HideMessage();
             }
-        
+    
             _messagePlaying = true;
             _currentMessage = message;
             _currentSender = message.Sender;

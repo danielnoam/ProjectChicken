@@ -10,25 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_Outro
+  m_Name: Stage_TaskDodge
   m_EditorClassIdentifier: 
   stageTitle: 
-  stageRadioMessage: {fileID: 0}
-  stageWorldSpeed: 1
-  isCheckpoint: 0
-  showHUD: 0
-  allowPlayerMovement: 0
-  allowPlayerShootingAndAiming: 0
-  stageType: 4
+  startRadioMessage: {fileID: 11400000, guid: 9be17e1097e3cae43aa9425a773c9926, type: 2}
+  worldSpeed: 1
+  isCheckpoint: 1
+  events: []
+  stageType: 5
   stageDuration: 7
+  delayBeforeNextStage: 1
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
     sceneName: 
     scenePath: 
+  allowToCloseStore: 1
   upgradesPool:
   - {fileID: 0}
-  delayBeforeNextStage: 1
   waveScoreWorth: 1000
   enemyWave:
     serializedKvps: []
@@ -36,9 +35,29 @@ MonoBehaviour:
   formationStageData:
     formationType: 0
     formationCount: 1
+    numberOfSlots: 9
     spacing: 2
-    slotsPerSide: 3
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
+  requireAllTasks: 1
+  tasks:
+  - rid: 15266906769195114
+  showHUD: 1
+  showStatsBar: 0
+  showScore: 0
+  allowPlayerMovement: 1
+  allowPlayerDodge: 1
+  allowPlayerAiming: 1
+  allowPlayerShooting: 1
+  allowPlayerHeatSystem: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 15266906769195114
+      type: {class: UseSpecificActionTask, ns: , asm: Assembly-CSharp}
+      data:
+        isCompleted: 1
+        requiredAction: 1
+        timesRequired: 1
