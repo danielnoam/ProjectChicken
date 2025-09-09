@@ -250,7 +250,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 140, y: 70}
+  m_Size: {x: 120, y: 70}
   m_EdgeRadius: 0
 --- !u!114 &701044888967083671
 MonoBehaviour:
@@ -506,6 +506,7 @@ MonoBehaviour:
   updateContinuously: 0
   matchPosition: 1
   positionOffset: {x: 0, y: 0, z: 4}
+  canvasSizeScaler: 1
   debugLog: 0
   targetCanvas: {fileID: 8512403037369536220}
   canvasRectTransform: {fileID: 4525068363431569470}

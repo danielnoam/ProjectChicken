@@ -11,15 +11,23 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
     public bool showDebugLogs = true; // Enable by default to help troubleshoot
 
     private ChickenStateController stateController;
+    private ChickenAnimationController animationController; // NEW: Animation controller reference
     private Transform player;
 
     void Start()
     {
         stateController = GetComponent<ChickenStateController>();
+        animationController = GetComponent<ChickenAnimationController>(); // NEW: Get animation controller
 
         if (stateController == null)
         {
             Debug.LogError($"ChickenCombatBehaviorV2 on {gameObject.name}: No ChickenStateController found!");
+        }
+
+        // NEW: Check for animation controller
+        if (animationController == null)
+        {
+            Debug.LogWarning($"ChickenCombatBehaviorV2 on {gameObject.name}: No ChickenAnimationController found - attack animations will not play!");
         }
 
         // Find player
@@ -78,6 +86,14 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
             if (showDebugLogs)
                 Debug.LogWarning($"ChickenCombatBehaviorV2 on {gameObject.name}: Cannot attack - State: {(stateController != null ? stateController.CurrentState.ToString() : "null")}");
             return;
+        }
+
+        // NEW: Trigger attack animation
+        if (animationController != null)
+        {
+            animationController.PlayAttackAnimation();
+            if (showDebugLogs)
+                Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Triggered attack animation");
         }
 
         if (eggPrefab == null)
@@ -153,11 +169,8 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
         if (showDebugLogs)
             Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: EGG SHOT SUCCESSFULLY!");
     }
-    /// <summary>
-    /// Shoots an egg towards a specific target position instead of the player
-    /// </summary>
-    /// <param name="targetPosition">The world position to shoot towards</param>
-    /// <param name="speed">The speed of the egg</param>
+
+    // Shoots an egg towards a specific target position instead of the player
     public void ShootEggAtPosition(Vector3 targetPosition, float speed, bool deactivateWarning)
     {
         if (showDebugLogs)
@@ -168,6 +181,14 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
             if (showDebugLogs)
                 Debug.LogWarning($"ChickenCombatBehaviorV2 on {gameObject.name}: Cannot attack - State: {(stateController != null ? stateController.CurrentState.ToString() : "null")}");
             return;
+        }
+
+        // NEW: Trigger attack animation
+        if (animationController != null)
+        {
+            animationController.PlayAttackAnimation();
+            if (showDebugLogs)
+                Debug.Log($"ChickenCombatBehaviorV2 on {gameObject.name}: Triggered attack animation");
         }
 
         if (eggPrefab == null)
@@ -224,4 +245,5 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
     // Public properties for the combat manager
     public bool IsReadyToAttack => CanAttack();
     public Transform Player => player;
+    public ChickenAnimationController AnimationController => animationController; // NEW: Expose animation controller
 }
