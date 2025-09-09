@@ -21,7 +21,8 @@ namespace  DNExtensions.MenuSystem
     {
         [Header("Settings")]
         [SerializeField] private bool mouseSelectsSelectable;
-        
+        [SerializeField] private SOAudioEvent selectSfx;
+        [SerializeField] private SOAudioEvent submitSfx;
         
         [Header("Position")] 
         [SerializeField] private PositionEffectType positionEffectType = PositionEffectType.Shake;
@@ -54,6 +55,7 @@ namespace  DNExtensions.MenuSystem
         [SerializeField] private AnimationCurve alphaCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
         [Space(10)] 
+        [SerializeField] public AudioSource audioSource;
         [SerializeField, ReadOnly] private Selectable selectable;
         [SerializeField, ReadOnly] private EventTrigger eventTrigger;
         [SerializeField, ReadOnly] private RectTransform rectTransform;
@@ -92,6 +94,8 @@ namespace  DNExtensions.MenuSystem
 
             AddEventTriggerEntry(EventTriggerType.Select, OnSelect);
             AddEventTriggerEntry(EventTriggerType.Deselect, OnDeselect);
+            AddEventTriggerEntry(EventTriggerType.Submit, OnSubmit);
+            AddEventTriggerEntry(EventTriggerType.PointerClick, OnSubmit);
 
             if (mouseSelectsSelectable)
             {
@@ -100,6 +104,7 @@ namespace  DNExtensions.MenuSystem
             }
 
         }
+        
 
         private void OnDisable()
         {
@@ -137,6 +142,10 @@ namespace  DNExtensions.MenuSystem
             }
         }
 
+        private void OnSubmit(BaseEventData eventData)
+        {
+            submitSfx?.Play(audioSource);
+        }
 
         private void OnSelect(BaseEventData eventData)
         {
@@ -155,9 +164,8 @@ namespace  DNExtensions.MenuSystem
             if (animateScale) PlayScaleAnimation(true);
             if (animateRotation) PlayRotateAnimation(true);
             if (animateAlpha) PlayAlphaAnimation(true);
-
-
-
+            
+            selectSfx?.Play(audioSource);
         }
 
         private void OnDeselect(BaseEventData eventData)

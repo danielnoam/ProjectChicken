@@ -1,4 +1,5 @@
 ﻿using System;
+using DNExtensions;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
@@ -14,6 +15,8 @@ public class UpgradeEgg : MonoBehaviour
     [Header("Info Animation")]
     [SerializeField] private float infoAnimationDuration = 0.25f;
     [SerializeField] private Ease infoAnimationEase = Ease.OutBack;
+    [SerializeField] private SOAudioEvent showInfoSfx;
+    [SerializeField] private SOAudioEvent hideInfoSfx;
     
     [Header("Reference")]
     [SerializeField] private Button button;
@@ -23,6 +26,7 @@ public class UpgradeEgg : MonoBehaviour
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private Image iconImage;
     [SerializeField] private Transform upgradeGfxHolder;
+    [SerializeField] private AudioSource audioSource;
 
     private SOUpgradeBase _upgrade;
     private Vector3 _startPosition;
@@ -40,7 +44,7 @@ public class UpgradeEgg : MonoBehaviour
         _startScale = transform.localScale;
         _startRotation = transform.localEulerAngles;
         _upgradeInfoGroupStartScale = upgradeInfoGroup.transform.localScale;
-        button.onClick.AddListener(SelectUpgrade);
+        button?.onClick.AddListener(SelectUpgrade);
         Reset(false);
 
     }
@@ -87,6 +91,7 @@ public class UpgradeEgg : MonoBehaviour
         }
         else
         {
+            
             _animationSequence = Sequence.Create()
                 .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
                 .Group(Tween.Alpha(upgradeInfoGroup, 0, animationDuration))
@@ -105,26 +110,38 @@ public class UpgradeEgg : MonoBehaviour
             ;
         OnUpgradeSelected?.Invoke(_upgrade);
     }
-    
 
-    private void OnMouseEnter()
+
+    private void ShowInfo()
     {
         if (!_upgrade) return;
         
+        showInfoSfx?.Play(audioSource);
         if (_upgradeInfoSequence.isAlive) _upgradeInfoSequence.Stop();
         _upgradeInfoSequence = Sequence.Create()
-                .Group(Tween.Alpha(upgradeInfoGroup, 1f, infoAnimationDuration * 0.7f))
-                .Group(Tween.Scale(upgradeInfoGroup.transform, _upgradeInfoGroupStartScale, infoAnimationDuration, infoAnimationEase));
+            .Group(Tween.Alpha(upgradeInfoGroup, 1f, infoAnimationDuration * 0.7f))
+            .Group(Tween.Scale(upgradeInfoGroup.transform, _upgradeInfoGroupStartScale, infoAnimationDuration, infoAnimationEase));
     }
 
-    private void OnMouseExit()
+    private void HideInfo()
     {
         if (!_upgrade) return;
         
+        hideInfoSfx?.Play(audioSource);
         if (_upgradeInfoSequence.isAlive) _upgradeInfoSequence.Stop();
         _upgradeInfoSequence = Sequence.Create()
             .Group(Tween.Alpha(upgradeInfoGroup, 0f, infoAnimationDuration * 0.5f))
             .Group(Tween.Scale(upgradeInfoGroup.transform, Vector3.zero, infoAnimationDuration, infoAnimationEase));
+    }
+
+    private void OnMouseEnter()
+    {
+        ShowInfo();
+    }
+
+    private void OnMouseExit()
+    {
+        HideInfo();
     }
 
     private void OnMouseUpAsButton()

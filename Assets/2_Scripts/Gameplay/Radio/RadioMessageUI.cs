@@ -1,10 +1,12 @@
 ﻿using System;
+using DNExtensions;
 using PrimeTween;
 using TMPEffects.Components;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class RadioMessageUI : MonoBehaviour
 {
         [Header("Settings")]
@@ -12,9 +14,11 @@ public class RadioMessageUI : MonoBehaviour
         [SerializeField] private float hideDuration = 0.5f;
         [SerializeField] private Ease ease = Ease.InOutQuart;
         [SerializeField] private Vector2 hiddenPosition = new Vector2(0,0);
+        [SerializeField] private SOAudioEvent messageWriteSfx;
         
         
         [Header("References")]
+        [SerializeField] private AudioSource audioSource;
         [SerializeField] private TextMeshProUGUI senderNameText;
         [SerializeField] private Image senderNameImage;
         [SerializeField] private TextMeshProUGUI messageText;
@@ -69,6 +73,7 @@ public class RadioMessageUI : MonoBehaviour
                                 
                                 messageText.text = message.Message;
                                 messageWriter.RestartWriter();
+                                messageWriteSfx?.Play(audioSource);
                         });
                 _showSequence.Chain(Tween.UIAnchoredPosition(_messageUIRectTransform,hiddenPosition, _shownPosition, showDuration, ease));
                 _showSequence.ChainDelay(message.Duration);
@@ -81,6 +86,7 @@ public class RadioMessageUI : MonoBehaviour
                 
                 messageText.text = message.Message;
                 messageWriter.RestartWriter();
+                messageWriteSfx?.Play(audioSource);
                 
                 if (_showSequence.isAlive) _showSequence.Stop();
                 _showSequence = Sequence.Create();
