@@ -17,9 +17,8 @@ public class IntroManager : MonoBehaviour
     [SerializeField] private PlayableDirector playableDirector;
     [SerializeField] private SceneField mainMenuScene;
     [SerializeField] private SOVFEffectsSequence awakeSequence;
-    [SerializeField] private SOVFEffectsSequence startSequence;
-    [SerializeField] private SOVFEffectsSequence introSequence;
-    [SerializeField] private SOVFEffectsSequence outroSequence;
+    [SerializeField] private SOVFEffectsSequence endSequence;
+    [SerializeField] private SOVFEffectsSequence mainMenuStartSequence;
 
     
 
@@ -33,7 +32,6 @@ public class IntroManager : MonoBehaviour
     {
         if (playableDirector)
         {
-            playableDirector.played += OnTimelineStarted;
             playableDirector.stopped += OnTimelineStopped;
         }
     }
@@ -42,15 +40,10 @@ public class IntroManager : MonoBehaviour
     {
         if (playableDirector)
         {
-            playableDirector.played -= OnTimelineStarted;
             playableDirector.stopped -= OnTimelineStopped;
         }
     }
     
-    private void OnTimelineStarted(PlayableDirector director)
-    {
-        VFXManager.Instance?.PlayVFX(startSequence);
-    }
 
     private void OnTimelineStopped(PlayableDirector director)
     {
@@ -102,6 +95,6 @@ public class IntroManager : MonoBehaviour
 
     private void LoadMainMenuScene()
     {
-        TransitionManager.TransitionToScene(mainMenuScene, introSequence, outroSequence);
+        TransitionManager.TransitionToScene(mainMenuScene, endSequence, mainMenuStartSequence);
     }
 }
