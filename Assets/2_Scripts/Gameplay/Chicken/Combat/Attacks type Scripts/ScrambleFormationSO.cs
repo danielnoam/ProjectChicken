@@ -5,6 +5,9 @@ using System.Collections.Generic;
 public class ScrambleFormationSO : BaseChickenAttackSO
 {
     [Header("Scramble Formation Settings")]
+    [Tooltip("Minimum time between scramble attacks to prevent spam")]
+    public float scrambleCooldown = 5f;
+    
     [Tooltip("Whether to force state updates on all chickens after scrambling")]
     public bool forceStateUpdate = true;
     
@@ -51,7 +54,7 @@ public class ScrambleFormationSO : BaseChickenAttackSO
 
     public override void Execute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager)
     {
-        LogDebug("Executing Formation Scramble attack...");
+        LogDebug("Executing Formation Scramble attack on assigned chickens only...");
 
         // Find the EnemyChickenManager
         EnemyChickenManager chickenManager = FindEnemyChickenManager();
@@ -61,8 +64,8 @@ public class ScrambleFormationSO : BaseChickenAttackSO
             return;
         }
 
-        // Execute the scramble
-        chickenManager.ScrambleAllChickens();
+        // Execute the scramble on only assigned chickens
+        chickenManager.ScrambleAssignedChickens();
 
         // Play scramble effect if enabled
         if (playScrambleEffect)
@@ -70,14 +73,14 @@ public class ScrambleFormationSO : BaseChickenAttackSO
             PlayScrambleEffect(chickenManager);
         }
 
-        LogDebug($"Formation scramble completed! {chickenManager.AssignedChickensCount} chickens reassigned, {chickenManager.WaitingChickensCount} waiting.");
+        LogDebug($"Formation scramble completed! {chickenManager.AssignedChickensCount} chickens reassigned to new formation positions. {chickenManager.WaitingChickensCount} chickens remained idle.");
     }
 
     // Helper method to find EnemyChickenManager in the scene
     private EnemyChickenManager FindEnemyChickenManager()
     {
         // First try to find by tag (if you use tags)
-        GameObject managerObject = GameObject.FindGameObjectWithTag("ChickenFormationManager");
+        GameObject managerObject = GameObject.FindGameObjectWithTag("EnemyChickenManager");
         if (managerObject != null)
         {
             return managerObject.GetComponent<EnemyChickenManager>();

@@ -626,14 +626,14 @@ MonoBehaviour:
   playerInfluencePosition: 1
   playerPositionOffset:
     range: {x: 70, y: 30, z: 0}
-    threshold: {x: 0.5, y: 0.5, z: 0}
+    threshold: {x: 0.25, y: 0, z: 0}
     smoothness: 1
     invertX: 1
     invertY: 1
   playerInfluencesRotation: 1
   playerRotationOffset:
     range: {x: 15, y: 15, z: 10}
-    threshold: {x: 0.5, y: 0.5, z: 0}
+    threshold: {x: 0.25, y: 0, z: 0}
     smoothness: 1
     invertX: 0
     invertY: 1

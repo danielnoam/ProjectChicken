@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using DNExtensions;
 using UnityEngine;
 
-
 public class EnemySpawner : MonoBehaviour
 {
     public static EnemySpawner Instance { get; private set; }
@@ -20,19 +19,14 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private RailPlayer player;
 
-    
     private readonly HashSet<ChickenStateController> _activeEnemies = new HashSet<ChickenStateController>();
     private SOLevelStage _currentStage;
 
-    
     public int ActiveEnemyCount => _activeEnemies.Count;
-    
-    
     
     public event Action OnEnemyWaveSpawned;
     public event Action<int> OnEnemyWaveCleared;
     public event Action<ChickenStateController> OnEnemyDeath;
-
 
     private void OnValidate()
     {
@@ -92,8 +86,7 @@ public class EnemySpawner : MonoBehaviour
         // Validate spawn area setup
         ValidateSpawnAreaSetup();
     }
-    
-    
+
     private void OnEnable()
     {
         levelManager.OnStageChanged += OnStageChanged;
@@ -115,9 +108,7 @@ public class EnemySpawner : MonoBehaviour
             enemy.OnDeathEvent -= UpdateEnemyCount;
         }
     }
-    
-    
-    
+
     private void OnStageChanged(SOLevelStage stage)
     {
         if (!stage) return;
@@ -132,18 +123,14 @@ public class EnemySpawner : MonoBehaviour
         {
             ClearEnemies();
         }
-        
-
     }
-    
-    
+
     private void UpdateEnemyCount(ChickenStateController enemy)
     {
         if (_currentStage && _currentStage.IsTimeBasedStage) return;
         
         _activeEnemies.Remove(enemy);
         OnEnemyDeath?.Invoke(enemy);
-        
         
         if (_activeEnemies.Count <= 0)
         {
@@ -157,9 +144,6 @@ public class EnemySpawner : MonoBehaviour
     {
         ClearEnemies();
     }
-    
-    
-
 
     private void SpawnEnemyWave(SOLevelStage stage)
     {
@@ -179,13 +163,10 @@ public class EnemySpawner : MonoBehaviour
         
         OnEnemyWaveSpawned?.Invoke();
     }
-    
-    
-    
+
     public void SpawnEnemy(ChickenStateController enemyPrefab)
     {
         if (!enemyPrefab) return;
-
 
         Vector3 spawnPosition = GetValidSpawnPosition();
         var enemyObject = ObjectPooler.GetObjectFromPool(enemyPrefab.gameObject, spawnPosition);
@@ -251,6 +232,69 @@ public class EnemySpawner : MonoBehaviour
         return validPosition;
     }
 
+    // PUBLIC: Get a valid spawn position for idle chickens (same logic as spawning)
+    public Vector3? GetValidSpawnPositionForIdle()
+    {
+        // Fallback to original spawn position if colliders not set up
+        if (!spawnAreaBig)
+        {
+            return enemySpawnPosition ? enemySpawnPosition.position : transform.position;
+        }
+
+        Vector3 validPosition = Vector3.zero;
+        bool foundValidPosition = false;
+
+        // Use fewer attempts for idle movement to avoid performance issues
+        int idleAttempts = Mathf.Min(maxSpawnAttempts, 20);
+
+        for (int attempt = 0; attempt < idleAttempts; attempt++)
+        {
+            // Generate random position within the big collider bounds
+            Vector3 randomPosition = GetRandomPositionInBounds(spawnAreaBig);
+            
+            // Check if position is valid (not inside blocker)
+            if (IsPositionValid(randomPosition))
+            {
+                validPosition = randomPosition;
+                foundValidPosition = true;
+                break;
+            }
+        }
+
+        if (!foundValidPosition)
+        {
+            // For idle movement, we can be more lenient and use fallback
+            validPosition = GetFallbackPosition();
+            foundValidPosition = true;
+        }
+
+        return foundValidPosition ? validPosition : null;
+    }
+
+    // PUBLIC: Check if a position is within the valid spawn area
+    public bool IsPositionInValidSpawnArea(Vector3 position)
+    {
+        return IsPositionValid(position);
+    }
+
+    // PUBLIC: Check if spawn areas are properly configured
+    public bool HasValidSpawnAreas()
+    {
+        return spawnAreaBig != null;
+    }
+
+    // PUBLIC: Get the bounds of the spawn area (for debugging/visualization)
+    public Bounds? GetSpawnAreaBounds()
+    {
+        return spawnAreaBig ? spawnAreaBig.bounds : null;
+    }
+
+    // PUBLIC: Get the bounds of the blocker area (for debugging/visualization)
+    public Bounds? GetBlockerAreaBounds()
+    {
+        return spawnAreaBlocker ? spawnAreaBlocker.bounds : null;
+    }
+
     // Generate random position within box collider bounds
     private Vector3 GetRandomPositionInBounds(BoxCollider boxCollider)
     {
@@ -267,7 +311,7 @@ public class EnemySpawner : MonoBehaviour
     private bool IsPositionValid(Vector3 position)
     {
         // Must be inside the big spawn area
-        if (!spawnAreaBig.bounds.Contains(position))
+        if (!spawnAreaBig || !spawnAreaBig.bounds.Contains(position))
             return false;
 
         // Must NOT be inside the blocker area (if blocker exists)
@@ -393,5 +437,21 @@ public class EnemySpawner : MonoBehaviour
         
         // Visual indicator in scene view
         Debug.DrawRay(testPosition, Vector3.up * 2f, Color.magenta, 2f);
+    }
+
+    // NEW: Public method for testing idle spawn positions
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    public void TestIdleSpawnPosition()
+    {
+        Vector3? testPosition = GetValidSpawnPositionForIdle();
+        if (testPosition.HasValue)
+        {
+            Debug.Log($"Test idle spawn position: {testPosition.Value}");
+            Debug.DrawRay(testPosition.Value, Vector3.up * 2f, Color.cyan, 2f);
+        }
+        else
+        {
+            Debug.LogWarning("Could not find valid idle spawn position");
+        }
     }
 }
