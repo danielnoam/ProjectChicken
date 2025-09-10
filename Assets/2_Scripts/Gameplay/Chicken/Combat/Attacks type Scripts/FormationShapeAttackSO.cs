@@ -152,6 +152,9 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
             case FormationCreator.FormationType.Square:
                 CalculateSquarePositions(playerPosition);
                 break;
+            case FormationCreator.FormationType.Triangle:
+                CalculateDiamondPositions(playerPosition);
+                break;
             default:
                 // Default to circle if unknown formation type
                 LogWarning($"Unknown formation type: {detectedFormationType}, defaulting to Circle");
@@ -331,6 +334,162 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
             targetPositions.Add(squareCenter + new Vector3(-halfSize, y, 0f));
         }
     }
+
+    private void CalculateDiamondPositions(Vector3 playerPosition)
+    {
+        // Ensure minimum shots per side
+        int actualShotsPerSide = Mathf.Max(2, diamondShotsPerSide);
+
+        // Get canvas boundaries
+        Vector2 canvasBounds = GetCanvasBounds();
+        if (canvasBounds == Vector2.zero)
+        {
+            LogWarning("Could not get canvas bounds, using fallback diamond calculation");
+            CalculateDiamondPositionsFallback(playerPosition, actualShotsPerSide);
+            return;
+        }
+
+        // Calculate the diamond center around the player
+        Vector3 diamondCenter = playerPosition + Vector3.forward * offsetFromPlayer;
+
+        // Clamp diamond center to be within canvas bounds
+        float canvasHalfWidth = canvasBounds.x * 0.5f;
+        float canvasHalfHeight = canvasBounds.y * 0.5f;
+
+        diamondCenter.x = Mathf.Clamp(diamondCenter.x, -canvasHalfWidth + diamondSize * 0.5f, canvasHalfWidth - diamondSize * 0.5f);
+        diamondCenter.y = Mathf.Clamp(diamondCenter.y, -canvasHalfHeight + diamondSize * 0.5f, canvasHalfHeight - diamondSize * 0.5f);
+
+        // Adjust diamond size if it would extend beyond canvas
+        float maxDiamondWidth = Mathf.Min(diamondSize, (canvasHalfWidth - Mathf.Abs(diamondCenter.x)) * 2f);
+        float maxDiamondHeight = Mathf.Min(diamondSize, (canvasHalfHeight - Mathf.Abs(diamondCenter.y)) * 2f);
+        float adjustedDiamondSize = Mathf.Min(maxDiamondWidth, maxDiamondHeight);
+        float adjustedHalfSize = adjustedDiamondSize * 0.5f;
+
+        if (showDebugLogs && adjustedDiamondSize < diamondSize)
+        {
+            LogDebug($"Diamond size adjusted from {diamondSize} to {adjustedDiamondSize} to fit canvas bounds");
+        }
+
+        // Calculate diamond vertices (rotated square - points at cardinal directions)
+        List<Vector3> vertices = new List<Vector3>();
+
+        // Base diamond vertices (top, right, bottom, left)
+        Vector3[] baseVertices = new Vector3[]
+        {
+            new Vector3(0f, adjustedHalfSize, 0f),      // Top
+            new Vector3(adjustedHalfSize, 0f, 0f),      // Right
+            new Vector3(0f, -adjustedHalfSize, 0f),     // Bottom
+            new Vector3(-adjustedHalfSize, 0f, 0f)      // Left
+        };
+
+        // Apply rotation offset if specified
+        for (int i = 0; i < baseVertices.Length; i++)
+        {
+            Vector3 vertex = baseVertices[i];
+
+            if (diamondRotationOffset != 0f)
+            {
+                float angle = diamondRotationOffset * Mathf.Deg2Rad;
+                float cos = Mathf.Cos(angle);
+                float sin = Mathf.Sin(angle);
+
+                float newX = vertex.x * cos - vertex.y * sin;
+                float newY = vertex.x * sin + vertex.y * cos;
+
+                vertex = new Vector3(newX, newY, vertex.z);
+            }
+
+            vertex += diamondCenter;
+            vertex = ClampPositionToCanvas(vertex, canvasBounds);
+            vertices.Add(vertex);
+        }
+
+        // Generate shots along each side of the diamond
+        for (int side = 0; side < 4; side++)
+        {
+            Vector3 startVertex = vertices[side];
+            Vector3 endVertex = vertices[(side + 1) % 4];
+
+            // Place shots along this side
+            for (int shot = 0; shot < actualShotsPerSide; shot++)
+            {
+                float t = (float)shot / (actualShotsPerSide - 1); // 0 to 1
+
+                // Skip the end vertex to avoid duplicates (except for the last side)
+                if (shot == actualShotsPerSide - 1 && side < 3)
+                    continue;
+
+                Vector3 position = Vector3.Lerp(startVertex, endVertex, t);
+                position = ClampPositionToCanvas(position, canvasBounds);
+                targetPositions.Add(position);
+            }
+        }
+
+        LogDebug($"Calculated {targetPositions.Count} target positions for diamond formation (canvas-constrained)");
+    }
+
+    private void CalculateDiamondPositionsFallback(Vector3 playerPosition, int actualShotsPerSide)
+    {
+        // Fallback calculation with a smaller, safer diamond size
+        float safeDiamondSize = Mathf.Min(diamondSize, 8f); // Max 8 units to stay safe
+        float safeHalfSize = safeDiamondSize * 0.5f;
+        Vector3 diamondCenter = playerPosition + Vector3.forward * offsetFromPlayer;
+
+        // Calculate diamond vertices (top, right, bottom, left)
+        List<Vector3> vertices = new List<Vector3>();
+
+        Vector3[] baseVertices = new Vector3[]
+        {
+            new Vector3(0f, safeHalfSize, 0f),      // Top
+            new Vector3(safeHalfSize, 0f, 0f),      // Right
+            new Vector3(0f, -safeHalfSize, 0f),     // Bottom
+            new Vector3(-safeHalfSize, 0f, 0f)      // Left
+        };
+
+        // Apply rotation offset if specified
+        for (int i = 0; i < baseVertices.Length; i++)
+        {
+            Vector3 vertex = baseVertices[i];
+
+            if (diamondRotationOffset != 0f)
+            {
+                float angle = diamondRotationOffset * Mathf.Deg2Rad;
+                float cos = Mathf.Cos(angle);
+                float sin = Mathf.Sin(angle);
+
+                float newX = vertex.x * cos - vertex.y * sin;
+                float newY = vertex.x * sin + vertex.y * cos;
+
+                vertex = new Vector3(newX, newY, vertex.z);
+            }
+
+            vertex += diamondCenter;
+            vertices.Add(vertex);
+        }
+
+        // Generate shots along each side of the diamond
+        for (int side = 0; side < 4; side++)
+        {
+            Vector3 startVertex = vertices[side];
+            Vector3 endVertex = vertices[(side + 1) % 4];
+
+            // Place shots along this side
+            for (int shot = 0; shot < actualShotsPerSide; shot++)
+            {
+                float t = (float)shot / (actualShotsPerSide - 1); // 0 to 1
+
+                // Skip the end vertex to avoid duplicates (except for the last side)
+                if (shot == actualShotsPerSide - 1 && side < 3)
+                    continue;
+
+                Vector3 position = Vector3.Lerp(startVertex, endVertex, t);
+                targetPositions.Add(position);
+            }
+        }
+
+        LogDebug($"Used fallback calculation for {targetPositions.Count} diamond target positions");
+    }
+
     private void AssignChickensToTargets(List<ChickenCombatBehaviorV2> availableChickens)
     {
         assignments.Clear();
@@ -509,7 +668,7 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
                     Gizmos.color = Color.cyan;
                     break;
                 case FormationCreator.FormationType.Triangle:
-                    Gizmos.color = Color.blue;
+                    Gizmos.color = Color.magenta;
                     break;
                 case FormationCreator.FormationType.VShape:
                     Gizmos.color = Color.red;
