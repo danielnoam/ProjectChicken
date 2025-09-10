@@ -12,15 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f091914f821aeddd7b3676db7383e3d7, type: 3}
   m_Name: UIMenuElementInteract
   m_EditorClassIdentifier: 
-  clips:
-  - {fileID: 8300000, guid: 0bd0d292eee0cb745a143b6fe9fe4e24, type: 3}
+  clips: []
   mixerGroup: {fileID: 7925987513125290016, guid: 77db4088ae7ef521a93687acac7e30ed, type: 2}
   volume:
-    minValue: 0.1
-    maxValue: 0.1
+    minValue: 0.05
+    maxValue: 0.05
   pitch:
-    minValue: 1
-    maxValue: 1
+    minValue: 0.8
+    maxValue: 0.8
   stereoPan: 0
   spatialBlend: 1
   reverbZoneMix: 1
