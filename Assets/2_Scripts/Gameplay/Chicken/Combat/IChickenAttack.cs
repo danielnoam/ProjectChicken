@@ -61,6 +61,7 @@ public enum AttackType
     FormationScramble,
     SquareFormation,
     CircleFormation,
-    DiamondFormation
+    DiamondFormation,
+    FormationShape,
     // Add more attack types as needed
 }
