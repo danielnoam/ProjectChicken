@@ -19,8 +19,9 @@ public class RadioMessageUI : MonoBehaviour
         
         [Header("References")]
         [SerializeField] private AudioSource audioSource;
-        [SerializeField] private TextMeshProUGUI senderNameText;
         [SerializeField] private Image senderNameImage;
+        [SerializeField] private TextMeshProUGUI senderNameText;
+        [SerializeField] private TextMeshProUGUI senderTitleText;
         [SerializeField] private TextMeshProUGUI messageText;
         [SerializeField] private TMPWriter messageWriter;
         
@@ -56,6 +57,7 @@ public class RadioMessageUI : MonoBehaviour
                                 if (message.Sender)
                                 {
                                         senderNameText.text = message.Sender.Name;
+                                        senderTitleText.text = message.Sender.Title;
                                         if (message.Sender.Icon)
                                         {
                                                 senderNameImage.gameObject.SetActive(true);

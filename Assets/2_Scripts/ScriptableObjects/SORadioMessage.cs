@@ -7,7 +7,7 @@ using VInspector;
 public class SORadioMessage : ScriptableObject
 {
 
-    [Header("Radio Message Info")]
+    [Header("Message Info")]
     [SerializeField, CreateEditableAsset] private SOCharacter sender;
     [SerializeField] private SOAudioEvent audioEvent;
     [Tooltip("If true, this message will skip to the start of the radios message queue")]
@@ -18,6 +18,14 @@ public class SORadioMessage : ScriptableObject
     [SerializeField, Min(2)] private float duration = 3f;
     [SerializeField, TextArea(1,5)] private string message;
 
+
+
+    [Button]
+    public void PlayMessage()
+    {
+        RadioManager.Instance?.AddMessage(this);
+    }
+    
     
     
     public bool IsImportant => isImportant;

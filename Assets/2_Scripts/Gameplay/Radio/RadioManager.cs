@@ -18,9 +18,9 @@ public class RadioManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private RadioMessageUI radioMessageUI;
     [SerializeField, Self(Flag.Editable)] private AudioSource audioSource;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
+    [SerializeField] private LevelManager levelManager;
+    [SerializeField] private EnemySpawner enemySpawner;
+    [SerializeField] private RailPlayer player;
     [SerializeField] private SORadioMessage testMessage;
 
     private readonly List<SORadioMessage> _messages = new List<SORadioMessage>();
@@ -48,7 +48,7 @@ public class RadioManager : MonoBehaviour
             Instance = this;
         }
 
-        _playerHealth = player.PlayerStats.BaseHealth;
+        if (player) _playerHealth = player.PlayerStats.BaseHealth;
     }
 
     private void OnEnable()
@@ -155,7 +155,7 @@ public class RadioManager : MonoBehaviour
     }
     
 
-    private void AddMessage(SORadioMessage message)
+    public void AddMessage(SORadioMessage message)
     {
         if (!message) return;
         
