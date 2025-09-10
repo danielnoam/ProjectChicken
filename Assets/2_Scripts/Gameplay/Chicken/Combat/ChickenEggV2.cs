@@ -34,11 +34,6 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
     {
         _velocity = direction.normalized * speed;
         _isInitialized = true;
-
-        if (!_warningCreated)
-        {
-            CreateWarning(transform.position, direction, speed);
-        }
     }
 
     public void Initialize(Vector3 direction, float speed, bool skipWarning)

@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
-[CreateAssetMenu(fileName = "New Square Formation Attack", menuName = "Chicken Combat/Attacks/Square Formation Attack")]
+[CreateAssetMenu(fileName = "SquareFormationAttack", menuName = "Chicken Combat/Attacks/Square Formation Attack")]
 public class SquareFormationAttackSO : BaseChickenAttackSO
 {
     [Header("Square Formation Settings")]
@@ -16,7 +17,26 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
 
     private int currentShotIndex = 0;
     private List<Vector3> targetPositions = new List<Vector3>();
+    private List<ChickenTargetAssignment> assignments = new List<ChickenTargetAssignment>();
     private float lastShotTime = 0f;
+
+    // Helper class to store chicken-target assignments
+    [System.Serializable]
+    public class ChickenTargetAssignment
+    {
+        public ChickenCombatBehaviorV2 chicken;
+        public Vector3 targetPosition;
+        public float distance;
+        public bool hasBeenShot;
+
+        public ChickenTargetAssignment(ChickenCombatBehaviorV2 chicken, Vector3 targetPosition, float distance)
+        {
+            this.chicken = chicken;
+            this.targetPosition = targetPosition;
+            this.distance = distance;
+            this.hasBeenShot = false;
+        }
+    }
 
     public override bool CanExecute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager)
     {
@@ -54,23 +74,94 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
         // Calculate square positions around the player
         CalculateSquarePositions(manager.Player.position);
 
-        // Debug: Log calculated positions
+        // Assign chickens to optimal target positions
+        AssignChickensToTargets(availableChickens);
+
+        // Debug: Log calculated assignments
         if (showDebugLogs)
         {
-            LogDebug($"Square formation calculated {targetPositions.Count} positions:");
-            for (int i = 0; i < targetPositions.Count; i++)
+            LogDebug($"Square formation calculated {assignments.Count} chicken-target assignments:");
+            for (int i = 0; i < assignments.Count; i++)
             {
-                LogDebug($"  Position {i}: {targetPositions[i]}");
+                var assignment = assignments[i];
+                LogDebug($"  {assignment.chicken.gameObject.name} -> {assignment.targetPosition} (distance: {assignment.distance:F2})");
             }
         }
 
         if (simultaneousShots)
         {
-            ExecuteSimultaneousShots(availableChickens, manager);
+            ExecuteSimultaneousShots(manager);
         }
         else
         {
-            ExecuteSequentialShots(availableChickens, manager);
+            ExecuteSequentialShots(manager);
+        }
+    }
+
+    private void AssignChickensToTargets(List<ChickenCombatBehaviorV2> availableChickens)
+    {
+        assignments.Clear();
+
+        if (targetPositions.Count == 0 || availableChickens.Count == 0)
+            return;
+
+        // Calculate the center point of all chickens
+        Vector3 chickenCenter = Vector3.zero;
+        foreach (var chicken in availableChickens)
+        {
+            chickenCenter += chicken.transform.position;
+        }
+        chickenCenter /= availableChickens.Count;
+
+        // Calculate the center point of all targets
+        Vector3 targetCenter = Vector3.zero;
+        foreach (var target in targetPositions)
+        {
+            targetCenter += target;
+        }
+        targetCenter /= targetPositions.Count;
+
+        // Sort chickens by their angle relative to chicken center
+        var sortedChickens = availableChickens.OrderBy(chicken =>
+        {
+            Vector3 direction = chicken.transform.position - chickenCenter;
+            return Mathf.Atan2(direction.y, direction.x);
+        }).ToList();
+
+        // Sort targets by their angle relative to target center  
+        var sortedTargets = targetPositions.OrderBy(target =>
+        {
+            Vector3 direction = target - targetCenter;
+            return Mathf.Atan2(direction.y, direction.x);
+        }).ToList();
+
+        // Assign chickens to targets based on their angular positions
+        // This ensures chickens shoot in directions that maintain the formation shape
+        for (int i = 0; i < sortedTargets.Count; i++)
+        {
+            // Use modulo to cycle through chickens if we have more targets than chickens
+            var chicken = sortedChickens[i % sortedChickens.Count];
+            var target = sortedTargets[i];
+            float distance = Vector3.Distance(chicken.transform.position, target);
+
+            assignments.Add(new ChickenTargetAssignment(chicken, target, distance));
+        }
+
+        LogDebug($"Assigned {assignments.Count} spatially-ordered chicken-target pairs using angular sorting");
+
+        // Debug: Log the assignments to verify the spatial ordering
+        if (showDebugLogs)
+        {
+            for (int i = 0; i < assignments.Count; i++)
+            {
+                var assignment = assignments[i];
+                Vector3 chickenDir = assignment.chicken.transform.position - chickenCenter;
+                Vector3 targetDir = assignment.targetPosition - targetCenter;
+                float chickenAngle = Mathf.Atan2(chickenDir.y, chickenDir.x) * Mathf.Rad2Deg;
+                float targetAngle = Mathf.Atan2(targetDir.y, targetDir.x) * Mathf.Rad2Deg;
+
+                LogDebug($"  Assignment {i}: {assignment.chicken.gameObject.name} (angle: {chickenAngle:F1}�) -> Target (angle: {targetAngle:F1}�)");
+            }
         }
     }
 
@@ -162,29 +253,33 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
 
     private Vector2 GetCanvasBounds()
     {
-        // Try to get bounds from LevelManager first
-        LevelManager levelManager = LevelManager.Instance;
-        if (levelManager != null)
-        {
-            Vector2 playerBounds = levelManager.PlayerBoundarySize;
-            if (playerBounds != Vector2.zero)
-            {
-                return playerBounds * 2f; // Convert from boundary size to full canvas size
-            }
-        }
-
-        // Fallback: try to get bounds from PlayerBoundaryCanvas
-        PlayerBoundaryCanvas boundaryCanvas = FindObjectOfType<PlayerBoundaryCanvas>();
+        // PRIORITY CHANGE: Try to get bounds from PlayerBoundaryCanvas first (includes scaler)
+        PlayerBoundaryCanvas boundaryCanvas = FindFirstObjectByType<PlayerBoundaryCanvas>();
         if (boundaryCanvas != null)
         {
             Canvas canvas = boundaryCanvas.GetComponent<Canvas>();
             if (canvas != null)
             {
                 RectTransform rectTransform = canvas.GetComponent<RectTransform>();
-                if (rectTransform != null)
+                if (rectTransform != null && rectTransform.sizeDelta != Vector2.zero)
                 {
+                    if (showDebugLogs)
+                        LogDebug($"Got canvas bounds from PlayerBoundaryCanvas: {rectTransform.sizeDelta} (includes scaler)");
                     return rectTransform.sizeDelta;
                 }
+            }
+        }
+
+        // Fallback: get bounds from LevelManager (raw, unscaled)
+        LevelManager levelManager = LevelManager.Instance;
+        if (levelManager != null)
+        {
+            Vector2 playerBounds = levelManager.PlayerBoundarySize;
+            if (playerBounds != Vector2.zero)
+            {
+                if (showDebugLogs)
+                    LogDebug($"Got canvas bounds from LevelManager (fallback, no scaler): {playerBounds * 2f}");
+                return playerBounds * 2f; // Convert from boundary size to full canvas size
             }
         }
 
@@ -254,21 +349,22 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
         LogDebug($"Used fallback calculation for {targetPositions.Count} target positions");
     }
 
-    private void ExecuteSimultaneousShots(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager)
+    private void ExecuteSimultaneousShots(ChickenCombatManagerV4 manager)
     {
-        // All chickens shoot at random positions in the square simultaneously
-        for (int i = 0; i < availableChickens.Count && i < targetPositions.Count; i++)
+        // All assigned chickens shoot at their optimal positions simultaneously
+        foreach (var assignment in assignments)
         {
-            ChickenCombatBehaviorV2 chicken = availableChickens[i];
-            Vector3 targetPos = targetPositions[i % targetPositions.Count];
-
-            ShootChickenAtPosition(chicken, targetPos, manager.EggSpeed);
+            if (assignment.chicken != null && assignment.chicken.CanAttack())
+            {
+                ShootChickenAtPosition(assignment.chicken, assignment.targetPosition, manager.EggSpeed);
+                assignment.hasBeenShot = true;
+            }
         }
 
-        LogDebug($"Executed simultaneous square formation with {availableChickens.Count} chickens");
+        LogDebug($"Executed simultaneous square formation with {assignments.Count} optimized assignments");
     }
 
-    private void ExecuteSequentialShots(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager)
+    private void ExecuteSequentialShots(ChickenCombatManagerV4 manager)
     {
         // Check if enough time has passed for the next shot
         if (Time.time - lastShotTime < shotDelay)
@@ -277,24 +373,36 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
         }
 
         // Reset if we've completed a full cycle
-        if (currentShotIndex >= targetPositions.Count)
+        if (currentShotIndex >= assignments.Count)
         {
             currentShotIndex = 0;
+            // Reset all assignments for next cycle
+            foreach (var assignment in assignments)
+            {
+                assignment.hasBeenShot = false;
+            }
         }
 
-        // Find an available chicken to shoot
-        if (availableChickens.Count > 0 && currentShotIndex < targetPositions.Count)
+        // Find the next unshot assignment
+        if (currentShotIndex < assignments.Count)
         {
-            // Use different chickens in rotation
-            ChickenCombatBehaviorV2 chicken = availableChickens[currentShotIndex % availableChickens.Count];
-            Vector3 targetPos = targetPositions[currentShotIndex];
+            var assignment = assignments[currentShotIndex];
 
-            ShootChickenAtPosition(chicken, targetPos, manager.EggSpeed);
+            if (assignment.chicken != null && assignment.chicken.CanAttack() && !assignment.hasBeenShot)
+            {
+                ShootChickenAtPosition(assignment.chicken, assignment.targetPosition, manager.EggSpeed);
+                assignment.hasBeenShot = true;
 
-            currentShotIndex++;
-            lastShotTime = Time.time;
+                currentShotIndex++;
+                lastShotTime = Time.time;
 
-            LogDebug($"Sequential shot {currentShotIndex}/{targetPositions.Count} executed");
+                LogDebug($"Sequential shot {currentShotIndex}/{assignments.Count} executed - {assignment.chicken.gameObject.name} -> {assignment.targetPosition}");
+            }
+            else
+            {
+                // Skip this assignment if chicken can't attack
+                currentShotIndex++;
+            }
         }
     }
 
@@ -307,7 +415,7 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
         }
 
         // Use the new ShootEggAtPosition method to shoot at the specific square formation position
-        chicken.ShootEggAtPosition(targetPosition, speed);
+        chicken.ShootEggAtPosition(targetPosition, speed, deactivateWarningCircle);
 
         LogDebug($"Chicken {chicken.gameObject.name} shooting towards square position {targetPosition}");
     }
@@ -317,12 +425,14 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
     {
         currentShotIndex = 0;
         targetPositions.Clear();
+        assignments.Clear();
         lastShotTime = 0f;
     }
 
     // Gizmo drawing for debugging
     private void OnDrawGizmosSelected()
     {
+        // Draw target positions
         if (targetPositions != null && targetPositions.Count > 0)
         {
             Gizmos.color = Color.cyan;
@@ -340,6 +450,26 @@ public class SquareFormationAttackSO : BaseChickenAttackSO
                 {
                     int nextIndex = (i + 1) % targetPositions.Count;
                     Gizmos.DrawLine(targetPositions[i], targetPositions[nextIndex]);
+                }
+            }
+        }
+
+        // Draw chicken-target assignments
+        if (assignments != null && assignments.Count > 0)
+        {
+            Gizmos.color = Color.yellow;
+
+            foreach (var assignment in assignments)
+            {
+                if (assignment.chicken != null)
+                {
+                    // Draw line from chicken to its assigned target
+                    Gizmos.DrawLine(assignment.chicken.transform.position, assignment.targetPosition);
+
+                    // Draw chicken position
+                    Gizmos.color = assignment.hasBeenShot ? Color.green : Color.red;
+                    Gizmos.DrawWireSphere(assignment.chicken.transform.position, 0.3f);
+                    Gizmos.color = Color.yellow;
                 }
             }
         }

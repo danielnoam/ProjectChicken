@@ -13,22 +13,21 @@ MonoBehaviour:
   m_Name: Stage_EnemyWaveTest 1
   m_EditorClassIdentifier: 
   stageTitle: 
-  stageRadioMessage: {fileID: 0}
-  stageWorldSpeed: 1
+  startRadioMessage: {fileID: 0}
+  worldSpeed: 1
   isCheckpoint: 0
-  showHUD: 1
-  allowPlayerMovement: 1
-  allowPlayerShootingAndAiming: 1
+  events: []
   stageType: 2
   stageDuration: 15
+  delayBeforeNextStage: 1
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
     sceneName: 
     scenePath: 
+  allowToCloseStore: 1
   upgradesPool:
   - {fileID: 0}
-  delayBeforeNextStage: 1
   waveScoreWorth: 1000
   enemyWave:
     serializedKvps:
@@ -43,7 +42,20 @@ MonoBehaviour:
     formationCount: 2
     numberOfSlots: 10
     spacing: 2
-    circleRadius: 5
+    circleRadius: 14.77
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
+  requireAllTasks: 1
+  tasks: []
+  showHUD: 1
+  showStatsBar: 1
+  showScore: 1
+  allowPlayerMovement: 1
+  allowPlayerDodge: 1
+  allowPlayerAiming: 1
+  allowPlayerShooting: 1
+  allowPlayerHeatSystem: 1
+  references:
+    version: 2
+    RefIds: []

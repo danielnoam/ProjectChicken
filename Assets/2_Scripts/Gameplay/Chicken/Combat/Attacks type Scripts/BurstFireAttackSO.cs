@@ -73,6 +73,6 @@ public class BurstFireAttackSO : BaseChickenAttackSO
     void ExecuteChickenAttack(ChickenCombatBehaviorV2 chicken, ChickenCombatManagerV4 manager)
     {
         LogDebug($"Executing attack on {chicken.gameObject.name}");
-        chicken.ShootEgg(manager.EggSpeed);
+        chicken.ShootEgg(manager.EggSpeed, deactivateWarningCircle);
     }
 }

@@ -25,7 +25,6 @@ public class EggWarningSystem : MonoBehaviour
 
     [Header("Math-Based Calculation")]
     [SerializeField] private float maxProjectionDistance = 100f; // Maximum distance to project
-    [SerializeField] private bool useDirectCalculation = true; // Use direct math instead of raycast
 
     [Header("Debug")]
     [SerializeField] private bool showDebugLogs = false;
@@ -64,7 +63,7 @@ public class EggWarningSystem : MonoBehaviour
         // Auto-find canvas if enabled
         if (autoFindCanvas && targetCanvasTransform == null)
         {
-            PlayerBoundaryCanvas boundaryCanvas = FindObjectOfType<PlayerBoundaryCanvas>();
+            PlayerBoundaryCanvas boundaryCanvas = FindFirstObjectByType<PlayerBoundaryCanvas>();
             if (boundaryCanvas != null)
             {
                 targetCanvasTransform = boundaryCanvas.transform;

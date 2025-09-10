@@ -16,9 +16,6 @@ MonoBehaviour:
   startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 0
-  showHUD: 1
-  allowPlayerMovement: 1
-  allowPlayerShootingAndAiming: 1
   events: []
   stageType: 2
   stageDuration: 15
@@ -41,16 +38,24 @@ MonoBehaviour:
       isKeyNull: 0
     dividerPos: 0.33
   formationStageData:
-    formationType: 1
+    formationType: 0
     formationCount: 1
-    numberOfSlots: 12
+    numberOfSlots: 8
     spacing: 10
-    circleRadius: 15
+    circleRadius: 30
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
   requireAllTasks: 1
   tasks: []
+  showHUD: 1
+  showStatsBar: 1
+  showScore: 1
+  allowPlayerMovement: 1
+  allowPlayerDodge: 1
+  allowPlayerAiming: 1
+  allowPlayerShooting: 1
+  allowPlayerHeatSystem: 1
   references:
     version: 2
     RefIds: []

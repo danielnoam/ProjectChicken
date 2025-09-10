@@ -85,7 +85,7 @@ public class RapidFireAttackSO : BaseChickenAttackSO
             {
                 if (chicken != null && chicken.IsReadyToAttack)
                 {
-                    chicken.ShootEgg(manager.EggSpeed);
+                    chicken.ShootEgg(manager.EggSpeed, deactivateWarningCircle);
                     LogDebug($"{chicken.gameObject.name} fired shot {shot + 1}/{shotsPerChicken}");
                 }
 
@@ -114,7 +114,7 @@ public class RapidFireAttackSO : BaseChickenAttackSO
             {
                 if (chicken != null && chicken.IsReadyToAttack)
                 {
-                    chicken.ShootEgg(manager.EggSpeed);
+                    chicken.ShootEgg(manager.EggSpeed, deactivateWarningCircle);
                     LogDebug($"{chicken.gameObject.name} fired simultaneous shot {shot + 1}/{shotsPerChicken}");
                 }
             }

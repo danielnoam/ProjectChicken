@@ -8,6 +8,7 @@ public interface IChickenAttack
     string AttackName { get; }
     float AttackInterval { get; }
     int UsesBeforePatternChange { get; }
+    bool DeactivateWarningCircle { get; } // New property for warning circle control
     bool CanExecute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);
     void Execute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);
 }
@@ -21,13 +22,18 @@ public abstract class BaseChickenAttackSO : ScriptableObject, IChickenAttack
     public int usesBeforePatternChange = 3; // How many times this attack can be used before triggering pattern change Cooldown
     [Range(1, 20)]
     public int minChickensRequired = 1; //The minimum amount of chickens that needs to be registered to activate this attack
-    public bool showDebugLogs = true;
 
+    [Header("Warning Settings")]
+    public bool deactivateWarningCircle = false; // Controls whether this attack disables warning circles
+
+    [Header("Debug")]
+    public bool showDebugLogs = true;
 
     public abstract AttackType AttackType { get; }
     public abstract string AttackName { get; }
     public virtual float AttackInterval => attackInterval;
     public virtual int UsesBeforePatternChange => usesBeforePatternChange;
+    public virtual bool DeactivateWarningCircle => deactivateWarningCircle; // New property implementation
 
     public abstract bool CanExecute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);
     public abstract void Execute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);
