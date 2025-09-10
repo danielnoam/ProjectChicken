@@ -10,20 +10,21 @@ public class ChickenMovementBehavior : MonoBehaviour
     [Header("Slot Following")]
     public bool trackSlotChanges = true;
     public float slotChangeDetectionInterval = 0.1f;
-    public float slotDistanceThreshold = 1f; // For MovingToSlot state
-    public float followingSpeed = 8f; // Speed for direct following in FollowingSlot state
-    public float followingDistanceThreshold = 0.1f; // Distance to consider "close enough"
+    public float slotDistanceThreshold = 1f;
+    public float followingSpeed = 8f;
+    public float followingDistanceThreshold = 0.1f;
     
     [Header("Movement Failsafe")]
-    public int maxMovementResets = 5; // Max target resets before forcing to FollowingSlot
-    public float maxMovementTime = 10f; // Max time in MovingToSlot before forcing to FollowingSlot
-    public bool enableMovementFailsafe = true; // Toggle failsafe system
+    public int maxMovementResets = 5;
+    public float maxMovementTime = 10f;
+    public bool enableMovementFailsafe = true;
     
     [Header("Spawn Area Settings")]
     public bool moveToSpawnWhenIdle = true;
-    public string spawnAreaTag = "ChickenSpawner";
     public float spawnAreaArrivalDistance = 0.5f;
-    public float spawnCheckDelay = 0.2f;
+    public float spawnCheckDelay = 0.5f;
+    public float minDistanceFromBlocker = 0.5f;
+    public int maxSpawnAttempts = 30;
     
     [Header("Debug")]
     public bool showDebugLogs = false;
@@ -110,7 +111,11 @@ public class ChickenMovementBehavior : MonoBehaviour
     void CheckAndStartSpawnMovement()
     {
         if (!moveToSpawnWhenIdle || isMoving)
+        {
+            if (showDebugLogs)
+                Debug.Log($"Chicken {gameObject.name}: Skip spawn movement - moveToSpawnWhenIdle: {moveToSpawnWhenIdle}, isMoving: {isMoving}");
             return;
+        }
 
         bool currentlyInSpawnArea = IsInSpawnArea();
         
@@ -121,15 +126,30 @@ public class ChickenMovementBehavior : MonoBehaviour
 
         if (!currentlyInSpawnArea)
         {
-            GameObject[] spawnAreas = GameObject.FindGameObjectsWithTag(spawnAreaTag);
-            if (spawnAreas.Length == 0)
+            // Check if EnemySpawner exists and has spawn areas configured
+            if (EnemySpawner.Instance == null)
             {
                 if (showDebugLogs)
-                    Debug.LogWarning($"Chicken {gameObject.name}: No spawn areas found with tag '{spawnAreaTag}'!");
+                    Debug.LogWarning($"Chicken {gameObject.name}: No EnemySpawner instance found!");
+                return;
+            }
+
+            if (!EnemySpawner.Instance.HasValidSpawnAreas())
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning($"Chicken {gameObject.name}: EnemySpawner has no valid spawn areas configured!");
                 return;
             }
             
+            if (showDebugLogs)
+                Debug.Log($"Chicken {gameObject.name}: Not in spawn area, attempting to move to spawn");
+            
             StartMovingToSpawn();
+        }
+        else
+        {
+            if (showDebugLogs)
+                Debug.Log($"Chicken {gameObject.name}: Already in spawn area, no movement needed");
         }
     }
 
@@ -242,6 +262,7 @@ public class ChickenMovementBehavior : MonoBehaviour
             ResetFailsafeTracking();
         }
     }
+    
     void StartMovingToSlot()
     {
         Vector3? slotPosition = registration.GetAssignedSlotPosition();
@@ -282,7 +303,10 @@ public class ChickenMovementBehavior : MonoBehaviour
 
     void StartMovingToSpawn()
     {
-        Vector3? spawnPosition = GetRandomSpawnPosition();
+        Vector3? spawnPosition = GetValidSpawnPosition();
+        
+        if (showDebugLogs)
+            Debug.Log($"Chicken {gameObject.name}: StartMovingToSpawn - Got spawn position: {(spawnPosition.HasValue ? spawnPosition.Value.ToString() : "NULL")}");
         
         if (spawnPosition.HasValue)
         {
@@ -296,7 +320,12 @@ public class ChickenMovementBehavior : MonoBehaviour
             isMoving = true;
             
             if (showDebugLogs)
-                Debug.Log($"Chicken {gameObject.name}: Started moving to spawn area at {targetPosition}");
+                Debug.Log($"Chicken {gameObject.name}: Started moving to spawn area at {targetPosition} from {startPosition} (duration: {actualMovementDuration:F2}s)");
+        }
+        else
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"Chicken {gameObject.name}: Could not get valid spawn position for idle movement!");
         }
     }
 
@@ -451,59 +480,54 @@ public class ChickenMovementBehavior : MonoBehaviour
             Debug.Log($"Chicken {gameObject.name}: Stopped movement");
     }
 
+    // Use EnemySpawner's area-based system
     bool IsInSpawnArea()
     {
-        GameObject[] spawnAreas = GameObject.FindGameObjectsWithTag(spawnAreaTag);
-        
-        if (spawnAreas.Length == 0)
-            return false;
-        
-        foreach (GameObject spawnArea in spawnAreas)
+        if (EnemySpawner.Instance == null)
         {
-            BoxCollider spawnCollider = spawnArea.GetComponent<BoxCollider>();
-            if (spawnCollider != null)
-            {
-                if (spawnCollider.bounds.Contains(transform.position))
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                float distanceToSpawn = Vector3.Distance(transform.position, spawnArea.transform.position);
-                if (distanceToSpawn <= spawnAreaArrivalDistance)
-                {
-                    return true;
-                }
-            }
+            if (showDebugLogs)
+                Debug.LogWarning($"Chicken {gameObject.name}: IsInSpawnArea - EnemySpawner.Instance is null!");
+            return false;
         }
+
+        bool inSpawnArea = IsPositionInValidSpawnArea(transform.position);
         
-        return false;
+        if (showDebugLogs)
+            Debug.Log($"Chicken {gameObject.name}: IsInSpawnArea - Position {transform.position} is in spawn area: {inSpawnArea}");
+
+        return inSpawnArea;
     }
 
-    Vector3? GetRandomSpawnPosition()
+    // Check if a position is within the valid spawn area (inside big, outside blocker)
+    bool IsPositionInValidSpawnArea(Vector3 position)
     {
-        GameObject[] spawnAreas = GameObject.FindGameObjectsWithTag(spawnAreaTag);
-        
-        if (spawnAreas.Length == 0)
-            return null;
-        
-        GameObject selectedSpawnArea = spawnAreas[Random.Range(0, spawnAreas.Length)];
-        BoxCollider spawnCollider = selectedSpawnArea.GetComponent<BoxCollider>();
-        
-        if (spawnCollider == null)
+        if (EnemySpawner.Instance == null)
+            return false;
+
+        return EnemySpawner.Instance.IsPositionInValidSpawnArea(position);
+    }
+
+    // Get a valid spawn position using EnemySpawner's logic
+    Vector3? GetValidSpawnPosition()
+    {
+        if (EnemySpawner.Instance == null)
         {
-            return selectedSpawnArea.transform.position;
+            if (showDebugLogs)
+                Debug.LogWarning($"Chicken {gameObject.name}: GetValidSpawnPosition - No EnemySpawner instance found!");
+            return null;
         }
+
+        Vector3? result = EnemySpawner.Instance.GetValidSpawnPositionForIdle();
         
-        Bounds bounds = spawnCollider.bounds;
-        Vector3 randomPoint = new Vector3(
-            Random.Range(bounds.min.x, bounds.max.x),
-            Random.Range(bounds.min.y, bounds.max.y),
-            Random.Range(bounds.min.z, bounds.max.z)
-        );
-        
-        return randomPoint;
+        if (showDebugLogs)
+        {
+            if (result.HasValue)
+                Debug.Log($"Chicken {gameObject.name}: GetValidSpawnPosition - Found valid position: {result.Value}");
+            else
+                Debug.LogWarning($"Chicken {gameObject.name}: GetValidSpawnPosition - EnemySpawner returned null position!");
+        }
+
+        return result;
     }
 
     public void RefreshMovementState()
@@ -582,6 +606,60 @@ public class ChickenMovementBehavior : MonoBehaviour
     public bool IsFailsafeEnabled => enableMovementFailsafe;
 
     // Context menu methods
+    [ContextMenu("Test Idle Movement Logic")]
+    void ContextMenuTestIdleMovement()
+    {
+        Debug.Log($"=== Testing Idle Movement for {gameObject.name} ===");
+        Debug.Log($"Current State: {(stateController ? stateController.CurrentState.ToString() : "NULL STATE CONTROLLER")}");
+        Debug.Log($"moveToSpawnWhenIdle: {moveToSpawnWhenIdle}");
+        Debug.Log($"isMoving: {isMoving}");
+        Debug.Log($"Current Position: {transform.position}");
+        
+        if (EnemySpawner.Instance == null)
+        {
+            Debug.LogError("EnemySpawner.Instance is NULL!");
+            return;
+        }
+        
+        bool inSpawnArea = IsInSpawnArea();
+        Debug.Log($"Is currently in spawn area: {inSpawnArea}");
+        
+        if (EnemySpawner.Instance.HasValidSpawnAreas())
+        {
+            Bounds? spawnBounds = EnemySpawner.Instance.GetSpawnAreaBounds();
+            Bounds? blockerBounds = EnemySpawner.Instance.GetBlockerAreaBounds();
+            
+            Debug.Log($"Spawn area bounds: {(spawnBounds.HasValue ? spawnBounds.Value.ToString() : "NULL")}");
+            Debug.Log($"Blocker area bounds: {(blockerBounds.HasValue ? blockerBounds.Value.ToString() : "NULL")}");
+        }
+        else
+        {
+            Debug.LogError("EnemySpawner has no valid spawn areas!");
+        }
+        
+        Vector3? testSpawnPos = GetValidSpawnPosition();
+        Debug.Log($"Test spawn position: {(testSpawnPos.HasValue ? testSpawnPos.Value.ToString() : "NULL")}");
+        
+        // Force idle and test movement
+        if (stateController != null)
+        {
+            stateController.SetIdle();
+            idleStateTimer = spawnCheckDelay; // Force immediate check
+            CheckAndStartSpawnMovement();
+        }
+    }
+
+    [ContextMenu("Force Start Moving to Spawn")]
+    void ContextMenuForceStartMovingToSpawn()
+    {
+        if (stateController != null)
+        {
+            stateController.SetIdle();
+            idleStateTimer = spawnCheckDelay;
+            CheckAndStartSpawnMovement();
+        }
+    }
+
     [ContextMenu("Force Start Moving to Slot")]
     void ContextMenuForceStartMoving()
     {
@@ -600,33 +678,6 @@ public class ChickenMovementBehavior : MonoBehaviour
         }
     }
 
-    [ContextMenu("Test Following During Formation Change")]
-    void ContextMenuTestFormationFollowing()
-    {
-        if (stateController != null && registration != null)
-        {
-            stateController.SetFollowingSlot();
-            Vector3? slotPos = registration.GetAssignedSlotPosition();
-            if (slotPos.HasValue)
-            {
-                // Artificially move away from slot to test following
-                transform.position = slotPos.Value + Vector3.right * 2f;
-                Debug.Log($"Chicken {gameObject.name}: Moved away from slot to test following behavior during formation changes");
-            }
-        }
-    }
-
-    [ContextMenu("Force Start Moving to Spawn")]
-    void ContextMenuForceStartMovingToSpawn()
-    {
-        if (stateController != null)
-        {
-            stateController.SetIdle();
-            idleStateTimer = spawnCheckDelay;
-            CheckAndStartSpawnMovement();
-        }
-    }
-
     [ContextMenu("Force Stop Moving")]
     void ContextMenuForceStopMoving()
     {
@@ -636,35 +687,7 @@ public class ChickenMovementBehavior : MonoBehaviour
             stateController.SetIdle();
         }
     }
-
-    [ContextMenu("Test Movement Failsafe")]
-    void ContextMenuTestMovementFailsafe()
-    {
-        if (stateController != null && stateController.IsMovingToSlot)
-        {
-            // Simulate multiple resets to test failsafe
-            movementResetCount = maxMovementResets;
-            Debug.Log($"Chicken {gameObject.name}: Simulated maximum movement resets for failsafe testing");
-        }
-        else
-        {
-            Debug.Log($"Chicken {gameObject.name}: Must be in MovingToSlot state to test failsafe");
-        }
-    }
-
-    [ContextMenu("Reset Failsafe Tracking")]
-    void ContextMenuResetFailsafeTracking()
-    {
-        ResetFailsafeTracking();
-        Debug.Log($"Chicken {gameObject.name}: Manually reset failsafe tracking");
-    }
-
-    [ContextMenu("Toggle Movement Failsafe")]
-    void ContextMenuToggleMovementFailsafe()
-    {
-        enableMovementFailsafe = !enableMovementFailsafe;
-        Debug.Log($"Chicken {gameObject.name}: Movement failsafe {(enableMovementFailsafe ? "enabled" : "disabled")}");
-    }
+    
     void OnDrawGizmos()
     {
         if (!showMovementGizmos)
