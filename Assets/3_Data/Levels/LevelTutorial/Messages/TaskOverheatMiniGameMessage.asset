@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 777b54a657d6a434eaf4d6d5091be0bd, type: 3}
-  m_Name: SaveEarthMessage
+  m_Name: TaskOverheatMiniGameMessage
   m_EditorClassIdentifier: 
   sender: {fileID: 11400000, guid: 607b249a2e5976f4784cbd7b292c21e4, type: 2}
   audioEvent: {fileID: 0}
   isImportant: 0
-  isPersistent: 0
+  isPersistent: 1
   duration: 3
-  message: Now you are ready to save earth
+  message: When your weapon is overheated, hit the blue zone for instant cooling!

@@ -81,8 +81,7 @@ public class IntroChickensAnimator : MonoBehaviour
                 ConfigureChickenSpline(chickens[i], chickenSplines[i]);
             }
         }
-
-        Debug.Log($"Restored spline references for {chickens.Length} chickens");
+        
     }
 
     [Button]
@@ -416,7 +415,5 @@ public class IntroChickensAnimator : MonoBehaviour
         // Configure and start the loop animation
         ConfigureChickenLoopSpline(chicken, loopContainer);
         chicken.Restart(true);
-        
-        Debug.Log($"Chicken {chickenIndex} transitioned to loop!");
     }
 }

@@ -28,19 +28,19 @@ public class ShieldHitMovement : MonoBehaviour
         _material = renderer.material;
     }
 
-    private void Update()
-    {
-        if (!_camera) return;
-     
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out var hit))
-            {
-                HitShield(hit.point);
-            }
-        }
-    }
+    // private void Update()
+    // {
+    //     if (!_camera) return;
+    //  
+    //     if (Input.GetMouseButtonDown(0))
+    //     {
+    //         Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
+    //         if (Physics.Raycast(ray, out var hit))
+    //         {
+    //             HitShield(hit.point);
+    //         }
+    //     }
+    // }
 
 
     private IEnumerator HitDisplacementRoutine()

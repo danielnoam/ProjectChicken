@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04dac25139e84b27a8a6593b947380f7, type: 3}
   m_Name: MissileUpgrade2
   m_EditorClassIdentifier: 
+  itemID: -1987007502
   itemName: Missile Upgrade 2
   itemDescription: Creates small missiles for more booms!
   itemIcon: {fileID: 0}
   itemGfx: {fileID: 682982969330921429, guid: 239e1cb109333f7459d3bd3667d57303, type: 3}
   itemRarity: 2
+  isStackable: 0
+  maxStacks: 1
   itemNeededToUnlock:
   - {fileID: 11400000, guid: caa3ae67362bd314399b4bd2ba6e4eef, type: 2}
-  itemID: -1987007502
   baseWeapon: {fileID: 11400000, guid: e8b0c0f85e21b5a49a78e6ccb1c601f4, type: 2}
   overrideWeaponGfx: 1
   overrideWeaponBarrels: 1
@@ -81,8 +83,8 @@ MonoBehaviour:
     - rid: 4047855709786210388
       type: {class: BehaviorExplodeOnImpact, ns: , asm: Assembly-CSharp}
       data:
-        minRadius: 2
-        maxRadius: 14
+        minRadius: 7
+        maxRadius: 18
         maxDamage: 100
         maxForce: 45
         stunChance: 35
