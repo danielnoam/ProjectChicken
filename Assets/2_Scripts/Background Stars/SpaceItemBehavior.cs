@@ -6,6 +6,10 @@ public class SpaceItemBehavior : MonoBehaviour
     [Header("Movement Settings")]
     [HideInInspector] public float moveSpeed = 5f; // Set by spawner
     
+    [Header("Spawn Rotation")]
+    public bool useRandomYRotation = true; // Toggle random Y rotation on spawn
+    public float manualYRotation = 90f; // Manual Y rotation value when random is disabled (in degrees)
+    
     [Header("Rotation Settings")]
     public bool enableRotation = true; // Toggle rotation on/off
     public Vector3 rotationSpeed = new Vector3(43f, 67f, 91f); // Degrees per second for X, Y, Z axes (non-repeating pattern)
@@ -42,6 +46,9 @@ public class SpaceItemBehavior : MonoBehaviour
     
     void InitializeItem()
     {
+        // Apply spawn rotation first
+        ApplySpawnRotation();
+        
         // Store initial position and setup
         initialPosition = transform.position;
         currentScale = initialScale;
@@ -60,6 +67,21 @@ public class SpaceItemBehavior : MonoBehaviour
         {
             starMaterial = starRenderer.material;
             originalColor = starMaterial.color;
+        }
+    }
+    
+    void ApplySpawnRotation()
+    {
+        if (useRandomYRotation)
+        {
+            // Generate a random Y rotation between 0 and 360 degrees
+            float randomYRotation = Random.Range(0f, 360f);
+            transform.rotation = Quaternion.Euler(0f, randomYRotation, 0f);
+        }
+        else
+        {
+            // Use the manually set Y rotation value
+            transform.rotation = Quaternion.Euler(0f, manualYRotation, 0f);
         }
     }
     
@@ -196,6 +218,9 @@ public class SpaceItemBehavior : MonoBehaviour
     {
         // Cancel any pending invokes
         CancelInvoke();
+        
+        // Apply spawn rotation for pooled objects too
+        ApplySpawnRotation();
         
         // Reset all state variables
         scaleTimer = 0f;

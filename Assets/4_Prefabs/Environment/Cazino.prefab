@@ -47,9 +47,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
+  useRandomYRotation: 1
+  manualYRotation: 0
   enableRotation: 1
   rotationSpeed: {x: 0, y: 0, z: 0}
-  initialScale: 0.1
   minSize: 1
   maxSize: 1
   scaleDuration: 2
@@ -74,8 +75,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 189.49, y: 128.6, z: 79.1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 26.98413, y: 18.807152, z: 79.1}
+  m_Center: {x: 43.199745, y: -43.667614, z: 0}
 --- !u!1001 &3490418593609049075
 PrefabInstance:
   m_ObjectHideFlags: 0
