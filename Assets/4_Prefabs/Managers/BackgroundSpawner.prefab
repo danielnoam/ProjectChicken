@@ -165,9 +165,11 @@ GameObject:
   - component: {fileID: 6621558782237079178}
   - component: {fileID: 1162461359243673525}
   - component: {fileID: 92421952177360963}
-  - component: {fileID: 245364656053619092}
+  - component: {fileID: 4328325276999965704}
+  - component: {fileID: 2474447167857224281}
+  - component: {fileID: 8167709268675499889}
   m_Layer: 2
-  m_Name: Building Spawner
+  m_Name: Asteroid Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -207,7 +209,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 100, y: 150, z: 100}
+  m_Size: {x: 100, y: 300, z: 100}
   m_Center: {x: -275, y: 0, z: 0}
 --- !u!65 &92421952177360963
 BoxCollider:
@@ -228,9 +230,30 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 100, y: 150, z: 100}
+  m_Size: {x: 100, y: 300, z: 100}
   m_Center: {x: 275, y: 0, z: 0}
---- !u!114 &245364656053619092
+--- !u!65 &4328325276999965704
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2863931854834714643}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 500, y: 150, z: 100}
+  m_Center: {x: 0, y: 250, z: 0}
+--- !u!114 &2474447167857224281
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -243,20 +266,122 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spaceItemPrefabs:
-  - {fileID: 3724146673273290545, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
-  - {fileID: 3724146673273290545, guid: cf638f8b3934ec6439377e0766874185, type: 3}
-  - {fileID: 441028123743828838, guid: 25b94a4fe64b1c34f956da773b657d8e, type: 3}
-  - {fileID: 5771890810292038773, guid: 8ecf9c9ab609c1f409b01e986dd2af22, type: 3}
-  - {fileID: 5771890810292038773, guid: 79959e6f00d9302449dcf45cbe662315, type: 3}
-  - {fileID: 3724146673273290545, guid: 86f393354c9f20046b11dfb764f2b9be, type: 3}
+  - {fileID: 651960858193725616, guid: 7d8655a331c763c40960264514912631, type: 3}
+  - {fileID: 4194405773046947710, guid: 27f087554897cb043af6bc370b2518bf, type: 3}
+  maxItemsOnScreen: 150
+  initialDelay: 0
+  spawnInterval: 0.75
+  minSpawnRate: 0.25
+  itemMoveSpeed: 30
+  itemScaleDuration: 5
+  doubleSpawnChance: 50
+  spawnZones:
+  - {fileID: 8167709268675499889}
+  - {fileID: 4328325276999965704}
+  - {fileID: 92421952177360963}
+  - {fileID: 1162461359243673525}
+  useObjectPool: 1
+  targetPool: {fileID: 6125407708895330886}
+  poolName: Asteroid Pool
+--- !u!65 &8167709268675499889
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2863931854834714643}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 500, y: 150, z: 100}
+  m_Center: {x: 0, y: -250, z: 0}
+--- !u!1 &4233048670333308600
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5293634699295856964}
+  - component: {fileID: 161755388812404890}
+  - component: {fileID: 3821029463010170320}
+  m_Layer: 2
+  m_Name: Passage Building Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5293634699295856964
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4233048670333308600}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.7, y: 0, z: 500}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 25447058343759319}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &161755388812404890
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4233048670333308600}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3821029463010170320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4233048670333308600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7672c088cbce568489d081be5df09415, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spaceItemPrefabs:
+  - {fileID: 1796795403038814795, guid: 1309b7dfff32a4d4baf0b563bc9b1650, type: 3}
+  - {fileID: 2976211574915033961, guid: b20a3d75a9af8cb4c9c6dd0071d95695, type: 3}
   maxItemsOnScreen: 50
-  initialDelay: 7
+  initialDelay: 0
   spawnInterval: 60
   minSpawnRate: 0.25
-  itemMoveSpeed: 8
-  itemScaleDuration: 10
+  itemMoveSpeed: 50
+  itemScaleDuration: 25
   doubleSpawnChance: 0
-  spawnZones: []
+  spawnZones:
+  - {fileID: 161755388812404890}
   useObjectPool: 1
   targetPool: {fileID: 2738659344015372269}
   poolName: Shop Pool
@@ -290,6 +415,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1963120635576387412}
+  - {fileID: 5293634699295856964}
   - {fileID: 6621558782237079178}
   - {fileID: 8255354176485892531}
   - {fileID: 8336204156501249351}
@@ -362,10 +488,9 @@ GameObject:
   - component: {fileID: 5125757729125952174}
   - component: {fileID: 2390018012466532462}
   - component: {fileID: 8819769128952176179}
-  - component: {fileID: 6129708895967734319}
-  - component: {fileID: 7094214189584776012}
+  - component: {fileID: 2917554447500307279}
   m_Layer: 2
-  m_Name: Asteroid Spawner
+  m_Name: Building Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -406,7 +531,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 100, y: 200, z: 100}
-  m_Center: {x: -150, y: 0, z: 0}
+  m_Center: {x: -200, y: 0, z: 0}
 --- !u!65 &2390018012466532462
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -427,7 +552,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 200, y: 100, z: 100}
-  m_Center: {x: 0, y: -100, z: 0}
+  m_Center: {x: 0, y: -150, z: 0}
 --- !u!65 &8819769128952176179
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -448,29 +573,8 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 100, y: 200, z: 100}
-  m_Center: {x: 150, y: 0, z: 0}
---- !u!65 &6129708895967734319
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6676485495587396833}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 200, y: 100, z: 100}
-  m_Center: {x: 0, y: 100, z: 0}
---- !u!114 &7094214189584776012
+  m_Center: {x: 200, y: 0, z: 0}
+--- !u!114 &2917554447500307279
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -483,16 +587,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spaceItemPrefabs:
-  - {fileID: 651960858193725616, guid: 7d8655a331c763c40960264514912631, type: 3}
-  - {fileID: 4194405773046947710, guid: 27f087554897cb043af6bc370b2518bf, type: 3}
-  maxItemsOnScreen: 150
-  initialDelay: 0
-  spawnInterval: 1.3
+  - {fileID: 3724146673273290545, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
+  - {fileID: 3724146673273290545, guid: cf638f8b3934ec6439377e0766874185, type: 3}
+  - {fileID: 441028123743828838, guid: 25b94a4fe64b1c34f956da773b657d8e, type: 3}
+  - {fileID: 5771890810292038773, guid: 79959e6f00d9302449dcf45cbe662315, type: 3}
+  - {fileID: 3724146673273290545, guid: 86f393354c9f20046b11dfb764f2b9be, type: 3}
+  maxItemsOnScreen: 50
+  initialDelay: 7
+  spawnInterval: 40
   minSpawnRate: 0.25
-  itemMoveSpeed: 20
-  itemScaleDuration: 5
-  doubleSpawnChance: 50
-  spawnZones: []
+  itemMoveSpeed: 3
+  itemScaleDuration: 10
+  doubleSpawnChance: 0
+  spawnZones:
+  - {fileID: 0}
+  - {fileID: 8819769128952176179}
+  - {fileID: 2390018012466532462}
+  - {fileID: 5125757729125952174}
   useObjectPool: 1
-  targetPool: {fileID: 6125407708895330886}
-  poolName: Asteroid Pool
+  targetPool: {fileID: 2738659344015372269}
+  poolName: Shop Pool

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using KBCore.Refs;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -11,9 +12,21 @@ public class FormationEffectManager : MonoBehaviour
     public BreathingEffectConfig breathingConfig;
     public RotationEffectConfig rotationConfig;
 
-    [Header("Effect Toggles")]
-    public bool enableBreathing = true;
-    public bool enableRotation = true;
+    [Header("Manual Effect Toggles")]
+    [Tooltip("Manual overrides - these will be ignored when stage-based activation is enabled")]
+    public bool enableBreathing = false;
+    public bool enableRotation = false;
+
+    [Header("Stage-Based Effect Activation")]
+    [SerializeField] private bool useStageBasedActivation = true;
+    [SerializeField, Range(0f, 1f)] private float activationThreshold = 0.9f; // 90% registration threshold
+    [SerializeField, Range(0f, 1f)] private float effectActivationChance = 0.7f; // Chance to activate any effects
+    [SerializeField] private bool showStageDebugLogs = true;
+    [SerializeField, Range(1f, 10f)] private float minEffectDuration = 2f; // Minimum time effects must stay active
+
+    [Header("References")]
+    [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private ChickenCombatManagerV4 combatManager;
 
     // Components
     private FormationCreator formationCreator;
@@ -29,9 +42,25 @@ public class FormationEffectManager : MonoBehaviour
     private FormationCreator.FormationType currentFormationType;
     private bool needsEffectDataUpdate = true;
 
-    // State tracking for toggles
+    // Stage-based activation state
+    private bool hasRolledForCurrentStage = false;
+    private bool stageEffectsActive = false;
+    private int expectedChickensForStage = 0;
+    private bool isTrackingStageRegistration = false;
+    private float effectActivationTime = 0f; // Timestamp when effects were activated
+    private int lastRegisteredCount = 0; // Track registration changes
+
+    // State tracking for toggles (only used when manual control is enabled)
     private bool previousEnableBreathing = false;
     private bool previousEnableRotation = false;
+
+    // Properties for inspector display
+    [Header("Stage Activation Status (Read Only)")]
+    [SerializeField] private bool currentStageHasRolled = false;
+    [SerializeField] private bool currentStageEffectsActive = false;
+    [SerializeField] private int registeredChickens = 0;
+    [SerializeField] private int expectedChickens = 0;
+    [SerializeField] private float registrationProgress = 0f;
 
     void Awake()
     {
@@ -50,6 +79,10 @@ public class FormationEffectManager : MonoBehaviour
     {
         if (formationCreator == null) return;
 
+        // Find references if not assigned
+        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>(FindObjectsInactive.Include);
+        if (!combatManager) combatManager = FindFirstObjectByType<ChickenCombatManagerV4>(FindObjectsInactive.Include);
+
         currentFormationType = formationCreator.currentFormation;
         effectStartTime = Time.time;
 
@@ -59,16 +92,44 @@ public class FormationEffectManager : MonoBehaviour
             effect.Initialize(formationCreator.formationCount);
         }
 
-        // Initialize toggle state tracking
+        // Initialize toggle state tracking (only relevant for manual mode)
         previousEnableBreathing = enableBreathing;
         previousEnableRotation = enableRotation;
 
         isInitialized = true;
 
-        // Start effects if any are enabled
-        if (AnyEffectActive)
+        // Start effects based on mode
+        if (useStageBasedActivation)
         {
+            // In stage-based mode, effects start disabled
+            SetEffectsEnabled(false, false);
+        }
+        else if (AnyEffectActive)
+        {
+            // In manual mode, start effects if any are enabled
             StartEffects();
+        }
+    }
+
+    void OnEnable()
+    {
+        // Subscribe to LevelManager events
+        if (levelManager)
+        {
+            levelManager.OnStageChanged += OnStageChanged;
+        }
+    }
+
+    void OnDisable()
+    {
+        // Unsubscribe from LevelManager events
+        if (levelManager)
+        {
+            levelManager.OnStageChanged -= OnStageChanged;
+        }
+        if (formationCreator != null)
+        {
+            formationCreator.GenerateFormation();
         }
     }
 
@@ -77,23 +138,18 @@ public class FormationEffectManager : MonoBehaviour
         if (!isInitialized || formationCreator == null)
             return;
 
-        // Handle toggle changes
-        if (enableBreathing != previousEnableBreathing)
-        {
-            previousEnableBreathing = enableBreathing;
-            if (enableBreathing)
-                StartBreathing();
-            else
-                StopBreathing();
-        }
+        // Update inspector display values
+        UpdateInspectorValues();
 
-        if (enableRotation != previousEnableRotation)
+        // Handle stage-based activation
+        if (useStageBasedActivation)
         {
-            previousEnableRotation = enableRotation;
-            if (enableRotation)
-                StartRotation();
-            else
-                StopRotation();
+            UpdateStageBasedActivation();
+        }
+        else
+        {
+            // Handle manual toggle changes (only in manual mode)
+            HandleManualToggleChanges();
         }
 
         // Handle formation type changes
@@ -115,10 +171,219 @@ public class FormationEffectManager : MonoBehaviour
         UpdateEffectToggles();
 
         // Only update effects if any are active
-        if (enableBreathing || enableRotation)
+        if (GetCurrentBreathingState() || GetCurrentRotationState())
         {
             UpdateAndApplyEffects();
         }
+    }
+
+    // Event handler for stage changes
+    private void OnStageChanged(SOLevelStage newStage)
+    {
+        if (!useStageBasedActivation) return;
+
+        if (showStageDebugLogs)
+            Debug.Log($"FormationEffectManager: Stage changed to {newStage?.name}");
+
+        // Turn off all effects when stage changes
+        SetEffectsEnabled(false, false);
+        stageEffectsActive = false;
+        effectActivationTime = 0f;
+        lastRegisteredCount = 0;
+
+        // Reset stage tracking
+        hasRolledForCurrentStage = false;
+        isTrackingStageRegistration = false;
+
+        // If this is an enemy wave stage, start tracking for effect activation
+        if (newStage && newStage.StageType == StageType.EnemyWave)
+        {
+            var formation = newStage.FormationStageData;
+            if (formation != null)
+            {
+                expectedChickensForStage = formation.NumberOfSlots * formation.FormationCount;
+                isTrackingStageRegistration = true;
+
+                if (showStageDebugLogs)
+                    Debug.Log($"FormationEffectManager: Started tracking registration for {expectedChickensForStage} expected chickens");
+            }
+        }
+    }
+
+    private void UpdateInspectorValues()
+    {
+        currentStageHasRolled = hasRolledForCurrentStage;
+        currentStageEffectsActive = stageEffectsActive;
+        registeredChickens = combatManager ? combatManager.TotalCombatChickens : 0;
+        expectedChickens = expectedChickensForStage;
+        registrationProgress = expectedChickensForStage > 0 ? (float)registeredChickens / expectedChickensForStage : 0f;
+    }
+
+    private void UpdateStageBasedActivation()
+    {
+        if (!isTrackingStageRegistration || hasRolledForCurrentStage) return;
+        if (combatManager == null) return;
+
+        // Check if we've reached the threshold
+        float progress = expectedChickensForStage > 0 ? (float)combatManager.TotalCombatChickens / expectedChickensForStage : 0f;
+
+        if (progress >= activationThreshold)
+        {
+            // Time to roll for effect activation
+            RollForEffectActivation();
+            hasRolledForCurrentStage = true;
+            isTrackingStageRegistration = false;
+        }
+    }
+
+    private void RollForEffectActivation()
+    {
+        if (showStageDebugLogs)
+            Debug.Log($"FormationEffectManager: Rolling for effect activation (threshold reached: {registrationProgress:P1})");
+
+        // Roll to see if we activate any effects
+        float activationRoll = Random.Range(0f, 1f);
+        
+        if (activationRoll > effectActivationChance)
+        {
+            if (showStageDebugLogs)
+                Debug.Log($"FormationEffectManager: No effects activated this stage (rolled {activationRoll:F2} > {effectActivationChance:F2})");
+            return;
+        }
+
+        // Determine which effects to activate (equal odds for each option)
+        int effectChoice = Random.Range(0, 3); // 0=breathing, 1=rotation, 2=both
+
+        bool activateBreathing = false;
+        bool activateRotation = false;
+
+        switch (effectChoice)
+        {
+            case 0:
+                activateBreathing = true;
+                if (showStageDebugLogs)
+                    Debug.Log("FormationEffectManager: Activated BREATHING effect for this stage");
+                break;
+            case 1:
+                activateRotation = true;
+                if (showStageDebugLogs)
+                    Debug.Log("FormationEffectManager: Activated ROTATION effect for this stage");
+                break;
+            case 2:
+                activateBreathing = true;
+                activateRotation = true;
+                if (showStageDebugLogs)
+                    Debug.Log("FormationEffectManager: Activated BOTH BREATHING and ROTATION effects for this stage");
+                break;
+        }
+
+        // Apply the selected effects
+        SetEffectsEnabled(activateBreathing, activateRotation);
+        stageEffectsActive = activateBreathing || activateRotation;
+        effectActivationTime = Time.time; // Record when effects were activated
+
+        if (stageEffectsActive)
+        {
+            StartEffects();
+        }
+    }
+
+    // Check if all enemies are dead and turn off effects if needed
+    private void CheckForStageCompletion()
+    {
+        if (!useStageBasedActivation || !stageEffectsActive) return;
+        if (combatManager == null) return;
+
+        // Don't check for completion too soon after effect activation
+        if (effectActivationTime > 0f && Time.time - effectActivationTime < minEffectDuration)
+            return;
+
+        // Get current chicken count
+        int currentChickens = combatManager.TotalCombatChickens;
+        
+        // Track registration changes to detect actual elimination vs temporary drops
+        if (currentChickens != lastRegisteredCount)
+        {
+            lastRegisteredCount = currentChickens;
+            
+            if (showStageDebugLogs && Time.frameCount % 60 == 0) // Log occasionally
+                Debug.Log($"FormationEffectManager: Chicken count changed to {currentChickens}");
+        }
+
+        // Add additional validation - only disable if we're confident the stage is complete
+        if (currentChickens == 0)
+        {
+            // Wait a bit more to make sure this isn't a temporary state
+            if (effectActivationTime > 0f && Time.time - effectActivationTime < minEffectDuration + 1f)
+            {
+                if (showStageDebugLogs && Time.frameCount % 60 == 0) // Log once per second
+                    Debug.Log($"FormationEffectManager: Detected 0 chickens, waiting for confirmation (effects active for {Time.time - effectActivationTime:F1}s)");
+                return;
+            }
+
+            if (showStageDebugLogs)
+                Debug.Log($"FormationEffectManager: All enemies eliminated confirmed after {Time.time - effectActivationTime:F1}s, turning off stage effects");
+
+            SetEffectsEnabled(false, false);
+            stageEffectsActive = false;
+            effectActivationTime = 0f;
+        }
+    }
+
+    private void HandleManualToggleChanges()
+    {
+        // Handle toggle changes (only in manual mode)
+        if (enableBreathing != previousEnableBreathing)
+        {
+            previousEnableBreathing = enableBreathing;
+            if (enableBreathing)
+                StartBreathing();
+            else
+                StopBreathing();
+        }
+
+        if (enableRotation != previousEnableRotation)
+        {
+            previousEnableRotation = enableRotation;
+            if (enableRotation)
+                StartRotation();
+            else
+                StopRotation();
+        }
+    }
+
+    private void SetEffectsEnabled(bool breathing, bool rotation)
+    {
+        if (useStageBasedActivation)
+        {
+            // In stage-based mode, we directly control the effect states
+            if (breathingEffect != null)
+                breathingEffect.IsEnabled = breathing;
+            if (rotationEffect != null)
+                rotationEffect.IsEnabled = rotation;
+        }
+        else
+        {
+            // In manual mode, update the public toggles
+            enableBreathing = breathing;
+            enableRotation = rotation;
+        }
+    }
+
+    private bool GetCurrentBreathingState()
+    {
+        if (useStageBasedActivation)
+            return breathingEffect != null && breathingEffect.IsEnabled;
+        else
+            return enableBreathing && breathingEffect != null && breathingEffect.IsEnabled;
+    }
+
+    private bool GetCurrentRotationState()
+    {
+        if (useStageBasedActivation)
+            return rotationEffect != null && rotationEffect.IsEnabled;
+        else
+            return enableRotation && rotationEffect != null && rotationEffect.IsEnabled;
     }
 
     private void InitializeEffects()
@@ -141,6 +406,14 @@ public class FormationEffectManager : MonoBehaviour
 
     private void UpdateEffectToggles()
     {
+        if (useStageBasedActivation)
+        {
+            // In stage-based mode, effects are controlled by the stage system
+            // The public toggles are ignored
+            return;
+        }
+
+        // In manual mode, use the public toggles
         if (breathingEffect != null)
             breathingEffect.IsEnabled = enableBreathing;
 
@@ -163,6 +436,12 @@ public class FormationEffectManager : MonoBehaviour
 
         // Apply effects to formations
         ApplyEffectsToFormations();
+
+        // Check for stage completion in stage-based mode
+        if (useStageBasedActivation)
+        {
+            CheckForStageCompletion();
+        }
     }
 
     private void ApplyEffectsToFormations()
@@ -222,9 +501,11 @@ public class FormationEffectManager : MonoBehaviour
         effectStartTime = Time.time;
     }
 
-    // Individual effect control methods
+    // Individual effect control methods (for manual mode)
     public void StopBreathing()
     {
+        if (useStageBasedActivation) return; // Ignore in stage-based mode
+        
         enableBreathing = false;
         if (breathingEffect != null)
             breathingEffect.IsEnabled = false;
@@ -233,6 +514,8 @@ public class FormationEffectManager : MonoBehaviour
 
     public void StartBreathing()
     {
+        if (useStageBasedActivation) return; // Ignore in stage-based mode
+        
         enableBreathing = true;
         if (breathingEffect != null)
             breathingEffect.IsEnabled = true;
@@ -240,6 +523,8 @@ public class FormationEffectManager : MonoBehaviour
 
     public void StopRotation()
     {
+        if (useStageBasedActivation) return; // Ignore in stage-based mode
+        
         enableRotation = false;
         if (rotationEffect != null)
             rotationEffect.IsEnabled = false;
@@ -248,6 +533,8 @@ public class FormationEffectManager : MonoBehaviour
 
     public void StartRotation()
     {
+        if (useStageBasedActivation) return; // Ignore in stage-based mode
+        
         enableRotation = true;
         if (rotationEffect != null)
             rotationEffect.IsEnabled = true;
@@ -266,8 +553,17 @@ public class FormationEffectManager : MonoBehaviour
     [ContextMenu("Stop All Effects")]
     public void StopAllEffects()
     {
-        enableBreathing = false;
-        enableRotation = false;
+        if (useStageBasedActivation)
+        {
+            SetEffectsEnabled(false, false);
+            stageEffectsActive = false;
+            effectActivationTime = 0f;
+        }
+        else
+        {
+            enableBreathing = false;
+            enableRotation = false;
+        }
 
         if (breathingEffect != null)
             breathingEffect.IsEnabled = false;
@@ -275,6 +571,20 @@ public class FormationEffectManager : MonoBehaviour
             rotationEffect.IsEnabled = false;
 
         formationCreator.GenerateFormation();
+    }
+
+    [ContextMenu("Force Roll for Effects")]
+    public void ForceRollForEffects()
+    {
+        if (!useStageBasedActivation)
+        {
+            Debug.Log("FormationEffectManager: Force roll only works in stage-based activation mode");
+            return;
+        }
+
+        hasRolledForCurrentStage = false;
+        RollForEffectActivation();
+        hasRolledForCurrentStage = true;
     }
 
     [ContextMenu("Reset All Effects")]
@@ -310,10 +620,10 @@ public class FormationEffectManager : MonoBehaviour
         }
     }
 
-    // Toggle methods
+    // Toggle methods (only work in manual mode)
     public void ToggleBreathing()
     {
-        if (enableBreathing)
+        if (GetCurrentBreathingState())
             StopBreathing();
         else
             StartBreathing();
@@ -321,17 +631,20 @@ public class FormationEffectManager : MonoBehaviour
 
     public void ToggleRotation()
     {
-        if (enableRotation)
+        if (GetCurrentRotationState())
             StopRotation();
         else
             StartRotation();
     }
 
     // Properties
-    public bool IsBreathingActive => enableBreathing && breathingEffect != null && breathingEffect.IsEnabled;
-    public bool IsRotationActive => enableRotation && rotationEffect != null && rotationEffect.IsEnabled;
+    public bool IsBreathingActive => GetCurrentBreathingState();
+    public bool IsRotationActive => GetCurrentRotationState();
     public bool AnyEffectActive => IsBreathingActive || IsRotationActive;
     public int FormationCount => formationCreator?.formationCount ?? 0;
+    public bool UseStageBasedActivation => useStageBasedActivation;
+    public bool StageEffectsActive => stageEffectsActive;
+    public float RegistrationProgress => registrationProgress;
 
     // Effect-specific getters (delegated to individual effects)
     public float GetFormationBreathingScale(int index)
@@ -363,19 +676,24 @@ public class FormationEffectManager : MonoBehaviour
     {
         var activeEffects = new List<string>();
 
-        if (enableBreathing && breathingEffect != null && breathingEffect.IsEnabled)
+        if (IsBreathingActive)
         {
             activeEffects.Add("Breathing");
         }
 
-        if (enableRotation && rotationEffect != null && rotationEffect.IsEnabled)
+        if (IsRotationActive)
         {
             activeEffects.Add("Rotation");
         }
 
-        if (activeEffects.Count == 0) return "All Effects Stopped";
-        if (activeEffects.Count == 1) return $"{activeEffects[0]} Active";
-        return string.Join(" + ", activeEffects) + " Active";
+        if (activeEffects.Count == 0)
+        {
+            return useStageBasedActivation ? "Stage Effects: None" : "All Effects Stopped";
+        }
+
+        string effectsStr = activeEffects.Count == 1 ? activeEffects[0] : string.Join(" + ", activeEffects);
+        string modeStr = useStageBasedActivation ? "Stage Effects: " : "";
+        return $"{modeStr}{effectsStr} Active";
     }
 
     // Add new effects at runtime
@@ -403,17 +721,15 @@ public class FormationEffectManager : MonoBehaviour
 
     void OnValidate()
     {
+        // Find references if not assigned
+        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>(FindObjectsInactive.Include);
+        if (!combatManager) combatManager = FindFirstObjectByType<ChickenCombatManagerV4>(FindObjectsInactive.Include);
+
+        this.ValidateRefs();
+
         if (Application.isPlaying && isInitialized)
         {
             needsEffectDataUpdate = true;
-        }
-    }
-
-    void OnDisable()
-    {
-        if (formationCreator != null)
-        {
-            formationCreator.GenerateFormation();
         }
     }
 }
@@ -433,20 +749,35 @@ public class FormationEffectManagerEditor : UnityEditor.Editor
         GUILayout.Space(10);
         EditorGUILayout.LabelField("Runtime Controls", EditorStyles.boldLabel);
 
-        // Effect toggles
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button(manager.IsBreathingActive ? "Stop Breathing" : "Start Breathing", GUILayout.Height(30)))
+        // Show mode-specific information
+        if (manager.UseStageBasedActivation)
         {
-            manager.ToggleBreathing();
+            EditorGUILayout.HelpBox($"Stage-Based Mode: Effects are controlled automatically by stage progression.\nRegistration Progress: {manager.RegistrationProgress:P1}", MessageType.Info);
+            
+            if (GUILayout.Button("Force Roll for Effects", GUILayout.Height(30)))
+            {
+                manager.ForceRollForEffects();
+            }
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("Manual Mode: Use the toggles above or buttons below to control effects.", MessageType.Info);
+            
+            // Effect toggles (only in manual mode)
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button(manager.IsBreathingActive ? "Stop Breathing" : "Start Breathing", GUILayout.Height(30)))
+            {
+                manager.ToggleBreathing();
+            }
+
+            if (GUILayout.Button(manager.IsRotationActive ? "Stop Rotation" : "Start Rotation", GUILayout.Height(30)))
+            {
+                manager.ToggleRotation();
+            }
+            EditorGUILayout.EndHorizontal();
         }
 
-        if (GUILayout.Button(manager.IsRotationActive ? "Stop Rotation" : "Start Rotation", GUILayout.Height(30)))
-        {
-            manager.ToggleRotation();
-        }
-        EditorGUILayout.EndHorizontal();
-
-        // Control buttons
+        // Control buttons (work in both modes)
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Stop All Effects", GUILayout.Height(25)))
         {
