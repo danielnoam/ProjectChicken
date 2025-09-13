@@ -157,7 +157,7 @@ public class RailPlayerInput : InputReaderBase
                 SetCursorVisibility(false);
                 break;
             case StageType.Outro:
-                SetCursorVisibility(true);
+                SetCursorVisibility(stage.ShowOutroMenu);
                 break;
             default:
                 SetCursorVisibility(false);
