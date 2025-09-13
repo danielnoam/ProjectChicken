@@ -149,6 +149,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouseSelectsSelectable: 1
+  selectSfx: {fileID: 11400000, guid: 51e89a1361a57fd4a998eaf9b804c46f, type: 2}
+  submitSfx: {fileID: 11400000, guid: 6c0baf7c29af3fd4fb12c35dd59a0012, type: 2}
   positionEffectType: 0
   positionOffset: {x: 0, y: 10, z: 0}
   positionDuration: 0.15
@@ -193,6 +195,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  audioSource: {fileID: 0}
   selectable: {fileID: 6111502262076189118}
   eventTrigger: {fileID: 4531680503332633157}
   rectTransform: {fileID: 5695787464223026941}

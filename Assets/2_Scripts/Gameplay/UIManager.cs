@@ -21,15 +21,9 @@ public class UIManager : MonoBehaviour
     
     [Header("General")]
     [SerializeField] private Color cooldownIconColor = Color.grey;
-    [SerializeField] private SOPlayerStats playerStats;
-    [SerializeField] private LevelManager levelManager;
-    [SerializeField] private RailPlayer player;
-    
     
     [Header("HUD")]
     [SerializeField] private float hudFadeDuration = 3f;
-    [SerializeField, Child(Flag.Editable)] private CanvasGroup hudGroup;
-    
     
     [Header("Dynamic HUD")]
     [SerializeField, Tooltip("Hud position is affected by player movement")] private bool dynamicHud = true;
@@ -47,21 +41,17 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float hudColorPunchDuration = 0.2f;
     [SerializeField] private Graphic[] hudElementsToColor;
     
-    
     [Header("Health")]
     [SerializeField] private float healthPunchDuration = 0.2f;
     [SerializeField] private float healthPunchStrength = 0.4f;
     [SerializeField] private Color healthPunchColor = Color.red;
-    [SerializeField] private Image healthIcon;
-    [SerializeField] private TextMeshProUGUI healthText;
     
     [Header("Shield")]
     [SerializeField] private float shieldAnimationDuration = 0.5f;
     [SerializeField] private float shieldPunchDuration = 0.2f;
     [SerializeField] private float shieldPunchStrength = 0.4f;
     [SerializeField] private Color shieldPunchColor = Color.blue;
-    [SerializeField] private Image shieldIcon;
-    [SerializeField] private TextMeshProUGUI shieldText;
+
     
     [Header("Currency")]
     [SerializeField] private float currencyAnimationDuration = 0.5f;
@@ -69,19 +59,15 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float currencyPunchStrength = 0.4f;
     [SerializeField, Min(0), Tooltip("The difference between the previous currency and the current currency that must be reached to trigger a big currency animation")] 
     private int bigCurrencyDifference = 4;
-    [SerializeField] private Image currencyIcon;
-    [SerializeField] private TextMeshProUGUI currencyText;
+
     
     [Header("Dodge")]
     [SerializeField] private float dodgePunchDuration = 0.2f;
     [SerializeField] private float dodgePunchStrength = 0.4f;
-    [SerializeField] private Image dodgeIcon;
-    [SerializeField] private TextMeshProUGUI dodgeCountText;
     
     [Header("Weapons")]
     [SerializeField] private float weaponPunchDuration = 0.2f;
     [SerializeField] private float weaponPunchStrength = 0.4f;
-    [SerializeField] private Image weaponIcon;
     
     [Header("Score")]
     [SerializeField] private float scoreAnimationDuration = 0.5f;
@@ -90,19 +76,38 @@ public class UIManager : MonoBehaviour
     [SerializeField, Min(0), Tooltip("The difference between the previous score and the current score that must be reached to trigger a big score animation")] 
     private int bigScoreDifference = 200;
     [SerializeField, Min(0), Tooltip("How many 0 is the score made out of")] private int scoreDigits = 7;
-    [SerializeField] private TextMeshProUGUI scoreText;
     
     
     [Header("Stage Title")]
     [SerializeField] private float stageTitleAnimationDuration = 1.5f;
-    [SerializeField] private TextMeshProUGUI stageTitleText;
     
     [Header("Pause Icon")]
     [SerializeField] private float pauseIconAnimationDuration = 0.2f;
-    [SerializeField] private Image pauseIconFill;
+    
+    
+    [Header("References")]
+    [SerializeField] private CanvasGroup statsBarGroup;
+    [SerializeField] private CanvasGroup scoreBarGroup;
+    [SerializeField] private CanvasGroup weaponBarGroup;
+    [SerializeField] private CanvasGroup dodgeBarGroup;
     [SerializeField] private CanvasGroup pauseGroup;
-    
-    
+    [SerializeField] private CanvasGroup hudGroup;
+    [SerializeField] private Image healthIcon;
+    [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private Image shieldIcon;
+    [SerializeField] private TextMeshProUGUI shieldText;
+    [SerializeField] private Image currencyIcon;
+    [SerializeField] private TextMeshProUGUI currencyText;
+    [SerializeField] private Image dodgeIcon;
+    [SerializeField] private TextMeshProUGUI dodgeCountText;
+    [SerializeField] private Image weaponIcon;
+    [SerializeField] private Image pauseIconFill;
+    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI stageTitleText;
+    [SerializeField] private SOPlayerStats playerStats;
+    [SerializeField] private LevelManager levelManager;
+    [SerializeField] private RailPlayer player;
+
     
     private Color _weaponStartColor;
     private Color _dodgeStartColor;
@@ -115,6 +120,10 @@ public class UIManager : MonoBehaviour
     private Sequence _playerShieldPunchSequence;
     private Sequence _stageTitleSequence;
     private Sequence _pauseSequence;
+    private Sequence _statsBarSequence;
+    private Sequence _scoreBarSequence;
+    private Sequence _weaponBarSequence;
+    private Sequence _dodgeBarSequence;
     private int _previousScore;
     private int _score;
     private int _previousPlayerCurrency;
@@ -241,30 +250,35 @@ public class UIManager : MonoBehaviour
         dodgeCountText.text = "";
         
         
-        ToggleHUD(false);
+        ToggleUIGroup(hudGroup, false);
+        ToggleUIGroup(statsBarGroup, false);
+        ToggleUIGroup(scoreBarGroup, false);
+        ToggleUIGroup(weaponBarGroup, false);
+        ToggleUIGroup(dodgeBarGroup, false);
     }
-
     
-    private void FadeHUD(bool fadeIn)
+    
+    
+    private void ToggleUIGroup(CanvasGroup group, bool state)
     {
-        if (_hudSequence.isAlive) _hudSequence.Stop();
+        if (group) group.alpha = state ? 1f : 0f;
+    }
+    
+    private void FadeUIGroup(CanvasGroup group, bool fadeIn, ref Sequence sequence)
+    {
+        if (sequence.isAlive) sequence.Stop();
         switch (fadeIn)
         {
-            case true when hudGroup.alpha >= 1:
-            case false when hudGroup.alpha <= 0:
+            case true when group.alpha >= 1:
+            case false when group.alpha <= 0:
                 return;
         }
-        
+    
         float endValue = fadeIn ? 1 : 0;
-        
-        
-        _hudSequence = Sequence.Create()
-                .Group(Tween.Alpha(hudGroup, hudGroup.alpha, endValue, hudFadeDuration))
-            ;
     
+        sequence = Sequence.Create()
+            .Group(Tween.Alpha(group, group.alpha, endValue, hudFadeDuration));
     }
-    
-    
     
     private void UpdateStageTitle(string title)
     {
@@ -278,6 +292,7 @@ public class UIManager : MonoBehaviour
             .Chain(Tween.Alpha(stageTitleText, 0, stageTitleAnimationDuration/0.4f));
     }
 
+    
 
     #region HUD Color --------------------------------------------------------------------------------------------
 
@@ -349,12 +364,7 @@ public class UIManager : MonoBehaviour
     
     
 
-    #region HUD ------------------------------------------------------------------------------------------------
-
-    private void ToggleHUD(bool state)
-    {
-        hudGroup.alpha = state ? 1f : 0;
-    }
+    #region Shake ------------------------------------------------------------------------------------------------
     
     
     private void UpdateDynamicHUD()
@@ -449,9 +459,8 @@ public class UIManager : MonoBehaviour
     private void ShakeHUDMedium() => AddHudShake(7f, 0.4f);
     private void ShakeHUDHeavy() => AddHudShake(maxShakeIntensity, 0.8f);
 
-    #endregion HUD ------------------------------------------------------------------------------------------------
+    #endregion Shake ------------------------------------------------------------------------------------------------
     
-
 
 
     #region Events ------------------------------------------------------------------------------------------------
@@ -460,7 +469,11 @@ public class UIManager : MonoBehaviour
     {
         if (!stage) return;
         
-        FadeHUD(stage.ShowHUD);
+        FadeUIGroup(hudGroup, stage.ShowHUD, ref _hudSequence);
+        FadeUIGroup(statsBarGroup, stage.ShowStatsBar && stage.ShowHUD, ref _statsBarSequence);
+        FadeUIGroup(scoreBarGroup, stage.ShowScore && stage.ShowHUD, ref _scoreBarSequence);
+        FadeUIGroup(weaponBarGroup, stage.AllowPlayerShooting && stage.ShowHUD, ref _weaponBarSequence);
+        FadeUIGroup(dodgeBarGroup, stage.AllowPlayerDodge && stage.ShowHUD, ref _dodgeBarSequence);
         UpdateStageTitle(stage.StageTitle);
     }
     
@@ -468,7 +481,7 @@ public class UIManager : MonoBehaviour
     private void OnPlayerDeath()
     {
         ShakeHUDHeavy();
-        FadeHUD(false);
+        FadeUIGroup(hudGroup, false, ref _hudSequence);
     }
     
     private void OnPlayerDamaged()

@@ -16,9 +16,6 @@ MonoBehaviour:
   startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 0
-  showHUD: 1
-  allowPlayerMovement: 1
-  allowPlayerShootingAndAiming: 1
   events: []
   stageType: 2
   stageDuration: 15
@@ -35,15 +32,15 @@ MonoBehaviour:
   enemyWave:
     serializedKvps:
     - Key: {fileID: 8824006632455104043, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      Value: 20
+      Value: 55
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
     dividerPos: 0.33
   formationStageData:
     formationType: 2
-    formationCount: 1
-    numberOfSlots: 12
+    formationCount: 2
+    numberOfSlots: 14
     spacing: 10
     circleRadius: 5
     useRandomPlacement: 1
@@ -51,6 +48,14 @@ MonoBehaviour:
     maxPlacementAttempts: 100
   requireAllTasks: 1
   tasks: []
+  showHUD: 1
+  showStatsBar: 1
+  showScore: 1
+  allowPlayerMovement: 1
+  allowPlayerDodge: 1
+  allowPlayerAiming: 1
+  allowPlayerShooting: 1
+  allowPlayerHeatSystem: 1
   references:
     version: 2
     RefIds: []

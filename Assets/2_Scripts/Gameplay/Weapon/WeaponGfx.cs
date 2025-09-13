@@ -8,6 +8,7 @@ public class WeaponGfx : MonoBehaviour
     
     public void Show(bool animate = true)
     {
+        if (transform.localScale == Vector3.one) return;
         if (_gfxSequence.isAlive) _gfxSequence.Stop();
         
         if (!animate)
@@ -23,6 +24,7 @@ public class WeaponGfx : MonoBehaviour
     
     public void Hide(bool animate = true)
     {
+        if (transform.localScale == Vector3.zero) return;
         if (_gfxSequence.isAlive) _gfxSequence.Stop();
         
         StopAnimation();

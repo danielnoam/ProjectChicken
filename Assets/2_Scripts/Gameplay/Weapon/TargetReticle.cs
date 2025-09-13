@@ -25,7 +25,6 @@ public class TargetReticle : MonoBehaviour
             player.WeaponSystem.OnAllowShootingChangedEvent += OnAllowShootingChanged;
             player.Aiming.OnAimLockStateChange += OnAimLockStateChanged;
             player.Health.OnDeath += OnPlayerDeath;
-            player.LevelManager.OnStageChanged += OnStageChanged;
         }
     }
 
@@ -40,7 +39,6 @@ public class TargetReticle : MonoBehaviour
             player.WeaponSystem.OnAllowShootingChangedEvent -= OnAllowShootingChanged;
             player.Aiming.OnAimLockStateChange -= OnAimLockStateChanged;
             player.Health.OnDeath -= OnPlayerDeath;
-            player.LevelManager.OnStageChanged -= OnStageChanged;
         }
     }
     
@@ -98,20 +96,6 @@ public class TargetReticle : MonoBehaviour
         reticle?.Hide();
     }
 
-    private void OnStageChanged(SOLevelStage stage)
-    {
-        if (!stage) return;
 
-        bool allowShooting = stage.AllowPlayerShootingAndAiming;
-        
-        if (allowShooting)
-        {
-            reticle?.Show();
-        }
-        else
-        {
-            reticle?.Hide();
-        }
-    }
     
 }

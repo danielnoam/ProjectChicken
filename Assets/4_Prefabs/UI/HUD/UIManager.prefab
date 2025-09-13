@@ -568,11 +568,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cooldownIconColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
-  playerStats: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
-  levelManager: {fileID: 0}
-  player: {fileID: 0}
   hudFadeDuration: 3
-  hudGroup: {fileID: 6058153400321184074}
   dynamicHud: 1
   hudPlayerMoveAmount: 7
   hudReturnSpeed: 2
@@ -592,38 +588,46 @@ MonoBehaviour:
   healthPunchDuration: 0.2
   healthPunchStrength: 0.4
   healthPunchColor: {r: 1, g: 0.2028302, b: 0.2028302, a: 1}
-  healthIcon: {fileID: 6185292691317434179}
-  healthText: {fileID: 6839292622192208662}
   shieldAnimationDuration: 0.5
   shieldPunchDuration: 0.2
   shieldPunchStrength: 0.4
   shieldPunchColor: {r: 0.21698111, g: 0.21698111, b: 1, a: 1}
-  shieldIcon: {fileID: 6728258700460066580}
-  shieldText: {fileID: 3929228718482953496}
   currencyAnimationDuration: 0.5
   currencyPunchDuration: 0.2
   currencyPunchStrength: 0.4
   bigCurrencyDifference: 4
-  currencyIcon: {fileID: 4001879575052676839}
-  currencyText: {fileID: 4121902089785820340}
   dodgePunchDuration: 0.2
   dodgePunchStrength: 0.4
-  dodgeIcon: {fileID: 5313684611191140054}
-  dodgeCountText: {fileID: 1351573030967703018}
   weaponPunchDuration: 0.2
   weaponPunchStrength: 0.4
-  weaponIcon: {fileID: 8676211038320735240}
   scoreAnimationDuration: 0.5
   scorePunchDuration: 0.2
   scorePunchStrength: 0.2
   bigScoreDifference: 100
   scoreDigits: 7
-  scoreText: {fileID: 7203632396681476659}
   stageTitleAnimationDuration: 1.5
-  stageTitleText: {fileID: 1494737519199319349}
   pauseIconAnimationDuration: 0.2
-  pauseIconFill: {fileID: 884242046296217277}
+  statsBarGroup: {fileID: 7135542715362217923}
+  scoreBarGroup: {fileID: 3446292857890738900}
+  weaponBarGroup: {fileID: 4298017487659553767}
+  dodgeBarGroup: {fileID: 7758107097852473384}
   pauseGroup: {fileID: 5199301963245156671}
+  hudGroup: {fileID: 6058153400321184074}
+  healthIcon: {fileID: 6185292691317434179}
+  healthText: {fileID: 6839292622192208662}
+  shieldIcon: {fileID: 6728258700460066580}
+  shieldText: {fileID: 3929228718482953496}
+  currencyIcon: {fileID: 4001879575052676839}
+  currencyText: {fileID: 4121902089785820340}
+  dodgeIcon: {fileID: 5313684611191140054}
+  dodgeCountText: {fileID: 1351573030967703018}
+  weaponIcon: {fileID: 8676211038320735240}
+  pauseIconFill: {fileID: 884242046296217277}
+  scoreText: {fileID: 7203632396681476659}
+  stageTitleText: {fileID: 1494737519199319349}
+  playerStats: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
+  levelManager: {fileID: 0}
+  player: {fileID: 0}
 --- !u!1 &3427337448478087212
 GameObject:
   m_ObjectHideFlags: 0
@@ -771,6 +775,7 @@ GameObject:
   - component: {fileID: 7982257792778399267}
   - component: {fileID: 8527603873326737683}
   - component: {fileID: 9049674565646993910}
+  - component: {fileID: 4298017487659553767}
   m_Layer: 0
   m_Name: WeaponBar
   m_TagString: Untagged
@@ -837,6 +842,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 0.4
+--- !u!225 &4298017487659553767
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3732989636341077805}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3768046586325517175
 GameObject:
   m_ObjectHideFlags: 0
@@ -1221,6 +1238,7 @@ GameObject:
   - component: {fileID: 3559942637712479204}
   - component: {fileID: 1525084355539849278}
   - component: {fileID: 3044248681344663323}
+  - component: {fileID: 3446292857890738900}
   m_Layer: 0
   m_Name: ScoreBar
   m_TagString: Untagged
@@ -1312,6 +1330,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!225 &3446292857890738900
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5536811674123408435}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &5565860103961471683
 GameObject:
   m_ObjectHideFlags: 0
@@ -1323,6 +1353,7 @@ GameObject:
   - component: {fileID: 3765190130101764734}
   - component: {fileID: 6546099637541363994}
   - component: {fileID: 3901646637325737081}
+  - component: {fileID: 7758107097852473384}
   m_Layer: 0
   m_Name: DodgeBar
   m_TagString: Untagged
@@ -1390,6 +1421,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 0.4
+--- !u!225 &7758107097852473384
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5565860103961471683}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6015521490025328366
 GameObject:
   m_ObjectHideFlags: 0
@@ -1613,6 +1656,7 @@ GameObject:
   - component: {fileID: 4983630514884076738}
   - component: {fileID: 8792595159575123364}
   - component: {fileID: 7647171164460031066}
+  - component: {fileID: 7135542715362217923}
   m_Layer: 0
   m_Name: StatsBar
   m_TagString: Untagged
@@ -1706,6 +1750,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!225 &7135542715362217923
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8530792007968892023}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8787549266126103786
 GameObject:
   m_ObjectHideFlags: 0

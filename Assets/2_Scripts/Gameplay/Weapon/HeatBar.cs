@@ -30,6 +30,9 @@ public class HeatBar : MonoBehaviour
     [SerializeField] private TextMeshProUGUI barText;
 
 
+    private bool _allowShooting = true;
+    private bool _heatSystemEnabled = true;
+    private bool ShouldShowHeatBar => _allowShooting && _heatSystemEnabled;
     private float _baseBarSize;
     private float _overheatBarHeight;
     private Color _miniGameActiveColor;
@@ -68,10 +71,9 @@ public class HeatBar : MonoBehaviour
         weaponSystem.OnWeaponHeatMiniGameFailedEvent += OnOnWeaponHeatMiniGameFailed;
         weaponSystem.OnWeaponHeatMiniGameSucceededEvent += OnOnWeaponHeatMiniGameSucceeded;
         weaponSystem.OnAllowShootingChangedEvent += OnAllowShootingChanged;
+        weaponSystem.OnHeatSystemEnabledChangedEvent += OnHeatSystemEnabledChanged;
     }
-
-
-
+    
 
     private void OnDisable()
     {
@@ -83,22 +85,22 @@ public class HeatBar : MonoBehaviour
         weaponSystem.OnWeaponHeatMiniGameFailedEvent -= OnOnWeaponHeatMiniGameFailed;
         weaponSystem.OnWeaponHeatMiniGameSucceededEvent -= OnOnWeaponHeatMiniGameSucceeded;
         weaponSystem.OnAllowShootingChangedEvent -= OnAllowShootingChanged;
-    }
-
-    private void SetEmissionStrength(float strength)
-    {
-        if (!_heatBarMaterial) return;
-    
-        emissionStrength = Mathf.Clamp(strength, emissionRange.minValue, emissionRange.maxValue);
-        _heatBarMaterial.SetFloat(EmissionStrength, emissionStrength);
+        weaponSystem.OnHeatSystemEnabledChangedEvent -= OnHeatSystemEnabledChanged;
     }
     
     private void OnAllowShootingChanged(bool state)
     {
-        if (_heatBarGroupSequence.isAlive) _heatBarGroupSequence.Stop();
-        _heatBarGroupSequence = Sequence.Create()
-            .Group(Tween.Alpha(heatBarGroup, endValue: state ? 1f : 0f, 0.2f));
+        _allowShooting = state;
+        UpdateHeatBarVisibility();
     }
+
+    private void OnHeatSystemEnabledChanged(bool state)
+    {
+        _heatSystemEnabled = state;
+        UpdateHeatBarVisibility();
+    }
+    
+    
 
 
     private void OnHeatUpdated(float heat)
@@ -174,6 +176,23 @@ public class HeatBar : MonoBehaviour
         
         Tween.PunchScale(miniGameWindow.transform, strength: Vector3.one * miniGamePunchStrength, duration: miniGamePunchDuration);
         Tween.Color(miniGameWindow, startValue: miniGameWindow.color, endValue: _miniGameActiveColor, miniGameAnimationDuration);
+    }
+    
+    
+    
+    private void SetEmissionStrength(float strength)
+    {
+        if (!_heatBarMaterial) return;
+    
+        emissionStrength = Mathf.Clamp(strength, emissionRange.minValue, emissionRange.maxValue);
+        _heatBarMaterial.SetFloat(EmissionStrength, emissionStrength);
+    }
+
+    private void UpdateHeatBarVisibility()
+    {
+        if (_heatBarGroupSequence.isAlive) _heatBarGroupSequence.Stop();
+        _heatBarGroupSequence = Sequence.Create()
+            .Group(Tween.Alpha(heatBarGroup, endValue: ShouldShowHeatBar ? 1f : 0f, 0.2f));
     }
     
 }

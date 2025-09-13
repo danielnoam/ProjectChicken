@@ -46,6 +46,7 @@ public class RailPlayerMovement : MonoBehaviour
 
 
     private bool _allowMovement;
+    private bool _allowDodge;
     private float _horizontalInput;
     private float _verticalInput;
     private Quaternion _velocityRotation = Quaternion.identity;
@@ -123,6 +124,7 @@ public class RailPlayerMovement : MonoBehaviour
     public void SetUp()
     {
         _allowMovement = true;
+        _allowDodge = true;
         _maxDodgeAccumulation = player.PlayerStats.BaseDodgeAccumulation;
         _currentDodgeRemining = _maxDodgeAccumulation;
         
@@ -144,6 +146,7 @@ public class RailPlayerMovement : MonoBehaviour
     private void OnDeath()
     {
         _allowMovement = false;
+        _allowDodge = false;
         _autoCenterRoutine = StartCoroutine(ReturnToCenter());
     }
     
@@ -162,6 +165,8 @@ public class RailPlayerMovement : MonoBehaviour
                 _autoCenterRoutine = StartCoroutine(ReturnToCenter());
             }
         }
+
+        _allowDodge = stage.AllowPlayerDodge;
 
     }
     
@@ -393,7 +398,7 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void OnDodgeLeft(InputAction.CallbackContext context)
     {
-        if (!_allowMovement || !player.Health.IsAlive()) return;
+        if (!_allowDodge || !player.Health.IsAlive()) return;
 
         Dodge(Vector3.left);
     }
@@ -403,14 +408,14 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void OnDodgeRight(InputAction.CallbackContext context)
     {
-        if (!_allowMovement || !player.Health.IsAlive()) return;
+        if (!_allowDodge || !player.Health.IsAlive()) return;
         
         Dodge(Vector3.right);
     }
     
     private void OnDodgeFreeform(InputAction.CallbackContext context)
     {
-        if (!_allowMovement || !player.Health.IsAlive()) return;
+        if (!_allowDodge || !player.Health.IsAlive()) return;
 
 
         switch (_horizontalInput)

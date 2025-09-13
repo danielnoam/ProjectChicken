@@ -52,6 +52,14 @@ namespace DNExtensions.VFXManager
                 effect?.OnResetEffect();
             }
         }
+
+
+        [VInspector.Button]
+        public void PlayUsingVFXManager()
+        {
+            VFXManager.Instance?.PlayVFX(this);
+        }
+        
     }
     
     

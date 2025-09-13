@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DNExtensions.MenuSystem;
 using PrimeTween;
 using TMPEffects.Components;
 using TMPro;
@@ -77,6 +78,8 @@ public class MenuElementLevelSelection : MenuElement
             {
                 var levelButton = Instantiate(levelButtonPrefab, levelButtonParent);
                 var levelUIData = new LevelUIData(level, levelGfx, levelButton);
+                var levelButtonAnimator = levelButton.GetComponent<MenuSelectableAnimator>();
+                if (levelButtonAnimator) levelButtonAnimator.audioSource = audioSource;
                 _levelUIData.Add(levelUIData);
                 SetupSelectable(levelButton, levelUIData);
             }
