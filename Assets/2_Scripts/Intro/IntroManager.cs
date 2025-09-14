@@ -1,12 +1,9 @@
-using System;
-using System.Linq;
+
 using DNExtensions;
 using DNExtensions.VFXManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
 using UnityEngine.Playables;
-using UnityEngine.Timeline;
 using VInspector;
 
 
@@ -24,6 +21,8 @@ public class IntroManager : MonoBehaviour
 
     private void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         VFXManager.Instance?.PlayVFX(awakeSequence);
         PlayIntro();
     }

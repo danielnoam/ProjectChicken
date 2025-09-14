@@ -239,7 +239,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.35}
+  m_Offset: {x: 0, y: 11}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -249,7 +249,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 120, y: 70}
+  m_Size: {x: 160, y: 80}
   m_EdgeRadius: 0
 --- !u!114 &701044888967083671
 MonoBehaviour:
@@ -390,7 +390,7 @@ MonoBehaviour:
   useStageBasedActivation: 1
   activationThreshold: 0.9
   effectActivationChance: 0.75
-  showStageDebugLogs: 1
+  showStageDebugLogs: 0
   minEffectDuration: 2
   levelManager: {fileID: 0}
   combatManager: {fileID: 8215287246607141139}

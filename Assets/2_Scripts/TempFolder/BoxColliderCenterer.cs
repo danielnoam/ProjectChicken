@@ -5,7 +5,6 @@ public class BoxColliderCenterer : MonoBehaviour
 {
     private BoxCollider boxCollider;
     private bool hasBeenCentered = false;
-    private bool isMonitoring = false;
     private float targetZ;
     
     [Header("Scaling Compensation")]
@@ -22,7 +21,6 @@ public class BoxColliderCenterer : MonoBehaviour
     {
         // Reset flags when object is re-enabled from pool
         hasBeenCentered = false;
-        isMonitoring = false;
         
         // Use a small delay to ensure the spawner has set the position first
         if (boxCollider != null)
@@ -90,7 +88,6 @@ public class BoxColliderCenterer : MonoBehaviour
     
     private IEnumerator MonitorPositionDuringScaling()
     {
-        isMonitoring = true;
         float elapsedTime = 0f;
         
         // Monitor and adjust position during the entire scaling duration
@@ -107,7 +104,6 @@ public class BoxColliderCenterer : MonoBehaviour
         // Final centering after scaling is complete
         CenterBoxColliderAtTarget();
         
-        isMonitoring = false;
         Debug.Log($"Finished monitoring {gameObject.name} - final position: {transform.position}");
     }
     
@@ -117,7 +113,6 @@ public class BoxColliderCenterer : MonoBehaviour
         CancelInvoke(nameof(InitialCenter));
         StopAllCoroutines();
         hasBeenCentered = false;
-        isMonitoring = false;
     }
     
     // Optional: Manual re-centering method you can call if needed

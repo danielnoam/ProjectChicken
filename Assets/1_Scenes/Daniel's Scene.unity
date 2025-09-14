@@ -1513,7 +1513,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5210243299570152646, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 5610219870644795921, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1593,7 +1593,7 @@ PrefabInstance:
       objectReference: {fileID: 1897613805567374489}
     - target: {fileID: 6841323728093894573, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.049856074
+      value: 0.0025517691
       objectReference: {fileID: 0}
     - target: {fileID: 7188184264977522166, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_sharedMaterial
@@ -1634,7 +1634,7 @@ PrefabInstance:
       objectReference: {fileID: 1828731749}
     - target: {fileID: 2126460727402861133, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: playerInfluencePosition
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2126460727402861133, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: playerInfluencesRotation
@@ -1647,6 +1647,14 @@ PrefabInstance:
     - target: {fileID: 2126460727402861133, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: reticleInfluenceRotation
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2126460727402861133, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: playerPositionOffset.range.x
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2126460727402861133, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: playerPositionOffset.range.y
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 2126460727402861133, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: playerRotationOffset.range.x
@@ -1679,6 +1687,18 @@ PrefabInstance:
     - target: {fileID: 2126460727402861133, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: reticleRotationOffset.range.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2126460727402861133, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: playerPositionOffset.smoothness
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2126460727402861133, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: playerPositionOffset.threshold.x
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2126460727402861133, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
+      propertyPath: playerPositionOffset.threshold.y
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 2126460727402861133, guid: 25c17d0009d79644dbdade0df0138755, type: 3}
       propertyPath: reticlePositionOffset.smoothness
