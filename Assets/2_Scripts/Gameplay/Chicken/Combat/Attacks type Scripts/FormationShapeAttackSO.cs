@@ -73,7 +73,7 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
         // Try to detect formation type if auto-detect is enabled
         if (autoDetectFormation)
         {
-            FormationCreator formationCreator = FindObjectOfType<FormationCreator>();
+            FormationCreator formationCreator = FindFirstObjectByType<FormationCreator>();
             if (formationCreator != null)
             {
                 detectedFormationType = formationCreator.currentFormation;
@@ -541,7 +541,7 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
     private Vector2 GetCanvasBounds()
     {
         // Try to get bounds from PlayerBoundaryCanvas first
-        PlayerBoundaryCanvas boundaryCanvas = FindObjectOfType<PlayerBoundaryCanvas>();
+        PlayerBoundaryCanvas boundaryCanvas = FindFirstObjectByType<PlayerBoundaryCanvas>();
         if (boundaryCanvas != null)
         {
             Canvas canvas = boundaryCanvas.GetComponent<Canvas>();
