@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using KBCore.Refs;
 using UnityEngine;
 using VInspector;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(AudioSource))]
 public class RadioManager : MonoBehaviour
@@ -13,7 +15,9 @@ public class RadioManager : MonoBehaviour
     [SerializeField] private SORadioMessage[] playerDamagedMessages;
     [SerializeField] private SORadioMessage[] playerDeathMessages;
     [SerializeField] private SORadioMessage[] enemyDeathMessages;
-    [SerializeField, Range(0,1)] private float enemyDeathMessageChance = 0.25f;
+    [SerializeField] private SORadioMessage[] currencyPickUpMessages;
+    [SerializeField, Range(0,1)] private float enemyDeathMessageChance = 0.05f;
+    [SerializeField, Range(0,1)] private float currencyPickUpMessageChance = 0.05f;
     
     [Header("References")]
     [SerializeField] private RadioMessageUI radioMessageUI;
@@ -28,6 +32,9 @@ public class RadioManager : MonoBehaviour
     private bool _messagePlaying;
     private int _playerHealth = 100;
     private SOCharacter _currentSender;
+    
+    public event Action<SORadioMessage> OnMessageFinished;
+    public event Action<SORadioMessage> OnMessageStarted;
     
     private void OnValidate()
     {
@@ -59,6 +66,7 @@ public class RadioManager : MonoBehaviour
         if (enemySpawner) enemySpawner.OnEnemyDeath += OnEnemyDeath;
         if (player)
         {
+            player.ResourceCollector.OnResourceCollected += OnResourceCollected;
             player.Health.OnDeath += OnPlayerDeath;
             player.Health.OnHealthChanged += OnPlayerHealthChanged;
         }
@@ -73,11 +81,13 @@ public class RadioManager : MonoBehaviour
         if (enemySpawner) enemySpawner.OnEnemyDeath -= OnEnemyDeath;
         if (player)
         {
+            player.ResourceCollector.OnResourceCollected -= OnResourceCollected;
             player.Health.OnDeath -= OnPlayerDeath;
             player.Health.OnHealthChanged -= OnPlayerHealthChanged;
         }
 
     }
+    
 
     private void Update()
     {
@@ -86,10 +96,17 @@ public class RadioManager : MonoBehaviour
         PlayNextMessage();
     }
     
-    private void OnMessageHidden( )
+    private void OnMessageHidden()
     {
         _messagePlaying = false;
         _currentSender = null;
+        
+        // Process next message in queue if available
+        if (_messages.Count > 0)
+        {
+            // Add a small delay to ensure smooth transition
+            Invoke(nameof(PlayNextMessage), 0.1f);
+        }
     }
     
     private void OnMessageCompleted()
@@ -110,8 +127,21 @@ public class RadioManager : MonoBehaviour
         {
             _messagePlaying = false;
         }
+        
+        OnMessageFinished?.Invoke(_currentMessage);
     }
 
+    
+    private void OnResourceCollected(Resource resource)
+    {
+        if (currencyPickUpMessages.Length <= 0 || !resource || resource.ResourceType != ResourceType.Currency) return;
+
+        if (Random.value > currencyPickUpMessageChance) return;
+        
+        var message = currencyPickUpMessages[Random.Range(0, currencyPickUpMessages.Length)];
+        AddMessage(message);
+    }
+    
     private void OnPlayerHealthChanged(int health)
     {
         if (playerDamagedMessages.Length <= 0) return;
@@ -183,34 +213,39 @@ public class RadioManager : MonoBehaviour
         var message = _messages[0];
         _messages.RemoveAt(0);
         PlayMessage(message);
-
     }
 
     private void PlayMessage(SORadioMessage message)
     {
-        bool isSameSender = _currentSender == message.Sender && _currentSender;
+        bool isSameSender = _currentSender == message.Sender && _currentSender != null;
         bool shouldReplace = (_currentMessage && _currentMessage.IsPersistent && !isSameSender) || message.IsImportant;
-
-        if (isSameSender && !shouldReplace)
+        
+        if (_messagePlaying && _currentMessage != null)
         {
-            _messagePlaying = true;
+            _currentMessage.AudioEvent?.Stop(audioSource);
+        }
+
+        if (isSameSender && !shouldReplace && _messagePlaying)
+        {
             _currentMessage = message;
             message.AudioEvent?.Play(audioSource);
             radioMessageUI.UpdateMessageOnly(message);
         }
         else
         {
-            if (_messagePlaying && (_currentSender || shouldReplace))
+            if (_messagePlaying)
             {
                 radioMessageUI.HideMessage();
             }
-    
+
             _messagePlaying = true;
             _currentMessage = message;
             _currentSender = message.Sender;
             message.AudioEvent?.Play(audioSource);
             radioMessageUI.ShowMessage(message);
         }
+        
+        OnMessageStarted?.Invoke(message);
     }
 
     private void ClearMessages()

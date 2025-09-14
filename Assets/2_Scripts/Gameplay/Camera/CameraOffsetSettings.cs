@@ -31,7 +31,6 @@ public class CameraSettings
     public Vector2 positionRange = new Vector2(10f, 5f);
     
     [Tooltip("Dead zone for normalized position values. Camera won't move until position exceeds these values.")]
-    [Range(0f, 0.99f)]
     public Vector2 positionThreshold = new Vector2(0.2f, 0.2f);
     
     [Tooltip("How quickly the camera moves to the target position. Higher values = faster response.")]
@@ -52,7 +51,6 @@ public class CameraSettings
     public Vector2 rotationRange = new Vector2(5f, 10f);
     
     [Tooltip("Dead zone for normalized position values. Camera won't rotate until position exceeds these values.")]
-    [Range(0f, 0.99f)]
     public Vector2 rotationThreshold = new Vector2(0.2f, 0.2f);
     
     [Tooltip("How quickly the camera rotates to the target angle. Higher values = faster response.")]

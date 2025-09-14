@@ -44,8 +44,9 @@ public class FormationBoundaryManager : MonoBehaviour
     {
         if (!levelManager) return;
         
+        transform.position = levelManager.EnemyPosition;
         boxCollider2D.size = levelManager.EnemyBoundarySize * 2;
-        boxCollider2D.offset = levelManager.EnemyPosition;
+        boxCollider2D.offset = Vector2.zero;
         CalculateEffectiveValues();
     }
 

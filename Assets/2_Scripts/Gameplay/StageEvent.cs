@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 [System.Serializable]
 public abstract class StageEvent
@@ -113,5 +115,147 @@ public class SpawnResourceEvent : StageEvent
     private int GetActiveResourceCount()
     {
         return _resourceManager ? _resourceManager.ActiveResourceCount : 0;
+    }
+}
+
+
+
+
+
+
+[System.Serializable]
+public class RadioMessageSequenceEvent : StageEvent
+{
+    [Header("Messages")]
+    [SerializeField] private SORadioMessage[] messages;
+    
+    [Header("Timing")]
+    [SerializeField] private float initialDelay = 0f;
+    
+    [Header("Settings")]
+    [SerializeField] private bool shuffle = false;
+    [SerializeField] private bool loop = false;
+    
+    private LevelManager _levelManager;
+    private RadioManager _radioManager;
+    private List<SORadioMessage> _messageQueue;
+    private float _timer;
+    private int _currentMessageIndex;
+    private bool _hasStarted;
+    private SORadioMessage _lastSentMessage;
+
+    public override void Initialize(LevelManager levelManager)
+    {
+        _levelManager = levelManager;
+        _radioManager = levelManager.RadioManager;
+        
+        if (messages == null || messages.Length == 0)
+        {
+            Debug.LogWarning("RadioMessageSequenceEvent: No messages assigned!");
+            return;
+        }
+        
+        _messageQueue = new List<SORadioMessage>(messages.Where(msg => msg != null));
+        
+        if (shuffle)
+        {
+            ShuffleMessages();
+        }
+        
+        _timer = initialDelay;
+        _currentMessageIndex = 0;
+        _hasStarted = false;
+        _lastSentMessage = null;
+        
+        if (_radioManager)
+        {
+            _radioManager.OnMessageFinished += OnMessageFinished;
+        }
+        
+        StartEvent();
+    }
+
+    public override void Update(float deltaTime)
+    {
+        if (!isActive || !_radioManager || _messageQueue == null || _messageQueue.Count == 0) return;
+        
+        if (!_hasStarted)
+        {
+            _timer -= deltaTime;
+            if (_timer <= 0f)
+            {
+                _hasStarted = true;
+                for (int i = 0; i < _messageQueue.Count; i++)
+                {
+                    SendNextMessage();
+                }
+            }
+        }
+    }
+
+    public override void Cleanup()
+    {
+        if (_radioManager)
+        {
+            _radioManager.OnMessageFinished -= OnMessageFinished;
+        }
+        
+        StopEvent();
+        _radioManager = null;
+        _levelManager = null;
+        _messageQueue?.Clear();
+        _messageQueue = null;
+        _lastSentMessage = null;
+    }
+
+    private void OnMessageFinished(SORadioMessage finishedMessage)
+    {
+        // if (finishedMessage == _lastSentMessage)
+        // {
+        //     SendNextMessage();
+        // }
+    }
+
+    private void SendNextMessage()
+    {
+        if (_messageQueue == null || _messageQueue.Count == 0) return;
+
+        SORadioMessage messageToSend = _messageQueue[_currentMessageIndex];
+        
+        if (messageToSend)
+        {
+            _radioManager.AddMessage(messageToSend);
+            _lastSentMessage = messageToSend;
+        }
+        
+        _currentMessageIndex++;
+        
+        if (_currentMessageIndex >= _messageQueue.Count)
+        {
+            if (loop)
+            {
+                _currentMessageIndex = 0;
+                
+                if (shuffle)
+                {
+                    ShuffleMessages();
+                }
+            }
+            else
+            {
+                StopEvent();
+            }
+        }
+    }
+
+    private void ShuffleMessages()
+    {
+        if (_messageQueue is not { Count: > 1 }) return;
+        
+        for (int i = _messageQueue.Count - 1; i > 0; i--)
+        {
+            int randomIndex = Random.Range(0, i + 1);
+            (_messageQueue[i], _messageQueue[randomIndex]) = (_messageQueue[randomIndex], _messageQueue[i]);
+        }
     }
 }

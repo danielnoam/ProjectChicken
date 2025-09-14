@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using KBCore.Refs;
 using UnityEngine;
 using VInspector;
@@ -18,6 +19,10 @@ public class ResourceManager : MonoBehaviour
     private readonly List<Resource> _resources = new List<Resource>();
     
     public int ActiveResourceCount => _resources.Count;
+    
+    
+
+    
     
     private void OnValidate()
     {

@@ -39,6 +39,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField, Self(Flag.EditableAnywhere)] private FormationBoundaryManager boundaryManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private ResourceManager resourceManager;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private RadioManager radioManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
     
@@ -63,6 +64,7 @@ public class LevelManager : MonoBehaviour
     public RailPlayer Player => player;
     public EnemySpawner EnemySpawner => enemySpawner;
     public ResourceManager ResourceManager => resourceManager;
+    public RadioManager RadioManager => radioManager;
     public int CurrentScore => _currentScore;
     
     
@@ -107,7 +109,13 @@ public class LevelManager : MonoBehaviour
         {
             resourceManager = FindFirstObjectByType<ResourceManager>();
         }
-        
+
+        if (!radioManager)
+        {
+            radioManager = FindFirstObjectByType<RadioManager>();
+        }
+
+
         this.ValidateRefs();
         
         if (boundaryManager) boundaryManager.UpdateBoundary();
@@ -494,7 +502,7 @@ public class LevelManager : MonoBehaviour
     
         foreach (var stageEvent in _currentStageEvents)
         {
-            stageEvent.Initialize(this);
+            stageEvent?.Initialize(this);
         }
     
         if (debugLog) Debug.Log($"Initialized {_currentStageEvents.Length} events for stage: {currentStage.name}");
@@ -506,6 +514,7 @@ public class LevelManager : MonoBehaviour
     
         foreach (var stageEvent in _currentStageEvents)
         {
+            if (stageEvent == null || !stageEvent.IsActive) continue;
             stageEvent.Update(Time.deltaTime);
         }
     }
@@ -516,7 +525,7 @@ public class LevelManager : MonoBehaviour
     
         foreach (var stageEvent in _currentStageEvents)
         {
-            stageEvent.Cleanup();
+            stageEvent?.Cleanup();
         }
         _currentStageEvents = null;
     }

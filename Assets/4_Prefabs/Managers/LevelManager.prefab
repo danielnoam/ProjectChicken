@@ -1504,8 +1504,8 @@ Transform:
   m_Children:
   - {fileID: 5210243299570152646}
   - {fileID: 2387024627530589077}
-  - {fileID: 5117542504569507640}
   - {fileID: 8969420720622942545}
+  - {fileID: 5117542504569507640}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &644870998350203263
@@ -1636,6 +1636,7 @@ MonoBehaviour:
   enemySpawner: {fileID: 0}
   boundaryManager: {fileID: 0}
   resourceManager: {fileID: 0}
+  radioManager: {fileID: 0}
   player: {fileID: 0}
   shipWarping:
     color: {r: 0, g: 0, b: 0, a: 1}
@@ -1768,7 +1769,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 5610219870644795921}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9999997
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2013,14 +2014,6 @@ PrefabInstance:
     - target: {fileID: 5198200460665356453, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6096204220972753079, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
-      propertyPath: player
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 6096204220972753079, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
-      propertyPath: enemySpawner
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6096204220972753079, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
       propertyPath: levelManager

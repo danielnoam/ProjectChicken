@@ -611,33 +611,33 @@ MonoBehaviour:
   fovGainOnDodge: 10
   reticleInfluenceSettings:
     enablePosition: 1
-    positionRange: {x: 10, y: 5}
-    positionThreshold: {x: 0.2, y: 0.2}
+    positionRange: {x: 20, y: 15}
+    positionThreshold: {x: 0, y: 0}
     positionSmoothness: 2
     invertPositionX: 0
     invertPositionY: 0
     enableRotation: 0
-    rotationRange: {x: 20, y: 0}
-    rotationThreshold: {x: 0.2, y: 0.2}
+    rotationRange: {x: 0, y: 0}
+    rotationThreshold: {x: 0, y: 0}
     rotationSmoothness: 2
     invertRotationX: 0
     invertRotationY: 0
     depthSettings:
-      range: 0
-      threshold: 0.2
-      invert: 0
+      range: 25
+      threshold: 0.7
+      invert: 1
   playerInfluenceSettings:
     enablePosition: 0
-    positionRange: {x: 10, y: 5}
-    positionThreshold: {x: 0.2, y: 0.2}
+    positionRange: {x: 0, y: 0}
+    positionThreshold: {x: 0, y: 0}
     positionSmoothness: 2
     invertPositionX: 0
     invertPositionY: 0
-    enableRotation: 0
-    rotationRange: {x: 0, y: 8}
-    rotationThreshold: {x: 0.2, y: 0.2}
-    rotationSmoothness: 2
-    invertRotationX: 0
+    enableRotation: 1
+    rotationRange: {x: 15, y: 10}
+    rotationThreshold: {x: 0, y: 0}
+    rotationSmoothness: 1
+    invertRotationX: 1
     invertRotationY: 0
     depthSettings:
       range: 0
