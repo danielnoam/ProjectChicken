@@ -1050,12 +1050,13 @@ MonoBehaviour:
   followingSpeed: 50
   followingDistanceThreshold: 0.1
   maxMovementResets: 2
-  maxMovementTime: 100
+  maxMovementTime: 50
   enableMovementFailsafe: 1
   moveToSpawnWhenIdle: 1
-  spawnAreaTag: ChickenSpawner
   spawnAreaArrivalDistance: 0.5
   spawnCheckDelay: 0.2
+  minDistanceFromBlocker: 0.5
+  maxSpawnAttempts: 30
   showDebugLogs: 0
   showMovementGizmos: 1
   movementLineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
