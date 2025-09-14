@@ -57,7 +57,7 @@ public class UpgradeStore : MonoBehaviour
         
         this.ValidateRefs();
 
-        if (levelManager)
+        if (levelManager && transform.transform.position != levelManager.EnemyPosition)
         {
             transform.transform.position = levelManager.EnemyPosition;
         }
@@ -137,7 +137,11 @@ public class UpgradeStore : MonoBehaviour
     private void OnUpgradeSelected(SOUpgradeBase upgrade)
     {
         upgrade.ApplyUpgrade(player);
-        CloseStore();
+        
+        if (_storeSequence.isAlive) _storeSequence.Stop();
+        _storeSequence = Sequence.Create()
+            .ChainDelay(1.3f)
+            .OnComplete(CloseStore);
     }
 
     private void RerollEggs()
@@ -189,7 +193,8 @@ public class UpgradeStore : MonoBehaviour
 
     private void CloseStore()
     {
-        if (_isOpen == false) return;
+        if (!_isOpen) return;
+        
         _isOpen = false;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;

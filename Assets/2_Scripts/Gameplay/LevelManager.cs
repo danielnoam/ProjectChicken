@@ -45,8 +45,6 @@ public class LevelManager : MonoBehaviour
 
 
     private int _currentScore;
-    private Vector3 _playerPosition;
-    private Vector3 _enemyPosition;
     private SOLevelStage[] _levelStages;
     private StageTask[] _currentStageTasks;
     private StageEvent[] _currentStageEvents;
@@ -58,10 +56,10 @@ public class LevelManager : MonoBehaviour
     private Coroutine _stageChangeCoroutine;
 
     
+    public Vector3 PlayerPosition => Vector3.forward + playerBoundaryOffset;
+    public Vector3 EnemyPosition => Vector3.forward + enemyBoundaryOffset;
     public Vector2 PlayerBoundarySize => playerBoundarySize;
     public Vector2 EnemyBoundarySize => enemyBoundarySize;
-    public Vector3 PlayerPosition => _playerPosition;
-    public Vector3 EnemyPosition => _enemyPosition;
     public RailPlayer Player => player;
     public EnemySpawner EnemySpawner => enemySpawner;
     public ResourceManager ResourceManager => resourceManager;
@@ -111,8 +109,7 @@ public class LevelManager : MonoBehaviour
         }
         
         this.ValidateRefs();
-
-        UpdatePlayerAndEnemyPositions();
+        
         if (boundaryManager) boundaryManager.UpdateBoundary();
     }
 
@@ -326,8 +323,6 @@ public class LevelManager : MonoBehaviour
         
         Tween.Custom(startValue: WorldSpeed, endValue: newStage.WorldSpeed, duration: 0.5f, onValueChange:(value) => WorldSpeed = value);
         if (currentStage.IsCheckpoint) SaveLevelProgress();
-        UpdatePlayerAndEnemyPositions();
-        
         
 
         
@@ -427,12 +422,6 @@ public class LevelManager : MonoBehaviour
     }
     
     
-    private void UpdatePlayerAndEnemyPositions()
-    {
-        _enemyPosition = (Vector3.forward + enemyBoundaryOffset);
-        _playerPosition = (Vector3.forward + playerBoundaryOffset);
-    }
-
 
 
     #endregion Stage Management ---------------------------------------------------------------------------------
@@ -493,8 +482,7 @@ public class LevelManager : MonoBehaviour
 
     #endregion Tasks --------------------------------------------------------------------------------
 
-
-
+    
     #region Events --------------------------------------------------------------------------------
 
     
@@ -575,6 +563,7 @@ public class LevelManager : MonoBehaviour
     }
 
     #endregion Save/Load -------------------------------------------------------------------------------
+    
     
     #region Score Management ---------------------------------------------------------------------------------
 

@@ -7,18 +7,20 @@ using UnityEngine.UI;
 
 public class UpgradeEgg : MonoBehaviour
 {
+
     [Header("Show/Hide Animation")]
     [SerializeField] private float animationDuration = 1.5f;
     [SerializeField] private Ease animationEase = Ease.InOutBack;
     [SerializeField] private float yOffset = -150;
     
-    [Header("Info Animation")]
-    [SerializeField] private float infoAnimationDuration = 0.25f;
+    [Header("Hover Animation")]
+    [SerializeField] private float infoAnimationDuration = 0.2f;
     [SerializeField] private Ease infoAnimationEase = Ease.OutBack;
     [SerializeField] private SOAudioEvent showInfoSfx;
     [SerializeField] private SOAudioEvent hideInfoSfx;
     
     [Header("Reference")]
+    [SerializeField] private Animator animator;
     [SerializeField] private Button button;
     [SerializeField] private CanvasGroup upgradeInfoGroup;
     [SerializeField] private CanvasGroup mainCanvasGroup;
@@ -28,6 +30,7 @@ public class UpgradeEgg : MonoBehaviour
     [SerializeField] private Transform upgradeGfxHolder;
     [SerializeField] private AudioSource audioSource;
 
+    private bool _isSelected;
     private SOUpgradeBase _upgrade;
     private Vector3 _startPosition;
     private Vector3 _startScale;
@@ -37,6 +40,11 @@ public class UpgradeEgg : MonoBehaviour
     private Sequence _upgradeInfoSequence;
 
     public event Action<SOUpgradeBase> OnUpgradeSelected;
+    
+    private static readonly int Hover = Animator.StringToHash("Hover");
+    private static readonly int Idle = Animator.StringToHash("Idle");
+    private static readonly int Open = Animator.StringToHash("Open2");
+
 
     private void Awake()
     {
@@ -75,6 +83,9 @@ public class UpgradeEgg : MonoBehaviour
     {
         if (_animationSequence.isAlive) _animationSequence.Stop();
 
+        
+        animator?.SetTrigger(Idle);
+        _isSelected = false;
         _upgrade = null;
         transform.localScale = _startScale;
         transform.localEulerAngles = _startRotation;
@@ -102,8 +113,10 @@ public class UpgradeEgg : MonoBehaviour
     
     private void SelectUpgrade()
     {
-        if (!_upgrade) return;
+        if (!_upgrade || _isSelected) return;
         
+        _isSelected = true;
+        animator?.SetTrigger(Open);
         if (_animationSequence.isAlive) _animationSequence.Stop();
         _animationSequence = Sequence.Create()
                 .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
@@ -114,8 +127,9 @@ public class UpgradeEgg : MonoBehaviour
 
     private void ShowInfo()
     {
-        if (!_upgrade) return;
+        if (!_upgrade || _isSelected) return;
         
+        animator?.SetTrigger(Hover);
         showInfoSfx?.Play(audioSource);
         if (_upgradeInfoSequence.isAlive) _upgradeInfoSequence.Stop();
         _upgradeInfoSequence = Sequence.Create()

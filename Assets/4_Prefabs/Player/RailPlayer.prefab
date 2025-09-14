@@ -1324,7 +1324,7 @@ Transform:
   m_GameObject: {fileID: 2440519371583176229}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 5, z: -60}
+  m_LocalPosition: {x: 0, y: 5, z: -40}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3110,7 +3110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea7d6ee3afc6aae46a559dcd89ac8ae2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxMoveSpeed: 35
+  maxMoveSpeed: 45
   acceleration: 5
   deceleration: 3
   pathFollowSpeed: 1000
@@ -3120,7 +3120,7 @@ MonoBehaviour:
   maxPitchAngle: 30
   maxYawAngle: 45
   dodgeAccumulationRate: 2
-  dodgeMoveSpeed: 65
+  dodgeMoveSpeed: 75
   dodgeDuration: 0.4
   dodgeCooldown: 0.45
   dodgeRollAmount: 360
