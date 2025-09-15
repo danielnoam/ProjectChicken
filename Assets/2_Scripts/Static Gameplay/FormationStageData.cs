@@ -49,7 +49,7 @@ public class FormationStageData
         spacing = 2f;
         circleRadius = 3f;
         useRandomPlacement = true;
-        formationSpacing = 5f;
+        formationSpacing = 8f;
         maxPlacementAttempts = 100;
     }
     
@@ -242,7 +242,7 @@ public class FormationStageData
         spacing = 8f;
         circleRadius = 22.5f;
         useRandomPlacement = true;
-        formationSpacing = 5f;
+        formationSpacing = 8;
         maxPlacementAttempts = 100;
     }
 }

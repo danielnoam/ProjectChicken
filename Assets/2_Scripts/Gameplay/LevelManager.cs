@@ -41,6 +41,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private ResourceManager resourceManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RadioManager radioManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private FormationEffectManager formationEffectManager; // Add this line
     [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
     
 
@@ -114,7 +115,10 @@ public class LevelManager : MonoBehaviour
         {
             radioManager = FindFirstObjectByType<RadioManager>();
         }
-
+        if (!formationEffectManager)
+        {
+            formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
+        }
 
         this.ValidateRefs();
         
@@ -202,6 +206,45 @@ public class LevelManager : MonoBehaviour
         }
     }
     
+    private void CleanupAllChickens()
+    {
+        if (debugLog) Debug.Log("LevelManager: Starting comprehensive chicken cleanup before restart");
+
+        // First, disable auto-updates in the chicken manager to prevent reassignments during cleanup
+        var chickenManager = FindFirstObjectByType<EnemyChickenManager>();
+        if (chickenManager != null)
+        {
+            chickenManager.SetAutoUpdatesEnabled(false);
+        }
+
+        // Find all active chickens and force them to cleanup
+        var allChickens = FindObjectsByType<EnemyChickenRegistration>(FindObjectsSortMode.None);
+
+        int cleanedCount = 0;
+        foreach (var chicken in allChickens)
+        {
+            if (chicken != null && chicken.gameObject.activeInHierarchy)
+            {
+                // Use the correct method name
+                chicken.ForceCompleteUnregister();
+                cleanedCount++;
+            
+                // DON'T return to pool here - let EnemySpawner handle it
+                // The EnemySpawner.ClearEnemies() will handle returning objects to pool
+            }
+        }
+
+        // Force reset the chicken manager completely
+        if (chickenManager != null)
+        {
+            chickenManager.ForceCompleteReset();
+            // Validation to catch any remaining issues
+            chickenManager.ValidateAndFixChickenStates();
+        }
+
+        if (debugLog) Debug.Log($"LevelManager: Chicken cleanup complete - {cleanedCount} chickens unregistered (pool return handled by EnemySpawner)");
+    }
+
     private void OnEnemiesCleared(int scoreWorth)
     {
         if (!currentStage || currentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
@@ -231,6 +274,14 @@ public class LevelManager : MonoBehaviour
 
     private void OnPlayerDeath()
     {
+        // Immediately stop any active formation effects
+        var formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
+        if (formationEffectManager)
+        {
+            formationEffectManager.StopAllEffects();
+            if (debugLog) Debug.Log("LevelManager: Stopped all formation effects due to player death");
+        }
+    
         StartCoroutine(RestartFromSavePointRoutine());
     }
 
@@ -248,7 +299,7 @@ public class LevelManager : MonoBehaviour
     }
     
     
-    #region Stage Management ---------------------------------------------------------------------------------
+    #region Stage Management
 
     [Button]
     private void StartLevel()
@@ -309,6 +360,13 @@ public class LevelManager : MonoBehaviour
         else
         {
             if (debugLog) Debug.Log("No more stages available");
+        }
+        // Immediately stop any active formation effects
+        var formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
+        if (formationEffectManager)
+        {
+            formationEffectManager.StopAllEffects();
+            if (debugLog) Debug.Log("LevelManager: Stopped all formation effects due to player death");
         }
     }
     
@@ -437,10 +495,10 @@ public class LevelManager : MonoBehaviour
     
 
 
-    #endregion Stage Management ---------------------------------------------------------------------------------
+    #endregion
 
 
-    #region Tasks  --------------------------------------------------------------------------------
+    #region Tasks
 
     
     private void InitializeTaskStage()
@@ -493,10 +551,10 @@ public class LevelManager : MonoBehaviour
         _currentStageTasks = null;
     }
 
-    #endregion Tasks --------------------------------------------------------------------------------
+    #endregion
 
     
-    #region Events --------------------------------------------------------------------------------
+    #region Events
 
     
     private void InitializeStageEvents()
@@ -536,15 +594,25 @@ public class LevelManager : MonoBehaviour
     }
     
 
-    #endregion Events --------------------------------------------------------------------------------
+    #endregion
     
     
-    #region Save/Load -------------------------------------------------------------------------------
+    #region Save/Load
 
     private IEnumerator RestartFromSavePointRoutine()
     {
+        // Force cleanup of all chicken registrations before restarting
+        CleanupAllChickens();
+    
         yield return new WaitForSeconds(5f);
-        
+
+        // Re-enable auto-updates in chicken manager before restarting
+        var chickenManager = FindFirstObjectByType<EnemyChickenManager>();
+        if (chickenManager != null)
+        {
+            chickenManager.SetAutoUpdatesEnabled(true);
+        }
+    
         if (_currentSavePoint == null)
         {
             StartLevel();
@@ -557,7 +625,6 @@ public class LevelManager : MonoBehaviour
             OnScoreChanged?.Invoke(_currentScore);
             OnRestartedFromSavePoint?.Invoke(_currentSavePoint);
         }
-        
     }
 
     private void SaveLevelProgress()
@@ -576,10 +643,10 @@ public class LevelManager : MonoBehaviour
         _currentSavePoint = newSavePoint;
     }
 
-    #endregion Save/Load -------------------------------------------------------------------------------
+    #endregion
     
     
-    #region Score Management ---------------------------------------------------------------------------------
+    #region Score Management
 
     private void AddScore(int score)
     {
@@ -594,6 +661,5 @@ public class LevelManager : MonoBehaviour
     }
     
 
-    #endregion Score Management ---------------------------------------------------------------------------------
-    
+    #endregion
 }

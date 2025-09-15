@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using KBCore.Refs;
 
 [RequireComponent(typeof(BoxCollider))]
 public class PassageBuildingChickenDisruptor : MonoBehaviour
@@ -8,9 +9,13 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
     [Header("Disruption Settings")]
     [SerializeField] private float recoveryDelay = 3f; // Delay after building exits before chickens recover
     [SerializeField] private bool affectOnlyActiveChickens = true; // Only affect non-idle chickens
+    [SerializeField] private bool pauseFormationEffects = true; // Pause formation effects during disruption
     
     [Header("Detection Settings")]
     [SerializeField] private string passageBuildingTag = "Passage Building";
+    
+    [Header("References")]
+    [SerializeField, Scene(Flag.EditableAnywhere)] private FormationEffectManager formationEffectManager;
     
     [Header("Debug")]
     [SerializeField] private bool showDebugLogs = true;
@@ -25,6 +30,11 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
     private List<ChickenDisruptionData> disruptedChickens = new List<ChickenDisruptionData>();
     private HashSet<Collider> buildingsInZone = new HashSet<Collider>(); // Track multiple buildings
     private BoxCollider boxCollider;
+    
+    // Formation effect state tracking
+    private bool wasBreathingActiveBeforeDisruption = false;
+    private bool wasRotationActiveBeforeDisruption = false;
+    private bool hadPendingActivationBeforeDisruption = false;
     
     // References
     private EnemyChickenManager chickenManager;
@@ -75,9 +85,19 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
             Debug.LogWarning($"PassageBuildingChickenDisruptor on {gameObject.name}: No EnemyChickenManager found in scene!");
         }
         
+        // Find formation effect manager if not assigned
+        if (!formationEffectManager)
+        {
+            formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
+        }
+        
         if (showDebugLogs)
         {
             Debug.Log($"PassageBuildingChickenDisruptor on {gameObject.name}: Initialized. Will disrupt chickens while '{passageBuildingTag}' objects are in zone, with {recoveryDelay}s recovery delay after exit.");
+            if (pauseFormationEffects && formationEffectManager)
+            {
+                Debug.Log($"PassageBuildingChickenDisruptor: Formation effects will be paused during disruption");
+            }
         }
     }
     
@@ -170,6 +190,12 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
             Debug.Log($"PassageBuildingChickenDisruptor: Starting chicken disruption (active while building present)");
         }
         
+        // Pause formation effects before disrupting chickens
+        if (pauseFormationEffects)
+        {
+            PauseFormationEffects();
+        }
+        
         isDisrupting = true;
         
         // Find and disrupt chickens
@@ -197,6 +223,7 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         
         // Note: We keep isDisrupting = true during recovery delay
         // Chickens remain disrupted until recovery completes
+        // Formation effects remain paused during recovery
     }
     
     void UpdateRecoveryDelay()
@@ -207,6 +234,77 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         {
             EndDisruption();
         }
+    }
+    
+    void PauseFormationEffects()
+    {
+        if (!formationEffectManager) return;
+        
+        // Store current effect states
+        wasBreathingActiveBeforeDisruption = formationEffectManager.IsBreathingActive;
+        wasRotationActiveBeforeDisruption = formationEffectManager.IsRotationActive;
+        
+        // Check if there was a pending activation
+        var pendingField = formationEffectManager.GetType().GetField("isWaitingForEffectActivation", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        hadPendingActivationBeforeDisruption = pendingField?.GetValue(formationEffectManager) is bool pending && pending;
+        
+        if (showDebugLogs)
+        {
+            string stateMsg = "Formation effects paused: ";
+            stateMsg += $"Breathing={wasBreathingActiveBeforeDisruption}, Rotation={wasRotationActiveBeforeDisruption}";
+            if (hadPendingActivationBeforeDisruption)
+            {
+                stateMsg += ", PendingActivation=true";
+            }
+            Debug.Log($"PassageBuildingChickenDisruptor: {stateMsg}");
+        }
+        
+        // Force stop all effects (this will also cancel any pending activations)
+        formationEffectManager.ForceStopAllEffects();
+    }
+    
+    void ResumeFormationEffects()
+    {
+        if (!formationEffectManager || !pauseFormationEffects) return;
+        
+        if (showDebugLogs)
+        {
+            string resumeMsg = "Resuming formation effects: ";
+            resumeMsg += $"Breathing={wasBreathingActiveBeforeDisruption}, Rotation={wasRotationActiveBeforeDisruption}";
+            if (hadPendingActivationBeforeDisruption)
+            {
+                resumeMsg += ", RestartPending=true";
+            }
+            Debug.Log($"PassageBuildingChickenDisruptor: {resumeMsg}");
+        }
+        
+        // If effects were active or pending before disruption, restart them
+        if (wasBreathingActiveBeforeDisruption || wasRotationActiveBeforeDisruption || hadPendingActivationBeforeDisruption)
+        {
+            if (formationEffectManager.UseStageBasedActivation)
+            {
+                // In stage-based mode, force a new roll for effects
+                // This will restart the delay timer and potentially activate effects again
+                formationEffectManager.ForceRollForEffects();
+            }
+            else
+            {
+                // In manual mode, restore the previous states
+                if (wasBreathingActiveBeforeDisruption)
+                    formationEffectManager.StartBreathing();
+                if (wasRotationActiveBeforeDisruption)
+                    formationEffectManager.StartRotation();
+                
+                if (wasBreathingActiveBeforeDisruption || wasRotationActiveBeforeDisruption)
+                    formationEffectManager.StartEffects();
+            }
+        }
+        
+        // Clear stored states
+        wasBreathingActiveBeforeDisruption = false;
+        wasRotationActiveBeforeDisruption = false;
+        hadPendingActivationBeforeDisruption = false;
     }
     
     void DisruptAllChickens()
@@ -326,10 +424,24 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         isInRecoveryDelay = false;
         recoveryTimeRemaining = 0f;
         
+        // Resume formation effects after chicken restoration
+        if (pauseFormationEffects)
+        {
+            // Wait a frame to ensure chickens are fully restored before resuming effects
+            StartCoroutine(ResumeFormationEffectsDelayed());
+        }
+        
         if (showDebugLogs)
         {
             Debug.Log($"PassageBuildingChickenDisruptor: Disruption ended, restored {restoredCount} chickens");
         }
+    }
+    
+    // Wait one frame before resuming effects to ensure chicken states are stable
+    IEnumerator ResumeFormationEffectsDelayed()
+    {
+        yield return null; // Wait one frame
+        ResumeFormationEffects();
     }
     
     // Force end disruption (useful for testing or special cases)
@@ -378,6 +490,7 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
     public int DisruptedChickensCount => disruptedChickens.Count;
     public int BuildingsInZone => buildingsInZone.Count;
     public float RecoveryDelay => recoveryDelay;
+    public bool IsPausingFormationEffects => pauseFormationEffects;
     
     // Status for UI/debugging
     public string GetStatusString()
@@ -389,6 +502,17 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
             return $"Recovery Delay ({recoveryTimeRemaining:F1}s remaining)";
             
         return $"Active Disruption ({buildingsInZone.Count} building{(buildingsInZone.Count != 1 ? "s" : "")} present)";
+    }
+    
+    public string GetFormationEffectStatus()
+    {
+        if (!pauseFormationEffects || !formationEffectManager)
+            return "Not managing effects";
+            
+        if (isDisrupting)
+            return "Effects PAUSED during disruption";
+            
+        return "Effects available for normal operation";
     }
     
     void OnDrawGizmos()
@@ -457,11 +581,29 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
                 }
             }
         }
+        
+        // Draw formation effect status indicator
+        if (pauseFormationEffects && formationEffectManager && isDisrupting)
+        {
+            // Draw a cross or pause symbol above the disruptor
+            Gizmos.color = Color.magenta;
+            Vector3 iconPos = transform.position + Vector3.up * 3f;
+            Gizmos.DrawLine(iconPos + Vector3.left * 0.5f, iconPos + Vector3.right * 0.5f);
+            Gizmos.DrawLine(iconPos + Vector3.forward * 0.5f, iconPos + Vector3.back * 0.5f);
+        }
     }
     
     void OnValidate()
     {
         // Ensure recovery delay is positive
         recoveryDelay = Mathf.Max(0f, recoveryDelay);
+        
+        // Find formation effect manager if not assigned
+        if (!formationEffectManager)
+        {
+            formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
+        }
+        
+        this.ValidateRefs();
     }
 }
