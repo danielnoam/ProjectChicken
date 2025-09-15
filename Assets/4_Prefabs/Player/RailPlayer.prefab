@@ -813,8 +813,34 @@ MonoBehaviour:
     minValue: 0.1
     maxValue: 1
   aimLockSize: 0.5
+  spreadSizeMultiplier: 1.5
+  spreadSizeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   punchTransform: {fileID: 5170456632490657193}
   aimLockTransform: {fileID: 5195178626210929267}
+  spreadTransform: {fileID: 0}
   reticleRenderers:
   - {fileID: 5022044165417545323}
   - {fileID: 4317489346689356038}
@@ -1639,8 +1665,34 @@ MonoBehaviour:
     minValue: 0.1
     maxValue: 1
   aimLockSize: 0.5
+  spreadSizeMultiplier: 1.5
+  spreadSizeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   punchTransform: {fileID: 7925574344398128321}
   aimLockTransform: {fileID: 5757944950620773722}
+  spreadTransform: {fileID: 0}
   reticleRenderers:
   - {fileID: 3954000043469550707}
   - {fileID: 3701714565008483880}
@@ -5572,8 +5624,34 @@ MonoBehaviour:
     minValue: 0.1
     maxValue: 1
   aimLockSize: 2.5
+  spreadSizeMultiplier: 1.5
+  spreadSizeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   punchTransform: {fileID: 2338327964849211494}
   aimLockTransform: {fileID: 7663175646733205558}
+  spreadTransform: {fileID: 0}
   reticleRenderers:
   - {fileID: 8026457023098140983}
   - {fileID: 8993276472557018972}
@@ -5743,8 +5821,34 @@ MonoBehaviour:
     minValue: 0.1
     maxValue: 1
   aimLockSize: 0.5
+  spreadSizeMultiplier: 1.5
+  spreadSizeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   punchTransform: {fileID: 5143968757658090375}
   aimLockTransform: {fileID: 8752013385722006519}
+  spreadTransform: {fileID: 0}
   reticleRenderers:
   - {fileID: 1445691226714708908}
   - {fileID: 6187236964504006385}
@@ -5887,8 +5991,34 @@ MonoBehaviour:
     minValue: 0.1
     maxValue: 1
   aimLockSize: 0.5
+  spreadSizeMultiplier: 1.5
+  spreadSizeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   punchTransform: {fileID: 6776964019177118187}
   aimLockTransform: {fileID: 3476322528166181020}
+  spreadTransform: {fileID: 0}
   reticleRenderers:
   - {fileID: 2797940402119788746}
   - {fileID: 3149968215603376845}
@@ -6313,6 +6443,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 5119365439155976064}
     m_Modifications:
     - target: {fileID: 592655978670399248, guid: 6f30c0214a9d1184097a7059a56fe649, type: 3}
+      propertyPath: rend
+      value: 
+      objectReference: {fileID: 7456055691847262269}
+    - target: {fileID: 592655978670399248, guid: 6f30c0214a9d1184097a7059a56fe649, type: 3}
       propertyPath: _renderer
       value: 
       objectReference: {fileID: 7456055691847262269}
@@ -6341,6 +6475,10 @@ PrefabInstance:
       value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 763063787147687936, guid: 6f30c0214a9d1184097a7059a56fe649, type: 3}
+      propertyPath: rend
+      value: 
+      objectReference: {fileID: 3587137709723366513}
+    - target: {fileID: 763063787147687936, guid: 6f30c0214a9d1184097a7059a56fe649, type: 3}
       propertyPath: _renderer
       value: 
       objectReference: {fileID: 3587137709723366513}
@@ -6368,6 +6506,10 @@ PrefabInstance:
       propertyPath: _DisplacementMagnitude
       value: 0.7
       objectReference: {fileID: 0}
+    - target: {fileID: 2610419344229914550, guid: 6f30c0214a9d1184097a7059a56fe649, type: 3}
+      propertyPath: rend
+      value: 
+      objectReference: {fileID: 3644924424326362599}
     - target: {fileID: 2610419344229914550, guid: 6f30c0214a9d1184097a7059a56fe649, type: 3}
       propertyPath: _renderer
       value: 
@@ -6404,6 +6546,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3383271567618914620, guid: 6f30c0214a9d1184097a7059a56fe649, type: 3}
+      propertyPath: rend
+      value: 
+      objectReference: {fileID: 8835721941944714767}
     - target: {fileID: 3383271567618914620, guid: 6f30c0214a9d1184097a7059a56fe649, type: 3}
       propertyPath: _renderer
       value: 

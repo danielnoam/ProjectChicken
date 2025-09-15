@@ -9,7 +9,7 @@ public class ShieldHitMovement : MonoBehaviour
     private static readonly int DisplacementStrength = Shader.PropertyToID("_DisplacementStrength");
     
     
-    [SerializeField] private new Renderer renderer;
+    [SerializeField] private Renderer rend;
     [SerializeField] private float displacementMagnitude;
     [SerializeField] private AnimationCurve displacementCurve;
     [SerializeField] private float displacementLerpSpeed;
@@ -25,7 +25,7 @@ public class ShieldHitMovement : MonoBehaviour
     private void Awake()
     {
         _camera = Camera.main;
-        _material = renderer.material;
+        _material = rend.material;
     }
 
     // private void Update()

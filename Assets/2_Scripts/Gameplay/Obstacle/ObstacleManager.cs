@@ -100,6 +100,8 @@ public class ObstacleManager : MonoBehaviour
         Vector3 directionToPlayer = GetDirectionToPlayer(newObstacle.transform.position);
         newObstacle.Initialize(directionToPlayer, baseSpeed);
         
+        Debug.Log("Spawned");
+        
         return newObstacle;
     }
     

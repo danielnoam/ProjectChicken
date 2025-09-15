@@ -31,7 +31,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5691960003539762116}
+  - {fileID: 6975992339117037203}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7400025501964893993
@@ -71,13 +71,13 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 56.8, y: 13.460211, z: 35.702766}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!1001 &5293803284980210735
+  m_Size: {x: 27.483612, y: 1, z: 7.0252686}
+  m_Center: {x: 13.680504, y: 0, z: 29.552464}
+--- !u!1001 &7441368729932771704
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -85,57 +85,57 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7840185886424104423}
     m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -80.73315
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -2.13902
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 41.23465
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.7071068
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
       propertyPath: m_LocalRotation.x
       value: -0.7071068
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
       propertyPath: m_LocalRotation.z
       value: -0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
+    - target: {fileID: 919132149155446097, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
       propertyPath: m_Name
-      value: GazStation
+      value: Gas Station
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
---- !u!4 &5691960003539762116 stripped
+  m_SourcePrefab: {fileID: 100100000, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
+--- !u!4 &6975992339117037203 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 101aa609e03ff8a478e9d56f8423511d, type: 3}
-  m_PrefabInstance: {fileID: 5293803284980210735}
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 80d6968f065ab6b458eccea69f3c7041, type: 3}
+  m_PrefabInstance: {fileID: 7441368729932771704}
   m_PrefabAsset: {fileID: 0}

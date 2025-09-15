@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using VInspector;
-using VInspector.Libs;
 
 [Serializable]
 public class FormationStageData
