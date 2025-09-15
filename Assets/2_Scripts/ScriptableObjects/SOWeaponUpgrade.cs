@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AYellowpaper;
+using DNExtensions;
 using UnityEngine;
 using VInspector;
 using UnityEditor;
@@ -9,7 +10,7 @@ using UnityEditor;
 
 public class SOWeaponUpgrade : SOUpgradeBase
 {
-    [SerializeField, ReadOnly] private SOWeaponData baseWeapon;
+    [SerializeField, VInspector.ReadOnly] private SOWeaponData baseWeapon;
     
     [Header("Override Weapon Settings")]
     [SerializeField] private bool overrideWeaponGfx;
@@ -48,6 +49,13 @@ public class SOWeaponUpgrade : SOUpgradeBase
     [SerializeField, Min(0)] private float ammoLimit = 3f;
     [EndIf]
     
+    [SerializeField] private bool overrideSpreadSettings;
+    [ShowIf("overrideSpreadSettings")]
+    [SerializeField, MinMaxRange(0f, 5f)] private RangedFloat spreadRange = new(0, 2f);
+    [SerializeField, Min(0)] private float spreadRate = 1f;
+    [SerializeField, Min(0)] private float spreadDecayRate = 2f;
+    [EndIf]
+    
     [ShowIf("WeaponType", WeaponType.Projectile), SerializeField] private bool overrideProjectileBehaviors; [EndIf]
     [ShowIf("ShowProjectileBehaviors"),SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>(); [EndIf]
     
@@ -77,7 +85,9 @@ public class SOWeaponUpgrade : SOUpgradeBase
     public float AmmoLimit => overrideWeaponLimitation && baseWeapon.WeaponLimitation == WeaponLimitation.AmmoBased ? ammoLimit : (baseWeapon ? baseWeapon.AmmoLimit : 3f);
     public List<ProjectileBehaviorBase> ProjectileBehaviors => overrideProjectileBehaviors ? projectileBehaviors : (baseWeapon ? baseWeapon.ProjectileBehaviors : new List<ProjectileBehaviorBase>());
     public List<HitscanBehaviorBase> HitscanBehaviors => overrideHitscanBehaviors ? hitscanBehaviors : (baseWeapon ? baseWeapon.HitscanBehaviors : new List<HitscanBehaviorBase>());
-
+    public RangedFloat SpreadRange => overrideSpreadSettings ? spreadRange : (baseWeapon ? baseWeapon.SpreadRange : new RangedFloat(0, 2f));
+    public float SpreadRate => overrideSpreadSettings ? spreadRate : (baseWeapon ? baseWeapon.SpreadRate : 1f);
+    public float SpreadDecayRate => overrideSpreadSettings ? spreadDecayRate : (baseWeapon ? baseWeapon.SpreadDecayRate : 2f);
     
     #if UNITY_EDITOR
     private void OnDestroy()
@@ -140,6 +150,13 @@ public class SOWeaponUpgrade : SOUpgradeBase
             ammoLimit = baseWeapon.AmmoLimit;
         }
         
+        if (!overrideSpreadSettings)
+        {
+            spreadRange = baseWeapon.SpreadRange;
+            spreadRate = baseWeapon.SpreadRate;
+            spreadDecayRate = baseWeapon.SpreadDecayRate;
+        }
+        
         switch (baseWeapon.WeaponType)
         {
             case WeaponType.Projectile:
@@ -199,6 +216,13 @@ public class SOWeaponUpgrade : SOUpgradeBase
             heatPerShot = previousUpgrade.HeatPerShot;
             timeLimit = previousUpgrade.TimeLimit;
             ammoLimit = previousUpgrade.AmmoLimit;
+        }
+        
+        if (!overrideSpreadSettings)
+        {
+            spreadRange = previousUpgrade.SpreadRange;
+            spreadRate = previousUpgrade.SpreadRate;
+            spreadDecayRate = previousUpgrade.SpreadDecayRate;
         }
         
         switch (baseWeapon.WeaponType)

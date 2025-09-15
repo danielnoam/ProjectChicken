@@ -23,8 +23,12 @@ MonoBehaviour:
   fireRate: 0.1
   maxTargets: 3
   targetCheckRadius: 5
-  spreadStrength: 0.3
   weaponUpgrades: []
+  spreadRange:
+    minValue: 0
+    maxValue: 4
+  spreadRate: 2
+  spreadDecayRate: 1
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: 14e001c3c26e24543956a33a00868bc9, type: 3}
   projectileLifetime: 2
   barrelAimOffsets:

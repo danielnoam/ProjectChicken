@@ -195,6 +195,11 @@ public class LevelManager : MonoBehaviour
     private void Update()
     {
         UpdateStageEvents();
+
+        if (Input.GetKeyDown(KeyCode.F12))
+        {
+            SetNextStage();
+        }
     }
     
     private void OnEnemiesCleared(int scoreWorth)

@@ -159,6 +159,12 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         UpdateFireRateCooldown();
         UpdateHeatRegeneration();
         UpdateWeaponTime();
+
+
+        foreach (var weapon in weapons)
+        {
+            weapon?.OnWeaponUpdate();
+        }
     }
     
 

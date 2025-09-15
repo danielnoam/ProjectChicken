@@ -1,7 +1,6 @@
 using System;
 using DNExtensions;
 using DNExtensions.VFXManager;
-using KBCore.Refs;
 using PrimeTween;
 using UnityEngine;
 using VInspector;
@@ -34,6 +33,8 @@ public class MenuElementLaunchLever : MenuElement
     [SerializeField] private MenuElementLevelSelection levelSelection;
     [SerializeField] private Transform leverPivotTransform;
     [SerializeField] private Renderer selectedLevelLight;
+    [SerializeField] private BobbleHead chickenBobbleHead;
+    [SerializeField] private BackgroundObjectsAnimator backgroundObjectsAnimator;
     [EndFoldout]
 
     
@@ -140,20 +141,23 @@ public class MenuElementLaunchLever : MenuElement
                     
                     if (VFXManager.Instance && vfxSequenceOnLaunch) VFXManager.Instance.PlayVFX(vfxSequenceOnLaunch);
                     
+                    backgroundObjectsAnimator?.StartAnimation();
+                    
                     leverPullingSfx?.Play(audioSource);
                 })
                 .Group(Tween.LocalRotation(leverPivotTransform,startDelay: delayBeforeAnimation, startValue: _leverStartRot,endValue: leverPressedRotation, duration: animationDuration, ease: animationEase))
                 .ChainCallback(() =>
                 {
                     leverPressedSfx?.Play(audioSource);
-                    if (cinemachineImpulseSource)
-                    {
-                        cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = cameraShakeSettings.impulseShape;
-                        cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = cameraShakeSettings.duration;
-                        cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
-                        cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
-                        cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
-                    }
+                    chickenBobbleHead?.AddExternalPunch();
+                    // if (cinemachineImpulseSource)
+                    // {
+                    //     cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = cameraShakeSettings.impulseShape;
+                    //     cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = cameraShakeSettings.duration;
+                    //     cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
+                    //     cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
+                    //     cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
+                    // }
                 })
                 .ChainDelay(delayBeforeLaunch)
                 .OnComplete(FinishedInteraction)

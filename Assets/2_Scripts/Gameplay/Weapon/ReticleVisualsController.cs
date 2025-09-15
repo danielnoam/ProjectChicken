@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using DNExtensions;
 using PrimeTween;
@@ -13,18 +11,24 @@ public class ReticleVisualsController : MonoBehaviour
     [SerializeField, Range(0,1)] private float emissionStrength = 1;
     [SerializeField, MinMaxRange(0f,1f)] private RangedFloat emissionRange = new(0.1f, 1f);
 
-    [Header("Size")]
+    [Header("Aim Lock")]
     [SerializeField] private float aimLockSize = 0.5f;
+    
+    [Header("Spread")]
+    [SerializeField, Range(0.5f, 3f)] private float spreadSizeMultiplier = 1.5f;
+    [SerializeField] private AnimationCurve spreadSizeCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 1.5f);
     
     [Header("References")]
     [SerializeField] private Transform punchTransform;
     [SerializeField] private Transform aimLockTransform;
+    [SerializeField] private Transform spreadTransform;
     [SerializeField] private List<Renderer> reticleRenderers = new List<Renderer>();
 
     private bool _isVisible;
     private bool _isAimLocked;
     private float _baseSize;
     private float _currentHeat;
+    private Tween _spreadSizeTween;
     private Tween _sizeTween;
     private Tween _punchSizeTween;
     private Tween _aimLockSizeTween;
@@ -209,6 +213,16 @@ public class ReticleVisualsController : MonoBehaviour
         if (_punchSizeTween.isAlive) _punchSizeTween.Stop();
         punchTransform.localScale = Vector3.one;
         _punchSizeTween = Tween.PunchScale(punchTransform,Vector3.one * strength, startDelay: delay, duration: duration);
+    }
+    
+    public void SetSpreadVisualization(float normalizedSpread)
+    {
+        if (!spreadTransform) return;
+        
+        float targetSpreadSize = spreadSizeCurve.Evaluate(normalizedSpread) * spreadSizeMultiplier;
+        
+        if (_spreadSizeTween.isAlive) _spreadSizeTween.Stop();
+        _spreadSizeTween = Tween.Scale(spreadTransform, Vector3.one * targetSpreadSize, 0.1f, Ease.OutQuad);
     }
 
     #endregion Size -----------------------------------------------------------------------------------

@@ -36,8 +36,11 @@ public class WeaponInstance
     public CinemachineImpulseSource CinemachineImpulseSource {  get; private set; }
     
     
-    
+    private float _currentSpread;
+    private float _lastShotTime;
+    private float NormalizedSpread => CurrentWeaponData ? Mathf.InverseLerp(CurrentWeaponData.SpreadRange.minValue, CurrentWeaponData.SpreadRange.maxValue, _currentSpread) : 0f;
 
+    
     public void SetUpWeaponInstance(RailPlayer player, ControllerVibrationSource controllerVibrationSource, CinemachineImpulseSource cinemachineImpulseSource)
     {
         ControllerVibrationSource = controllerVibrationSource;
@@ -53,8 +56,9 @@ public class WeaponInstance
                 asset?.UpgradeGfx?.Hide(false);
             }
         }
-        
         ApplyWeaponUpgrade(player);
+                
+        InitializeSpread();
     }
 
     
@@ -126,9 +130,63 @@ public class WeaponInstance
         }
     }
     
+    #region Spread System ---------------------------------------------------------------------------------
 
+    private void UpdateSpread()
+    {
+        if (!CurrentWeaponData) return;
+
+        float currentTime = Time.time;
+        float timeSinceLastShot = currentTime - _lastShotTime;
+        
+        if (timeSinceLastShot > 0.5f && _currentSpread > CurrentWeaponData.SpreadRange.minValue)
+        {
+            float spreadDecrease = CurrentWeaponData.SpreadDecayRate * Time.deltaTime;
+            _currentSpread = Mathf.Max(_currentSpread - spreadDecrease, CurrentWeaponData.SpreadRange.minValue);
+            weaponReticle?.SetSpreadVisualization(NormalizedSpread);
+        }
+    }
+
+    private void AccumulateSpread()
+    {
+        if (!CurrentWeaponData) return;
+
+        _lastShotTime = Time.time;
+        
+        _currentSpread += CurrentWeaponData.SpreadRate;
+        _currentSpread = Mathf.Clamp(_currentSpread, CurrentWeaponData.SpreadRange.minValue, CurrentWeaponData.SpreadRange.maxValue);
+    
+        weaponReticle?.SetSpreadVisualization(NormalizedSpread);
+    }
+    
+
+    private Vector3 CalculateSpreadDirection()
+    {
+        if (!CurrentWeaponData) return Vector3.zero;
+
+        Vector3 randomDirection = Random.insideUnitCircle.normalized * _currentSpread;
+        return new Vector3(randomDirection.x, randomDirection.y, 0f);
+    }
+    
+    private void InitializeSpread()
+    {
+        if (CurrentWeaponData)
+        {
+            _currentSpread = CurrentWeaponData.SpreadRange.minValue;
+        }
+        _lastShotTime = 0f;
+    }
+
+    #endregion ---------------------------------------------------------------------------------
+
+    
     #region Events ---------------------------------------------------------------------------------------------
 
+    public void OnWeaponUpdate()
+    {
+        UpdateSpread();
+    }
+    
     public void OnWeaponSelected(bool allowShooting)
     {
         CurrentWeaponGfx?.Show();
@@ -149,25 +207,23 @@ public class WeaponInstance
         weaponReticle?.Hide();
     }
     
-    
     public void OnWeaponUsed(RailPlayer owner)
     {
-
-        var direction = (Random.insideUnitSphere).normalized;
-        direction.z = 0;
-        direction *= CurrentWeaponData.SpreadStrength;
-        
+        AccumulateSpread();
+        Vector3 spreadDirection = CalculateSpreadDirection();
         CurrentWeaponGfx?.AnimateUsage();
-        weaponReticle?.PunchReticleSize(0.25f, 0.5f, 0.03f);
-        weaponReticle?.PunchReticlePosition(direction, 0.5f, 0.03f);
+
+        if (weaponReticle)
+        {
+            weaponReticle.PunchReticleSize(0.25f, 0.5f, 0.03f);
+            weaponReticle.PunchReticlePosition(spreadDirection, 0.5f, 0.03f);
+        }
 
         if (CurrentWeaponData && CurrentWeaponBarrels != null)
         {
             switch (CurrentWeaponData.WeaponType)
             {
                 case WeaponType.Projectile:
-                    
-                    
                     Vector3[] barrelOffsets = CurrentWeaponData.BarrelAimOffsets;
                     for (int i = 0; i < CurrentWeaponBarrels.Length; i++)
                     {
@@ -175,16 +231,16 @@ public class WeaponInstance
                         if (barrelPosition)
                         {
                             Vector3 aimOffset = i < barrelOffsets.Length ? barrelOffsets[i] : Vector3.zero;
-                            FireProjectileWeapon(owner, barrelPosition.position, aimOffset + direction);
+                            FireProjectileWeapon(owner, barrelPosition.position, aimOffset + spreadDirection);
                         }
                     }
                     break;
-                
+            
                 case WeaponType.Hitscan:
                     foreach (var barrelPosition in CurrentWeaponBarrels)
                     {
                         if (barrelPosition)
-                            FireHitscanWeapon(owner, barrelPosition.position);
+                            FireHitscanWeapon(owner, barrelPosition.position, spreadDirection);
                     }
                     break;
             }
@@ -265,11 +321,11 @@ public class WeaponInstance
     
     #region Hitscan ----------------------------------------------------------------------------------
 
-    private void FireHitscanWeapon(RailPlayer owner, Vector3 startPosition)
+    private void FireHitscanWeapon(RailPlayer owner, Vector3 startPosition, Vector3 spreadDirection = default)
     {
         PlayFireEffect(startPosition, Quaternion.identity);
         
-        // weaponData.HitscanBehaviors now contains the upgraded behaviors
+
         foreach (var behavior in CurrentWeaponData.HitscanBehaviors)
         {
             behavior.OnStart(this, owner);
@@ -278,7 +334,7 @@ public class WeaponInstance
         if (CurrentWeaponData.MaxTargets == 1)
         {
             ChickenStateController enemy = owner.Aiming.GetTarget(CurrentWeaponData.TargetCheckRadius);
-            HitscanHit(owner, enemy);
+            HitscanHit(owner, enemy, spreadDirection);
         } 
         else
         {
@@ -290,7 +346,7 @@ public class WeaponInstance
             };
             foreach (ChickenStateController enemy in enemies)
             {
-                HitscanHit(owner, enemy);
+                HitscanHit(owner, enemy, spreadDirection);
             }
         }
         
@@ -300,7 +356,7 @@ public class WeaponInstance
         }
     }
 
-    private void HitscanHit(RailPlayer owner, ChickenStateController enemy)
+    private void HitscanHit(RailPlayer owner, ChickenStateController enemy, Vector3 spreadDirection = default)
     {
         if (!enemy) return;
 
@@ -309,8 +365,14 @@ public class WeaponInstance
             behavior.OnHit(this, owner, enemy);
         }
         
-        PlayImpactEffect(enemy.transform.position, Quaternion.identity);
-    } 
+        Vector3 impactPosition = enemy.transform.position;
+        if (spreadDirection != Vector3.zero)
+        {
+            impactPosition += spreadDirection * 0.5f;
+        }
+    
+        PlayImpactEffect(impactPosition, Quaternion.identity);
+    }
 
     #endregion Hitscan ----------------------------------------------------------------------------------
 

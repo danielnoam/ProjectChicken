@@ -21,8 +21,14 @@ public class SOWeaponData : ScriptableObject
     [SerializeField, Min(0)] private float fireRate = 1f;
     [SerializeField, Min(0), Tooltip("0 = Infinite targets")] private int maxTargets = 1;
     [SerializeField, Min(0.1f)] private float targetCheckRadius = 3f;
-    [SerializeField, Min(0)] private float spreadStrength = 1f;
     [SerializeField] private List<SOWeaponUpgrade> weaponUpgrades = new List<SOWeaponUpgrade>();
+    
+    
+    [Header("Spread Settings")]
+    [SerializeField, MinMaxRange(0f, 5f)] private RangedFloat spreadRange = new(0, 2f);
+    [SerializeField, Min(0)] private float spreadRate = 1f;
+    [SerializeField, Min(0)] private float spreadDecayRate = 2f;
+    
     
     [ShowIf("weaponType", WeaponType.Projectile)]
     [Header("Projectile Settings")]
@@ -69,7 +75,9 @@ public class SOWeaponData : ScriptableObject
     public SOAudioEvent ImpactSound => impactSound;
     public ParticleSystem ImpactEffectPrefab => impactEffectPrefab;
     public Vector3[] BarrelAimOffsets => barrelAimOffsets;
-    public float SpreadStrength => spreadStrength;
+    public RangedFloat SpreadRange => spreadRange;
+    public float SpreadRate => spreadRate;
+    public float SpreadDecayRate => spreadDecayRate;
 
     
     
@@ -164,6 +172,7 @@ public class SOWeaponData : ScriptableObject
     #endif
     #endregion
 
+    
     #region Instance creation
     public void CopyBaseWeaponData(SOWeaponData source)
     {
@@ -179,6 +188,10 @@ public class SOWeaponData : ScriptableObject
         maxTargets = source.MaxTargets;
         targetCheckRadius = source.TargetCheckRadius;
         weaponUpgrades = source.WeaponUpgrades;
+        
+        spreadRange = source.SpreadRange;
+        spreadRate = source.SpreadRate;
+        spreadDecayRate = source.SpreadDecayRate;
         
         barrelAimOffsets = new Vector3[source.barrelAimOffsets.Length];
         Array.Copy(source.barrelAimOffsets, barrelAimOffsets, source.barrelAimOffsets.Length);
@@ -210,6 +223,10 @@ public class SOWeaponData : ScriptableObject
         ammoLimit = upgrade.AmmoLimit;
         projectileBehaviors = upgrade.ProjectileBehaviors;
         hitscanBehaviors = upgrade.HitscanBehaviors;
+        
+        spreadRange = upgrade.SpreadRange;
+        spreadRate = upgrade.SpreadRate;
+        spreadDecayRate = upgrade.SpreadDecayRate;
         
         if (upgrade.BarrelAimOffsets is { Length: > 0 })
         {

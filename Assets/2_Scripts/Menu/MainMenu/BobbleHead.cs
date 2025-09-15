@@ -4,14 +4,14 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 [DisallowMultipleComponent]
 [RequireComponent(typeof(AudioSource))]
-public class BubbleHead : MonoBehaviour
+public class BobbleHead : MonoBehaviour
 {
     [Header("Settings")]
-    [SerializeField] private float punchForce = 25f;
-    [SerializeField] private float springStrength = 150f;
-    [SerializeField] private float damping = 0.92f;
-    [SerializeField] private float maxRotationAngle = 45f;
-    [SerializeField] private float punchCooldown = 0.1f;
+    [SerializeField] private float punchForce = 500f;
+    [SerializeField] private float springStrength = 350;
+    [SerializeField] private float damping = 0.96f;
+    [SerializeField] private float maxRotationAngle = 20f;
+    [SerializeField] private float punchCooldown = 3f;
     
     [Header("Punch Counter")]
     [SerializeField] private int punchesNeeded = 5;
@@ -99,6 +99,11 @@ public class BubbleHead : MonoBehaviour
             OnPunchThresholdReached();
             ResetPunchCounter();
         }
+    }
+    
+    public void AddExternalPunch()
+    {
+        AddPunch(new Vector3(-punchForce, 0, Random.Range(-punchForce * 0.3f, punchForce * 0.3f)));
     }
     
     

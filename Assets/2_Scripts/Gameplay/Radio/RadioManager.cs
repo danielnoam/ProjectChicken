@@ -101,34 +101,30 @@ public class RadioManager : MonoBehaviour
         _messagePlaying = false;
         _currentSender = null;
         
-        // Process next message in queue if available
-        if (_messages.Count > 0)
-        {
-            // Add a small delay to ensure smooth transition
-            Invoke(nameof(PlayNextMessage), 0.1f);
-        }
+        // Let Update handle playing the next message
     }
     
     private void OnMessageCompleted()
     {
+        OnMessageFinished?.Invoke(_currentMessage);
+
         if (_currentMessage && _currentMessage.IsPersistent)
         {
+            // Persistent message stays on screen until replaced
+            // Set _messagePlaying to false so new messages can interrupt
             _messagePlaying = false;
             return;
         }
 
-        if (_messages.Count == 0 || (_messages.Count > 0 && _messages[0].Sender != _currentSender))
+        // Just update state, let Update handle what happens next
+        _messagePlaying = false;
+        
+        if (_messages.Count == 0)
         {
-            _messagePlaying = false;
-            _currentSender = null; 
+            _currentSender = null;
             radioMessageUI.HideMessage();
         }
-        else
-        {
-            _messagePlaying = false;
-        }
-        
-        OnMessageFinished?.Invoke(_currentMessage);
+        // If there are more messages, Update will handle them
     }
 
     
@@ -188,15 +184,10 @@ public class RadioManager : MonoBehaviour
     public void AddMessage(SORadioMessage message)
     {
         if (!message) return;
-        
+    
         if (message.IsImportant)
         {
-            if (_messagePlaying)
-            {
-                _currentMessage?.AudioEvent?.Stop(audioSource);
-                _messages.Insert(0, _currentMessage);
-                radioMessageUI.HideMessage();
-            }
+            // Important messages interrupt immediately
             PlayMessage(message);
         }
         else
@@ -217,25 +208,27 @@ public class RadioManager : MonoBehaviour
 
     private void PlayMessage(SORadioMessage message)
     {
-        bool isSameSender = _currentSender == message.Sender && _currentSender != null;
-        bool shouldReplace = (_currentMessage && _currentMessage.IsPersistent && !isSameSender) || message.IsImportant;
+        Debug.Log($"PlayMessage: _messagePlaying={_messagePlaying}, _currentSender={_currentSender?.name}, newSender={message.Sender?.name}");
         
-        if (_messagePlaying && _currentMessage != null)
+        // Check if we should update the current message or show a new one
+        if (_currentSender && _currentSender == message.Sender && (_messagePlaying || (_currentMessage && _currentMessage.IsPersistent)))
         {
-            _currentMessage.AudioEvent?.Stop(audioSource);
-        }
-
-        if (isSameSender && !shouldReplace && _messagePlaying)
-        {
+            // Same sender - just update the message content
+            Debug.Log("Updating message from same sender");
+            _currentMessage?.AudioEvent?.Stop(audioSource);
             _currentMessage = message;
+            _messagePlaying = true;
             message.AudioEvent?.Play(audioSource);
             radioMessageUI.UpdateMessageOnly(message);
         }
         else
         {
-            if (_messagePlaying)
+            // Different sender or no current message - show new message
+            Debug.Log("Showing new message");
+            
+            if (_currentMessage)
             {
-                radioMessageUI.HideMessage();
+                _currentMessage.AudioEvent?.Stop(audioSource);
             }
 
             _messagePlaying = true;
@@ -244,15 +237,16 @@ public class RadioManager : MonoBehaviour
             message.AudioEvent?.Play(audioSource);
             radioMessageUI.ShowMessage(message);
         }
-        
+    
         OnMessageStarted?.Invoke(message);
     }
-
+    
     private void ClearMessages()
     {
         _messages.Clear();
         _currentMessage = null;
-        _currentSender = null; 
+        _currentSender = null;
+        _messagePlaying = false;
         radioMessageUI.HideMessage();
     }
     

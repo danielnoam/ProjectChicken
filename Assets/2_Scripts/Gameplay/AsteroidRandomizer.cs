@@ -4,7 +4,7 @@ using UnityEngine;
 using VInspector;
 
 [SelectionBase]
-public class Asteroid : MonoBehaviour
+public class AsteroidRandomizer : MonoBehaviour
 {
 
     

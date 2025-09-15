@@ -12,7 +12,7 @@ public class SORadioMessage : ScriptableObject
     [SerializeField] private SOAudioEvent audioEvent;
     [Tooltip("If true, this message will skip to the start of the radios message queue")]
     [SerializeField] private bool isImportant;
-    [Tooltip("If true, this message will stay on screen until replaced by another persistent message")]
+    [Tooltip("If true, this message will stay on screen until replaced by another message")]
     [SerializeField] private bool isPersistent;
     [Tooltip("For persistent messages: minimum show time before it can be replaced\nFor non-persistent messages: total show time before auto-hide")]
     [SerializeField, Min(2)] private float duration = 3f;

@@ -1175,6 +1175,58 @@ MonoBehaviour:
   upgradeEggPrefab: {fileID: 5191593688329016279, guid: ac70961ca0172944099e50fea330a0bb, type: 3}
   levelManager: {fileID: 98154818553496101}
   player: {fileID: 0}
+--- !u!1 &4966072247907926789
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1559061504508950688}
+  - component: {fileID: 7316421256925821375}
+  m_Layer: 0
+  m_Name: ObstacleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1559061504508950688
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4966072247907926789}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6161437660023631568}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7316421256925821375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4966072247907926789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 683617086bc1434d87391c8040548191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnDistance: 50
+  obstaclePrefabs:
+  - {fileID: 6229465747584892128, guid: 38b695021814a05489b709d9a7793e38, type: 3}
+  baseSpeed: 15
+  directionVariation: 30
+  obstacleHolder: {fileID: 1559061504508950688}
+  levelManager: {fileID: 98154818553496101}
+  player: {fileID: 0}
 --- !u!1 &5483006400290362027
 GameObject:
   m_ObjectHideFlags: 0
@@ -1505,6 +1557,7 @@ Transform:
   - {fileID: 5210243299570152646}
   - {fileID: 2387024627530589077}
   - {fileID: 8969420720622942545}
+  - {fileID: 1559061504508950688}
   - {fileID: 5117542504569507640}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1769,7 +1822,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 5610219870644795921}
   m_Direction: 0
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.9999997
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
