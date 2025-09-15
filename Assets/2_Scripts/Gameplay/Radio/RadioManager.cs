@@ -100,8 +100,6 @@ public class RadioManager : MonoBehaviour
     {
         _messagePlaying = false;
         _currentSender = null;
-        
-        // Let Update handle playing the next message
     }
     
     private void OnMessageCompleted()
@@ -110,13 +108,10 @@ public class RadioManager : MonoBehaviour
 
         if (_currentMessage && _currentMessage.IsPersistent)
         {
-            // Persistent message stays on screen until replaced
-            // Set _messagePlaying to false so new messages can interrupt
             _messagePlaying = false;
             return;
         }
-
-        // Just update state, let Update handle what happens next
+        
         _messagePlaying = false;
         
         if (_messages.Count == 0)
@@ -124,7 +119,6 @@ public class RadioManager : MonoBehaviour
             _currentSender = null;
             radioMessageUI.HideMessage();
         }
-        // If there are more messages, Update will handle them
     }
 
     
@@ -187,7 +181,6 @@ public class RadioManager : MonoBehaviour
     
         if (message.IsImportant)
         {
-            // Important messages interrupt immediately
             PlayMessage(message);
         }
         else
@@ -208,13 +201,8 @@ public class RadioManager : MonoBehaviour
 
     private void PlayMessage(SORadioMessage message)
     {
-        Debug.Log($"PlayMessage: _messagePlaying={_messagePlaying}, _currentSender={_currentSender?.name}, newSender={message.Sender?.name}");
-        
-        // Check if we should update the current message or show a new one
         if (_currentSender && _currentSender == message.Sender && (_messagePlaying || (_currentMessage && _currentMessage.IsPersistent)))
         {
-            // Same sender - just update the message content
-            Debug.Log("Updating message from same sender");
             _currentMessage?.AudioEvent?.Stop(audioSource);
             _currentMessage = message;
             _messagePlaying = true;
@@ -223,8 +211,6 @@ public class RadioManager : MonoBehaviour
         }
         else
         {
-            // Different sender or no current message - show new message
-            Debug.Log("Showing new message");
             
             if (_currentMessage)
             {

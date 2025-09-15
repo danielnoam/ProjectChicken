@@ -9,12 +9,12 @@ public class ObstacleManager : MonoBehaviour
 
     
     [Header("Obstacle Spawning")]
-    [SerializeField] private float spawnDistance = 50f;
+    [SerializeField] private float spawnDistance = 100f;
     [SerializeField] private Obstacle[] obstaclePrefabs;
 
     
     [Header("Movement Settings")]
-    [SerializeField] private float baseSpeed = 15f;
+    [SerializeField] private float baseSpeed = 55f;
     [SerializeField] private float directionVariation = 30f;
     
     
@@ -67,11 +67,6 @@ public class ObstacleManager : MonoBehaviour
         }
     }
     
-    private void Update()
-    {
-        // CleanupDistantObstacles();
-    }
-    
 
     private void OnPlayerDeath()
     {
@@ -105,21 +100,31 @@ public class ObstacleManager : MonoBehaviour
         Vector3 directionToPlayer = GetDirectionToPlayer(newObstacle.transform.position);
         newObstacle.Initialize(directionToPlayer, baseSpeed);
         
-        Debug.Log("Spawned Obstacle: " + newObstacle.name);
         return newObstacle;
     }
     
     private Vector3 GetDirectionToPlayer(Vector3 fromPosition)
     {
         if (!player) return Vector3.forward;
-        
+    
         Vector3 directionToPlayer = (player.transform.position - fromPosition).normalized;
-        
+    
         float randomAngle = UnityEngine.Random.Range(-directionVariation, directionVariation);
-        Vector3 finalDirection = Quaternion.AngleAxis(randomAngle, Vector3.up) * directionToPlayer;
         
+        Vector3 randomAxis = new Vector3(
+            UnityEngine.Random.Range(-1, 2),
+            UnityEngine.Random.Range(-1, 2),
+            UnityEngine.Random.Range(-1, 2)
+        );
+        
+        if (randomAxis == Vector3.zero) randomAxis = Vector3.up;
+        else randomAxis = randomAxis.normalized;
+    
+        Vector3 finalDirection = Quaternion.AngleAxis(randomAngle, randomAxis) * directionToPlayer;
+    
         return finalDirection;
     }
+
     
     
     [Button]
@@ -140,32 +145,6 @@ public class ObstacleManager : MonoBehaviour
     }
     
     
-    private void CleanupDistantObstacles()
-    {
-        if (!player) return;
-        
-        for (int i = _obstacles.Count - 1; i >= 0; i--)
-        {
-            if (!_obstacles[i])
-            {
-                _obstacles.RemoveAt(i);
-                continue;
-            }
-            
-            float distanceToPlayer = Vector3.Distance(_obstacles[i].transform.position, player.transform.position);
-            
-            if (distanceToPlayer > spawnDistance * 2f)
-            {
-                Obstacle obstacle = _obstacles[i];
-                _obstacles.RemoveAt(i);
-                
-                if (obstacle)
-                {
-                    Destroy(obstacle.gameObject);
-                }
-            }
-        }
-    }
 
     [Button]
     private void RemoveAllObstacles()
@@ -184,9 +163,9 @@ public class ObstacleManager : MonoBehaviour
     }
     
     [Button]
-    private void SpawnObstacleWave()
+    private void SpawnObstacleWave(int amount)
     {
-        int waveSize = UnityEngine.Random.Range(3, 6);
+        int waveSize = amount;
         
         for (int i = 0; i < waveSize; i++)
         {

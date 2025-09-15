@@ -1219,10 +1219,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 683617086bc1434d87391c8040548191, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnDistance: 50
+  spawnDistance: 400
   obstaclePrefabs:
   - {fileID: 6229465747584892128, guid: 38b695021814a05489b709d9a7793e38, type: 3}
-  baseSpeed: 15
+  baseSpeed: 55
   directionVariation: 30
   obstacleHolder: {fileID: 1559061504508950688}
   levelManager: {fileID: 98154818553496101}
@@ -1822,7 +1822,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 5610219870644795921}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9999997
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
