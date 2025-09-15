@@ -32,7 +32,7 @@ MonoBehaviour:
   enemyWave:
     serializedKvps:
     - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
-      Value: 15
+      Value: 25
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
@@ -40,11 +40,11 @@ MonoBehaviour:
   formationStageData:
     formationType: 1
     formationCount: 2
-    numberOfSlots: 2
+    numberOfSlots: 6
     spacing: 8
-    circleRadius: 7
+    circleRadius: 12
     useRandomPlacement: 1
-    formationSpacing: 5
+    formationSpacing: 3
     maxPlacementAttempts: 100
   requireAllTasks: 1
   tasks: []

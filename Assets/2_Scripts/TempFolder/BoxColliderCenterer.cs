@@ -1,9 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
-public class BoxColliderCenterer : MonoBehaviour
+public class GameObjectCenterer : MonoBehaviour
 {
-    private BoxCollider boxCollider;
+    [Header("Center Reference")]
+    public GameObject centerObject; // The GameObject that represents the center point
+    
     private bool hasBeenCentered = false;
     private float targetZ;
     
@@ -23,7 +25,7 @@ public class BoxColliderCenterer : MonoBehaviour
         hasBeenCentered = false;
         
         // Use a small delay to ensure the spawner has set the position first
-        if (boxCollider != null)
+        if (centerObject != null)
         {
             Invoke(nameof(InitialCenter), 0.02f);
         }
@@ -34,12 +36,10 @@ public class BoxColliderCenterer : MonoBehaviour
         // Prevent multiple centering calls
         if (hasBeenCentered) return;
         
-        // Get the BoxCollider component
-        boxCollider = GetComponent<BoxCollider>();
-        
-        if (boxCollider == null)
+        // Check if we have a center object assigned
+        if (centerObject == null)
         {
-            Debug.LogWarning("No BoxCollider found on " + gameObject.name);
+            Debug.LogWarning("No center object assigned on " + gameObject.name);
             return;
         }
         
@@ -61,7 +61,7 @@ public class BoxColliderCenterer : MonoBehaviour
         }
         
         // Initial centering
-        CenterBoxColliderAtTarget();
+        CenterObjectAtTarget();
         
         // Start monitoring position during scaling period
         StartCoroutine(MonitorPositionDuringScaling());
@@ -69,20 +69,20 @@ public class BoxColliderCenterer : MonoBehaviour
         hasBeenCentered = true;
     }
     
-    private void CenterBoxColliderAtTarget()
+    private void CenterObjectAtTarget()
     {
-        if (boxCollider == null) return;
+        if (centerObject == null) return;
         
-        // Calculate the world position of the box collider's center
-        Vector3 colliderWorldCenter = transform.TransformPoint(boxCollider.center);
+        // Get the world position of the center object
+        Vector3 centerWorldPosition = centerObject.transform.position;
         
-        // We want the collider center to be at (0, 0, targetZ)
+        // We want the center object to be at (0, 0, targetZ)
         Vector3 targetPosition = new Vector3(0f, 0f, targetZ);
         
-        // Calculate the offset needed to move the collider center to the target
-        Vector3 offset = targetPosition - colliderWorldCenter;
+        // Calculate the offset needed to move the center object to the target
+        Vector3 offset = targetPosition - centerWorldPosition;
         
-        // Apply the offset to the transform position
+        // Apply the offset to this transform (the parent object)
         transform.position += offset;
     }
     
@@ -93,8 +93,8 @@ public class BoxColliderCenterer : MonoBehaviour
         // Monitor and adjust position during the entire scaling duration
         while (elapsedTime < scalingDuration)
         {
-            // Continuously center the box collider during scaling
-            CenterBoxColliderAtTarget();
+            // Continuously center the object during scaling
+            CenterObjectAtTarget();
             
             // Wait a frame before checking again
             yield return null;
@@ -102,7 +102,7 @@ public class BoxColliderCenterer : MonoBehaviour
         }
         
         // Final centering after scaling is complete
-        CenterBoxColliderAtTarget();
+        CenterObjectAtTarget();
         
         Debug.Log($"Finished monitoring {gameObject.name} - final position: {transform.position}");
     }
@@ -116,11 +116,11 @@ public class BoxColliderCenterer : MonoBehaviour
     }
     
     // Optional: Manual re-centering method you can call if needed
-    public void RecenterBoxCollider()
+    public void RecenterObject()
     {
-        if (boxCollider != null)
+        if (centerObject != null)
         {
-            CenterBoxColliderAtTarget();
+            CenterObjectAtTarget();
         }
     }
 }
