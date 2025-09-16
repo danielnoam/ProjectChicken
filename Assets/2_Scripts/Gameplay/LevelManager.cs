@@ -41,7 +41,6 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private ResourceManager resourceManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RadioManager radioManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private FormationEffectManager formationEffectManager; // Add this line
     [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
     
 
@@ -114,10 +113,6 @@ public class LevelManager : MonoBehaviour
         if (!radioManager)
         {
             radioManager = FindFirstObjectByType<RadioManager>();
-        }
-        if (!formationEffectManager)
-        {
-            formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
         }
 
         this.ValidateRefs();
@@ -206,44 +201,6 @@ public class LevelManager : MonoBehaviour
         }
     }
     
-    private void CleanupAllChickens()
-    {
-        if (debugLog) Debug.Log("LevelManager: Starting comprehensive chicken cleanup before restart");
-
-        // First, disable auto-updates in the chicken manager to prevent reassignments during cleanup
-        var chickenManager = FindFirstObjectByType<EnemyChickenManager>();
-        if (chickenManager != null)
-        {
-            chickenManager.SetAutoUpdatesEnabled(false);
-        }
-
-        // Find all active chickens and force them to cleanup
-        var allChickens = FindObjectsByType<EnemyChickenRegistration>(FindObjectsSortMode.None);
-
-        int cleanedCount = 0;
-        foreach (var chicken in allChickens)
-        {
-            if (chicken != null && chicken.gameObject.activeInHierarchy)
-            {
-                // Use the correct method name
-                chicken.ForceCompleteUnregister();
-                cleanedCount++;
-            
-                // DON'T return to pool here - let EnemySpawner handle it
-                // The EnemySpawner.ClearEnemies() will handle returning objects to pool
-            }
-        }
-
-        // Force reset the chicken manager completely
-        if (chickenManager != null)
-        {
-            chickenManager.ForceCompleteReset();
-            // Validation to catch any remaining issues
-            chickenManager.ValidateAndFixChickenStates();
-        }
-
-        if (debugLog) Debug.Log($"LevelManager: Chicken cleanup complete - {cleanedCount} chickens unregistered (pool return handled by EnemySpawner)");
-    }
 
     private void OnEnemiesCleared(int scoreWorth)
     {
@@ -274,14 +231,6 @@ public class LevelManager : MonoBehaviour
 
     private void OnPlayerDeath()
     {
-        // Immediately stop any active formation effects
-        var formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
-        if (formationEffectManager)
-        {
-            formationEffectManager.StopAllEffects();
-            if (debugLog) Debug.Log("LevelManager: Stopped all formation effects due to player death");
-        }
-    
         StartCoroutine(RestartFromSavePointRoutine());
     }
 
@@ -336,6 +285,12 @@ public class LevelManager : MonoBehaviour
         if (_settingStageFlag) return;
         
         
+        if (_stageChangeCoroutine != null)
+        {
+            StopCoroutine(_stageChangeCoroutine);
+            _stageChangeCoroutine = null;
+        }
+        
         int nextStageIndex = currentStageIndex + 1;
         if (nextStageIndex < _levelStages.Length)
         {
@@ -360,13 +315,6 @@ public class LevelManager : MonoBehaviour
         else
         {
             if (debugLog) Debug.Log("No more stages available");
-        }
-        // Immediately stop any active formation effects
-        var formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
-        if (formationEffectManager)
-        {
-            formationEffectManager.StopAllEffects();
-            if (debugLog) Debug.Log("LevelManager: Stopped all formation effects due to player death");
         }
     }
     
@@ -601,17 +549,7 @@ public class LevelManager : MonoBehaviour
 
     private IEnumerator RestartFromSavePointRoutine()
     {
-        // Force cleanup of all chicken registrations before restarting
-        CleanupAllChickens();
-    
         yield return new WaitForSeconds(5f);
-
-        // Re-enable auto-updates in chicken manager before restarting
-        var chickenManager = FindFirstObjectByType<EnemyChickenManager>();
-        if (chickenManager != null)
-        {
-            chickenManager.SetAutoUpdatesEnabled(true);
-        }
     
         if (_currentSavePoint == null)
         {

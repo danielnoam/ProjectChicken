@@ -1,6 +1,9 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
+using KBCore.Refs;
 using VInspector;
+using Random = UnityEngine.Random;
 
 public class EnemyChickenManager : MonoBehaviour
 {
@@ -23,6 +26,10 @@ public class EnemyChickenManager : MonoBehaviour
     public bool autoRefreshChickenStates = true;
     public float stateRefreshInterval = 1f;
     public bool forceStateUpdateOnReassign = true;
+    
+    [Header("References")]
+    [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
 
     private Dictionary<int, GameObject> slotAssignments = new Dictionary<int, GameObject>();
     private List<GameObject> waitingChickens = new List<GameObject>();
@@ -35,6 +42,16 @@ public class EnemyChickenManager : MonoBehaviour
     private float stateRefreshTimer = 0f;
     private bool hasInitializedFormation = false;
 
+
+    private void OnValidate()
+    {
+        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>(FindObjectsInactive.Include);
+        if (!player) player = FindFirstObjectByType<RailPlayer>(FindObjectsInactive.Include);
+        
+        this.ValidateRefs();
+    }
+
+
     void Start()
     {
         if (formationCreator == null)
@@ -46,6 +63,69 @@ public class EnemyChickenManager : MonoBehaviour
                 return;
             }
         }
+    }
+
+
+    private void OnEnable()
+    {
+        if (levelManager)
+        {
+            levelManager.OnRestartedFromSavePoint += OnRestartedFromSavePoint;
+        }
+
+        if (player)
+        {
+            player.Health.OnDeath += OnPlayerDeath;
+        }
+    }
+    
+    private void OnDisable()
+    {
+        if (levelManager)
+        {
+            levelManager.OnRestartedFromSavePoint -= OnRestartedFromSavePoint;
+        }
+        
+        if (player)
+        {
+            player.Health.OnDeath -= OnPlayerDeath;
+        }
+    }
+    
+    void OnRestartedFromSavePoint(SavePointData savePointData)
+    {
+        SetAutoUpdatesEnabled(true);
+    }
+    
+    void OnPlayerDeath()
+    {
+        SetAutoUpdatesEnabled(false);
+        
+        // Immediately stop any active formation effects
+        var formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
+        if (formationEffectManager)
+        {
+            formationEffectManager.StopAllEffects();
+        }
+        
+        // Find all active chickens and force them to cleanup
+        var allChickens = FindObjectsByType<EnemyChickenRegistration>(FindObjectsSortMode.None);
+
+        int cleanedCount = 0;
+        foreach (var chicken in allChickens)
+        {
+            if (chicken != null && chicken.gameObject.activeInHierarchy)
+            {
+                chicken.ForceCompleteUnregister();
+                cleanedCount++;
+            
+                // DON'T return to pool here - let EnemySpawner handle it
+                // The EnemySpawner.ClearEnemies() will handle returning objects to pool
+            }
+        }
+
+        ForceCompleteReset();
+        ValidateAndFixChickenStates();
     }
 
     void Update()

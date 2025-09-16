@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections;
 
@@ -30,7 +31,9 @@ public class GameObjectCenterer : MonoBehaviour
             Invoke(nameof(InitialCenter), 0.02f);
         }
     }
-    
+
+
+
     private void InitialCenter()
     {
         // Prevent multiple centering calls
@@ -115,7 +118,7 @@ public class GameObjectCenterer : MonoBehaviour
         hasBeenCentered = false;
     }
     
-    // Optional: Manual re-centering method you can call if needed
+
     public void RecenterObject()
     {
         if (centerObject != null)
