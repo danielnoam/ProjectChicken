@@ -101,13 +101,13 @@ public class ChickenAnimationController : MonoBehaviour
         switch (stateController.CurrentState)
         {
             case ChickenStateController.ChickenState.Idle:
-            case ChickenStateController.ChickenState.FollowingSlot:
             case ChickenStateController.ChickenState.Concussed:
                 shouldBeIdle = true;
                 shouldBeMoving = false;
                 break;
                 
             case ChickenStateController.ChickenState.MovingToSlot:
+            case ChickenStateController.ChickenState.FollowingSlot:
                 shouldBeIdle = false;
                 shouldBeMoving = true;
                 break;

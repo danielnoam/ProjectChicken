@@ -186,7 +186,7 @@ public class FormationEffectManager : MonoBehaviour
             Debug.Log($"FormationEffectManager: Stage changed to {newStage?.name}");
 
         // Turn off all effects when stage changes
-        SetEffectsEnabled(false, false);
+        ForceStopAllEffects();
         stageEffectsActive = false;
         effectActivationTime = 0f;
         lastRegisteredCount = 0;
@@ -539,7 +539,35 @@ public class FormationEffectManager : MonoBehaviour
         if (rotationEffect != null)
             rotationEffect.IsEnabled = true;
     }
+    public void ForceStopAllEffects()
+    {
+        if (showStageDebugLogs)
+            Debug.Log("FormationEffectManager: Force stopping all effects (player death/restart)");
 
+        // Immediately disable all effects regardless of mode
+        if (breathingEffect != null)
+            breathingEffect.IsEnabled = false;
+        if (rotationEffect != null)
+            rotationEffect.IsEnabled = false;
+
+        // Reset all state
+        stageEffectsActive = false;
+        effectActivationTime = 0f;
+        lastRegisteredCount = 0;
+        hasRolledForCurrentStage = false;
+        isTrackingStageRegistration = false;
+
+        // Reset formation to base state
+        if (formationCreator != null)
+            formationCreator.GenerateFormation();
+
+        // In manual mode, also reset the toggles
+        if (!useStageBasedActivation)
+        {
+            enableBreathing = false;
+            enableRotation = false;
+        }
+    }
     // Public control methods
     [ContextMenu("Start Effects")]
     public void StartEffects()
