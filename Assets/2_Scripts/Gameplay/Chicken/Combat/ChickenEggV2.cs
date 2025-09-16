@@ -5,7 +5,8 @@ using UnityEngine;
 public class ChickenEggV2 : MonoBehaviour, IPooledObject
 {
     [Header("Egg Settings")]
-    public float lifetime = 5f; 
+    public float lifetime = 5f;
+    public float damage = 25f;
     [SerializeField] private TrailRenderer trailVRenderer;
     public bool showDebugLogs;
 
@@ -97,7 +98,7 @@ public class ChickenEggV2 : MonoBehaviour, IPooledObject
         if (other.TryGetComponent(out RailPlayer player))
         {
             if (showDebugLogs) Debug.Log($"Egg {gameObject.name}: Hit player {other.gameObject.name}");
-            player.Health.TakeDamage(25);
+            player.Health.TakeDamage(damage);
             ReturnProjectileToPool();
         }
     }

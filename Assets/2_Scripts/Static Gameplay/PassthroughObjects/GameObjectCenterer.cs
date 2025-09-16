@@ -14,6 +14,9 @@ public class GameObjectCenterer : MonoBehaviour
     public float scalingDuration = 2f; // Should match itemScaleDuration from spawner
     public bool autoDetectScaleDuration = true; // Try to get duration from SpaceItemBehavior
     
+    
+    public Transform CenterObjectTransform => centerObject ? centerObject.transform : transform;
+    
     void Start()
     {
         // Small delay to ensure spawner has set position first

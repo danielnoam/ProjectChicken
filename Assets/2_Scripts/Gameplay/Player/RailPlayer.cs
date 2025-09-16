@@ -92,13 +92,23 @@ public class RailPlayer : MonoBehaviour
     {
         if (other.TryGetComponent(out GameObjectCenterer gameObjectCenterer))
         {
-            Health.TakeDamage(100);
-            Vector3 collisionDirection = (transform.position - other.transform.position).normalized;
-            Movement.Push(collisionDirection, 25f);
+            Health.TakeDamage(100, 5f);
+            Vector3 moveDirection = (transform.position - gameObjectCenterer.CenterObjectTransform.position).normalized;
+            Movement.Push(-moveDirection, 5f);
 
         }
     }
-    
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.TryGetComponent(out GameObjectCenterer gameObjectCenterer))
+        {
+            Vector3 moveDirection = (transform.position - gameObjectCenterer.CenterObjectTransform.position).normalized;
+            Movement.Push(-moveDirection, 1f);
+
+        }
+    }
+
     private void Update()
     {
         if (_pauseInputHeld)

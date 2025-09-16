@@ -16,8 +16,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 6bb2c4925910a624ab4a10d75fced44d, type: 3}
   mixerGroup: {fileID: -8308305412286519963, guid: 77db4088ae7ef521a93687acac7e30ed, type: 2}
   volume:
-    minValue: 0.15
-    maxValue: 0.15
+    minValue: 0.5
+    maxValue: 0.5
   pitch:
     minValue: 1
     maxValue: 1
@@ -28,6 +28,7 @@ MonoBehaviour:
   bypassListenerEffects: 0
   bypassReverbZones: 0
   loop: 0
+  dontOverideActiveClip: 0
   set3DSettings: 1
   dopplerLevel: 1
   spread: 0

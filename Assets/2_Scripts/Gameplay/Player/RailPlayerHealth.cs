@@ -104,7 +104,7 @@ public class RailPlayerHealth : MonoBehaviour
     
     #region Damage System ------------------------------------------------------------------------------------------
     
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, float iframeMultiplier = 1f)
     {
         if (damage <= 0 || !IsAlive() || player.Movement.IsDodging) return;
         
@@ -118,7 +118,7 @@ public class RailPlayerHealth : MonoBehaviour
             return;
         }
         
-        DamageHealth();
+        DamageHealth(iframeMultiplier);
     }
     
     private void CheckDamageCooldown()
@@ -161,9 +161,9 @@ public class RailPlayerHealth : MonoBehaviour
         OnDeath?.Invoke();
     }
     
-    private void StartHitFrames()
+    private void StartHitFrames(float iframeMultiplier = 1f)
     {
-        _hitFrameTimer = hitFrameDuration;
+        _hitFrameTimer = hitFrameDuration * iframeMultiplier;
     }
     
     private void UpdateHitFrames()
@@ -191,13 +191,13 @@ public class RailPlayerHealth : MonoBehaviour
     #region Health Management
     
     [Button]
-    private void DamageHealth()
+    private void DamageHealth(float iframeMultiplier = 1f)
     {
         if (!IsAlive() || InHitFrames) return;
         
         CurrentHealth -= 1;
         
-        StartHitFrames();
+        StartHitFrames(iframeMultiplier);
         
         if (CurrentHealth <= 0)
         {
