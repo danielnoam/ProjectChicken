@@ -16,12 +16,6 @@ MonoBehaviour:
   startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 0
-  showHUD: 0
-  allowPlayerMovement: 0
-  allowPlayerDodge: 0
-  allowPlayerAiming: 0
-  allowPlayerShooting: 0
-  allowPlayerHeatSystem: 0
   events: []
   stageType: 4
   stageDuration: 5
@@ -49,6 +43,15 @@ MonoBehaviour:
     maxPlacementAttempts: 100
   requireAllTasks: 1
   tasks: []
+  showHUD: 0
+  showScore: 1
+  showStagesProgression: 1
+  showStatsBar: 1
+  allowPlayerMovement: 0
+  allowPlayerDodge: 0
+  allowPlayerAiming: 0
+  allowPlayerShooting: 0
+  allowPlayerHeatSystem: 0
   references:
     version: 2
     RefIds: []

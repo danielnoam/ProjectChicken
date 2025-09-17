@@ -50,8 +50,9 @@ public class SOLevelStage : ScriptableObject
     
     [Header("HUD")]
     [SerializeField] private bool showHUD = true;
-    [SerializeField] private bool showStatsBar = true;
     [SerializeField] private bool showScore = true;
+    [SerializeField] private bool showStagesProgression = true;
+    [SerializeField] private bool showStatsBar = true;
     
     [Header("Player")]
     [SerializeField] private bool allowPlayerMovement = true;
@@ -79,17 +80,19 @@ public class SOLevelStage : ScriptableObject
     public float DelayBeforeNextStage => delayBeforeNextStage;
     public int WaveScoreWorth =>  waveScoreWorth;
     public FormationStageData FormationStageData => formationStageData;
+    public  SOUpgradeBase[] UpgradesPool => upgradesPool;
+    public StageTask[] Tasks => tasks;
+    public bool RequireAllTasks => requireAllTasks;
+    
+    public bool ShowHUD => showHUD;
+    public bool ShowStatsBar => showStatsBar;
+    public bool ShowStagesProgression => showStagesProgression;
+    public bool ShowScore => showScore;
+    
+    
     public bool AllowPlayerMovement => allowPlayerMovement;
     public bool AllowPlayerAiming => allowPlayerAiming;
     public bool AllowPlayerDodge => allowPlayerDodge;
     public bool AllowPlayerShooting => allowPlayerShooting;
     public bool AllowPlayerHeatSystem => allowPlayerHeatSystem;
-    public bool ShowHUD => showHUD;
-    public bool ShowStatsBar => showStatsBar;
-    public bool ShowScore => showScore;
-    public  SOUpgradeBase[] UpgradesPool => upgradesPool;
-    public StageTask[] Tasks => tasks;
-    public bool RequireAllTasks => requireAllTasks;
-    
-    
 }

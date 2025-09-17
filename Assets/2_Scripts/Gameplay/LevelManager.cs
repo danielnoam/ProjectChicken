@@ -68,8 +68,10 @@ public class LevelManager : MonoBehaviour
     public ObstacleManager ObstacleManager => obstacleManager;
     public RadioManager RadioManager => radioManager;
     public int CurrentScore => _currentScore;
-    
-    
+    public int EnemiesLeft => enemiesLeft;
+
+
+    public event Action<SOLevel> OnLevelSet; 
     public event Action<SOLevelStage> OnStageChanged;
     public event Action<int> OnScoreChanged;
     public event Action<SavePointData> OnRestartedFromSavePoint;
@@ -273,6 +275,8 @@ public class LevelManager : MonoBehaviour
             if (debugLog) Debug.LogError("No level stages defined!");
             return;
         }
+        
+        OnLevelSet?.Invoke(level);
         
 
         var runProgress = SaveManager.GetRunProgressData();

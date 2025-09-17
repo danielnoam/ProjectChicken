@@ -87,6 +87,7 @@ public class UIManager : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private CanvasGroup statsBarGroup;
+    [SerializeField] private CanvasGroup stageBarGroup;
     [SerializeField] private CanvasGroup scoreBarGroup;
     [SerializeField] private CanvasGroup weaponBarGroup;
     [SerializeField] private CanvasGroup dodgeBarGroup;
@@ -104,6 +105,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image pauseIconFill;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI stageTitleText;
+    [SerializeField] private StageProgressionBar stageProgressionBar;
     [SerializeField] private SOPlayerStats playerStats;
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private RailPlayer player;
@@ -124,6 +126,7 @@ public class UIManager : MonoBehaviour
     private Sequence _scoreBarSequence;
     private Sequence _weaponBarSequence;
     private Sequence _dodgeBarSequence;
+    private Sequence _stageBarSequence;
     private int _previousScore;
     private int _score;
     private int _previousPlayerCurrency;
@@ -195,6 +198,7 @@ public class UIManager : MonoBehaviour
         {
             levelManager.OnScoreChanged += OnScoreChanged;
             levelManager.OnStageChanged += OnStageChanged;
+            levelManager.OnLevelSet += OnLevelSet;
         }
     }
 
@@ -226,9 +230,11 @@ public class UIManager : MonoBehaviour
         {
             levelManager.OnScoreChanged -= OnScoreChanged;
             levelManager.OnStageChanged -= OnStageChanged;
+            levelManager.OnLevelSet -= OnLevelSet;
         }
     }
-    
+
+
 
 
     private void Update()
@@ -261,6 +267,7 @@ public class UIManager : MonoBehaviour
         
         ToggleUIGroup(hudGroup, false);
         ToggleUIGroup(statsBarGroup, false);
+        ToggleUIGroup(stageBarGroup, false);
         ToggleUIGroup(scoreBarGroup, false);
         ToggleUIGroup(weaponBarGroup, false);
         ToggleUIGroup(dodgeBarGroup, false);
@@ -479,11 +486,21 @@ public class UIManager : MonoBehaviour
         if (!stage) return;
         
         FadeUIGroup(hudGroup, stage.ShowHUD, ref _hudSequence);
-        FadeUIGroup(statsBarGroup, stage.ShowStatsBar && stage.ShowHUD, ref _statsBarSequence);
-        FadeUIGroup(scoreBarGroup, stage.ShowScore && stage.ShowHUD, ref _scoreBarSequence);
-        FadeUIGroup(weaponBarGroup, stage.AllowPlayerShooting && stage.ShowHUD, ref _weaponBarSequence);
-        FadeUIGroup(dodgeBarGroup, stage.AllowPlayerDodge && stage.ShowHUD, ref _dodgeBarSequence);
+        FadeUIGroup(statsBarGroup, stage.ShowStatsBar, ref _statsBarSequence);
+        FadeUIGroup(stageBarGroup, stage.ShowStagesProgression, ref _stageBarSequence);
+        FadeUIGroup(scoreBarGroup, stage.ShowScore, ref _scoreBarSequence);
+        FadeUIGroup(weaponBarGroup, stage.AllowPlayerShooting, ref _weaponBarSequence);
+        FadeUIGroup(dodgeBarGroup, stage.AllowPlayerDodge, ref _dodgeBarSequence);
         UpdateStageTitle(stage.StageTitle);
+        stageProgressionBar.SetCurrentStage(stage);
+    }
+    
+    
+    private void OnLevelSet(SOLevel level)
+    {
+        if (!level) return;
+        
+        stageProgressionBar.Initialize(level);
     }
     
     
