@@ -1,27 +1,27 @@
+using System;
 using UnityEngine;
 
 public class EnemyChickenRegistration : MonoBehaviour
 {
     [Header("Registration Settings")]
     public bool autoRegisterOnStart = true;
-    public bool autoUnregisterOnDestroy = true;
-    public bool autoCombatRegistration = true; // NEW: Auto-manage combat registration
+    public bool autoCombatRegistration = true; // Auto-manage combat registration
 
     [Header("State Management")]
     public bool autoManageState = true;
     public bool showDebugLogs = false;
-    public bool showCombatRegistrationLogs = false; // NEW: Separate logs for combat registration
+    public bool showCombatRegistrationLogs = false; // Separate logs for combat registration
     public float majorSlotChangeThreshold = 2f; // Distance threshold to detect major slot repositioning
 
     private EnemyChickenManager manager;
-    private ChickenCombatManagerV4 combatManager; // NEW: Reference to combat manager
+    private ChickenCombatManagerV4 combatManager; // Reference to combat manager
     private ChickenStateController stateController;
     private ChickenMovementBehavior movementBehavior;
-    private ChickenCombatBehaviorV2 combatBehavior; // NEW: Reference to combat behavior component
+    private ChickenCombatBehaviorV2 combatBehavior; // Reference to combat behavior component
     private bool isRegistered = false;
-    private bool isRegisteredForCombat = false; // NEW: Track combat registration
+    private bool isRegisteredForCombat = false; // Track combat registration
     private bool wasAssignedLastFrame = false;
-    private bool wasInCombatStateLastFrame = false; // NEW: Track combat state changes
+    private bool wasInCombatStateLastFrame = false; // Track combat state changes
     private int lastKnownSlotIndex = -1;
     private Vector3? lastKnownSlotPosition = null;
 
@@ -29,7 +29,7 @@ public class EnemyChickenRegistration : MonoBehaviour
     {
         stateController = GetComponent<ChickenStateController>();
         movementBehavior = GetComponent<ChickenMovementBehavior>();
-        combatBehavior = GetComponent<ChickenCombatBehaviorV2>(); // NEW: Get combat behavior component
+        combatBehavior = GetComponent<ChickenCombatBehaviorV2>(); // Get combat behavior component
 
         if (stateController == null && autoManageState)
         {
@@ -37,7 +37,7 @@ public class EnemyChickenRegistration : MonoBehaviour
             autoManageState = false;
         }
 
-        // NEW: Check for combat behavior if auto combat registration is enabled
+        // Check for combat behavior if auto combat registration is enabled
         if (combatBehavior == null && autoCombatRegistration)
         {
             Debug.LogWarning($"EnemyChickenRegistration on {gameObject.name}: No ChickenCombatBehaviorV2 found! Auto combat registration disabled.");
@@ -49,7 +49,7 @@ public class EnemyChickenRegistration : MonoBehaviour
             RegisterWithManager();
         }
 
-        // NEW: Find combat manager
+        // Find combat manager
         if (autoCombatRegistration)
         {
             FindCombatManager();
@@ -63,25 +63,25 @@ public class EnemyChickenRegistration : MonoBehaviour
             UpdateStateBasedOnAssignment();
         }
 
-        // NEW: Handle combat registration based on state
+        // Handle combat registration based on state
         if (autoCombatRegistration && isRegistered && stateController != null && combatBehavior != null)
         {
             UpdateCombatRegistration();
         }
     }
 
-    void OnDestroy()
+    private void OnDisable()
     {
-        if (autoUnregisterOnDestroy)
-        {
-            if (isRegistered)
-                UnregisterFromManager();
+        
+        if (isRegistered)
+            UnregisterFromManager();
 
-            // NEW: Also unregister from combat
-            if (isRegisteredForCombat)
-                UnregisterFromCombat();
-        }
+        // Also unregister from combat
+        if (isRegisteredForCombat)
+            UnregisterFromCombat();
+        
     }
+
 
     void UpdateStateBasedOnAssignment()
     {
@@ -190,7 +190,7 @@ public class EnemyChickenRegistration : MonoBehaviour
         }
     }
 
-    // NEW: Handle combat registration based on state changes
+    // Handle combat registration based on state changes
     void UpdateCombatRegistration()
     {
         bool shouldBeInCombat = stateController.CanAttack; // True only when IsFollowingSlot
@@ -230,7 +230,7 @@ public class EnemyChickenRegistration : MonoBehaviour
         }
     }
 
-    // NEW: Combat registration methods
+    // Combat registration methods
     void RegisterForCombat()
     {
         if (isRegisteredForCombat) return;
@@ -287,7 +287,7 @@ public class EnemyChickenRegistration : MonoBehaviour
             if (autoManageState && stateController != null)
             {
                 wasAssignedLastFrame = IsAssignedToSlot();
-                wasInCombatStateLastFrame = stateController.CanAttack; // NEW: Initialize combat state tracking
+                wasInCombatStateLastFrame = stateController.CanAttack; // Initialize combat state tracking
                 lastKnownSlotIndex = GetAssignedSlotIndex();
                 lastKnownSlotPosition = GetAssignedSlotPosition();
 
@@ -304,7 +304,7 @@ public class EnemyChickenRegistration : MonoBehaviour
                         Debug.Log($"Chicken {gameObject.name}: Registered without slot, setting to Idle");
                 }
 
-                // NEW: Handle initial combat registration if needed
+                // Handle initial combat registration if needed
                 if (autoCombatRegistration && wasInCombatStateLastFrame)
                 {
                     RegisterForCombat();
@@ -325,7 +325,7 @@ public class EnemyChickenRegistration : MonoBehaviour
         if (!isRegistered || manager == null)
             return;
 
-        // NEW: Unregister from combat first
+        // Unregister from combat first
         if (isRegisteredForCombat)
         {
             UnregisterFromCombat();
@@ -335,7 +335,7 @@ public class EnemyChickenRegistration : MonoBehaviour
         {
             isRegistered = false;
             wasAssignedLastFrame = false;
-            wasInCombatStateLastFrame = false; // NEW: Reset combat state tracking
+            wasInCombatStateLastFrame = false; // Reset combat state tracking
             lastKnownSlotIndex = -1;
             lastKnownSlotPosition = null;
 
@@ -346,6 +346,49 @@ public class EnemyChickenRegistration : MonoBehaviour
 
             if (showDebugLogs)
                 Debug.Log($"Chicken {gameObject.name}: Successfully unregistered from manager");
+        }
+    }
+
+    // Forces complete unregistration without state management checks
+    // Used during cleanup operations like level restart
+    public void ForceCompleteUnregister()
+    {
+        if (showDebugLogs)
+            Debug.Log($"Chicken {gameObject.name}: Force complete unregister initiated");
+
+        // Unregister from combat first
+        if (isRegisteredForCombat)
+        {
+            UnregisterFromCombat();
+        }
+
+        // Force unregister from manager without state management
+        if (manager != null && isRegistered)
+        {
+            if (manager.UnregisterChicken(gameObject))
+            {
+                isRegistered = false;
+                wasAssignedLastFrame = false;
+                wasInCombatStateLastFrame = false;
+                lastKnownSlotIndex = -1;
+                lastKnownSlotPosition = null;
+
+                if (showDebugLogs)
+                    Debug.Log($"Chicken {gameObject.name}: Force unregistered from manager");
+            }
+        }
+
+        // Force state to idle without triggering updates
+        if (stateController != null)
+        {
+            stateController.SetIdle();
+        }
+
+        // Stop any movement
+        if (movementBehavior != null)
+        {
+            // Force stop movement without refresh
+            movementBehavior.RefreshMovementState();
         }
     }
 
@@ -422,7 +465,7 @@ public class EnemyChickenRegistration : MonoBehaviour
         lastKnownSlotIndex = currentSlotIndex;
         lastKnownSlotPosition = currentSlotPosition;
 
-        // NEW: Force combat registration update
+        // Force combat registration update
         if (autoCombatRegistration)
         {
             if (shouldBeInCombat && !isRegisteredForCombat)
@@ -462,7 +505,7 @@ public class EnemyChickenRegistration : MonoBehaviour
         }
     }
 
-    // NEW: Manual combat registration methods
+    // Manual combat registration methods
     public void ManualRegisterForCombat()
     {
         if (!autoCombatRegistration)
@@ -493,12 +536,12 @@ public class EnemyChickenRegistration : MonoBehaviour
 
     // Public properties
     public bool IsRegistered => isRegistered;
-    public bool IsRegisteredForCombat => isRegisteredForCombat; // NEW: Property to check combat registration
+    public bool IsRegisteredForCombat => isRegisteredForCombat; // Property to check combat registration
     public EnemyChickenManager Manager => manager;
-    public ChickenCombatManagerV4 CombatManager => combatManager; // NEW: Property for combat manager
+    public ChickenCombatManagerV4 CombatManager => combatManager; // Property for combat manager
     public ChickenStateController StateController => stateController;
     public ChickenMovementBehavior MovementBehavior => movementBehavior;
-    public ChickenCombatBehaviorV2 CombatBehavior => combatBehavior; // NEW: Property for combat behavior
+    public ChickenCombatBehaviorV2 CombatBehavior => combatBehavior; // Property for combat behavior
 
     // Context menu methods
     [ContextMenu("Register with Manager")]
@@ -567,11 +610,11 @@ public class EnemyChickenRegistration : MonoBehaviour
         Debug.Log($"=== CHICKEN ASSIGNMENT INFO ===");
         Debug.Log($"Chicken: {gameObject.name}");
         Debug.Log($"Registered: {isRegistered}");
-        Debug.Log($"Registered for Combat: {isRegisteredForCombat}"); // NEW
+        Debug.Log($"Registered for Combat: {isRegisteredForCombat}");
         Debug.Log($"Assigned Slot: {(slotIndex == -1 ? "None (waiting)" : slotIndex.ToString())}");
         Debug.Log($"Slot Position: {(slotPosition.HasValue ? slotPosition.Value.ToString() : "None")}");
         Debug.Log($"Was Assigned Last Frame: {wasAssignedLastFrame}");
-        Debug.Log($"Was In Combat State Last Frame: {wasInCombatStateLastFrame}"); // NEW
+        Debug.Log($"Was In Combat State Last Frame: {wasInCombatStateLastFrame}");
         Debug.Log($"Last Known Slot: {lastKnownSlotIndex}");
         Debug.Log($"Major Slot Change Threshold: {majorSlotChangeThreshold:F2}");
 
@@ -587,7 +630,7 @@ public class EnemyChickenRegistration : MonoBehaviour
             Debug.Log($"Is Actively Following: {movementBehavior.IsActivelyFollowing}");
         }
 
-        // NEW: Combat-specific info
+        // Combat-specific info
         if (combatBehavior != null)
         {
             Debug.Log($"Combat Behavior Found: Yes");

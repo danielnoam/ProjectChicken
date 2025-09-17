@@ -39,6 +39,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField, Self(Flag.EditableAnywhere)] private FormationBoundaryManager boundaryManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private ResourceManager resourceManager;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private ObstacleManager obstacleManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RadioManager radioManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
@@ -64,6 +65,7 @@ public class LevelManager : MonoBehaviour
     public RailPlayer Player => player;
     public EnemySpawner EnemySpawner => enemySpawner;
     public ResourceManager ResourceManager => resourceManager;
+    public ObstacleManager ObstacleManager => obstacleManager;
     public RadioManager RadioManager => radioManager;
     public int CurrentScore => _currentScore;
     
@@ -114,7 +116,11 @@ public class LevelManager : MonoBehaviour
         {
             radioManager = FindFirstObjectByType<RadioManager>();
         }
-
+        
+        if (!obstacleManager)
+        {
+            obstacleManager = FindFirstObjectByType<ObstacleManager>();
+        }
 
         this.ValidateRefs();
         
@@ -202,6 +208,7 @@ public class LevelManager : MonoBehaviour
         }
     }
     
+
     private void OnEnemiesCleared(int scoreWorth)
     {
         if (!currentStage || currentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
@@ -248,7 +255,7 @@ public class LevelManager : MonoBehaviour
     }
     
     
-    #region Stage Management ---------------------------------------------------------------------------------
+    #region Stage Management
 
     [Button]
     private void StartLevel()
@@ -284,6 +291,12 @@ public class LevelManager : MonoBehaviour
     {
         if (_settingStageFlag) return;
         
+        
+        if (_stageChangeCoroutine != null)
+        {
+            StopCoroutine(_stageChangeCoroutine);
+            _stageChangeCoroutine = null;
+        }
         
         int nextStageIndex = currentStageIndex + 1;
         if (nextStageIndex < _levelStages.Length)
@@ -437,10 +450,10 @@ public class LevelManager : MonoBehaviour
     
 
 
-    #endregion Stage Management ---------------------------------------------------------------------------------
+    #endregion
 
 
-    #region Tasks  --------------------------------------------------------------------------------
+    #region Tasks
 
     
     private void InitializeTaskStage()
@@ -493,10 +506,10 @@ public class LevelManager : MonoBehaviour
         _currentStageTasks = null;
     }
 
-    #endregion Tasks --------------------------------------------------------------------------------
+    #endregion
 
     
-    #region Events --------------------------------------------------------------------------------
+    #region Events
 
     
     private void InitializeStageEvents()
@@ -536,15 +549,15 @@ public class LevelManager : MonoBehaviour
     }
     
 
-    #endregion Events --------------------------------------------------------------------------------
+    #endregion
     
     
-    #region Save/Load -------------------------------------------------------------------------------
+    #region Save/Load
 
     private IEnumerator RestartFromSavePointRoutine()
     {
         yield return new WaitForSeconds(5f);
-        
+    
         if (_currentSavePoint == null)
         {
             StartLevel();
@@ -557,7 +570,6 @@ public class LevelManager : MonoBehaviour
             OnScoreChanged?.Invoke(_currentScore);
             OnRestartedFromSavePoint?.Invoke(_currentSavePoint);
         }
-        
     }
 
     private void SaveLevelProgress()
@@ -576,10 +588,10 @@ public class LevelManager : MonoBehaviour
         _currentSavePoint = newSavePoint;
     }
 
-    #endregion Save/Load -------------------------------------------------------------------------------
+    #endregion
     
     
-    #region Score Management ---------------------------------------------------------------------------------
+    #region Score Management
 
     private void AddScore(int score)
     {
@@ -594,6 +606,5 @@ public class LevelManager : MonoBehaviour
     }
     
 
-    #endregion Score Management ---------------------------------------------------------------------------------
-    
+    #endregion
 }

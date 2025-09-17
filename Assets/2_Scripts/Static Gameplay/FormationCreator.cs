@@ -87,6 +87,7 @@ public class FormationCreator : MonoBehaviour
     private void OnStageChanged(SOLevelStage newStage)
     {
         if (!newStage || newStage.StageType != StageType.EnemyWave) return;
+        
         var formation = newStage.FormationStageData;
         if (formation != null)
         {
@@ -99,6 +100,7 @@ public class FormationCreator : MonoBehaviour
             formationSpacing = formation.FormationSpacing;
             maxPlacementAttempts = formation.MaxPlacementAttempts;
             CalculateFormationParameters();
+            StartCoroutine(InitializeFormationWithDelay());
         }
     }
 

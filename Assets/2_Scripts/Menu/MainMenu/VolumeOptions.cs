@@ -4,6 +4,10 @@ using UnityEngine.UI;
 
 public class VolumeOptions : MonoBehaviour
 {
+    [Header("Settings")]
+    [SerializeField, Min(-90f)] private float minDB = -60f;
+    [Tooltip("Using 0 instead of 20 because 20 is above the default range")]
+    [SerializeField, Min(20)] private float maxDB; // using 0 instead of 20 because 20 is above the default range
     [Header("References")]
     [SerializeField] private AudioMixer audioMixer;
     [SerializeField] private Slider masterVolume;
@@ -67,9 +71,7 @@ public class VolumeOptions : MonoBehaviour
     
     private float ConvertToDecibelRange(float normalizedValue)
     {
-        float minDb = -80f;
-        float maxDb = 0; // using 0 instead of 20 because 20 is above the default range
-        return minDb + (normalizedValue * (maxDb - minDb));
+        return minDB + (normalizedValue * (maxDB - minDB));
     }
     
     

@@ -9,34 +9,37 @@ using Random = UnityEngine.Random;
 
 public class IntroChickensAnimator : MonoBehaviour
 {
-    [Header("Animation Settings")] 
-    [SerializeField] private float animationDuration = 5f;
-    [SerializeField, MinMaxRange(0,25)] private RangedFloat loopDelayRange = new RangedFloat(0f, 3f);
-    [SerializeField] private float transitionDuration = 0.25f; 
+    [Header("Chicken Creation Settings")]
+    [SerializeField] private int chickenCount = 100;
     
     [Header("Spline Generation Settings")]
     [SerializeField] private float controlPointHeight = 2f;
     [SerializeField] private Vector2 controlPointRandomOffset = new Vector2(2f, 2f);
     [SerializeField] private float tangentStrength = 1f;
     [SerializeField] private int additionalControlPoints = 1;
-
-    [Header("Loop Spline Settings")]
-    [SerializeField] private float loopRadius = 3f;
+    [Space(5f)]
+    [SerializeField] private float loopRadius = 200f;
     [SerializeField] private int loopPoints = 8;
-    [SerializeField] private float loopDuration = 10f;
-    [SerializeField] private float minRotationOffset;
-    [SerializeField] private float maxRotationOffset = 360f;
+    [SerializeField, MinMaxRange(0,360)] private RangedFloat loopRotationRange = new RangedFloat(0f, 360f);
 
+    [Header("Splines Animation Settings")] 
+    [SerializeField, MinMaxRange(0,100)] private RangedFloat speedVariationRange = new RangedFloat(0f, 25f);
+    [SerializeField] private float linerSpeed = 190f;
+    [SerializeField] private float loopSpeed = 190f;
+    [SerializeField] private float lastChickenDelay;
+    
     [Header("References")]
     [SerializeField] private BoxCollider startArea;
     [SerializeField] private Transform loopCenter;
     [SerializeField] private Transform introSplineParent;
     [SerializeField] private Transform loopSplineParent;
+    [SerializeField] private Transform chickensParent;
     [SerializeField] private SplineAnimate[] chickens;
+    [SerializeField] private ChanceList<SplineAnimate> chickensPrefab;
 
     private SplineContainer[] _individualSplineContainers;
     private SplineContainer[] _loopSplineContainers;
-    private Coroutine[] _transitionCoroutines;
+    private float[] _chickenSpeedVariations;
 
     private void Awake()
     {
@@ -47,7 +50,7 @@ public class IntroChickensAnimator : MonoBehaviour
     {
         if (chickens == null || chickens.Length == 0)
         {
-            Debug.LogWarning("No chickens found to restore spline references. Consider calling 'Find All Chickens' first.");
+            Debug.LogWarning("No chickens found to restore spline references. Consider calling 'Create Chickens' first.");
             return;
         }
 
@@ -72,23 +75,116 @@ public class IntroChickensAnimator : MonoBehaviour
 
         _individualSplineContainers = chickenSplines.ToArray();
         _loopSplineContainers = loopSplines.ToArray();
-        _transitionCoroutines = new Coroutine[chickens.Length];
+        
+        // Initialize speed variations if not already done
+        if (_chickenSpeedVariations == null || _chickenSpeedVariations.Length != chickens.Length)
+        {
+            GenerateSpeedVariations();
+        }
 
         for (int i = 0; i < chickens.Length && i < chickenSplines.Count; i++)
         {
             if (chickens[i] != null && chickenSplines[i] != null)
             {
-                ConfigureChickenSpline(chickens[i], chickenSplines[i]);
+                ConfigureChickenSpline(chickens[i], chickenSplines[i], i);
             }
         }
-        
     }
 
-    [Button]
+    [Button("Create Chickens")]
+    private void CreateChickens()
+    {
+        if (chickensPrefab == null || chickensPrefab.Count == 0)
+        {
+            Debug.LogError("No chicken prefabs available in ChanceList!");
+            return;
+        }
+
+        if (chickensParent == null)
+        {
+            Debug.LogError("Chickens parent transform must be assigned!");
+            return;
+        }
+
+        // Clear existing chickens
+        ClearExistingChickens();
+
+        // Create new chickens array
+        chickens = new SplineAnimate[chickenCount];
+
+        // Create chickens from prefabs
+        for (int i = 0; i < chickenCount; i++)
+        {
+            // Get random chicken prefab from the chance list
+            SplineAnimate chickenPrefab = chickensPrefab.GetRandomItem();
+            
+            if (chickenPrefab == null)
+            {
+                Debug.LogWarning($"Failed to get chicken prefab for index {i}");
+                continue;
+            }
+
+            // Instantiate the chicken
+            GameObject chickenGO = Instantiate(chickenPrefab.gameObject, chickensParent);
+            chickenGO.name = $"Chicken_{i}";
+            
+            // Get the SplineAnimate component
+            SplineAnimate chicken = chickenGO.GetComponent<SplineAnimate>();
+            if (chicken == null)
+            {
+                Debug.LogError($"Chicken prefab at index {i} doesn't have a SplineAnimate component!");
+                DestroyImmediate(chickenGO);
+                continue;
+            }
+
+            // Add to array
+            chickens[i] = chicken;
+        }
+
+        // Generate speed variations for all chickens
+        GenerateSpeedVariations();
+
+        Debug.Log($"Created {chickenCount} chickens with variations!");
+    }
+
+    [Button("Find All Chickens")]
     private void FindAllChickens()
     {
         chickens = GetComponentsInChildren<SplineAnimate>();
         Debug.Log($"Found {chickens.Length} chickens");
+        
+        // Generate new speed variations when chickens are found
+        GenerateSpeedVariations();
+    }
+
+    private void ClearExistingChickens()
+    {
+        // Clear existing chickens from the parent
+        if (chickensParent != null)
+        {
+            for (int i = chickensParent.childCount - 1; i >= 0; i--)
+            {
+                Transform child = chickensParent.GetChild(i);
+                if (child.name.StartsWith("Chicken_"))
+                {
+                    DestroyImmediate(child.gameObject);
+                }
+            }
+        }
+        
+        // Clear the chickens array
+        chickens = null;
+    }
+
+    private void GenerateSpeedVariations()
+    {
+        if (chickens == null || chickens.Length == 0) return;
+        
+        _chickenSpeedVariations = new float[chickens.Length];
+        for (int i = 0; i < chickens.Length; i++)
+        {
+            _chickenSpeedVariations[i] = speedVariationRange.RandomValue;
+        }
     }
 
     [Button]
@@ -96,7 +192,7 @@ public class IntroChickensAnimator : MonoBehaviour
     {
         if (chickens == null || chickens.Length == 0)
         {
-            Debug.LogError("No chickens found! Use 'Find All Chickens' first.");
+            Debug.LogError("No chickens found! Use 'Create Chickens' first.");
             return;
         }
 
@@ -107,10 +203,12 @@ public class IntroChickensAnimator : MonoBehaviour
         }
 
         ClearExistingSplines();
+        
+        // Generate speed variations for all chickens
+        GenerateSpeedVariations();
 
         _individualSplineContainers = new SplineContainer[chickens.Length];
         _loopSplineContainers = new SplineContainer[chickens.Length];
-        _transitionCoroutines = new Coroutine[chickens.Length];
 
         for (int i = 0; i < chickens.Length; i++)
         {
@@ -135,7 +233,7 @@ public class IntroChickensAnimator : MonoBehaviour
             loopContainer.Splines = new[] { loopSpline };
             
             // Apply rotation after spline creation (for visual variety and random start points)
-            float rotationOffset = Random.Range(minRotationOffset, maxRotationOffset);
+            float rotationOffset = Random.Range(loopRotationRange.minValue, loopRotationRange.maxValue);
             float randomStartRotation = Random.Range(0f, 360f);
             loopSplineGo.transform.rotation = Quaternion.Euler(rotationOffset, randomStartRotation, rotationOffset);
 
@@ -147,7 +245,7 @@ public class IntroChickensAnimator : MonoBehaviour
             Spline introSpline = CreateSmoothSplinePath(introContainer, startPoint, endPoint);
             introContainer.Splines = new[] { introSpline };
 
-            ConfigureChickenSpline(chickens[i], introContainer);
+            ConfigureChickenSpline(chickens[i], introContainer, i);
         }
 
         Debug.Log($"Generated {_individualSplineContainers.Length} spline sets for chickens!");
@@ -168,25 +266,6 @@ public class IntroChickensAnimator : MonoBehaviour
         }
         
         return loopContainer.transform.position;
-    }
-
-    private Quaternion GetLoopStartRotation(SplineContainer loopContainer)
-    {
-        if (loopContainer.Splines == null || loopContainer.Splines.Count == 0)
-            return loopContainer.transform.rotation;
-
-        Spline loopSpline = loopContainer.Splines[0];
-        
-        // Get the tangent at the start of the loop to determine rotation
-        loopSpline.Evaluate(0f, out float3 position, out float3 tangent, out float3 up);
-        
-        if (math.length(tangent) > 0.01f)
-        {
-            Vector3 worldTangent = loopContainer.transform.TransformDirection(tangent);
-            return Quaternion.LookRotation(worldTangent, Vector3.up);
-        }
-        
-        return loopContainer.transform.rotation;
     }
 
     private Spline CreateCircularLoopSpline(SplineContainer container)
@@ -312,19 +391,41 @@ public class IntroChickensAnimator : MonoBehaviour
         return points;
     }
 
-    private void ConfigureChickenSpline(SplineAnimate chicken, SplineContainer container)
+    private void ConfigureChickenSpline(SplineAnimate chicken, SplineContainer container, int chickenIndex)
     {
         chicken.Container = container;
         chicken.Loop = SplineAnimate.LoopMode.Once;
-        chicken.Duration = animationDuration;
+        chicken.Easing = SplineAnimate.EasingMode.None;
+        chicken.AnimationMethod = SplineAnimate.Method.Speed;
+        
+        // Apply consistent speed variation for this specific chicken
+        float speedVariation = GetChickenSpeedVariation(chickenIndex);
+        float adjustedSpeed = linerSpeed + speedVariation;
+        chicken.MaxSpeed = Mathf.Max(adjustedSpeed, 10f); // Minimum speed to prevent stopping
     }
 
-    private void ConfigureChickenLoopSpline(SplineAnimate chicken, SplineContainer container)
+    private void ConfigureChickenLoopSpline(SplineAnimate chicken, SplineContainer container, int chickenIndex)
     {
         chicken.Container = container;
         chicken.Loop = SplineAnimate.LoopMode.Loop;
-        chicken.Easing = SplineAnimate.EasingMode.EaseIn;
-        chicken.Duration = loopDuration + loopDelayRange.RandomValue;
+        chicken.Easing = SplineAnimate.EasingMode.None;
+        chicken.AnimationMethod = SplineAnimate.Method.Speed;
+        
+        // Apply the same speed variation for this specific chicken
+        float speedVariation = GetChickenSpeedVariation(chickenIndex);
+        float adjustedSpeed = loopSpeed + speedVariation;
+        chicken.MaxSpeed = Mathf.Max(adjustedSpeed, 10f); // Minimum speed to prevent stopping
+    }
+
+    private float GetChickenSpeedVariation(int chickenIndex)
+    {
+        if (_chickenSpeedVariations == null || chickenIndex >= _chickenSpeedVariations.Length)
+        {
+            Debug.LogWarning($"Speed variation not found for chicken {chickenIndex}. Using default.");
+            return 0f;
+        }
+        
+        return _chickenSpeedVariations[chickenIndex];
     }
 
     private Vector3 GetRandomPointInCollider(BoxCollider boxCollider)
@@ -343,77 +444,61 @@ public class IntroChickensAnimator : MonoBehaviour
     [Button]
     public void PlayAnimation()
     {
-        
         if (chickens is { Length: > 0 })
         {
-            foreach (var chicken in chickens)
+            for (int i = 0; i < chickens.Length; i++)
             {
-                if (!chicken) continue;
-                chicken.Play();
-            }
-            
-            StartCoroutine(TransitionToLoopSplines());
-        }
-    }
-
-    private IEnumerator TransitionToLoopSplines()
-    {
-        // Wait for intro animations to complete
-        yield return new WaitForSeconds(animationDuration);
-        
-        if (_loopSplineContainers is { Length: > 0 })
-        {
-            for (int i = 0; i < chickens.Length && i < _loopSplineContainers.Length; i++)
-            {
-                if (chickens[i] != null && _loopSplineContainers[i] != null)
+                if (!chickens[i]) continue;
+                
+                // Check if this is the last chicken and apply delay
+                bool isLastChicken = i == chickens.Length - 1;
+                
+                if (isLastChicken && lastChickenDelay > 0f)
                 {
-                    // Start individual transition for each chicken
-                    _transitionCoroutines[i] = StartCoroutine(TransitionChickenToLoop(i));
+                    StartCoroutine(PlayChickenWithDelay(i, lastChickenDelay));
+                }
+                else
+                {
+                    PlayChicken(i);
                 }
             }
         }
     }
 
-    private IEnumerator TransitionChickenToLoop(int chickenIndex)
+    private IEnumerator PlayChickenWithDelay(int chickenIndex, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        PlayChicken(chickenIndex);
+    }
+
+    private void PlayChicken(int chickenIndex)
+    {
+        // Configure intro spline
+        if (chickenIndex < _individualSplineContainers.Length && _individualSplineContainers[chickenIndex] != null)
+        {
+            ConfigureChickenSpline(chickens[chickenIndex], _individualSplineContainers[chickenIndex], chickenIndex);
+            chickens[chickenIndex].Play();
+            
+            // Start coroutine to switch to loop after intro completes
+            StartCoroutine(SwitchToLoop(chickenIndex));
+        }
+    }
+
+    private IEnumerator SwitchToLoop(int chickenIndex)
     {
         SplineAnimate chicken = chickens[chickenIndex];
-        SplineContainer loopContainer = _loopSplineContainers[chickenIndex];
         
-        // Get the target position and rotation for the loop start
-        Vector3 targetPosition = GetLoopStartPoint(loopContainer);
-        Quaternion targetRotation = GetLoopStartRotation(loopContainer);
-        
-        // Get starting position and rotation
-        Transform chickenTransform = chicken.transform;
-        Vector3 startPosition = chickenTransform.position;
-        Quaternion startRotation = chickenTransform.rotation;
-        
-        // Pause the chicken's spline animation during transition
-        chicken.Pause();
-        
-        // Smoothly move the chicken to the loop start position
-        float elapsedTime = 0f;
-        while (elapsedTime < transitionDuration)
+        // Wait until the intro animation is complete
+        while (chicken.IsPlaying)
         {
-            float t = elapsedTime / transitionDuration;
-            
-            // Use smooth curve for transition
-            float smoothT = Mathf.SmoothStep(0f, 1f, t);
-            
-            // Interpolate position and rotation
-            chickenTransform.position = Vector3.Lerp(startPosition, targetPosition, smoothT);
-            chickenTransform.rotation = Quaternion.Slerp(startRotation, targetRotation, smoothT);
-            
-            elapsedTime += Time.deltaTime;
             yield return null;
         }
         
-        // Ensure we're exactly at the target
-        chickenTransform.position = targetPosition;
-        chickenTransform.rotation = targetRotation;
-        
-        // Configure and start the loop animation
-        ConfigureChickenLoopSpline(chicken, loopContainer);
-        chicken.Restart(true);
+        // Switch to loop spline with the same speed variation
+        if (chickenIndex < _loopSplineContainers.Length && _loopSplineContainers[chickenIndex] != null)
+        {
+            ConfigureChickenLoopSpline(chicken, _loopSplineContainers[chickenIndex], chickenIndex);
+            chicken.Restart(true);
+        }
     }
 }

@@ -129,7 +129,15 @@ namespace DNExtensions.VFXManager
 
         private void SetupPostProcessingVolume()
         {
-            if (!postProcessingVolume) postProcessingVolume = FindAnyObjectByType<Volume>();
+            if (postProcessingVolume)
+            {
+                if (postProcessingVolume.gameObject.scene != gameObject.scene) postProcessingVolume = null;
+                postProcessingVolume = FindAnyObjectByType<Volume>();
+            }
+            else
+            {
+                postProcessingVolume = FindAnyObjectByType<Volume>();
+            }
             if (!postProcessingVolume)
             {
                 Debug.Log("No Post Processing Volume found in the scene!");
@@ -261,14 +269,27 @@ namespace DNExtensions.VFXManager
                 fullScreenImage.rectTransform.localEulerAngles = DefaultFullScreenRotation;
             }
             
+            ResetVolumeEffectsToDefault();
+        }
+        
+        
+        private void ResetVolumeEffectsToDefault()
+        {
             if (Vignette)
             {
                 Vignette.intensity.value = DefaultVignetteIntensity;
+                Vignette.smoothness.value = DefaultVignetteSmoothness;
+                Vignette.center.value = DefaultVignetteCenter;
+                Vignette.rounded.value = DefaultVignetteRounded;
             }
             
             if (LensDistortion)
             {
                 LensDistortion.intensity.value = DefaultLensDistortionIntensity;
+                LensDistortion.xMultiplier.value = DefaultLensDistortionXMultiplier;
+                LensDistortion.yMultiplier.value = DefaultLensDistortionYMultiplier;
+                LensDistortion.center.value = DefaultLensDistortionCenter;
+                LensDistortion.scale.value = DefaultLensDistortionScale;
             }
             
             if (ChromaticAberration)
@@ -279,9 +300,8 @@ namespace DNExtensions.VFXManager
             if (MotionBlur)
             {
                 MotionBlur.intensity.value = DefaultMotionBlurIntensity;
+                MotionBlur.clamp.value = DefaultMotionBlurClamp;
             }
-            
-
         }
     }
     

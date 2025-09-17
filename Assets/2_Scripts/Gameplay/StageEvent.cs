@@ -65,6 +65,7 @@ public class SpawnEnemyEvent : StageEvent
     }
 }
 
+
 [System.Serializable]
 public class SpawnResourceEvent : StageEvent
 {
@@ -117,10 +118,6 @@ public class SpawnResourceEvent : StageEvent
         return _resourceManager ? _resourceManager.ActiveResourceCount : 0;
     }
 }
-
-
-
-
 
 
 [System.Serializable]
@@ -257,5 +254,71 @@ public class RadioMessageSequenceEvent : StageEvent
             int randomIndex = Random.Range(0, i + 1);
             (_messageQueue[i], _messageQueue[randomIndex]) = (_messageQueue[randomIndex], _messageQueue[i]);
         }
+    }
+}
+
+
+[System.Serializable]
+public class SpawnObstacleEvent : StageEvent
+{
+    [SerializeField] private Obstacle specificObstaclePrefab;
+    [Tooltip("If true, a random obstacle from the ObstacleManager will be spawned. If false, the specificObstaclePrefab will be used.")]
+    [SerializeField] private bool useRandomObstacle = true;
+    [SerializeField] private int maxActiveObstacles = 3;
+    [SerializeField] private float spawnInterval = 4f;
+    
+    private LevelManager _levelManager;
+    private ObstacleManager _obstacleManager;
+    private float _spawnTimer;
+    
+    public override void Initialize(LevelManager levelManager)
+    {
+        _levelManager = levelManager;
+        _obstacleManager = levelManager.ObstacleManager;
+        
+        _spawnTimer = 0f;
+        StartEvent();
+    }
+    
+    public override void Update(float deltaTime)
+    {
+        if (!isActive || !_obstacleManager) return;
+        
+        // If using specific obstacle, check if it's assigned
+        if (!useRandomObstacle && !specificObstaclePrefab) return;
+        
+        _spawnTimer += deltaTime;
+        
+        if (_spawnTimer >= spawnInterval && GetActiveObstacleCount() < maxActiveObstacles)
+        {
+            SpawnObstacle();
+            _spawnTimer = 0f;
+        }
+    }
+    
+    public override void Cleanup()
+    {
+        StopEvent();
+        _obstacleManager = null;
+        _levelManager = null;
+    }
+    
+    private void SpawnObstacle()
+    {
+        if (!_obstacleManager) return;
+        
+        if (useRandomObstacle)
+        {
+            _obstacleManager.SpawnRandomObstacle();
+        }
+        else if (specificObstaclePrefab)
+        {
+            _obstacleManager.SpawnSpecificObstacle(specificObstaclePrefab);
+        }
+    }
+
+    private int GetActiveObstacleCount()
+    {
+        return _obstacleManager ? _obstacleManager.ActiveObstacleCount : 0;
     }
 }

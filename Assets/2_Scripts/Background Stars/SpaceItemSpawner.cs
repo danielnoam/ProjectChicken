@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using DNExtensions;
 using Random = UnityEngine.Random;
 
 public class SpaceItemSpawner : MonoBehaviour
@@ -16,7 +17,7 @@ public class SpaceItemSpawner : MonoBehaviour
     public float minSpawnRate = 0.25f; // Minimum spawn interval when world speed is very high
     
     [Header("Global Item Settings")]
-    public float itemMoveSpeed = 5f; // Applied to all items
+    [MinMaxRange(0,200f)] public RangedFloat itemMoveSpeedRange = new (60, 100f); // Percentage range for random variation
     public float itemScaleDuration = 2f; // Time in seconds for all items to reach target size
     
     [Header("Double Spawn Settings")]
@@ -362,7 +363,7 @@ public class SpaceItemSpawner : MonoBehaviour
             var scaleDurationField = behaviorComponent.GetType().GetField("scaleDuration");
             
             if (moveSpeedField != null)
-                moveSpeedField.SetValue(behaviorComponent, itemMoveSpeed);
+                moveSpeedField.SetValue(behaviorComponent, itemMoveSpeedRange.RandomValue);
                 
             if (scaleDurationField != null)
                 scaleDurationField.SetValue(behaviorComponent, itemScaleDuration);

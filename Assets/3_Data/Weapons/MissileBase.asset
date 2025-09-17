@@ -22,15 +22,15 @@ MonoBehaviour:
   ammoLimit: 5
   fireRate: 1
   maxTargets: 1
-  targetCheckRadius: 4
+  targetCheckRadius: 5
   weaponUpgrades:
   - {fileID: 11400000, guid: caa3ae67362bd314399b4bd2ba6e4eef, type: 2}
   - {fileID: 11400000, guid: ab973da60211b7147bb6d445426db471, type: 2}
   spreadRange:
     minValue: 0
-    maxValue: 5
+    maxValue: 0
   spreadRate: 5
-  spreadDecayRate: 0.1
+  spreadDecayRate: 2
   playerProjectilePrefab: {fileID: 6825391653092111716, guid: 20978eb0d84dfd74fbd018ce1cb29fbf, type: 3}
   projectileLifetime: 4
   barrelAimOffsets:

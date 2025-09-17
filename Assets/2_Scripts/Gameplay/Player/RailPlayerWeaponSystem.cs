@@ -63,7 +63,6 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private bool _inMiniGameWindow;
     private bool _miniGameAttempted;
     private float _lastFireTimer;
-    private float _currentHeat;
     private float _weaponFireRateCooldown;
     private float _weaponTime;
     private float _weaponAmmo;
@@ -74,6 +73,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     public bool EnableHeatSystem { get; private set; }
 
     public float MaxWeaponHeat { get; private set; }
+    public float CurrentHeat { get; private set; }
 
     public WeaponInstance ActiveWeaponInstance { get; private set; }
 
@@ -196,15 +196,15 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void OnDodge()
     {
-        if (heatReleasedOnDodge <= 0 || _currentHeat <= 0 || _overHeated) return;
+        if (heatReleasedOnDodge <= 0 || CurrentHeat <= 0 || _overHeated) return;
         
-        _currentHeat -= heatReleasedOnDodge;
+        CurrentHeat -= heatReleasedOnDodge;
         
-        if (_currentHeat < 0)
+        if (CurrentHeat < 0)
         {
-            _currentHeat = 0;
+            CurrentHeat = 0;
         }
-        OnWeaponHeatUpdatedEvent?.Invoke(_currentHeat);
+        OnWeaponHeatUpdatedEvent?.Invoke(CurrentHeat);
         weaponHeatResetSfx?.Play(audioSource);
     }
 
@@ -245,7 +245,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _miniGameAttempted = false;
         _attackInputHeld = false;
         MaxWeaponHeat = player.PlayerStats.BaseMaxHeat;
-        _currentHeat = 0f;
+        CurrentHeat = 0f;
         _lastFireTimer = 0f;
         foreach (var weapon in weapons)
         {
@@ -305,14 +305,14 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                     return;
                 }
                 
-                _currentHeat += ActiveWeaponInstance.CurrentWeaponData.HeatPerShot;
+                CurrentHeat += ActiveWeaponInstance.CurrentWeaponData.HeatPerShot;
                 _lastFireTimer = timeBeforeRegen;
-                if (_currentHeat >= MaxWeaponHeat)
+                if (CurrentHeat >= MaxWeaponHeat)
                 {
                     SetOverheating();
                 }
                 
-                OnWeaponHeatUpdatedEvent?.Invoke(_currentHeat);
+                OnWeaponHeatUpdatedEvent?.Invoke(CurrentHeat);
                 break;
         }
         
@@ -341,21 +341,21 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     
     private void UpdateHeatRegeneration()
     {
-        if (!IsInOverheat && _currentHeat > 0)
+        if (!IsInOverheat && CurrentHeat > 0)
         {
 
             if (_lastFireTimer <= 0)
             {
-                _currentHeat -= heatRegenRate * Time.deltaTime;
+                CurrentHeat -= heatRegenRate * Time.deltaTime;
                 
-                if (_currentHeat <= 0)
+                if (CurrentHeat <= 0)
                 {
-                    _currentHeat = 0;
+                    CurrentHeat = 0;
                     weaponHeatResetSfx?.Play(audioSource);
                     OnWeaponHeatResetEvent?.Invoke();
                 }
                 
-                OnWeaponHeatUpdatedEvent?.Invoke(_currentHeat);
+                OnWeaponHeatUpdatedEvent?.Invoke(CurrentHeat);
             }
             else
             {
@@ -393,7 +393,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
     
         _overHeatCooldownRoutine = StartCoroutine(OverHeatCooldownRoutine());
-        _currentHeat = MaxWeaponHeat;
+        CurrentHeat = MaxWeaponHeat;
         _lastFireTimer = timeBeforeRegen;
         _overHeated = true;
         _overHeatedCooldown = false;
@@ -418,10 +418,10 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _overHeatedCooldown = false;
         _inMiniGameWindow = false;
         _miniGameAttempted = false;
-        if (_currentHeat > 0) weaponHeatResetSfx?.Play(audioSource);
-        _currentHeat = 0;
+        if (CurrentHeat > 0) weaponHeatResetSfx?.Play(audioSource);
+        CurrentHeat = 0;
         _lastFireTimer = 0;
-        OnWeaponHeatUpdatedEvent?.Invoke(_currentHeat);
+        OnWeaponHeatUpdatedEvent?.Invoke(CurrentHeat);
         OnWeaponHeatResetEvent?.Invoke();
     }
     
@@ -444,21 +444,21 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         _miniGameAttempted = true;
         _attackInputHeld = false;
         weaponHeatMiniGameFail?.Play(audioSource);
-        _currentHeat += miniGameFailHeat;
+        CurrentHeat += miniGameFailHeat;
         OnWeaponHeatMiniGameFailedEvent?.Invoke();
-        if (_currentHeat >= MaxWeaponHeat)
+        if (CurrentHeat >= MaxWeaponHeat)
         {
             SetOverheating();
         }
-        OnWeaponHeatUpdatedEvent?.Invoke(_currentHeat);
+        OnWeaponHeatUpdatedEvent?.Invoke(CurrentHeat);
     }
     
     private IEnumerator OverHeatCooldownRoutine()
     {
         float cooldownTime = overHeatCooldown * 0.4f;
         float baseRegenTime = overHeatCooldown * 0.6f;
-        _currentHeat = MaxWeaponHeat;
-        float heatToRegenerate = _currentHeat;
+        CurrentHeat = MaxWeaponHeat;
+        float heatToRegenerate = CurrentHeat;
         if (heatToRegenerate <= 0.1f)
         {
             ResetHeat();
@@ -506,7 +506,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
 
         // Regen phase
-        while (_currentHeat > 0)
+        while (CurrentHeat > 0)
         {
             _overHeated = false;
             _overHeatedCooldown = true;
@@ -516,7 +516,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 // Prevent division by zero
                 if (heatToRegenerate > 0)
                 {
-                    float heatPercentage = _currentHeat / heatToRegenerate;
+                    float heatPercentage = CurrentHeat / heatToRegenerate;
                     float currentTimeEquivalent = heatPercentage * actualRegenTime;
         
                     bool miniGameActive = currentTimeEquivalent <= miniGameStartTime && 
@@ -525,8 +525,8 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 }
             }
 
-            _currentHeat -= regenRate * Time.deltaTime;
-            OnWeaponHeatUpdatedEvent?.Invoke(_currentHeat);
+            CurrentHeat -= regenRate * Time.deltaTime;
+            OnWeaponHeatUpdatedEvent?.Invoke(CurrentHeat);
             yield return null;
         }
 

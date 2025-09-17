@@ -12,6 +12,11 @@ public class HeatBar : MonoBehaviour
     [SerializeField, Range(0,1)] private float emissionStrength = 1;
     [SerializeField, MinMaxRange(0f,1f)] private RangedFloat emissionRange = new(0.1f, 1f);
     
+    [Header("Text")]
+    [SerializeField] private float heatToShowTextThreshold = 0.2f;
+    [SerializeField] private string overheatedText = "Overheated!";
+    [SerializeField] private string[] cooledText = new string[] { "Cool!" };
+    [SerializeField] private string[] missedText = new string[] { "Missed!"};
     
     [Header("Animation")]
     [SerializeField] private float heatUpdateDuration = 0.3f;
@@ -20,6 +25,7 @@ public class HeatBar : MonoBehaviour
     [SerializeField] private float miniGameAnimationDuration = 0.3f;
     [SerializeField] private float miniGamePunchDuration = 0.6f;
     [SerializeField] private float miniGamePunchStrength = 0.2f;
+    [SerializeField] private float miniGameTextDisplayDuration = 0.7f;
     
     
     [Header("References")]
@@ -30,15 +36,18 @@ public class HeatBar : MonoBehaviour
     [SerializeField] private TextMeshProUGUI barText;
 
 
+    private bool ShouldShowHeatBar => _allowShooting && _heatSystemEnabled;
     private bool _allowShooting = true;
     private bool _heatSystemEnabled = true;
-    private bool ShouldShowHeatBar => _allowShooting && _heatSystemEnabled;
+
+    private bool _miniGameTextVisible;
     private float _baseBarSize;
     private float _overheatBarHeight;
     private Color _miniGameActiveColor;
     private Color _miniGameInactiveColor;
     private Sequence _heatBarSequence;
     private Sequence _heatBarGroupSequence;
+    private Sequence _miniGameTextSequence;
     private Material _heatBarMaterial;
     private static readonly int EmissionStrength = Shader.PropertyToID("_EmissionStrength");
     
@@ -46,11 +55,11 @@ public class HeatBar : MonoBehaviour
 
     private void Awake()
     {
-        if (heatBar)
+        _heatBarMaterial = heatBar.materialForRendering;
+        if (!_heatBarMaterial)
         {
             _heatBarMaterial = new Material(heatBar.material);
             heatBar.material = _heatBarMaterial;
-            heatBar.SetMaterialDirty();
         }
         _baseBarSize = heatBarGroup.transform.localScale.x;
         _overheatBarHeight = heatBar.rectTransform.sizeDelta.y;
@@ -100,18 +109,19 @@ public class HeatBar : MonoBehaviour
         UpdateHeatBarVisibility();
     }
     
-    
 
 
     private void OnHeatUpdated(float heat)
     {
-
-        barText.text = heat >= weaponSystem.MaxWeaponHeat ? "Overheated!" : $"{heat:F0}%";
+        if (!_miniGameTextVisible)
+        {
+            barText.text = heat >= weaponSystem.MaxWeaponHeat ? overheatedText : $"{heat:F0}%";
+        }
 
         float fillAmount = heat / weaponSystem.MaxWeaponHeat;
         SetEmissionStrength(fillAmount);
         Color textFillColor = Color.Lerp(Color.white, Color.red, fillAmount);
-        float textAlpha = fillAmount < 0.2f ? 0f : Mathf.Lerp(0f, 1f, (fillAmount - 0.2f) / 0.8f);
+        float textAlpha = fillAmount < heatToShowTextThreshold ? 0f : Mathf.Lerp(0f, 1f, (fillAmount - heatToShowTextThreshold) / 1 - heatToShowTextThreshold);
         
         if (_heatBarSequence.isAlive) _heatBarSequence.Stop();
         _heatBarSequence = Sequence.Create()
@@ -132,18 +142,20 @@ public class HeatBar : MonoBehaviour
         Tween.Color(miniGameWindow, startValue: miniGameWindow.color, endValue: _miniGameInactiveColor, miniGameAnimationDuration);
     }
     
+
     
     private void OnOnWeaponHeatMiniGameFailed()
     {
-        Tween.Color(miniGameWindow, startValue: miniGameWindow.color, endValue: _miniGameInactiveColor, miniGameAnimationDuration);
+        var randomIndex = Random.Range(0, missedText.Length);
+        ShowMiniGameText(missedText[randomIndex]);
     }
 
     private void OnOnWeaponHeatMiniGameSucceeded()
     {
-        Tween.Color(miniGameWindow, startValue: miniGameWindow.color, endValue: _miniGameInactiveColor, miniGameAnimationDuration);
+        var randomIndex = Random.Range(0, cooledText.Length);
+        ShowMiniGameText(cooledText[randomIndex]);
     }
-
-
+    
 
     private void OnWeaponHeatMiniGameWindowCreated(float regenTime, float windowDuration, float windowStartTime)
     {
@@ -178,13 +190,35 @@ public class HeatBar : MonoBehaviour
         Tween.Color(miniGameWindow, startValue: miniGameWindow.color, endValue: _miniGameActiveColor, miniGameAnimationDuration);
     }
     
+    private void ShowMiniGameText(string text)
+    {
+        if (_miniGameTextSequence.isAlive) _miniGameTextSequence.Stop();
+        
+        _miniGameTextVisible = true;
+        barText.text = text;
+        
+        _miniGameTextSequence = Sequence.Create()
+            .Group(Tween.Delay(miniGameTextDisplayDuration))
+            .OnComplete(() =>
+            {
+                _miniGameTextVisible = false; 
+                OnHeatUpdated(weaponSystem.CurrentHeat);
+            });
+            
+        Tween.Color(miniGameWindow, startValue: miniGameWindow.color, endValue: _miniGameInactiveColor, miniGameAnimationDuration);
+    }
     
     
     private void SetEmissionStrength(float strength)
     {
+        if (!_heatBarMaterial && heatBar)
+        {
+            _heatBarMaterial = heatBar.materialForRendering;
+        }
+    
         if (!_heatBarMaterial) return;
     
-        emissionStrength = Mathf.Clamp(strength, emissionRange.minValue, emissionRange.maxValue);
+        emissionStrength = Mathf.Lerp(emissionRange.minValue, emissionRange.maxValue, strength);
         _heatBarMaterial.SetFloat(EmissionStrength, emissionStrength);
     }
 

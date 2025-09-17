@@ -21,7 +21,7 @@ public class ChickenStateController : MonoBehaviour, IPooledObject
     
     [Header("Score Settings")]
     [SerializeField] private int scoreWorth = 50;
-    
+    private bool hasBeenReturnedToPool = false;
 
     
     
@@ -57,9 +57,10 @@ public class ChickenStateController : MonoBehaviour, IPooledObject
         
         _registration = GetComponent<EnemyChickenRegistration>();
     }
-    
-    
-
+    void OnEnable() 
+    {
+        hasBeenReturnedToPool = false;
+    }
     public bool ChangeState(ChickenState newState)
     {
         if (!allowStateTransitions)
@@ -144,8 +145,16 @@ public class ChickenStateController : MonoBehaviour, IPooledObject
 
     public void ReturnToPool()
     {
+        // Prevent multiple returns to pool
+        if (hasBeenReturnedToPool)
+        {
+            Debug.LogWarning($"ChickenStateController {gameObject.name}: Already returned to pool, skipping");
+            return;
+        }
+        hasBeenReturnedToPool = true;
         ObjectPooler.ReturnObjectToPool(gameObject);
     }
+
 
     public void OnPoolGet()
     {

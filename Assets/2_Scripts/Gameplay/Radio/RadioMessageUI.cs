@@ -70,7 +70,7 @@ public class RadioMessageUI : MonoBehaviour
         {
                 if (!message) return;
                 
-                SetupMessageContent(message, false);
+                SetupMessageContent(message);
                 
                 if (_showSequence.isAlive) _showSequence.Stop();
                 _showSequence = Sequence.Create();
@@ -94,7 +94,7 @@ public class RadioMessageUI : MonoBehaviour
                         });
         }
         
-        private void SetupMessageContent(SORadioMessage message, bool playSound = true)
+        private void SetupMessageContent(SORadioMessage message)
         {
                 if (message.Sender)
                 {
@@ -120,9 +120,6 @@ public class RadioMessageUI : MonoBehaviour
                 messageText.text = message.Message;
                 messageWriter.RestartWriter();
                 
-                if (playSound)
-                {
-                        messageWriteSfx?.Play(audioSource);
-                }
+                messageWriteSfx?.Play(audioSource);
         }
 }

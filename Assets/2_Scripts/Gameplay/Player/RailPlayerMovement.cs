@@ -37,7 +37,10 @@ public class RailPlayerMovement : MonoBehaviour
     [Header("References")] 
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
     [SerializeField] private Transform shipModel;
+    [SerializeField] private SOAudioEvent dodgeAccumulationSfx;
+    [SerializeField] private ParticleSystem dodgeAccumulationEffect;
     [SerializeField] private SOAudioEvent dodgeSfx;
+    [SerializeField] private ParticleSystem[] dodgeAvailableEffects;
     [SerializeField, Self, HideInInspector] private RailPlayer player;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
@@ -76,6 +79,7 @@ public class RailPlayerMovement : MonoBehaviour
     
     public event Action OnDodge;
     public event Action<float> OnDodgeCooldownUpdated;
+    public event Action<float> OnDodgeAccumulationUpdated; 
     public event Action<int> OnDodgeCountChanged;
 
     private void OnValidate()
@@ -127,10 +131,13 @@ public class RailPlayerMovement : MonoBehaviour
         _allowDodge = true;
         _maxDodgeAccumulation = player.PlayerStats.BaseDodgeAccumulation;
         _currentDodgeRemining = _maxDodgeAccumulation;
+        UpdateDodgeParticles();
         
         OnDodgeCooldownUpdated?.Invoke(_dodgeCooldownTimer/dodgeCooldown);
         OnDodgeCountChanged?.Invoke(_currentDodgeRemining);
     }
+    
+
 
     private void Update()
     {
@@ -167,6 +174,8 @@ public class RailPlayerMovement : MonoBehaviour
         }
 
         _allowDodge = stage.AllowPlayerDodge;
+        
+        UpdateDodgeParticles();
 
     }
     
@@ -278,6 +287,15 @@ public class RailPlayerMovement : MonoBehaviour
         
         _targetOffsetFromSpline = Vector3.zero;
     }
+    
+    public void Push(Vector2 direction, float force)
+    {
+        if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
+        _targetOffsetFromSpline += new Vector3(direction.x, direction.y, 0).normalized * force;
+        _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
+        _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
+        _targetOffsetFromSpline.z = 0;
+    }
 
     
     
@@ -320,8 +338,16 @@ public class RailPlayerMovement : MonoBehaviour
             {
                 _dodgeAccumulationRateTimer = dodgeAccumulationRate;
                 _currentDodgeRemining += 1;
+                dodgeAccumulationSfx?.Play(audioSource);
+                dodgeAccumulationEffect?.Play(true);
                 OnDodgeCountChanged?.Invoke(_currentDodgeRemining);
+                UpdateDodgeParticles();
             }
+            else
+            {
+                OnDodgeAccumulationUpdated?.Invoke(1 - (_dodgeAccumulationRateTimer / dodgeAccumulationRate));
+            }
+
 
         }
     }
@@ -337,6 +363,8 @@ public class RailPlayerMovement : MonoBehaviour
         _currentDodgeRemining -= 1;
         _dodgeAccumulationRateTimer = dodgeAccumulationRate;
         OnDodgeCountChanged?.Invoke(_currentDodgeRemining);
+        UpdateDodgeParticles();
+        
         
         dodgeSfx?.Play(audioSource);
         controllerVibrationSource.VibrateFadeIn(0.05f, 0f, dodgeTweenSettings.duration/2);
@@ -365,6 +393,30 @@ public class RailPlayerMovement : MonoBehaviour
         _dodgeAccumulationRateTimer = dodgeAccumulationRate;
         _currentDodgeRemining = _maxDodgeAccumulation;
         OnDodgeCountChanged?.Invoke(_currentDodgeRemining);
+
+        UpdateDodgeParticles();
+    }
+    
+    private void UpdateDodgeParticles()
+    {
+        bool shouldPlay = _currentDodgeRemining > 0 && _allowDodge;
+
+        if (shouldPlay)
+        {
+            foreach (var ps in dodgeAvailableEffects)
+            {
+                ps?.Play(true);
+            }
+        }
+        else
+        {
+            foreach (var ps in dodgeAvailableEffects)
+            {
+                ps?.Pause(true);
+                ps?.Clear(true);
+            }
+            
+        }
     }
     
 

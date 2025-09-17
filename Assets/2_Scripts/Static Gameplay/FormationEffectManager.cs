@@ -26,8 +26,12 @@ public class FormationEffectManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     [SerializeField, Scene(Flag.EditableAnywhere)] private ChickenCombatManagerV4 combatManager;
 
+    
+    
+    
     // Components
     private FormationCreator formationCreator;
 
@@ -74,14 +78,14 @@ public class FormationEffectManager : MonoBehaviour
 
         InitializeEffects();
     }
+    
 
     void Start()
     {
         if (formationCreator == null) return;
 
         // Find references if not assigned
-        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>(FindObjectsInactive.Include);
-        if (!combatManager) combatManager = FindFirstObjectByType<ChickenCombatManagerV4>(FindObjectsInactive.Include);
+
 
         currentFormationType = formationCreator.currentFormation;
         effectStartTime = Time.time;
@@ -180,13 +184,18 @@ public class FormationEffectManager : MonoBehaviour
     // Event handler for stage changes
     private void OnStageChanged(SOLevelStage newStage)
     {
+        
+        
+        StopAllEffects();
+        
+        
         if (!useStageBasedActivation) return;
 
         if (showStageDebugLogs)
             Debug.Log($"FormationEffectManager: Stage changed to {newStage?.name}");
 
         // Turn off all effects when stage changes
-        SetEffectsEnabled(false, false);
+        ForceStopAllEffects();
         stageEffectsActive = false;
         effectActivationTime = 0f;
         lastRegisteredCount = 0;
@@ -539,7 +548,35 @@ public class FormationEffectManager : MonoBehaviour
         if (rotationEffect != null)
             rotationEffect.IsEnabled = true;
     }
+    public void ForceStopAllEffects()
+    {
+        if (showStageDebugLogs)
+            Debug.Log("FormationEffectManager: Force stopping all effects (player death/restart)");
 
+        // Immediately disable all effects regardless of mode
+        if (breathingEffect != null)
+            breathingEffect.IsEnabled = false;
+        if (rotationEffect != null)
+            rotationEffect.IsEnabled = false;
+
+        // Reset all state
+        stageEffectsActive = false;
+        effectActivationTime = 0f;
+        lastRegisteredCount = 0;
+        hasRolledForCurrentStage = false;
+        isTrackingStageRegistration = false;
+
+        // Reset formation to base state
+        if (formationCreator != null)
+            formationCreator.GenerateFormation();
+
+        // In manual mode, also reset the toggles
+        if (!useStageBasedActivation)
+        {
+            enableBreathing = false;
+            enableRotation = false;
+        }
+    }
     // Public control methods
     [ContextMenu("Start Effects")]
     public void StartEffects()
@@ -723,6 +760,7 @@ public class FormationEffectManager : MonoBehaviour
     {
         // Find references if not assigned
         if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>(FindObjectsInactive.Include);
+        if (!player) player = FindFirstObjectByType<RailPlayer>(FindObjectsInactive.Include);
         if (!combatManager) combatManager = FindFirstObjectByType<ChickenCombatManagerV4>(FindObjectsInactive.Include);
 
         this.ValidateRefs();

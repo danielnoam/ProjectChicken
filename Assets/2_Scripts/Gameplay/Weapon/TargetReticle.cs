@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class TargetReticle : MonoBehaviour
@@ -12,7 +13,13 @@ public class TargetReticle : MonoBehaviour
     [SerializeField] private ReticleVisualsController reticle;
     [SerializeField] private RailPlayer player;
     
+    private bool _canShoot;
+    private bool _canAim;
 
+    private void Awake()
+    {
+        reticle.Hide();
+    }
 
     private void OnEnable()
     {
@@ -23,6 +30,7 @@ public class TargetReticle : MonoBehaviour
             player.WeaponSystem.OnWeaponOverheatedEvent += OnWeaponOverheated;
             player.WeaponSystem.OnWeaponHeatResetEvent += OnWeaponHeatReset; 
             player.WeaponSystem.OnAllowShootingChangedEvent += OnAllowShootingChanged;
+            player.Aiming.OnAllowAimingChanged += OnAllowAimingChanged;
             player.Aiming.OnAimLockStateChange += OnAimLockStateChanged;
             player.Health.OnDeath += OnPlayerDeath;
         }
@@ -38,10 +46,22 @@ public class TargetReticle : MonoBehaviour
             player.WeaponSystem.OnWeaponHeatResetEvent -= OnWeaponHeatReset; 
             player.WeaponSystem.OnAllowShootingChangedEvent -= OnAllowShootingChanged;
             player.Aiming.OnAimLockStateChange -= OnAimLockStateChanged;
+            player.Aiming.OnAllowAimingChanged -= OnAllowAimingChanged;
             player.Health.OnDeath -= OnPlayerDeath;
         }
     }
-    
+
+    private void UpdateReticleVisibility()
+    {
+        if (_canShoot || _canAim)
+        {
+            reticle?.Show();
+        }
+        else
+        {
+            reticle?.Hide();
+        }
+    }
 
     private void OnWeaponUsed(WeaponInstance weaponInstance)
     {
@@ -67,19 +87,19 @@ public class TargetReticle : MonoBehaviour
 
     private void OnAllowShootingChanged(bool allowShooting)
     {
-        if (allowShooting)
-        {
-            reticle?.Show();
-        }
-        else
-        {
-            reticle?.Hide();
-        }
+        _canShoot = allowShooting;
+        UpdateReticleVisibility();
+    }
+
+    private void OnAllowAimingChanged(bool allowAiming)
+    {
+        _canAim = allowAiming;
+        UpdateReticleVisibility();
     }
 
     private void OnAimLockStateChanged(bool isLocked, ChickenStateController target)
     {
-        if (!player.WeaponSystem.AllowShooting) return;
+        if (!_canShoot) return;
 
         if (isLocked)
         {
@@ -95,7 +115,4 @@ public class TargetReticle : MonoBehaviour
     {
         reticle?.Hide();
     }
-
-
-    
 }

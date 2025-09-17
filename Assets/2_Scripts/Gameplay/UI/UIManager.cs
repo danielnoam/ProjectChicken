@@ -129,6 +129,7 @@ public class UIManager : MonoBehaviour
     private int _previousPlayerCurrency;
     private int _playerCurrency;
     private int _playerHealth;
+    private int _currentDodgeRemining;
     private float _playerShield;
     private Vector3 _targetHudPosition;
     private Vector3 _shakeOffset;
@@ -178,12 +179,16 @@ public class UIManager : MonoBehaviour
             player.Health.OnHealthChanged += OnPlayerHealthChanged;
             player.Health.OnShieldChanged += OnPlayerShieldChanged;
             player.ResourceCollector.OnCurrencyChanged += OnPlayerCurrencyChanged;
+            player.WeaponSystem.OnWeaponOverheatedEvent += OnPlayerWeaponOverheated;
+            player.WeaponSystem.OnWeaponHeatMiniGameFailedEvent += OnPlayerWeaponHeatMiniGameFailed;
+            player.WeaponSystem.OnWeaponHeatMiniGameSucceededEvent += OnPlayerWeaponHeatMiniGameSucceeded;
             player.WeaponSystem.OnWeaponUsed += OnPlayerWeaponUsed;
             player.WeaponSystem.OnActiveWeaponSwitchedEvent += OnPlayerActiveWeaponSwitched;
             player.WeaponSystem.OnActiveWeaponCooldownUpdatedEvent += OnPlayerActiveWeaponCooldownUpdated;
             player.Movement.OnDodgeCooldownUpdated += OnDodgeCooldownUpdated;
             player.Movement.OnDodge += OnPlayerDodge;
             player.Movement.OnDodgeCountChanged += OnDodgeCountChanged;
+            player.Movement.OnDodgeAccumulationUpdated += OnDodgeAccumulationUpdated;
         }
 
         if (levelManager)
@@ -205,12 +210,16 @@ public class UIManager : MonoBehaviour
             player.Health.OnHealthChanged -= OnPlayerHealthChanged;
             player.Health.OnShieldChanged -= OnPlayerShieldChanged;
             player.ResourceCollector.OnCurrencyChanged -= OnPlayerCurrencyChanged;
+            player.WeaponSystem.OnWeaponOverheatedEvent -= OnPlayerWeaponOverheated;
+            player.WeaponSystem.OnWeaponHeatMiniGameFailedEvent -= OnPlayerWeaponHeatMiniGameFailed;
+            player.WeaponSystem.OnWeaponHeatMiniGameSucceededEvent -= OnPlayerWeaponHeatMiniGameSucceeded;
             player.WeaponSystem.OnWeaponUsed -= OnPlayerWeaponUsed;
             player.WeaponSystem.OnActiveWeaponSwitchedEvent -= OnPlayerActiveWeaponSwitched;
             player.WeaponSystem.OnActiveWeaponCooldownUpdatedEvent -= OnPlayerActiveWeaponCooldownUpdated;
             player.Movement.OnDodgeCooldownUpdated -= OnDodgeCooldownUpdated;
             player.Movement.OnDodge -= OnPlayerDodge;
             player.Movement.OnDodgeCountChanged -= OnDodgeCountChanged;
+            player.Movement.OnDodgeAccumulationUpdated -= OnDodgeAccumulationUpdated;
         }
         
         if (levelManager)
@@ -492,12 +501,15 @@ public class UIManager : MonoBehaviour
     private void OnPlayerWeaponUsed(WeaponInstance weaponInstance)
     {
         ShakeHUDLight();
+        Tween.PunchScale(weaponIcon.transform, strength: Vector3.one * (weaponPunchStrength * 0.15f), duration: weaponPunchDuration);
     }
     
     private void OnPlayerDodge()
     {
         dodgeIcon.color = cooldownIconColor;
+        dodgeCountText.color = cooldownIconColor;
         ShakeHUDMedium();
+        Tween.PunchScale(dodgeIcon.transform, strength: Vector3.one * (dodgePunchStrength), duration: dodgePunchDuration);
     }
 
     
@@ -569,6 +581,24 @@ public class UIManager : MonoBehaviour
         weaponIcon.color = Color.Lerp(cooldownIconColor, _weaponStartColor, fillAmount);
     }
     
+    private void OnPlayerWeaponOverheated()
+    {
+        weaponIcon.color = cooldownIconColor;
+        Tween.PunchScale(weaponIcon.transform, strength: Vector3.one * (weaponPunchStrength * 1.5f), duration: weaponPunchDuration);
+    }
+    
+    private void OnPlayerWeaponHeatMiniGameFailed()
+    {
+        Tween.PunchScale(weaponIcon.transform, strength: Vector3.one * (weaponPunchStrength * 1.5f), duration: weaponPunchDuration);
+    }
+    
+    private void OnPlayerWeaponHeatMiniGameSucceeded()
+    {
+        weaponIcon.color = _weaponStartColor;
+        Tween.PunchScale(weaponIcon.transform, strength: Vector3.one * (weaponPunchStrength * 1.5f), duration: weaponPunchDuration);
+    }
+    
+    
     
     private void OnPlayerCurrencyChanged(int newCurrency)
     {
@@ -619,9 +649,16 @@ public class UIManager : MonoBehaviour
     
     private void OnDodgeCountChanged(int dodgesRemining)
     {
-        dodgeCountText.text = $"X{dodgesRemining}";
+        _currentDodgeRemining = dodgesRemining;
+        dodgeCountText.text = $"X{_currentDodgeRemining}";
         Tween.PunchScale(dodgeCountText.transform, strength: Vector3.one * dodgePunchStrength, duration: dodgePunchDuration);
     }
+    
+    private void OnDodgeAccumulationUpdated(float accumulation)
+    {
+        dodgeCountText.color = Color.Lerp(cooldownIconColor, Color.white, accumulation);
+    }
+
     
     
 

@@ -184,7 +184,7 @@ Transform:
   m_GameObject: {fileID: 2863931854834714643}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.7, y: -50, z: 750}
+  m_LocalPosition: {x: 1.7, y: -50, z: 1500}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -209,8 +209,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 100, y: 300, z: 100}
-  m_Center: {x: -275, y: 0, z: 0}
+  m_Size: {x: 250, y: 300, z: 100}
+  m_Center: {x: -385, y: 0, z: 0}
 --- !u!65 &92421952177360963
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -230,8 +230,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 100, y: 300, z: 100}
-  m_Center: {x: 275, y: 0, z: 0}
+  m_Size: {x: 250, y: 300, z: 100}
+  m_Center: {x: 385, y: 0, z: 0}
 --- !u!65 &4328325276999965704
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -268,12 +268,14 @@ MonoBehaviour:
   spaceItemPrefabs:
   - {fileID: 651960858193725616, guid: 7d8655a331c763c40960264514912631, type: 3}
   - {fileID: 4194405773046947710, guid: 27f087554897cb043af6bc370b2518bf, type: 3}
-  maxItemsOnScreen: 150
+  maxItemsOnScreen: 450
   initialDelay: 0
-  spawnInterval: 0.75
-  minSpawnRate: 0.25
-  itemMoveSpeed: 30
-  itemScaleDuration: 5
+  spawnInterval: 0.25
+  minSpawnRate: 0.15
+  itemMoveSpeedRange:
+    minValue: 100
+    maxValue: 200
+  itemScaleDuration: 2
   doubleSpawnChance: 50
   spawnZones:
   - {fileID: 8167709268675499889}
@@ -373,11 +375,13 @@ MonoBehaviour:
   spaceItemPrefabs:
   - {fileID: 3279667890870813235, guid: a7823e9699d7cb64ebd54ea61b4bd6a2, type: 3}
   - {fileID: 2976211574915033961, guid: b20a3d75a9af8cb4c9c6dd0071d95695, type: 3}
-  maxItemsOnScreen: 50
+  maxItemsOnScreen: 3
   initialDelay: 0
-  spawnInterval: 60
+  spawnInterval: 120
   minSpawnRate: 0.25
-  itemMoveSpeed: 50
+  itemMoveSpeedRange:
+    minValue: 60
+    maxValue: 80
   itemScaleDuration: 25
   doubleSpawnChance: 0
   spawnZones:
@@ -592,11 +596,13 @@ MonoBehaviour:
   - {fileID: 441028123743828838, guid: 25b94a4fe64b1c34f956da773b657d8e, type: 3}
   - {fileID: 5771890810292038773, guid: 79959e6f00d9302449dcf45cbe662315, type: 3}
   - {fileID: 3724146673273290545, guid: 86f393354c9f20046b11dfb764f2b9be, type: 3}
-  maxItemsOnScreen: 50
+  maxItemsOnScreen: 2
   initialDelay: 7
   spawnInterval: 40
   minSpawnRate: 0.25
-  itemMoveSpeed: 3
+  itemMoveSpeedRange:
+    minValue: 20
+    maxValue: 30
   itemScaleDuration: 10
   doubleSpawnChance: 0
   spawnZones:

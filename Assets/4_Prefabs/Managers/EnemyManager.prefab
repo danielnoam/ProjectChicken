@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 819108631728356256}
   - component: {fileID: 8215287246607141139}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Enemy Combat Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -66,7 +66,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8204904647108867361}
   - component: {fileID: 2242176005695776044}
-  m_Layer: 10
+  m_Layer: 2
   m_Name: EggWarningSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -104,7 +104,7 @@ MonoBehaviour:
   warningParent: {fileID: 4525068363431569470}
   targetCanvasTransform: {fileID: 4525068363431569470}
   autoFindCanvas: 1
-  circleSize: 5
+  circleSize: 2
   fadeDistance: 1
   clampWarningsToCanvas: 0
   canvasPadding: 0.5
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 8011380554561875517}
   - component: {fileID: 2518773913054610891}
   - component: {fileID: 964188254427928406}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Enemy Formation Manager
   m_TagString: ChickenFormationManager
   m_Icon: {fileID: 0}
@@ -296,6 +296,8 @@ MonoBehaviour:
   autoRefreshChickenStates: 1
   stateRefreshInterval: 1
   forceStateUpdateOnReassign: 1
+  levelManager: {fileID: 0}
+  player: {fileID: 0}
 --- !u!114 &3271738554598359397
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -393,6 +395,7 @@ MonoBehaviour:
   showStageDebugLogs: 0
   minEffectDuration: 2
   levelManager: {fileID: 0}
+  player: {fileID: 0}
   combatManager: {fileID: 8215287246607141139}
   currentStageHasRolled: 0
   currentStageEffectsActive: 0
@@ -412,8 +415,8 @@ GameObject:
   - component: {fileID: 7449857418326000275}
   - component: {fileID: 3598341607139324079}
   - component: {fileID: 305980661424353284}
-  m_Layer: 10
-  m_Name: Warning Area Canvas
+  m_Layer: 2
+  m_Name: Enemy Attack Warning Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -531,7 +534,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5300218107644586220}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: EnemySpawnPosition
   m_TagString: Untagged
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
@@ -564,7 +567,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4459454021840504414}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: EnemyManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -587,6 +590,7 @@ Transform:
   - {fileID: 414264590426086715}
   - {fileID: 7787325904529220563}
   - {fileID: 819108631728356256}
+  - {fileID: 3585530205329594923}
   - {fileID: 4525068363431569470}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -600,7 +604,7 @@ GameObject:
   m_Component:
   - component: {fileID: 414264590426086715}
   - component: {fileID: 5558122213582069258}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Enemy Spawn Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -643,6 +647,81 @@ MonoBehaviour:
   enemySpawnPosition: {fileID: 5300218107644586220}
   levelManager: {fileID: 0}
   player: {fileID: 0}
+--- !u!1 &7182938860939899348
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3585530205329594923}
+  - component: {fileID: 1785148535720474815}
+  - component: {fileID: 3884875090893653531}
+  m_Layer: 2
+  m_Name: Enemy Passage Building Checker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3585530205329594923
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7182938860939899348}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4459454021840504414}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1785148535720474815
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7182938860939899348}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 112.05625, y: 56.28366, z: 125.76749}
+  m_Center: {x: -0.07392502, y: 11.051094, z: 40.256332}
+--- !u!114 &3884875090893653531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7182938860939899348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cdc26bfe2f24794d820283032f1b59f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  recoveryDelay: 1.5
+  affectOnlyActiveChickens: 1
+  pauseFormationEffects: 1
+  passageBuildingTag: PassageBuilding
+  formationEffectManager: {fileID: 964188254427928406}
+  showDebugLogs: 1
+  showDisruptionGizmos: 1
+  disruptionColor: {r: 1, g: 0, b: 0, a: 1}
+  recoveryColor: {r: 1, g: 0.6470588, b: 0, a: 1}
 --- !u!1 &8548514679401556076
 GameObject:
   m_ObjectHideFlags: 0

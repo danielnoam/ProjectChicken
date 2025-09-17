@@ -88,6 +88,27 @@ public class RailPlayer : MonoBehaviour
         input.OnPauseActionEvent -= OnPauseAction;
     }
     
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out GameObjectCenterer gameObjectCenterer))
+        {
+            Health.TakeDamage(100, 5f);
+            Vector3 moveDirection = (transform.position - gameObjectCenterer.CenterObjectTransform.position).normalized;
+            Movement.Push(-moveDirection, 5f);
+
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.TryGetComponent(out GameObjectCenterer gameObjectCenterer))
+        {
+            Vector3 moveDirection = (transform.position - gameObjectCenterer.CenterObjectTransform.position).normalized;
+            Movement.Push(-moveDirection, 1f);
+
+        }
+    }
+
     private void Update()
     {
         if (_pauseInputHeld)

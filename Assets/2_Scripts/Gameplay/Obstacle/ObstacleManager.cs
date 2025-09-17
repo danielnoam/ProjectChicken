@@ -100,8 +100,6 @@ public class ObstacleManager : MonoBehaviour
         Vector3 directionToPlayer = GetDirectionToPlayer(newObstacle.transform.position);
         newObstacle.Initialize(directionToPlayer, baseSpeed);
         
-        Debug.Log("Spawned");
-        
         return newObstacle;
     }
     
@@ -175,4 +173,17 @@ public class ObstacleManager : MonoBehaviour
         }
     }
 
+
+    private void OnDrawGizmosSelected()
+    {
+        if (!levelManager) return;
+        
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(levelManager.EnemyPosition + (Vector3.forward * spawnDistance), 2f);
+        Gizmos.DrawLine(levelManager.EnemyPosition, levelManager.EnemyPosition + (Vector3.forward * spawnDistance));
+        
+        #if UNITY_EDITOR
+        UnityEditor.Handles.Label(levelManager.EnemyPosition + (Vector3.forward * spawnDistance) + Vector3.up * 2f, "Obstacle Spawn Point");
+        #endif
+    }
 }

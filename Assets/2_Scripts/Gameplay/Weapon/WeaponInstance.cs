@@ -209,7 +209,7 @@ public class WeaponInstance
     
     public void OnWeaponUsed(RailPlayer owner)
     {
-        AccumulateSpread();
+
         Vector3 spreadDirection = CalculateSpreadDirection();
         CurrentWeaponGfx?.AnimateUsage();
 
@@ -245,6 +245,8 @@ public class WeaponInstance
                     break;
             }
         }
+        
+        AccumulateSpread();
     }
 
     public void OnHeatChanged(float heat)

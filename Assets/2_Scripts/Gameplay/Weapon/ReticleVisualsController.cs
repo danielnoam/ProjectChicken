@@ -16,7 +16,6 @@ public class ReticleVisualsController : MonoBehaviour
     
     [Header("Spread")]
     [SerializeField, Range(0.5f, 3f)] private float spreadSizeMultiplier = 1.5f;
-    [SerializeField] private AnimationCurve spreadSizeCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 1.5f);
     
     [Header("References")]
     [SerializeField] private Transform punchTransform;
@@ -27,6 +26,7 @@ public class ReticleVisualsController : MonoBehaviour
     private bool _isVisible;
     private bool _isAimLocked;
     private float _baseSize;
+    private float _baseSpreadSize;
     private float _currentHeat;
     private Tween _spreadSizeTween;
     private Tween _sizeTween;
@@ -43,6 +43,7 @@ public class ReticleVisualsController : MonoBehaviour
     private void Awake()
     {
         _baseSize = transform.localScale.x;
+        _baseSpreadSize = spreadTransform ? spreadTransform.localScale.x : 1f;
         aimLockTransform.localScale = Vector3.one;
         punchTransform.localScale = Vector3.one;
         transform.localScale = Vector3.zero;
@@ -219,10 +220,10 @@ public class ReticleVisualsController : MonoBehaviour
     {
         if (!spreadTransform) return;
         
-        float targetSpreadSize = spreadSizeCurve.Evaluate(normalizedSpread) * spreadSizeMultiplier;
-        
+        var targetSpreadSize = Mathf.Lerp(_baseSpreadSize, _baseSpreadSize * spreadSizeMultiplier, normalizedSpread);
+    
         if (_spreadSizeTween.isAlive) _spreadSizeTween.Stop();
-        _spreadSizeTween = Tween.Scale(spreadTransform, Vector3.one * targetSpreadSize, 0.1f, Ease.OutQuad);
+        _spreadSizeTween = Tween.Scale(spreadTransform,  targetSpreadSize, 0.1f, Ease.OutQuad);
     }
 
     #endregion Size -----------------------------------------------------------------------------------

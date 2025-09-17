@@ -31,6 +31,7 @@ namespace DNExtensions
         public bool bypassListenerEffects;
         public bool bypassReverbZones;
         public bool loop;
+        public bool dontOverideActiveClip;
 
         [Header("3D Sound")] public bool set3DSettings = false;
         [EnableIf("set3DSettings")] [MinMaxRange(0f, 5f)] public float dopplerLevel = 1f;
@@ -51,6 +52,8 @@ namespace DNExtensions
         public void Play(AudioSource source)
         {
             if (!source || !source.enabled) return;
+            
+            if (dontOverideActiveClip && source.isPlaying) return;
 
             if (clips.Length == 0)
             {
@@ -66,6 +69,8 @@ namespace DNExtensions
         public void Play(AudioSource source, float delay)
         {
             if (!source || !source.enabled) return;
+            
+            if (dontOverideActiveClip && source.isPlaying) return;
 
             if (clips.Length == 0)
             {
