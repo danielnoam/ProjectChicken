@@ -294,6 +294,18 @@ public class RailPlayerHealth : MonoBehaviour
         StopShieldRegen();
         CurrentShield -= damage;
         
+        if (cinemachineImpulseSource)
+        {
+            cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shieldDamagedShakeSettings.impulseShape;
+            cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shieldDamagedShakeSettings.duration;
+            cinemachineImpulseSource.DefaultVelocity = new Vector3(
+                UnityEngine.Random.Range(-1f, 1f),
+                UnityEngine.Random.Range(-1f, 1f),
+                UnityEngine.Random.Range(-1f, 1f)
+            );
+            cinemachineImpulseSource.GenerateImpulseWithForce(shieldDamagedShakeSettings.intensity);
+        }
+        
         if (CurrentShield < 1)
         {
             CurrentShield = 0;
@@ -303,22 +315,11 @@ public class RailPlayerHealth : MonoBehaviour
         }
         else
         {
-            if (cinemachineImpulseSource)
-            {
-                cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shieldDamagedShakeSettings.impulseShape;
-                cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shieldDamagedShakeSettings.duration;
-                cinemachineImpulseSource.DefaultVelocity = new Vector3(
-                    UnityEngine.Random.Range(-1f, 1f),
-                    UnityEngine.Random.Range(-1f, 1f),
-                    UnityEngine.Random.Range(-1f, 1f)
-                );
-                cinemachineImpulseSource.GenerateImpulseWithForce(shieldDamagedShakeSettings.intensity);
-            }
-            
             if (shieldDamageParticleEffect) shieldDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(shieldDamagedVibrationSettings);
             shieldDamageSfx?.Play(audioSource);
         }
+        
         
         OnShieldChanged?.Invoke(CurrentShield);
     }

@@ -33,7 +33,7 @@ public class RailPlayerAiming : MonoBehaviour
 
 
     private bool _isAimLocked;
-    private bool _allowAiming;
+
     private float _noInputTimer;
     private float _aimLockCooldownTimer;
     private Vector2 _processedLookInput;
@@ -45,11 +45,15 @@ public class RailPlayerAiming : MonoBehaviour
     private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundarySize.y : 15f;
 
 
+    
     public Vector3 AimDirection => _aimDirection;
     public Transform AimWorldPosition => aimWorldPosition;
     public Vector2 NormalizedAimPosition => _normalizedAimPosition;
     
-    public event Action<bool, ChickenStateController> OnAimLockStateChange; 
+    public event Action<bool, ChickenStateController> OnAimLockStateChange;
+    public event Action<bool> OnAllowAimingChanged;
+    
+    public bool AllowAiming { get; private set; }
 
     
     
@@ -95,8 +99,9 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void OnDeath()
     {
-        _allowAiming = false;
+        AllowAiming = false;
         _autoCenterRoutine = StartCoroutine(ReturnToCenter());
+        OnAllowAimingChanged?.Invoke(AllowAiming);
     }
     
     private void OnStageChanged(SOLevelStage stage)
@@ -105,22 +110,22 @@ public class RailPlayerAiming : MonoBehaviour
         
         if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
 
-        if (_allowAiming != stage.AllowPlayerAiming)
+        if (AllowAiming != stage.AllowPlayerAiming)
         {
-            _allowAiming = stage.AllowPlayerAiming;
+            AllowAiming = stage.AllowPlayerAiming;
 
             if (!stage.AllowPlayerAiming)
             {
                 _autoCenterRoutine = StartCoroutine(ReturnToCenter());
             }
         }
+        
+        OnAllowAimingChanged?.Invoke(AllowAiming);
     }
 
 
     public void SetUp()
     {
-        _allowAiming = true;
-        
         // Take the aim world position out of the player's transform so when the player moves it will not affect the position setting of the aim position
         // Don't change for now.
         // The aim world position is also used in the player weapon system to hold the reticles
@@ -196,7 +201,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void HandleAimLock()
     {
-        if (!playerInput.CurrentControlScheme.aimLock || !_allowAiming || !player.Health.IsAlive())
+        if (!playerInput.CurrentControlScheme.aimLock || !AllowAiming || !player.Health.IsAlive())
         {
             if (_isAimLocked)
             {
@@ -282,7 +287,7 @@ public class RailPlayerAiming : MonoBehaviour
 
     private void OnProcessedLook(Vector2 processedLookInput)
     {
-        if (!_allowAiming || !player.Health.IsAlive()) return;
+        if (!AllowAiming || !player.Health.IsAlive()) return;
         _processedLookInput = processedLookInput;
         _noInputTimer = 0f;
     }

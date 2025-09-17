@@ -126,7 +126,6 @@ public class RailPlayerResourceCollector : MonoBehaviour
     {
         Gizmos.color = Color.purple;
         Gizmos.DrawWireSphere(transform.position, _currentMagnetRadius);
-        Debug.Log(_currentMagnetRadius);
         UnityEditor.Handles.Label(transform.position + (Vector3.up * _currentMagnetRadius), "Magnet Radius");
     }
 #endif
