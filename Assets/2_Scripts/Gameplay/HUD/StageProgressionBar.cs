@@ -9,14 +9,17 @@ using UnityEngine.UI;
 
 public class StageProgressionBar : MonoBehaviour
 {
-    [Header("StageIcon Animation")]
-    [SerializeField] private float duration = 0.5f;
-    [SerializeField] private Ease easeType = Ease.InOutSine;
-    
-    [Header("Adaptive Sizing")]
-    [SerializeField] private bool autoAdaptSize = true;
+    [Header("StageIcon")]
     [Tooltip("Icon size range in pixels. Min = smallest size (many stages), Max = largest size (few stages)")]
     [SerializeField, MinMaxRange(5, 50f)] private RangedFloat iconSizeRange = new RangedFloat(8f, 40f);
+    [SerializeField] private float animationDuration = 1f;
+    [SerializeField] private Ease animationEase = Ease.OutElastic;
+    
+    [Header("Enemy Info")]
+    [SerializeField] private bool showEnemyInfo = true;
+    [SerializeField] private float enemyInfoAnimationDuration = 0.3f;
+    [SerializeField] private float enemyInfoAnimationPunchScale = 0.2f;
+    
     
     [Header("Sprites")]
     [SerializeField] private Sprite defaultSprite;
@@ -41,6 +44,7 @@ public class StageProgressionBar : MonoBehaviour
     [SerializeField,Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField,Scene(Flag.EditableAnywhere)] private LevelManager levelManger;
 
+    private Vector2 _stageIconFullSize;
     private SOLevel _currentLevel; 
     private int _currentVisualStageIndex = -1;
     private int _logicalStageIndex = -1;
@@ -73,7 +77,7 @@ public class StageProgressionBar : MonoBehaviour
 
     private void Update()
     {
-        if (levelManger)
+        if (levelManger && showEnemyInfo)
         {
             enemiesRemainingText.text = $"{levelManger.EnemiesLeft}";
         }
@@ -82,15 +86,18 @@ public class StageProgressionBar : MonoBehaviour
     
     private void OnEnemyDeath(ChickenStateController enemy)
     {
-        Tween.PunchScale(enemiesRemainingText.transform, Vector3.one * 0.2f, 0.3f, 1);
+        Tween.PunchScale(enemiesRemainingText.transform, Vector3.one * enemyInfoAnimationPunchScale, enemyInfoAnimationDuration, 1);
     }
 
 
     public void Initialize(SOLevel level)
     {
+        if (!level || !stageIconPrefab) return;
+        
         _currentLevel = level;
         _logicalStageIndex = -1;
         _currentVisualStageIndex = -1;
+        _stageIconFullSize = stageIconPrefab.GetComponent<RectTransform>().sizeDelta;
         
         _stageIcons.Clear();
         foreach (Transform child in stageIconHolder)
@@ -155,11 +162,11 @@ public class StageProgressionBar : MonoBehaviour
     {
         if (!stage || !_currentLevel) return;
         
-        enemiesRemainingCanvasGroup.alpha = stage.StageType == StageType.EnemyWave ? 1 : 0;
+        enemiesRemainingCanvasGroup.alpha = stage.StageType == StageType.EnemyWave && showEnemyInfo ? 1 : 0;
         
         if (_currentVisualStageIndex >= 0 && _currentVisualStageIndex < _stageIcons.Count)
         {
-            _stageIcons[_currentVisualStageIndex].icon.SetCurrent(false, duration, easeType);
+            _stageIcons[_currentVisualStageIndex].icon.SetCurrent(false, animationDuration, animationEase);
         }
         
         int stageIndexInLevel = FindStageIndexInLevel(stage);
@@ -173,7 +180,7 @@ public class StageProgressionBar : MonoBehaviour
             if (visualIndex >= 0 && visualIndex < _stageIcons.Count)
             {
                 _currentVisualStageIndex = visualIndex;
-                _stageIcons[visualIndex].icon.SetCurrent(true, duration, easeType);
+                _stageIcons[visualIndex].icon.SetCurrent(true, animationDuration, animationEase);
             }
         }
     }
@@ -206,25 +213,12 @@ public class StageProgressionBar : MonoBehaviour
     
     private Vector2 CalculateAdaptiveIconSize(int visualStageCount)
     {
-        if (!autoAdaptSize)
-        {
-            return new Vector2(iconSizeRange.maxValue, 50f);
-        }
-
-        // Get available width from horizontal layout group
         float availableWidth = GetAvailableWidth();
-        
-        // Calculate what the maximum icon width should be to fit all icons
-        // Account for one current stage icon being wider (50px)
         float maxFittingWidth = CalculateMaxFittingIconWidth(visualStageCount, availableWidth);
-        
-        // Use the smaller of: preferred max size or what actually fits
         float finalIconWidth = Mathf.Min(iconSizeRange.maxValue, maxFittingWidth);
-        
-        // Ensure we don't go below minimum size
         finalIconWidth = Mathf.Max(finalIconWidth, iconSizeRange.minValue);
         
-        return new Vector2(finalIconWidth, 50f);
+        return new Vector2(finalIconWidth, _stageIconFullSize.x);
     }
 
     private float GetAvailableWidth()
@@ -244,11 +238,8 @@ public class StageProgressionBar : MonoBehaviour
         if (iconCount <= 0) return iconSizeRange.maxValue;
         if (iconCount == 1) return Mathf.Clamp(availableWidth, iconSizeRange.minValue, iconSizeRange.maxValue);
         
-        // Calculate spacing between icons (iconCount - 1 gaps)
         float totalSpacing = (iconCount - 1) * horizontalLayoutGroup.spacing;
-        
-        // Reserve space for one current stage icon (50px width)
-        float currentStageIconWidth = 50f;
+        float currentStageIconWidth = _stageIconFullSize.x;
         
         // Available width for remaining icons
         float remainingWidth = availableWidth - totalSpacing - currentStageIconWidth;

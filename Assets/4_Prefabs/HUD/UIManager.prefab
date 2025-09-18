@@ -1886,12 +1886,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2620f0f0244581c4b8922ed561a2884a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  duration: 1
-  easeType: 24
-  autoAdaptSize: 1
   iconSizeRange:
     minValue: 8
     maxValue: 40
+  animationDuration: 1
+  animationEase: 24
+  showEnemyInfo: 1
+  enemyInfoAnimationDuration: 0.3
+  enemyInfoAnimationPunchScale: 0.2
   defaultSprite: {fileID: 0}
   introSprite: {fileID: 0}
   outroSprite: {fileID: 0}
@@ -3217,10 +3219,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2365411069947930411, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     - target: {fileID: 1107596585647818963, guid: b5f26602cc95e30438805faaf740082f, type: 3}
-      propertyPath: playerInput
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1107596585647818963, guid: b5f26602cc95e30438805faaf740082f, type: 3}
       propertyPath: inputAction.m_Name
       value: Input
       objectReference: {fileID: 0}
@@ -3394,10 +3392,6 @@ PrefabInstance:
       propertyPath: inputAction
       value: 
       objectReference: {fileID: 2365411069947930411, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-    - target: {fileID: 1107596585647818963, guid: b5f26602cc95e30438805faaf740082f, type: 3}
-      propertyPath: playerInput
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 1107596585647818963, guid: b5f26602cc95e30438805faaf740082f, type: 3}
       propertyPath: inputAction.m_Name
       value: Input

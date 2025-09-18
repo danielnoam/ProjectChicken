@@ -12,7 +12,7 @@ public class ShieldEffectManager : MonoBehaviour
     [SerializeField] private float alphaChangeDuration = 0.3f;
     
     [Header("References")]
-    [SerializeField, Parent(Flag.Editable)] private RailPlayer player;
+    [SerializeField] private RailPlayer player;
     [SerializeField] private ShieldHitMovement[] shieldHits;
 
 
@@ -20,10 +20,6 @@ public class ShieldEffectManager : MonoBehaviour
     private float _currentAlpha;
     
     
-    private void OnValidate()
-    {
-        this.ValidateRefs();
-    }
 
     private void OnEnable()
     {

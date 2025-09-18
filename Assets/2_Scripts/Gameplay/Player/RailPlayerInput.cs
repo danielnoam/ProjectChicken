@@ -3,7 +3,6 @@ using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
 public class RailPlayerInput : InputReaderBase
 {
     [SerializeField, Self, HideInInspector] private RailPlayer player;
@@ -19,12 +18,7 @@ public class RailPlayerInput : InputReaderBase
     private InputAction _pauseAction;
     private float _lastMoveLeftTime;
     private float _lastMoveRightTime;
-    private readonly ControlSchemeSettings _keyboardMouseScheme = new ControlSchemeSettings();
-    private readonly ControlSchemeSettings _gamepadScheme = new ControlSchemeSettings();
 
-    public ControlSchemeSettings CurrentControlScheme { get; private set; }  = new ControlSchemeSettings();
-    public bool IsCurrentDeviceGamepad { get; private set; }
-    
     public event Action<InputAction.CallbackContext> OnMoveEvent;
     public event Action<InputAction.CallbackContext> OnLookEvent;
     public event Action<InputAction.CallbackContext> OnAttackEvent;
@@ -35,18 +29,12 @@ public class RailPlayerInput : InputReaderBase
     public event Action<InputAction.CallbackContext> OnPauseActionEvent;
     public event Action<Vector2> OnProcessedLookEvent;
 
-    
-    protected override void OnValidate()
-    {
-        base.OnValidate();
-        if (!playerInput) playerInput = GetComponent<PlayerInput>();
-    }
-    
+
     protected override void Awake()
     {
         base.Awake();
 
-        _playerActionMap = playerInput.actions.FindActionMap("Player");
+        _playerActionMap = PlayerInput.actions.FindActionMap("Player");
         
         if (_playerActionMap == null)
         {
@@ -62,15 +50,13 @@ public class RailPlayerInput : InputReaderBase
         _dodgeRightAction = _playerActionMap.FindAction("DodgeRight");
         _dodgeFreeformAction = _playerActionMap.FindAction("DodgeFreeform");
         _pauseAction = _playerActionMap.FindAction("Pause");
-        
-
-        UpdateControlSchemeSettings();
-        CurrentControlScheme.SetControlSchemeSettings(_keyboardMouseScheme);
     }
 
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
+        
         SubscribeToAction(_moveAction, OnMove);
         SubscribeToAction(_lookAction, OnLook);
         SubscribeToAction(_attackAction, OnAttack);
@@ -80,24 +66,16 @@ public class RailPlayerInput : InputReaderBase
         SubscribeToAction(_dodgeFreeformAction, OnDodgeFreeform);
         SubscribeToAction(_pauseAction, OnPauseAction);
         
-        
-        playerInput.onDeviceRegained += OnDeviceRegained;
-        playerInput.onDeviceLost += OnDeviceLost;
-        playerInput.onControlsChanged += OnControlsChanged;
-        if (SaveManager.Instance)
-        {
-            SaveManager.Instance.OnSettingsDataChanged += UpdateControlSchemeSettings;
-        }
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged += OnStageChanged;
         }
-
     }
     
-
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
+        
         UnsubscribeFromAction(_moveAction, OnMove);
         UnsubscribeFromAction(_lookAction, OnLook);
         UnsubscribeFromAction(_attackAction, OnAttack);
@@ -107,94 +85,40 @@ public class RailPlayerInput : InputReaderBase
         UnsubscribeFromAction(_dodgeFreeformAction, OnDodgeFreeform);
         UnsubscribeFromAction(_pauseAction, OnPauseAction);
         
-        
-        playerInput.onDeviceRegained -= OnDeviceRegained;
-        playerInput.onDeviceLost -= OnDeviceLost;
-        playerInput.onControlsChanged -= OnControlsChanged;
-        if (SaveManager.Instance)
-        {
-            SaveManager.Instance.OnSettingsDataChanged -= UpdateControlSchemeSettings;
-        }
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged -= OnStageChanged;
         }
     }
     
-
-
-    private void OnDeviceRegained(PlayerInput input)
-    {
-        SetActiveControlScheme(input);
-    }
-
-    private void OnDeviceLost(PlayerInput input)
-    {
-        SetActiveControlScheme(input);
-    }
-
-    private void OnControlsChanged(PlayerInput input)
-    {
-        SetActiveControlScheme(input);
-    }
-    
     private void OnStageChanged(SOLevelStage stage)
     {
-        if (!stage) return;
+        if (!stage || !inputManager) return;
 
         switch (stage.StageType)
         {
             case StageType.Delay:
-                SetCursorVisibility(false);
+                inputManager.SetCursorVisibility(false);
                 break;
             case StageType.Store:
-                SetCursorVisibility(true);
+                inputManager.SetCursorVisibility(true);
                 break;
             case StageType.EnemyWave:
-                SetCursorVisibility(false);
+                inputManager.SetCursorVisibility(false);
                 break;
             case StageType.Intro:
-                SetCursorVisibility(false);
+                inputManager.SetCursorVisibility(false);
                 break;
             case StageType.Outro:
-                SetCursorVisibility(stage.ShowOutroMenu);
+                inputManager.SetCursorVisibility(stage.ShowOutroMenu);
                 break;
             default:
-                SetCursorVisibility(false);
+                inputManager.SetCursorVisibility(false);
                 break;
         }
     }
-    
-    
-    private void SetActiveControlScheme(PlayerInput input)
-    {
-        string currentScheme = input.currentControlScheme;
-        Debug.Log($"Control scheme changed to: {currentScheme}");
-        
-        
-        switch (currentScheme)
-        {
-            case "Keyboard&Mouse":
-                CurrentControlScheme = _keyboardMouseScheme;
-                IsCurrentDeviceGamepad = false;
-                break;
-            case "Gamepad":
-                CurrentControlScheme = _gamepadScheme;
-                IsCurrentDeviceGamepad = true;
-                break;
-        }
-    }
-    
-    private void UpdateControlSchemeSettings()
-    {
-        _keyboardMouseScheme.SetControlSchemeSettings(SaveManager.GetKeyboardControlScheme());
-        _gamepadScheme.SetControlSchemeSettings(SaveManager.GetGamepadControlScheme());
-        CurrentControlScheme = IsCurrentDeviceGamepad ? _gamepadScheme : _keyboardMouseScheme;
-    }
-    
 
     #region Input Events --------------------------------------------------------------------------------------
-    
     
     private void OnMove(InputAction.CallbackContext context)
     {
@@ -265,10 +189,6 @@ public class RailPlayerInput : InputReaderBase
     {
         OnPauseActionEvent?.Invoke(context);
     }
-    
 
     #endregion Input Events --------------------------------------------------------------------------------------
-    
-    
-
 }

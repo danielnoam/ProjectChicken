@@ -10,7 +10,6 @@ using VInspector;
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(MenuInput))]
 [RequireComponent(typeof(ControllerVibrationSource))]
-[RequireComponent(typeof(ControllerVibrationListener))]
 public class MenuController : MonoBehaviour
 {
 

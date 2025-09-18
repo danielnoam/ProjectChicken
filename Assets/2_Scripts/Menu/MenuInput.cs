@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,9 +16,6 @@ public class MenuInput : InputReaderBase
     private InputAction _trackedDevicePositionAction;
     private InputAction _trackedDeviceOrientationAction;
 
-    
-    public bool IsCurrentDeviceGamepad { get; private set; }
-    
     public event Action<InputAction.CallbackContext> OnNavigateAction;
     public event Action<InputAction.CallbackContext> OnSubmitAction;
     public event Action<InputAction.CallbackContext> OnCancelAction;
@@ -31,15 +26,12 @@ public class MenuInput : InputReaderBase
     public event Action<InputAction.CallbackContext> OnRightClickAction;
     public event Action<InputAction.CallbackContext> OnTrackedDevicePositionAction;
     public event Action<InputAction.CallbackContext> OnTrackedDeviceOrientationAction;
-    
 
-    
     protected override void Awake()
     {
         base.Awake();
-        
-        
-        _uiActionMap = playerInput.actions.FindActionMap("UI");
+
+        _uiActionMap = PlayerInput.actions.FindActionMap("UI");
         
         if (_uiActionMap == null)
         {
@@ -58,10 +50,16 @@ public class MenuInput : InputReaderBase
         _trackedDevicePositionAction = _uiActionMap.FindAction("TrackedDevicePosition");
         _trackedDeviceOrientationAction = _uiActionMap.FindAction("TrackedDeviceOrientation");
     }
-    
-    
-    private void OnEnable()
+
+    private void Start()
     {
+        inputManager?.SetCursorVisibility(true);
+    }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+
         SubscribeToAction(_navigateAction, OnNavigate);
         SubscribeToAction(_submitAction, OnSubmit);
         SubscribeToAction(_cancelAction, OnCancel);
@@ -72,13 +70,12 @@ public class MenuInput : InputReaderBase
         SubscribeToAction(_rightClickAction, OnRightClick);
         SubscribeToAction(_trackedDevicePositionAction, OnTrackedDevicePosition);
         SubscribeToAction(_trackedDeviceOrientationAction, OnTrackedDeviceOrientation);
-        
-        playerInput.onControlsChanged += OnControlsChanged;
-
     }
     
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
+        
         UnsubscribeFromAction(_navigateAction, OnNavigate);
         UnsubscribeFromAction(_submitAction, OnSubmit);
         UnsubscribeFromAction(_cancelAction, OnCancel);
@@ -89,24 +86,14 @@ public class MenuInput : InputReaderBase
         UnsubscribeFromAction(_rightClickAction, OnRightClick);
         UnsubscribeFromAction(_trackedDevicePositionAction, OnTrackedDevicePosition);
         UnsubscribeFromAction(_trackedDeviceOrientationAction, OnTrackedDeviceOrientation);
-        
-        playerInput.onControlsChanged -= OnControlsChanged;
-
     }
 
-    private void OnControlsChanged(PlayerInput playerInput)
-    {
-        IsCurrentDeviceGamepad = playerInput.currentControlScheme == "Gamepad";
-    }
-
-
-    #region  Input Events --------------------------------------------------------------------------------------
+    #region Input Events --------------------------------------------------------------------------------------
 
     private void OnNavigate(InputAction.CallbackContext context)
     {
         OnNavigateAction?.Invoke(context);
     }
-    
     
     private void OnSubmit(InputAction.CallbackContext context)
     {
@@ -152,9 +139,6 @@ public class MenuInput : InputReaderBase
     {
         OnTrackedDeviceOrientationAction?.Invoke(context);
     }
-    
 
     #endregion Input Events --------------------------------------------------------------------------------------
-    
-    
 }
