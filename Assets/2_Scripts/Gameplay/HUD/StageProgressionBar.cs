@@ -1,92 +1,165 @@
 using System;
 using System.Collections.Generic;
+using DNExtensions;
+using KBCore.Refs;
+using PrimeTween;
 using TMPro;
 using UnityEngine;
-
-
+using UnityEngine.UI;
 
 public class StageProgressionBar : MonoBehaviour
 {
+    [Header("StageIcon Animation")]
+    [SerializeField] private float duration = 0.5f;
+    [SerializeField] private Ease easeType = Ease.InOutSine;
+    
+    [Header("Adaptive Sizing")]
+    [SerializeField] private bool autoAdaptSize = true;
+    [Tooltip("Icon size range in pixels. Min = smallest size (many stages), Max = largest size (few stages)")]
+    [SerializeField, MinMaxRange(5, 50f)] private RangedFloat iconSizeRange = new RangedFloat(8f, 40f);
+    
     [Header("Sprites")]
     [SerializeField] private Sprite defaultSprite;
+    [SerializeField] private Sprite introSprite;
+    [SerializeField] private Sprite outroSprite;
     [SerializeField] private Sprite enemyWaveSprite;
     [SerializeField] private Sprite storeSprite;
 
     [Header("Colors")]
     [SerializeField] private Color defaultColor;
+    [SerializeField] private Color introColor;
+    [SerializeField] private Color outroColor;
     [SerializeField] private Color enemyWaveColor;
     [SerializeField] private Color storeColor;
 
     [Header("References")]
-    [SerializeField] private StageIcon stageIconPrefab;
+    [SerializeField] private CanvasGroup enemiesRemainingCanvasGroup;
     [SerializeField] private TextMeshProUGUI enemiesRemainingText;
     [SerializeField] private Transform stageIconHolder;
-    
-    
+    [SerializeField] private HorizontalLayoutGroup horizontalLayoutGroup;
+    [SerializeField] private StageIcon stageIconPrefab;
+    [SerializeField,Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
+    [SerializeField,Scene(Flag.EditableAnywhere)] private LevelManager levelManger;
+
     private SOLevel _currentLevel; 
     private int _currentVisualStageIndex = -1;
     private int _logicalStageIndex = -1;
     private readonly List<(SOLevelStage stage, StageIcon icon)> _stageIcons = new List<(SOLevelStage, StageIcon)>();
 
 
-    private void Update()
+    private void OnValidate()
     {
-        if (EnemySpawner.Instance) enemiesRemainingText.text = $"Enemies Left: {EnemySpawner.Instance.ActiveEnemyCount}";
+        if (!enemySpawner) enemySpawner = FindAnyObjectByType<EnemySpawner>();
+        if (!levelManger) levelManger = FindAnyObjectByType<LevelManager>();
+        this.ValidateRefs();
     }
 
-    private bool IsNonVisualStage(StageType stageType)
+    private void OnEnable()
     {
-        return stageType == StageType.Delay || stageType == StageType.Task;
+        if (enemySpawner)
+        {
+            enemySpawner.OnEnemyDeath += OnEnemyDeath;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (enemySpawner)
+        {
+            enemySpawner.OnEnemyDeath -= OnEnemyDeath;
+        }
     }
     
+
+    private void Update()
+    {
+        if (levelManger)
+        {
+            enemiesRemainingText.text = $"{levelManger.EnemiesLeft}";
+        }
+
+    }
     
+    private void OnEnemyDeath(ChickenStateController enemy)
+    {
+        Tween.PunchScale(enemiesRemainingText.transform, Vector3.one * 0.2f, 0.3f, 1);
+    }
+
+
     public void Initialize(SOLevel level)
     {
         _currentLevel = level;
         _logicalStageIndex = -1;
         _currentVisualStageIndex = -1;
         
+        _stageIcons.Clear();
+        foreach (Transform child in stageIconHolder)
+        {
+            if (child != stageIconHolder)
+            {
+                DestroyImmediate(child.gameObject);
+            }
+        }
+        
+        // Count visual stages
+        int visualStageCount = 0;
+        foreach (SOLevelStage stage in level.LevelStages)
+        {
+            if (stage && !IsNonVisualStage(stage.StageType))
+            {
+                visualStageCount++;
+            }
+        }
+
+        Vector2 iconSize = CalculateAdaptiveIconSize(visualStageCount);
+        
+        // Create stage icons
         foreach (SOLevelStage stage in level.LevelStages)
         {
             if (!stage || IsNonVisualStage(stage.StageType)) continue;
             
-            var innerIcon = defaultSprite;
-            var outerIconColor = defaultColor;
-            
-            switch (stage.StageType)
-            {
-                case StageType.Store:
-                    innerIcon = storeSprite;
-                    outerIconColor = storeColor;
-                    break;
-                case StageType.EnemyWave:
-                    innerIcon = enemyWaveSprite;
-                    outerIconColor = enemyWaveColor;
-                    break;
-            }
+            var innerIcon = GetStageSprite(stage.StageType);
+            var outerIconColor = GetStageColor(stage.StageType);
             
             StageIcon stageIcon = Instantiate(stageIconPrefab, stageIconHolder);
-            stageIcon.Initialize(innerIcon, outerIconColor);
+            stageIcon.Initialize(innerIcon, outerIconColor, iconSize);
             _stageIcons.Add((stage, stageIcon));
         }
+    }
+    
+    private Sprite GetStageSprite(StageType stageType)
+    {
+        return stageType switch
+        {
+            StageType.Store => storeSprite,
+            StageType.EnemyWave => enemyWaveSprite,
+            StageType.Intro => introSprite,
+            StageType.Outro => outroSprite,
+            _ => defaultSprite
+        };
+    }
+    
+    private Color GetStageColor(StageType stageType)
+    {
+        return stageType switch
+        {
+            StageType.Store => storeColor,
+            StageType.EnemyWave => enemyWaveColor,
+            StageType.Intro => introColor,
+            StageType.Outro => outroColor,
+            _ => defaultColor
+        };
     }
     
     public void SetCurrentStage(SOLevelStage stage)
     {
         if (!stage || !_currentLevel) return;
         
-        if (stage.StageType == StageType.EnemyWave)
-        {
-            enemiesRemainingText.alpha = 1;
-        }
-        else
-        {
-            enemiesRemainingText.alpha = 0;
-        }
+        enemiesRemainingCanvasGroup.alpha = stage.StageType == StageType.EnemyWave ? 1 : 0;
         
         if (_currentVisualStageIndex >= 0 && _currentVisualStageIndex < _stageIcons.Count)
         {
-            _stageIcons[_currentVisualStageIndex].icon.SetCurrent(false);
+            _stageIcons[_currentVisualStageIndex].icon.SetCurrent(false, duration, easeType);
         }
         
         int stageIndexInLevel = FindStageIndexInLevel(stage);
@@ -100,7 +173,7 @@ public class StageProgressionBar : MonoBehaviour
             if (visualIndex >= 0 && visualIndex < _stageIcons.Count)
             {
                 _currentVisualStageIndex = visualIndex;
-                _stageIcons[visualIndex].icon.SetCurrent(true);
+                _stageIcons[visualIndex].icon.SetCurrent(true, duration, easeType);
             }
         }
     }
@@ -129,5 +202,69 @@ public class StageProgressionBar : MonoBehaviour
             }
         }
         return -1;
+    }
+    
+    private Vector2 CalculateAdaptiveIconSize(int visualStageCount)
+    {
+        if (!autoAdaptSize)
+        {
+            return new Vector2(iconSizeRange.maxValue, 50f);
+        }
+
+        // Get available width from horizontal layout group
+        float availableWidth = GetAvailableWidth();
+        
+        // Calculate what the maximum icon width should be to fit all icons
+        // Account for one current stage icon being wider (50px)
+        float maxFittingWidth = CalculateMaxFittingIconWidth(visualStageCount, availableWidth);
+        
+        // Use the smaller of: preferred max size or what actually fits
+        float finalIconWidth = Mathf.Min(iconSizeRange.maxValue, maxFittingWidth);
+        
+        // Ensure we don't go below minimum size
+        finalIconWidth = Mathf.Max(finalIconWidth, iconSizeRange.minValue);
+        
+        return new Vector2(finalIconWidth, 50f);
+    }
+
+    private float GetAvailableWidth()
+    {
+        if (!horizontalLayoutGroup) return 500f;
+        
+        RectTransform rectTransform = horizontalLayoutGroup.GetComponent<RectTransform>();
+        if (!rectTransform) return 500f;
+        
+        float availableWidth = rectTransform.rect.width - horizontalLayoutGroup.padding.left - horizontalLayoutGroup.padding.right;
+        
+        return availableWidth;
+    }
+
+    private float CalculateMaxFittingIconWidth(int iconCount, float availableWidth)
+    {
+        if (iconCount <= 0) return iconSizeRange.maxValue;
+        if (iconCount == 1) return Mathf.Clamp(availableWidth, iconSizeRange.minValue, iconSizeRange.maxValue);
+        
+        // Calculate spacing between icons (iconCount - 1 gaps)
+        float totalSpacing = (iconCount - 1) * horizontalLayoutGroup.spacing;
+        
+        // Reserve space for one current stage icon (50px width)
+        float currentStageIconWidth = 50f;
+        
+        // Available width for remaining icons
+        float remainingWidth = availableWidth - totalSpacing - currentStageIconWidth;
+        float remainingIconCount = iconCount - 1;
+        
+        // Calculate width for non-current icons
+        float maxIconWidth = remainingWidth / remainingIconCount;
+        
+        // Clamp between our min/max range
+        maxIconWidth = Mathf.Clamp(maxIconWidth, iconSizeRange.minValue, iconSizeRange.maxValue);
+        
+        return maxIconWidth;
+    }
+    
+    private bool IsNonVisualStage(StageType stageType)
+    {
+        return stageType == StageType.Delay || stageType == StageType.Task;
     }
 }

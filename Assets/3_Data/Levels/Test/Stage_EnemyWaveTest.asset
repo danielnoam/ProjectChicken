@@ -33,14 +33,14 @@ MonoBehaviour:
   enemyWave:
     serializedKvps:
     - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
-      Value: 5
+      Value: 1
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
     dividerPos: 0.33
   formationStageData:
     formationType: 0
-    formationCount: 2
+    formationCount: 6
     numberOfSlots: 8
     spacing: 10
     circleRadius: 20
@@ -64,7 +64,7 @@ MonoBehaviour:
     - rid: 15267093203648605
       type: {class: SpawnObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
-        isActive: 1
+        isActive: 0
         specificObstaclePrefab: {fileID: 0}
         useRandomObstacle: 1
         maxActiveObstacles: 5
