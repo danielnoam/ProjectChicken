@@ -110,7 +110,7 @@ public class GameObjectCenterer : MonoBehaviour
         // Final centering after scaling is complete
         CenterObjectAtTarget();
         
-        Debug.Log($"Finished monitoring {gameObject.name} - final position: {transform.position}");
+        // Debug.Log($"Finished monitoring {gameObject.name} - final position: {transform.position}");
     }
     
     void OnDisable()

@@ -106,7 +106,7 @@ public class SpaceItemSpawner : MonoBehaviour
                     if (!itemPool.itemPrefabs.Contains(prefab))
                     {
                         itemPool.itemPrefabs.Add(prefab);
-                        Debug.Log($"Added {prefab.name} to existing pool {itemPool.poolName}");
+                        // Debug.Log($"Added {prefab.name} to existing pool {itemPool.poolName}");
                     }
                 }
             }
@@ -137,13 +137,13 @@ public class SpaceItemSpawner : MonoBehaviour
         {
             if (spawnZones[i] == null)
             {
-                Debug.LogWarning($"Spawn Zone at index {i} is null in SpaceItemSpawner!");
+                // Debug.LogWarning($"Spawn Zone at index {i} is null in SpaceItemSpawner!");
             }
         }
         
         if (spawnZones.Count == 0)
         {
-            Debug.LogError("No spawn zones available in SpaceItemSpawner!");
+            // Debug.LogError("No spawn zones available in SpaceItemSpawner!");
         }
     }
     
@@ -151,7 +151,7 @@ public class SpaceItemSpawner : MonoBehaviour
     {
         if (spaceItemPrefabs.Count == 0)
         {
-            Debug.LogError("No space item prefabs assigned to SpaceItemSpawner!");
+            // Debug.LogError("No space item prefabs assigned to SpaceItemSpawner!");
             return;
         }
         
@@ -159,7 +159,7 @@ public class SpaceItemSpawner : MonoBehaviour
         {
             if (spaceItemPrefabs[i] == null)
             {
-                Debug.LogWarning($"Space Item Prefab at index {i} is null!");
+                // Debug.LogWarning($"Space Item Prefab at index {i} is null!");
             }
         }
     }

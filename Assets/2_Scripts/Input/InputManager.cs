@@ -12,6 +12,7 @@ public class InputManager : MonoBehaviour
     
     [SerializeField, Self(Flag.EditableAnywhere)] private PlayerInput playerInput;
     
+    // Sprite assets has to be in /Resources/Sprite Assets/ folder
     [Header("Controls Sprite Assets")]
     [SerializeField] private TMP_SpriteAsset keyboardMouseSpriteAsset;
     [SerializeField] private TMP_SpriteAsset gamepadSpriteAsset;
@@ -30,13 +31,10 @@ public class InputManager : MonoBehaviour
     public bool IsCurrentDeviceGamepad => _isCurrentDeviceGamepad;
     public PlayerInput PlayerInput => playerInput;
     
-    
+    // Events for device changes
     public event Action<PlayerInput> OnDeviceRegainedEvent;
     public event Action<PlayerInput> OnDeviceLostEvent; 
     public event Action<PlayerInput> OnControlsChangedEvent;
-
-    
-    
 
     private void OnValidate()
     {
@@ -45,6 +43,7 @@ public class InputManager : MonoBehaviour
 
     private void Awake()
     {
+        // Singleton pattern
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -163,69 +162,19 @@ public class InputManager : MonoBehaviour
         }
     }
 
-
-    public static string ReplaceTextWithBinding(string text, InputBinding action)
+    public static string ReplaceActionBindingsWithSprites(string text)
     {
         if (!Instance) return text;
         
-        TMP_SpriteAsset spriteAssetToUse = Instance._isCurrentDeviceGamepad ? Instance.gamepadSpriteAsset : Instance.keyboardMouseSpriteAsset;
-        string stringButtonName = action.ToString();
-        stringButtonName = RenameInput(stringButtonName);
-        
-        text = text.Replace("BUTTONPROMPT", $"<sprite=\"{spriteAssetToUse.name}\" name=\"{stringButtonName}\">");
-
-
-        return text;
-    }
-    
-    public static string ReplaceAllActionBindings(string text)
-    {
-        if (!Instance) return text;
-        
-        var actionMappings = new Dictionary<string, string>
-        {
-            {"ACTION_MOVE", "Move"},
-            {"ACTION_LOOK", "Look"},
-            {"ACTION_FIRE", "Fire"},
-        };
-    
-        foreach (var mapping in actionMappings)
-        {
-            if (!text.Contains(mapping.Key)) continue;
-            var action = Instance.playerInput.actions[mapping.Value];
+        TMP_SpriteAsset spriteAsset = Instance._isCurrentDeviceGamepad 
+            ? Instance.gamepadSpriteAsset 
+            : Instance.keyboardMouseSpriteAsset;
             
-            if (action is not { bindings: { Count: > 0 } }) continue;
-            var binding = action.bindings[0]; 
-            string spriteTag = GetSpriteTag(binding);
-            text = text.Replace(mapping.Key, spriteTag);
-        }
-    
-        return text;
+        return InputManagerBindingFormatter.ReplaceActionBindings(text, true, Instance.playerInput, spriteAsset);
     }
     
-    private static string GetSpriteTag(InputBinding binding)
+    public static string ReplaceActionBindingsWithText(string text)
     {
-        TMP_SpriteAsset spriteAssetToUse = Instance._isCurrentDeviceGamepad ? Instance.gamepadSpriteAsset : Instance.keyboardMouseSpriteAsset;
-        string stringButtonName = binding.ToString();
-        stringButtonName = RenameInput(stringButtonName);
-    
-        return $"<sprite=\"{spriteAssetToUse.name}\" name=\"{stringButtonName}\">";
-    }
-
-    private static string RenameInput(string buttonName)
-    {
-        buttonName = buttonName.Replace("<Keyboard>/", "Keyboard_");
-        buttonName = buttonName.Replace("<Mouse>/", "Mouse_");
-        buttonName = buttonName.Replace("<Gamepad>/", "Gamepad_");
-
-        return buttonName;
-    }
-
-    [SerializeField] protected TextMeshProUGUI textTest;
-    [Button]
-    private void UpdateTextTest()
-    {
-
-        textTest.text = ReplaceAllActionBindings(textTest.text);
+        return InputManagerBindingFormatter.ReplaceActionBindings(text, false, Instance.playerInput);
     }
 }

@@ -47,7 +47,7 @@ public class UpgradeInfoDisplay : MonoBehaviour, IPointerEnterHandler, IPointerE
         }
         
         Upgrade = upgrade;
-        if (upgrade.ItemIcon) upgradeIcon.sprite = upgrade.ItemIcon.sprite;
+        upgradeIcon.sprite = upgrade.ItemIcon;
         upgradeNameText.text = upgrade.ItemName;
         upgradeDescriptionText.text = upgrade.ItemDescription;
     }

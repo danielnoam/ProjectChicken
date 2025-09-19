@@ -68,7 +68,7 @@ public class UpgradeEgg : MonoBehaviour
         _upgrade = upgrade;
         nameText.text = upgrade.ItemName;
         descriptionText.text = upgrade.ItemDescription;
-        iconImage = upgrade.ItemIcon;
+        iconImage.sprite = upgrade.ItemIcon;
         Instantiate(_upgrade.ItemGfx, upgradeGfxHolder);
         
         if (_animationSequence.isAlive) _animationSequence.Stop();

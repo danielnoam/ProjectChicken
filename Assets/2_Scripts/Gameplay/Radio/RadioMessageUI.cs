@@ -117,7 +117,7 @@ public class RadioMessageUI : MonoBehaviour
                         senderTitleText.text = "";
                 }
                 
-                messageText.text = message.Message;
+                messageText.text = InputManager.ReplaceActionBindingsWithSprites(message.Message);
                 messageWriter.RestartWriter();
                 
                 messageWriteSfx?.Play(audioSource);

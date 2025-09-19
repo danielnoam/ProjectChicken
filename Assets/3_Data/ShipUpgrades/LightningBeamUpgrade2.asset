@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04dac25139e84b27a8a6593b947380f7, type: 3}
   m_Name: LightningBeamUpgrade2
   m_EditorClassIdentifier: 
+  itemID: 712304522
   itemName: Lightning Beam Upgrade 2
   itemDescription: Cook more chickens with each beam!
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: 21300000, guid: fafadd4b85305094da86f4e6f1129ca1, type: 3}
   itemGfx: {fileID: 682982969330921429, guid: 9a613ff7fb78f9e44ac869ca2a357781, type: 3}
   itemRarity: 2
+  isStackable: 0
+  maxStacks: 1
   itemNeededToUnlock:
   - {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
-  itemID: 712304522
   baseWeapon: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
   overrideWeaponGfx: 1
   overrideWeaponBarrels: 1
@@ -36,6 +38,12 @@ MonoBehaviour:
   heatPerShot: 3
   timeLimit: 30
   ammoLimit: 3
+  overrideSpreadSettings: 0
+  spreadRange:
+    minValue: 0
+    maxValue: 2
+  spreadRate: 1
+  spreadDecayRate: 2
   overrideProjectileBehaviors: 0
   projectileBehaviors: []
   overrideHitscanBehaviors: 1

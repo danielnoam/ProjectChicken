@@ -18,7 +18,7 @@ public abstract class SOUpgradeBase : ScriptableObject
     [Header("Upgrade Information")]
     [SerializeField] protected string itemName = "A name";
     [SerializeField] protected string itemDescription = "Does something";
-    [SerializeField] protected Image itemIcon;
+    [SerializeField] protected Sprite itemIcon;
     [SerializeField] protected GameObject itemGfx;
     [SerializeField] protected UpgradeRarity itemRarity = UpgradeRarity.Common;
     [SerializeField] protected bool isStackable;
@@ -28,7 +28,7 @@ public abstract class SOUpgradeBase : ScriptableObject
     
     public string ItemName => itemName;
     public string ItemDescription => itemDescription;
-    public Image ItemIcon => itemIcon;
+    public Sprite ItemIcon => itemIcon;
     public GameObject ItemGfx => itemGfx;
     public UpgradeRarity ItemRarity => itemRarity;
     public bool IsStackable => isStackable;

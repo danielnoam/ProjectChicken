@@ -12,13 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04dac25139e84b27a8a6593b947380f7, type: 3}
   m_Name: LightningBeamUpgrade1
   m_EditorClassIdentifier: 
+  itemID: 1445882125
   itemName: Lightning Beam Upgrade 1
   itemDescription: The lightning beam jumps to nearby chickens!
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: 21300000, guid: fafadd4b85305094da86f4e6f1129ca1, type: 3}
   itemGfx: {fileID: 682982969330921429, guid: ce75fb195b0ab314cb5356b98d83df50, type: 3}
   itemRarity: 2
+  isStackable: 0
+  maxStacks: 1
   itemNeededToUnlock: []
-  itemID: 1445882125
   baseWeapon: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
   overrideWeaponGfx: 1
   overrideWeaponBarrels: 1
@@ -35,6 +37,12 @@ MonoBehaviour:
   heatPerShot: 3
   timeLimit: 30
   ammoLimit: 3
+  overrideSpreadSettings: 0
+  spreadRange:
+    minValue: 0
+    maxValue: 2
+  spreadRate: 1
+  spreadDecayRate: 2
   overrideProjectileBehaviors: 0
   projectileBehaviors: []
   overrideHitscanBehaviors: 1

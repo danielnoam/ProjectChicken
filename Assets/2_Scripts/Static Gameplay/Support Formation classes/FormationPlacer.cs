@@ -72,7 +72,7 @@ public class FormationPlacer : MonoBehaviour
         // If we need more formations than we have existing positions, generate new ones
         if (placedCount < creator.formationCount)
         {
-            Debug.Log($"FormationPlacer: Need {creator.formationCount} formations but only have {placedCount} existing positions. Generating new random positions for the remaining formations.");
+            // Debug.Log($"FormationPlacer: Need {creator.formationCount} formations but only have {placedCount} existing positions. Generating new random positions for the remaining formations.");
             
             int remainingCount = creator.formationCount - placedCount;
             List<Vector3> additionalSlots = GenerateAdditionalRandomPositions(baseFormation, remainingCount);

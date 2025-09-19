@@ -173,7 +173,7 @@ public class EnemyChickenManager : MonoBehaviour
             
             if (majorPositionChange)
             {
-                Debug.Log($"EnemyChickenManager: Major formation position change detected. Distance: {centerDistance:F2} (threshold: {majorPositionChangeThreshold:F2})");
+                // Debug.Log($"EnemyChickenManager: Major formation position change detected. Distance: {centerDistance:F2} (threshold: {majorPositionChangeThreshold:F2})");
             }
         }
         
@@ -181,19 +181,19 @@ public class EnemyChickenManager : MonoBehaviour
         {
             if (isInitialSetup)
             {
-                Debug.Log($"EnemyChickenManager: Initial formation setup detected - {currentFormationType} with {currentSlotCount} slots. Assigning all chickens...");
+                // Debug.Log($"EnemyChickenManager: Initial formation setup detected - {currentFormationType} with {currentSlotCount} slots. Assigning all chickens...");
             }
             else if (formationTypeChanged)
             {
-                Debug.Log($"EnemyChickenManager: Formation type changed from {previousFormationType} to {currentFormationType}. Reassigning all chickens...");
+                // Debug.Log($"EnemyChickenManager: Formation type changed from {previousFormationType} to {currentFormationType}. Reassigning all chickens...");
             }
             else if (slotCountChanged)
             {
-                Debug.Log($"EnemyChickenManager: Formation slot count changed from {previousSlotCount} to {currentSlotCount}. Reassigning all chickens...");
+                // Debug.Log($"EnemyChickenManager: Formation slot count changed from {previousSlotCount} to {currentSlotCount}. Reassigning all chickens...");
             }
             else if (majorPositionChange)
             {
-                Debug.Log($"EnemyChickenManager: Formation repositioned significantly. Reassigning all chickens...");
+                // Debug.Log($"EnemyChickenManager: Formation repositioned significantly. Reassigning all chickens...");
             }
             
             // For major changes, force chickens back to MovingToSlot state
@@ -484,7 +484,7 @@ public class EnemyChickenManager : MonoBehaviour
             }
         }
         
-        Debug.Log($"EnemyChickenManager: Reassignment complete. {slotAssignments.Count} assigned, {waitingChickens.Count} waiting.");
+        // Debug.Log($"EnemyChickenManager: Reassignment complete. {slotAssignments.Count} assigned, {waitingChickens.Count} waiting.");
     }
 
     public void ValidateAndFixChickenStates()

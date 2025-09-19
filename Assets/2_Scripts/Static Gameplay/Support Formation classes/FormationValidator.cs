@@ -31,14 +31,14 @@ public class FormationValidator : MonoBehaviour
             
             if (validationPassed)
             {
-                Debug.Log("FormationValidator: Validation passed. Updating formation shapes at existing positions.");
+                // Debug.Log("FormationValidator: Validation passed. Updating formation shapes at existing positions.");
                 creator.GenerateFormation(); // Update formation shapes at existing positions
                 lastValidationPassed = true;
                 invalidFormationIndices.Clear();
             }
             else
             {
-                Debug.LogWarning($"FormationValidator: {invalidFormationIndices.Count} formations have conflicts with new formation type. Attempting resolution...");
+                // Debug.LogWarning($"FormationValidator: {invalidFormationIndices.Count} formations have conflicts with new formation type. Attempting resolution...");
                 
                 // Try auto-adjustment first if enabled
                 if (autoAdjustOnValidationFail && TryAutoAdjustFormation())

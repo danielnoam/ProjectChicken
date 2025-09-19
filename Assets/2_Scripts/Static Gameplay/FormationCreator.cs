@@ -159,7 +159,7 @@ public class FormationCreator : MonoBehaviour
         // Mark as initialized
         hasBeenInitialized = true;
 
-        Debug.Log($"FormationCreator: Successfully initialized with {currentFormation} formation ({ActualSlotCount} slots from requested {numberOfSlots})");
+        // Debug.Log($"FormationCreator: Successfully initialized with {currentFormation} formation ({ActualSlotCount} slots from requested {numberOfSlots})");
     }
 
     void Update()
@@ -191,7 +191,7 @@ public class FormationCreator : MonoBehaviour
 
     void HandleFormationTypeChange()
     {
-        Debug.Log($"FormationCreator: Formation type changed from {previousFormationType} to {currentFormation}. Processing change...");
+        // Debug.Log($"FormationCreator: Formation type changed from {previousFormationType} to {currentFormation}. Processing change...");
 
         // Recalculate parameters for new formation type
         CalculateFormationParameters();

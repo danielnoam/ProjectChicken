@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04dac25139e84b27a8a6593b947380f7, type: 3}
   m_Name: LaserUpgrade2
   m_EditorClassIdentifier: 
+  itemID: -159191848
   itemName: Laser Upgrade 2
   itemDescription: Now shoots three lasers!
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: 21300000, guid: 0bcbef67846ca1a44bd8aad5a5652446, type: 3}
   itemGfx: {fileID: 682982969330921429, guid: bf2cd7b501508c14e8723a3389ce300c, type: 3}
   itemRarity: 2
+  isStackable: 0
+  maxStacks: 1
   itemNeededToUnlock:
   - {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
-  itemID: -159191848
   baseWeapon: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
   overrideWeaponGfx: 1
   overrideWeaponBarrels: 1
@@ -38,6 +40,12 @@ MonoBehaviour:
   heatPerShot: 4
   timeLimit: 10
   ammoLimit: 3
+  overrideSpreadSettings: 0
+  spreadRange:
+    minValue: 0
+    maxValue: 2
+  spreadRate: 1
+  spreadDecayRate: 2
   overrideProjectileBehaviors: 1
   projectileBehaviors:
   - rid: 4047855707409612905

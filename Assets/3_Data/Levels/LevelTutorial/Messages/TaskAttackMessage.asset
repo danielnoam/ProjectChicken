@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 777b54a657d6a434eaf4d6d5091be0bd, type: 3}
-  m_Name: TaskShootMessage
+  m_Name: TaskAttackMessage
   m_EditorClassIdentifier: 
   sender: {fileID: 11400000, guid: 607b249a2e5976f4784cbd7b292c21e4, type: 2}
   audioEvent: {fileID: 0}
   isImportant: 0
   isPersistent: 1
   duration: 3
-  message: Good job Commander, now use <b><color=red>LMB</color></b> to test out
-    these state of the art cannons!
+  message: "Good job Commander, \nnow use ACTION_ATTACK to test out these state of
+    the art cannons!"
