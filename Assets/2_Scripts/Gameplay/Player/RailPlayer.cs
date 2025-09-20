@@ -16,11 +16,12 @@ public class RailPlayer : MonoBehaviour
     [Header("General")]
     [SerializeField, Min(0)] private float timeToPause = 2f;
     
-    [Header("Camera Positions")]
+    [Header("Positions")]
     [SerializeField] private Transform cameraPositions;
     [SerializeField] private Transform followCameraTarget;
     [SerializeField] private Transform storeCameraTarget;
     [SerializeField] private Transform storeCameraLookAtTarget;
+    [SerializeField] private Transform textFollowPosition;
     
     [Header("References")]
     [SerializeField] private SOPlayerStats playerStats;
@@ -201,7 +202,7 @@ public class RailPlayer : MonoBehaviour
     
     public void AddHealthUpgrade(SOUpgradeBase upgrade, int amount)
     {
-        // Upgrades.Add(upgrade);
+        // Upgrades.Add(upgrade); not adding to allow duplicates
         health.UpgradeHealthBy(amount);
     }
     
@@ -271,7 +272,7 @@ public class RailPlayer : MonoBehaviour
     
     
 
-    #region Camera Helpers
+    #region  Helpers ---------------------------------------------------------------------------------
     
     public Transform GetFollowCameraTarget()
     {
@@ -287,6 +288,11 @@ public class RailPlayer : MonoBehaviour
     {
         return storeCameraLookAtTarget ? storeCameraLookAtTarget : transform;
     }
+
+    public Transform GetTextFollowPosition()
+    {
+        return textFollowPosition ? textFollowPosition : transform;
+    }
     
     public Transform GetRandomCameraPosition()
     {
@@ -296,5 +302,5 @@ public class RailPlayer : MonoBehaviour
         return cameraPositions.GetChild(randomIndex);
     }
     
-    #endregion
+    #endregion Helpers ---------------------------------------------------------------------------------
 }

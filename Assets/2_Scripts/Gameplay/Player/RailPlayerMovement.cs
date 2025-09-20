@@ -399,7 +399,7 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void UpdateDodgeParticles()
     {
-        bool shouldPlay = _currentDodgeRemining > 0 && _allowDodge;
+        bool shouldPlay = _allowDodge && _dodgeCooldownTimer <= 0f &&  _currentDodgeRemining > 0;
 
         if (shouldPlay)
         {

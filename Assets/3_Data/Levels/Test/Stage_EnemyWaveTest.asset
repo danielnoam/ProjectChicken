@@ -40,7 +40,7 @@ MonoBehaviour:
     dividerPos: 0.33
   formationStageData:
     formationType: 0
-    formationCount: 6
+    formationCount: 1
     numberOfSlots: 8
     spacing: 10
     circleRadius: 20
@@ -64,7 +64,7 @@ MonoBehaviour:
     - rid: 15267093203648605
       type: {class: SpawnObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
-        isActive: 0
+        isActive: 1
         specificObstaclePrefab: {fileID: 0}
         useRandomObstacle: 1
         maxActiveObstacles: 5

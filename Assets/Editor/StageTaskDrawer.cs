@@ -51,19 +51,28 @@ namespace Editor
             {
                 EditorGUI.indentLevel++;
                 
-                // Draw all properties except taskDescription and isCompleted (runtime only)
+                // Create a list to track which properties we've already drawn
+                var drawnProperties = new HashSet<string>();
+                
+                // First, explicitly draw base class fields that we know about
+                DrawPropertyIfExists(property, "description", ref contentRect, drawnProperties);
+                // Note: We skip "isCompleted" as it's runtime-only
+                
+                // Now draw all other visible properties
                 var iterator = property.Copy();
                 var endProperty = iterator.GetEndProperty();
-                iterator.NextVisible(true);
+                iterator.NextVisible(true); // Enter children
                 
                 while (iterator.NextVisible(false) && !SerializedProperty.EqualContents(iterator, endProperty))
                 {
-                    if (iterator.name != "isCompleted")
+                    // Skip if we've already drawn this property or if it's isCompleted
+                    if (!drawnProperties.Contains(iterator.name) && iterator.name != "isCompleted")
                     {
                         var propHeight = EditorGUI.GetPropertyHeight(iterator, true);
                         var propRect = new Rect(contentRect.x, contentRect.y, contentRect.width, propHeight);
                         EditorGUI.PropertyField(propRect, iterator, true);
                         contentRect.y += propHeight + EditorGUIUtility.standardVerticalSpacing;
+                        drawnProperties.Add(iterator.name);
                     }
                 }
                 
@@ -72,34 +81,56 @@ namespace Editor
         
             EditorGUI.EndProperty();
         }
+        
+        private void DrawPropertyIfExists(SerializedProperty parent, string propertyName, ref Rect contentRect, HashSet<string> drawnProperties)
+        {
+            // Try to find the property using the full path
+            var prop = parent.FindPropertyRelative(propertyName);
+            
+            if (prop != null)
+            {
+                var propHeight = EditorGUI.GetPropertyHeight(prop, true);
+                var propRect = new Rect(contentRect.x, contentRect.y, contentRect.width, propHeight);
+                EditorGUI.PropertyField(propRect, prop, true);
+                contentRect.y += propHeight + EditorGUIUtility.standardVerticalSpacing;
+                drawnProperties.Add(propertyName);
+            }
+        }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) 
         {
-            float height = EditorGUIUtility.singleLineHeight; // Type selection dropdown
-            
+            float height = EditorGUIUtility.singleLineHeight; 
+    
             if (property.managedReferenceValue != null)
             {
                 var propertyPath = property.propertyPath;
                 if (FoldoutStates.ContainsKey(propertyPath) && FoldoutStates[propertyPath])
                 {
-                    // Add height for task description
-                    height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-                    
-                    // Calculate height for all other properties
+                    // Check for known base class properties
+                    var descriptionProp = property.FindPropertyRelative("description");
+                    if (descriptionProp != null)
+                    {
+                        height += EditorGUI.GetPropertyHeight(descriptionProp, true) + EditorGUIUtility.standardVerticalSpacing;
+                    }
+
+                    // Add height for other properties
                     var iterator = property.Copy();
                     var endProperty = iterator.GetEndProperty();
                     iterator.NextVisible(true);
                     
+                    var drawnProperties = new HashSet<string> { "description" }; // Track what we've already counted
+            
                     while (iterator.NextVisible(false) && !SerializedProperty.EqualContents(iterator, endProperty))
                     {
-                        if (iterator.name != "taskDescription" && iterator.name != "isCompleted")
+                        if (iterator.name != "isCompleted" && !drawnProperties.Contains(iterator.name))
                         {
                             height += EditorGUI.GetPropertyHeight(iterator, true) + EditorGUIUtility.standardVerticalSpacing;
+                            drawnProperties.Add(iterator.name);
                         }
                     }
                 }
             }
-            
+    
             return height;
         }
 
@@ -107,7 +138,6 @@ namespace Editor
         {
             var menu = new GenericMenu();
             
-            // Add null option to clear the task
             menu.AddItem(new GUIContent("None"), string.IsNullOrEmpty(currentTypeName), () => {
                 property.managedReferenceValue = null;
                 property.serializedObject.ApplyModifiedProperties();
@@ -163,9 +193,7 @@ namespace Editor
         
         private static string GetNiceTaskName(string typeName)
         {
-            // Remove "Task" suffix if present
-            if (typeName.EndsWith("Task"))
-                typeName = typeName.Substring(0, typeName.Length - 4);
+            if (typeName.EndsWith("Task")) typeName = typeName.Substring(0, typeName.Length - 4);
             
             return ObjectNames.NicifyVariableName(typeName);
         }

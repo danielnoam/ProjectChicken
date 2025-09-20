@@ -1,13 +1,16 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public abstract class StageTask
 {
+    [SerializeField,Multiline(lines: 2)] protected string description;
     [SerializeField] protected bool isCompleted;
     
     public bool IsCompleted => isCompleted;
+    public string Description => description;
     
-    public event System.Action<StageTask> OnTaskCompleted;
+    public event Action<StageTask> OnTaskCompleted;
     
     public abstract void Initialize(LevelManager levelManager);
     public abstract void Cleanup();
@@ -21,7 +24,7 @@ public abstract class StageTask
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class CollectResourceTask : StageTask
 {
     [SerializeField] private int targetAmount;
@@ -109,8 +112,8 @@ public class UseSpecificActionTask : StageTask
         OverheatMiniGameCompleted,
     }
     
-    [SerializeField] private ActionType requiredAction;
     [SerializeField] private int timesRequired = 1;
+    [SerializeField] private ActionType requiredAction;
     private int _currentCount;
     private LevelManager _levelManager;
     private RailPlayerInput _playerInput;

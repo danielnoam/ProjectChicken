@@ -41,6 +41,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private ResourceManager resourceManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private ObstacleManager obstacleManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RadioManager radioManager;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private TaskVisualizer taskVisualizer;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
     
@@ -67,6 +68,7 @@ public class LevelManager : MonoBehaviour
     public ResourceManager ResourceManager => resourceManager;
     public ObstacleManager ObstacleManager => obstacleManager;
     public RadioManager RadioManager => radioManager;
+    public TaskVisualizer TaskVisualizer => taskVisualizer;
     public int CurrentScore => _currentScore;
     public int EnemiesLeft => enemiesLeft;
 
@@ -123,6 +125,13 @@ public class LevelManager : MonoBehaviour
         {
             obstacleManager = FindFirstObjectByType<ObstacleManager>();
         }
+        
+        
+        if (!taskVisualizer)
+        {
+            taskVisualizer = FindFirstObjectByType<TaskVisualizer>();
+        }
+        
 
         this.ValidateRefs();
         

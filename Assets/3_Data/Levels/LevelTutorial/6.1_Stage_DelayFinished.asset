@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
+  m_Name: 6.1_Stage_DelayFinished
+  m_EditorClassIdentifier: 
+  stageTitle: 
+  startRadioMessage: {fileID: 11400000, guid: 29a6bdf04f6d20148bfb01c53aa47177, type: 2}
+  worldSpeed: 1
+  isCheckpoint: 1
+  events: []
+  stageType: 0
+  stageDuration: 5
+  delayBeforeNextStage: 1
+  showOutroMenu: 0
+  nextLevel:
+    sceneAsset: {fileID: 0}
+    sceneName: 
+    scenePath: 
+  allowToCloseStore: 1
+  upgradesPool:
+  - {fileID: 0}
+  waveScoreWorth: 1000
+  enemyWave:
+    serializedKvps: []
+    dividerPos: 0.33
+  formationStageData:
+    formationType: 0
+    formationCount: 1
+    numberOfSlots: 9
+    spacing: 2
+    circleRadius: 3
+    useRandomPlacement: 1
+    formationSpacing: 5
+    maxPlacementAttempts: 100
+  requireAllTasks: 1
+  tasks: []
+  showHUD: 0
+  showScore: 0
+  showStagesProgression: 0
+  showStatsBar: 0
+  allowPlayerMovement: 1
+  allowPlayerDodge: 1
+  allowPlayerAiming: 1
+  allowPlayerShooting: 0
+  allowPlayerHeatSystem: 1
+  references:
+    version: 2
+    RefIds: []

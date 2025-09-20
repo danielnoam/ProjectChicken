@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
+  m_Name: 5.0_Stage_TaskCollecWeapon
+  m_EditorClassIdentifier: 
+  stageTitle: 
+  startRadioMessage: {fileID: 11400000, guid: 4727d911f45d84e4fa8a73a11da68687, type: 2}
+  worldSpeed: 1
+  isCheckpoint: 1
+  events:
+  - rid: 15266972792520819
+  stageType: 5
+  stageDuration: 7
+  delayBeforeNextStage: 2
+  showOutroMenu: 0
+  nextLevel:
+    sceneAsset: {fileID: 0}
+    sceneName: 
+    scenePath: 
+  allowToCloseStore: 1
+  upgradesPool:
+  - {fileID: 0}
+  waveScoreWorth: 1000
+  enemyWave:
+    serializedKvps: []
+    dividerPos: 0.33
+  formationStageData:
+    formationType: 0
+    formationCount: 1
+    numberOfSlots: 9
+    spacing: 2
+    circleRadius: 3
+    useRandomPlacement: 1
+    formationSpacing: 5
+    maxPlacementAttempts: 100
+  requireAllTasks: 1
+  tasks:
+  - rid: 5417711798190080088
+  showHUD: 1
+  showScore: 0
+  showStagesProgression: 0
+  showStatsBar: 1
+  allowPlayerMovement: 1
+  allowPlayerDodge: 1
+  allowPlayerAiming: 1
+  allowPlayerShooting: 1
+  allowPlayerHeatSystem: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 15266972792520819
+      type: {class: SpawnResourceEvent, ns: , asm: Assembly-CSharp}
+      data:
+        isActive: 0
+        resourcePrefab: {fileID: 2318045658582117789, guid: d71082521c50e304688b37297a0ea93e, type: 3}
+        maxActiveResources: 1
+        spawnInterval: 3
+    - rid: 5417711798190080088
+      type: {class: CollectResourceTask, ns: , asm: Assembly-CSharp}
+      data:
+        isCompleted: 1
+        targetAmount: 1
+        resourceType: 3

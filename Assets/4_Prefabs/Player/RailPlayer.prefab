@@ -1220,6 +1220,7 @@ Transform:
   - {fileID: 6499552937103797131}
   - {fileID: 4294348908818086368}
   - {fileID: 8194721121205902898}
+  - {fileID: 4465290679582905110}
   m_Father: {fileID: 8474555558549935190}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2178518901709411011
@@ -2688,7 +2689,8 @@ MonoBehaviour:
   followCameraTarget: {fileID: 7239159908269156373}
   storeCameraTarget: {fileID: 8469364165154082126}
   storeCameraLookAtTarget: {fileID: 5369474610807630919}
-  playerStats: {fileID: 11400000, guid: 4296a880e82f79e4aa5563d8eedb8c0e, type: 2}
+  textFollowPosition: {fileID: 4465290679582905110}
+  playerStats: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   levelManager: {fileID: 0}
   input: {fileID: 8438971806570489096}
   aiming: {fileID: 890854243081262160}
@@ -3680,6 +3682,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 578094112693646351}
   m_LocalEulerAnglesHint: {x: -45, y: -30, z: 0}
+--- !u!1 &5540767617653649742
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4465290679582905110}
+  m_Layer: 6
+  m_Name: TextFollowPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 7250588514170254948, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4465290679582905110
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5540767617653649742}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.42, z: -6.37}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5119365439155976064}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5816592128520059045
 GameObject:
   m_ObjectHideFlags: 0

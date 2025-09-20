@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
-using UnityEngine;
 using UnityEngine.InputSystem;
 
 public static class InputManagerBindingFormatter
@@ -130,9 +129,9 @@ public static class InputManagerBindingFormatter
             {"dpad/right", "D-Pad Right"},
         };
         
-        if (textMappings.ContainsKey(result))
+        if (textMappings.TryGetValue(result, out var text))
         {
-            return textMappings[result];
+            return text;
         }
         
         // Convert single letters to uppercase
@@ -206,9 +205,9 @@ public static class InputManagerBindingFormatter
 
         // Check if the sprite exists in the sprite asset - only warn if there's a problem
         if (spriteAsset && !SpriteExists(spriteAsset, stringButtonName))
-        {
-            Debug.LogWarning($"[InputManagerBindingFormatter] Missing sprite '{stringButtonName}' in sprite asset '{spriteAsset.name}' for input '{originalButtonName}'. " +
-                           $"Available sprites: {string.Join(", ", GetAllSpriteNames(spriteAsset))}");
+        { 
+            // Debug.LogWarning($"[InputManagerBindingFormatter] Missing sprite '{stringButtonName}' in sprite asset '{spriteAsset.name}' for input '{originalButtonName}'. " +
+                           // $"Available sprites: {string.Join(", ", GetAllSpriteNames(spriteAsset))}");
         }
     
         return $"<sprite=\"{spriteAsset?.name}\" name=\"{stringButtonName}\">";
