@@ -4,15 +4,26 @@ using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class UpgradeEgg : MonoBehaviour
 {
+    [Header("SFX")]
+    [SerializeField] private SOAudioEvent showUpgradeSfx;
+    [SerializeField] private SOAudioEvent hideUpgradeSfx;
+    [SerializeField] private SOAudioEvent selectUpgradeSfx;
+    
     [Header("Show/Hide Animation")]
-    [SerializeField] private float animationDuration = 1.5f;
+    [SerializeField] private float animationDuration = 1f;
     [SerializeField] private Ease animationEase = Ease.InOutBack;
     [SerializeField] private float yOffset = -150;
     
-    [Header("Hover Animation")]
+    [Header("Idle Animation")]
+    [SerializeField] private float bobbingSpeed = 2;
+    [SerializeField] private float bobbingAmplitude = 1;
+    [SerializeField, MinMaxRange(0,5)] private RangedFloat bobbingVarianceRange = new RangedFloat(0, 3);
+    
+    [Header("Info Panel")]
     [SerializeField] private float infoAnimationDuration = 0.2f;
     [SerializeField] private Ease infoAnimationEase = Ease.OutBack;
     [SerializeField] private SOAudioEvent showInfoSfx;
@@ -28,34 +39,44 @@ public class UpgradeEgg : MonoBehaviour
     [SerializeField] private TextMeshProUGUI costText;
     [SerializeField] private Image costIcon;
     [SerializeField] private Image iconImage;
+    [SerializeField] private Transform gfx;
     [SerializeField] private Transform upgradeGfxHolder;
     [SerializeField] private AudioSource audioSource;
 
     private bool _isSelected;
     private SOUpgradeBase _upgrade;
     private RailPlayer _player; 
-    private int _upgradeCost; 
-    private Vector3 _startPosition;
-    private Vector3 _startScale;
-    private Vector3 _startRotation;
+    private int _upgradeCost;
+    private float _randomBob;
+    private Vector3 _gfxStartPosition;
+    private Vector3 _transformStartPosition;
     private Vector3 _upgradeInfoGroupStartScale;
     private Sequence _animationSequence;
     private Sequence _upgradeInfoSequence;
 
-    public event Action<SOUpgradeBase> OnUpgradeBought;
+    public event Action<SOUpgradeBase> OnUpgradeBought; 
     
     private static readonly int Hover = Animator.StringToHash("Hover");
     private static readonly int Idle = Animator.StringToHash("Idle");
-    private static readonly int Open = Animator.StringToHash("Open2");
+    private static readonly int Open = Animator.StringToHash("Open");
 
     private void Awake()
     {
-        _startPosition = transform.localPosition;
-        _startScale = transform.localScale;
-        _startRotation = transform.localEulerAngles;
+        _randomBob = bobbingVarianceRange.RandomValue;
+        _transformStartPosition = transform.localPosition;
+        _gfxStartPosition = gfx.localPosition;
         _upgradeInfoGroupStartScale = upgradeInfoGroup.transform.localScale;
         button?.onClick.AddListener(SelectUpgrade);
         Reset(false);
+    }
+    
+    
+    private void Update()
+    {
+        if (gfx)
+        {
+            gfx.localPosition = _gfxStartPosition + new Vector3(0, Mathf.Sin(Time.time + _randomBob * bobbingSpeed) * bobbingAmplitude, 0);
+        }
     }
     
     public void SetPlayer(RailPlayer player)
@@ -91,11 +112,13 @@ public class UpgradeEgg : MonoBehaviour
         iconImage.sprite = upgrade.ItemIcon;
         Instantiate(_upgrade.ItemGfx, upgradeGfxHolder);
         
+        showUpgradeSfx?.Play(audioSource);
+        
         if (_animationSequence.isAlive) _animationSequence.Stop();
         _animationSequence = Sequence.Create()
                 .ChainDelay(startDelay)
-            .Chain(Tween.LocalPositionY(transform,yOffset,_startPosition.y, animationDuration,animationEase))
-            .Group(Tween.Alpha(mainCanvasGroup, mainCanvasGroup.alpha,1, animationDuration, startDelay: animationDuration/3))
+                .Chain(Tween.LocalPositionY(transform,yOffset,_transformStartPosition.y, animationDuration,animationEase))
+                .Group(Tween.Alpha(mainCanvasGroup, mainCanvasGroup.alpha,1, animationDuration, startDelay: animationDuration/3))
             ;
     }
 
@@ -130,8 +153,6 @@ public class UpgradeEgg : MonoBehaviour
         _isSelected = false;
         _upgrade = null;
         _upgradeCost = 0;
-        transform.localScale = _startScale;
-        transform.localEulerAngles = _startRotation;
         button.interactable = true;
         costText.color = Color.white;
         
@@ -148,6 +169,7 @@ public class UpgradeEgg : MonoBehaviour
         }
         else
         {
+            hideUpgradeSfx?.Play(audioSource);
             _animationSequence = Sequence.Create()
                 .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
                 .Group(Tween.Alpha(upgradeInfoGroup, 0, animationDuration))
@@ -166,6 +188,7 @@ public class UpgradeEgg : MonoBehaviour
             return;
         }
         
+        selectUpgradeSfx?.Play(audioSource);
         _isSelected = true;
         animator?.SetTrigger(Open);
         if (_animationSequence.isAlive) _animationSequence.Stop();

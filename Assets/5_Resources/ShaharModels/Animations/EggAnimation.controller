@@ -36,7 +36,7 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: 6571635112275964965}
-    m_Position: {x: 300, y: -40, z: 0}
+    m_Position: {x: 240, y: -220, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6900849715695428326}
     m_Position: {x: 300, y: 20, z: 0}
@@ -45,7 +45,7 @@ AnimatorStateMachine:
     m_Position: {x: 300, y: 110, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1713719725297794246}
-    m_Position: {x: 300, y: -120, z: 0}
+    m_Position: {x: 30, y: -220, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: -1426525618885279540}
@@ -100,19 +100,19 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
-  - m_Name: Open
-    m_Type: 9
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
   - m_Name: Idle
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
-  - m_Name: Open2
+  - m_Name: Open
+    m_Type: 9
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: OpenFull
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -138,7 +138,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: EggOpen02
+  m_Name: EggOpenFull
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -166,7 +166,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: Open2
+    m_ConditionEvent: OpenFull
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1713719725297794246}
@@ -189,7 +189,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: EggOpen01
+  m_Name: EggOpen
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []

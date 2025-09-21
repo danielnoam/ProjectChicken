@@ -8,10 +8,10 @@ public class CaptainCock : MonoBehaviour
     [SerializeField] private float animationDuration = 1.5f;
     [SerializeField] private Ease animationEase = Ease.InOutBack;
     [SerializeField] private float outOfScreenYPosition = -150;
-    [SerializeField] private float spinsOnOpen = 1;
+    [SerializeField] private float spinsOnOpen = 3;
     
     [Header("Idle Animation")]
-    [SerializeField] private float bobbingSpeed = 1;
+    [SerializeField] private float bobbingSpeed = 2;
     [SerializeField] private float bobbingAmplitude = 1;
     
     private Vector3 _startPosition;
