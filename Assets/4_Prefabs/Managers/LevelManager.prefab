@@ -1273,12 +1273,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d6df7ab4f1fd27458ffde335894e8a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  closeStoreOnPurchase: 0
   availableUpgrades: 3
-  baseRerollCost: 5
-  rerollCostIncrease: 15
-  maxRerollCost: 300
-  animationDuration: 1
+  commonCost: 25
+  uncommonCost: 50
+  rareCost: 100
+  epicCost: 150
+  storeAnimationDuration: 1
   offsetBetweenUpgrades: {x: 30, y: 0, z: 0}
+  payAnimationDuration: 3
+  payAnimationEase: 4
+  captainOffset: {x: 0, y: 14, z: 0}
   playerStats: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   storeGfx: {fileID: 8325456232853324941}
   eggHolder: {fileID: 4126876949143536688}
@@ -1288,6 +1293,7 @@ MonoBehaviour:
   rerollButton: {fileID: 8356642916159181571}
   playerUpgradesDisplay: {fileID: 8977382028626238798}
   upgradeEggPrefab: {fileID: 5191593688329016279, guid: ac70961ca0172944099e50fea330a0bb, type: 3}
+  chickenLegPrefab: {fileID: 3116490457296758320, guid: c5a0b9adb417776438fa9b7c4e0e2a3d, type: 3}
   levelManager: {fileID: 98154818553496101}
   player: {fileID: 0}
 --- !u!1 &4966072247907926789
@@ -2782,7 +2788,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1555269860032203361, guid: 8d86d66571579ae4186f87984070fd51, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -22.3
+      value: -20.3
       objectReference: {fileID: 0}
     - target: {fileID: 1555269860032203361, guid: 8d86d66571579ae4186f87984070fd51, type: 3}
       propertyPath: m_LocalPosition.z

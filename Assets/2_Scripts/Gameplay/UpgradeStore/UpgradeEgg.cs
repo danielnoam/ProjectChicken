@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 public class UpgradeEgg : MonoBehaviour
 {
-
     [Header("Show/Hide Animation")]
     [SerializeField] private float animationDuration = 1.5f;
     [SerializeField] private Ease animationEase = Ease.InOutBack;
@@ -26,12 +25,16 @@ public class UpgradeEgg : MonoBehaviour
     [SerializeField] private CanvasGroup mainCanvasGroup;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
+    [SerializeField] private TextMeshProUGUI costText;
+    [SerializeField] private Image costIcon;
     [SerializeField] private Image iconImage;
     [SerializeField] private Transform upgradeGfxHolder;
     [SerializeField] private AudioSource audioSource;
 
     private bool _isSelected;
     private SOUpgradeBase _upgrade;
+    private RailPlayer _player; 
+    private int _upgradeCost; 
     private Vector3 _startPosition;
     private Vector3 _startScale;
     private Vector3 _startRotation;
@@ -39,12 +42,11 @@ public class UpgradeEgg : MonoBehaviour
     private Sequence _animationSequence;
     private Sequence _upgradeInfoSequence;
 
-    public event Action<SOUpgradeBase> OnUpgradeSelected;
+    public event Action<SOUpgradeBase> OnUpgradeBought;
     
     private static readonly int Hover = Animator.StringToHash("Hover");
     private static readonly int Idle = Animator.StringToHash("Idle");
     private static readonly int Open = Animator.StringToHash("Open2");
-
 
     private void Awake()
     {
@@ -54,10 +56,14 @@ public class UpgradeEgg : MonoBehaviour
         _upgradeInfoGroupStartScale = upgradeInfoGroup.transform.localScale;
         button?.onClick.AddListener(SelectUpgrade);
         Reset(false);
-
     }
     
-    public void SetUpgrade(SOUpgradeBase upgrade, float startDelay)
+    public void SetPlayer(RailPlayer player)
+    {
+        _player = player;
+    }
+    
+    public void SetUpgrade(SOUpgradeBase upgrade, int cost, float startDelay)
     {
         if (!upgrade)
         {
@@ -66,8 +72,22 @@ public class UpgradeEgg : MonoBehaviour
         }
         
         _upgrade = upgrade;
+        _upgradeCost = cost;
         nameText.text = upgrade.ItemName;
         descriptionText.text = upgrade.ItemDescription;
+
+        if (cost > 0)
+        {
+            costIcon.color = Color.white;
+            costText.text = $"{cost}";
+            UpdateAffordabilityVisuals();
+        }
+        else
+        {
+            costIcon.color = Color.clear;
+            costText.text = $"";
+        }
+
         iconImage.sprite = upgrade.ItemIcon;
         Instantiate(_upgrade.ItemGfx, upgradeGfxHolder);
         
@@ -79,16 +99,42 @@ public class UpgradeEgg : MonoBehaviour
             ;
     }
 
+    private bool CanAffordUpgrade()
+    {
+        if (!_player || !_player.ResourceCollector) return false;
+        return _player.ResourceCollector.CurrentCurrency >= _upgradeCost;
+    }
+    
+
+    private void UpdateAffordabilityVisuals()
+    {
+        if (!CanAffordUpgrade())
+        {
+            mainCanvasGroup.alpha = 0.5f;
+            button.interactable = false;
+            costText.color = Color.red;
+        }
+        else
+        {
+            mainCanvasGroup.alpha = 1f;
+            button.interactable = true;
+            costText.color = Color.white;
+        }
+    }
+
     public void Reset(bool animate)
     {
         if (_animationSequence.isAlive) _animationSequence.Stop();
 
-        
         animator?.SetTrigger(Idle);
         _isSelected = false;
         _upgrade = null;
+        _upgradeCost = 0;
         transform.localScale = _startScale;
         transform.localEulerAngles = _startRotation;
+        button.interactable = true;
+        costText.color = Color.white;
+        
         foreach (Transform child in upgradeGfxHolder)
         {
             Destroy(child.gameObject);
@@ -102,7 +148,6 @@ public class UpgradeEgg : MonoBehaviour
         }
         else
         {
-            
             _animationSequence = Sequence.Create()
                 .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
                 .Group(Tween.Alpha(upgradeInfoGroup, 0, animationDuration))
@@ -115,15 +160,20 @@ public class UpgradeEgg : MonoBehaviour
     {
         if (!_upgrade || _isSelected) return;
         
+        if (!CanAffordUpgrade())
+        {
+            Debug.Log($"Cannot afford upgrade: {_upgrade.ItemName}. Cost: {_upgradeCost}, Current Currency: {_player.ResourceCollector.CurrentCurrency}");
+            return;
+        }
+        
         _isSelected = true;
         animator?.SetTrigger(Open);
         if (_animationSequence.isAlive) _animationSequence.Stop();
         _animationSequence = Sequence.Create()
                 .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
             ;
-        OnUpgradeSelected?.Invoke(_upgrade);
+        OnUpgradeBought?.Invoke(_upgrade);
     }
-
 
     private void ShowInfo()
     {
@@ -162,6 +212,4 @@ public class UpgradeEgg : MonoBehaviour
     {
         SelectUpgrade();
     }
-    
-    
 }

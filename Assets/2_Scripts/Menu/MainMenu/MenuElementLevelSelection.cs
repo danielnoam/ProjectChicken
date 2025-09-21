@@ -229,7 +229,16 @@ public class MenuElementLevelSelection : MenuElement
         {
             levelDescriptionText.text = levelUI.soLevel.LevelDescription;
 
-            levelBestScoreText.text = levelUI.isCompleted ? $"Best Score: \n{levelUI.bestScore:D7}" : $"";
+
+            if (levelUI.isCompleted && levelUI.soLevel.LevelDifficulty != LevelDifficulty.None)
+            {
+                levelBestScoreText.text = $"Best Score: \n{levelUI.bestScore:D7}";
+            }
+            else
+            {
+                levelBestScoreText.text = $"";
+            }
+
         }
         else
         {
@@ -249,9 +258,6 @@ public class MenuElementLevelSelection : MenuElement
         {
             case LevelDifficulty.None:
                 levelDifficultyText.text = "";
-                break;
-            case LevelDifficulty.Tutorial:
-                levelDifficultyText.text = "Tutorial";
                 break;
             case LevelDifficulty.Easy:
                 levelDifficultyText.text = "Easy";

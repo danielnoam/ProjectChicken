@@ -6,20 +6,32 @@ using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VInspector;
+using Random = UnityEngine.Random;
 
 public class UpgradeStore : MonoBehaviour
 {
     public static UpgradeStore Instance { get; private set; }
     
     [Header("Settings")]
+    [SerializeField] private bool closeStoreOnPurchase;
     [SerializeField, Min(1)] private int availableUpgrades = 3;
-    [SerializeField] private int baseRerollCost = 5;
-    [SerializeField] private int rerollCostIncrease = 15;
-    [SerializeField] private int maxRerollCost = 300;
+    [Foldout("Rarity Costs")]
+    [SerializeField] private int commonCost = 25;
+    [SerializeField] private int uncommonCost = 50;
+    [SerializeField] private int rareCost = 100;
+    [SerializeField] private int epicCost = 150;
+    [EndFoldout]
     
     [Header("Gfx")]
-    [SerializeField] private float animationDuration = 1f;
+    [SerializeField] private float storeAnimationDuration = 1f;
     [SerializeField] private Vector3 offsetBetweenUpgrades = new Vector3(25,0,0);
+    
+    [Header("Pay Animation")]
+    [SerializeField] private float payAnimationDuration = 3f;
+    [SerializeField] private Ease payAnimationMoveEase = Ease.InOutSine;
+    [SerializeField] private Vector3 captainOffset;
+    [SerializeField] private Ease payAnimationScaleEase = Ease.OutBounce;
     
     [Header("References")]
     [SerializeField] private SOPlayerStats playerStats;
@@ -31,14 +43,17 @@ public class UpgradeStore : MonoBehaviour
     [SerializeField] private Button rerollButton;
     [SerializeField] private PlayerUpgradesDisplay playerUpgradesDisplay;
     [SerializeField] private UpgradeEgg upgradeEggPrefab;
+    [SerializeField] private GameObject chickenLegPrefab;
     [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
-
+    
     private readonly List<SOUpgradeBase> _storeUpgradesPool = new List<SOUpgradeBase>();
     private readonly List<UpgradeEgg> _upgradeEggs = new List<UpgradeEgg>();
     private bool _isOpen;
-    private int _currentRerollCost;
+    private bool _hasRerolled;
+    private bool _hasPurchasedItem;
     private Sequence _storeSequence;
+    private Sequence _paySequence;
 
     public event Action OnStoreOpened;
     public event Action OnStoreClosed;
@@ -82,7 +97,7 @@ public class UpgradeStore : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
         closeStoreButton.onClick.AddListener(CloseStore);
         rerollButton.onClick.AddListener(RerollEggs);
-        rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Reroll ({baseRerollCost})";
+        rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reroll";
 
         // Set the upgrades position with offset
         var startPosition = Vector3.zero - offsetBetweenUpgrades;
@@ -91,10 +106,12 @@ public class UpgradeStore : MonoBehaviour
             var position = startPosition + offsetBetweenUpgrades * i;
             var egg = Instantiate(upgradeEggPrefab, eggHolder);
             egg.transform.localPosition = position;
+            egg.SetPlayer(player);
             _upgradeEggs.Add(egg);
-            egg.OnUpgradeSelected += OnUpgradeSelected;
+            egg.OnUpgradeBought += OnUpgradeBought;
         }
     }
+
 
     private void OnEnable()
     {
@@ -134,25 +151,76 @@ public class UpgradeStore : MonoBehaviour
         }
     }
     
-    private void OnUpgradeSelected(SOUpgradeBase upgrade)
+    private void OnUpgradeBought(SOUpgradeBase upgrade)
     {
+        int upgradeCost = GetCostByRarity(upgrade.ItemRarity);
+        player.ResourceCollector.SpendCurrency(upgradeCost); 
         upgrade.ApplyUpgrade(player);
+        _hasPurchasedItem = true;
+        UpdateRerollButtonState();
+        playerUpgradesDisplay.UpdatePlayerUpgrades(player);
         
-        if (_storeSequence.isAlive) _storeSequence.Stop();
-        _storeSequence = Sequence.Create()
-            .ChainDelay(1.3f)
-            .OnComplete(CloseStore);
+
+        if (chickenLegPrefab)
+        {
+            if (_paySequence.isAlive) _paySequence.Complete();
+            _paySequence = Sequence.Create();
+            List<GameObject> chickenLegs = new List<GameObject>();
+            for (int i = 0; i < Mathf.Clamp(upgradeCost,1 ,50); i++)
+            {
+                var chickenLeg = Instantiate(chickenLegPrefab, transform);
+                chickenLegs.Add(chickenLeg);
+                
+                var chickenStartSize = chickenLeg.transform.localScale;
+                chickenLeg.transform.localScale = Vector3.zero;
+                
+                _paySequence.Group(Tween.Position(chickenLeg.transform, 
+                    player.transform.position,
+                    captain.transform.position + captainOffset, 
+                    duration: payAnimationDuration,
+                    ease: payAnimationMoveEase,
+                    startDelay: i * 0.05f));
+                
+                _paySequence.Group(Tween.Rotation(chickenLeg.transform, 
+                    Random.rotation, 
+                    duration: Random.Range(payAnimationDuration/2,payAnimationDuration),
+                    ease: payAnimationMoveEase,
+                    startDelay: i * 0.05f));
+                
+                _paySequence.Group(Tween.Scale(chickenLeg.transform, 
+                    Vector3.zero, 
+                    chickenStartSize * Random.Range(0.5f, 1.25f), 
+                    duration: payAnimationDuration * Random.Range(payAnimationDuration/5,payAnimationDuration/3),
+                    ease: payAnimationScaleEase,
+                    startDelay: i * 0.05f));
+            }
+            
+            _paySequence.OnComplete(() =>
+            {
+                foreach (var chickenLeg in chickenLegs.ToList())
+                {
+                    chickenLegs.Remove(chickenLeg);
+                    Destroy(chickenLeg);
+                }
+            });
+        }
+        
+        if (closeStoreOnPurchase)
+        {
+            if (_storeSequence.isAlive) _storeSequence.Stop();
+            _storeSequence = Sequence.Create()
+                .ChainDelay(1.3f)
+                .OnComplete(CloseStore);
+        }
+
     }
 
     private void RerollEggs()
     {
-        if (player.ResourceCollector.CurrentCurrency < _currentRerollCost) return;
+        if (_hasRerolled || _hasPurchasedItem) return;
         
-        player.ResourceCollector.UpdateCurrency(-_currentRerollCost);
-        _currentRerollCost += rerollCostIncrease;
-        _currentRerollCost = Mathf.Clamp(_currentRerollCost, baseRerollCost, maxRerollCost);
-        rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Reroll ({_currentRerollCost})";
-        rerollButton.interactable = player.ResourceCollector.CurrentCurrency >= _currentRerollCost;
+        _hasRerolled = true;
+        UpdateRerollButtonState();
         
         if (_storeSequence.isAlive) _storeSequence.Stop();
         _storeSequence = Sequence.Create();
@@ -165,20 +233,37 @@ public class UpgradeStore : MonoBehaviour
         SetEggsUpgrades();
     }
     
+    private void UpdateRerollButtonState()
+    {
+        rerollButton.interactable = !_hasRerolled && !_hasPurchasedItem;
+        
+        if (_hasRerolled || _hasPurchasedItem)
+        {
+            rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Used";
+        }
+        else
+        {
+            rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reroll";
+        }
+    }
+    
     private void OpenStore()
     {
         if (_isOpen) return;
         _isOpen = true;
+        
+        _hasRerolled = false;
+        _hasPurchasedItem = false;
 
         transform.transform.position = levelManager.EnemyPosition;
         storeGfx.gameObject.SetActive(true);
-        rerollButton.interactable = player.ResourceCollector.CurrentCurrency >= _currentRerollCost;
+        UpdateRerollButtonState();
         captain.OnStoreOpen();
         playerUpgradesDisplay.UpdatePlayerUpgrades(player);
         
         if (_storeSequence.isAlive) _storeSequence.Stop();
         _storeSequence = Sequence.Create()
-            .Group(Tween.Alpha(canvasGroup, 1, animationDuration));
+            .Group(Tween.Alpha(canvasGroup, 1, storeAnimationDuration));
         
         SetEggsUpgrades();
         
@@ -186,7 +271,6 @@ public class UpgradeStore : MonoBehaviour
         {
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true; 
-            _currentRerollCost = baseRerollCost;
             OnStoreOpened?.Invoke();
         });
     }
@@ -200,6 +284,7 @@ public class UpgradeStore : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
         playerUpgradesDisplay.ClearUpgrades();
         
+        if (_paySequence.isAlive) _paySequence.Complete();
         if (_storeSequence.isAlive) _storeSequence.Stop();
         _storeSequence = Sequence.Create()
             .ChainCallback(() =>
@@ -210,7 +295,7 @@ public class UpgradeStore : MonoBehaviour
                 }
                 captain.OnStoreClose();
             })
-            .Group(Tween.Alpha(canvasGroup, 0, animationDuration))    
+            .Group(Tween.Alpha(canvasGroup, 0, storeAnimationDuration))    
             .OnComplete(() =>
             {
                 storeGfx.gameObject.SetActive(false);
@@ -249,7 +334,7 @@ public class UpgradeStore : MonoBehaviour
             if (!upgrade) continue;
             tempPool.Remove(upgrade);
             var index1 = index;
-            _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade, index1 * 0.5f));
+            _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade,GetCostByRarity(upgrade.ItemRarity), index1 * 0.5f));
         }
         
         for (var index = validEggCount; index < _upgradeEggs.Count; index++)
@@ -293,6 +378,18 @@ public class UpgradeStore : MonoBehaviour
             UpgradeRarity.Rare => 30f,
             UpgradeRarity.Epic => 10f,
             _ => 50f
+        };
+    }
+
+    private int GetCostByRarity(UpgradeRarity rarity)
+    {
+        return rarity switch
+        {
+            UpgradeRarity.Common => commonCost,
+            UpgradeRarity.Uncommon => uncommonCost,
+            UpgradeRarity.Rare => rareCost,
+            UpgradeRarity.Epic => epicCost,
+            _ => uncommonCost
         };
     }
 }

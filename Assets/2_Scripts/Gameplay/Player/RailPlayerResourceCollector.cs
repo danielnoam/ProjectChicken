@@ -44,7 +44,7 @@ public class RailPlayerResourceCollector : MonoBehaviour
     {
         _collectionActions.Clear();
         
-        _collectionActions.Add(ResourceType.Currency, (resource) => UpdateCurrency(resource.CurrencyWorth));
+        _collectionActions.Add(ResourceType.Currency, (resource) => AddCurrency(resource.CurrencyWorth));
         _collectionActions.Add(ResourceType.HealthPack, (resource) => player.Health.HealHealth(resource.HealthWorth));
         _collectionActions.Add(ResourceType.ShieldPack, (resource) => player.Health.HealShield(resource.ShieldWorth));
         _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => player.WeaponSystem.SetActiveWeapon(resource.WeaponData));
@@ -115,9 +115,17 @@ public class RailPlayerResourceCollector : MonoBehaviour
     
     
     [Button]
-    public void UpdateCurrency(int amount)
+    public void AddCurrency(int amount)
     {
         CurrentCurrency += amount;
+        OnCurrencyChanged?.Invoke(CurrentCurrency);
+    }
+    
+    public void SpendCurrency(int amount)
+    {
+        if (CurrentCurrency < amount) return;
+        
+        CurrentCurrency -= amount;
         OnCurrencyChanged?.Invoke(CurrentCurrency);
     }
     
@@ -129,4 +137,5 @@ public class RailPlayerResourceCollector : MonoBehaviour
         UnityEditor.Handles.Label(transform.position + (Vector3.up * _currentMagnetRadius), "Magnet Radius");
     }
 #endif
+
 }
