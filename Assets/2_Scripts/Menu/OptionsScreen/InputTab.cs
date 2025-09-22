@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InputOptions : MonoBehaviour
+public class InputTab : MonoBehaviour
 {
     
     [Header("Settings")]
