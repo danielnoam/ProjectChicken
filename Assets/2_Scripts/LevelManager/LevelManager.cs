@@ -7,17 +7,20 @@ using DNExtensions.VFXManager;
 using KBCore.Refs;
 using PrimeTween;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using VInspector;
 
 
 
 [SelectionBase]
+[RequireComponent(typeof(LevelManagerInput))]
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance { get; private set; }
     
     [Header("General")]
+    [SerializeField, Min(0)] private float timeToPause = 2f;
     [SerializeField, Min(0)] private Vector2 enemyBoundarySize = new Vector2(45f,30f);
     [SerializeField, Min(0)] private Vector2 playerBoundarySize = new Vector2(40f,25f);
     [SerializeField] private Vector3 playerBoundaryOffset;
@@ -44,9 +47,11 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private TaskVisualizer taskVisualizer;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
+    [SerializeField,Self,HideInInspector] private LevelManagerInput input;
     
 
-
+    private float _pauseTimer;
+    private bool _pauseInputHeld;
     private int _currentScore;
     private SOLevelStage[] _levelStages;
     private StageTask[] _currentStageTasks;
@@ -78,6 +83,8 @@ public class LevelManager : MonoBehaviour
     public event Action<int> OnScoreChanged;
     public event Action<SavePointData> OnRestartedFromSavePoint;
     public event Action<RunProgressData> OnRunProgressLoaded;
+    public event Action<float> OnPauseTimerChanged;
+    public event Action OnPause;
     
     
     public static float WorldSpeed = 1f;
@@ -167,13 +174,14 @@ public class LevelManager : MonoBehaviour
         {
             player.ResourceCollector.OnResourceCollected += OnPlayerCollectedResource;
             player.Health.OnDeath += OnPlayerDeath;
-            player.OnPause += OnPlayerPaused;
         }
 
         if (upgradeStore)
         {
             upgradeStore.OnStoreClosed += UpgradeStoreClosed;
         }
+        
+        input.OnPauseActionEvent += OnPauseAction;
     }
     
 
@@ -190,12 +198,14 @@ public class LevelManager : MonoBehaviour
         {
             player.ResourceCollector.OnResourceCollected -= OnPlayerCollectedResource;
             player.Health.OnDeath -= OnPlayerDeath;
-            player.OnPause -= OnPlayerPaused;
         }
         if (upgradeStore)
         {
             upgradeStore.OnStoreClosed -= UpgradeStoreClosed;
         }
+        
+        
+        input.OnPauseActionEvent -= OnPauseAction;
     }
     
     private void OnDestroy()
@@ -212,6 +222,7 @@ public class LevelManager : MonoBehaviour
     private void Update()
     {
         UpdateStageEvents();
+        CheckPauseInput();
 
         if (Input.GetKeyDown(KeyCode.F12))
         {
@@ -251,11 +262,7 @@ public class LevelManager : MonoBehaviour
     {
         StartCoroutine(RestartFromSavePointRoutine());
     }
-
-    private void OnPlayerPaused()
-    {
-        ReturnToMainMenu(0);
-    }
+    
     
     private void OnPlayerCollectedResource(Resource resource)
     {
@@ -264,7 +271,43 @@ public class LevelManager : MonoBehaviour
         int score = resource.ScoreWorth;
         AddScore(score);
     }
+
+    #region Pause
+
     
+    private void OnPauseAction(InputAction.CallbackContext context)
+    {
+        
+        if (context.started)
+        {
+            _pauseInputHeld = true;
+            _pauseTimer = 0f;
+            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
+        }
+        else if (context.canceled)
+        {
+            _pauseInputHeld = false;
+            _pauseTimer = 0f;
+            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
+        }
+    }
+    
+    private void CheckPauseInput()
+    {
+        if (_pauseInputHeld)
+        {
+            _pauseTimer += Time.deltaTime;
+            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
+            if (_pauseTimer >= timeToPause)
+            {
+                OnPause?.Invoke();
+                ReturnToMainMenu(0);
+            }
+        }
+    }
+    
+
+    #endregion
     
     #region Stage Management
 

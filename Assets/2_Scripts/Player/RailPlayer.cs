@@ -13,9 +13,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(RailPlayerHealth))]
 public class RailPlayer : MonoBehaviour
 {
-    [Header("General")]
-    [SerializeField, Min(0)] private float timeToPause = 2f;
-    
+
     [Header("Positions")]
     [SerializeField] private Transform cameraPositions;
     [SerializeField] private Transform followCameraTarget;
@@ -36,10 +34,6 @@ public class RailPlayer : MonoBehaviour
 
     
     
-    private float _pauseTimer;
-    private int _currentScore;
-    private bool _pauseInputHeld;
-    
     public Dictionary<SOUpgradeBase, int> Upgrades { get; private set; } = new Dictionary<SOUpgradeBase, int>();
     public RailPlayerAiming Aiming => aiming;
     public RailPlayerWeaponSystem WeaponSystem => weaponSystem;
@@ -49,9 +43,6 @@ public class RailPlayer : MonoBehaviour
     public LevelManager LevelManager => levelManager;
     public SOPlayerStats PlayerStats => playerStats;
     
-
-    public event Action<float> OnPauseTimerChanged;
-    public event Action OnPause;
     
     
     
@@ -79,14 +70,12 @@ public class RailPlayer : MonoBehaviour
     {
         levelManager.OnRunProgressLoaded += OnRunProgressLoaded;
         levelManager.OnRestartedFromSavePoint += RestartedFromSavePoint;
-        input.OnPauseActionEvent += OnPauseAction;
     }
     
     private void OnDisable()
     {
         levelManager.OnRunProgressLoaded -= OnRunProgressLoaded;
         levelManager.OnRestartedFromSavePoint -= RestartedFromSavePoint;
-        input.OnPauseActionEvent -= OnPauseAction;
     }
     
     private void OnTriggerEnter(Collider other)
@@ -109,21 +98,7 @@ public class RailPlayer : MonoBehaviour
 
         }
     }
-
-    private void Update()
-    {
-        if (_pauseInputHeld)
-        {
-            _pauseTimer += Time.deltaTime;
-            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
-            if (_pauseTimer >= timeToPause)
-            {
-                OnPause?.Invoke();
-            }
-        }
-    }
     
-
     private void OnRunProgressLoaded(RunProgressData runProgress)
     {
         if (runProgress == null) return;
@@ -178,23 +153,6 @@ public class RailPlayer : MonoBehaviour
         }
     }
     
-    private void OnPauseAction(InputAction.CallbackContext context)
-    {
-        if (!Health.IsAlive()) return;
-        
-        if (context.started)
-        {
-            _pauseInputHeld = true;
-            _pauseTimer = 0f;
-            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
-        }
-        else if (context.canceled)
-        {
-            _pauseInputHeld = false;
-            _pauseTimer = 0f;
-            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
-        }
-    }
 
     
     

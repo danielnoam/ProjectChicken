@@ -26,7 +26,6 @@ public class RailPlayerInput : InputReaderBase
     public event Action<InputAction.CallbackContext> OnDodgeLeftEvent;
     public event Action<InputAction.CallbackContext> OnDodgeRightEvent;
     public event Action<InputAction.CallbackContext> OnDodgeFreeformEvent;
-    public event Action<InputAction.CallbackContext> OnPauseActionEvent;
     public event Action<Vector2> OnProcessedLookEvent;
 
 
@@ -64,7 +63,6 @@ public class RailPlayerInput : InputReaderBase
         SubscribeToAction(_dodgeLeftAction, OnDodgeLeft);
         SubscribeToAction(_dodgeRightAction, OnDodgeRight);
         SubscribeToAction(_dodgeFreeformAction, OnDodgeFreeform);
-        SubscribeToAction(_pauseAction, OnPauseAction);
         
         if (player.LevelManager)
         {
@@ -83,7 +81,6 @@ public class RailPlayerInput : InputReaderBase
         UnsubscribeFromAction(_dodgeLeftAction, OnDodgeLeft);
         UnsubscribeFromAction(_dodgeRightAction, OnDodgeRight);
         UnsubscribeFromAction(_dodgeFreeformAction, OnDodgeFreeform);
-        UnsubscribeFromAction(_pauseAction, OnPauseAction);
         
         if (player.LevelManager)
         {
@@ -185,10 +182,6 @@ public class RailPlayerInput : InputReaderBase
         OnDodgeFreeformEvent?.Invoke(context);
     }
     
-    private void OnPauseAction(InputAction.CallbackContext context)
-    {
-        OnPauseActionEvent?.Invoke(context);
-    }
 
     #endregion Input Events --------------------------------------------------------------------------------------
 }

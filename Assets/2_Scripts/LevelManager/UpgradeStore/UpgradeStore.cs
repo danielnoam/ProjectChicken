@@ -226,7 +226,7 @@ public class UpgradeStore : MonoBehaviour
         _storeSequence = Sequence.Create();
         
         foreach (var egg in _upgradeEggs)
-        {
+        { 
             egg.Reset(true);
         }
         

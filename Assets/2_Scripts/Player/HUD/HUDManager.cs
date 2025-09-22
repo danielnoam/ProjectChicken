@@ -14,9 +14,9 @@ using VInspector;
 
 
 [SelectionBase]
-public class UIManager : MonoBehaviour
+public class HUDManager : MonoBehaviour
 {
-    public static UIManager Instance { get; private set; }
+    public static HUDManager Instance { get; private set; }
     
     
     [Header("General")]
@@ -27,7 +27,7 @@ public class UIManager : MonoBehaviour
     
     [Header("Dynamic HUD")]
     [SerializeField, Tooltip("Hud position is affected by player movement")] private bool dynamicHud = true;
-    [SerializeField, Tooltip("How much the hud moves by the base player movement")] private float hudPlayerMoveAmount = 6f;
+    [SerializeField, Tooltip("How much the hud moves by the base player movement")] private float hudPlayerMoveAmount = 7f;
     [SerializeField, Tooltip("How fast the hud will return to zero")] private float hudReturnSpeed = 2f;
     [SerializeField, Tooltip("Maximum shake intensity")] private float maxShakeIntensity = 15f;
     [SerializeField, Tooltip("How fast shake decays")] private float shakeDecayRate = 5f;
@@ -176,7 +176,6 @@ public class UIManager : MonoBehaviour
     {
         if (player)
         {
-            player.OnPauseTimerChanged += OnPauseTimerChanged;
             player.Health.OnDeath += OnPlayerDeath;
             player.Health.OnDamaged += OnPlayerDamaged;
             player.Health.OnHealthChanged += OnPlayerHealthChanged;
@@ -196,6 +195,7 @@ public class UIManager : MonoBehaviour
 
         if (levelManager)
         {
+            levelManager.OnPauseTimerChanged += OnPauseTimerChanged;
             levelManager.OnScoreChanged += OnScoreChanged;
             levelManager.OnStageChanged += OnStageChanged;
             levelManager.OnLevelSet += OnLevelSet;
@@ -208,7 +208,6 @@ public class UIManager : MonoBehaviour
     {
         if (player)
         {
-            player.OnPauseTimerChanged -= OnPauseTimerChanged;
             player.Health.OnDeath -= OnPlayerDeath;
             player.Health.OnDamaged -= OnPlayerDamaged;
             player.Health.OnHealthChanged -= OnPlayerHealthChanged;
@@ -228,6 +227,7 @@ public class UIManager : MonoBehaviour
         
         if (levelManager)
         {
+            levelManager.OnPauseTimerChanged -= OnPauseTimerChanged;
             levelManager.OnScoreChanged -= OnScoreChanged;
             levelManager.OnStageChanged -= OnStageChanged;
             levelManager.OnLevelSet -= OnLevelSet;
