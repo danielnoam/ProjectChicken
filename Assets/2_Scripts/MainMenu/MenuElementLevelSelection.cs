@@ -78,7 +78,7 @@ public class MenuElementLevelSelection : MenuElement
             {
                 var levelButton = Instantiate(levelButtonPrefab, levelButtonParent);
                 var levelUIData = new LevelUIData(level, levelGfx, levelButton);
-                var levelButtonAnimator = levelButton.GetComponent<MenuSelectableAnimator>();
+                var levelButtonAnimator = levelButton.GetComponent<SelectableAnimator>();
                 if (levelButtonAnimator) levelButtonAnimator.audioSource = audioSource;
                 _levelUIData.Add(levelUIData);
                 SetupSelectable(levelButton, levelUIData);

@@ -1,8 +1,7 @@
 
+using System;
 using System.Linq;
-using DNExtensions;
 using PrimeTween;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -17,7 +16,7 @@ namespace  DNExtensions.MenuSystem
     [RequireComponent(typeof(Selectable))]
     [RequireComponent(typeof(EventTrigger))]
 
-    public class MenuSelectableAnimator : MonoBehaviour
+    public class SelectableAnimator : MonoBehaviour
     {
         [Header("Settings")]
         [SerializeField] private bool mouseSelectsSelectable;
@@ -68,13 +67,13 @@ namespace  DNExtensions.MenuSystem
         private bool IsOffsetMode => positionEffectType == PositionEffectType.Offset;
         private bool IsShakeMode => positionEffectType == PositionEffectType.Shake;
 
-        private enum PositionEffectType
-        {
-            None,
-            Offset,
-            Shake
-        }
-
+        private enum PositionEffectType { None, Offset, Shake }
+        
+        
+        public event Action OnSelectEvent;
+        public event Action OnDeselectEvent;
+        public event Action OnSubmitEvent;
+        
 
         private void OnValidate()
         {
@@ -144,6 +143,8 @@ namespace  DNExtensions.MenuSystem
 
         private void OnSubmit(BaseEventData eventData)
         {
+
+            OnSubmitEvent?.Invoke();
             submitSfx?.Play(audioSource);
         }
 
@@ -151,41 +152,14 @@ namespace  DNExtensions.MenuSystem
         {
             if (!eventData.selectedObject.activeSelf || !selectable.interactable) return;
 
-            switch (positionEffectType)
-            {
-                case PositionEffectType.Offset:
-                    PlayPositionAnimation(true);
-                    break;
-                case PositionEffectType.Shake:
-                    PlayShakeAnimation();
-                    break;
-            }
-
-            if (animateScale) PlayScaleAnimation(true);
-            if (animateRotation) PlayRotateAnimation(true);
-            if (animateAlpha) PlayAlphaAnimation(true);
-            
-            selectSfx?.Play(audioSource);
+            Select();
         }
 
         private void OnDeselect(BaseEventData eventData)
         {
             if (!eventData.selectedObject.activeSelf || !selectable.interactable) return;
 
-            switch (positionEffectType)
-            {
-                case PositionEffectType.Offset:
-                    PlayPositionAnimation(false);
-                    break;
-                case PositionEffectType.Shake when shakeOnDeselect:
-                    PlayShakeAnimation();
-                    break;
-            }
-
-            if (animateScale) PlayScaleAnimation(false);
-            if (animateRotation) PlayRotateAnimation(false);
-            if (animateAlpha) PlayAlphaAnimation(false);
-
+            Deselect();
         }
 
         private void OnPointerEnter(BaseEventData eventData)
@@ -207,8 +181,51 @@ namespace  DNExtensions.MenuSystem
                 pointerEventData.selectedObject = null;
             }
         }
+        
+
+        public void Select()
+        {
+            
+            OnSelectEvent?.Invoke();
+            
+            switch (positionEffectType)
+            {
+                case PositionEffectType.Offset:
+                    PlayPositionAnimation(true);
+                    break;
+                case PositionEffectType.Shake:
+                    PlayShakeAnimation();
+                    break;
+            }
+
+            if (animateScale) PlayScaleAnimation(true);
+            if (animateRotation) PlayRotateAnimation(true);
+            if (animateAlpha) PlayAlphaAnimation(true);
+            
+            selectSfx?.Play(audioSource);
+        }
 
 
+        public void Deselect()
+        {
+            OnDeselectEvent?.Invoke();
+            
+            switch (positionEffectType)
+            {
+                case PositionEffectType.Offset:
+                    PlayPositionAnimation(false);
+                    break;
+                case PositionEffectType.Shake when shakeOnDeselect:
+                    PlayShakeAnimation();
+                    break;
+            }
+
+            if (animateScale) PlayScaleAnimation(false);
+            if (animateRotation) PlayRotateAnimation(false);
+            if (animateAlpha) PlayAlphaAnimation(false);
+        }
+        
+        
         private void PlayPositionAnimation(bool selected)
         {
             if (!rectTransform) return;
@@ -243,24 +260,5 @@ namespace  DNExtensions.MenuSystem
             Tween.Alpha(selectable.image, endAlpha, alphaDuration, curve, useUnscaledTime: true);
 
         }
-
-
-        public void Deselect()
-        {
-            switch (positionEffectType)
-            {
-                case PositionEffectType.Offset:
-                    PlayPositionAnimation(false);
-                    break;
-                case PositionEffectType.Shake when shakeOnDeselect:
-                    PlayShakeAnimation();
-                    break;
-            }
-
-            if (animateScale) PlayScaleAnimation(false);
-            if (animateRotation) PlayRotateAnimation(false);
-            if (animateAlpha) PlayAlphaAnimation(false);
-        }
-
     }
 }

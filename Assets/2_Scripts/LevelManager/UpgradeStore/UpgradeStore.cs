@@ -253,7 +253,7 @@ public class UpgradeStore : MonoBehaviour
         
         
         rerollButton.interactable = !_hasRerolled && !_hasPurchasedItem;
-        if (!rerollButton.interactable) rerollButton.GetComponentInChildren<MenuSelectableAnimator>().Deselect();
+        if (!rerollButton.interactable) rerollButton.GetComponentInChildren<SelectableAnimator>().Deselect();
 
     }
     
