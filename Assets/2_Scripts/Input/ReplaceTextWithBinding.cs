@@ -22,8 +22,8 @@ public class ReplaceTextWithBinding : MonoBehaviour
         if (!textComponent) return;
 
         string processedText = useSpriteMode 
-            ? InputManager.ReplaceActionBindingsWithSprites(textComponent.text)
-            : InputManager.ReplaceActionBindingsWithText(textComponent.text);
+            ? InputManager.ReplaceActionTokenInText(textComponent.text)
+            : InputManager.ReplaceActionTokenInText(textComponent.text, false);
             
         textComponent.text = processedText;
     }

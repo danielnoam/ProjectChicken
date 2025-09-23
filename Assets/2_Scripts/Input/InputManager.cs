@@ -20,21 +20,22 @@ public class InputManager : MonoBehaviour
     [Header("Cursor Settings")] 
     [SerializeField] private bool hideCursor = true;
 
-    private readonly ControlSchemeSettings _keyboardMouseScheme = new ControlSchemeSettings();
-    private readonly ControlSchemeSettings _gamepadScheme = new ControlSchemeSettings();
-    private ControlSchemeSettings _currentControlScheme = new ControlSchemeSettings();
-    private bool _isCurrentDeviceGamepad;
     
-    public ControlSchemeSettings CurrentControlScheme => _currentControlScheme;
-    public ControlSchemeSettings KeyboardMouseScheme => _keyboardMouseScheme;
-    public ControlSchemeSettings GamepadScheme => _gamepadScheme;
-    public bool IsCurrentDeviceGamepad => _isCurrentDeviceGamepad;
+    
+    
     public PlayerInput PlayerInput => playerInput;
+    public ControlSchemeSettings CurrentControlScheme { get; private set; } = new ControlSchemeSettings();
+
+    public ControlSchemeSettings KeyboardMouseScheme { get; } = new ControlSchemeSettings();
+
+    public ControlSchemeSettings GamepadScheme { get; } = new ControlSchemeSettings();
+
+    public bool IsCurrentDeviceGamepad { get; private set; }
+
     
-    // Events for device changes
-    public event Action<PlayerInput> OnDeviceRegainedEvent;
-    public event Action<PlayerInput> OnDeviceLostEvent; 
     public event Action<PlayerInput> OnControlsChangedEvent;
+    
+    
 
     private void OnValidate()
     {
@@ -43,7 +44,6 @@ public class InputManager : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton pattern
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -55,7 +55,7 @@ public class InputManager : MonoBehaviour
         
         SetCursorVisibility(!hideCursor);
         UpdateControlSchemeSettings();
-        _currentControlScheme.SetControlSchemeSettings(_keyboardMouseScheme);
+        CurrentControlScheme.SetControlSchemeSettings(KeyboardMouseScheme);
     }
 
     private void OnEnable()
@@ -84,6 +84,7 @@ public class InputManager : MonoBehaviour
         {
             SaveManager.Instance.OnSettingsDataChanged -= UpdateControlSchemeSettings;
         }
+        
     }
 
     private void OnDestroy()
@@ -97,40 +98,40 @@ public class InputManager : MonoBehaviour
     private void OnDeviceRegained(PlayerInput input)
     {
         SetActiveControlScheme(input);
-        OnDeviceRegainedEvent?.Invoke(input);
     }
 
     private void OnDeviceLost(PlayerInput input)
     {
         SetActiveControlScheme(input);
-        OnDeviceLostEvent?.Invoke(input);
     }
 
     private void OnControlsChanged(PlayerInput input)
     {
         SetActiveControlScheme(input);
-        OnControlsChangedEvent?.Invoke(input);
     }
+    
     
     private void SetActiveControlScheme(PlayerInput input)
     {
         if (input.currentControlScheme == "Gamepad")
         {
-            _isCurrentDeviceGamepad = true;
-            _currentControlScheme = _gamepadScheme;
+            IsCurrentDeviceGamepad = true;
+            CurrentControlScheme = GamepadScheme;
         }
         else
         {
-            _isCurrentDeviceGamepad = false;
-            _currentControlScheme = _keyboardMouseScheme;
+            IsCurrentDeviceGamepad = false;
+            CurrentControlScheme = KeyboardMouseScheme;
         }
+        
+        OnControlsChangedEvent?.Invoke(input);
     }
     
     private void UpdateControlSchemeSettings()
     {
-        _keyboardMouseScheme.SetControlSchemeSettings(SaveManager.GetKeyboardControlScheme());
-        _gamepadScheme.SetControlSchemeSettings(SaveManager.GetGamepadControlScheme());
-        _currentControlScheme = _isCurrentDeviceGamepad ? _gamepadScheme : _keyboardMouseScheme;
+        KeyboardMouseScheme.SetControlSchemeSettings(SaveManager.GetKeyboardControlScheme());
+        GamepadScheme.SetControlSchemeSettings(SaveManager.GetGamepadControlScheme());
+        CurrentControlScheme = IsCurrentDeviceGamepad ? GamepadScheme : KeyboardMouseScheme;
     }
     
     public void SetCursorVisibility(bool state)
@@ -162,19 +163,53 @@ public class InputManager : MonoBehaviour
         }
     }
 
-    public static string ReplaceActionBindingsWithSprites(string text)
+    public static string ReplaceActionTokenInText(string text, bool useSprite = true)
     {
         if (!Instance) return text;
+
+        if (!useSprite)
+        {
+            return InputManagerBindingFormatter.ReplaceActionBindings(text, false, Instance.playerInput);
+        }
         
-        TMP_SpriteAsset spriteAsset = Instance._isCurrentDeviceGamepad 
+        TMP_SpriteAsset spriteAsset = Instance.IsCurrentDeviceGamepad 
             ? Instance.gamepadSpriteAsset 
             : Instance.keyboardMouseSpriteAsset;
             
         return InputManagerBindingFormatter.ReplaceActionBindings(text, true, Instance.playerInput, spriteAsset);
     }
     
-    public static string ReplaceActionBindingsWithText(string text)
+    
+    
+    
+    /// <summary>
+    /// Get binding for a specific InputAction
+    /// </summary>
+    public static string GetActionBinding(InputAction action, bool asSprite = true)
     {
-        return InputManagerBindingFormatter.ReplaceActionBindings(text, false, Instance.playerInput);
+        if (!Instance?.playerInput || action == null) return action?.name ?? "Unknown";
+    
+        TMP_SpriteAsset spriteAsset = asSprite ? Instance.IsCurrentDeviceGamepad 
+            ? Instance.gamepadSpriteAsset 
+            : Instance.keyboardMouseSpriteAsset : null;
+    
+        return InputManagerBindingFormatter.GetActionBinding(action, asSprite, Instance.playerInput, spriteAsset);
     }
+
+    /// <summary>
+    /// Get bindings for multiple InputActions
+    /// </summary>
+    public static string GetActionBindings(InputAction[] actions, string separator = " | ", bool asSprites = true)
+    {
+        if (actions == null || actions.Length == 0) return "";
+    
+        string[] bindings = new string[actions.Length];
+        for (int i = 0; i < actions.Length; i++)
+        {
+            bindings[i] = GetActionBinding(actions[i], asSprites);
+        }
+    
+        return string.Join(separator, bindings);
+    }
+
 }

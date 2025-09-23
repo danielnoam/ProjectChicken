@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public static class InputManagerBindingFormatter
@@ -44,6 +45,7 @@ public static class InputManagerBindingFormatter
     {
         string currentScheme = playerInput.currentControlScheme;
         List<string> textTags = new List<string>();
+        
         
         for (int i = 0; i < action.bindings.Count; i++)
         {
@@ -90,6 +92,7 @@ public static class InputManagerBindingFormatter
             }
         }
         
+        Debug.Log($"Found {textTags.Count} text tags: {string.Join(", ", textTags)}");
         return textTags.Count > 0 ? string.Join(", ", textTags) : actionKey;
     }
     
@@ -200,47 +203,11 @@ public static class InputManagerBindingFormatter
     private static string GetSpriteTag(InputBinding binding, TMP_SpriteAsset spriteAsset)
     {
         string stringButtonName = binding.effectivePath;
-        string originalButtonName = stringButtonName;
         stringButtonName = RenameInput(stringButtonName);
-
-        // Check if the sprite exists in the sprite asset - only warn if there's a problem
-        if (spriteAsset && !SpriteExists(spriteAsset, stringButtonName))
-        { 
-            // Debug.LogWarning($"[InputManagerBindingFormatter] Missing sprite '{stringButtonName}' in sprite asset '{spriteAsset.name}' for input '{originalButtonName}'. " +
-                           // $"Available sprites: {string.Join(", ", GetAllSpriteNames(spriteAsset))}");
-        }
     
         return $"<sprite=\"{spriteAsset?.name}\" name=\"{stringButtonName}\">";
     }
-
-    // Check if a sprite with the given name exists in the sprite asset
-    private static bool SpriteExists(TMP_SpriteAsset spriteAsset, string spriteName)
-    {
-        if (!spriteAsset || spriteAsset.spriteInfoList == null)
-            return false;
-
-        foreach (var spriteInfo in spriteAsset.spriteInfoList)
-        {
-            if (spriteInfo.name == spriteName)
-                return true;
-        }
-
-        return false;
-    }
-
-    // Helper method to get all sprite names for debugging (only used when there's an error)
-    private static string[] GetAllSpriteNames(TMP_SpriteAsset spriteAsset)
-    {
-        if (!spriteAsset || spriteAsset.spriteInfoList == null)
-            return Array.Empty<string>();
-
-        string[] names = new string[spriteAsset.spriteInfoList.Count];
-        for (int i = 0; i < spriteAsset.spriteInfoList.Count; i++)
-        {
-            names[i] = spriteAsset.spriteInfoList[i].name;
-        }
-        return names;
-    }
+    
 
     // Convert Unity input paths to sprite asset naming convention
     private static string RenameInput(string buttonName)
@@ -250,5 +217,23 @@ public static class InputManagerBindingFormatter
         buttonName = buttonName.Replace("<Gamepad>/", "Gamepad_");
 
         return buttonName;
+    }
+    
+    
+    /// <summary>
+    /// Get binding display for a specific InputAction
+    /// </summary>
+    public static string GetActionBinding(InputAction action, bool useSprites, PlayerInput playerInput, TMP_SpriteAsset spriteAsset = null)
+    {
+        if (!playerInput || action == null) return action?.name ?? "Unknown";
+    
+        if (useSprites)
+        {
+            return GetSpriteTagsForAction(action, action.name, playerInput, spriteAsset);
+        }
+        else
+        {
+            return GetTextTagsForAction(action, action.name, playerInput);
+        }
     }
 }

@@ -1,73 +1,61 @@
 using System;
+using KBCore.Refs;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 using VInspector;
 
 public class ActionKeyPrompt : MonoBehaviour
 {
-
     [Header("Settings")]
+    [SerializeField] private bool useSprites = true;
+    [SerializeField] private string separator = " | ";
     [SerializeField] private InputActionReference[] inputActionReferences = Array.Empty<InputActionReference>();
-    
     
     [Header("Reference")]
     [SerializeField] private TextMeshProUGUI prompt;
-    [SerializeField] private PlayerInput playerInput;
-
-
-    private void OnValidate()
-    {
-        if (!playerInput) playerInput = FindFirstObjectByType<PlayerInput>();
-    }
+    [SerializeField] private InputManager inputManager;
 
     private void Awake()
     {
-        if (!playerInput) playerInput = FindFirstObjectByType<PlayerInput>();
+        if (!inputManager) inputManager = FindFirstObjectByType<InputManager>();
+    }
+
+    private void Start()
+    {
+        UpdateDisplay();
     }
 
     private void OnEnable()
     {
-        if (playerInput)
+        if (inputManager)
         {
-            playerInput.onControlsChanged += SetTextBasedOnAction;
+            inputManager.OnControlsChangedEvent += OnInputChanged;
         }
     }
 
     private void OnDisable()
     {
-        if (playerInput)
+        if (inputManager)
         {
-            playerInput.onControlsChanged -= SetTextBasedOnAction;
+            inputManager.OnControlsChangedEvent -= OnInputChanged;
         }
     }
 
-    [Button]
-    private void SetTextBasedOnAction(PlayerInput input)
+    private void OnInputChanged(PlayerInput input) => UpdateDisplay();
+
+    [Button("Update Display")]
+    public void UpdateDisplay()
     {
-        if (inputActionReferences == null || inputActionReferences.Length < 1 || !prompt) return;
+        if (!prompt || inputActionReferences == null || inputActionReferences.Length == 0) return;
         
-        var currentDeviceIsGamepad = playerInput && playerInput.currentControlScheme == "Gamepad";
-
-        prompt.text = "";
-
-        for (var index = 0; index < inputActionReferences.Length; index++)
+        InputAction[] actions = new InputAction[inputActionReferences.Length];
+        for (int i = 0; i < inputActionReferences.Length; i++)
         {
-            var inputActionReference = inputActionReferences[index];
-            if (!inputActionReference) continue;
-
-            if (inputActionReferences.Length > 1 && index < inputActionReferences.Length - 1)
-            {
-                prompt.text += $"{inputActionReference.action.GetBindingDisplayString(0, currentDeviceIsGamepad ? "Gamepad" : "Keyboard&Mouse")} | ";
-            }
-            else
-            {
-                prompt.text += $"{inputActionReference.action.GetBindingDisplayString(0, currentDeviceIsGamepad ? "Gamepad" : "Keyboard&Mouse")}";
-            }
-
+            actions[i] = inputActionReferences[i]?.action;
         }
+        
+        prompt.text = InputManager.GetActionBindings(actions, separator, useSprites);
     }
-    
-    
+
 }

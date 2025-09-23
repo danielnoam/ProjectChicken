@@ -45,6 +45,7 @@ public class LevelManagerInput: InputReaderBase
         if (levelManager)
         {
             levelManager.OnStageChanged += OnStageChanged;
+            levelManager.OnPause += OnPause;
         }
     }
     
@@ -57,9 +58,15 @@ public class LevelManagerInput: InputReaderBase
         if (levelManager)
         {
             levelManager.OnStageChanged -= OnStageChanged;
+            levelManager.OnPause -= OnPause;
         }
     }
-    
+
+    private void OnPause(bool paused)
+    {
+        inputManager.SetCursorVisibility(paused);
+    }
+
     private void OnStageChanged(SOLevelStage stage)
     {
         if (!stage || !inputManager) return;

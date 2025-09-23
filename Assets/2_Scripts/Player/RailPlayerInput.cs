@@ -15,7 +15,6 @@ public class RailPlayerInput : InputReaderBase
     private InputAction _dodgeLeftAction;
     private InputAction _dodgeRightAction;
     private InputAction _dodgeFreeformAction;
-    private InputAction _pauseAction;
     private float _lastMoveLeftTime;
     private float _lastMoveRightTime;
 
@@ -48,7 +47,6 @@ public class RailPlayerInput : InputReaderBase
         _dodgeLeftAction = _playerActionMap.FindAction("DodgeLeft");
         _dodgeRightAction = _playerActionMap.FindAction("DodgeRight");
         _dodgeFreeformAction = _playerActionMap.FindAction("DodgeFreeform");
-        _pauseAction = _playerActionMap.FindAction("Pause");
     }
 
 
@@ -63,11 +61,6 @@ public class RailPlayerInput : InputReaderBase
         SubscribeToAction(_dodgeLeftAction, OnDodgeLeft);
         SubscribeToAction(_dodgeRightAction, OnDodgeRight);
         SubscribeToAction(_dodgeFreeformAction, OnDodgeFreeform);
-        
-        if (player.LevelManager)
-        {
-            player.LevelManager.OnStageChanged += OnStageChanged;
-        }
     }
     
     protected override void OnDisable()
@@ -82,38 +75,8 @@ public class RailPlayerInput : InputReaderBase
         UnsubscribeFromAction(_dodgeRightAction, OnDodgeRight);
         UnsubscribeFromAction(_dodgeFreeformAction, OnDodgeFreeform);
         
-        if (player.LevelManager)
-        {
-            player.LevelManager.OnStageChanged -= OnStageChanged;
-        }
     }
     
-    private void OnStageChanged(SOLevelStage stage)
-    {
-        if (!stage || !inputManager) return;
-
-        switch (stage.StageType)
-        {
-            case StageType.Delay:
-                inputManager.SetCursorVisibility(false);
-                break;
-            case StageType.Store:
-                inputManager.SetCursorVisibility(true);
-                break;
-            case StageType.EnemyWave:
-                inputManager.SetCursorVisibility(false);
-                break;
-            case StageType.Intro:
-                inputManager.SetCursorVisibility(false);
-                break;
-            case StageType.Outro:
-                inputManager.SetCursorVisibility(stage.ShowOutroMenu);
-                break;
-            default:
-                inputManager.SetCursorVisibility(false);
-                break;
-        }
-    }
 
     #region Input Events --------------------------------------------------------------------------------------
     
