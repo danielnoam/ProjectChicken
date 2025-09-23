@@ -18,12 +18,12 @@ namespace DNExtensions
         /// <returns>True if the transform is a child, false otherwise</returns>
         public static bool IsChildOf(this Transform child, Transform parent)
         {
-            if (child == null || parent == null)
+            if (!child || !parent)
                 return false;
 
             Transform currentParent = child.parent;
 
-            while (currentParent != null)
+            while (currentParent)
             {
                 if (currentParent == parent)
                     return true;
@@ -41,7 +41,7 @@ namespace DNExtensions
         /// <returns>A string representing the full hierarchy path</returns>
         public static string GetHierarchyPath(this Transform transform)
         {
-            if (transform == null) return "";
+            if (!transform) return "";
 
             // Build the full path from root to this transform
             string path = transform.name;
@@ -63,7 +63,7 @@ namespace DNExtensions
         /// <returns>An enumerable of all child transforms</returns>
         public static IEnumerable<Transform> GetChildrenRecursive(this Transform transform)
         {
-            if (transform == null) yield break;
+            if (!transform) yield break;
 
             for (int i = 0; i < transform.childCount; i++)
             {
@@ -85,17 +85,17 @@ namespace DNExtensions
         /// <returns>The found transform or null if not found</returns>
         public static Transform FindChildRecursive(this Transform transform, string name)
         {
-            if (transform == null) return null;
+            if (!transform) return null;
 
             // Check direct children first
             Transform directChild = transform.Find(name);
-            if (directChild != null) return directChild;
+            if (directChild) return directChild;
 
             // Search recursively in grandchildren
             for (int i = 0; i < transform.childCount; i++)
             {
                 Transform found = transform.GetChild(i).FindChildRecursive(name);
-                if (found != null) return found;
+                if (found) return found;
             }
 
             return null;
@@ -108,10 +108,10 @@ namespace DNExtensions
         /// <returns>The root transform</returns>
         public static Transform GetRoot(this Transform transform)
         {
-            if (transform == null) return null;
+            if (!transform) return null;
 
             Transform root = transform;
-            while (root.parent != null)
+            while (root.parent)
             {
                 root = root.parent;
             }
@@ -125,7 +125,7 @@ namespace DNExtensions
         /// <returns>The depth level</returns>
         public static int GetDepth(this Transform transform)
         {
-            if (transform == null) return -1;
+            if (!transform) return -1;
 
             int depth = 0;
             Transform parent = transform.parent;
@@ -144,7 +144,7 @@ namespace DNExtensions
         /// <param name="local">Whether to reset local or world transform</param>
         public static void ResetTransform(this Transform transform, bool local = true)
         {
-            if (transform == null) return;
+            if (!transform) return;
 
             if (local)
             {
@@ -168,7 +168,7 @@ namespace DNExtensions
         /// <param name="local">Whether to copy local or world transform</param>
         public static void CopyFrom(this Transform transform, Transform source, bool local = true)
         {
-            if (transform == null || source == null) return;
+            if (!transform || !source) return;
 
             if (local)
             {
@@ -191,7 +191,7 @@ namespace DNExtensions
         /// <param name="immediate">Whether to use DestroyImmediate (for editor use)</param>
         public static void DestroyAllChildren(this Transform transform, bool immediate = false)
         {
-            if (transform == null) return;
+            if (!transform) return;
 
             // Iterate backwards to avoid index shifting issues
             for (int i = transform.childCount - 1; i >= 0; i--)
@@ -212,7 +212,7 @@ namespace DNExtensions
         /// <returns>An array of all found components</returns>
         public static T[] GetComponentsInChildrenRecursive<T>(this Transform transform) where T : Component
         {
-            if (transform == null) return new T[0];
+            if (!transform) return Array.Empty<T>();
 
             List<T> components = new List<T>();
             
@@ -235,7 +235,7 @@ namespace DNExtensions
         /// <returns>An array of sibling indices from root to this transform</returns>
         public static int[] GetSiblingIndexPath(this Transform transform)
         {
-            if (transform == null) return new int[0];
+            if (!transform) return Array.Empty<int>();
 
             List<int> path = new List<int>();
             Transform current = transform;
@@ -257,8 +257,7 @@ namespace DNExtensions
         /// <returns>The found transform or null if path is invalid</returns>
         public static Transform FindByIndexPath(this Transform root, int[] siblingPath)
         {
-            if (root == null || siblingPath == null || siblingPath.Length == 0)
-                return root;
+            if (!root || siblingPath == null || siblingPath.Length == 0) return root;
 
             Transform current = root;
             
@@ -281,7 +280,7 @@ namespace DNExtensions
         /// <returns>True if it's a direct child, false otherwise</returns>
         public static bool IsDirectChildOf(this Transform transform, Transform parent)
         {
-            return transform != null && transform.parent == parent;
+            return transform && transform.parent == parent;
         }
 
         /// <summary>
@@ -291,7 +290,7 @@ namespace DNExtensions
         /// <returns>An enumerable of direct children</returns>
         public static IEnumerable<Transform> GetDirectChildren(this Transform transform)
         {
-            if (transform == null) yield break;
+            if (!transform) yield break;
 
             for (int i = 0; i < transform.childCount; i++)
             {
@@ -307,7 +306,7 @@ namespace DNExtensions
         /// <param name="worldPositionStays">Whether to maintain world position</param>
         public static void SetParentAndReset(this Transform transform, Transform parent, bool worldPositionStays = false)
         {
-            if (transform == null) return;
+            if (!transform) return;
 
             transform.SetParent(parent, worldPositionStays);
             if (!worldPositionStays)
