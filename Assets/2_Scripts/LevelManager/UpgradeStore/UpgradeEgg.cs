@@ -4,7 +4,6 @@ using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
 
 public class UpgradeEgg : MonoBehaviour
 {
@@ -20,7 +19,7 @@ public class UpgradeEgg : MonoBehaviour
     
     [Header("Idle Animation")]
     [SerializeField] private float bobbingSpeed = 2;
-    [SerializeField] private float bobbingAmplitude = 1;
+    [SerializeField] private float bobbingAmplitude = 2;
     [SerializeField, MinMaxRange(0,5)] private RangedFloat bobbingVarianceRange = new RangedFloat(0, 3);
     
     [Header("Info Panel")]
@@ -67,7 +66,24 @@ public class UpgradeEgg : MonoBehaviour
         _gfxStartPosition = gfx.localPosition;
         _upgradeInfoGroupStartScale = upgradeInfoGroup.transform.localScale;
         button?.onClick.AddListener(SelectUpgrade);
-        Reset(false);
+        ResetUpgrade(false);
+    }
+    
+    
+    private void OnMouseEnter()
+    {
+        UpdateAffordabilityVisuals();
+        ShowInfo();
+    }
+
+    private void OnMouseExit()
+    {
+        HideInfo();
+    }
+
+    private void OnMouseUpAsButton()
+    {
+        SelectUpgrade();
     }
     
     
@@ -79,16 +95,11 @@ public class UpgradeEgg : MonoBehaviour
         }
     }
     
-    public void SetPlayer(RailPlayer player)
-    {
-        _player = player;
-    }
-    
-    public void SetUpgrade(SOUpgradeBase upgrade, int cost, float startDelay)
+    public void SetUpgrade(bool animate, SOUpgradeBase upgrade, int cost, float startDelay = 0)
     {
         if (!upgrade)
         {
-            Reset(false);
+            ResetUpgrade(false);
             return;
         }
         
@@ -111,44 +122,17 @@ public class UpgradeEgg : MonoBehaviour
 
         iconImage.sprite = upgrade.ItemIcon;
         Instantiate(_upgrade.ItemGfx, upgradeGfxHolder);
-        
-        showUpgradeSfx?.Play(audioSource);
-        
-        if (_animationSequence.isAlive) _animationSequence.Stop();
-        _animationSequence = Sequence.Create()
-                .ChainDelay(startDelay)
-                .Chain(Tween.LocalPositionY(transform,yOffset,_transformStartPosition.y, animationDuration,animationEase))
-                .Group(Tween.Alpha(mainCanvasGroup, mainCanvasGroup.alpha,1, animationDuration, startDelay: animationDuration/3))
-            ;
-    }
 
-    private bool CanAffordUpgrade()
-    {
-        if (!_player || !_player.ResourceCollector) return false;
-        return _player.ResourceCollector.CurrentCurrency >= _upgradeCost;
+        if (animate)
+        {
+            if (_animationSequence.isAlive) _animationSequence.Stop();
+            _animationSequence = AnimateIn(startDelay);
+        }
+
     }
     
-
-    private void UpdateAffordabilityVisuals()
+    public void ResetUpgrade(bool animate)
     {
-        if (!CanAffordUpgrade())
-        {
-            mainCanvasGroup.alpha = 0.5f;
-            button.interactable = false;
-            costText.color = Color.red;
-        }
-        else
-        {
-            mainCanvasGroup.alpha = 1f;
-            button.interactable = true;
-            costText.color = Color.white;
-        }
-    }
-
-    public void Reset(bool animate)
-    {
-        if (_animationSequence.isAlive) _animationSequence.Stop();
-
         animator?.SetTrigger(Idle);
         _isSelected = false;
         _upgrade = null;
@@ -169,14 +153,22 @@ public class UpgradeEgg : MonoBehaviour
         }
         else
         {
-            hideUpgradeSfx?.Play(audioSource);
-            _animationSequence = Sequence.Create()
-                .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
-                .Group(Tween.Alpha(upgradeInfoGroup, 0, animationDuration))
-                .Group(Tween.LocalPositionY(transform, yOffset, animationDuration))
-                ;
+            if (_animationSequence.isAlive) _animationSequence.Stop();
+            _animationSequence = AnimateOut(0);
         }
     }
+
+    public void RerollUpgrade(SOUpgradeBase upgrade, int cost, float startDelay)
+    {
+        if (_animationSequence.isAlive) _animationSequence.Stop();
+        _animationSequence = Sequence.Create()
+            .Group(AnimateOut(startDelay))
+            .ChainCallback(() => {ResetUpgrade(false); })
+            .ChainCallback(() => {SetUpgrade(false, upgrade, cost); })
+            .Group(AnimateIn(startDelay));
+    }
+
+
     
     private void SelectUpgrade()
     {
@@ -191,13 +183,38 @@ public class UpgradeEgg : MonoBehaviour
         selectUpgradeSfx?.Play(audioSource);
         _isSelected = true;
         animator?.SetTrigger(Open);
-        if (_animationSequence.isAlive) _animationSequence.Stop();
+
+        
         _animationSequence = Sequence.Create()
                 .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
             ;
         OnUpgradeBought?.Invoke(_upgrade);
     }
+    
 
+    private void UpdateAffordabilityVisuals()
+    {
+        if (_isSelected)
+        {
+            mainCanvasGroup.alpha = 0.5f;
+            button.interactable = false;
+            costText.text = $"";
+            costIcon.color = Color.clear;
+        }
+        else if (!CanAffordUpgrade())
+        {
+            mainCanvasGroup.alpha = 0.5f;
+            button.interactable = false;
+            costText.color = Color.red;
+        }
+        else
+        {
+            mainCanvasGroup.alpha = 1f;
+            button.interactable = true;
+            costText.color = Color.white;
+        }
+    }
+    
     private void ShowInfo()
     {
         if (!_upgrade || _isSelected) return;
@@ -220,19 +237,46 @@ public class UpgradeEgg : MonoBehaviour
             .Group(Tween.Alpha(upgradeInfoGroup, 0f, infoAnimationDuration * 0.5f))
             .Group(Tween.Scale(upgradeInfoGroup.transform, Vector3.zero, infoAnimationDuration, infoAnimationEase));
     }
-
-    private void OnMouseEnter()
+    
+    public void SetPlayer(RailPlayer player)
     {
-        ShowInfo();
+        _player = player;
+    }
+    
+    private bool CanAffordUpgrade()
+    {
+        if (!_player || !_player.ResourceCollector) return false;
+        return _player.ResourceCollector.CurrentCurrency >= _upgradeCost;
+    }
+    
+    
+    private Sequence AnimateIn(float startDelay)
+    {
+        showUpgradeSfx?.Play(audioSource);
+
+        var sequence = Sequence.Create()
+                .ChainDelay(startDelay)
+                .Chain(Tween.LocalPositionY(transform,yOffset,_transformStartPosition.y, animationDuration,animationEase))
+                .Group(Tween.Alpha(mainCanvasGroup, mainCanvasGroup.alpha,1, animationDuration, startDelay: animationDuration/3))
+            ;
+        
+        return sequence;
+    }
+    
+    
+    private Sequence AnimateOut(float startDelay)
+    {
+        hideUpgradeSfx?.Play(audioSource);
+        
+        var sequence = Sequence.Create()
+                .ChainDelay(startDelay)
+                .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
+                .Group(Tween.Alpha(upgradeInfoGroup, 0, animationDuration))
+                .Group(Tween.LocalPositionY(transform, yOffset, animationDuration))
+            ;
+        
+        return sequence;
     }
 
-    private void OnMouseExit()
-    {
-        HideInfo();
-    }
 
-    private void OnMouseUpAsButton()
-    {
-        SelectUpgrade();
-    }
 }

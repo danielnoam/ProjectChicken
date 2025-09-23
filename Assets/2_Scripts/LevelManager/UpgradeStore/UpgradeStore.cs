@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DNExtensions.MenuSystem;
 using KBCore.Refs;
 using PrimeTween;
 using TMPro;
@@ -222,21 +224,24 @@ public class UpgradeStore : MonoBehaviour
         _hasRerolled = true;
         UpdateRerollButtonState();
         
-        if (_storeSequence.isAlive) _storeSequence.Stop();
-        _storeSequence = Sequence.Create();
-        
-        foreach (var egg in _upgradeEggs)
-        { 
-            egg.Reset(true);
+        var tempPool = new List<SOUpgradeBase>(_storeUpgradesPool);
+        var validEggCount = Mathf.Min(_upgradeEggs.Count, tempPool.Count);
+
+        for (var index = 0; index < validEggCount; index++)
+        {
+            var egg = _upgradeEggs[index];
+            var upgrade = GetUpgradeFromPool(tempPool);
+
+            if (!upgrade) continue;
+            tempPool.Remove(upgrade);
+            var index1 = index;
+            egg.RerollUpgrade(upgrade, GetCostByRarity(upgrade.ItemRarity), index1 * 0.25f);
         }
         
-        SetEggsUpgrades();
     }
     
     private void UpdateRerollButtonState()
     {
-        rerollButton.interactable = !_hasRerolled && !_hasPurchasedItem;
-        
         if (_hasRerolled || _hasPurchasedItem)
         {
             rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Used";
@@ -245,6 +250,11 @@ public class UpgradeStore : MonoBehaviour
         {
             rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reroll";
         }
+        
+        
+        rerollButton.interactable = !_hasRerolled && !_hasPurchasedItem;
+        if (!rerollButton.interactable) rerollButton.GetComponentInChildren<MenuSelectableAnimator>().Deselect();
+
     }
     
     private void OpenStore()
@@ -291,7 +301,7 @@ public class UpgradeStore : MonoBehaviour
             {
                 foreach (var egg in _upgradeEggs)
                 {
-                    egg.Reset(true);
+                    egg.ResetUpgrade(true);
                 }
                 captain.OnStoreClose();
             })
@@ -334,13 +344,13 @@ public class UpgradeStore : MonoBehaviour
             if (!upgrade) continue;
             tempPool.Remove(upgrade);
             var index1 = index;
-            _storeSequence.ChainCallback(() => egg.SetUpgrade(upgrade,GetCostByRarity(upgrade.ItemRarity), index1 * 0.5f));
+            _storeSequence.ChainCallback(() => egg.SetUpgrade(true, upgrade,GetCostByRarity(upgrade.ItemRarity), index1 * 0.25f));
         }
         
         for (var index = validEggCount; index < _upgradeEggs.Count; index++)
         {
             var egg = _upgradeEggs[index];
-            _storeSequence.ChainCallback(() => egg.Reset(true));
+            _storeSequence.ChainCallback(() => egg.ResetUpgrade(true));
         }
     }
     

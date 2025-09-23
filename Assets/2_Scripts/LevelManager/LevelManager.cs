@@ -20,7 +20,6 @@ public class LevelManager : MonoBehaviour
     public static LevelManager Instance { get; private set; }
     
     [Header("General")]
-    [SerializeField, Min(0)] private float timeToPause = 2f;
     [SerializeField, Min(0)] private Vector2 enemyBoundarySize = new Vector2(45f,30f);
     [SerializeField, Min(0)] private Vector2 playerBoundarySize = new Vector2(40f,25f);
     [SerializeField] private Vector3 playerBoundaryOffset;
@@ -50,8 +49,8 @@ public class LevelManager : MonoBehaviour
     [SerializeField,Self,HideInInspector] private LevelManagerInput input;
     
 
-    private float _pauseTimer;
-    private bool _pauseInputHeld;
+
+    private bool _isGamePaused;
     private int _currentScore;
     private SOLevelStage[] _levelStages;
     private StageTask[] _currentStageTasks;
@@ -63,7 +62,8 @@ public class LevelManager : MonoBehaviour
     private SavePointData _startSavePoint;
     private Coroutine _stageChangeCoroutine;
 
-    
+
+    public LevelManagerInput LevelManagerInput => input;
     public Vector3 PlayerPosition => Vector3.forward + playerBoundaryOffset;
     public Vector3 EnemyPosition => Vector3.forward + enemyBoundaryOffset;
     public Vector2 PlayerBoundarySize => playerBoundarySize;
@@ -83,8 +83,7 @@ public class LevelManager : MonoBehaviour
     public event Action<int> OnScoreChanged;
     public event Action<SavePointData> OnRestartedFromSavePoint;
     public event Action<RunProgressData> OnRunProgressLoaded;
-    public event Action<float> OnPauseTimerChanged;
-    public event Action OnPause;
+    public event Action<bool> OnPause;
     
     
     public static float WorldSpeed = 1f;
@@ -207,7 +206,8 @@ public class LevelManager : MonoBehaviour
         
         input.OnPauseActionEvent -= OnPauseAction;
     }
-    
+
+
     private void OnDestroy()
     {
         CleanupCurrentTasks();
@@ -222,7 +222,6 @@ public class LevelManager : MonoBehaviour
     private void Update()
     {
         UpdateStageEvents();
-        CheckPauseInput();
 
         if (Input.GetKeyDown(KeyCode.F12))
         {
@@ -272,42 +271,23 @@ public class LevelManager : MonoBehaviour
         AddScore(score);
     }
 
-    #region Pause
-
-    
     private void OnPauseAction(InputAction.CallbackContext context)
     {
-        
-        if (context.started)
+        if (context.performed)
         {
-            _pauseInputHeld = true;
-            _pauseTimer = 0f;
-            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
-        }
-        else if (context.canceled)
-        {
-            _pauseInputHeld = false;
-            _pauseTimer = 0f;
-            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
-        }
-    }
-    
-    private void CheckPauseInput()
-    {
-        if (_pauseInputHeld)
-        {
-            _pauseTimer += Time.deltaTime;
-            OnPauseTimerChanged?.Invoke(_pauseTimer / timeToPause);
-            if (_pauseTimer >= timeToPause)
-            {
-                OnPause?.Invoke();
-                ReturnToMainMenu(0);
-            }
+            SetPausedState(!_isGamePaused);
         }
     }
     
 
-    #endregion
+
+    public void SetPausedState(bool paused)
+    {
+        _isGamePaused = paused;
+        Time.timeScale = _isGamePaused ? 0 : 1;
+        OnPause?.Invoke(_isGamePaused);
+    }
+
     
     #region Stage Management
 

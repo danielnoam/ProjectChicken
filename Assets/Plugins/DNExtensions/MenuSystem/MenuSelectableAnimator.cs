@@ -245,5 +245,22 @@ namespace  DNExtensions.MenuSystem
         }
 
 
+        public void Deselect()
+        {
+            switch (positionEffectType)
+            {
+                case PositionEffectType.Offset:
+                    PlayPositionAnimation(false);
+                    break;
+                case PositionEffectType.Shake when shakeOnDeselect:
+                    PlayShakeAnimation();
+                    break;
+            }
+
+            if (animateScale) PlayScaleAnimation(false);
+            if (animateRotation) PlayRotateAnimation(false);
+            if (animateAlpha) PlayAlphaAnimation(false);
+        }
+
     }
 }

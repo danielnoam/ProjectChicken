@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 2376595100224237439}
   - component: {fileID: 8007375708910150080}
   - component: {fileID: 3623737571499830398}
-  - component: {fileID: 2610419344229914550}
   - component: {fileID: 9068469261397833574}
+  - component: {fileID: 2610419344229914550}
   m_Layer: 0
   m_Name: SpaceShipBody (1)
   m_TagString: Untagged
@@ -88,6 +88,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &9068469261397833574
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2465119688620622696}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -2903729539078931053, guid: 571926a0c526c304d800f9b213f0993c, type: 3}
 --- !u!114 &2610419344229914550
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,28 +169,6 @@ MonoBehaviour:
   displacementLerpSpeed: 2
   hitColor: {r: 0, g: 1, b: 0.9764706, a: 1}
   colorLerpSpeed: 1
---- !u!64 &9068469261397833574
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2465119688620622696}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -2903729539078931053, guid: 571926a0c526c304d800f9b213f0993c, type: 3}
 --- !u!1 &2901407307850647366
 GameObject:
   m_ObjectHideFlags: 0
@@ -238,8 +238,8 @@ GameObject:
   - component: {fileID: 6770932779354746196}
   - component: {fileID: 2445967934356333978}
   - component: {fileID: 7468795884699924900}
-  - component: {fileID: 592655978670399248}
   - component: {fileID: 3326297803322475330}
+  - component: {fileID: 592655978670399248}
   m_Layer: 0
   m_Name: SpaceShipWings (1)
   m_TagString: Untagged
@@ -315,6 +315,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &3326297803322475330
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4992354996917677626}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4194477921299137307, guid: 571926a0c526c304d800f9b213f0993c, type: 3}
 --- !u!114 &592655978670399248
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -374,28 +396,6 @@ MonoBehaviour:
   displacementLerpSpeed: 2
   hitColor: {r: 0, g: 1, b: 0.9764706, a: 1}
   colorLerpSpeed: 1
---- !u!64 &3326297803322475330
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4992354996917677626}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4194477921299137307, guid: 571926a0c526c304d800f9b213f0993c, type: 3}
 --- !u!1 &7093320741776387646
 GameObject:
   m_ObjectHideFlags: 0
@@ -407,8 +407,8 @@ GameObject:
   - component: {fileID: 4895721459221206565}
   - component: {fileID: 7383856106732827886}
   - component: {fileID: 3537392588172422632}
-  - component: {fileID: 763063787147687936}
   - component: {fileID: 4486879021068472383}
+  - component: {fileID: 763063787147687936}
   m_Layer: 0
   m_Name: SpaceShipChin (1)
   m_TagString: Untagged
@@ -484,6 +484,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &4486879021068472383
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7093320741776387646}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 2221475197971054187, guid: 571926a0c526c304d800f9b213f0993c, type: 3}
 --- !u!114 &763063787147687936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -543,28 +565,6 @@ MonoBehaviour:
   displacementLerpSpeed: 2
   hitColor: {r: 0, g: 1, b: 0.9764706, a: 1}
   colorLerpSpeed: 1
---- !u!64 &4486879021068472383
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7093320741776387646}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 2221475197971054187, guid: 571926a0c526c304d800f9b213f0993c, type: 3}
 --- !u!1 &8658142040604804869
 GameObject:
   m_ObjectHideFlags: 0
@@ -576,8 +576,8 @@ GameObject:
   - component: {fileID: 4696985789822214794}
   - component: {fileID: 7690815629603536492}
   - component: {fileID: 8809479740002443158}
-  - component: {fileID: 3383271567618914620}
   - component: {fileID: 5211836258018012101}
+  - component: {fileID: 3383271567618914620}
   m_Layer: 0
   m_Name: SpaceShipBack (1)
   m_TagString: Untagged
@@ -653,6 +653,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &5211836258018012101
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8658142040604804869}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 3736239566616992259, guid: 571926a0c526c304d800f9b213f0993c, type: 3}
 --- !u!114 &3383271567618914620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -712,25 +734,3 @@ MonoBehaviour:
   displacementLerpSpeed: 2
   hitColor: {r: 0, g: 1, b: 0.9764706, a: 1}
   colorLerpSpeed: 1
---- !u!64 &5211836258018012101
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8658142040604804869}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 3736239566616992259, guid: 571926a0c526c304d800f9b213f0993c, type: 3}

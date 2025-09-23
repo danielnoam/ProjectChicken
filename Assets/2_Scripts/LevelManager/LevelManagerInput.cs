@@ -8,12 +8,15 @@ using UnityEngine.InputSystem;
 public class LevelManagerInput: InputReaderBase
 {
     [SerializeField, Self, HideInInspector] private LevelManager levelManager;
+
     
     private InputActionMap _playerActionMap;
     private InputAction _pauseAction;
+    private float _pauseTimer;
+    private bool _pauseInputHeld;
     
-
     public event Action<InputAction.CallbackContext> OnPauseActionEvent;
+
 
 
     protected override void Awake()
@@ -83,9 +86,10 @@ public class LevelManagerInput: InputReaderBase
                 break;
         }
     }
-
+    
     private void OnPauseAction(InputAction.CallbackContext context)
     {
         OnPauseActionEvent?.Invoke(context);
+        
     }
 }

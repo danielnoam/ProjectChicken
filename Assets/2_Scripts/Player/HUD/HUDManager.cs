@@ -24,8 +24,7 @@ public class HUDManager : MonoBehaviour
     
     [Header("HUD")]
     [SerializeField] private float hudFadeDuration = 3f;
-    
-    [Header("Dynamic HUD")]
+    [Foldout("Dynamic HUD")]
     [SerializeField, Tooltip("Hud position is affected by player movement")] private bool dynamicHud = true;
     [SerializeField, Tooltip("How much the hud moves by the base player movement")] private float hudPlayerMoveAmount = 7f;
     [SerializeField, Tooltip("How fast the hud will return to zero")] private float hudReturnSpeed = 2f;
@@ -33,13 +32,14 @@ public class HUDManager : MonoBehaviour
     [SerializeField, Tooltip("How fast shake decays")] private float shakeDecayRate = 5f;
     [SerializeField, Tooltip("Shake frequency multiplier")] private float shakeFrequency = 10f;
     [SerializeField, Tooltip("Maximum shake rotation in degrees")] private float maxShakeRotation = 2f;
-    
-    [Header("Color HUD")]
+    [EndFoldout]
+    [Foldout("Color HUD")]
     [SerializeField] private bool enableHudColorChange = true;
     [SerializeField] private Color hudHealthDamageColor = Color.red;
     [SerializeField] private Color hudShieldDamageColor = Color.blue;
     [SerializeField] private float hudColorPunchDuration = 0.2f;
     [SerializeField] private Graphic[] hudElementsToColor;
+    [EndFoldout]
     
     [Header("Health")]
     [SerializeField] private float healthPunchDuration = 0.2f;
@@ -74,15 +74,13 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private float scorePunchDuration = 0.2f;
     [SerializeField] private float scorePunchStrength = 0.2f;
     [SerializeField, Min(0), Tooltip("The difference between the previous score and the current score that must be reached to trigger a big score animation")] 
-    private int bigScoreDifference = 200;
+    private int bigScoreDifference = 100;
     [SerializeField, Min(0), Tooltip("How many 0 is the score made out of")] private int scoreDigits = 7;
     
     
     [Header("Stage Title")]
     [SerializeField] private float stageTitleAnimationDuration = 1.5f;
     
-    [Header("Pause Icon")]
-    [SerializeField] private float pauseIconAnimationDuration = 0.2f;
     
     
     [Header("References")]
@@ -91,7 +89,6 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private CanvasGroup scoreBarGroup;
     [SerializeField] private CanvasGroup weaponBarGroup;
     [SerializeField] private CanvasGroup dodgeBarGroup;
-    [SerializeField] private CanvasGroup pauseGroup;
     [SerializeField] private CanvasGroup hudGroup;
     [SerializeField] private Image healthIcon;
     [SerializeField] private TextMeshProUGUI healthText;
@@ -102,7 +99,6 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private Image dodgeIcon;
     [SerializeField] private TextMeshProUGUI dodgeCountText;
     [SerializeField] private Image weaponIcon;
-    [SerializeField] private Image pauseIconFill;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI stageTitleText;
     [SerializeField] private StageProgressionBar stageProgressionBar;
@@ -121,7 +117,6 @@ public class HUDManager : MonoBehaviour
     private Sequence _playerShieldSequence;
     private Sequence _playerShieldPunchSequence;
     private Sequence _stageTitleSequence;
-    private Sequence _pauseSequence;
     private Sequence _statsBarSequence;
     private Sequence _scoreBarSequence;
     private Sequence _weaponBarSequence;
@@ -195,7 +190,6 @@ public class HUDManager : MonoBehaviour
 
         if (levelManager)
         {
-            levelManager.OnPauseTimerChanged += OnPauseTimerChanged;
             levelManager.OnScoreChanged += OnScoreChanged;
             levelManager.OnStageChanged += OnStageChanged;
             levelManager.OnLevelSet += OnLevelSet;
@@ -227,7 +221,6 @@ public class HUDManager : MonoBehaviour
         
         if (levelManager)
         {
-            levelManager.OnPauseTimerChanged -= OnPauseTimerChanged;
             levelManager.OnScoreChanged -= OnScoreChanged;
             levelManager.OnStageChanged -= OnStageChanged;
             levelManager.OnLevelSet -= OnLevelSet;
@@ -254,8 +247,6 @@ public class HUDManager : MonoBehaviour
         _originalHudRotation = hudGroup.transform.localRotation;
         _weaponStartColor = weaponIcon.color;
         _dodgeStartColor = dodgeIcon.color;
-        pauseGroup.alpha = 0f;
-        pauseIconFill.fillAmount = 0f;
         stageTitleText.alpha = 0f;
         _previousScore = 0;
         _score = 0;
@@ -652,15 +643,6 @@ public class HUDManager : MonoBehaviour
     }
     
     
-    private void OnPauseTimerChanged(float time)
-    {
-        float pauseAlpha = time < 0.2f ? 0f : Mathf.Lerp(0f, 1f, (time - 0.2f) / 0.7f);
-    
-        if (_pauseSequence.isAlive) _pauseSequence.Stop();
-        _pauseSequence = Sequence.Create()
-            .Group(Tween.Alpha(pauseGroup, startValue: pauseGroup.alpha, endValue: pauseAlpha, pauseIconAnimationDuration))
-            .Group(Tween.UIFillAmount(pauseIconFill, startValue: pauseIconFill.fillAmount, endValue: time, pauseIconAnimationDuration));
-    }
     
     
     private void OnDodgeCountChanged(int dodgesRemining)
