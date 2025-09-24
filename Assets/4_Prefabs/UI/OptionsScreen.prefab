@@ -332,16 +332,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ffef15c776d42d4ebd575c240c2ddfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  optionsCanvas: {fileID: 2891921059557845908}
+  screenCanvas: {fileID: 2891921059557845908}
   closeButton: {fileID: 0}
-  tabButtons:
-  - {fileID: 2379725118492126960}
-  - {fileID: 7355054361930672001}
-  - {fileID: 6917236940376444288}
   tabPanels:
   - {fileID: 3025724352215471040}
   - {fileID: 1872262376617990069}
   - {fileID: 3912675308183984138}
+  tabButtons:
+  - {fileID: 2379725118492126960}
+  - {fileID: 7355054361930672001}
+  - {fileID: 6917236940376444288}
 --- !u!1 &3888139768798936858
 GameObject:
   m_ObjectHideFlags: 0
@@ -731,7 +731,7 @@ PrefabInstance:
     - target: {fileID: 678266960592896982, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -863918549, guid: d36336fc5b984e54bb79a3eb22119544, type: 3}
+      objectReference: {fileID: 21300000, guid: ce7a2c01009bc534f8ab0992775a746c, type: 3}
     - target: {fileID: 1173353143433677698, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_text
       value: Volume

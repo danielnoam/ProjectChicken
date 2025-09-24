@@ -28,7 +28,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2641599616693205058}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.0019616398, y: 0.0019616398, z: 0.0019616398}
   m_ConstrainProportionsScale: 0
@@ -88,7 +88,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &2789311315817949701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ffef15c776d42d4ebd575c240c2ddfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  optionsCanvas: {fileID: 1962271465523153833}
+  screenCanvas: {fileID: 1962271465523153833}
   closeButton: {fileID: 0}
   tabPanels:
   - {fileID: 1937886106817360893}
@@ -138,14 +138,6 @@ MonoBehaviour:
   tabButtons:
   - {fileID: 1524895761807335242}
   - {fileID: 3284514763496945148}
-  introScene:
-    sceneAsset: {fileID: 102900000, guid: 4e70a3f7a80d1a84e96c618c44267ad2, type: 3}
-    sceneName: Intro
-    scenePath: Assets/1_Scenes/GameScenes/Intro.unity
-  creditsScene:
-    sceneAsset: {fileID: 102900000, guid: 3d0ae46d5e1ea484a900432f8e774f37, type: 3}
-    sceneName: Credits
-    scenePath: Assets/1_Scenes/GameScenes/Credits.unity
 --- !u!1 &3825980556906999833
 GameObject:
   m_ObjectHideFlags: 0
@@ -538,6 +530,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4923024465324733842}
     m_Modifications:
+    - target: {fileID: 678266960592896982, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: c742a4562956d8d4d9e7b6712a835531, type: 3}
     - target: {fileID: 1173353143433677698, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_text
       value: Credits
@@ -637,18 +633,18 @@ PrefabInstance:
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 8922205836711268912}
+      objectReference: {fileID: 11400000, guid: 1d3ce27f284c7e14dbd736a824cca506, type: 2}
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: LoadCreditsScene
+      value: LoadLevel
       objectReference: {fileID: 0}
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: MenuScreen, Assembly-CSharp
+      value: SOLevel, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -672,6 +668,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4923024465324733842}
     m_Modifications:
+    - target: {fileID: 678266960592896982, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 657251234a72f0d43bd12b86fd195f4d, type: 3}
     - target: {fileID: 1173353143433677698, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_text
       value: Loctations
@@ -789,6 +789,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4923024465324733842}
     m_Modifications:
+    - target: {fileID: 678266960592896982, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 76bd138f3a0d32243828840533a6464a, type: 3}
     - target: {fileID: 1173353143433677698, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_text
       value: Characters
@@ -1130,6 +1134,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4923024465324733842}
     m_Modifications:
+    - target: {fileID: 678266960592896982, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a2135234c961e934fb6929cd6143367f, type: 3}
     - target: {fileID: 1173353143433677698, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_text
       value: Intro
@@ -1229,18 +1237,18 @@ PrefabInstance:
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 8922205836711268912}
+      objectReference: {fileID: 11400000, guid: 65df0e1c3d203564db1d92d811edb42c, type: 2}
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: LoadIntroScene
+      value: LoadLevel
       objectReference: {fileID: 0}
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: MenuScreen, Assembly-CSharp
+      value: SOLevel, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName

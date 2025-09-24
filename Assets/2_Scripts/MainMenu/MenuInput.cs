@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class MenuInput : InputReaderBase
 {
+    [SerializeField] private bool setCursorVisibilityOnStart = true;
+    
     private InputActionMap _uiActionMap;
     private InputAction _navigateAction;
     private InputAction _submitAction;
@@ -53,7 +55,7 @@ public class MenuInput : InputReaderBase
 
     private void Start()
     {
-        inputManager?.SetCursorVisibility(true);
+       if (setCursorVisibilityOnStart) inputManager?.SetCursorVisibility(true);
     }
 
     protected override void OnEnable()

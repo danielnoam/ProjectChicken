@@ -68,10 +68,10 @@ public class MenuCameraManager : MonoBehaviour
     {
         if (menuController)
         {
-            menuController.OnElementSelected += OnElementSelected;
-            menuController.OnElementDeselected += OnElementDeselected;
-            menuController.OnElementInteracted += OnElementInteracted;
-            menuController.OnElementFinishedInteraction += OnElementFinishedInteraction;
+            menuController.onElementSelected += OnElementSelected;
+            menuController.onElementDeselected += OnElementDeselected;
+            menuController.onElementInteracted += OnElementInteracted;
+            menuController.onElementFinishedInteraction += OnElementFinishedInteraction;
         }
     }
 
@@ -79,10 +79,10 @@ public class MenuCameraManager : MonoBehaviour
     {
         if (menuController)
         {
-            menuController.OnElementSelected -= OnElementSelected;
-            menuController.OnElementDeselected -= OnElementDeselected;
-            menuController.OnElementInteracted -= OnElementInteracted;
-            menuController.OnElementFinishedInteraction -= OnElementFinishedInteraction;
+            menuController.onElementSelected -= OnElementSelected;
+            menuController.onElementDeselected -= OnElementDeselected;
+            menuController.onElementInteracted -= OnElementInteracted;
+            menuController.onElementFinishedInteraction -= OnElementFinishedInteraction;
         }
     }
 

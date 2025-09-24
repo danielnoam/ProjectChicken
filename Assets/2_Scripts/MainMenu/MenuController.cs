@@ -36,10 +36,10 @@ public class MenuController : MonoBehaviour
     
     public Transform DefaultCameraLookAtPoint => defaultCameraLookAtPoint ? defaultCameraLookAtPoint : transform;
     public Transform DefaultCameraPosition => defaultCameraPosition ? defaultCameraPosition : transform;
-    public Action<MenuElement> OnElementSelected;
-    public Action<MenuElement> OnElementDeselected;
-    public Action<MenuElement> OnElementInteracted;
-    public Action<MenuElement> OnElementFinishedInteraction;
+    public Action<MenuElement> onElementSelected;
+    public Action<MenuElement> onElementDeselected;
+    public Action<MenuElement> onElementInteracted;
+    public Action<MenuElement> onElementFinishedInteraction;
 
     private void OnValidate()
     {
@@ -103,7 +103,7 @@ public class MenuController : MonoBehaviour
         _currentMenuElementIndex = index;
         _currentMenuElement = menuElements[index];
         _currentMenuElement.Select();
-        OnElementSelected?.Invoke(_currentMenuElement);
+        onElementSelected?.Invoke(_currentMenuElement);
     }
     
     private void SelectNextMenuElement()
@@ -178,7 +178,7 @@ public class MenuController : MonoBehaviour
         if (!_currentMenuElement) return;
         
         _currentMenuElement.Deselect();
-        OnElementDeselected?.Invoke(_currentMenuElement);
+        onElementDeselected?.Invoke(_currentMenuElement);
         _previousMenuElementIndex = _currentMenuElementIndex;
         _currentMenuElement = null;
     }
@@ -197,7 +197,7 @@ public class MenuController : MonoBehaviour
         controllerVibrationSource.Vibrate(vibrationOnInteract);
         _isInteracting = true;
         element?.Interact();
-        OnElementInteracted?.Invoke(element);
+        onElementInteracted?.Invoke(element);
     }
     
     private void StopInteraction(MenuElement element)
@@ -205,13 +205,13 @@ public class MenuController : MonoBehaviour
         controllerVibrationSource.Vibrate(vibrationOnInteract);
         _isInteracting = false;
         element?.StopInteraction();
-        OnElementFinishedInteraction?.Invoke(element);
+        onElementFinishedInteraction?.Invoke(element);
     }
     
     public void InteractionFinished(MenuElement element)
     {
         _isInteracting = false;
-        OnElementFinishedInteraction?.Invoke(element);
+        onElementFinishedInteraction?.Invoke(element);
     }
 
     #endregion Element Interaction -----------------------------------------------------------------------------------------------------
@@ -229,7 +229,7 @@ public class MenuController : MonoBehaviour
     
     public void MouseEnteredElement(MenuElement element)
     {
-        if (_isInteracting || _currentMenuElement == element) return;
+        if (_isInteracting || _currentMenuElement == element || menuInput.IsCurrentDeviceGamepad) return;
         
         SelectMenuElement(Array.IndexOf(menuElements, element));
     }

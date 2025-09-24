@@ -8,22 +8,21 @@ using UnityEngine.UI;
 public class MenuScreen : MonoBehaviour
 {
     [Header("Screen")]
-    [SerializeField] private CanvasGroup optionsCanvas;
+    [SerializeField] private CanvasGroup screenCanvas;
     [SerializeField] private Button closeButton;
     [SerializeField] private CanvasGroup[] tabPanels = Array.Empty<CanvasGroup>();
     [SerializeField] private Button[] tabButtons = Array.Empty<Button>();
     
-    [Header("References")]
-    [SerializeField] private SceneField introScene;
-    [SerializeField] private SceneField creditsScene;
     
-    private Sequence _optionsCanvasSequence;
+    private Sequence _canvasSequence;
     private int _currentTabIndex;
     
     public event Action OnMenuScreenOpened;
     public event Action OnMenuScreenClosed;
+    public event Action<CanvasGroup> OnTabSelected;
     
-    public bool IsVisible => optionsCanvas.alpha > 0.5f;
+    
+    public bool IsVisible => screenCanvas.alpha > 0.5f;
     
     private void Start()
     {
@@ -34,20 +33,17 @@ public class MenuScreen : MonoBehaviour
     
     private void SetupTabs()
     {
-        // Ensure arrays match in length
         if (tabButtons.Length != tabPanels.Length)
         {
             Debug.LogError("Tab buttons and panels arrays must have the same length!");
         }
-        
-        // Setup tab buttons
+
         for (int i = 0; i < tabButtons.Length; i++)
         {
-            int tabIndex = i; // Capture for closure
+            int tabIndex = i; 
             tabButtons[i].onClick.AddListener(() => SelectTab(tabIndex));
         }
         
-        // Initialize first tab as active
         if (tabPanels.Length > 0)
         {
             SelectTab(0);
@@ -64,24 +60,24 @@ public class MenuScreen : MonoBehaviour
     
     public void Show(bool animate = true)
     {
-        if (_optionsCanvasSequence.isAlive) 
-            _optionsCanvasSequence.Stop();
+        if (_canvasSequence.isAlive) 
+            _canvasSequence.Stop();
 
         if (animate)
         {
-            _optionsCanvasSequence = Sequence.Create()
-                .Group(Tween.Alpha(optionsCanvas, 1f, 0.3f))
+            _canvasSequence = Sequence.Create()
+                .Group(Tween.Alpha(screenCanvas, 1f, 0.3f))
                 .OnComplete(() =>
                 {
-                    optionsCanvas.interactable = true;
-                    optionsCanvas.blocksRaycasts = true;
+                    screenCanvas.interactable = true;
+                    screenCanvas.blocksRaycasts = true;
                 });
         }
         else
         {
-            optionsCanvas.alpha = 1f;
-            optionsCanvas.interactable = true;
-            optionsCanvas.blocksRaycasts = true;
+            screenCanvas.alpha = 1f;
+            screenCanvas.interactable = true;
+            screenCanvas.blocksRaycasts = true;
         }
         
         OnMenuScreenOpened?.Invoke();
@@ -89,24 +85,24 @@ public class MenuScreen : MonoBehaviour
     
     public void Hide(bool animate = true)
     {
-        if (_optionsCanvasSequence.isAlive) 
-            _optionsCanvasSequence.Stop();
+        if (_canvasSequence.isAlive) 
+            _canvasSequence.Stop();
 
         if (animate)
         {
-            _optionsCanvasSequence = Sequence.Create()
-                .Group(Tween.Alpha(optionsCanvas, 0f, 0.3f))
+            _canvasSequence = Sequence.Create()
+                .Group(Tween.Alpha(screenCanvas, 0f, 0.3f))
                 .OnComplete(() =>
                 {
-                    optionsCanvas.interactable = false;
-                    optionsCanvas.blocksRaycasts = false;
+                    screenCanvas.interactable = false;
+                    screenCanvas.blocksRaycasts = false;
                 });
         }
         else
         {
-            optionsCanvas.alpha = 0f;
-            optionsCanvas.interactable = false;
-            optionsCanvas.blocksRaycasts = false;
+            screenCanvas.alpha = 0f;
+            screenCanvas.interactable = false;
+            screenCanvas.blocksRaycasts = false;
         }
         
         OnMenuScreenClosed?.Invoke();
@@ -117,12 +113,8 @@ public class MenuScreen : MonoBehaviour
     {
         if (tabIndex < 0 || tabIndex >= tabPanels.Length) return;
         
-        _currentTabIndex = tabIndex;
-        UpdateTabStates();
-    }
-    
-    private void UpdateTabStates()
-    {
+        _currentTabIndex = tabIndex; 
+        
         for (int i = 0; i < tabPanels.Length; i++)
         {
             bool isActive = i == _currentTabIndex;
@@ -137,16 +129,11 @@ public class MenuScreen : MonoBehaviour
             {
                 tabButtons[i].GetComponent<SelectableAnimator>().Deselect();
             }
+            
         }
+        
+        OnTabSelected?.Invoke(tabPanels[_currentTabIndex]);
     }
     
-    public void LoadIntroScene()
-    {
-        introScene?.LoadScene();
-    }
-    
-    public void LoadCreditsScene()
-    {
-        creditsScene?.LoadScene();
-    }
+
 }

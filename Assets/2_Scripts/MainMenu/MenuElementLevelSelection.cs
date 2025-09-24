@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DNExtensions;
 using DNExtensions.MenuSystem;
 using PrimeTween;
 using TMPEffects.Components;
@@ -36,9 +37,9 @@ public class MenuElementLevelSelection : MenuElement
     [SerializeField] private Button levelButtonPrefab;
     [EndFoldout]
 
+    [Separator]
+    [SerializeField,DNExtensions.ReadOnly] private Selectable currentSelectable;
     private readonly List<LevelUIData> _levelUIData = new List<LevelUIData>();
-
-    private Selectable _currentSelectable;
     private Coroutine _writerDelayRoutine;
     private LevelUIData _currentlyShownLevel;
     private LevelUIData _selectedLevel;
@@ -99,8 +100,8 @@ public class MenuElementLevelSelection : MenuElement
         if (_selectedLevel != null)
         {
             ShowLevelInfo(_selectedLevel);
-            _currentSelectable = _selectedLevel.levelButton;
-            _currentSelectable.Select();
+            currentSelectable = _selectedLevel.levelButton;
+            currentSelectable.Select();
         }
         else
         {
@@ -122,7 +123,7 @@ public class MenuElementLevelSelection : MenuElement
             _currentlyShownLevel = null;
         }
 
-        _currentSelectable = null;
+        currentSelectable = null;
     }
     
     protected override void OnStopInteraction()
@@ -133,7 +134,7 @@ public class MenuElementLevelSelection : MenuElement
             HideLevelInfo(_currentlyShownLevel);
             _currentlyShownLevel = null;
         }
-        _currentSelectable = null;
+        currentSelectable = null;
     }
     
     
@@ -141,7 +142,7 @@ public class MenuElementLevelSelection : MenuElement
     {
         base.OnNavigate(context);
         
-        if (_currentSelectable) return;
+        if (currentSelectable) return;
 
         SelectFirstAvailableButton();
     }
@@ -199,18 +200,8 @@ public class MenuElementLevelSelection : MenuElement
     }
 
 
-    private void SelectFirstAvailableButton()
-    {
-        foreach (var levelUIData in _levelUIData)
-        {
-            if (levelUIData.levelButton.interactable)
-            {
-                levelUIData.levelButton.Select();
-                _currentSelectable = levelUIData.levelButton;
-                break;
-            }
-        }
-    }
+
+    
     
     
     #region Level Info ---------------------------------------------------------------------------------
@@ -368,10 +359,22 @@ public class MenuElementLevelSelection : MenuElement
 
     #endregion Level Info ---------------------------------------------------------------------------------
     
-
     
-    #region Button Setup ------------------------------------------------------------------------------
+    #region Button ------------------------------------------------------------------------------
 
+    private void SelectFirstAvailableButton()
+    {
+        foreach (var levelUIData in _levelUIData)
+        {
+            if (levelUIData.levelButton.interactable)
+            {
+                levelUIData.levelButton.Select();
+                currentSelectable = levelUIData.levelButton;
+                break;
+            }
+        }
+    }
+    
     private void SetupSelectable(Button button, LevelUIData levelUIData)
     {
         button.onClick.AddListener(() => SelectLevel(levelUIData));
@@ -408,16 +411,16 @@ public class MenuElementLevelSelection : MenuElement
     {
         if (CurrentVisualState != ElementState.Interacting  || !eventData.selectedObject.activeSelf) return;
 
-        _currentSelectable = eventData.selectedObject.GetComponent<Selectable>();
+        currentSelectable = eventData.selectedObject.GetComponent<Selectable>();
         
         ShowLevelInfo(levelUIData);
     }
 
     private void OnSelectableDeselected(BaseEventData eventData, LevelUIData levelUIData)
     {
-        if (CurrentVisualState != ElementState.Interacting || !eventData.selectedObject.activeSelf || !_currentSelectable) return;
+        if (CurrentVisualState != ElementState.Interacting || !eventData.selectedObject.activeSelf || !currentSelectable) return;
         
-        _currentSelectable = null;
+        currentSelectable = null;
         
         HideLevelInfo(levelUIData);
     }
