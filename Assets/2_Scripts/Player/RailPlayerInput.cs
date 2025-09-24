@@ -17,6 +17,7 @@ public class RailPlayerInput : InputReaderBase
     private InputAction _dodgeFreeformAction;
     private float _lastMoveLeftTime;
     private float _lastMoveRightTime;
+    private bool _isPaused;
 
     public event Action<InputAction.CallbackContext> OnMoveEvent;
     public event Action<InputAction.CallbackContext> OnLookEvent;
@@ -61,6 +62,9 @@ public class RailPlayerInput : InputReaderBase
         SubscribeToAction(_dodgeLeftAction, OnDodgeLeft);
         SubscribeToAction(_dodgeRightAction, OnDodgeRight);
         SubscribeToAction(_dodgeFreeformAction, OnDodgeFreeform);
+
+
+        if (player.LevelManager) player.LevelManager.OnPause += OnPause;
     }
     
     protected override void OnDisable()
@@ -75,13 +79,23 @@ public class RailPlayerInput : InputReaderBase
         UnsubscribeFromAction(_dodgeRightAction, OnDodgeRight);
         UnsubscribeFromAction(_dodgeFreeformAction, OnDodgeFreeform);
         
+        
+        if (player.LevelManager) player.LevelManager.OnPause -= OnPause;
+        
     }
-    
+
+    private void OnPause(bool paused)
+    {
+        _isPaused = paused;
+    }
+
 
     #region Input Events --------------------------------------------------------------------------------------
     
     private void OnMove(InputAction.CallbackContext context)
     {
+        if (_isPaused) return;
+        
         OnMoveEvent?.Invoke(context);
         
         // Double-tap dodge logic
@@ -108,6 +122,9 @@ public class RailPlayerInput : InputReaderBase
     
     private void OnLook(InputAction.CallbackContext context)
     {
+        if (_isPaused) return;
+        
+        
         Vector2 lookDelta = context.ReadValue<Vector2>();
         
         Vector2 processedLookDelta = new Vector2(
@@ -121,26 +138,36 @@ public class RailPlayerInput : InputReaderBase
     
     private void OnAttack(InputAction.CallbackContext context)
     {
+        if (_isPaused) return;
+        
         OnAttackEvent?.Invoke(context);
     }
     
     private void OnAttack2(InputAction.CallbackContext context)
     {
+        if (_isPaused) return;
+        
         OnAttack2Event?.Invoke(context);
     }
     
     private void OnDodgeLeft(InputAction.CallbackContext context)
     {
+        if (_isPaused) return;
+        
         OnDodgeLeftEvent?.Invoke(context);
     }
     
     private void OnDodgeRight(InputAction.CallbackContext context)
     {
+        if (_isPaused) return;
+        
         OnDodgeRightEvent?.Invoke(context);
     }
     
     private void OnDodgeFreeform(InputAction.CallbackContext context)
     {
+        if (_isPaused) return;
+        
         if (!CurrentControlScheme.allowFreeformDodge) return;
         OnDodgeFreeformEvent?.Invoke(context);
     }

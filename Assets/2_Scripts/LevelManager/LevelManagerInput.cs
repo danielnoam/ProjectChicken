@@ -64,39 +64,39 @@ public class LevelManagerInput: InputReaderBase
 
     private void OnPause(bool paused)
     {
-        inputManager.SetCursorVisibility(paused);
+        inputManager?.SetCursorVisibility(ShouldShowCursor());
     }
 
     private void OnStageChanged(SOLevelStage stage)
     {
-        if (!stage || !inputManager) return;
+        if (!stage) return;
 
-        switch (stage.StageType)
-        {
-            case StageType.Delay:
-                inputManager.SetCursorVisibility(false);
-                break;
-            case StageType.Store:
-                inputManager.SetCursorVisibility(true);
-                break;
-            case StageType.EnemyWave:
-                inputManager.SetCursorVisibility(false);
-                break;
-            case StageType.Intro:
-                inputManager.SetCursorVisibility(false);
-                break;
-            case StageType.Outro:
-                inputManager.SetCursorVisibility(stage.ShowOutroMenu);
-                break;
-            default:
-                inputManager.SetCursorVisibility(false);
-                break;
-        }
+        inputManager?.SetCursorVisibility(ShouldShowCursor());
     }
     
     private void OnPauseAction(InputAction.CallbackContext context)
     {
         OnPauseActionEvent?.Invoke(context);
         
+    }
+    
+    private bool ShouldShowCursor()
+    {
+        if (!levelManager) return true;
+        
+        if (levelManager.IsGamePaused)
+        {
+            return true;
+        }
+        
+        switch (levelManager.CurrentStage.StageType)
+        {
+            case StageType.Delay: return false;
+            case StageType.Store: return true;
+            case StageType.EnemyWave: return false;
+            case StageType.Intro: return false;
+            case StageType.Outro: return levelManager.CurrentStage.ShowOutroMenu;
+            default: return true;
+        }
     }
 }

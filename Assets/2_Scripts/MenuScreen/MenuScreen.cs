@@ -1,27 +1,31 @@
 using System;
+using DNExtensions;
+using DNExtensions.MenuSystem;
 using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class OptionsScreen : MonoBehaviour
+public class MenuScreen : MonoBehaviour
 {
-    [Header("Options Screen")]
+    [Header("Screen")]
     [SerializeField] private CanvasGroup optionsCanvas;
     [SerializeField] private Button closeButton;
-    
-    [Header("Tabs")]
-    [SerializeField] private Button[] tabButtons = Array.Empty<Button>();
     [SerializeField] private CanvasGroup[] tabPanels = Array.Empty<CanvasGroup>();
+    [SerializeField] private Button[] tabButtons = Array.Empty<Button>();
+    
+    [Header("References")]
+    [SerializeField] private SceneField introScene;
+    [SerializeField] private SceneField creditsScene;
     
     private Sequence _optionsCanvasSequence;
     private int _currentTabIndex;
     
-    public event Action OnOptionsOpened;
-    public event Action OnOptionsClosed;
+    public event Action OnMenuScreenOpened;
+    public event Action OnMenuScreenClosed;
     
     public bool IsVisible => optionsCanvas.alpha > 0.5f;
     
-    private void Awake()
+    private void Start()
     {
         SetupTabs();
         SetupCloseButton();
@@ -34,7 +38,6 @@ public class OptionsScreen : MonoBehaviour
         if (tabButtons.Length != tabPanels.Length)
         {
             Debug.LogError("Tab buttons and panels arrays must have the same length!");
-            return;
         }
         
         // Setup tab buttons
@@ -81,7 +84,7 @@ public class OptionsScreen : MonoBehaviour
             optionsCanvas.blocksRaycasts = true;
         }
         
-        OnOptionsOpened?.Invoke();
+        OnMenuScreenOpened?.Invoke();
     }
     
     public void Hide(bool animate = true)
@@ -106,7 +109,7 @@ public class OptionsScreen : MonoBehaviour
             optionsCanvas.blocksRaycasts = false;
         }
         
-        OnOptionsClosed?.Invoke();
+        OnMenuScreenClosed?.Invoke();
     }
     
     
@@ -129,6 +132,21 @@ public class OptionsScreen : MonoBehaviour
             tabPanels[i].blocksRaycasts = isActive;
             
             tabButtons[i].interactable = !isActive;
+
+            if (!tabButtons[i].interactable)
+            {
+                tabButtons[i].GetComponent<SelectableAnimator>().Deselect();
+            }
         }
+    }
+    
+    public void LoadIntroScene()
+    {
+        introScene?.LoadScene();
+    }
+    
+    public void LoadCreditsScene()
+    {
+        creditsScene?.LoadScene();
     }
 }

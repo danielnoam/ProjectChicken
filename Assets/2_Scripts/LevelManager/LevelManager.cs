@@ -76,6 +76,8 @@ public class LevelManager : MonoBehaviour
     public TaskVisualizer TaskVisualizer => taskVisualizer;
     public int CurrentScore => _currentScore;
     public int EnemiesLeft => enemiesLeft;
+    public bool IsGamePaused => _isGamePaused;
+    public SOLevelStage CurrentStage => currentStage;
 
 
     public event Action<SOLevel> OnLevelSet; 
@@ -157,7 +159,6 @@ public class LevelManager : MonoBehaviour
         
         PrimeTweenConfig.warnTweenOnDisabledTarget = false;
         PrimeTweenConfig.warnZeroDuration = false;
-        WorldSpeed = 1f;
     }
     
     private void OnEnable()
@@ -301,6 +302,8 @@ public class LevelManager : MonoBehaviour
         }
         
         _levelStages = level.LevelStages;
+        _isGamePaused = false;
+        WorldSpeed = 1f;
         
         if (_levelStages == null || _levelStages.Length == 0)
         {

@@ -3,10 +3,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class MenuElementOptionsScreen : MenuElement
+public class MenuElementScreen : MenuElement
 {
-    [Header("Options Screen")]
-    [SerializeField] private OptionsScreen optionsScreen;
+    [Header("Screen")]
+    [SerializeField] private MenuScreen menuScreen;
     [SerializeField] private Selectable[] selectables = Array.Empty<Selectable>();
     
     private Selectable _currentSelectable;
@@ -23,44 +23,44 @@ public class MenuElementOptionsScreen : MenuElement
 
     protected override void OnSetUp()
     {
-        if (optionsScreen)
+        if (menuScreen)
         {
-            optionsScreen.OnOptionsOpened += OnOptionsOpened;
-            optionsScreen.OnOptionsClosed += OnOptionsClosed;
+            menuScreen.OnMenuScreenOpened += MenuOpened;
+            menuScreen.OnMenuScreenClosed += MenuClosed;
         }
     }
     
     private void OnDestroy()
     {
-        if (optionsScreen)
+        if (menuScreen)
         {
-            optionsScreen.OnOptionsOpened -= OnOptionsOpened;
-            optionsScreen.OnOptionsClosed -= OnOptionsClosed;
+            menuScreen.OnMenuScreenOpened -= MenuOpened;
+            menuScreen.OnMenuScreenClosed -= MenuClosed;
         }
     }
     
     protected override void OnInteract()
     {
-        if (optionsScreen)
+        if (menuScreen)
         {
-            optionsScreen.Show();
+            menuScreen.Show();
         }
     }
     
     protected override void OnFinishedInteraction()
     {
-        if (optionsScreen)
+        if (menuScreen)
         {
-            optionsScreen.Hide();
+            menuScreen.Hide();
         }
         _currentSelectable = null;
     }
 
     protected override void OnStopInteraction()
     {
-        if (optionsScreen)
+        if (menuScreen)
         {
-            optionsScreen.Hide();
+            menuScreen.Hide();
         }
         _currentSelectable = null;
     }
@@ -69,18 +69,18 @@ public class MenuElementOptionsScreen : MenuElement
     {
         base.OnNavigate(context);
         
-        if (optionsScreen && optionsScreen.IsVisible && !_currentSelectable)
+        if (menuScreen && menuScreen.IsVisible && !_currentSelectable)
         {
             SelectFirstAvailableButton();
         }
     }
     
-    private void OnOptionsOpened()
+    private void MenuOpened()
     {
         SelectFirstAvailableButton();
     }
     
-    private void OnOptionsClosed()
+    private void MenuClosed()
     {
         _currentSelectable = null;
     }

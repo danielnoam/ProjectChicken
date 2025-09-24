@@ -143,7 +143,8 @@ namespace  DNExtensions.MenuSystem
 
         private void OnSubmit(BaseEventData eventData)
         {
-
+            if (!selectable.interactable) return;
+            
             OnSubmitEvent?.Invoke();
             submitSfx?.Play(audioSource);
         }

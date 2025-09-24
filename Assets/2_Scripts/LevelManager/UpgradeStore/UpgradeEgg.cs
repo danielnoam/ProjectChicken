@@ -72,17 +72,21 @@ public class UpgradeEgg : MonoBehaviour
     
     private void OnMouseEnter()
     {
+        if (LevelManager.Instance.IsGamePaused) return;
+        
         UpdateAffordabilityVisuals();
         ShowInfo();
     }
 
     private void OnMouseExit()
     {
+        if (LevelManager.Instance.IsGamePaused) return;
         HideInfo();
     }
 
     private void OnMouseUpAsButton()
     {
+        if (LevelManager.Instance.IsGamePaused) return;
         SelectUpgrade();
     }
     
