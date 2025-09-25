@@ -11,6 +11,7 @@ public class LevelManagerInput: InputReaderBase
 
     
     private InputActionMap _playerActionMap;
+    private InputActionMap _uiActionMap;
     private InputAction _pauseAction;
     private float _pauseTimer;
     private bool _pauseInputHeld;
@@ -24,10 +25,17 @@ public class LevelManagerInput: InputReaderBase
         base.Awake();
 
         _playerActionMap = PlayerInput.actions.FindActionMap("Player");
+        _uiActionMap = PlayerInput.actions.FindActionMap("UI");
         
         if (_playerActionMap == null)
         {
             Debug.LogError("Player Map not found. Please check the action maps in the Player Input component.");
+            return;
+        }
+        
+        if (_uiActionMap == null)
+        {
+            Debug.LogError("UI Map not found. Please check the action maps in the Player Input component.");
             return;
         }
         
@@ -77,8 +85,8 @@ public class LevelManagerInput: InputReaderBase
     private void OnPauseAction(InputAction.CallbackContext context)
     {
         OnPauseActionEvent?.Invoke(context);
-        
     }
+    
     
     private bool ShouldShowCursor()
     {

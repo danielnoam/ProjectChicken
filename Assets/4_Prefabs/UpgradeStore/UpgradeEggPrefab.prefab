@@ -518,6 +518,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5398937161959085683}
+  - component: {fileID: 7139839067078004472}
   m_Layer: 0
   m_Name: EggGfx
   m_TagString: Untagged
@@ -541,6 +542,24 @@ Transform:
   - {fileID: 604759016398389382}
   m_Father: {fileID: 5848206631969589984}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7139839067078004472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5047553025039165911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &6287640993951021053
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,12 +1052,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2b758c95f9c48e5ad7666d3b79758dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showUpgradeSfx: {fileID: 0}
-  hideUpgradeSfx: {fileID: 0}
-  selectUpgradeSfx: {fileID: 0}
+  boughtUpgradeSfx: {fileID: 0}
   animationDuration: 1
   animationEase: 27
   yOffset: -150
+  showUpgradeSfx: {fileID: 0}
+  hideUpgradeSfx: {fileID: 0}
   bobbingSpeed: 2
   bobbingAmplitude: 2
   bobbingVarianceRange:
@@ -1048,6 +1067,8 @@ MonoBehaviour:
   infoAnimationEase: 27
   showInfoSfx: {fileID: 11400000, guid: 4d9fcc395752c054a8b7b21fb319116c, type: 2}
   hideInfoSfx: {fileID: 0}
+  affordableColor: {r: 1, g: 1, b: 1, a: 1}
+  unaffordableColor: {r: 1, g: 0, b: 0, a: 1}
   animator: {fileID: 4682496890643991190}
   button: {fileID: 4922194370750640143}
   upgradeInfoGroup: {fileID: 7577159786139483383}
@@ -1059,6 +1080,7 @@ MonoBehaviour:
   iconImage: {fileID: 1407816108356644102}
   gfx: {fileID: 5848206631969589984}
   upgradeGfxHolder: {fileID: 3855093663816202177}
+  eggOutline: {fileID: 7139839067078004472}
   audioSource: {fileID: 5858253840325583707}
 --- !u!1001 &2077938875234292042
 PrefabInstance:

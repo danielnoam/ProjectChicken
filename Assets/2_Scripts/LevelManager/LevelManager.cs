@@ -19,33 +19,33 @@ public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance { get; private set; }
     
-    [Header("General")]
+    [Header("General Settings")]
     [SerializeField, Min(0)] private Vector2 enemyBoundarySize = new Vector2(45f,30f);
     [SerializeField, Min(0)] private Vector2 playerBoundarySize = new Vector2(40f,25f);
     [SerializeField] private Vector3 playerBoundaryOffset;
     [SerializeField] private Vector3 enemyBoundaryOffset;
-    
-    [Header("Level")]
-    [SerializeField, CreateEditableAsset] private SOLevel level;
+    [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
     [SerializeField] private bool debugLog;
+    
+    [Header("Current Level")]
+    [SerializeField, CreateEditableAsset] private SOLevel level;
     [SerializeField, VInspector.ReadOnly] private SOLevelStage currentStage;
     [SerializeField, VInspector.ReadOnly] private int currentStageIndex;
     [SerializeField, VInspector.ReadOnly] private int enemiesLeft;
     
-
     [Header("References")]
-    [SerializeField] private SOPlayerStats playerStats;
     [SerializeField] private SceneField mainMenuScene;
+    [SerializeField] private SOPlayerStats playerStats;
     [SerializeField, Scene(Flag.EditableAnywhere)] private OutroScreen outroScreen;
     [SerializeField, Scene(Flag.EditableAnywhere)] private UpgradeStore upgradeStore;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
-    [SerializeField, Self(Flag.EditableAnywhere)] private FormationBoundaryManager boundaryManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private ResourceManager resourceManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private ObstacleManager obstacleManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RadioManager radioManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private TaskVisualizer taskVisualizer;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private PauseMenu pauseMenu;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private FormationBoundaryManager boundaryManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
-    [SerializeField] private HitFXSettings shipWarping = new HitFXSettings();
     [SerializeField,Self,HideInInspector] private LevelManagerInput input;
     
 
@@ -276,12 +276,19 @@ public class LevelManager : MonoBehaviour
     {
         if (context.performed)
         {
-            SetPausedState(!_isGamePaused);
+            if (!_isGamePaused)
+            {
+                SetPausedState(true);
+            }
+            else if (_isGamePaused && pauseMenu.IsAtPauseScreen)
+            {
+                SetPausedState(false);
+            }
         }
     }
     
-
-
+    
+    
     public void SetPausedState(bool paused)
     {
         _isGamePaused = paused;

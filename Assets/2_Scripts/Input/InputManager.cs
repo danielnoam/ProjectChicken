@@ -10,7 +10,9 @@ public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
     
+    [Header("Settings")]
     [SerializeField, Self(Flag.EditableAnywhere)] private PlayerInput playerInput;
+    [SerializeField] private bool forceGamepad;
     
     // Sprite assets has to be in /Resources/Sprite Assets/ folder
     [Header("Controls Sprite Assets")]
@@ -20,9 +22,13 @@ public class InputManager : MonoBehaviour
     [Header("Cursor Settings")] 
     [SerializeField] private bool hideCursor = true;
 
+
+
+    private bool _isCurrentDeviceGamepad;
     
     
-    
+    public bool IsCurrentDeviceGamepad => _isCurrentDeviceGamepad || forceGamepad;
+
     public PlayerInput PlayerInput => playerInput;
     public ControlSchemeSettings CurrentControlScheme { get; private set; } = new ControlSchemeSettings();
 
@@ -30,8 +36,7 @@ public class InputManager : MonoBehaviour
 
     public ControlSchemeSettings GamepadScheme { get; } = new ControlSchemeSettings();
 
-    public bool IsCurrentDeviceGamepad { get; private set; }
-
+   
     
     public event Action<PlayerInput> OnControlsChangedEvent;
     
@@ -115,12 +120,12 @@ public class InputManager : MonoBehaviour
     {
         if (input.currentControlScheme == "Gamepad")
         {
-            IsCurrentDeviceGamepad = true;
+            _isCurrentDeviceGamepad = true;
             CurrentControlScheme = GamepadScheme;
         }
         else
         {
-            IsCurrentDeviceGamepad = false;
+            _isCurrentDeviceGamepad = false;
             CurrentControlScheme = KeyboardMouseScheme;
         }
         

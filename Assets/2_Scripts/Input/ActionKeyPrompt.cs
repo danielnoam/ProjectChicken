@@ -10,9 +10,13 @@ public class ActionKeyPrompt : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private bool useSprites = true;
     [SerializeField] private string separator = " | ";
+    [SerializeField] private string prefix = "";
+    [SerializeField] private string suffix = "";
     [SerializeField] private InputActionReference[] inputActionReferences = Array.Empty<InputActionReference>();
     
     [Header("Pressed Effects")]
+    [SerializeField] private bool enablePressedEffects = true;
+    [SerializeField] private bool enableWhenGamePaused;
     [SerializeField] private Color pressedColor = Color.gray;
     [SerializeField] private Vector3 pressedScale = Vector3.one * 0.9f;
     
@@ -79,7 +83,7 @@ public class ActionKeyPrompt : MonoBehaviour
 
     private void OnActionStarted(InputAction.CallbackContext context)
     {
-        if (LevelManager.Instance.IsGamePaused) return;
+        if (LevelManager.Instance.IsGamePaused && !enableWhenGamePaused) return;
         
         SetFontColor(pressedColor);
         SetScale(pressedScale);
@@ -88,7 +92,7 @@ public class ActionKeyPrompt : MonoBehaviour
 
     private void OnActionCanceled(InputAction.CallbackContext context)
     {
-        if (LevelManager.Instance.IsGamePaused) return;
+        if (LevelManager.Instance.IsGamePaused && !enableWhenGamePaused) return;
         
         ResetFontColor();
         ResetScale();
@@ -109,18 +113,23 @@ public class ActionKeyPrompt : MonoBehaviour
             actions[i] = inputActionReferences[i]?.action;
         }
         
-        prompt.text = InputManager.GetActionBindings(actions, separator, useSprites);
-        
-        if (_isPressed)
+        string actionBinding = InputManager.GetActionBindings(actions, separator, useSprites);
+        prompt.text = $"{prefix}{actionBinding}{suffix}";
+
+        if (enablePressedEffects)
         {
-            SetFontColor(pressedColor);
-            SetScale(pressedScale);
+            if (_isPressed)
+            {
+                SetFontColor(pressedColor);
+                SetScale(pressedScale);
+            }
+            else
+            {
+                ResetFontColor();
+                ResetScale();
+            }
         }
-        else
-        {
-            ResetFontColor();
-            ResetScale();
-        }
+
     }
     
     private void SetFontColor(Color color)

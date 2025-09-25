@@ -11,6 +11,7 @@ public class IntroManager : MonoBehaviour
 {
 
     [Header("References")]
+    [SerializeField] private CinematicInput cinematicInput;
     [SerializeField] private PlayableDirector playableDirector;
     [SerializeField] private SceneField mainMenuScene;
     [SerializeField] private SOVFEffectsSequence awakeSequence;
@@ -33,6 +34,8 @@ public class IntroManager : MonoBehaviour
         {
             playableDirector.stopped += OnTimelineStopped;
         }
+
+        cinematicInput.OnSkipActionEvent += OnSkipAction;
     }
 
     private void OnDisable()
@@ -41,6 +44,10 @@ public class IntroManager : MonoBehaviour
         {
             playableDirector.stopped -= OnTimelineStopped;
         }
+        
+        
+        cinematicInput.OnSkipActionEvent -= OnSkipAction;
+        
     }
     
 
@@ -48,21 +55,12 @@ public class IntroManager : MonoBehaviour
     {
         LoadMainMenuScene();
     }
-
-    private void Update()
+    
+    
+    private void OnSkipAction(InputAction.CallbackContext callbackContext)
     {
-        if (playableDirector.state != PlayState.Playing) return;
-        
-        var keyboard = InputSystem.GetDevice<Keyboard>();
-        var gamepad = InputSystem.GetDevice<Gamepad>();
-    
-        var keyboardKeys = keyboard != null && (keyboard.escapeKey.isPressed || keyboard.enterKey.isPressed || keyboard.spaceKey.isPressed);
-        var gamepadButtons = gamepad != null && (gamepad.buttonSouth.isPressed || gamepad.selectButton.isPressed);
-    
-        if (keyboardKeys || gamepadButtons)
-        {
-            StopIntro();
-        }
+        Debug.Log("Skip");
+        StopIntro();
     }
 
     [Button]
@@ -76,19 +74,6 @@ public class IntroManager : MonoBehaviour
     {
         playableDirector.Stop();
 
-    }
-
-    [Button]
-    private void ToggleIntro()
-    {
-        if (playableDirector.state == PlayState.Playing)
-        {
-            playableDirector.Pause();
-        }
-        else
-        {
-            playableDirector.Play();
-        }
     }
     
 

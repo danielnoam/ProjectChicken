@@ -12,7 +12,7 @@ public class PauseMenu : MonoBehaviour
 {
     [Header("Selectables")]
     [SerializeField] private Selectable[] selectables = Array.Empty<Selectable>();
-    [SerializeField,ReadOnly]  private Selectable currentSelectable;
+
     
     [Header("References")]
     [SerializeField] private MenuInput menuInput;
@@ -26,8 +26,14 @@ public class PauseMenu : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
     
 
-
-    private bool _isVisible;
+    [Separator]
+    [SerializeField, ReadOnly] private bool isVisible;
+    [SerializeField, ReadOnly]  private CanvasGroup currentScreen;
+    [SerializeField, ReadOnly]  private Selectable currentSelectable;
+    
+    
+    public bool IsAtPauseScreen => currentScreen == pauseScreen;
+    
 
     private void Awake()
     {
@@ -57,8 +63,7 @@ public class PauseMenu : MonoBehaviour
         {
             optionsScreenButton.onClick.AddListener(() =>
             {
-                SetPauseScreen(false);
-                SetOptionsScreen(true);
+                SetActiveScreen(optionsScreen);
             });
         }
         
@@ -66,8 +71,7 @@ public class PauseMenu : MonoBehaviour
         {
             pauseScreenButton.onClick.AddListener(() =>
             {
-                SetPauseScreen(true);
-                SetOptionsScreen(false);
+                SetActiveScreen(pauseScreen);
             });
         }
 
@@ -88,6 +92,7 @@ public class PauseMenu : MonoBehaviour
         if (menuInput)
         {
             menuInput.OnNavigateAction += OnNavigate;
+            menuInput.OnCancelAction += OnCancel;
         }
     }
 
@@ -102,13 +107,23 @@ public class PauseMenu : MonoBehaviour
         if (menuInput)
         {
             menuInput.OnNavigateAction -= OnNavigate;
+            menuInput.OnCancelAction -= OnCancel;
+        }
+        
+    }
+
+    private void OnCancel(InputAction.CallbackContext callbackContext)
+    {
+        if (isVisible && currentScreen != pauseScreen)
+        {
+            SetActiveScreen(pauseScreen);
         }
         
     }
 
     private void OnNavigate(InputAction.CallbackContext callbackContext)
     {
-        if (_isVisible && !currentSelectable)
+        if (isVisible && !currentSelectable)
         {
             SelectFirstAvailableButton();
         }
@@ -119,10 +134,10 @@ public class PauseMenu : MonoBehaviour
     {
         switch (paused)
         {
-            case true when !_isVisible:
+            case true when !isVisible:
                 SetPauseMenuVisible(true);
                 break;
-            case false when _isVisible:
+            case false when isVisible:
                 SetPauseMenuVisible(false);
                 break;
         }
@@ -130,36 +145,38 @@ public class PauseMenu : MonoBehaviour
     
     private void SetPauseMenuVisible(bool visible)
     {
-        _isVisible = visible;
+        isVisible = visible;
         pauseMenuCanvasGroup.alpha = visible ? 1 : 0;
         pauseMenuCanvasGroup.interactable = visible;
         pauseMenuCanvasGroup.blocksRaycasts = visible;
 
         if (visible)
         {
-            SetPauseScreen(true);
-            SetOptionsScreen(false);
+            SetActiveScreen(pauseScreen);
         }
+    }
+    
+    
+    private void SetActiveScreen(CanvasGroup screen)
+    {
+        currentScreen = screen;
+        SetPauseScreen(screen == pauseScreen);
+        SetOptionsScreen(screen == optionsScreen);
         
         SelectFirstAvailableButton();
     }
-    
     
     private void SetPauseScreen(bool active)
     {
         pauseScreen.alpha = active ? 1 : 0;
         pauseScreen.interactable = active;
         pauseScreen.blocksRaycasts = active;
-        
-        SelectFirstAvailableButton();
     }
     private void SetOptionsScreen(bool active)
     {
         optionsScreen.alpha = active ? 1 : 0;
         optionsScreen.interactable = active;
         optionsScreen.blocksRaycasts = active;
-        
-        SelectFirstAvailableButton();
     }
     
     
@@ -167,7 +184,7 @@ public class PauseMenu : MonoBehaviour
 
     private void SelectFirstAvailableButton()
     {
-        if (!_isVisible) return;
+        if (!isVisible) return;
         
         foreach (var selectable in selectables)
         {
