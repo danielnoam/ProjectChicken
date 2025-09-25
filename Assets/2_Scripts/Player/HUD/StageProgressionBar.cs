@@ -158,24 +158,27 @@ public class StageProgressionBar : MonoBehaviour
         };
     }
     
+
     public void SetCurrentStage(SOLevelStage stage)
     {
         if (!stage || !_currentLevel) return;
-        
+    
         enemiesRemainingCanvasGroup.alpha = stage.StageType == StageType.EnemyWave && showEnemyInfo ? 1 : 0;
-        
-        if (_currentVisualStageIndex >= 0 && _currentVisualStageIndex < _stageIcons.Count)
-        {
-            _stageIcons[_currentVisualStageIndex].icon.SetCurrent(false, animationDuration, animationEase);
-        }
-        
+    
         int stageIndexInLevel = FindStageIndexInLevel(stage);
         if (stageIndexInLevel == -1) return;
-        
+    
         _logicalStageIndex = stageIndexInLevel;
-        
+    
+        // Only update visual progression if the new stage is visual
         if (!IsNonVisualStage(stage.StageType))
         {
+            // Deactivate current visual stage only when switching to another visual stage
+            if (_currentVisualStageIndex >= 0 && _currentVisualStageIndex < _stageIcons.Count)
+            {
+                _stageIcons[_currentVisualStageIndex].icon.SetCurrent(false, animationDuration, animationEase);
+            }
+        
             int visualIndex = FindVisualIndexForLogicalStage(stageIndexInLevel);
             if (visualIndex >= 0 && visualIndex < _stageIcons.Count)
             {

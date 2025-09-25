@@ -20,7 +20,7 @@ MonoBehaviour:
   - rid: 15266972792520819
   stageType: 5
   stageDuration: 7
-  delayBeforeNextStage: 2
+  delayBeforeNextStage: 3
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -67,6 +67,7 @@ MonoBehaviour:
     - rid: 5417711798190080088
       type: {class: CollectResourceTask, ns: , asm: Assembly-CSharp}
       data:
+        description: 
         isCompleted: 1
         targetAmount: 1
         resourceType: 3

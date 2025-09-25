@@ -161,7 +161,7 @@ public class UpgradeEgg : MonoBehaviour
     
     public void ResetUpgrade(bool animate)
     {
-        animator?.SetTrigger(Idle);
+        if (gameObject.activeInHierarchy) animator?.SetTrigger(Idle);
         _wasBought = false;
         _upgrade = null;
         _upgradeCost = 0;
