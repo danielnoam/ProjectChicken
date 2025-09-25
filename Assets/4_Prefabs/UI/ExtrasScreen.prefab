@@ -366,9 +366,9 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1077045261792483337}
+  - {fileID: 3913375937175761599}
   - {fileID: 2960825898203319463}
   - {fileID: 2164582338304945964}
-  - {fileID: 3913375937175761599}
   m_Father: {fileID: 4552286029397023412}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -395,11 +395,11 @@ MonoBehaviour:
     m_Bottom: 0
   m_ChildAlignment: 4
   m_StartCorner: 0
-  m_StartAxis: 1
+  m_StartAxis: 0
   m_CellSize: {x: 160, y: 50}
   m_Spacing: {x: 15, y: 15}
   m_Constraint: 2
-  m_ConstraintCount: 3
+  m_ConstraintCount: 2
 --- !u!1001 &951008540661709642
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -649,6 +649,10 @@ PrefabInstance:
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 9013454652583837427, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1253,6 +1257,10 @@ PrefabInstance:
     - target: {fileID: 4462491472693156408, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 9013454652583837427, guid: 400eef14d6c33b641a63f1d61c3f5dfd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

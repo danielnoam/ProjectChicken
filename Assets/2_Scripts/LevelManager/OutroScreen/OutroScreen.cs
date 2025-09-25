@@ -1,8 +1,14 @@
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using DNExtensions;
 using KBCore.Refs;
 using PrimeTween;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class OutroScreen : MonoBehaviour
@@ -18,9 +24,16 @@ public class OutroScreen : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private CameraManager cameraManager;
     
     
+    [Separator]
+    [SerializeField, ReadOnly] private bool isVisible;
+    [SerializeField, ReadOnly] private Selectable currentSelectable;
+    [SerializeField, ReadOnly] private List<Selectable> selectables = new List<Selectable>();
+    
     private Sequence _outroScreenSequence;
     public event Action OnScreenOpened;
     public event Action OnScreenClosed;
+    
+    
     
     private void OnValidate()
     {
@@ -50,22 +63,65 @@ public class OutroScreen : MonoBehaviour
         Hide(false);
         SetupButtons();
     }
+
+
+    private void OnEnable()
+    {
+        if (levelManager)
+        {
+            levelManager.OnPause += OnPause;
+            levelManager.LevelManagerInput.OnNavigateActionEvent += OnNavigateAction;
+        }
+    }
     
+    private void OnDisable()
+    {
+        if (levelManager)
+        {
+            levelManager.OnPause -= OnPause;
+            levelManager.LevelManagerInput.OnNavigateActionEvent -= OnNavigateAction;
+        }
+    }
     
+    private void OnNavigateAction(InputAction.CallbackContext callbackContext)
+    {
+        if (isVisible && !currentSelectable)
+        {
+            SelectFirstAvailableButton();
+        }
+        
+    }
+
+    private void OnPause(bool paused)
+    {
+        if (isVisible)
+        {
+            canvasGroup.interactable = !paused;
+        }
+    }
+
     private void SetupButtons()
     {
 
         if (returnButton)
         {
+            SetupSelectable(returnButton);
+            selectables.Add(returnButton);
+            
             returnButton.onClick.AddListener(() =>
             {
                 levelManager.ReturnToMainMenu();
                 Hide(true);
             });
+            
+
         }
         
         if (continueButton)
         {
+            SetupSelectable(continueButton);
+            selectables.Add(continueButton);
+            
             continueButton.onClick.AddListener(() =>
             {
                 levelManager.LoadNextLevel();
@@ -76,10 +132,11 @@ public class OutroScreen : MonoBehaviour
 
     public void Show(bool nextLevelIsAvailable)
     {
+        isVisible = true;
         continueButton.interactable = nextLevelIsAvailable;
         canvasGroup.interactable = true;
         canvasGroup.blocksRaycasts = true;
-        
+
         
         if (_outroScreenSequence.isAlive) _outroScreenSequence.Stop();
         
@@ -90,6 +147,7 @@ public class OutroScreen : MonoBehaviour
 
     public void Hide(bool animate)
     {
+        isVisible = false;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
@@ -104,4 +162,66 @@ public class OutroScreen : MonoBehaviour
 
         OnScreenClosed?.Invoke();
     }
+    
+    #region Selectables
+
+    private void SelectFirstAvailableButton()
+    {
+        if (!isVisible) return;
+        
+        foreach (var selectable in selectables)
+        {
+            if (selectable && selectable.interactable)
+            {
+                selectable.Select();
+                currentSelectable = selectable;
+                break;
+            }
+        }
+    }
+    
+    private void SetupSelectable(Selectable selectable)
+    {
+        var eventTrigger = selectable.GetComponent<EventTrigger>() ?? selectable.gameObject.AddComponent<EventTrigger>();
+        AddEventTriggerEntry(eventTrigger, EventTriggerType.Select, OnSelectableSelected);
+        AddEventTriggerEntry(eventTrigger, EventTriggerType.Deselect, OnSelectableDeselected);
+    }
+    
+    private void AddEventTriggerEntry(EventTrigger eventTrigger, EventTriggerType type, UnityAction<BaseEventData> callback)
+    {
+        var existingEntry = eventTrigger.triggers.FirstOrDefault(entry => entry.eventID == type);
+
+        if (existingEntry != null)
+        {
+            existingEntry.callback.AddListener(callback);
+        }
+        else
+        {
+            var newEntry = new EventTrigger.Entry
+            {
+                eventID = type,
+                callback = new EventTrigger.TriggerEvent()
+            };
+            newEntry.callback.AddListener(callback);
+            eventTrigger.triggers.Add(newEntry);
+        }
+    }
+    
+    
+    private void OnSelectableSelected(BaseEventData eventData)
+    {
+        if ( !eventData.selectedObject.activeSelf) return;
+
+        currentSelectable = eventData.selectedObject.GetComponent<Selectable>();
+    }
+
+    private void OnSelectableDeselected(BaseEventData eventData)
+    {
+        if ( !eventData.selectedObject.activeSelf || !currentSelectable) return;
+        
+        currentSelectable = null;
+    }
+    
+
+    #endregion Selectables
 }

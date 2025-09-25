@@ -39,10 +39,10 @@ MonoBehaviour:
     dividerPos: 0.33
   formationStageData:
     formationType: 1
-    formationCount: 1
-    numberOfSlots: 4
+    formationCount: 3
+    numberOfSlots: 1
     spacing: 2
-    circleRadius: 9
+    circleRadius: 25
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
@@ -53,7 +53,7 @@ MonoBehaviour:
   showStagesProgression: 0
   showStatsBar: 0
   allowPlayerMovement: 1
-  allowPlayerDodge: 1
+  allowPlayerDodge: 0
   allowPlayerAiming: 1
   allowPlayerShooting: 1
   allowPlayerHeatSystem: 1

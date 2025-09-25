@@ -233,22 +233,66 @@ public class MenuController : MonoBehaviour
         
         SelectMenuElement(Array.IndexOf(menuElements, element));
     }
-    
+
     private void OnNavigate(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
         
+        Vector2 input = context.ReadValue<Vector2>();
         
-        if (context.ReadValue<Vector2>().y > 0 || context.ReadValue<Vector2>().x < 0)
+        if (!_currentMenuElement)
         {
-            SelectNextMenuElement();
+            if (input.y > 0 || input.x < 0) // Up or Left
+            {
+                SelectNextMenuElement();
+            }
+            else if (input.y < 0 || input.x > 0) // Down or Right
+            {
+                SelectPreviousMenuElement();
+            }
         }
-        else if (context.ReadValue<Vector2>().y < 0 || context.ReadValue<Vector2>().x > 0)
+        else
         {
-            SelectPreviousMenuElement();
+
+            if (input.y > 0) // Up
+            {
+                if (_currentMenuElement.upElement)
+                {
+                    int upIndex = Array.IndexOf(menuElements, _currentMenuElement.upElement);
+                    if (upIndex >= 0) SelectMenuElement(upIndex);
+                }
+
+            }
+            else if (input.y < 0) // Down
+            {
+                if (_currentMenuElement.downElement)
+                {
+                    int downIndex = Array.IndexOf(menuElements, _currentMenuElement.downElement);
+                    if (downIndex >= 0) SelectMenuElement(downIndex);
+                }
+
+            }
+            else if (input.x > 0) // Right
+            {
+                if (_currentMenuElement.rightElement)
+                {
+                    int rightIndex = Array.IndexOf(menuElements, _currentMenuElement.rightElement);
+                    if (rightIndex >= 0) SelectMenuElement(rightIndex);
+                }
+
+            }
+            else if (input.x < 0) // Left
+            {
+                if (_currentMenuElement.leftElement)
+                {
+                    int leftIndex = Array.IndexOf(menuElements, _currentMenuElement.leftElement);
+                    if (leftIndex >= 0) SelectMenuElement(leftIndex);
+                }
+
+            }
         }
-        
     }
+
     
     private void OnSubmit(InputAction.CallbackContext context)
     {

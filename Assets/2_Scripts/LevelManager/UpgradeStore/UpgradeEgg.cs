@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
 using DNExtensions;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class UpgradeEgg : MonoBehaviour
@@ -48,7 +51,9 @@ public class UpgradeEgg : MonoBehaviour
 
     private bool _wasBought;
     private SOUpgradeBase _upgrade;
-    private RailPlayer _player; 
+    private UpgradeStore _store;
+    private RailPlayer _player;
+    private LevelManager _levelManager;
     private int _upgradeCost;
     private float _randomBob;
     private Vector3 _gfxStartPosition;
@@ -57,6 +62,8 @@ public class UpgradeEgg : MonoBehaviour
     private Sequence _animationSequence;
     private Sequence _upgradeInfoSequence;
     private Sequence _outlineSequence;
+    
+    public Button Button => button;
 
     public event Action<SOUpgradeBase> OnUpgradeBought; 
     
@@ -64,36 +71,47 @@ public class UpgradeEgg : MonoBehaviour
     private static readonly int Idle = Animator.StringToHash("Idle");
     private static readonly int Open = Animator.StringToHash("Open");
 
-    private void Awake()
+    public void Setup(UpgradeStore store)
     {
+        _store = store;
+        _player = _store.Player;
+        _levelManager = _store.LevelManager;
+
+
+        if (_levelManager)
+        {
+            _levelManager.OnPause += OnPause;
+        }
+        
         eggOutline.OutlineWidth = 0f;
         _randomBob = bobbingVarianceRange.RandomValue;
         _transformStartPosition = transform.localPosition;
         _gfxStartPosition = gfx.localPosition;
         _upgradeInfoGroupStartScale = upgradeInfoGroup.transform.localScale;
-        button?.onClick.AddListener(BuyUpgrade);
+        SetupEggButton();
         ResetUpgrade(false);
     }
-    
-    
-    private void OnMouseEnter()
+
+
+    private void OnButtonSelected(BaseEventData baseEventData)
     {
-        if (LevelManager.Instance.IsGamePaused) return;
+        if (_levelManager.IsGamePaused) return;
         
         UpdateAffordabilityVisuals();
         ShowInfo();
     }
-
-    private void OnMouseExit()
+    
+    
+    private void OnButtonDeselected(BaseEventData baseEventData)
     {
-        if (LevelManager.Instance.IsGamePaused) return;
+        if (_levelManager.IsGamePaused) return;
+        
         HideInfo();
     }
-
-    private void OnMouseUpAsButton()
+    
+    private void OnPause(bool paused)
     {
-        if (LevelManager.Instance.IsGamePaused) return;
-        BuyUpgrade();
+        button.interactable = !paused;
     }
     
     
@@ -148,6 +166,7 @@ public class UpgradeEgg : MonoBehaviour
         _upgrade = null;
         _upgradeCost = 0;
         button.interactable = true;
+        button.GetComponentInChildren<TextMeshProUGUI>().text = $"Buy";
         costText.color = Color.white;
         
         foreach (Transform child in upgradeGfxHolder)
@@ -182,22 +201,18 @@ public class UpgradeEgg : MonoBehaviour
     
     private void BuyUpgrade()
     {
-        if (!_upgrade || _wasBought) return;
+        if (!_upgrade || _wasBought || _levelManager.IsGamePaused) return;
         
         if (!CanAffordUpgrade())
         {
-            Debug.Log($"Cannot afford upgrade: {_upgrade.ItemName}. Cost: {_upgradeCost}, Current Currency: {_player.ResourceCollector.CurrentCurrency}");
             return;
         }
         
         boughtUpgradeSfx?.Play(audioSource);
         _wasBought = true;
         animator?.SetTrigger(Open);
-
+        UpdateAffordabilityVisuals();
         
-        _animationSequence = Sequence.Create()
-                .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
-            ;
         OnUpgradeBought?.Invoke(_upgrade);
     }
     
@@ -207,15 +222,17 @@ public class UpgradeEgg : MonoBehaviour
         if (_wasBought)
         {
             mainCanvasGroup.alpha = 0.75f;
-            button.interactable = false;
+            button.interactable = true;
+            button.GetComponentInChildren<TextMeshProUGUI>().text = $"Bought";
             costText.text = $"";
             costIcon.color = Color.clear;
             eggOutline.OutlineColor = Color.clear;
         }
         else if (!CanAffordUpgrade())
         {
-            mainCanvasGroup.alpha = 0.5f;
-            button.interactable = false;
+            mainCanvasGroup.alpha = 0.75f;
+            button.interactable = true;
+            button.GetComponentInChildren<TextMeshProUGUI>().text = $"Buy";
             costText.color = unaffordableColor;
             eggOutline.OutlineColor = unaffordableColor;
         }
@@ -223,6 +240,7 @@ public class UpgradeEgg : MonoBehaviour
         {
             mainCanvasGroup.alpha = 1f;
             button.interactable = true;
+            button.GetComponentInChildren<TextMeshProUGUI>().text = $"Buy";
             costText.color = affordableColor;
             eggOutline.OutlineColor = affordableColor;
         }
@@ -230,9 +248,10 @@ public class UpgradeEgg : MonoBehaviour
     
     private void ShowInfo()
     {
-        if (!_upgrade || _wasBought) return;
+        if (!_upgrade) return;
         
-        animator?.SetTrigger(Hover);
+        if (!_wasBought) animator?.SetTrigger(Hover);
+        
         showInfoSfx?.Play(audioSource);
         if (_upgradeInfoSequence.isAlive) _upgradeInfoSequence.Stop();
         _upgradeInfoSequence = Sequence.Create()
@@ -253,10 +272,7 @@ public class UpgradeEgg : MonoBehaviour
             .Group(FadeOutline(infoAnimationDuration, 0, false));
     }
     
-    public void SetPlayer(RailPlayer player)
-    {
-        _player = player;
-    }
+
     
     private bool CanAffordUpgrade()
     {
@@ -311,5 +327,41 @@ public class UpgradeEgg : MonoBehaviour
 
         return sequence;
     }
+    
+    private void SetupEggButton()
+    {
+        if (!button) return;
+        
+        var eventTrigger = button.GetComponent<EventTrigger>() ?? button.gameObject.AddComponent<EventTrigger>();
+        AddEventTriggerEntry(eventTrigger, EventTriggerType.Select, OnButtonSelected);
+        AddEventTriggerEntry(eventTrigger, EventTriggerType.Deselect, OnButtonDeselected);
+        
+        button.onClick.AddListener(BuyUpgrade);
+    }
+    
+
+
+    private void AddEventTriggerEntry(EventTrigger eventTrigger, EventTriggerType type, UnityAction<BaseEventData> callback)
+    {
+        var existingEntry = eventTrigger.triggers.FirstOrDefault(entry => entry.eventID == type);
+
+        if (existingEntry != null)
+        {
+            existingEntry.callback.AddListener(callback);
+        }
+        else
+        {
+            var newEntry = new EventTrigger.Entry
+            {
+                eventID = type,
+                callback = new EventTrigger.TriggerEvent()
+            };
+            newEntry.callback.AddListener(callback);
+            eventTrigger.triggers.Add(newEntry);
+        }
+    }
+    
+    
+
 
 }

@@ -23,6 +23,12 @@ public abstract class MenuElement : MonoBehaviour
     [SerializeField, Range(0, 1)] private float labelAlphaWhenDeselected = 0.15f;
     [SerializeField, Range(0, 10)] private float outlineWidthWhenSelected = 4;
     [SerializeField] private Vector3 cameraLootAtOffset;
+    [Foldout("Navigation")]
+    public MenuElement upElement;
+    public MenuElement downElement;
+    public MenuElement leftElement;
+    public MenuElement rightElement;
+    [EndFoldout]
 
     
     [Foldout("References")]
@@ -40,7 +46,7 @@ public abstract class MenuElement : MonoBehaviour
     
     
     protected enum ElementState { Deselected, Selected, Interacting, Disabled }
-    protected ElementState CurrentVisualState;
+    protected ElementState currentVisualState;
     private Sequence _visualElementsSequence;
     
     public bool CanSelect => canSelect;
@@ -126,7 +132,7 @@ public abstract class MenuElement : MonoBehaviour
     {
         if (_visualElementsSequence.isAlive) _visualElementsSequence.Stop();
         
-        CurrentVisualState = state;
+        currentVisualState = state;
         float targetAlpha;
         float targetOutlineWidth;
         Color targetColor;
@@ -216,19 +222,19 @@ public abstract class MenuElement : MonoBehaviour
     
     protected virtual void OnNavigate(InputAction.CallbackContext context)
     {
-        if (!context.performed || CurrentVisualState != ElementState.Interacting) return;
+        if (!context.performed || currentVisualState != ElementState.Interacting) return;
         
         
     }
     
     protected virtual  void OnSubmit(InputAction.CallbackContext context)
     {
-        if (!context.performed || CurrentVisualState != ElementState.Interacting ) return;
+        if (!context.performed || currentVisualState != ElementState.Interacting ) return;
     }
     
     protected virtual  void OnCancel(InputAction.CallbackContext context)
     {
-        if (!context.performed || CurrentVisualState != ElementState.Interacting) return;
+        if (!context.performed || currentVisualState != ElementState.Interacting) return;
     }
 
     

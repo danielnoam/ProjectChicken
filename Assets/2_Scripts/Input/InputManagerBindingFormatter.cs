@@ -97,14 +97,14 @@ public static class InputManagerBindingFormatter
         return textTags.Count > 0 ? string.Join(", ", textTags) : actionKey;
     }
     
-    private static string GetTextTag(InputBinding binding)
+    public static string GetTextTag(InputBinding binding)
     {
         string buttonName = binding.effectivePath;
         buttonName = ConvertPathToReadableText(buttonName);
         return buttonName;
     }
     
-    private static string ConvertPathToReadableText(string path)
+    public static string ConvertPathToReadableText(string path)
     {
         // Remove device prefixes
         string result = path.Replace("<Keyboard>/", "")
@@ -201,17 +201,19 @@ public static class InputManagerBindingFormatter
         return result;
     }
     
-    private static string GetSpriteTag(InputBinding binding, TMP_SpriteAsset spriteAsset)
+    public static string GetSpriteTag(InputBinding binding, TMP_SpriteAsset spriteAsset)
     {
         string stringButtonName = binding.effectivePath;
         stringButtonName = RenameInput(stringButtonName);
     
+        // Debug.Log($"Looking for sprite: {stringButtonName}");
+        
         return $"<sprite=\"{spriteAsset?.name}\" name=\"{stringButtonName}\">";
     }
     
 
     // Convert Unity input paths to sprite asset naming convention
-    private static string RenameInput(string buttonName)
+    public static string RenameInput(string buttonName)
     {
         buttonName = buttonName.Replace("<Keyboard>/", "Keyboard_");
         buttonName = buttonName.Replace("<Mouse>/", "Mouse_");

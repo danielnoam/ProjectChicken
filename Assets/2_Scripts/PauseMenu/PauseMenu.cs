@@ -15,7 +15,6 @@ public class PauseMenu : MonoBehaviour
 
     
     [Header("References")]
-    [SerializeField] private MenuInput menuInput;
     [SerializeField] private CanvasGroup pauseMenuCanvasGroup;
     [SerializeField] private CanvasGroup pauseScreen;
     [SerializeField] private CanvasGroup optionsScreen;
@@ -87,13 +86,10 @@ public class PauseMenu : MonoBehaviour
         if (levelManager)
         {
             levelManager.OnPause += OnPause;
+            levelManager.LevelManagerInput.OnNavigateActionEvent += OnNavigateAction;
+            levelManager.LevelManagerInput.OnCancelActionEvent += OnCancelAction;
         }
-
-        if (menuInput)
-        {
-            menuInput.OnNavigateAction += OnNavigate;
-            menuInput.OnCancelAction += OnCancel;
-        }
+        
     }
 
     private void OnDisable()
@@ -102,17 +98,13 @@ public class PauseMenu : MonoBehaviour
         if (levelManager)
         {
             levelManager.OnPause -= OnPause;
-        }
-        
-        if (menuInput)
-        {
-            menuInput.OnNavigateAction -= OnNavigate;
-            menuInput.OnCancelAction -= OnCancel;
+            levelManager.LevelManagerInput.OnNavigateActionEvent -= OnNavigateAction;
+            levelManager.LevelManagerInput.OnCancelActionEvent -= OnCancelAction;
         }
         
     }
 
-    private void OnCancel(InputAction.CallbackContext callbackContext)
+    private void OnCancelAction(InputAction.CallbackContext callbackContext)
     {
         if (isVisible && currentScreen != pauseScreen)
         {
@@ -121,7 +113,7 @@ public class PauseMenu : MonoBehaviour
         
     }
 
-    private void OnNavigate(InputAction.CallbackContext callbackContext)
+    private void OnNavigateAction(InputAction.CallbackContext callbackContext)
     {
         if (isVisible && !currentSelectable)
         {

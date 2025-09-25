@@ -33,12 +33,10 @@ public class RailPlayerAiming : MonoBehaviour
 
 
     private bool _isAimLocked;
-
     private float _noInputTimer;
     private float _aimLockCooldownTimer;
     private Vector2 _processedLookInput;
     private Vector2 _normalizedAimPosition;
-    private Vector3 _aimDirection;
     private ChickenStateController _currentAimLockTarget;
     private Coroutine _autoCenterRoutine;
     private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundarySize.x : 25f;
@@ -46,14 +44,17 @@ public class RailPlayerAiming : MonoBehaviour
 
 
     
-    public Vector3 AimDirection => _aimDirection;
+
+
     public Transform AimWorldPosition => aimWorldPosition;
     public Vector2 NormalizedAimPosition => _normalizedAimPosition;
     
     public event Action<bool, ChickenStateController> OnAimLockStateChange;
     public event Action<bool> OnAllowAimingChanged;
     
+    
     public bool AllowAiming { get; private set; }
+    public Vector3 AimDirection { get; private set; }
 
     
     
@@ -151,13 +152,13 @@ public class RailPlayerAiming : MonoBehaviour
         if (!float.IsNaN(targetPosition.x) && !float.IsNaN(targetPosition.y) && !float.IsNaN(targetPosition.z))
         {
             aimWorldPosition.position = targetPosition;
-            _aimDirection = (aimWorldPosition.position - transform.position).normalized;
+            AimDirection = (aimWorldPosition.position - transform.position).normalized;
         }
         else
         {
             Debug.Log($"NaN detected in target position: {targetPosition}");
             aimWorldPosition.position = boundaryCenter + transform.forward * 10f;
-            _aimDirection = transform.forward;
+            AimDirection = transform.forward;
             _normalizedAimPosition = Vector2.zero;
         }
     }

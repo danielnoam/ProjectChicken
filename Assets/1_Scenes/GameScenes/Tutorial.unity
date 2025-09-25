@@ -571,11 +571,35 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2474447167857224281, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: spawnInterval
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 2474447167857224281, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: maxItemsOnScreen
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2474447167857224281, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: itemMoveSpeedRange.maxValue
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 2474447167857224281, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: itemMoveSpeedRange.minValue
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 4233048670333308600, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5011403307923265554, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
       propertyPath: m_Name
       value: BackgroundSpawner
       objectReference: {fileID: 0}
     - target: {fileID: 5011403307923265554, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6676485495587396833, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}

@@ -59,7 +59,6 @@ public class IntroManager : MonoBehaviour
     
     private void OnSkipAction(InputAction.CallbackContext callbackContext)
     {
-        Debug.Log("Skip");
         StopIntro();
     }
 

@@ -24,6 +24,7 @@ public class SaveManager : MonoBehaviour
     
     public event Action OnSettingsDataChanged;
     
+    
     [Header("References")]
     [SerializeField] private SOPlayerStats playerStats;
     
@@ -233,6 +234,9 @@ public class SaveManager : MonoBehaviour
         {
             Debug.LogError($"Failed to save settings: {e.Message}");
         }
+        
+        
+        Instance?.OnSettingsDataChanged?.Invoke();
         
     }
 

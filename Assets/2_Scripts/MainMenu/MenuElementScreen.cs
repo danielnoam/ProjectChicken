@@ -155,14 +155,14 @@ public class MenuElementScreen : MenuElement
     
     private void OnSelectableSelected(BaseEventData eventData)
     {
-        if (CurrentVisualState != ElementState.Interacting  || !eventData.selectedObject.activeSelf) return;
+        if (currentVisualState != ElementState.Interacting  || !eventData.selectedObject.activeSelf) return;
 
         currentSelectable = eventData.selectedObject.GetComponent<Selectable>();
     }
 
     private void OnSelectableDeselected(BaseEventData eventData)
     {
-        if (CurrentVisualState != ElementState.Interacting || !eventData.selectedObject.activeSelf || !currentSelectable) return;
+        if (currentVisualState != ElementState.Interacting || !eventData.selectedObject.activeSelf || !currentSelectable) return;
         
         currentSelectable = null;
     }

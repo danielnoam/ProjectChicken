@@ -2,11 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DNExtensions;
 using DNExtensions.MenuSystem;
 using KBCore.Refs;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VInspector;
 using Random = UnityEngine.Random;
@@ -49,13 +53,20 @@ public class UpgradeStore : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     
+    [Separator]
+    [SerializeField, VInspector.ReadOnly] private bool isOpen;
+    [SerializeField, VInspector.ReadOnly] private Selectable currentSelectable;
+    [SerializeField, VInspector.ReadOnly] private List<Selectable> selectables = new List<Selectable>();
+    
     private readonly List<SOUpgradeBase> _storeUpgradesPool = new List<SOUpgradeBase>();
     private readonly List<UpgradeEgg> _upgradeEggs = new List<UpgradeEgg>();
-    private bool _isOpen;
     private bool _hasRerolled;
     private bool _hasPurchasedItem;
     private Sequence _storeSequence;
     private Sequence _paySequence;
+    
+    public RailPlayer Player => player;
+    public LevelManager LevelManager => levelManager;
 
     public event Action OnStoreOpened;
     public event Action OnStoreClosed;
@@ -92,26 +103,47 @@ public class UpgradeStore : MonoBehaviour
             return;
         }
 
-        _isOpen = false;
+        isOpen = false;
         storeGfx.gameObject.SetActive(false);
         canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
-        closeStoreButton.onClick.AddListener(CloseStore);
-        rerollButton.onClick.AddListener(RerollEggs);
-        rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reroll";
 
-        // Set the upgrades position with offset
-        var startPosition = Vector3.zero - offsetBetweenUpgrades;
-        for (int i = 0; i < availableUpgrades; i++)
+
+
+        if (upgradeEggPrefab)
         {
-            var position = startPosition + offsetBetweenUpgrades * i;
-            var egg = Instantiate(upgradeEggPrefab, eggHolder);
-            egg.transform.localPosition = position;
-            egg.SetPlayer(player);
-            _upgradeEggs.Add(egg);
-            egg.OnUpgradeBought += OnUpgradeBought;
+            // Set the upgrades position with offset
+            var startPosition = Vector3.zero - offsetBetweenUpgrades;
+            for (int i = 0; i < availableUpgrades; i++)
+            {
+                var position = startPosition + offsetBetweenUpgrades * i;
+                var egg = Instantiate(upgradeEggPrefab, eggHolder);
+                egg.transform.localPosition = position;
+                egg.Setup(this);
+                _upgradeEggs.Add(egg);
+                egg.OnUpgradeBought += OnUpgradeBought;
+                SetupSelectable(egg.Button);
+                selectables.Add(egg.Button);
+            }
         }
+        
+        if (closeStoreButton)
+        {
+            SetupSelectable(closeStoreButton);
+            selectables.Add(closeStoreButton);
+            closeStoreButton.onClick.AddListener(CloseStore);
+        }
+
+        if (rerollButton)
+        {
+            SetupSelectable(rerollButton);
+            selectables.Add(rerollButton);
+            rerollButton.onClick.AddListener(RerollEggs);
+            rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reroll";
+        }
+
+
     }
 
 
@@ -120,6 +152,8 @@ public class UpgradeStore : MonoBehaviour
         if (levelManager)
         {
             levelManager.OnStageChanged += OnStageChanged;
+            levelManager.OnPause += OnPause;
+            levelManager.LevelManagerInput.OnNavigateActionEvent += OnNavigateAction;
         }
     }
 
@@ -128,14 +162,33 @@ public class UpgradeStore : MonoBehaviour
         if (levelManager)
         {
             levelManager.OnStageChanged -= OnStageChanged;
+            levelManager.OnPause -= OnPause;
+            levelManager.LevelManagerInput.OnNavigateActionEvent -= OnNavigateAction;
+        }
+    }
+    
+    private void OnNavigateAction(InputAction.CallbackContext callbackContext)
+    {
+        if (isOpen && !currentSelectable)
+        {
+            SelectFirstAvailableButton();
+        }
+        
+    }
+    
+    private void OnPause(bool paused)
+    {
+        if (isOpen)
+        {
+            canvasGroup.interactable = !paused;
         }
     }
     
     private void OnStageChanged(SOLevelStage stage)
     {
-        if (!stage || stage.StageType == StageType.Store && _isOpen) return;
+        if (!stage || stage.StageType == StageType.Store && isOpen) return;
         
-        if (stage.StageType != StageType.Store && _isOpen)
+        if (stage.StageType != StageType.Store && isOpen)
         {
             CloseStore();
             return;
@@ -259,8 +312,8 @@ public class UpgradeStore : MonoBehaviour
     
     private void OpenStore()
     {
-        if (_isOpen) return;
-        _isOpen = true;
+        if (isOpen) return;
+        isOpen = true;
         
         _hasRerolled = false;
         _hasPurchasedItem = false;
@@ -287,9 +340,9 @@ public class UpgradeStore : MonoBehaviour
 
     private void CloseStore()
     {
-        if (!_isOpen) return;
+        if (!isOpen) return;
         
-        _isOpen = false;
+        isOpen = false;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
         playerUpgradesDisplay.ClearUpgrades();
@@ -402,4 +455,68 @@ public class UpgradeStore : MonoBehaviour
             _ => uncommonCost
         };
     }
+    
+    
+    #region Selectables
+
+    private void SelectFirstAvailableButton()
+    {
+        if (!isOpen) return;
+        
+        foreach (var selectable in selectables)
+        {
+            if (selectable && selectable.interactable)
+            {
+                selectable.Select();
+                currentSelectable = selectable;
+                break;
+            }
+        }
+    }
+    
+    private void SetupSelectable(Selectable selectable)
+    {
+        var eventTrigger = selectable.GetComponent<EventTrigger>() ?? selectable.gameObject.AddComponent<EventTrigger>();
+        AddEventTriggerEntry(eventTrigger, EventTriggerType.Select, OnSelectableSelected);
+        AddEventTriggerEntry(eventTrigger, EventTriggerType.Deselect, OnSelectableDeselected);
+    }
+    
+    
+    private void AddEventTriggerEntry(EventTrigger eventTrigger, EventTriggerType type, UnityAction<BaseEventData> callback)
+    {
+        var existingEntry = eventTrigger.triggers.FirstOrDefault(entry => entry.eventID == type);
+
+        if (existingEntry != null)
+        {
+            existingEntry.callback.AddListener(callback);
+        }
+        else
+        {
+            var newEntry = new EventTrigger.Entry
+            {
+                eventID = type,
+                callback = new EventTrigger.TriggerEvent()
+            };
+            newEntry.callback.AddListener(callback);
+            eventTrigger.triggers.Add(newEntry);
+        }
+    }
+    
+    
+    private void OnSelectableSelected(BaseEventData eventData)
+    {
+        if ( !eventData.selectedObject.activeSelf) return;
+
+        currentSelectable = eventData.selectedObject.GetComponent<Selectable>();
+    }
+
+    private void OnSelectableDeselected(BaseEventData eventData)
+    {
+        if ( !eventData.selectedObject.activeSelf || !currentSelectable) return;
+        
+        currentSelectable = null;
+    }
+    
+
+    #endregion Selectables
 }

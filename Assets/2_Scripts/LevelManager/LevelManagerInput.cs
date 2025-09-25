@@ -13,10 +13,16 @@ public class LevelManagerInput: InputReaderBase
     private InputActionMap _playerActionMap;
     private InputActionMap _uiActionMap;
     private InputAction _pauseAction;
+    private InputAction _submitAction;
+    private InputAction _cancelAction;
+    private InputAction _navigateAction;
     private float _pauseTimer;
     private bool _pauseInputHeld;
     
     public event Action<InputAction.CallbackContext> OnPauseActionEvent;
+    public event Action<InputAction.CallbackContext> OnSubmitActionEvent;
+    public event Action<InputAction.CallbackContext> OnCancelActionEvent;
+    public event Action<InputAction.CallbackContext> OnNavigateActionEvent;
 
 
 
@@ -41,6 +47,9 @@ public class LevelManagerInput: InputReaderBase
         
 
         _pauseAction = _playerActionMap.FindAction("Pause");
+        _submitAction = _uiActionMap.FindAction("Submit");
+        _cancelAction = _uiActionMap.FindAction("Cancel");
+        _navigateAction = _uiActionMap.FindAction("Navigate");
     }
 
 
@@ -49,6 +58,9 @@ public class LevelManagerInput: InputReaderBase
         base.OnEnable();
         
         SubscribeToAction(_pauseAction, OnPauseAction);
+        SubscribeToAction(_submitAction, OnSubmitAction);
+        SubscribeToAction(_cancelAction, OnCancelAction);
+        SubscribeToAction(_navigateAction, OnNavigateAction);
         
         if (levelManager)
         {
@@ -62,6 +74,9 @@ public class LevelManagerInput: InputReaderBase
         base.OnDisable();
         
         UnsubscribeFromAction(_pauseAction, OnPauseAction);
+        UnsubscribeFromAction(_submitAction, OnSubmitAction);
+        UnsubscribeFromAction(_cancelAction, OnCancelAction);
+        UnsubscribeFromAction(_navigateAction, OnNavigateAction);
         
         if (levelManager)
         {
@@ -69,7 +84,34 @@ public class LevelManagerInput: InputReaderBase
             levelManager.OnPause -= OnPause;
         }
     }
+    
+    
+    private void OnPauseAction(InputAction.CallbackContext context)
+    {
+        OnPauseActionEvent?.Invoke(context);
+    }
+    
+    private void OnSubmitAction(InputAction.CallbackContext context)
+    {
+        
+        OnSubmitActionEvent?.Invoke(context);
 
+    }
+    
+    private void OnCancelAction(InputAction.CallbackContext context)
+    {
+        OnCancelActionEvent?.Invoke(context);
+        
+    }
+    
+    
+    private void OnNavigateAction(InputAction.CallbackContext context)
+    {
+        OnNavigateActionEvent?.Invoke(context);
+
+    }
+    
+    
     private void OnPause(bool paused)
     {
         inputManager?.SetCursorVisibility(ShouldShowCursor());
@@ -80,11 +122,6 @@ public class LevelManagerInput: InputReaderBase
         if (!stage) return;
 
         inputManager?.SetCursorVisibility(ShouldShowCursor());
-    }
-    
-    private void OnPauseAction(InputAction.CallbackContext context)
-    {
-        OnPauseActionEvent?.Invoke(context);
     }
     
     
@@ -104,6 +141,7 @@ public class LevelManagerInput: InputReaderBase
             case StageType.EnemyWave: return false;
             case StageType.Intro: return false;
             case StageType.Outro: return levelManager.CurrentStage.ShowOutroMenu;
+            case StageType.Task: return false;
             default: return true;
         }
     }

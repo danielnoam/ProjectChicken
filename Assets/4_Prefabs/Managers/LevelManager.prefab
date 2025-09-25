@@ -793,6 +793,9 @@ MonoBehaviour:
   continueButton: {fileID: 8134003640888897226}
   levelManager: {fileID: 98154818553496101}
   cameraManager: {fileID: 0}
+  isVisible: 0
+  currentSelectable: {fileID: 0}
+  selectables: []
 --- !u!1 &3186988020457177910
 GameObject:
   m_ObjectHideFlags: 0
@@ -1297,6 +1300,9 @@ MonoBehaviour:
   chickenLegPrefab: {fileID: 3116490457296758320, guid: c5a0b9adb417776438fa9b7c4e0e2a3d, type: 3}
   levelManager: {fileID: 98154818553496101}
   player: {fileID: 0}
+  isOpen: 0
+  currentSelectable: {fileID: 0}
+  selectables: []
 --- !u!1 &4966072247907926789
 GameObject:
   m_ObjectHideFlags: 0
@@ -1574,7 +1580,6 @@ GameObject:
   - component: {fileID: 7431952579386384734}
   - component: {fileID: 8839489125591740365}
   - component: {fileID: 3027232441650061862}
-  - component: {fileID: 349065269745807388}
   - component: {fileID: 8005157155453000433}
   m_Layer: 0
   m_Name: PauseMenu
@@ -1778,20 +1783,6 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
---- !u!114 &349065269745807388
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5713393604422230697}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c1f52fac2414d91a2cebee05e9244f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inputManager: {fileID: 0}
-  setCursorVisibilityOnStart: 0
 --- !u!114 &8005157155453000433
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1821,7 +1812,6 @@ MonoBehaviour:
   - {fileID: 3839253228981298709}
   - {fileID: 912916637856435220}
   - {fileID: 1022733578062205667}
-  menuInput: {fileID: 349065269745807388}
   pauseMenuCanvasGroup: {fileID: 3027232441650061862}
   pauseScreen: {fileID: 6473268744840117701}
   optionsScreen: {fileID: 8896729538949130752}
@@ -3018,11 +3008,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2142851489424973363, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_Name
-      value: ButtonContinue
+      value: ButtonNextLevel
       objectReference: {fileID: 0}
     - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_text
-      value: Continue
+      value: Next Level
       objectReference: {fileID: 0}
     - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_fontColor32.rgba
@@ -3526,11 +3516,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2142851489424973363, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_Name
-      value: ButtonReturn
+      value: ButtonMainMenu
       objectReference: {fileID: 0}
     - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_text
-      value: Return
+      value: Main Menu
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_Pivot.x

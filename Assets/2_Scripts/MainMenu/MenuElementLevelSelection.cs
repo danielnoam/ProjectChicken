@@ -409,7 +409,7 @@ public class MenuElementLevelSelection : MenuElement
     
     private void OnSelectableSelected(BaseEventData eventData, LevelUIData levelUIData)
     {
-        if (CurrentVisualState != ElementState.Interacting  || !eventData.selectedObject.activeSelf) return;
+        if (currentVisualState != ElementState.Interacting  || !eventData.selectedObject.activeSelf) return;
 
         currentSelectable = eventData.selectedObject.GetComponent<Selectable>();
         
@@ -418,7 +418,7 @@ public class MenuElementLevelSelection : MenuElement
 
     private void OnSelectableDeselected(BaseEventData eventData, LevelUIData levelUIData)
     {
-        if (CurrentVisualState != ElementState.Interacting || !eventData.selectedObject.activeSelf || !currentSelectable) return;
+        if (currentVisualState != ElementState.Interacting || !eventData.selectedObject.activeSelf || !currentSelectable) return;
         
         currentSelectable = null;
         

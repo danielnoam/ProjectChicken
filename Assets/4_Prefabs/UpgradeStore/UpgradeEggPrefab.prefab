@@ -896,7 +896,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5340978848569813312}
   - component: {fileID: 5858253840325583707}
-  - component: {fileID: 4191496930013041105}
   - component: {fileID: 5191593688329016279}
   m_Layer: 0
   m_Name: UpgradeEggPrefab
@@ -1019,27 +1018,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!135 &4191496930013041105
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8966956175414136896}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 12.87
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5191593688329016279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1168,11 +1146,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2142851489424973363, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2588981352788234646, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_text
-      value: Select
+      value: Buy
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_Pivot.x
@@ -1240,7 +1218,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -67.7
+      value: -87.4
       objectReference: {fileID: 0}
     - target: {fileID: 3140829950638733475, guid: be313f9f78c39c648b30a57c05a0bc74, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

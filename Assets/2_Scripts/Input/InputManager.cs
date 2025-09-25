@@ -27,14 +27,18 @@ public class InputManager : MonoBehaviour
     private bool _isCurrentDeviceGamepad;
     
     
-    public bool IsCurrentDeviceGamepad => _isCurrentDeviceGamepad || forceGamepad;
-
     public PlayerInput PlayerInput => playerInput;
+    public bool IsCurrentDeviceGamepad => _isCurrentDeviceGamepad || forceGamepad;
+    public bool IsCurrentDeviceKeyboardMouse => !IsCurrentDeviceGamepad;
+    public TMP_SpriteAsset CurrentSpriteAsset => IsCurrentDeviceGamepad ? gamepadSpriteAsset : keyboardMouseSpriteAsset;
+
+    
+
     public ControlSchemeSettings CurrentControlScheme { get; private set; } = new ControlSchemeSettings();
 
-    public ControlSchemeSettings KeyboardMouseScheme { get; } = new ControlSchemeSettings();
+    public ControlSchemeSettings KeyboardMouseScheme { get; private set; } = new ControlSchemeSettings();
 
-    public ControlSchemeSettings GamepadScheme { get; } = new ControlSchemeSettings();
+    public ControlSchemeSettings GamepadScheme { get; private set; } = new ControlSchemeSettings();
 
    
     
