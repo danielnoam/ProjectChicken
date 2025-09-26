@@ -4959,10 +4959,6 @@ PrefabInstance:
       propertyPath: audioSource
       value: 
       objectReference: {fileID: 8049505153109017328}
-    - target: {fileID: 1761516089240058318, guid: 3b483c50e74c1cb4494b795deceda7cb, type: 3}
-      propertyPath: screenCanvas
-      value: 
-      objectReference: {fileID: 2976116550450102134}
     - target: {fileID: 1842254473312574398, guid: 3b483c50e74c1cb4494b795deceda7cb, type: 3}
       propertyPath: m_fontSize
       value: 21
@@ -5311,6 +5307,18 @@ PrefabInstance:
       propertyPath: audioSource
       value: 
       objectReference: {fileID: 8049505153109017328}
+    - target: {fileID: 5097848468652610612, guid: 3b483c50e74c1cb4494b795deceda7cb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5097848468652610612, guid: 3b483c50e74c1cb4494b795deceda7cb, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5097848468652610612, guid: 3b483c50e74c1cb4494b795deceda7cb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -116
+      objectReference: {fileID: 0}
     - target: {fileID: 5100283186436872420, guid: 3b483c50e74c1cb4494b795deceda7cb, type: 3}
       propertyPath: audioSource
       value: 
@@ -5421,6 +5429,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6129830986326492309, guid: 3b483c50e74c1cb4494b795deceda7cb, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6347456135877777255, guid: 3b483c50e74c1cb4494b795deceda7cb, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6366203079437114584, guid: 3b483c50e74c1cb4494b795deceda7cb, type: 3}
@@ -5661,11 +5673,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!225 &2976116550450102134 stripped
-CanvasGroup:
-  m_CorrespondingSourceObject: {fileID: 2891921059557845908, guid: 3b483c50e74c1cb4494b795deceda7cb, type: 3}
-  m_PrefabInstance: {fileID: 103407821824431330}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &4475999586229776964 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4571876229070907046, guid: 3b483c50e74c1cb4494b795deceda7cb, type: 3}
@@ -6693,10 +6700,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 1, g: 0.48235294, b: 0.48235294, a: 1}
-  visualElementsTweenDuration: 0.3
-  labelAlphaWhenInteracting: 0
-  labelAlphaWhenDeselected: 0.15
-  outlineWidthWhenSelected: 6
   cameraLootAtOffset: {x: 0.75, y: 0.55, z: 0}
   upElement: {fileID: 3606786417390792711}
   downElement: {fileID: 0}
@@ -7034,10 +7037,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 1, g: 0.9919741, b: 0.6, a: 1}
-  visualElementsTweenDuration: 0.3
-  labelAlphaWhenInteracting: 0
-  labelAlphaWhenDeselected: 0.15
-  outlineWidthWhenSelected: 6
   cameraLootAtOffset: {x: -1.8, y: 0.4, z: 0}
   upElement: {fileID: 0}
   downElement: {fileID: 8456258857923429392}
@@ -7255,11 +7254,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5182658488138318440, guid: 35a55dc20b3e58841b96eb062b3b9fc5, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 50
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 5182658488138318440, guid: 35a55dc20b3e58841b96eb062b3b9fc5, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 50
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 5182658488138318440, guid: 35a55dc20b3e58841b96eb062b3b9fc5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -7755,10 +7754,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 0.2784314, g: 0.38039216, b: 1, a: 1}
-  visualElementsTweenDuration: 0.3
-  labelAlphaWhenInteracting: 0.15
-  labelAlphaWhenDeselected: 0.15
-  outlineWidthWhenSelected: 6
   cameraLootAtOffset: {x: -0.75, y: 0.55, z: 0}
   upElement: {fileID: 0}
   downElement: {fileID: 0}
@@ -8774,10 +8769,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 0.6627451, g: 1, b: 0.6, a: 1}
-  visualElementsTweenDuration: 0.3
-  labelAlphaWhenInteracting: 0
-  labelAlphaWhenDeselected: 0.15
-  outlineWidthWhenSelected: 6
   cameraLootAtOffset: {x: 1.8, y: 0.4, z: 0}
   upElement: {fileID: 0}
   downElement: {fileID: 8456258857923429392}
@@ -9416,10 +9407,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 0, g: 0.11575008, b: 0.8160377, a: 1}
-  visualElementsTweenDuration: 0.3
-  labelAlphaWhenInteracting: 0
-  labelAlphaWhenDeselected: 0.15
-  outlineWidthWhenSelected: 6
   cameraLootAtOffset: {x: 0, y: 0.26, z: 0}
   upElement: {fileID: 0}
   downElement: {fileID: 8456258857923429392}

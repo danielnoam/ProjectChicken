@@ -86,7 +86,6 @@ GameObject:
   - component: {fileID: 1504223134263788069}
   - component: {fileID: 6030221936270771983}
   - component: {fileID: 6400665805960772726}
-  - component: {fileID: 4483165013018998217}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -168,7 +167,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17
+  m_fontSize: 11
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -212,42 +211,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &4483165013018998217
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6597926180309504823}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4dee82c947c4881a078bf1d2cb48fc8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selectableAnimator: {fileID: 8055111781758024564}
-  positionEffectType: 1
-  positionOffset: {x: 0, y: 0, z: -5}
-  positionDuration: 0.15
-  positionEase: 31
-  shakeOnDeselect: 0
-  shakeStrength: {x: 1, y: 1, z: 0}
-  shakeFrequency: 10
-  shakeDuration: 0.5
-  shakeEase: 0
-  animateRotation: 0
-  rotationOffset: {x: 0, y: 0, z: 15}
-  rotationDuration: 0.15
-  rotationEase: 31
-  animateScale: 1
-  scaleMultiplier: 1.1
-  scaleDuration: 0.15
-  scaleEase: 31
-  animateColor: 0
-  selectedColor: {r: 1, g: 1, b: 1, a: 1}
-  colorDuration: 0.15
-  colorEase: 7
-  textMeshPro: {fileID: 6400665805960772726}
-  rectTransform: {fileID: 1504223134263788069}
 --- !u!1 &8071770430385400284
 GameObject:
   m_ObjectHideFlags: 0
@@ -261,6 +224,7 @@ GameObject:
   - component: {fileID: 3890864165098372917}
   - component: {fileID: 8464191749691141580}
   - component: {fileID: 2253330368844906039}
+  - component: {fileID: 7878593283498370376}
   - component: {fileID: 8055111781758024564}
   m_Layer: 5
   m_Name: ButtonPrefab
@@ -353,7 +317,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -385,6 +349,46 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Delegates: []
+--- !u!114 &7878593283498370376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8071770430385400284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d20cc57dd10426792b46a2e628069c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectableAnimator: {fileID: 8055111781758024564}
+  graphics:
+  - {fileID: 4752034150636205090}
+  - {fileID: 6400665805960772726}
+  positionEffectType: 1
+  positionOffset: {x: 0, y: 0, z: -5}
+  positionDuration: 0.15
+  positionEase: 31
+  shakeOnDeselect: 0
+  shakeStrength: {x: 3, y: 3, z: -5}
+  shakeFrequency: 10
+  shakeDuration: 0.5
+  shakeEase: 0
+  animateRotation: 0
+  rotationOffset: {x: 0, y: 0, z: 15}
+  rotationDuration: 0.15
+  rotationEase: 31
+  animateScale: 1
+  scaleMultiplier: 1.2
+  scaleDuration: 0.15
+  scaleEase: 31
+  animateColor: 0
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  colorDuration: 0.15
+  colorEase: 7
+  rectTransforms:
+  - {fileID: 4654666548381480860}
+  - {fileID: 1504223134263788069}
 --- !u!114 &8055111781758024564
 MonoBehaviour:
   m_ObjectHideFlags: 0

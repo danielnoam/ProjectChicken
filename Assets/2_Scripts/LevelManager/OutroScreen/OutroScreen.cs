@@ -85,11 +85,11 @@ public class OutroScreen : MonoBehaviour
     
     private void OnNavigateAction(InputAction.CallbackContext callbackContext)
     {
-        if (isVisible && !currentSelectable)
-        {
-            SelectFirstAvailableButton();
-        }
+        if (!isVisible || currentSelectable || levelManager.IsGamePaused) return;
         
+        
+        SelectFirstAvailableButton();
+
     }
 
     private void OnPause(bool paused)

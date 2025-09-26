@@ -480,8 +480,8 @@ public class HUDManager : MonoBehaviour
         FadeUIGroup(statsBarGroup, stage.ShowStatsBar, ref _statsBarSequence);
         FadeUIGroup(stageBarGroup, stage.ShowStagesProgression, ref _stageBarSequence);
         FadeUIGroup(scoreBarGroup, stage.ShowScore, ref _scoreBarSequence);
-        FadeUIGroup(weaponBarGroup, stage.AllowPlayerShooting, ref _weaponBarSequence);
-        FadeUIGroup(dodgeBarGroup, stage.AllowPlayerDodge, ref _dodgeBarSequence);
+        FadeUIGroup(weaponBarGroup, stage.AllowPlayerShooting || stage.StageType == StageType.Store, ref _weaponBarSequence);
+        FadeUIGroup(dodgeBarGroup, stage.AllowPlayerDodge || stage.StageType == StageType.Store, ref _dodgeBarSequence);
         UpdateStageTitle(stage.StageTitle);
         stageProgressionBar.SetCurrentStage(stage);
     }

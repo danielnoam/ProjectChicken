@@ -89,7 +89,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5289279292965398240}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
@@ -122,6 +122,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2998705826744150832}
     m_Modifications:
+    - target: {fileID: 4752034150636205090, guid: c8ea40acbff10dd41996c94385b51323, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 541582919e7951c429e8a4b9a0ad7b40, type: 3}
     - target: {fileID: 6400665805960772726, guid: c8ea40acbff10dd41996c94385b51323, type: 3}
       propertyPath: m_text
       value: Options
@@ -228,6 +232,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2998705826744150832}
     m_Modifications:
+    - target: {fileID: 4752034150636205090, guid: c8ea40acbff10dd41996c94385b51323, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: d9283936fb3d48f41a6cbe0504c0c4fe, type: 3}
     - target: {fileID: 6400665805960772726, guid: c8ea40acbff10dd41996c94385b51323, type: 3}
       propertyPath: m_text
       value: Resume
@@ -334,6 +342,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2998705826744150832}
     m_Modifications:
+    - target: {fileID: 4752034150636205090, guid: c8ea40acbff10dd41996c94385b51323, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 1b10781fea1453f4db7fab65b808cd97, type: 3}
     - target: {fileID: 6400665805960772726, guid: c8ea40acbff10dd41996c94385b51323, type: 3}
       propertyPath: m_text
       value: Main Menu

@@ -10,7 +10,9 @@ using UnityEngine.UI;
 
 public class UpgradeEgg : MonoBehaviour
 {
-    [Header("Bought")]
+    [Header("Buy")]
+    [SerializeField] private Sprite buyIcon;
+    [SerializeField] private Sprite boughtIcon;
     [SerializeField] private SOAudioEvent boughtUpgradeSfx;
     
     [Header("Show/Hide")]
@@ -28,15 +30,16 @@ public class UpgradeEgg : MonoBehaviour
     [Header("Info Panel")]
     [SerializeField] private float infoAnimationDuration = 0.2f;
     [SerializeField] private Ease infoAnimationEase = Ease.OutBack;
-    [SerializeField] private SOAudioEvent showInfoSfx;
-    [SerializeField] private SOAudioEvent hideInfoSfx;
     [SerializeField] private Color affordableColor = Color.green;
     [SerializeField] private Color unaffordableColor = Color.red;
+    [SerializeField] private SOAudioEvent showInfoSfx;
+    [SerializeField] private SOAudioEvent hideInfoSfx;
     
     
     [Header("Reference")]
     [SerializeField] private Animator animator;
     [SerializeField] private Button button;
+    [SerializeField] private Image buttonIcon;
     [SerializeField] private CanvasGroup upgradeInfoGroup;
     [SerializeField] private CanvasGroup mainCanvasGroup;
     [SerializeField] private TextMeshProUGUI nameText;
@@ -76,12 +79,6 @@ public class UpgradeEgg : MonoBehaviour
         _store = store;
         _player = _store.Player;
         _levelManager = _store.LevelManager;
-
-
-        if (_levelManager)
-        {
-            _levelManager.OnPause += OnPause;
-        }
         
         eggOutline.OutlineWidth = 0f;
         _randomBob = bobbingVarianceRange.RandomValue;
@@ -95,8 +92,6 @@ public class UpgradeEgg : MonoBehaviour
 
     private void OnButtonSelected(BaseEventData baseEventData)
     {
-        if (_levelManager.IsGamePaused) return;
-        
         UpdateAffordabilityVisuals();
         ShowInfo();
     }
@@ -104,15 +99,9 @@ public class UpgradeEgg : MonoBehaviour
     
     private void OnButtonDeselected(BaseEventData baseEventData)
     {
-        if (_levelManager.IsGamePaused) return;
-        
         HideInfo();
     }
     
-    private void OnPause(bool paused)
-    {
-        button.interactable = !paused;
-    }
     
     
     private void Update()
@@ -167,6 +156,7 @@ public class UpgradeEgg : MonoBehaviour
         _upgradeCost = 0;
         button.interactable = true;
         button.GetComponentInChildren<TextMeshProUGUI>().text = $"Buy";
+        buttonIcon.sprite = buyIcon;
         costText.color = Color.white;
         
         foreach (Transform child in upgradeGfxHolder)
@@ -221,26 +211,26 @@ public class UpgradeEgg : MonoBehaviour
     {
         if (_wasBought)
         {
-            mainCanvasGroup.alpha = 0.75f;
             button.interactable = true;
             button.GetComponentInChildren<TextMeshProUGUI>().text = $"Bought";
+            buttonIcon.sprite = boughtIcon;
             costText.text = $"";
             costIcon.color = Color.clear;
             eggOutline.OutlineColor = Color.clear;
         }
         else if (!CanAffordUpgrade())
         {
-            mainCanvasGroup.alpha = 0.75f;
             button.interactable = true;
             button.GetComponentInChildren<TextMeshProUGUI>().text = $"Buy";
+            buttonIcon.sprite = buyIcon;
             costText.color = unaffordableColor;
             eggOutline.OutlineColor = unaffordableColor;
         }
         else
         {
-            mainCanvasGroup.alpha = 1f;
             button.interactable = true;
             button.GetComponentInChildren<TextMeshProUGUI>().text = $"Buy";
+            buttonIcon.sprite = buyIcon;
             costText.color = affordableColor;
             eggOutline.OutlineColor = affordableColor;
         }

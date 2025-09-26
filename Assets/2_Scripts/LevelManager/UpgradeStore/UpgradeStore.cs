@@ -1,12 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DNExtensions;
 using DNExtensions.MenuSystem;
 using KBCore.Refs;
 using PrimeTween;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -140,7 +138,8 @@ public class UpgradeStore : MonoBehaviour
             SetupSelectable(rerollButton);
             selectables.Add(rerollButton);
             rerollButton.onClick.AddListener(RerollEggs);
-            rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reroll";
+            // rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reroll";
+
         }
 
 
@@ -169,11 +168,10 @@ public class UpgradeStore : MonoBehaviour
     
     private void OnNavigateAction(InputAction.CallbackContext callbackContext)
     {
-        if (isOpen && !currentSelectable)
-        {
-            SelectFirstAvailableButton();
-        }
+        if (!isOpen || currentSelectable || LevelManager.IsGamePaused) return;
         
+        SelectFirstAvailableButton();
+
     }
     
     private void OnPause(bool paused)
@@ -295,14 +293,14 @@ public class UpgradeStore : MonoBehaviour
     
     private void UpdateRerollButtonState()
     {
-        if (_hasRerolled || _hasPurchasedItem)
-        {
-            rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Used";
-        }
-        else
-        {
-            rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reroll";
-        }
+        // if (_hasRerolled || _hasPurchasedItem)
+        // {
+        //     rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Used";
+        // }
+        // else
+        // {
+        //     rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reroll";
+        // }
         
         
         rerollButton.interactable = !_hasRerolled && !_hasPurchasedItem;
@@ -417,7 +415,7 @@ public class UpgradeStore : MonoBehaviour
             totalWeight += GetWeightByRarity(upgrade.ItemRarity);
         }
     
-        float randomValue = UnityEngine.Random.Range(0f, totalWeight);
+        float randomValue = Random.Range(0f, totalWeight);
         float currentWeight = 0f;
     
         foreach (var upgrade in pool)

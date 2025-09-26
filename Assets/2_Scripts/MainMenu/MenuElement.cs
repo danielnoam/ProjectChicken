@@ -43,7 +43,7 @@ public abstract class MenuElement : MonoBehaviour
     
     [Min(0.1f)] private const float visualElementsTweenDuration = 0.3f;
     [Range(0, 1)] private const float labelAlphaWhenInteracting = 0f;
-    [Range(0, 1)] private const float labelAlphaWhenDeselected = 0.15f;
+    [Range(0, 1)] private const float labelAlphaWhenDeselected = 0.25f;
     [Range(0, 10)] private const float outlineWidthWhenSelected = 6;
     protected enum ElementState { Deselected, Selected, Interacting, Disabled }
     protected ElementState currentVisualState;
