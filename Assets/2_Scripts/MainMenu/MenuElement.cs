@@ -17,11 +17,6 @@ public abstract class MenuElement : MonoBehaviour
     [Header("Element Settings")]
     [SerializeField] private bool canSelect = true;
     [SerializeField] private Color elementColor = Color.white;
-    [SerializeField, Min(0.1f)] private float visualElementsTweenDuration = 0.3f;
-    [SerializeField] private string labelText;
-    [SerializeField, Range(0, 1)] private float labelAlphaWhenInteracting = 0.15f;
-    [SerializeField, Range(0, 1)] private float labelAlphaWhenDeselected = 0.15f;
-    [SerializeField, Range(0, 10)] private float outlineWidthWhenSelected = 4;
     [SerializeField] private Vector3 cameraLootAtOffset;
     [Foldout("Navigation")]
     public MenuElement upElement;
@@ -45,9 +40,15 @@ public abstract class MenuElement : MonoBehaviour
     [EndFoldout]
     
     
+    
+    [Min(0.1f)] private const float visualElementsTweenDuration = 0.3f;
+    [Range(0, 1)] private const float labelAlphaWhenInteracting = 0f;
+    [Range(0, 1)] private const float labelAlphaWhenDeselected = 0.15f;
+    [Range(0, 10)] private const float outlineWidthWhenSelected = 6;
     protected enum ElementState { Deselected, Selected, Interacting, Disabled }
     protected ElementState currentVisualState;
     private Sequence _visualElementsSequence;
+    
     
     public bool CanSelect => canSelect;
     public Transform CameraLookAtPoint => transform;
@@ -59,7 +60,6 @@ public abstract class MenuElement : MonoBehaviour
     private void OnValidate()
     {
         this.ValidateRefs();
-        if (label) label.text = labelText;
     }
 
     private void Awake()
@@ -122,7 +122,6 @@ public abstract class MenuElement : MonoBehaviour
     
     private void SetUp()
     {
-        label.text = labelText;
         outline.OutlineColor = elementColor;
         if (interactionCamera) interactionCamera.Priority = 0;
         SetState(ElementState.Deselected, instant: true);
@@ -149,7 +148,7 @@ public abstract class MenuElement : MonoBehaviour
             {
                 case ElementState.Deselected:
                     targetAlpha = labelAlphaWhenDeselected;
-                    targetColor = Color.white;
+                    targetColor = elementColor;
                     targetOutlineWidth = 0f;
                     break;
                 case ElementState.Selected:
@@ -159,17 +158,17 @@ public abstract class MenuElement : MonoBehaviour
                     break;
                 case ElementState.Interacting:
                     targetAlpha = labelAlphaWhenInteracting;
-                    targetColor = Color.white;
+                    targetColor = elementColor;
                     targetOutlineWidth = 0;
                     break;
                 case ElementState.Disabled:
                     targetAlpha = 0f;
-                    targetColor = Color.white;
+                    targetColor = elementColor;
                     targetOutlineWidth = 0f;
                     break;
                 default:
                     targetAlpha = labelAlphaWhenDeselected;
-                    targetColor = Color.white;
+                    targetColor = elementColor;
                     targetOutlineWidth = 0f;
                     break;
             }

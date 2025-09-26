@@ -6694,8 +6694,7 @@ MonoBehaviour:
   canSelect: 1
   elementColor: {r: 1, g: 0.48235294, b: 0.48235294, a: 1}
   visualElementsTweenDuration: 0.3
-  labelText: Eject
-  labelAlphaWhenInteracting: 0.15
+  labelAlphaWhenInteracting: 0
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 6
   cameraLootAtOffset: {x: 0.75, y: 0.55, z: 0}
@@ -7036,7 +7035,6 @@ MonoBehaviour:
   canSelect: 1
   elementColor: {r: 1, g: 0.9919741, b: 0.6, a: 1}
   visualElementsTweenDuration: 0.3
-  labelText: Extras
   labelAlphaWhenInteracting: 0
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 6
@@ -7758,7 +7756,6 @@ MonoBehaviour:
   canSelect: 1
   elementColor: {r: 0.2784314, g: 0.38039216, b: 1, a: 1}
   visualElementsTweenDuration: 0.3
-  labelText: 
   labelAlphaWhenInteracting: 0.15
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 6
@@ -8778,7 +8775,6 @@ MonoBehaviour:
   canSelect: 1
   elementColor: {r: 0.6627451, g: 1, b: 0.6, a: 1}
   visualElementsTweenDuration: 0.3
-  labelText: Options
   labelAlphaWhenInteracting: 0
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 6
@@ -9419,9 +9415,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canSelect: 1
-  elementColor: {r: 0.44313726, g: 0.38039216, b: 1, a: 1}
+  elementColor: {r: 0, g: 0.11575008, b: 0.8160377, a: 1}
   visualElementsTweenDuration: 0.3
-  labelText: Save the World
   labelAlphaWhenInteracting: 0
   labelAlphaWhenDeselected: 0.15
   outlineWidthWhenSelected: 6
@@ -9455,7 +9450,7 @@ MonoBehaviour:
   levelDifficultyWriter: {fileID: 6469481705025049080}
   levelDescriptionWriter: {fileID: 5579865348861345357}
   levelBestScoreWriter: {fileID: 7301300492610678367}
-  levelButtonPrefab: {fileID: 8464191749691141580, guid: c8ea40acbff10dd41996c94385b51323, type: 3}
+  levelButtonPrefab: {fileID: 4247475171182416783, guid: 51a48ed623b174749b66a68ca4f8bf90, type: 3}
   currentSelectable: {fileID: 0}
 --- !u!114 &5678960141165832510 stripped
 MonoBehaviour:
