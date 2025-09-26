@@ -1,25 +1,33 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DNExtensions;
 using DNExtensions.MenuSystem;
 using KBCore.Refs;
 using PrimeTween;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VInspector;
 using Random = UnityEngine.Random;
 
-public class UpgradeStore : MonoBehaviour
+public class UpgradeStore : NavigatableUIScreen
 {
     public static UpgradeStore Instance { get; private set; }
+    
+    [SerializeField] private SOPlayerStats playerStats;
+    [SerializeField] private Transform storeGfx;
+    [SerializeField] private Transform eggHolder;
+    [SerializeField] private CaptainCock captain;
+    [SerializeField] private Button closeStoreButton;
+    [SerializeField] private Button rerollButton;
+    [SerializeField] private PlayerUpgradesDisplay playerUpgradesDisplay;
+    [SerializeField] private UpgradeEgg upgradeEggPrefab;
+    [SerializeField] private GameObject chickenLegPrefab;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     
     [Header("Settings")]
     [SerializeField] private bool closeStoreOnPurchase;
     [SerializeField, Min(1)] private int availableUpgrades = 3;
+    [SerializeField] private Vector3 offsetBetweenUpgrades = new Vector3(25,0,0);
     [Foldout("Rarity Costs")]
     [SerializeField] private int commonCost = 25;
     [SerializeField] private int uncommonCost = 50;
@@ -27,41 +35,24 @@ public class UpgradeStore : MonoBehaviour
     [SerializeField] private int epicCost = 150;
     [EndFoldout]
     
-    [Header("Gfx")]
-    [SerializeField] private float storeAnimationDuration = 1f;
-    [SerializeField] private Vector3 offsetBetweenUpgrades = new Vector3(25,0,0);
     
-    [Header("Pay Animation")]
+    [Header("Animations")]
+    [SerializeField] private float uiAnimationDuration = 1f;
     [SerializeField] private float payAnimationDuration = 3f;
     [SerializeField] private Ease payAnimationMoveEase = Ease.InOutSine;
-    [SerializeField] private Vector3 captainOffset;
     [SerializeField] private Ease payAnimationScaleEase = Ease.OutBounce;
+    [SerializeField] private Vector3 captainOffset;
     
-    [Header("References")]
-    [SerializeField] private SOPlayerStats playerStats;
-    [SerializeField] private Transform storeGfx;
-    [SerializeField] private Transform eggHolder;
-    [SerializeField] private CaptainCock captain;
-    [SerializeField] private CanvasGroup canvasGroup;
-    [SerializeField] private Button closeStoreButton;
-    [SerializeField] private Button rerollButton;
-    [SerializeField] private PlayerUpgradesDisplay playerUpgradesDisplay;
-    [SerializeField] private UpgradeEgg upgradeEggPrefab;
-    [SerializeField] private GameObject chickenLegPrefab;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
+
     
-    [Separator]
-    [SerializeField, VInspector.ReadOnly] private bool isOpen;
-    [SerializeField, VInspector.ReadOnly] private Selectable currentSelectable;
-    [SerializeField, VInspector.ReadOnly] private List<Selectable> selectables = new List<Selectable>();
+
     
     private readonly List<SOUpgradeBase> _storeUpgradesPool = new List<SOUpgradeBase>();
     private readonly List<UpgradeEgg> _upgradeEggs = new List<UpgradeEgg>();
-    private bool _hasRerolled;
-    private bool _hasPurchasedItem;
     private Sequence _storeSequence;
     private Sequence _paySequence;
+    private bool _hasRerolled;
+    private bool _hasPurchasedItem;
     
     public RailPlayer Player => player;
     public LevelManager LevelManager => levelManager;
@@ -69,12 +60,9 @@ public class UpgradeStore : MonoBehaviour
     public event Action OnStoreOpened;
     public event Action OnStoreClosed;
     
-    private void OnValidate()
+    protected override void OnValidate()
     {
-        if (!levelManager)
-        {
-            levelManager = FindFirstObjectByType<LevelManager>();
-        }
+        base.OnValidate();
         
         if (!player)
         {
@@ -101,17 +89,40 @@ public class UpgradeStore : MonoBehaviour
             return;
         }
 
-        isOpen = false;
+        isVisible = false;
         storeGfx.gameObject.SetActive(false);
         canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
+        SetupUpgradeEggs();
+        SetupButtons();
+    }
 
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        
+        if (levelManager)
+        {
+            levelManager.OnStageChanged += OnStageChanged;
+        }
+    }
 
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        
+        if (levelManager)
+        {
+            levelManager.OnStageChanged -= OnStageChanged;
+        }
+    }
+    
+    private void SetupUpgradeEggs()
+    {
         if (upgradeEggPrefab)
         {
-            // Set the upgrades position with offset
             var startPosition = Vector3.zero - offsetBetweenUpgrades;
             for (int i = 0; i < availableUpgrades; i++)
             {
@@ -121,77 +132,44 @@ public class UpgradeStore : MonoBehaviour
                 egg.Setup(this);
                 _upgradeEggs.Add(egg);
                 egg.OnUpgradeBought += OnUpgradeBought;
-                SetupSelectable(egg.Button);
-                selectables.Add(egg.Button);
+                AddSelectable(egg.Button);
             }
         }
-        
+    }
+    
+    private void SetupButtons()
+    {
         if (closeStoreButton)
         {
-            SetupSelectable(closeStoreButton);
-            selectables.Add(closeStoreButton);
+            AddSelectable(closeStoreButton);
             closeStoreButton.onClick.AddListener(CloseStore);
         }
 
         if (rerollButton)
         {
-            SetupSelectable(rerollButton);
-            selectables.Add(rerollButton);
+            AddSelectable(rerollButton);
             rerollButton.onClick.AddListener(RerollEggs);
-            // rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reroll";
-
-        }
-
-
-    }
-
-
-    private void OnEnable()
-    {
-        if (levelManager)
-        {
-            levelManager.OnStageChanged += OnStageChanged;
-            levelManager.OnPause += OnPause;
-            levelManager.LevelManagerInput.OnNavigateActionEvent += OnNavigateAction;
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (levelManager)
-        {
-            levelManager.OnStageChanged -= OnStageChanged;
-            levelManager.OnPause -= OnPause;
-            levelManager.LevelManagerInput.OnNavigateActionEvent -= OnNavigateAction;
         }
     }
     
-    private void OnNavigateAction(InputAction.CallbackContext callbackContext)
+    protected override void OnStageChanged(SOLevelStage stage)
     {
-        if (!isOpen || currentSelectable || LevelManager.IsGamePaused) return;
+        base.OnStageChanged(stage);
         
-        SelectFirstAvailableButton();
-
-    }
-    
-    private void OnPause(bool paused)
-    {
-        if (isOpen)
+        if (stage.StageType == StageType.Store && isVisible)
         {
-            canvasGroup.interactable = !paused;
+            // Store is already open
+            return;
         }
-    }
-    
-    private void OnStageChanged(SOLevelStage stage)
-    {
-        if (!stage || stage.StageType == StageType.Store && isOpen) return;
-        
-        if (stage.StageType != StageType.Store && isOpen)
+        if (stage.StageType != StageType.Store && isVisible)
         {
+            // Store should not be open
             CloseStore();
             return;
         } 
 
+        
+        
         SetStoreUpgradesPool(stage.UpgradesPool.ToList());
         if (_storeUpgradesPool is { Count: > 0 })
         {
@@ -213,50 +191,7 @@ public class UpgradeStore : MonoBehaviour
         UpdateRerollButtonState();
         playerUpgradesDisplay.UpdatePlayerUpgrades(player);
         
-
-        if (chickenLegPrefab)
-        {
-            if (_paySequence.isAlive) _paySequence.Complete();
-            _paySequence = Sequence.Create();
-            List<GameObject> chickenLegs = new List<GameObject>();
-            for (int i = 0; i < Mathf.Clamp(upgradeCost,1 ,50); i++)
-            {
-                var chickenLeg = Instantiate(chickenLegPrefab, transform);
-                chickenLegs.Add(chickenLeg);
-                
-                var chickenStartSize = chickenLeg.transform.localScale;
-                chickenLeg.transform.localScale = Vector3.zero;
-                
-                _paySequence.Group(Tween.Position(chickenLeg.transform, 
-                    player.transform.position,
-                    captain.transform.position + captainOffset, 
-                    duration: payAnimationDuration,
-                    ease: payAnimationMoveEase,
-                    startDelay: i * 0.05f));
-                
-                _paySequence.Group(Tween.Rotation(chickenLeg.transform, 
-                    Random.rotation, 
-                    duration: Random.Range(payAnimationDuration/2,payAnimationDuration),
-                    ease: payAnimationMoveEase,
-                    startDelay: i * 0.05f));
-                
-                _paySequence.Group(Tween.Scale(chickenLeg.transform, 
-                    Vector3.zero, 
-                    chickenStartSize * Random.Range(0.5f, 1.25f), 
-                    duration: payAnimationDuration * Random.Range(payAnimationDuration/5,payAnimationDuration/3),
-                    ease: payAnimationScaleEase,
-                    startDelay: i * 0.05f));
-            }
-            
-            _paySequence.OnComplete(() =>
-            {
-                foreach (var chickenLeg in chickenLegs.ToList())
-                {
-                    chickenLegs.Remove(chickenLeg);
-                    Destroy(chickenLeg);
-                }
-            });
-        }
+        PlayPayAnimation(upgradeCost);
         
         if (closeStoreOnPurchase)
         {
@@ -265,7 +200,53 @@ public class UpgradeStore : MonoBehaviour
                 .ChainDelay(1.3f)
                 .OnComplete(CloseStore);
         }
+    }
 
+    private void PlayPayAnimation(int upgradeCost)
+    {
+        if (!chickenLegPrefab) return;
+        
+        if (_paySequence.isAlive) _paySequence.Complete();
+        _paySequence = Sequence.Create();
+        List<GameObject> chickenLegs = new List<GameObject>();
+        
+        for (int i = 0; i < Mathf.Clamp(upgradeCost, 1, 50); i++)
+        {
+            var chickenLeg = Instantiate(chickenLegPrefab, transform);
+            chickenLegs.Add(chickenLeg);
+            
+            var chickenStartSize = chickenLeg.transform.localScale;
+            chickenLeg.transform.localScale = Vector3.zero;
+            
+            _paySequence.Group(Tween.Position(chickenLeg.transform, 
+                player.transform.position,
+                captain.transform.position + captainOffset, 
+                duration: payAnimationDuration,
+                ease: payAnimationMoveEase,
+                startDelay: i * 0.05f));
+            
+            _paySequence.Group(Tween.Rotation(chickenLeg.transform, 
+                Random.rotation, 
+                duration: Random.Range(payAnimationDuration/2, payAnimationDuration),
+                ease: payAnimationMoveEase,
+                startDelay: i * 0.05f));
+            
+            _paySequence.Group(Tween.Scale(chickenLeg.transform, 
+                Vector3.zero, 
+                chickenStartSize * Random.Range(0.5f, 1.25f), 
+                duration: payAnimationDuration * Random.Range(payAnimationDuration/5, payAnimationDuration/3),
+                ease: payAnimationScaleEase,
+                startDelay: i * 0.05f));
+        }
+        
+        _paySequence.OnComplete(() =>
+        {
+            foreach (var chickenLeg in chickenLegs.ToList())
+            {
+                chickenLegs.Remove(chickenLeg);
+                Destroy(chickenLeg);
+            }
+        });
     }
 
     private void RerollEggs()
@@ -288,30 +269,21 @@ public class UpgradeStore : MonoBehaviour
             var index1 = index;
             egg.RerollUpgrade(upgrade, GetCostByRarity(upgrade.ItemRarity), index1 * 0.25f);
         }
-        
     }
     
     private void UpdateRerollButtonState()
     {
-        // if (_hasRerolled || _hasPurchasedItem)
-        // {
-        //     rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Used";
-        // }
-        // else
-        // {
-        //     rerollButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reroll";
-        // }
-        
-        
         rerollButton.interactable = !_hasRerolled && !_hasPurchasedItem;
-        if (!rerollButton.interactable) rerollButton.GetComponentInChildren<SelectableAnimator>().Deselect();
-
+        if (!rerollButton.interactable) 
+        {
+            rerollButton.GetComponentInChildren<SelectableAnimator>().Deselect();
+        }
     }
     
     private void OpenStore()
     {
-        if (isOpen) return;
-        isOpen = true;
+        if (isVisible) return;
+        isVisible = true;
         
         _hasRerolled = false;
         _hasPurchasedItem = false;
@@ -324,7 +296,7 @@ public class UpgradeStore : MonoBehaviour
         
         if (_storeSequence.isAlive) _storeSequence.Stop();
         _storeSequence = Sequence.Create()
-            .Group(Tween.Alpha(canvasGroup, 1, storeAnimationDuration));
+            .Group(Tween.Alpha(canvasGroup, 1, uiAnimationDuration));
         
         SetEggsUpgrades();
         
@@ -338,9 +310,9 @@ public class UpgradeStore : MonoBehaviour
 
     private void CloseStore()
     {
-        if (!isOpen) return;
+        if (!isVisible) return;
         
-        isOpen = false;
+        isVisible = false;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
         playerUpgradesDisplay.ClearUpgrades();
@@ -356,14 +328,13 @@ public class UpgradeStore : MonoBehaviour
                 }
                 captain.OnStoreClose();
             })
-            .Group(Tween.Alpha(canvasGroup, 0, storeAnimationDuration))    
+            .Group(Tween.Alpha(canvasGroup, 0, uiAnimationDuration))    
             .OnComplete(() =>
             {
                 storeGfx.gameObject.SetActive(false);
                 OnStoreClosed?.Invoke();
             });
     }
-    
 
     private void SetStoreUpgradesPool(List<SOUpgradeBase> newPool)
     {
@@ -395,7 +366,7 @@ public class UpgradeStore : MonoBehaviour
             if (!upgrade) continue;
             tempPool.Remove(upgrade);
             var index1 = index;
-            _storeSequence.ChainCallback(() => egg.SetUpgrade(true, upgrade,GetCostByRarity(upgrade.ItemRarity), index1 * 0.25f));
+            _storeSequence.ChainCallback(() => egg.SetUpgrade(true, upgrade, GetCostByRarity(upgrade.ItemRarity), index1 * 0.25f));
         }
         
         for (var index = validEggCount; index < _upgradeEggs.Count; index++)
@@ -453,68 +424,4 @@ public class UpgradeStore : MonoBehaviour
             _ => uncommonCost
         };
     }
-    
-    
-    #region Selectables
-
-    private void SelectFirstAvailableButton()
-    {
-        if (!isOpen) return;
-        
-        foreach (var selectable in selectables)
-        {
-            if (selectable && selectable.interactable)
-            {
-                selectable.Select();
-                currentSelectable = selectable;
-                break;
-            }
-        }
-    }
-    
-    private void SetupSelectable(Selectable selectable)
-    {
-        var eventTrigger = selectable.GetComponent<EventTrigger>() ?? selectable.gameObject.AddComponent<EventTrigger>();
-        AddEventTriggerEntry(eventTrigger, EventTriggerType.Select, OnSelectableSelected);
-        AddEventTriggerEntry(eventTrigger, EventTriggerType.Deselect, OnSelectableDeselected);
-    }
-    
-    
-    private void AddEventTriggerEntry(EventTrigger eventTrigger, EventTriggerType type, UnityAction<BaseEventData> callback)
-    {
-        var existingEntry = eventTrigger.triggers.FirstOrDefault(entry => entry.eventID == type);
-
-        if (existingEntry != null)
-        {
-            existingEntry.callback.AddListener(callback);
-        }
-        else
-        {
-            var newEntry = new EventTrigger.Entry
-            {
-                eventID = type,
-                callback = new EventTrigger.TriggerEvent()
-            };
-            newEntry.callback.AddListener(callback);
-            eventTrigger.triggers.Add(newEntry);
-        }
-    }
-    
-    
-    private void OnSelectableSelected(BaseEventData eventData)
-    {
-        if ( !eventData.selectedObject.activeSelf) return;
-
-        currentSelectable = eventData.selectedObject.GetComponent<Selectable>();
-    }
-
-    private void OnSelectableDeselected(BaseEventData eventData)
-    {
-        if ( !eventData.selectedObject.activeSelf || !currentSelectable) return;
-        
-        currentSelectable = null;
-    }
-    
-
-    #endregion Selectables
 }

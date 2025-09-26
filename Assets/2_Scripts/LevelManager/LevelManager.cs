@@ -42,7 +42,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private ObstacleManager obstacleManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RadioManager radioManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private TaskVisualizer taskVisualizer;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private PauseMenu pauseMenu;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private PauseScreen pauseScreen;
     [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField, Scene(Flag.EditableAnywhere)] private FormationBoundaryManager boundaryManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
@@ -280,7 +280,7 @@ public class LevelManager : MonoBehaviour
             {
                 SetPausedState(true);
             }
-            else if (_isGamePaused && pauseMenu.IsAtPauseScreen)
+            else if (_isGamePaused && pauseScreen.IsAtPauseScreen)
             {
                 SetPausedState(false);
             }
@@ -407,12 +407,7 @@ public class LevelManager : MonoBehaviour
         {
             if (currentStage.StageType == StageType.Outro)
             {
-                
-                if (currentStage.ShowOutroMenu)
-                {
-                    outroScreen.Show(currentStage.NextLevel.IsSceneValid());
-                }
-                else
+                if (!currentStage.ShowOutroMenu)
                 {
                     ReturnToMainMenu(newStage.StageDuration);
                 }

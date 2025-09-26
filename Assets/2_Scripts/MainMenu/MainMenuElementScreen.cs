@@ -1,17 +1,16 @@
 using System;
 using System.Linq;
 using DNExtensions;
-using DNExtensions.Button;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class MenuElementScreen : MenuElement
+public class MainMenuElementScreen : MainMenuElement
 {
     [Header("Screen")]
-    [SerializeField] private MenuScreen menuScreen;
+    [SerializeField] private TabbedMenuScreen tabbedMenuScreen;
     [SerializeField] private Selectable[] selectables = Array.Empty<Selectable>();
     
     
@@ -37,46 +36,46 @@ public class MenuElementScreen : MenuElement
             SetupSelectable(selectable);
         }
         
-        if (menuScreen)
+        if (tabbedMenuScreen)
         {
-            menuScreen.OnMenuScreenOpened += OnMenuOpened;
-            menuScreen.OnMenuScreenClosed += OnMenuClosed;
-            menuScreen.OnTabSelected += OnMenuTabSelected;
+            tabbedMenuScreen.OnMenuScreenOpened += TabbedMenuOpened;
+            tabbedMenuScreen.OnMenuScreenClosed += TabbedMenuClosed;
+            tabbedMenuScreen.OnTabSelected += TabbedMenuTabSelected;
         }
     }
     
     private void OnDestroy()
     {
-        if (menuScreen)
+        if (tabbedMenuScreen)
         {
-            menuScreen.OnMenuScreenOpened -= OnMenuOpened;
-            menuScreen.OnMenuScreenClosed -= OnMenuClosed;
-            menuScreen.OnTabSelected -= OnMenuTabSelected;
+            tabbedMenuScreen.OnMenuScreenOpened -= TabbedMenuOpened;
+            tabbedMenuScreen.OnMenuScreenClosed -= TabbedMenuClosed;
+            tabbedMenuScreen.OnTabSelected -= TabbedMenuTabSelected;
         }
     }
     
     protected override void OnInteract()
     {
-        if (menuScreen)
+        if (tabbedMenuScreen)
         {
-            menuScreen.Show();
+            tabbedMenuScreen.Show();
         }
     }
     
     protected override void OnFinishedInteraction()
     {
-        if (menuScreen)
+        if (tabbedMenuScreen)
         {
-            menuScreen.Hide();
+            tabbedMenuScreen.Hide();
         }
         currentSelectable = null;
     }
 
     protected override void OnStopInteraction()
     {
-        if (menuScreen)
+        if (tabbedMenuScreen)
         {
-            menuScreen.Hide();
+            tabbedMenuScreen.Hide();
         }
         currentSelectable = null;
     }
@@ -85,25 +84,25 @@ public class MenuElementScreen : MenuElement
     {
         base.OnNavigate(context);
         
-        if (menuScreen && menuScreen.IsVisible && !currentSelectable)
+        if (tabbedMenuScreen && tabbedMenuScreen.IsVisible && !currentSelectable)
         {
             SelectFirstAvailableButton();
         }
     }
     
-    private void OnMenuOpened()
+    private void TabbedMenuOpened()
     {
         SelectFirstAvailableButton();
     }
     
-    private void OnMenuClosed()
+    private void TabbedMenuClosed()
     {
         currentSelectable = null;
     }
     
-    private void OnMenuTabSelected(CanvasGroup tab)
+    private void TabbedMenuTabSelected(CanvasGroup tab)
     {
-        SelectFirstAvailableButton();
+        // SelectFirstAvailableButton();
     }
     
     

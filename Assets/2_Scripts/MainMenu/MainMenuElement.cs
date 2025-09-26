@@ -11,7 +11,7 @@ using Sequence = PrimeTween.Sequence;
 [SelectionBase]
 [RequireComponent(typeof(CinemachineImpulseSource))]
 [RequireComponent(typeof(ControllerVibrationSource))]
-public abstract class MenuElement : MonoBehaviour
+public abstract class MainMenuElement : MonoBehaviour
 {
     
     [Header("Element Settings")]
@@ -19,10 +19,10 @@ public abstract class MenuElement : MonoBehaviour
     [SerializeField] private Color elementColor = Color.white;
     [SerializeField] private Vector3 cameraLootAtOffset;
     [Foldout("Navigation")]
-    public MenuElement upElement;
-    public MenuElement downElement;
-    public MenuElement leftElement;
-    public MenuElement rightElement;
+    public MainMenuElement upElement;
+    public MainMenuElement downElement;
+    public MainMenuElement leftElement;
+    public MainMenuElement rightElement;
     [EndFoldout]
 
     
@@ -32,7 +32,7 @@ public abstract class MenuElement : MonoBehaviour
     [SerializeField] private CanvasGroup labelCanvasGroup;
     [SerializeField] private SOAudioEvent selectSfx;
     [SerializeField] private SOAudioEvent interactSfx;
-    [SerializeField, Parent, HideInInspector] protected MenuController menuController;
+    [SerializeField, Parent, HideInInspector] protected MainMenuController mainMenuController;
     [SerializeField, Parent, HideInInspector] protected AudioSource audioSource;
     [SerializeField, Self, HideInInspector] protected ControllerVibrationSource controllerVibrationSource;
     [SerializeField, Self, HideInInspector] protected CinemachineImpulseSource cinemachineImpulseSource;
@@ -70,16 +70,16 @@ public abstract class MenuElement : MonoBehaviour
     
     private void OnEnable()
     {
-        menuController.menuInput.OnNavigateAction += OnNavigate;
-        menuController.menuInput.OnSubmitAction += OnSubmit;
-        menuController.menuInput.OnCancelAction += OnCancel;
+        mainMenuController.mainMenuInput.OnNavigateAction += OnNavigate;
+        mainMenuController.mainMenuInput.OnSubmitAction += OnSubmit;
+        mainMenuController.mainMenuInput.OnCancelAction += OnCancel;
     }
 
     private void OnDisable()
     {
-        menuController.menuInput.OnNavigateAction -= OnNavigate;
-        menuController.menuInput.OnSubmitAction -= OnSubmit;
-        menuController.menuInput.OnCancelAction -= OnCancel;
+        mainMenuController.mainMenuInput.OnNavigateAction -= OnNavigate;
+        mainMenuController.mainMenuInput.OnSubmitAction -= OnSubmit;
+        mainMenuController.mainMenuInput.OnCancelAction -= OnCancel;
     }
     
     public void Deselect()
@@ -109,7 +109,7 @@ public abstract class MenuElement : MonoBehaviour
     protected void FinishedInteraction()
     {
         SetState(ElementState.Selected);
-        menuController?.InteractionFinished(this);
+        mainMenuController?.InteractionFinished(this);
         OnFinishedInteraction();
     }
     
@@ -208,14 +208,14 @@ public abstract class MenuElement : MonoBehaviour
 
     public void OnMouseEnter()
     {
-        if (menuController.menuInput.IsCurrentDeviceGamepad) return;
-        menuController?.MouseEnteredElement(this);
+        if (mainMenuController.mainMenuInput.IsCurrentDeviceGamepad) return;
+        mainMenuController?.MouseEnteredElement(this);
     }
     
     public void OnMouseDown()
     {
-        if (menuController.menuInput.IsCurrentDeviceGamepad) return;
-        menuController?.MousePressedElement(this);
+        if (mainMenuController.mainMenuInput.IsCurrentDeviceGamepad) return;
+        mainMenuController?.MousePressedElement(this);
     }
     
     

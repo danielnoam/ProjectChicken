@@ -15,7 +15,7 @@ using UnityEngine.UI;
 using VInspector;
 using Sequence = PrimeTween.Sequence;
 
-public class MenuElementLevelSelection : MenuElement
+public class MainMenuElementLevelSelection : MainMenuElement
 {
     
     [Header("Level Selection")]

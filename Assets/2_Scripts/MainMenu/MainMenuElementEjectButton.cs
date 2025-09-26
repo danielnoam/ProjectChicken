@@ -3,7 +3,7 @@ using PrimeTween;
 using UnityEngine;
 using VInspector;
 
-public class MenuElementEjectButton : MenuElement
+public class MainMenuElementEjectButton : MainMenuElement
 {
     
     [Header("Button Press Animation")]

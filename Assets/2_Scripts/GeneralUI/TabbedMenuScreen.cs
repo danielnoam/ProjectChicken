@@ -5,7 +5,7 @@ using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MenuScreen : MonoBehaviour
+public class TabbedMenuScreen : MonoBehaviour
 {
     [Header("Screen")]
     [SerializeField] private CanvasGroup screenCanvas;

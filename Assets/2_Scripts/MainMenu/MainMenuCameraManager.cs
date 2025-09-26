@@ -5,10 +5,10 @@ using Unity.Cinemachine;
 using UnityEngine;
 
 [SelectionBase]
-public class MenuCameraManager : MonoBehaviour
+public class MainMenuCameraManager : MonoBehaviour
 {
 
-    public static MenuCameraManager Instance { get; private set; }
+    public static MainMenuCameraManager Instance { get; private set; }
     
     [Header("Main Camera Settings")]
     [SerializeField] private float lookAtDuration = 0.5f;
@@ -16,7 +16,7 @@ public class MenuCameraManager : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private Transform cameraLookAtTarget;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private MenuController menuController;
+    [SerializeField, Scene(Flag.EditableAnywhere)] private MainMenuController mainMenuController;
     [SerializeField, Child (Flag.Optional), HideInInspector] private CinemachineCamera defaultCamera;
     [SerializeField, Child (Flag.Optional), HideInInspector] private CinemachineRotationComposer defaultCameraRotationComposer;
 
@@ -29,15 +29,15 @@ public class MenuCameraManager : MonoBehaviour
 
     private void OnValidate()
     {
-        if (!menuController)
+        if (!mainMenuController)
         {
-            menuController = FindFirstObjectByType<MenuController>();
+            mainMenuController = FindFirstObjectByType<MainMenuController>();
         }
         else
         {
             _defaultTargetOffset = defaultCameraRotationComposer.TargetOffset;
-            cameraLookAtTarget.position = menuController.DefaultCameraLookAtPoint.position;
-            defaultCamera.Target.TrackingTarget = menuController.DefaultCameraPosition;
+            cameraLookAtTarget.position = mainMenuController.DefaultCameraLookAtPoint.position;
+            defaultCamera.Target.TrackingTarget = mainMenuController.DefaultCameraPosition;
         }
         
 
@@ -60,47 +60,47 @@ public class MenuCameraManager : MonoBehaviour
         
         
         _defaultTargetOffset = defaultCameraRotationComposer.TargetOffset;
-        cameraLookAtTarget.position = menuController.DefaultCameraLookAtPoint.position;
-        defaultCamera.Target.TrackingTarget = menuController.DefaultCameraPosition;
+        cameraLookAtTarget.position = mainMenuController.DefaultCameraLookAtPoint.position;
+        defaultCamera.Target.TrackingTarget = mainMenuController.DefaultCameraPosition;
     }
 
     private void OnEnable()
     {
-        if (menuController)
+        if (mainMenuController)
         {
-            menuController.onElementSelected += OnElementSelected;
-            menuController.onElementDeselected += OnElementDeselected;
-            menuController.onElementInteracted += OnElementInteracted;
-            menuController.onElementFinishedInteraction += OnElementFinishedInteraction;
+            mainMenuController.onElementSelected += OnElementSelected;
+            mainMenuController.onElementDeselected += OnElementDeselected;
+            mainMenuController.onElementInteracted += OnElementInteracted;
+            mainMenuController.onElementFinishedInteraction += OnElementFinishedInteraction;
         }
     }
 
     private void OnDisable()
     {
-        if (menuController)
+        if (mainMenuController)
         {
-            menuController.onElementSelected -= OnElementSelected;
-            menuController.onElementDeselected -= OnElementDeselected;
-            menuController.onElementInteracted -= OnElementInteracted;
-            menuController.onElementFinishedInteraction -= OnElementFinishedInteraction;
+            mainMenuController.onElementSelected -= OnElementSelected;
+            mainMenuController.onElementDeselected -= OnElementDeselected;
+            mainMenuController.onElementInteracted -= OnElementInteracted;
+            mainMenuController.onElementFinishedInteraction -= OnElementFinishedInteraction;
         }
     }
 
 
-    private void OnElementDeselected(MenuElement element)
+    private void OnElementDeselected(MainMenuElement element)
     {
         if (!element) return;
-        UpdateCameraTarget(menuController.DefaultCameraLookAtPoint.position, _defaultTargetOffset);
+        UpdateCameraTarget(mainMenuController.DefaultCameraLookAtPoint.position, _defaultTargetOffset);
     }
 
-    private void OnElementSelected(MenuElement element)
+    private void OnElementSelected(MainMenuElement element)
     {
         if (!element) return;
         
         UpdateCameraTarget(element.CameraLookAtPoint.position,element.CameraLookAtOffset);
     }
     
-    private void OnElementInteracted(MenuElement element)
+    private void OnElementInteracted(MainMenuElement element)
     {
         if (!element || !element.InteractionCamera) return;
         
@@ -108,7 +108,7 @@ public class MenuCameraManager : MonoBehaviour
         defaultCamera.Priority = 0;
     }
     
-    private void OnElementFinishedInteraction(MenuElement element)
+    private void OnElementFinishedInteraction(MainMenuElement element)
     {
         if (!element || !element.InteractionCamera) return;
 

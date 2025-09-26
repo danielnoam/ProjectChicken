@@ -19,8 +19,8 @@ public class RailPlayerAiming : MonoBehaviour
     [Header("Auto Center")]
     [SerializeField] private bool autoCenter = true;
     [EnableIf("autoCenter")]
-    [SerializeField, Min(0)] private float autoCenterDelay = 5f;
-    [SerializeField, Min(0)] private float autoCenterSpeed = 1f;
+    [SerializeField, Range(0.1f,10f)] private float autoCenterDelay = 5f;
+    [SerializeField, Range(0.1f,10f)] private float autoCenterSpeed = 1f;
     [EndIf]
     
     [Header("References")]
@@ -286,12 +286,8 @@ public class RailPlayerAiming : MonoBehaviour
     
     #region Input Processing --------------------------------------------------------------------------------------------------------
 
-    private void OnProcessedLook(Vector2 processedLookInput)
-    {
-        if (!AllowAiming || !player.Health.IsAlive()) return;
-        _processedLookInput = processedLookInput;
-        _noInputTimer = 0f;
-    }
+
+
     
     private void OnAttack2(InputAction.CallbackContext context)
     {
@@ -303,6 +299,30 @@ public class RailPlayerAiming : MonoBehaviour
         _noInputTimer = 0f;
     }
     
+    
+    private void OnProcessedLook(Vector2 processedLookInput)
+    {
+        if (!AllowAiming || !player.Health.IsAlive()) return;
+    
+        // Validate input at the source - only check for NaN/Infinity, not magnitude
+        if (!IsValidVector2(processedLookInput))
+        {
+            Debug.LogWarning($"Detected corrupted input in OnProcessedLook: {processedLookInput}, ignoring");
+            return; // Don't update _processedLookInput with corrupted data
+        }
+    
+        // Only clamp truly extreme values that indicate corruption (not fast mouse movement)
+        if (processedLookInput.magnitude > 10000f)
+        {
+            Debug.LogWarning($"Detected extremely large input magnitude in OnProcessedLook: {processedLookInput.magnitude}, clamping");
+            processedLookInput = processedLookInput.normalized * 1000f; // Keep direction but limit magnitude
+        }
+    
+        _processedLookInput = processedLookInput;
+        _noInputTimer = 0f;
+    }
+    
+        
     private void ProcessAimingInput()
     {
         if (_isAimLocked && _processedLookInput.magnitude <= playerInput.CurrentControlScheme.aimLockStrength)
@@ -318,6 +338,14 @@ public class RailPlayerAiming : MonoBehaviour
 
         Vector2 inputDelta = _processedLookInput;
         Vector2 positionChange;
+        
+        // Safety check (should be clean now, but keeping as backup)
+        if (!IsValidVector2(inputDelta))
+        {
+            Debug.LogError($"Corrupted input made it past OnProcessedLook validation: {inputDelta}");
+            _processedLookInput = Vector2.zero;
+            return;
+        }
         
         if (playerInput.IsCurrentDeviceGamepad)
         {
@@ -342,7 +370,17 @@ public class RailPlayerAiming : MonoBehaviour
             else
             {
                 float scaledMagnitude = (inputDelta.magnitude - deadZone) / (1f - deadZone);
-                inputDelta = inputDelta.normalized * scaledMagnitude;
+                
+                // Only catch truly problematic values - normal mouse movement can be large
+                if (!float.IsFinite(scaledMagnitude))
+                {
+                    Debug.LogError($"Non-finite scaled magnitude detected: {scaledMagnitude} from input: {inputDelta}");
+                    inputDelta = Vector2.zero;
+                }
+                else
+                {
+                    inputDelta = inputDelta.normalized * scaledMagnitude;
+                }
             }
             
             if (inputDelta.magnitude > 0)
@@ -352,9 +390,15 @@ public class RailPlayerAiming : MonoBehaviour
                 inputDelta = inputDelta.normalized * (originalMagnitude * curvedSensitivity * baseSensitivity * playerInput.CurrentControlScheme.aimSensitivity);
             }
             
-
             Vector2 mouseVelocity = inputDelta * 0.1f;
             positionChange = mouseVelocity * Time.deltaTime;
+        }
+        
+        // Final safety check
+        if (!IsValidVector2(positionChange))
+        {
+            Debug.LogError($"Corrupted position change calculated: {positionChange}");
+            return;
         }
         
         Vector2 edgeDistance = new Vector2(
@@ -375,12 +419,18 @@ public class RailPlayerAiming : MonoBehaviour
     }
 
 
-
     #endregion Input Processing --------------------------------------------------------------------------------------------------------
 
     
     #region Helper Methods -------------------------------------------------------------------------
     
+    private bool IsValidVector2(Vector2 vector)
+    {
+        return !float.IsNaN(vector.x) && !float.IsNaN(vector.y) &&
+               !float.IsInfinity(vector.x) && !float.IsInfinity(vector.y);
+    }
+        
+        
     public ChickenStateController GetTarget(float radius)
     {
         

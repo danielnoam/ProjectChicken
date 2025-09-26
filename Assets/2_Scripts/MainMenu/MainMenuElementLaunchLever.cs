@@ -5,7 +5,7 @@ using PrimeTween;
 using UnityEngine;
 using VInspector;
 
-public class MenuElementLaunchLever : MenuElement
+public class MainMenuElementLaunchLever : MainMenuElement
 {
     
     [Header("Lever Pull")]
@@ -30,7 +30,7 @@ public class MenuElementLaunchLever : MenuElement
     [SerializeField] private float stateLerpSpeed = 5f;
     
     [Foldout("References")]
-    [SerializeField] private MenuElementLevelSelection levelSelection;
+    [SerializeField] private MainMenuElementLevelSelection levelSelection;
     [SerializeField] private Transform leverPivotTransform;
     [SerializeField] private Renderer selectedLevelLight;
     [SerializeField] private BobbleHead chickenBobbleHead;

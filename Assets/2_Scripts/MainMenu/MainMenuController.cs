@@ -8,13 +8,13 @@ using VInspector;
 
 [SelectionBase]
 [RequireComponent(typeof(AudioSource))]
-[RequireComponent(typeof(MenuInput))]
+[RequireComponent(typeof(MainMenuInput))]
 [RequireComponent(typeof(ControllerVibrationSource))]
-public class MenuController : MonoBehaviour
+public class MainMenuController : MonoBehaviour
 {
 
     [Header("Menu Settings")]
-    [SerializeField] private MenuElement[] menuElements;
+    [SerializeField] private MainMenuElement[] menuElements;
     
     [Header("Controller Rumble")]
     [SerializeField] private ControllerVibrationEffectSettings vibrationOnInteract = new ControllerVibrationEffectSettings(0.03f, 0f, 0.3f);
@@ -25,21 +25,21 @@ public class MenuController : MonoBehaviour
     [SerializeField] private Transform defaultCameraLookAtPoint;
     [SerializeField] private SOAudioEvent menuLoopSfx;
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
-    [SerializeField, Self, HideInInspector] public MenuInput menuInput;
+    [SerializeField, Self, HideInInspector] public MainMenuInput mainMenuInput;
     [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
     
     
     private bool _isInteracting;
     private int _previousMenuElementIndex;
     private int _currentMenuElementIndex;
-    private MenuElement _currentMenuElement;
+    private MainMenuElement _currentMainMenuElement;
     
     public Transform DefaultCameraLookAtPoint => defaultCameraLookAtPoint ? defaultCameraLookAtPoint : transform;
     public Transform DefaultCameraPosition => defaultCameraPosition ? defaultCameraPosition : transform;
-    public Action<MenuElement> onElementSelected;
-    public Action<MenuElement> onElementDeselected;
-    public Action<MenuElement> onElementInteracted;
-    public Action<MenuElement> onElementFinishedInteraction;
+    public Action<MainMenuElement> onElementSelected;
+    public Action<MainMenuElement> onElementDeselected;
+    public Action<MainMenuElement> onElementInteracted;
+    public Action<MainMenuElement> onElementFinishedInteraction;
 
     private void OnValidate()
     {
@@ -56,16 +56,16 @@ public class MenuController : MonoBehaviour
 
     private void OnEnable()
     {
-        menuInput.OnNavigateAction += OnNavigate;
-        menuInput.OnSubmitAction += OnSubmit;
-        menuInput.OnCancelAction += OnCancel;
+        mainMenuInput.OnNavigateAction += OnNavigate;
+        mainMenuInput.OnSubmitAction += OnSubmit;
+        mainMenuInput.OnCancelAction += OnCancel;
     }
 
     private void OnDisable()
     {
-        menuInput.OnNavigateAction -= OnNavigate;
-        menuInput.OnSubmitAction -= OnSubmit;
-        menuInput.OnCancelAction -= OnCancel;
+        mainMenuInput.OnNavigateAction -= OnNavigate;
+        mainMenuInput.OnSubmitAction -= OnSubmit;
+        mainMenuInput.OnCancelAction -= OnCancel;
     }
 
     
@@ -77,9 +77,9 @@ public class MenuController : MonoBehaviour
     {
         if (menuElements.Length > 0)
         {
-            menuElements = Array.Empty<MenuElement>();
+            menuElements = Array.Empty<MainMenuElement>();
         }
-        menuElements = GetComponentsInChildren<MenuElement>();
+        menuElements = GetComponentsInChildren<MainMenuElement>();
     }
 
     #endregion Menu SetUp ------------------------------------------------------------------------------------------------------------
@@ -101,9 +101,9 @@ public class MenuController : MonoBehaviour
         controllerVibrationSource.Vibrate(vibrationOnSelect);
 
         _currentMenuElementIndex = index;
-        _currentMenuElement = menuElements[index];
-        _currentMenuElement.Select();
-        onElementSelected?.Invoke(_currentMenuElement);
+        _currentMainMenuElement = menuElements[index];
+        _currentMainMenuElement.Select();
+        onElementSelected?.Invoke(_currentMainMenuElement);
     }
     
     private void SelectNextMenuElement()
@@ -175,12 +175,12 @@ public class MenuController : MonoBehaviour
     
     private void DisableSelection()
     {
-        if (!_currentMenuElement) return;
+        if (!_currentMainMenuElement) return;
         
-        _currentMenuElement.Deselect();
-        onElementDeselected?.Invoke(_currentMenuElement);
+        _currentMainMenuElement.Deselect();
+        onElementDeselected?.Invoke(_currentMainMenuElement);
         _previousMenuElementIndex = _currentMenuElementIndex;
-        _currentMenuElement = null;
+        _currentMainMenuElement = null;
     }
     
 
@@ -190,7 +190,7 @@ public class MenuController : MonoBehaviour
 
     #region Element Interaction -----------------------------------------------------------------------------------------------------
     
-    private void InteractWithElement(MenuElement element)
+    private void InteractWithElement(MainMenuElement element)
     {
         if (_isInteracting || !element.CanSelect) return;
         
@@ -200,7 +200,7 @@ public class MenuController : MonoBehaviour
         onElementInteracted?.Invoke(element);
     }
     
-    private void StopInteraction(MenuElement element)
+    private void StopInteraction(MainMenuElement element)
     {
         controllerVibrationSource.Vibrate(vibrationOnInteract);
         _isInteracting = false;
@@ -208,7 +208,7 @@ public class MenuController : MonoBehaviour
         onElementFinishedInteraction?.Invoke(element);
     }
     
-    public void InteractionFinished(MenuElement element)
+    public void InteractionFinished(MainMenuElement element)
     {
         _isInteracting = false;
         onElementFinishedInteraction?.Invoke(element);
@@ -220,16 +220,16 @@ public class MenuController : MonoBehaviour
     #region Input -------------------------------------------------------------------------------------------------------------------
 
     
-    public void MousePressedElement (MenuElement element)
+    public void MousePressedElement (MainMenuElement element)
     {
-        if (_isInteracting || _currentMenuElement != element) return;
+        if (_isInteracting || _currentMainMenuElement != element) return;
 
         InteractWithElement(element);
     }
     
-    public void MouseEnteredElement(MenuElement element)
+    public void MouseEnteredElement(MainMenuElement element)
     {
-        if (_isInteracting || _currentMenuElement == element || menuInput.IsCurrentDeviceGamepad) return;
+        if (_isInteracting || _currentMainMenuElement == element || mainMenuInput.IsCurrentDeviceGamepad) return;
         
         SelectMenuElement(Array.IndexOf(menuElements, element));
     }
@@ -240,7 +240,7 @@ public class MenuController : MonoBehaviour
         
         Vector2 input = context.ReadValue<Vector2>();
         
-        if (!_currentMenuElement)
+        if (!_currentMainMenuElement)
         {
             if (input.y > 0 || input.x < 0) // Up or Left
             {
@@ -256,36 +256,36 @@ public class MenuController : MonoBehaviour
 
             if (input.y > 0) // Up
             {
-                if (_currentMenuElement.upElement)
+                if (_currentMainMenuElement.upElement)
                 {
-                    int upIndex = Array.IndexOf(menuElements, _currentMenuElement.upElement);
+                    int upIndex = Array.IndexOf(menuElements, _currentMainMenuElement.upElement);
                     if (upIndex >= 0) SelectMenuElement(upIndex);
                 }
 
             }
             else if (input.y < 0) // Down
             {
-                if (_currentMenuElement.downElement)
+                if (_currentMainMenuElement.downElement)
                 {
-                    int downIndex = Array.IndexOf(menuElements, _currentMenuElement.downElement);
+                    int downIndex = Array.IndexOf(menuElements, _currentMainMenuElement.downElement);
                     if (downIndex >= 0) SelectMenuElement(downIndex);
                 }
 
             }
             else if (input.x > 0) // Right
             {
-                if (_currentMenuElement.rightElement)
+                if (_currentMainMenuElement.rightElement)
                 {
-                    int rightIndex = Array.IndexOf(menuElements, _currentMenuElement.rightElement);
+                    int rightIndex = Array.IndexOf(menuElements, _currentMainMenuElement.rightElement);
                     if (rightIndex >= 0) SelectMenuElement(rightIndex);
                 }
 
             }
             else if (input.x < 0) // Left
             {
-                if (_currentMenuElement.leftElement)
+                if (_currentMainMenuElement.leftElement)
                 {
-                    int leftIndex = Array.IndexOf(menuElements, _currentMenuElement.leftElement);
+                    int leftIndex = Array.IndexOf(menuElements, _currentMainMenuElement.leftElement);
                     if (leftIndex >= 0) SelectMenuElement(leftIndex);
                 }
 
@@ -299,9 +299,9 @@ public class MenuController : MonoBehaviour
         if (!context.performed) return;
         
         
-        if (_currentMenuElement)
+        if (_currentMainMenuElement)
         {
-            InteractWithElement(_currentMenuElement);
+            InteractWithElement(_currentMainMenuElement);
         }
         else
         {
@@ -314,7 +314,7 @@ public class MenuController : MonoBehaviour
         if (!context.performed) return;
 
 
-        if (_currentMenuElement)
+        if (_currentMainMenuElement)
         {
             if (!_isInteracting)
             {
@@ -322,7 +322,7 @@ public class MenuController : MonoBehaviour
             }
             else
             {
-                StopInteraction(_currentMenuElement);
+                StopInteraction(_currentMainMenuElement);
             }
         }
     }

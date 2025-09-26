@@ -85,7 +85,16 @@ public class UpgradeEgg : MonoBehaviour
         _transformStartPosition = transform.localPosition;
         _gfxStartPosition = gfx.localPosition;
         _upgradeInfoGroupStartScale = upgradeInfoGroup.transform.localScale;
-        SetupEggButton();
+
+
+        if (button)
+        {
+            var eventTrigger =  button.GetOrAddComponent<EventTrigger>();
+            AddEventTriggerEntry(eventTrigger, EventTriggerType.Select, OnButtonSelected);
+            AddEventTriggerEntry(eventTrigger, EventTriggerType.Deselect, OnButtonDeselected);
+            button.onClick.AddListener(BuyUpgrade);
+        }
+        
         ResetUpgrade(false);
     }
 
@@ -318,18 +327,6 @@ public class UpgradeEgg : MonoBehaviour
         return sequence;
     }
     
-    private void SetupEggButton()
-    {
-        if (!button) return;
-        
-        var eventTrigger = button.GetComponent<EventTrigger>() ?? button.gameObject.AddComponent<EventTrigger>();
-        AddEventTriggerEntry(eventTrigger, EventTriggerType.Select, OnButtonSelected);
-        AddEventTriggerEntry(eventTrigger, EventTriggerType.Deselect, OnButtonDeselected);
-        
-        button.onClick.AddListener(BuyUpgrade);
-    }
-    
-
 
     private void AddEventTriggerEntry(EventTrigger eventTrigger, EventTriggerType type, UnityAction<BaseEventData> callback)
     {

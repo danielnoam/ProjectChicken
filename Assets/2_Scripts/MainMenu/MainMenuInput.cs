@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class MenuInput : InputReaderBase
+public class MainMenuInput : InputReaderBase
 {
     [SerializeField] private bool setCursorVisibilityOnStart = true;
     
