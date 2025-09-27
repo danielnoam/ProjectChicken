@@ -19,20 +19,10 @@ public class CinematicManager : MonoBehaviour
     [SerializeField] protected SOVFEffectsSequence awakeSequence;
     [SerializeField] protected SOVFEffectsSequence endSequence;
     [SerializeField] protected SOVFEffectsSequence targetSceneStartSequence;
-
-    private void Awake()
-    {
-        if (hideCursor)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = true;
-        }
-        
-        if (IsThereCinematic()) VFXManager.Instance?.PlayVFX(awakeSequence);
-    }
-
+    
     private void Start()
     {
+
         StartCinematic();
     }
 
@@ -96,6 +86,14 @@ public class CinematicManager : MonoBehaviour
     [Button]
     private void StartCinematic()
     {
+        if (hideCursor)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = true;
+        }
+
+        if (IsThereCinematic()) VFXManager.Instance?.PlayVFX(awakeSequence);
+        
         playableDirector?.Play();
     }
 
