@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: 4.0_Stage_Delay
+  m_Name: 4.2_Stage_EnemyWave21
   m_EditorClassIdentifier: 
   stageTitle: 
-  startRadioMessage: {fileID: 11400000, guid: afe9ff423346287468faaefccb60a860, type: 2}
+  startRadioMessage: {fileID: 0}
   worldSpeed: 1
-  isCheckpoint: 1
+  isCheckpoint: 0
   events: []
-  stageType: 0
-  stageDuration: 4
-  delayBeforeNextStage: 1
+  stageType: 2
+  stageDuration: 15
+  delayBeforeNextStage: 3
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -30,13 +30,18 @@ MonoBehaviour:
   - {fileID: 0}
   waveScoreWorth: 1000
   enemyWave:
-    serializedKvps: []
+    serializedKvps:
+    - Key: {fileID: 743128004572040203, guid: 6342e840a045a8a4d9207954c274bb0a, type: 3}
+      Value: 9
+      index: 0
+      isKeyRepeated: 0
+      isKeyNull: 0
     dividerPos: 0.33
   formationStageData:
-    formationType: 0
-    formationCount: 1
-    numberOfSlots: 9
-    spacing: 2
+    formationType: 2
+    formationCount: 2
+    numberOfSlots: 3
+    spacing: 10
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 5

@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: 3.0_Stage_Delay
+  m_Name: 4.0_Stage_ImpactMarkers
   m_EditorClassIdentifier: 
   stageTitle: 
-  startRadioMessage: {fileID: 11400000, guid: 5d899d84937b3a146bd0cf25a11e1f27, type: 2}
+  startRadioMessage: {fileID: 11400000, guid: afe9ff423346287468faaefccb60a860, type: 2}
   worldSpeed: 1
   isCheckpoint: 1
   events: []
   stageType: 0
-  stageDuration: 3
+  stageDuration: 8
   delayBeforeNextStage: 1
   showOutroMenu: 0
   nextLevel:
@@ -46,9 +46,9 @@ MonoBehaviour:
   showHUD: 1
   showScore: 0
   showStagesProgression: 0
-  showStatsBar: 0
+  showStatsBar: 1
   allowPlayerMovement: 1
-  allowPlayerDodge: 0
+  allowPlayerDodge: 1
   allowPlayerAiming: 1
   allowPlayerShooting: 1
   allowPlayerHeatSystem: 1

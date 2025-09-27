@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: 4.1_Stage_EnemyWave2
   m_EditorClassIdentifier: 
   stageTitle: 
-  startRadioMessage: {fileID: 0}
+  startRadioMessage: {fileID: 11400000, guid: 5fef8988fe93ce64982e524c5944f238, type: 2}
   worldSpeed: 1
   isCheckpoint: 0
   events: []
   stageType: 2
   stageDuration: 15
-  delayBeforeNextStage: 3
+  delayBeforeNextStage: 1
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -32,15 +32,15 @@ MonoBehaviour:
   enemyWave:
     serializedKvps:
     - Key: {fileID: 743128004572040203, guid: 6342e840a045a8a4d9207954c274bb0a, type: 3}
-      Value: 9
+      Value: 4
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
     dividerPos: 0.33
   formationStageData:
-    formationType: 0
+    formationType: 2
     formationCount: 1
-    numberOfSlots: 5
+    numberOfSlots: 4
     spacing: 10
     circleRadius: 3
     useRandomPlacement: 1
