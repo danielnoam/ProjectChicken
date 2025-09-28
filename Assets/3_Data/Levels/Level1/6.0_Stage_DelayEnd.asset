@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_EnemyWave1
+  m_Name: 6.0_Stage_DelayEnd
   m_EditorClassIdentifier: 
   stageTitle: 
   startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 0
-  events: []
-  stageType: 2
-  stageDuration: 15
+  events:
+  - rid: 5417711935219564634
+  stageType: 0
+  stageDuration: 4
   delayBeforeNextStage: 3
   showOutroMenu: 0
   nextLevel:
@@ -31,8 +32,8 @@ MonoBehaviour:
   waveScoreWorth: 1000
   enemyWave:
     serializedKvps:
-    - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
-      Value: 18
+    - Key: {fileID: 8824006632455104043, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
+      Value: 11
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
@@ -40,8 +41,8 @@ MonoBehaviour:
   formationStageData:
     formationType: 0
     formationCount: 1
-    numberOfSlots: 12
-    spacing: 10
+    numberOfSlots: 9
+    spacing: 8
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 5
@@ -49,9 +50,8 @@ MonoBehaviour:
   requireAllTasks: 1
   tasks: []
   showHUD: 1
-  showScore: 1
-  showStagesProgression: 1
   showStatsBar: 1
+  showScore: 1
   allowPlayerMovement: 1
   allowPlayerDodge: 1
   allowPlayerAiming: 1
@@ -59,4 +59,14 @@ MonoBehaviour:
   allowPlayerHeatSystem: 1
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5417711935219564634
+      type: {class: RadioMessageSequenceEvent, ns: , asm: Assembly-CSharp}
+      data:
+        isActive: 0
+        messages:
+        - {fileID: 11400000, guid: 60e3be1aa009aaf499696b4ac2efd130, type: 2}
+        - {fileID: 11400000, guid: 91b2553185cb1014e9c5291f0174877c, type: 2}
+        initialDelay: 0
+        shuffle: 0
+        loop: 0

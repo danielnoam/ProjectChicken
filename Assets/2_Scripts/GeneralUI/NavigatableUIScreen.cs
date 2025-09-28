@@ -96,6 +96,17 @@ public abstract class NavigatableUIScreen : MonoBehaviour
             }
         }
     }
+
+    protected void AddAllChildSelectables()
+    {
+        var allSelectables = GetComponentsInChildren<Selectable>(true);
+        foreach (var selectable in allSelectables)
+        {
+            AddSelectable(selectable);
+        }
+	
+        
+    }
     
     private void SetupSelectable(Selectable selectable)
     {

@@ -48,6 +48,8 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
 
 
+
+    private bool _allowDynamicShipRotation;
     private bool _allowMovement;
     private bool _allowDodge;
     private float _horizontalInput;
@@ -56,7 +58,6 @@ public class RailPlayerMovement : MonoBehaviour
     private Quaternion _aimRotation = Quaternion.identity;
     private Vector3 _targetOffsetFromSpline = Vector3.zero;
     private Vector3 _currentOffsetFromSpline = Vector3.zero;
-    private bool _isDodging;
     private int _currentDodgeRemining;
     private int _maxDodgeAccumulation;
     private float _dodgeAccumulationRateTimer;
@@ -66,17 +67,19 @@ public class RailPlayerMovement : MonoBehaviour
     private Vector3 _dodgeDirection;
 
     private Tween _dodgeTween;
-    private Vector2 _normalizedMovementPosition;
     private Coroutine _autoCenterRoutine;
+    private Coroutine _shipLookAtCoroutine;
     private float MovementBoundaryX => player.LevelManager ? player.LevelManager.PlayerBoundarySize.x : 10f;
     private float MovementBoundaryY => player.LevelManager ? player.LevelManager.PlayerBoundarySize.y : 6f;
+    private bool IsShipLookingAt => _shipLookAtCoroutine != null;
     
     
     public Vector3 InputDirection { get; private set; }
-    public bool IsDodging => _isDodging;
-    public Vector2 NormalizedMovementPosition => _normalizedMovementPosition;
+    public bool IsDodging { get; private set; }
 
-    
+    public Vector2 NormalizedMovementPosition { get; private set; }
+
+
     public event Action OnDodge;
     public event Action<float> OnDodgeCooldownUpdated;
     public event Action<float> OnDodgeAccumulationUpdated; 
@@ -106,10 +109,12 @@ public class RailPlayerMovement : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged += OnStageChanged;
+            player.LevelManager.UpgradeStore.OnUpgradeSelected += OnUpgradeSelected;
+            player.LevelManager.UpgradeStore.OnStoreRerolled += OnStoreRerolled;
         }
         
     }
-    
+
     private void OnDisable()
     {
         player.Health.OnDeath -= OnDeath;
@@ -121,12 +126,64 @@ public class RailPlayerMovement : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged -= OnStageChanged;
+            player.LevelManager.UpgradeStore.OnUpgradeSelected -= OnUpgradeSelected;
+            player.LevelManager.UpgradeStore.OnStoreRerolled -= OnStoreRerolled;
         }
     }
 
 
+
+    
+    private void OnDeath()
+    {
+        _allowMovement = false;
+        _allowDodge = false;
+        _autoCenterRoutine = StartCoroutine(ReturnToCenter());
+    }
+    
+    private void OnStageChanged(SOLevelStage stage)
+    {
+        if (!stage) return;
+        
+        if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
+        if (_shipLookAtCoroutine != null) StopCoroutine(_shipLookAtCoroutine);
+
+        
+        _allowDodge = stage.AllowPlayerDodge;
+        
+        if (_allowMovement != stage.AllowPlayerMovement)
+        {
+            _allowMovement = stage.AllowPlayerMovement;
+
+            if (!stage.AllowPlayerMovement)
+            {
+                _autoCenterRoutine = StartCoroutine(ReturnToCenter());
+            }
+        }
+
+        if (stage.AllowPlayerMovement && !_allowDynamicShipRotation) _allowDynamicShipRotation = true;
+        
+        UpdateDodgeParticles();
+    }
+    
+    
+    private void OnStoreRerolled()
+    {
+        LookAtWorldPosition(player.LevelManager.EnemyPosition, 0.5f);
+    }
+
+    private void OnUpgradeSelected(UpgradeEgg upgradeEgg)
+    {
+        if (!upgradeEgg) return;
+        
+        LookAtWorldPosition(upgradeEgg.transform.position, 0.5f);
+    }
+    
+
+
     public void SetUp()
     {
+        _allowDynamicShipRotation = true;
         _allowMovement = true;
         _allowDodge = true;
         _maxDodgeAccumulation = player.PlayerStats.BaseDodgeAccumulation;
@@ -150,34 +207,7 @@ public class RailPlayerMovement : MonoBehaviour
         HandlePosition();
     }
     
-    private void OnDeath()
-    {
-        _allowMovement = false;
-        _allowDodge = false;
-        _autoCenterRoutine = StartCoroutine(ReturnToCenter());
-    }
-    
-    private void OnStageChanged(SOLevelStage stage)
-    {
-        if (!stage) return;
 
-        if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
-
-        if (_allowMovement != stage.AllowPlayerMovement)
-        {
-            _allowMovement = stage.AllowPlayerMovement;
-
-            if (!stage.AllowPlayerMovement)
-            {
-                _autoCenterRoutine = StartCoroutine(ReturnToCenter());
-            }
-        }
-
-        _allowDodge = stage.AllowPlayerDodge;
-        
-        UpdateDodgeParticles();
-
-    }
     
 
     #region Movement --------------------------------------------------------------------------------------
@@ -192,7 +222,7 @@ public class RailPlayerMovement : MonoBehaviour
         _currentOffsetFromSpline = worldOffset;
         
 
-        if (!_isDodging)
+        if (!IsDodging)
         {
             InputDirection = new Vector3(_horizontalInput, _verticalInput, 0);
 
@@ -222,7 +252,7 @@ public class RailPlayerMovement : MonoBehaviour
         }
         
 
-        _normalizedMovementPosition = new Vector2(
+        NormalizedMovementPosition = new Vector2(
             MovementBoundaryX > 0 ? _currentOffsetFromSpline.x / MovementBoundaryX : 0f,
             MovementBoundaryY > 0 ? _currentOffsetFromSpline.y / MovementBoundaryY : 0f
         );
@@ -236,13 +266,34 @@ public class RailPlayerMovement : MonoBehaviour
         playerRigidbody.linearVelocity = positionDifference.normalized * Mathf.Min(effectiveFollowSpeed, distanceToDesired / Time.fixedDeltaTime);
     }
     
+    private IEnumerator ReturnToCenter()
+    {
+        
+        while (_targetOffsetFromSpline.magnitude > 0.01f)
+        {
+            _targetOffsetFromSpline = Vector3.Lerp(_targetOffsetFromSpline, Vector3.zero, 1f * Time.deltaTime);
+            yield return null;
+        }
+        
+        _targetOffsetFromSpline = Vector3.zero;
+    }
+    
+    public void Push(Vector2 direction, float force)
+    {
+        if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
+        _targetOffsetFromSpline += new Vector3(direction.x, direction.y, 0).normalized * force;
+        _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
+        _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
+        _targetOffsetFromSpline.z = 0;
+    }
+
     
     
     private void HandleShipModelAndRotation()
     {
-        if (!shipModel) return;
+        if (!shipModel || IsShipLookingAt || !_allowDynamicShipRotation) return;
     
-        // Movement rotation based on movement (only roll)
+        // Roll based on movement direction
         float inputRoll = -_horizontalInput * maxRollAmount;
         Quaternion targetVelocityRotation = Quaternion.Euler(0f, 0f, inputRoll);
     
@@ -250,7 +301,7 @@ public class RailPlayerMovement : MonoBehaviour
             ? Quaternion.Slerp(_velocityRotation, targetVelocityRotation, rollSpeed * Time.deltaTime) 
             : Quaternion.Slerp(_velocityRotation, targetVelocityRotation, rollSpeed / 2 * Time.deltaTime);
 
-        // Aim rotation from aiming (only pitch and yaw)
+        // pitch and yaw based on aiming position
         if (playerAiming)
         {
             Vector3 aimDirection = playerAiming.AimDirection;
@@ -276,25 +327,41 @@ public class RailPlayerMovement : MonoBehaviour
         shipModel.localRotation = Quaternion.Euler(finalEuler);
     }
     
-    
-    private IEnumerator ReturnToCenter()
+    private void LookAtWorldPosition(Vector3 worldPosition, float duration = 1f)
     {
-        while (_targetOffsetFromSpline.magnitude > 0.01f)
-        {
-            _targetOffsetFromSpline = Vector3.Lerp(_targetOffsetFromSpline, Vector3.zero, 1f * Time.deltaTime);
-            yield return null;
-        }
+        _allowDynamicShipRotation = false;
         
-        _targetOffsetFromSpline = Vector3.zero;
+        if (_shipLookAtCoroutine != null)
+        {
+            StopCoroutine(_shipLookAtCoroutine);
+            _shipLookAtCoroutine = null;
+        }
+        _shipLookAtCoroutine = StartCoroutine(LookAtPosition(worldPosition, duration));
     }
     
-    public void Push(Vector2 direction, float force)
+    private IEnumerator LookAtPosition(Vector3 targetPosition, float duration)
     {
-        if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
-        _targetOffsetFromSpline += new Vector3(direction.x, direction.y, 0).normalized * force;
-        _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
-        _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
-        _targetOffsetFromSpline.z = 0;
+        if (!shipModel) yield break;
+
+        Quaternion startRotation = shipModel.localRotation;
+        Vector3 direction = targetPosition - transform.position;
+        Quaternion lookRotation = Quaternion.LookRotation(transform.InverseTransformDirection(direction), Vector3.up);
+        float timer = 0;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            float t = timer / duration;
+        
+            float smoothT = Mathf.Sin(t * Mathf.PI * 0.5f);
+            smoothT = Mathf.Sin(smoothT * Mathf.PI * 0.5f);
+    
+            shipModel.localRotation = Quaternion.Lerp(startRotation, lookRotation, smoothT);
+            yield return null;
+        }
+
+        shipModel.localRotation = lookRotation;
+        _shipLookAtCoroutine = null;
     }
 
     
@@ -308,21 +375,21 @@ public class RailPlayerMovement : MonoBehaviour
     private void HandleDodging()
     {
         // Check if we are currently dodging
-        if (_isDodging && _dodgeTimeCounter <= dodgeDuration)
+        if (IsDodging && _dodgeTimeCounter <= dodgeDuration)
         {
             _dodgeTimeCounter += Time.deltaTime;
         
             // Reset dodge if we exceed the dodge time
             if (_dodgeTimeCounter >= dodgeDuration)
             {
-                _isDodging = false;
+                IsDodging = false;
                 _dodgeCooldownTimer = dodgeCooldown;
                 _currentDodgeRoll = 0f;
             }
         }
     
         // Check cooldown
-        if (!_isDodging && _dodgeCooldownTimer > 0f)
+        if (!IsDodging && _dodgeCooldownTimer > 0f)
         {
             _dodgeCooldownTimer -= Time.deltaTime;
             if (_dodgeCooldownTimer < 0f) _dodgeCooldownTimer = 0f;
@@ -330,7 +397,7 @@ public class RailPlayerMovement : MonoBehaviour
         }
         
         // Accumulate dodges
-        if (!_isDodging && _dodgeAccumulationRateTimer > 0f && _currentDodgeRemining < _maxDodgeAccumulation)
+        if (!IsDodging && _dodgeAccumulationRateTimer > 0f && _currentDodgeRemining < _maxDodgeAccumulation)
         {
             _dodgeAccumulationRateTimer -= Time.deltaTime;
             
@@ -354,12 +421,12 @@ public class RailPlayerMovement : MonoBehaviour
     
     private void Dodge(Vector3 direction)
     {
-        if (!(_dodgeCooldownTimer <= 0f) || _isDodging || _currentDodgeRemining <= 0) return;
+        if (!(_dodgeCooldownTimer <= 0f) || IsDodging || _currentDodgeRemining <= 0) return;
         
         OnDodge?.Invoke();
         _dodgeDirection = direction;
         _dodgeTimeCounter = 0f;
-        _isDodging = true;
+        IsDodging = true;
         _currentDodgeRemining -= 1;
         _dodgeAccumulationRateTimer = dodgeAccumulationRate;
         OnDodgeCountChanged?.Invoke(_currentDodgeRemining);

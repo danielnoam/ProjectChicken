@@ -32,15 +32,17 @@ public class RailPlayerAiming : MonoBehaviour
     [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
 
 
+
     private bool _isAimLocked;
     private float _noInputTimer;
     private float _aimLockCooldownTimer;
     private Vector2 _processedLookInput;
     private Vector2 _normalizedAimPosition;
     private ChickenStateController _currentAimLockTarget;
-    private Coroutine _autoCenterRoutine;
+    private Coroutine _aimMovementCoroutine;
     private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundarySize.x : 25f;
     private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundarySize.y : 15f;
+    private bool IsAimMovementActive => _aimMovementCoroutine != null;
 
 
     
@@ -72,6 +74,7 @@ public class RailPlayerAiming : MonoBehaviour
         if (player.LevelManager)
         {
             player.LevelManager.OnStageChanged += OnStageChanged;
+
         }
     }
     
@@ -90,6 +93,7 @@ public class RailPlayerAiming : MonoBehaviour
     }
     
 
+
     private void Update()
     {
         ProcessAimingInput();
@@ -101,7 +105,7 @@ public class RailPlayerAiming : MonoBehaviour
     private void OnDeath()
     {
         AllowAiming = false;
-        _autoCenterRoutine = StartCoroutine(ReturnToCenter());
+        AimAtCenter();
         OnAllowAimingChanged?.Invoke(AllowAiming);
     }
     
@@ -109,7 +113,7 @@ public class RailPlayerAiming : MonoBehaviour
     {
         if (!stage) return;
         
-        if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
+        if (_aimMovementCoroutine != null) StopCoroutine(_aimMovementCoroutine);
 
         if (AllowAiming != stage.AllowPlayerAiming)
         {
@@ -117,7 +121,7 @@ public class RailPlayerAiming : MonoBehaviour
 
             if (!stage.AllowPlayerAiming)
             {
-                _autoCenterRoutine = StartCoroutine(ReturnToCenter());
+                AimAtCenter(1f);
             }
         }
         
@@ -165,14 +169,15 @@ public class RailPlayerAiming : MonoBehaviour
     
     private void HandleAutoCenter()
     {
-        if (!autoCenter || _isAimLocked) return;
-    
+
+        if (!AllowAiming || !autoCenter || _isAimLocked || IsAimMovementActive) return;
+
         bool hasInput = _processedLookInput.magnitude > 0.01f;
-    
+
         if (!hasInput)
         {
             _noInputTimer += Time.deltaTime;
-        
+    
             if (_noInputTimer >= autoCenterDelay)
             {
                 _normalizedAimPosition = Vector2.Lerp(
@@ -185,14 +190,54 @@ public class RailPlayerAiming : MonoBehaviour
     }
     
     
-    private IEnumerator ReturnToCenter()
+    private void AimAtCenter(float speed = 1f)
     {
-        while (_normalizedAimPosition.magnitude > 0.01f)
+        if (_aimMovementCoroutine != null)
         {
-            _normalizedAimPosition = Vector2.Lerp(_normalizedAimPosition, Vector2.zero, 1f * Time.deltaTime);
+            StopCoroutine(_aimMovementCoroutine);
+        }
+        _aimMovementCoroutine = StartCoroutine(AimAt(null, speed));
+    }
+
+
+    private void AimAtWorldPosition(Vector3 worldPosition, float speed = 1f)
+    {
+        if (_aimMovementCoroutine != null)
+        {
+            StopCoroutine(_aimMovementCoroutine);
+        }
+        _aimMovementCoroutine = StartCoroutine(AimAt(worldPosition, speed));
+    }
+    
+    private IEnumerator AimAt(Vector3? worldPosition, float speed)
+    {
+        Vector2 targetNormalizedPosition;
+    
+        if (worldPosition.HasValue)
+        {
+            Vector3 boundaryCenter = GetEnemySplinePosition();
+            Vector3 localTargetOffset = worldPosition.Value - boundaryCenter;
+            targetNormalizedPosition = new Vector2(
+                Mathf.Clamp(localTargetOffset.x / CrosshairBoundaryX, -1f, 1f),
+                Mathf.Clamp(localTargetOffset.y / CrosshairBoundaryY, -1f, 1f)
+            );
+        }
+        else
+        {
+            targetNormalizedPosition = Vector2.zero;
+        }
+    
+        while (Vector2.Distance(_normalizedAimPosition, targetNormalizedPosition) > 0.01f)
+        {
+            _normalizedAimPosition = Vector2.Lerp(
+                _normalizedAimPosition, 
+                targetNormalizedPosition, 
+                speed * Time.deltaTime
+            );
             yield return null;
         }
-        _normalizedAimPosition = Vector2.zero;
+    
+        _normalizedAimPosition = targetNormalizedPosition;
     }
 
     #endregion Aiming --------------------------------------------------------------------------------------------------------

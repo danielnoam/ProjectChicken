@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_DelayEnd
+  m_Name: 2.4_Stage_DelayStoreIntro
   m_EditorClassIdentifier: 
   stageTitle: 
   startRadioMessage: {fileID: 0}
@@ -19,7 +19,7 @@ MonoBehaviour:
   events:
   - rid: 5417711935219564634
   stageType: 0
-  stageDuration: 4
+  stageDuration: 8
   delayBeforeNextStage: 3
   showOutroMenu: 0
   nextLevel:
@@ -50,8 +50,9 @@ MonoBehaviour:
   requireAllTasks: 1
   tasks: []
   showHUD: 1
-  showStatsBar: 1
   showScore: 1
+  showStagesProgression: 1
+  showStatsBar: 1
   allowPlayerMovement: 1
   allowPlayerDodge: 1
   allowPlayerAiming: 1
@@ -65,8 +66,8 @@ MonoBehaviour:
       data:
         isActive: 0
         messages:
-        - {fileID: 11400000, guid: 60e3be1aa009aaf499696b4ac2efd130, type: 2}
-        - {fileID: 11400000, guid: 91b2553185cb1014e9c5291f0174877c, type: 2}
+        - {fileID: 11400000, guid: e103ddc98d8813d49892da1cbeb78fed, type: 2}
+        - {fileID: 11400000, guid: 5b1808f56f5111144b0814a1de548b40, type: 2}
         initialDelay: 0
         shuffle: 0
         loop: 0

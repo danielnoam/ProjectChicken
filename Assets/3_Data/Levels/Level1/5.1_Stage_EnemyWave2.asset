@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
+  m_Name: 5.1_Stage_EnemyWave2
+  m_EditorClassIdentifier: 
+  stageTitle: 
+  startRadioMessage: {fileID: 0}
+  worldSpeed: 1
+  isCheckpoint: 0
+  events: []
+  stageType: 2
+  stageDuration: 15
+  delayBeforeNextStage: 1
+  showOutroMenu: 0
+  nextLevel:
+    sceneAsset: {fileID: 0}
+    sceneName: 
+    scenePath: 
+  allowToCloseStore: 1
+  upgradesPool:
+  - {fileID: 0}
+  waveScoreWorth: 1000
+  enemyWave:
+    serializedKvps:
+    - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
+      Value: 14
+      index: 0
+      isKeyRepeated: 0
+      isKeyNull: 0
+    dividerPos: 0.33
+  formationStageData:
+    formationType: 3
+    formationCount: 2
+    numberOfSlots: 6
+    spacing: 9
+    circleRadius: 3
+    useRandomPlacement: 1
+    formationSpacing: 5
+    maxPlacementAttempts: 100
+  requireAllTasks: 1
+  tasks: []
+  showHUD: 1
+  showScore: 1
+  showStagesProgression: 1
+  showStatsBar: 1
+  allowPlayerMovement: 1
+  allowPlayerDodge: 1
+  allowPlayerAiming: 1
+  allowPlayerShooting: 1
+  allowPlayerHeatSystem: 1
+  references:
+    version: 2
+    RefIds: []

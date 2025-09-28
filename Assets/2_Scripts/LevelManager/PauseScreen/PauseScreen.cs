@@ -45,6 +45,13 @@ public class PauseScreen : NavigatableUIScreen
         }
     }
 
+    protected override void OnNavigateAction(InputAction.CallbackContext callbackContext)
+    {
+        if (!isVisible || currentSelectable || !levelManager.IsGamePaused) return;
+        
+        SelectFirstAvailableButton();
+    }
+
     private void SetupButtons()
     {
         if (resumeButton)
@@ -83,6 +90,8 @@ public class PauseScreen : NavigatableUIScreen
                 SetActiveScreen(pauseScreenCanvas);
             });
         }
+
+        AddAllChildSelectables();
     }
 
     private void OnCancelAction(InputAction.CallbackContext callbackContext)
@@ -132,7 +141,7 @@ public class PauseScreen : NavigatableUIScreen
         SetPauseScreenCanvas(screen == pauseScreenCanvas);
         SetOptionsScreen(screen == optionsScreenCanvas);
         
-        if (screen) SelectFirstAvailableButton();
+        if (screen) SelectFirstAvailableButton(); 
     }
     
     private void SetPauseScreenCanvas(bool active)

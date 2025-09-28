@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_EnemyWave4
+  m_Name: 4.1_Stage_EnemyWave2
   m_EditorClassIdentifier: 
   stageTitle: 
   startRadioMessage: {fileID: 0}
@@ -32,16 +32,16 @@ MonoBehaviour:
   enemyWave:
     serializedKvps:
     - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
-      Value: 14
+      Value: 16
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
     dividerPos: 0.33
   formationStageData:
-    formationType: 3
+    formationType: 0
     formationCount: 2
-    numberOfSlots: 6
-    spacing: 9
+    numberOfSlots: 2
+    spacing: 12
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 5

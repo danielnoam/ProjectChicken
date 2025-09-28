@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_DelayMiddle
+  m_Name: 1.0_Stage_Intro
   m_EditorClassIdentifier: 
   stageTitle: 
   startRadioMessage: {fileID: 0}
   worldSpeed: 1
-  isCheckpoint: 0
+  isCheckpoint: 1
   events:
-  - rid: 5417711935219564634
-  stageType: 0
-  stageDuration: 4
-  delayBeforeNextStage: 3
+  - rid: 5417711935219564633
+  stageType: 3
+  stageDuration: 12
+  delayBeforeNextStage: 1
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -31,45 +31,39 @@ MonoBehaviour:
   - {fileID: 0}
   waveScoreWorth: 1000
   enemyWave:
-    serializedKvps:
-    - Key: {fileID: 8824006632455104043, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      Value: 11
-      index: 0
-      isKeyRepeated: 0
-      isKeyNull: 0
+    serializedKvps: []
     dividerPos: 0.33
   formationStageData:
     formationType: 0
     formationCount: 1
     numberOfSlots: 9
-    spacing: 8
+    spacing: 2
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
   requireAllTasks: 1
   tasks: []
-  showHUD: 1
+  showHUD: 0
   showStatsBar: 1
   showScore: 1
-  allowPlayerMovement: 1
-  allowPlayerDodge: 1
-  allowPlayerAiming: 1
-  allowPlayerShooting: 1
-  allowPlayerHeatSystem: 1
+  allowPlayerMovement: 0
+  allowPlayerDodge: 0
+  allowPlayerAiming: 0
+  allowPlayerShooting: 0
+  allowPlayerHeatSystem: 0
   references:
     version: 2
     RefIds:
-    - rid: 5417711935219564634
+    - rid: 5417711935219564633
       type: {class: RadioMessageSequenceEvent, ns: , asm: Assembly-CSharp}
       data:
         isActive: 0
         messages:
-        - {fileID: 11400000, guid: 69fc7f2d8562d3943abde93efd422e1b, type: 2}
-        - {fileID: 11400000, guid: 3e308846811b4f6419bea90313b2c1d0, type: 2}
-        - {fileID: 11400000, guid: 8c3ebb18d7859f34e80224efce164ae0, type: 2}
-        - {fileID: 11400000, guid: 02ba18cb6dfe7134889cbc67fc7eedc2, type: 2}
-        - {fileID: 11400000, guid: 1a0eb69c9757872469697a9502b7dba8, type: 2}
-        initialDelay: 0
+        - {fileID: 11400000, guid: 2be96d137dec70341886b1388c916081, type: 2}
+        - {fileID: 11400000, guid: 2bb77d332d671fb4ea031add5cd43949, type: 2}
+        - {fileID: 11400000, guid: d12a214f5f5f55d4e84ac7a877fe9248, type: 2}
+        - {fileID: 11400000, guid: 9e3fd058681374c458eda02000f517e0, type: 2}
+        initialDelay: 1
         shuffle: 0
         loop: 0

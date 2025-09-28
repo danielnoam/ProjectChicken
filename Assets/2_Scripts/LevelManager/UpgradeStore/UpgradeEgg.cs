@@ -68,7 +68,9 @@ public class UpgradeEgg : MonoBehaviour
     
     public Button Button => button;
 
+    public event Action<UpgradeEgg> OnEggSelected;
     public event Action<SOUpgradeBase> OnUpgradeBought; 
+    
     
     private static readonly int Hover = Animator.StringToHash("Hover");
     private static readonly int Idle = Animator.StringToHash("Idle");
@@ -101,7 +103,6 @@ public class UpgradeEgg : MonoBehaviour
 
     private void OnButtonSelected(BaseEventData baseEventData)
     {
-        UpdateAffordabilityVisuals();
         ShowInfo();
     }
     
@@ -249,6 +250,8 @@ public class UpgradeEgg : MonoBehaviour
     {
         if (!_upgrade) return;
         
+        UpdateAffordabilityVisuals();
+        
         if (!_wasBought) animator?.SetTrigger(Hover);
         
         showInfoSfx?.Play(audioSource);
@@ -257,6 +260,9 @@ public class UpgradeEgg : MonoBehaviour
             .Group(Tween.Alpha(upgradeInfoGroup, 1f, infoAnimationDuration * 0.7f))
             .Group(Tween.Scale(upgradeInfoGroup.transform, _upgradeInfoGroupStartScale, infoAnimationDuration, infoAnimationEase))
             .Group(FadeOutline(infoAnimationDuration, 0, true));
+        
+        OnEggSelected?.Invoke(this);
+        
     }
 
     private void HideInfo()

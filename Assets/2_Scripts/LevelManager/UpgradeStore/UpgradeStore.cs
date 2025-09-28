@@ -28,11 +28,15 @@ public class UpgradeStore : NavigatableUIScreen
     [SerializeField] private bool closeStoreOnPurchase;
     [SerializeField, Min(1)] private int availableUpgrades = 3;
     [SerializeField] private Vector3 offsetBetweenUpgrades = new Vector3(25,0,0);
+    [Foldout("Rarity Weights")]
+    [SerializeField] private float commonWeight = 100f;
+    [SerializeField] private float uncommonWeight = 60f;
+    [SerializeField] private float rareWeight = 30f;
+    [EndFoldout]
     [Foldout("Rarity Costs")]
     [SerializeField] private int commonCost = 25;
     [SerializeField] private int uncommonCost = 50;
     [SerializeField] private int rareCost = 100;
-    [SerializeField] private int epicCost = 150;
     [EndFoldout]
     
     
@@ -59,6 +63,10 @@ public class UpgradeStore : NavigatableUIScreen
 
     public event Action OnStoreOpened;
     public event Action OnStoreClosed;
+    public event Action OnStoreRerolled;
+    public event Action<UpgradeEgg> OnUpgradeSelected;
+    
+    
     
     protected override void OnValidate()
     {
@@ -132,11 +140,18 @@ public class UpgradeStore : NavigatableUIScreen
                 egg.Setup(this);
                 _upgradeEggs.Add(egg);
                 egg.OnUpgradeBought += OnUpgradeBought;
+                egg.OnEggSelected += OnEggSelected;
                 AddSelectable(egg.Button);
             }
         }
     }
-    
+
+    private void OnEggSelected(UpgradeEgg upgradeEgg)
+    {
+        OnUpgradeSelected?.Invoke(upgradeEgg);
+        
+    }
+
     private void SetupButtons()
     {
         if (closeStoreButton)
@@ -269,6 +284,8 @@ public class UpgradeStore : NavigatableUIScreen
             var index1 = index;
             egg.RerollUpgrade(upgrade, GetCostByRarity(upgrade.ItemRarity), index1 * 0.25f);
         }
+        
+        OnStoreRerolled?.Invoke();
     }
     
     private void UpdateRerollButtonState()
@@ -405,11 +422,10 @@ public class UpgradeStore : NavigatableUIScreen
     {
         return rarity switch
         {
-            UpgradeRarity.Common => 100f,
-            UpgradeRarity.Uncommon => 60f,
-            UpgradeRarity.Rare => 30f,
-            UpgradeRarity.Epic => 10f,
-            _ => 50f
+            UpgradeRarity.Common => commonWeight,
+            UpgradeRarity.Uncommon => uncommonWeight,
+            UpgradeRarity.Rare => rareWeight,
+            _ => commonWeight
         };
     }
 
@@ -420,7 +436,6 @@ public class UpgradeStore : NavigatableUIScreen
             UpgradeRarity.Common => commonCost,
             UpgradeRarity.Uncommon => uncommonCost,
             UpgradeRarity.Rare => rareCost,
-            UpgradeRarity.Epic => epicCost,
             _ => uncommonCost
         };
     }

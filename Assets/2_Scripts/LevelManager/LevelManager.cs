@@ -69,6 +69,7 @@ public class LevelManager : MonoBehaviour
     public Vector2 PlayerBoundarySize => playerBoundarySize;
     public Vector2 EnemyBoundarySize => enemyBoundarySize;
     public RailPlayer Player => player;
+    public UpgradeStore UpgradeStore => upgradeStore;
     public EnemySpawner EnemySpawner => enemySpawner;
     public ResourceManager ResourceManager => resourceManager;
     public ObstacleManager ObstacleManager => obstacleManager;
