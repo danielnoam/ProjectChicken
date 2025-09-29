@@ -143,20 +143,7 @@ public class RailPlayerHealth : MonoBehaviour
         if (deathParticleEffect) deathParticleEffect.Play();
         controllerVibrationSource.Vibrate(deathVibrationSettings);
         FullScreenHitFXController.Instance?.Punch(deathFsFX);
-        
-        if (cinemachineImpulseSource)
-        {
-            cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = deathShakeSettings.impulseShape;
-            cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = deathShakeSettings.duration;
-            cinemachineImpulseSource.DefaultVelocity = new Vector3(
-                UnityEngine.Random.Range(-1f, 1f),
-                UnityEngine.Random.Range(-1f, 1f),
-                UnityEngine.Random.Range(-1f, 1f)
-            );
-            cinemachineImpulseSource.GenerateImpulseWithForce(deathShakeSettings.intensity);
-        }
-        
-
+        deathShakeSettings.GenerateImpulse(cinemachineImpulseSource);
         
         OnDeath?.Invoke();
     }
@@ -206,18 +193,7 @@ public class RailPlayerHealth : MonoBehaviour
         }
         else
         {
-            if (cinemachineImpulseSource)
-            {
-                cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = healthDamagedShakeSettings.impulseShape;
-                cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = healthDamagedShakeSettings.duration;
-                cinemachineImpulseSource.DefaultVelocity = new Vector3(
-                    UnityEngine.Random.Range(-1f, 1f),
-                    UnityEngine.Random.Range(-1f, 1f),
-                    UnityEngine.Random.Range(-1f, 1f)
-                );
-                cinemachineImpulseSource.GenerateImpulseWithForce(healthDamagedShakeSettings.intensity);
-            }
-            
+            healthDamagedShakeSettings.GenerateImpulse(cinemachineImpulseSource);
             if (healthDamageParticleEffect) healthDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(healthDamagedVibrationSettings);
             FullScreenHitFXController.Instance?.Punch(healthDamageFsFX);
@@ -294,17 +270,7 @@ public class RailPlayerHealth : MonoBehaviour
         StopShieldRegen();
         CurrentShield -= damage;
         
-        if (cinemachineImpulseSource)
-        {
-            cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shieldDamagedShakeSettings.impulseShape;
-            cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shieldDamagedShakeSettings.duration;
-            cinemachineImpulseSource.DefaultVelocity = new Vector3(
-                UnityEngine.Random.Range(-1f, 1f),
-                UnityEngine.Random.Range(-1f, 1f),
-                UnityEngine.Random.Range(-1f, 1f)
-            );
-            cinemachineImpulseSource.GenerateImpulseWithForce(shieldDamagedShakeSettings.intensity);
-        }
+        shieldDamagedShakeSettings.GenerateImpulse(cinemachineImpulseSource);
         
         if (CurrentShield < 1)
         {

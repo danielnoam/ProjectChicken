@@ -78,26 +78,26 @@ public class RailPlayer : MonoBehaviour
         levelManager.OnRestartedFromSavePoint -= RestartedFromSavePoint;
     }
     
+    
     private void OnTriggerEnter(Collider other)
     {
         if (other.TryGetComponent(out GameObjectCenterer gameObjectCenterer))
         {
-            Health.TakeDamage(100, 5f);
+            Health.TakeDamage(100f, 5f);
             Vector3 moveDirection = (transform.position - gameObjectCenterer.CenterObjectTransform.position).normalized;
-            Movement.Push(-moveDirection, 5f);
-
+            Movement.Push(-moveDirection, 3f);
         }
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.TryGetComponent(out GameObjectCenterer gameObjectCenterer))
+        
+        if (other.TryGetComponent<Obstacle>(out var obstacle))
         {
-            Vector3 moveDirection = (transform.position - gameObjectCenterer.CenterObjectTransform.position).normalized;
-            Movement.Push(-moveDirection, 1f);
-
+            obstacle.TakeFullDamage();
+            Health.TakeDamage(50f);
+            Vector3 moveDirection = (transform.position - obstacle.transform.position).normalized;
+            Movement.Push(moveDirection,3f);
         }
+        
     }
+
     
     private void OnRunProgressLoaded(RunProgressData runProgress)
     {

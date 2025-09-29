@@ -1,29 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using DNExtensions;
 using KBCore.Refs;
 using UnityEngine;
+using UnityEngine.Splines;
 using VInspector;
 
 public class ObstacleManager : MonoBehaviour
 {
-
+    [Header("General Settings")]
+    [SerializeField] private Vector3 spawnPosition = new Vector3(0,0,400f);
     
-    [Header("Obstacle Spawning")]
-    [SerializeField] private float spawnDistance = 100f;
-    [SerializeField] private Obstacle[] obstaclePrefabs;
-
+    [Header("Spline Movement Settings")]
+    [SerializeField] private float boundarySizeMultiplier = 2f;
+    [SerializeField] private Vector3 enemyBoundaryOffset = Vector3.zero;
+    [SerializeField] private Vector3 playerBoundaryOffset = Vector3.zero;
     
-    [Header("Movement Settings")]
-    [SerializeField] private float baseSpeed = 55f;
+    [Header("Forward Movement Settings")]
     [SerializeField] private float directionVariation = 30f;
-    
+
+
+    [Header("Obstacles")]
+    [SerializeField] private ChanceList<Obstacle> splineObstaclePrefabs;
+    [SerializeField] private ChanceList<Obstacle> forwardObstaclePrefabs;
+
+
     
     [Header("References")] 
     [SerializeField] private Transform obstacleHolder;
+    [SerializeField] private Transform splineHolder;
     [SerializeField] private LevelManager levelManager;
     [SerializeField, Scene(Flag.Optional)] private RailPlayer player;
     
     private readonly List<Obstacle> _obstacles = new List<Obstacle>();
+    private readonly List<SplineContainer> _splines = new List<SplineContainer>();
     public int ActiveObstacleCount => _obstacles.Count;
     
     private void OnValidate()
@@ -66,7 +76,6 @@ public class ObstacleManager : MonoBehaviour
             player.Health.OnDeath -= OnPlayerDeath;
         }
     }
-    
 
     private void OnPlayerDeath()
     {
@@ -86,19 +95,84 @@ public class ObstacleManager : MonoBehaviour
     private void OnObstacleDestroyed(Obstacle obstacle)
     {
         _obstacles.Remove(obstacle);
+        _splines.RemoveAll(splineContainer => !splineContainer);
     }
 
-    private Obstacle SpawnObstacle(Obstacle obstaclePrefab)
+    private SplineContainer CreateSplineForObstacle()
+    {
+        GameObject splineObject = new GameObject("ObstacleSpline");
+        splineObject.transform.SetParent(splineHolder);
+    
+        SplineContainer splineContainer = splineObject.AddComponent<SplineContainer>();
+        Spline spline = splineContainer.Spline;
+    
+        spline.Clear();
+    
+        // Point 1: Spawn position
+        Vector3 point1 = levelManager.EnemyPosition + spawnPosition;
+    
+        // Point 2: Random position in enemy boundary
+        Vector2 enemySize = levelManager.EnemyBoundarySize;
+        Vector3 point2 = levelManager.EnemyPosition + enemyBoundaryOffset + new Vector3(
+            UnityEngine.Random.Range(-enemySize.x / boundarySizeMultiplier, enemySize.x / boundarySizeMultiplier),
+            UnityEngine.Random.Range(-enemySize.y / boundarySizeMultiplier, enemySize.y / boundarySizeMultiplier),
+            0f
+        );
+    
+        // Point 3: Random position in player boundary
+        Vector2 playerSize = levelManager.PlayerBoundarySize;
+        Vector3 point3 = levelManager.PlayerPosition + playerBoundaryOffset + new Vector3(
+            UnityEngine.Random.Range(-playerSize.x / boundarySizeMultiplier, playerSize.x / boundarySizeMultiplier),
+            UnityEngine.Random.Range(-playerSize.y / boundarySizeMultiplier, playerSize.y / boundarySizeMultiplier),
+            0f
+        );
+    
+        // Point 4: Extended point from player boundary
+        Vector3 directionAtPoint3 = (point3 - point2).normalized;
+        Vector3 point4 = point3 + (directionAtPoint3 * 250f);
+    
+        spline.Add(new BezierKnot(point1));
+        spline.Add(new BezierKnot(point2));
+        spline.Add(new BezierKnot(point3));
+        spline.Add(new BezierKnot(point4));
+    
+        spline.SetTangentMode(0, TangentMode.AutoSmooth);
+        spline.SetTangentMode(1, TangentMode.AutoSmooth);
+        spline.SetTangentMode(2, TangentMode.AutoSmooth);
+        spline.SetTangentMode(3, TangentMode.AutoSmooth);
+    
+        _splines.Add(splineContainer);
+    
+        return splineContainer;
+    }
+
+    private Obstacle SpawnSplineObstacle(Obstacle obstaclePrefab)
     {
         if (!obstaclePrefab) return null;
 
-        Obstacle newObstacle = Instantiate(obstaclePrefab, levelManager.EnemyPosition + (Vector3.forward * spawnDistance), Quaternion.identity, obstacleHolder);
+        SplineContainer spline = CreateSplineForObstacle();
+        
+        Obstacle newObstacle = Instantiate(obstaclePrefab, levelManager.EnemyPosition + spawnPosition, Quaternion.identity, obstacleHolder);
+        
+        _obstacles.Add(newObstacle);
+        newObstacle.OnObstacleDestroyed += OnObstacleDestroyed;
+        
+        newObstacle.Initialize(ObstacleMovementType.Spline, spline);
+        
+        return newObstacle;
+    }
+
+    private Obstacle SpawnForwardObstacle(Obstacle obstaclePrefab)
+    {
+        if (!obstaclePrefab) return null;
+
+        Obstacle newObstacle = Instantiate(obstaclePrefab, levelManager.EnemyPosition + spawnPosition, Quaternion.identity, obstacleHolder);
         
         _obstacles.Add(newObstacle);
         newObstacle.OnObstacleDestroyed += OnObstacleDestroyed;
         
         Vector3 directionToPlayer = GetDirectionToPlayer(newObstacle.transform.position);
-        newObstacle.Initialize(directionToPlayer, baseSpeed);
+        newObstacle.Initialize(ObstacleMovementType.Forward, null, directionToPlayer);
         
         return newObstacle;
     }
@@ -125,26 +199,35 @@ public class ObstacleManager : MonoBehaviour
         return finalDirection;
     }
 
-    
-    
     [Button]
-    public void SpawnRandomObstacle()
+    public void SpawnRandomSplineObstacle()
     {
-        if (obstaclePrefabs == null || obstaclePrefabs.Length == 0) return;
+        if (splineObstaclePrefabs == null || splineObstaclePrefabs.Count == 0) return;
         
-        Obstacle randomObstacle = obstaclePrefabs[UnityEngine.Random.Range(0, obstaclePrefabs.Length)];
+        Obstacle randomObstacle = splineObstaclePrefabs.GetRandomItem();
+        SpawnSplineObstacle(randomObstacle);
+    }
+
+    [Button]
+    public void SpawnRandomForwardObstacle()
+    {
+        if (forwardObstaclePrefabs == null || forwardObstaclePrefabs.Count == 0) return;
         
-        SpawnObstacle(randomObstacle);
+        Obstacle randomObstacle = forwardObstaclePrefabs.GetRandomItem();
+        SpawnForwardObstacle(randomObstacle);
     }
     
-    public Obstacle SpawnSpecificObstacle(Obstacle obstaclePrefab)
+    public Obstacle SpawnSpecificSplineObstacle(Obstacle obstaclePrefab)
     {
         if (!obstaclePrefab) return null;
-        
-        return SpawnObstacle(obstaclePrefab);
+        return SpawnSplineObstacle(obstaclePrefab);
     }
-    
-    
+
+    public Obstacle SpawnSpecificForwardObstacle(Obstacle obstaclePrefab)
+    {
+        if (!obstaclePrefab) return null;
+        return SpawnForwardObstacle(obstaclePrefab);
+    }
 
     [Button]
     private void RemoveAllObstacles()
@@ -160,30 +243,75 @@ public class ObstacleManager : MonoBehaviour
         }
         
         _obstacles.Clear();
+
+        // Clean up splines
+        for (int i = _splines.Count - 1; i >= 0; i--)
+        {
+            if (_splines[i])
+            {
+                Destroy(_splines[i].gameObject);
+            }
+        }
+        
+        _splines.Clear();
     }
     
     [Button]
-    private void SpawnObstacleWave(int amount)
+    public void SpawnSplineObstacleWave(int amount)
     {
-        int waveSize = amount;
-        
-        for (int i = 0; i < waveSize; i++)
+        for (int i = 0; i < amount; i++)
         {
-            SpawnRandomObstacle();
+            SpawnRandomSplineObstacle();
         }
     }
 
+    [Button]
+    public void SpawnForwardObstacleWave(int amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            SpawnRandomForwardObstacle();
+        }
+    }
 
+#if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
         if (!levelManager) return;
-        
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(levelManager.EnemyPosition + (Vector3.forward * spawnDistance), 2f);
-        Gizmos.DrawLine(levelManager.EnemyPosition, levelManager.EnemyPosition + (Vector3.forward * spawnDistance));
-        
-        #if UNITY_EDITOR
-        UnityEditor.Handles.Label(levelManager.EnemyPosition + (Vector3.forward * spawnDistance) + Vector3.up * 2f, "Obstacle Spawn Point");
-        #endif
+    
+        // Spawn point
+        Gizmos.color = Color.yellow;
+        Vector3 spawnPoint = levelManager.EnemyPosition + spawnPosition;
+        Gizmos.DrawWireSphere(spawnPoint, 4f);
+    
+        // Draw 2D boundaries as rectangles
+        DrawBoundaryRect(levelManager.EnemyPosition + enemyBoundaryOffset, levelManager.EnemyBoundarySize, Color.yellow);
+        DrawBoundaryRect(levelManager.PlayerPosition + playerBoundaryOffset, levelManager.PlayerBoundarySize, Color.yellow);
+    
+
+        UnityEditor.Handles.Label(spawnPoint + Vector3.up * boundarySizeMultiplier, "Obstacle Spawn Point");
+        UnityEditor.Handles.Label(levelManager.EnemyPosition + enemyBoundaryOffset + Vector3.up * boundarySizeMultiplier, "Obstacle Enemy Boundary");
+        UnityEditor.Handles.Label(levelManager.PlayerPosition + playerBoundaryOffset + Vector3.up * boundarySizeMultiplier, "Obstacle Player Boundary");
+
     }
+
+    private void DrawBoundaryRect(Vector3 center, Vector2 size, Color color)
+    {
+        Gizmos.color = color;
+    
+        float halfWidth = size.x / boundarySizeMultiplier;
+        float halfHeight = size.y / boundarySizeMultiplier;
+    
+        Vector3 topLeft = center + new Vector3(-halfWidth, halfHeight, 0f);
+        Vector3 topRight = center + new Vector3(halfWidth, halfHeight, 0f);
+        Vector3 bottomRight = center + new Vector3(halfWidth, -halfHeight, 0f);
+        Vector3 bottomLeft = center + new Vector3(-halfWidth, -halfHeight, 0f);
+    
+        Gizmos.DrawLine(topLeft, topRight);
+        Gizmos.DrawLine(topRight, bottomRight);
+        Gizmos.DrawLine(bottomRight, bottomLeft);
+        Gizmos.DrawLine(bottomLeft, topLeft);
+    }
+    
+#endif
 }

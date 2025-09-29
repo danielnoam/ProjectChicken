@@ -9,6 +9,76 @@ using UnityEngine.UI;
 using VInspector;
 using Random = UnityEngine.Random;
 
+
+[Serializable]
+public class RarityCosts
+{
+    [SerializeField] private int commonCost = 25;
+    [SerializeField] private int uncommonCost = 50;
+    [SerializeField] private int rareCost = 100;
+    
+    public void SetCosts(int common, int uncommon, int rare)
+    {
+        commonCost = common;
+        uncommonCost = uncommon;
+        rareCost = rare;
+    }
+    
+    public void SetCosts(RarityCosts costs)
+    {
+        commonCost = costs.commonCost;
+        uncommonCost = costs.uncommonCost;
+        rareCost = costs.rareCost;
+    }
+    
+    
+    public int GetCostByRarity(UpgradeRarity rarity)
+    {
+        return rarity switch
+        {
+            UpgradeRarity.Common => commonCost,
+            UpgradeRarity.Uncommon => uncommonCost,
+            UpgradeRarity.Rare => rareCost,
+            _ => uncommonCost
+        };
+    }
+}
+
+[Serializable]
+public class RarityWeights
+{
+    [SerializeField] private float commonWeight = 100f;
+    [SerializeField] private float uncommonWeight = 60f;
+    [SerializeField] private float rareWeight = 30f;
+    
+    public void SetWeights(float common, float uncommon, float rare)
+    {
+        commonWeight = common;
+        uncommonWeight = uncommon;
+        rareWeight = rare;
+    }
+    
+    public void SetWeights(RarityWeights weights)
+    {
+        commonWeight = weights.commonWeight;
+        uncommonWeight = weights.uncommonWeight;
+        rareWeight = weights.rareWeight;
+    }
+    
+    public float GetWeightByRarity(UpgradeRarity rarity)
+    {
+        return rarity switch
+        {
+            UpgradeRarity.Common => commonWeight,
+            UpgradeRarity.Uncommon => uncommonWeight,
+            UpgradeRarity.Rare => rareWeight,
+            _ => commonWeight
+        };
+    }
+}
+
+
+
 public class UpgradeStore : NavigatableUIScreen
 {
     public static UpgradeStore Instance { get; private set; }
@@ -28,17 +98,6 @@ public class UpgradeStore : NavigatableUIScreen
     [SerializeField] private bool closeStoreOnPurchase;
     [SerializeField, Min(1)] private int availableUpgrades = 3;
     [SerializeField] private Vector3 offsetBetweenUpgrades = new Vector3(25,0,0);
-    [Foldout("Rarity Weights")]
-    [SerializeField] private float commonWeight = 100f;
-    [SerializeField] private float uncommonWeight = 60f;
-    [SerializeField] private float rareWeight = 30f;
-    [EndFoldout]
-    [Foldout("Rarity Costs")]
-    [SerializeField] private int commonCost = 25;
-    [SerializeField] private int uncommonCost = 50;
-    [SerializeField] private int rareCost = 100;
-    [EndFoldout]
-    
     
     [Header("Animations")]
     [SerializeField] private float uiAnimationDuration = 1f;
@@ -47,11 +106,10 @@ public class UpgradeStore : NavigatableUIScreen
     [SerializeField] private Ease payAnimationScaleEase = Ease.OutBounce;
     [SerializeField] private Vector3 captainOffset;
     
-
-    
-
     
     private readonly List<SOUpgradeBase> _storeUpgradesPool = new List<SOUpgradeBase>();
+    private readonly RarityWeights _storeRarityWeights = new RarityWeights();
+    private readonly RarityCosts _storeRarityCosts = new RarityCosts();
     private readonly List<UpgradeEgg> _upgradeEggs = new List<UpgradeEgg>();
     private Sequence _storeSequence;
     private Sequence _paySequence;
@@ -185,7 +243,7 @@ public class UpgradeStore : NavigatableUIScreen
 
         
         
-        SetStoreUpgradesPool(stage.UpgradesPool.ToList());
+        SetStoreUpgradesPool(stage.UpgradesPool.ToList(), stage.PoolRarityWeights, stage.PoolRarityCosts);
         if (_storeUpgradesPool is { Count: > 0 })
         {
             OpenStore();
@@ -199,7 +257,7 @@ public class UpgradeStore : NavigatableUIScreen
     
     private void OnUpgradeBought(SOUpgradeBase upgrade)
     {
-        int upgradeCost = GetCostByRarity(upgrade.ItemRarity);
+        int upgradeCost = _storeRarityCosts.GetCostByRarity(upgrade.ItemRarity);
         player.ResourceCollector.SpendCurrency(upgradeCost); 
         upgrade.ApplyUpgrade(player);
         _hasPurchasedItem = true;
@@ -282,7 +340,7 @@ public class UpgradeStore : NavigatableUIScreen
             if (!upgrade) continue;
             tempPool.Remove(upgrade);
             var index1 = index;
-            egg.RerollUpgrade(upgrade, GetCostByRarity(upgrade.ItemRarity), index1 * 0.25f);
+            egg.RerollUpgrade(upgrade, _storeRarityCosts.GetCostByRarity(upgrade.ItemRarity), index1 * 0.25f);
         }
         
         OnStoreRerolled?.Invoke();
@@ -353,7 +411,7 @@ public class UpgradeStore : NavigatableUIScreen
             });
     }
 
-    private void SetStoreUpgradesPool(List<SOUpgradeBase> newPool)
+    private void SetStoreUpgradesPool(List<SOUpgradeBase> newPool, RarityWeights poolWeights, RarityCosts poolCosts)
     {
         if (newPool is not { Count: > 0 }) return;
 
@@ -368,6 +426,10 @@ public class UpgradeStore : NavigatableUIScreen
                 _storeUpgradesPool.Add(upgrade);
             }
         }
+        
+        
+        _storeRarityWeights.SetWeights(poolWeights);
+        _storeRarityCosts.SetCosts(poolCosts);
     }
     
     private void SetEggsUpgrades()
@@ -383,7 +445,7 @@ public class UpgradeStore : NavigatableUIScreen
             if (!upgrade) continue;
             tempPool.Remove(upgrade);
             var index1 = index;
-            _storeSequence.ChainCallback(() => egg.SetUpgrade(true, upgrade, GetCostByRarity(upgrade.ItemRarity), index1 * 0.25f));
+            _storeSequence.ChainCallback(() => egg.SetUpgrade(true, upgrade, _storeRarityCosts.GetCostByRarity(upgrade.ItemRarity), index1 * 0.25f));
         }
         
         for (var index = validEggCount; index < _upgradeEggs.Count; index++)
@@ -400,7 +462,7 @@ public class UpgradeStore : NavigatableUIScreen
         float totalWeight = 0f;
         foreach (var upgrade in pool)
         {
-            totalWeight += GetWeightByRarity(upgrade.ItemRarity);
+            totalWeight += _storeRarityWeights.GetWeightByRarity(upgrade.ItemRarity);
         }
     
         float randomValue = Random.Range(0f, totalWeight);
@@ -408,7 +470,7 @@ public class UpgradeStore : NavigatableUIScreen
     
         foreach (var upgrade in pool)
         {
-            currentWeight += GetWeightByRarity(upgrade.ItemRarity);
+            currentWeight += _storeRarityWeights.GetWeightByRarity(upgrade.ItemRarity);
             if (randomValue <= currentWeight)
             {
                 return upgrade;
@@ -418,25 +480,7 @@ public class UpgradeStore : NavigatableUIScreen
         return null;
     }
     
-    private float GetWeightByRarity(UpgradeRarity rarity)
-    {
-        return rarity switch
-        {
-            UpgradeRarity.Common => commonWeight,
-            UpgradeRarity.Uncommon => uncommonWeight,
-            UpgradeRarity.Rare => rareWeight,
-            _ => commonWeight
-        };
-    }
 
-    private int GetCostByRarity(UpgradeRarity rarity)
-    {
-        return rarity switch
-        {
-            UpgradeRarity.Common => commonCost,
-            UpgradeRarity.Uncommon => uncommonCost,
-            UpgradeRarity.Rare => rareCost,
-            _ => uncommonCost
-        };
-    }
+
+
 }

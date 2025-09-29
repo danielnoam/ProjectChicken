@@ -23,14 +23,7 @@ public class BehaviorVibrateAndShakeOnHit : HitscanBehaviorBase
     public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController target)
     {
         if (vibrateControllerOnHit) weaponInstance.ControllerVibrationSource.Vibrate(vibrationSettings);
-
-        if (shakeCameraOnHit)
-        {
-            weaponInstance.CinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shakeSettings.impulseShape;
-            weaponInstance.CinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shakeSettings.intensity;
-            weaponInstance.CinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
-            weaponInstance.CinemachineImpulseSource.GenerateImpulseWithForce(shakeSettings.duration);
-        }
+        if (shakeCameraOnHit) shakeSettings.GenerateImpulse(weaponInstance.CinemachineImpulseSource);
     }
 
     public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner,ChickenStateController target = null)

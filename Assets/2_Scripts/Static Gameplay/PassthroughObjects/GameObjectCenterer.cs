@@ -34,6 +34,30 @@ public class GameObjectCenterer : MonoBehaviour
             Invoke(nameof(InitialCenter), 0.02f);
         }
     }
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out RailPlayer player))
+        {
+            player.Health.TakeDamage(100f, 5f);
+            Vector3 moveDirection = (player.transform.position - CenterObjectTransform.position).normalized;
+            player.Movement.Push(-moveDirection, 3f);
+        }
+        
+        if (other.TryGetComponent<ChickenStateController>(out var chicken))
+        {
+            chicken.TakeDamage(100);
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.TryGetComponent(out RailPlayer player))
+        {
+            Vector3 moveDirection = (player.transform.position - CenterObjectTransform.position).normalized;
+            player.Movement.Push(-moveDirection, 1f);
+        }
+    }
 
 
 

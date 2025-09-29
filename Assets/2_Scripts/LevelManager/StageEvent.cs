@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DNExtensions;
 using UnityEngine;
 
 [System.Serializable]
@@ -164,11 +165,6 @@ public class RadioMessageSequenceEvent : StageEvent
         _hasStarted = false;
         _lastSentMessage = null;
         
-        if (_radioManager)
-        {
-            _radioManager.OnMessageFinished += OnMessageFinished;
-        }
-        
         StartEvent();
     }
 
@@ -192,10 +188,6 @@ public class RadioMessageSequenceEvent : StageEvent
 
     public override void Cleanup()
     {
-        if (_radioManager)
-        {
-            _radioManager.OnMessageFinished -= OnMessageFinished;
-        }
         
         StopEvent();
         _radioManager = null;
@@ -204,14 +196,7 @@ public class RadioMessageSequenceEvent : StageEvent
         _messageQueue = null;
         _lastSentMessage = null;
     }
-
-    private void OnMessageFinished(SORadioMessage finishedMessage)
-    {
-        // if (finishedMessage == _lastSentMessage)
-        // {
-        //     SendNextMessage();
-        // }
-    }
+    
 
     private void SendNextMessage()
     {
@@ -259,11 +244,9 @@ public class RadioMessageSequenceEvent : StageEvent
 
 
 [System.Serializable]
-public class SpawnObstacleEvent : StageEvent
+public class SpawnSplineObstacleEvent : StageEvent
 {
-    [SerializeField] private Obstacle specificObstaclePrefab;
-    [Tooltip("If true, a random obstacle from the ObstacleManager will be spawned. If false, the specificObstaclePrefab will be used.")]
-    [SerializeField] private bool useRandomObstacle = true;
+    [SerializeField, MinMaxRange(1,10)] private RangedInt obstacleCount = new RangedInt(1, 3);
     [SerializeField] private int maxActiveObstacles = 3;
     [SerializeField] private float spawnInterval = 4f;
     
@@ -284,8 +267,6 @@ public class SpawnObstacleEvent : StageEvent
     {
         if (!isActive || !_obstacleManager) return;
         
-        // If using specific obstacle, check if it's assigned
-        if (!useRandomObstacle && !specificObstaclePrefab) return;
         
         _spawnTimer += deltaTime;
         
@@ -306,15 +287,17 @@ public class SpawnObstacleEvent : StageEvent
     private void SpawnObstacle()
     {
         if (!_obstacleManager) return;
+
+        var count = obstacleCount.RandomValue;
+        if (count == 1)
+        {
+            _obstacleManager.SpawnRandomSplineObstacle();
+        }
+        else
+        {
+            _obstacleManager.SpawnSplineObstacleWave(count);
+        }
         
-        if (useRandomObstacle)
-        {
-            _obstacleManager.SpawnRandomObstacle();
-        }
-        else if (specificObstaclePrefab)
-        {
-            _obstacleManager.SpawnSpecificObstacle(specificObstaclePrefab);
-        }
     }
 
     private int GetActiveObstacleCount()

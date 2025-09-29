@@ -30,14 +30,7 @@ public class BehaviorVibrateAndShakeOnImpact : ProjectileBehaviorBase
     public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenStateController collision)
     {
         if (vibrateControllerOnImpact) projectile.WeaponInstance.ControllerVibrationSource.Vibrate(vibrationSettings);
-
-        if (shakeCameraOnImpact)
-        {
-            projectile.WeaponInstance.CinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shakeSettings.impulseShape;
-            projectile.WeaponInstance.CinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shakeSettings.intensity;
-            projectile.WeaponInstance.CinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
-            projectile.WeaponInstance.CinemachineImpulseSource.GenerateImpulseWithForce(shakeSettings.duration);
-        }
+        if (shakeCameraOnImpact) shakeSettings.GenerateImpulse(projectile.WeaponInstance.CinemachineImpulseSource);
     }
 
     public override void OnDestroy(PlayerProjectile projectile, RailPlayer owner)

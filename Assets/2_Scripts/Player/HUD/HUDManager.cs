@@ -97,6 +97,7 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private Image currencyIcon;
     [SerializeField] private TextMeshProUGUI currencyText;
     [SerializeField] private Image dodgeIcon;
+    [SerializeField] private Image dodgeFillBar;
     [SerializeField] private TextMeshProUGUI dodgeCountText;
     [SerializeField] private Image weaponIcon;
     [SerializeField] private TextMeshProUGUI scoreText;
@@ -232,7 +233,7 @@ public class HUDManager : MonoBehaviour
 
     private void Update()
     {
-        scoreText.text = _score.ToString($"D{scoreDigits}");
+        if (scoreText) scoreText.text = _score.ToString($"D{scoreDigits}");
         healthText.text = _playerHealth.ToString();
         shieldText.text = $"{_playerShield:F0}%";
         currencyText.text = _playerCurrency.ToString();
@@ -273,6 +274,8 @@ public class HUDManager : MonoBehaviour
     
     private void FadeUIGroup(CanvasGroup group, bool fadeIn, ref Sequence sequence)
     {
+        if (!group) return;
+        
         if (sequence.isAlive) sequence.Stop();
         switch (fadeIn)
         {
@@ -649,12 +652,14 @@ public class HUDManager : MonoBehaviour
     {
         _currentDodgeRemining = dodgesRemining;
         dodgeCountText.text = $"X{_currentDodgeRemining}";
+        dodgeFillBar.fillAmount = 0f;
         Tween.PunchScale(dodgeCountText.transform, strength: Vector3.one * dodgePunchStrength, duration: dodgePunchDuration);
     }
     
     private void OnDodgeAccumulationUpdated(float accumulation)
     {
         dodgeCountText.color = Color.Lerp(cooldownIconColor, Color.white, accumulation);
+        dodgeFillBar.fillAmount = accumulation;
     }
 
     
@@ -662,6 +667,8 @@ public class HUDManager : MonoBehaviour
 
     private void OnScoreChanged(int newScore)
     {
+        if (!scoreText) return;
+        
         int scoreDifference = newScore - _previousScore;
         if (scoreDifference >= bigScoreDifference)
         {

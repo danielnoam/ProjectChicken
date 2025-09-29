@@ -34,6 +34,8 @@ public class SOLevelStage : ScriptableObject
     [ShowIf("stageType", StageType.Store)]
     [SerializeField] private bool allowToCloseStore = true;
     [SerializeField] private SOUpgradeBase[] upgradesPool = Array.Empty<SOUpgradeBase>();
+    [SerializeField] private RarityWeights poolRarityWeights = new RarityWeights();
+    [SerializeField] private RarityCosts poolRarityCosts = new RarityCosts();
     [EndIf]
     
     [ShowIf("stageType", StageType.EnemyWave)]
@@ -81,6 +83,8 @@ public class SOLevelStage : ScriptableObject
     public int WaveScoreWorth =>  waveScoreWorth;
     public FormationStageData FormationStageData => formationStageData;
     public  SOUpgradeBase[] UpgradesPool => upgradesPool;
+    public RarityWeights PoolRarityWeights => poolRarityWeights;
+    public RarityCosts PoolRarityCosts => poolRarityCosts;
     public StageTask[] Tasks => tasks;
     public bool RequireAllTasks => requireAllTasks;
     

@@ -17,14 +17,7 @@ public class BehaviorVibrateAndShakeOnSpawn : ProjectileBehaviorBase
     public override void OnSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
         if (vibrateControllerOnFire) projectile.WeaponInstance.ControllerVibrationSource.Vibrate(vibrationSettings);
-        
-        if (shakeCameraOnFire)
-        {
-            projectile.WeaponInstance.CinemachineImpulseSource.ImpulseDefinition.ImpulseShape = shakeSettings.impulseShape;
-            projectile.WeaponInstance.CinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = shakeSettings.intensity;
-            projectile.WeaponInstance.CinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
-            projectile.WeaponInstance.CinemachineImpulseSource.GenerateImpulseWithForce(shakeSettings.duration);
-        }
+        if (shakeCameraOnFire) shakeSettings.GenerateImpulse(projectile.WeaponInstance.CinemachineImpulseSource);
     }
 
     public override void OnMovement(PlayerProjectile projectile, RailPlayer owner)

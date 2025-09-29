@@ -99,7 +99,7 @@ public class AccumulateScoreTask : StageTask
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class UseSpecificActionTask : StageTask
 {
     public enum ActionType

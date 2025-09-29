@@ -9,14 +9,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4128553274159926499}
-  - component: {fileID: 7780876789922758693}
   - component: {fileID: 1169418364735684527}
   - component: {fileID: 5075616866749465122}
   - component: {fileID: 2933239691788461853}
   - component: {fileID: 719675502152787001}
   - component: {fileID: 6229465747584892128}
   m_Layer: 0
-  m_Name: Asteroid1
+  m_Name: ObstacleAsteroid3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,39 +31,12 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.2232664, y: 1.2232664, z: 1.2232664}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7874767177213363366}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &7780876789922758693
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 651960858193725616}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 1
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!114 &1169418364735684527
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,16 +164,75 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healthRange:
     minValue: 1
-    maxValue: 1
+    maxValue: 3
   moveSpeedRange:
     minValue: 1
-    maxValue: 1
-  damageRange:
-    minValue: 10
-    maxValue: 30
-  lifetime: 20
-  spawnAnimationDuration: 5
-  rigidBody: {fileID: 7780876789922758693}
+    maxValue: 100
+  spawnAnimationDuration:
+    minValue: 2
+    maxValue: 5
+  rotationSpeedRange:
+    minValue: 30
+    maxValue: 100
+  obstacleDestroyedSfx: {fileID: 0}
+  obstacleDestroyedParticleEffect: {fileID: 2325566527072732932, guid: 741831db828bb4a49b578852deec9480, type: 3}
+  cameraShakeSettings:
+    impulseType: 0
+    impulseShape: 4
+    intensity: 5
+    duration: 1
+  vibrationEffectSettings:
+    lowFrequency: 0.3
+    highFrequency: 0.3
+    duration: 0.3
+    lowFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    highFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   vibrationSource: {fileID: 5075616866749465122}
   impulseSource: {fileID: 1169418364735684527}
 --- !u!1 &2683695684653739277
@@ -230,7 +261,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5978414, y: 0.9132452, z: 1.2198547}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4956239761273132356}

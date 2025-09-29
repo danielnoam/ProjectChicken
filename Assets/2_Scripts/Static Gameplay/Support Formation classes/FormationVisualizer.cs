@@ -42,6 +42,11 @@ public class FormationVisualizer : MonoBehaviour
         DrawFormationSlots();
         DrawFormationBoundingBoxes();
         DrawColliderBounds();
+        
+    }
+    
+    public void OnDrawGizmosSelected()
+    {
         DrawFormationNameAndStatus();
     }
 
@@ -117,27 +122,6 @@ public class FormationVisualizer : MonoBehaviour
         }
         Handles.Label(transform.position + Vector3.up * 2, statusText);
         #endif
-    }
-
-    // Additional visualization methods can be added here
-    public void DrawCustomGizmo(Vector3 position, Color color, float size, string label = "")
-    {
-        Gizmos.color = color;
-        Gizmos.DrawWireSphere(transform.position + transform.TransformDirection(position), size);
-        
-        #if UNITY_EDITOR
-        if (!string.IsNullOrEmpty(label))
-        {
-            Handles.Label(transform.position + transform.TransformDirection(position) + Vector3.up, label);
-        }
-        #endif
-    }
-
-    public void SetGizmoSettings(Color color, float size, bool showBounds = true)
-    {
-        gizmoColor = color;
-        gizmoSize = size;
-        showColliderBounds = showBounds;
     }
 
     // Context menu for testing visualization

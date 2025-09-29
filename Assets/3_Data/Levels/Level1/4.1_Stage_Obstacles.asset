@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: Stage_TaskTest
+  m_Name: 4.1_Stage_Obstacles
   m_EditorClassIdentifier: 
   stageTitle: 
   startRadioMessage: {fileID: 0}
   worldSpeed: 1
-  isCheckpoint: 1
+  isCheckpoint: 0
   events:
-  - rid: 15267381628633178
-  stageType: 5
-  stageDuration: 7
-  delayBeforeNextStage: 2
+  - rid: 15267381628633179
+  stageType: 0
+  stageDuration: 30
+  delayBeforeNextStage: 1
   showOutroMenu: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -39,20 +39,25 @@ MonoBehaviour:
     rareCost: 100
   waveScoreWorth: 1000
   enemyWave:
-    serializedKvps: []
+    serializedKvps:
+    - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
+      Value: 30
+      index: 0
+      isKeyRepeated: 0
+      isKeyNull: 0
     dividerPos: 0.33
   formationStageData:
     formationType: 0
-    formationCount: 1
-    numberOfSlots: 9
-    spacing: 2
+    formationCount: 3
+    numberOfSlots: 6
+    spacing: 12
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
   requireAllTasks: 1
   tasks:
-  - rid: 15267381628633176
+  - rid: -2
   showHUD: 1
   showScore: 1
   showStagesProgression: 1
@@ -65,19 +70,14 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 15267381628633176
-      type: {class: CollectResourceTask, ns: , asm: Assembly-CSharp}
-      data:
-        description: 
-        isCompleted: 0
-        targetAmount: 5
-        resourceType: 0
-    - rid: 15267381628633178
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 15267381628633179
       type: {class: SpawnSplineObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
         isActive: 0
         obstacleCount:
           minValue: 1
-          maxValue: 10
+          maxValue: 5
         maxActiveObstacles: 3
         spawnInterval: 4
