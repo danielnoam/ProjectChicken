@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4128553274159926499}
   - component: {fileID: 1169418364735684527}
   - component: {fileID: 5075616866749465122}
+  - component: {fileID: 8715324568941604368}
   - component: {fileID: 4890545808158108665}
   - component: {fileID: 719675502152787001}
   - component: {fileID: 6229465747584892128}
@@ -102,6 +103,103 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcae686dfb6f4e95ab416ccb595ef855, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!82 &8715324568941604368
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 651960858193725616}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!136 &4890545808158108665
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -164,29 +262,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5a225372dee2b344b296c3ef17a48b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthRange:
-    minValue: 1
-    maxValue: 3
+  baseSpeed: 75
   moveSpeedRange:
     minValue: 1
     maxValue: 100
+  healthRange:
+    minValue: 1
+    maxValue: 3
   spawnAnimationDuration:
     minValue: 2
     maxValue: 5
   rotationSpeedRange:
     minValue: 30
     maxValue: 100
+  obstacleFlyBySfx: {fileID: 11400000, guid: cfdab1622082c3d4f8ae8003570503fa, type: 2}
   obstacleDestroyedSfx: {fileID: 0}
   obstacleDestroyedParticleEffect: {fileID: 2325566527072732932, guid: 741831db828bb4a49b578852deec9480, type: 3}
   cameraShakeSettings:
     impulseType: 0
     impulseShape: 4
-    intensity: 5
-    duration: 1
+    intensity: 4
+    duration: 0.7
   vibrationEffectSettings:
-    lowFrequency: 0.3
-    highFrequency: 0.3
-    duration: 0.3
+    lowFrequency: 0.1
+    highFrequency: 0.1
+    duration: 0.2
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -237,6 +337,7 @@ MonoBehaviour:
       m_RotationOrder: 4
   vibrationSource: {fileID: 5075616866749465122}
   impulseSource: {fileID: 1169418364735684527}
+  audioSource: {fileID: 8715324568941604368}
 --- !u!1 &2683695684653739277
 GameObject:
   m_ObjectHideFlags: 0
