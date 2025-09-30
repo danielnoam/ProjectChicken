@@ -244,21 +244,23 @@ public class RadioMessageSequenceEvent : StageEvent
 
 
 [System.Serializable]
-public class SpawnSplineObstacleEvent : StageEvent
+public class SpawnObstacleEvent : StageEvent
 {
     [SerializeField, MinMaxRange(1,10)] private RangedInt obstacleCount = new RangedInt(1, 3);
-    [SerializeField] private int maxActiveObstacles = 3;
-    [SerializeField] private float spawnInterval = 4f;
+    [SerializeField, MinMaxRange(2f, 30f)] private RangedFloat spawnIntervalRange = 4f;
+    [SerializeField, Min(1)] private int maxActiveObstacles = 3;
     
     private LevelManager _levelManager;
     private ObstacleManager _obstacleManager;
     private float _spawnTimer;
+    private float _spawnInterval;
     
     public override void Initialize(LevelManager levelManager)
     {
         _levelManager = levelManager;
         _obstacleManager = levelManager.ObstacleManager;
         
+        _spawnInterval = spawnIntervalRange.RandomValue;
         _spawnTimer = 0f;
         StartEvent();
     }
@@ -270,10 +272,11 @@ public class SpawnSplineObstacleEvent : StageEvent
         
         _spawnTimer += deltaTime;
         
-        if (_spawnTimer >= spawnInterval && GetActiveObstacleCount() < maxActiveObstacles)
+        if (_spawnTimer >= _spawnInterval && GetActiveObstacleCount() < maxActiveObstacles)
         {
             SpawnObstacle();
             _spawnTimer = 0f;
+            _spawnInterval = spawnIntervalRange.RandomValue;
         }
     }
     
@@ -289,19 +292,69 @@ public class SpawnSplineObstacleEvent : StageEvent
         if (!_obstacleManager) return;
 
         var count = obstacleCount.RandomValue;
-        if (count == 1)
-        {
-            _obstacleManager.SpawnRandomSplineObstacle();
-        }
-        else
-        {
-            _obstacleManager.SpawnSplineObstacleWave(count);
-        }
+        _obstacleManager.SpawnObstacleWave(count);
         
     }
 
     private int GetActiveObstacleCount()
     {
-        return _obstacleManager ? _obstacleManager.ActiveObstacleCount : 0;
+        return _obstacleManager ? _obstacleManager.ActiveNormalObstacleCount : 0;
+    }
+}
+
+
+[System.Serializable]
+public class SpawnPassthroughObstacleEvent : StageEvent
+{
+    [SerializeField, MinMaxRange(5f, 30f)] private RangedFloat spawnIntervalRange = 15f;
+    [SerializeField, Min(1)] private int maxActiveObstacles = 1;
+    
+    private LevelManager _levelManager;
+    private ObstacleManager _obstacleManager;
+    private float _spawnTimer;
+    private float _spawnInterval;
+    
+    public override void Initialize(LevelManager levelManager)
+    {
+        _levelManager = levelManager;
+        _obstacleManager = levelManager.ObstacleManager;
+        _spawnTimer = 0f;
+        _spawnInterval = spawnIntervalRange.RandomValue;
+        StartEvent();
+    }
+    
+    public override void Update(float deltaTime)
+    {
+        if (!isActive || !_obstacleManager) return;
+        
+        
+        _spawnTimer += deltaTime;
+        
+        if (_spawnTimer >= _spawnInterval && GetActiveObstacleCount() < maxActiveObstacles)
+        {
+            SpawnObstacle();
+            _spawnTimer = 0f;
+            _spawnInterval = spawnIntervalRange.RandomValue;
+        }
+    }
+    
+    public override void Cleanup()
+    {
+        StopEvent();
+        _obstacleManager = null;
+        _levelManager = null;
+    }
+    
+    private void SpawnObstacle()
+    {
+        if (!_obstacleManager) return;
+        
+        _obstacleManager.SpawnRandomPassthroughObstacle();
+        
+    }
+    
+    private int GetActiveObstacleCount()
+    {
+        return _obstacleManager ? _obstacleManager.ActivePassthroughObstacleCount : 0;
     }
 }

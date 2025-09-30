@@ -1633,11 +1633,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnPosition: {x: 0, y: 0, z: 1000}
-  boundarySizeMultiplier: 1
+  enemyBoundarySizeMultiplier: 1
+  playerBoundarySizeMultiplier: 1.3
   enemyBoundaryOffset: {x: 0, y: 0, z: 500}
   playerBoundaryOffset: {x: 0, y: 0, z: 0}
-  directionVariation: 30
-  splineObstaclePrefabs:
+  passthroughStartDistance: 1500
+  passthroughEndDistance: -200
+  passthroughBoundarySizeMultiplier: 1.3
+  obstaclePrefabs:
     internalItems:
     - item: {fileID: 6229465747584892128, guid: 38b695021814a05489b709d9a7793e38, type: 3}
       chance: 25
@@ -1651,8 +1654,14 @@ MonoBehaviour:
     - item: {fileID: 6229465747584892128, guid: fd6d25a5029084048bde6ff1cae835a8, type: 3}
       chance: 25
       isLocked: 0
-  forwardObstaclePrefabs:
-    internalItems: []
+  passthroughObstaclePrefabs:
+    internalItems:
+    - item: {fileID: 4195746654617595884, guid: a7823e9699d7cb64ebd54ea61b4bd6a2, type: 3}
+      chance: 50
+      isLocked: 0
+    - item: {fileID: 7982674519119543760, guid: b20a3d75a9af8cb4c9c6dd0071d95695, type: 3}
+      chance: 50
+      isLocked: 0
   obstacleHolder: {fileID: 439969365969103054}
   splineHolder: {fileID: 6626348813966583457}
   levelManager: {fileID: 98154818553496101}

@@ -262,28 +262,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5a225372dee2b344b296c3ef17a48b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseSpeed: 75
+  baseMoveSpeed: 75
   moveSpeedRange:
     minValue: 1
     maxValue: 100
-  healthRange:
-    minValue: 1
-    maxValue: 3
-  spawnAnimationDuration:
-    minValue: 2
-    maxValue: 5
+  baseRotationSpeed: 50
   rotationSpeedRange:
     minValue: 30
     maxValue: 100
-  obstacleFlyBySfx: {fileID: 11400000, guid: cfdab1622082c3d4f8ae8003570503fa, type: 2}
-  obstacleDestroyedSfx: {fileID: 0}
-  obstacleDestroyedParticleEffect: {fileID: 2325566527072732932, guid: 741831db828bb4a49b578852deec9480, type: 3}
-  cameraShakeSettings:
+  spawnAnimationDuration:
+    minValue: 2
+    maxValue: 5
+  flyBySfx: {fileID: 11400000, guid: cfdab1622082c3d4f8ae8003570503fa, type: 2}
+  flyByCameraShakeSettings:
     impulseType: 0
     impulseShape: 4
     intensity: 4
     duration: 0.7
-  vibrationEffectSettings:
+  flyByVibrationEffectSettings:
     lowFrequency: 0.1
     highFrequency: 0.1
     duration: 0.2
@@ -338,6 +334,11 @@ MonoBehaviour:
   vibrationSource: {fileID: 5075616866749465122}
   impulseSource: {fileID: 1169418364735684527}
   audioSource: {fileID: 8715324568941604368}
+  healthRange:
+    minValue: 1
+    maxValue: 3
+  obstacleDestroyedSfx: {fileID: 0}
+  obstacleDestroyedParticleEffect: {fileID: 2325566527072732932, guid: 741831db828bb4a49b578852deec9480, type: 3}
 --- !u!1 &2683695684653739277
 GameObject:
   m_ObjectHideFlags: 0

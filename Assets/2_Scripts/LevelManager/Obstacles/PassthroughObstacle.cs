@@ -1,59 +1,23 @@
-using System;
 using UnityEngine;
-using System.Collections;
+using UnityEngine.Splines;
 
-public class PassthroughObstacle : MonoBehaviour
+public class PassthroughObstacle : BaseObstacle
 {
-
-    
-    
-    [Header("Scaling")]
-    [SerializeField] private float scalingDuration = 2f;
-    [SerializeField] private bool autoDetectScaleDuration = true;
-    
     [Header("References")]
     [SerializeField] private GameObject centerObject;
     
-    private bool _hasBeenCentered;
-    private float _targetZ;
-    
     public Transform CenterObjectTransform => centerObject ? centerObject.transform : transform;
-    
-    
-    
-    private void Start()
-    {
-        InitialCenter();
-    }
-    
-    private void OnDisable()
-    {
-        StopAllCoroutines();
-        _hasBeenCentered = false;
-    }
-    
-    private void OnEnable()
-    {
-        _hasBeenCentered = false;
-        
-        if (centerObject)
-        {
-            InitialCenter();
-        }
-    }
     
     private void OnTriggerEnter(Collider other)
     {
         if (other.TryGetComponent(out RailPlayer player))
         {
-            player.Health.TakeDamage(100f, 5f);
-            Vector3 moveDirection = (player.transform.position - CenterObjectTransform.position).normalized;
-            player.Movement.Push(-moveDirection, 3f);
+            OnCollisionWithPlayer(player);
         }
         
         if (other.TryGetComponent<ChickenStateController>(out var chicken))
         {
-            chicken.TakeDamage(100);
+            OnCollisionWithChicken(chicken);
         }
     }
 
@@ -65,64 +29,51 @@ public class PassthroughObstacle : MonoBehaviour
             player.Movement.Push(-moveDirection, 1f);
         }
     }
-
-    private void InitialCenter()
+    
+    protected override void MoveAlongSpline()
     {
-        if (_hasBeenCentered) return;
+        if (!spline || !centerObject) return;
         
-        if (!centerObject)
+        float splineLength = spline.Spline.GetLength();
+        float progressIncrement = (moveSpeed * Time.deltaTime) / splineLength;
+        
+        splineProgress += progressIncrement;
+        
+        if (splineProgress >= 1f)
         {
-            Debug.LogWarning("No center object assigned on " + gameObject.name);
+            OnSplineComplete();
             return;
         }
         
-        _targetZ = transform.position.z;
+        spline.Evaluate(splineProgress, out var position, out var tangent, out var up);
         
-        if (autoDetectScaleDuration)
-        {
-            MonoBehaviour spaceItemBehavior = GetComponent<MonoBehaviour>();
-            if (spaceItemBehavior)
-            {
-                var scaleDurationField = spaceItemBehavior.GetType().GetField("scaleDuration");
-                if (scaleDurationField != null)
-                {
-                    scalingDuration = (float)scaleDurationField.GetValue(spaceItemBehavior);
-                }
-            }
-        }
+        // Convert position to Vector3 to avoid ambiguity with float3
+        Vector3 splinePosition = position;
         
-        CenterObjectAtTarget();
+        // The centerObject defines the "middle" of the obstacle
+        // We want this middle point to be at the spline position
         
-        StartCoroutine(MonitorPositionDuringScaling());
+        // Get centerObject's position in parent's local space
+        Vector3 centerLocalPos = centerObject.transform.localPosition;
         
-        _hasBeenCentered = true;
+        // Transform this local position to world space offset (accounts for rotation/scale)
+        Vector3 centerWorldOffset = transform.TransformVector(centerLocalPos);
+        
+        // Set parent position so that center ends up at spline position
+        transform.position = splinePosition - centerWorldOffset;
+        
+        transform.Rotate(rotationDirection, rotationSpeed * Time.deltaTime);
     }
     
-    private void CenterObjectAtTarget()
+    protected override void OnCollisionWithPlayer(RailPlayer player)
     {
-        if (!centerObject) return;
-        
-        Vector3 centerWorldPosition = centerObject.transform.position;
-        
-        Vector3 targetPosition = new Vector3(0f, 0f, _targetZ);
-        
-        Vector3 offset = targetPosition - centerWorldPosition;
-        
-        transform.position += offset;
+        player.Health.TakeDamage(100f, 5f);
+        Vector3 moveDirection = (player.transform.position - CenterObjectTransform.position).normalized;
+        player.Movement.Push(-moveDirection, 3f);
     }
     
-    private IEnumerator MonitorPositionDuringScaling()
+    protected override void OnCollisionWithChicken(ChickenStateController chicken)
     {
-        float elapsedTime = 0f;
-        
-        while (elapsedTime < scalingDuration)
-        {
-            CenterObjectAtTarget();
-            
-            yield return null;
-            elapsedTime += Time.deltaTime;
-        }
-        
-        CenterObjectAtTarget();
+        chicken.TakeDamage(100);
     }
 }
