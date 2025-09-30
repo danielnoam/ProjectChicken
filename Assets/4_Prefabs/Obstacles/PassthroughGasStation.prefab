@@ -97,7 +97,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3724146673273290545, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
       propertyPath: m_Name
-      value: GasStation Passthrough
+      value: PassthroughGasStation
       objectReference: {fileID: 0}
     - target: {fileID: 3724146673273290545, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
       propertyPath: m_TagString
@@ -191,7 +191,7 @@ PrefabInstance:
       addedObject: {fileID: 1729435884681840698}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3724146673273290545, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
-      insertIndex: -1
+      insertIndex: 2
       addedObject: {fileID: 4195746654617595884}
     - targetCorrespondingSourceObject: {fileID: 3724146673273290545, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
       insertIndex: -1
@@ -229,9 +229,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f69e98bb62766ee489941931283c1daa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  centerObject: {fileID: 2472337234000055556}
   scalingDuration: 2
   autoDetectScaleDuration: 1
+  centerObject: {fileID: 2472337234000055556}
 --- !u!65 &7555638686378275220
 BoxCollider:
   m_ObjectHideFlags: 0

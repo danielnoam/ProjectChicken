@@ -81,7 +81,7 @@ public class RailPlayer : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent(out GameObjectCenterer gameObjectCenterer))
+        if (other.TryGetComponent(out PassthroughObstacle gameObjectCenterer))
         {
             Health.TakeDamage(100f, 5f);
             Vector3 moveDirection = (transform.position - gameObjectCenterer.CenterObjectTransform.position).normalized;

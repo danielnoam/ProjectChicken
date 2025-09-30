@@ -2727,14 +2727,17 @@ MonoBehaviour:
   shieldRegenCooldown: 3
   shieldRegenRate: 15
   shieldDamagedShakeSettings:
+    impulseType: 0
     impulseShape: 4
     intensity: 0.4
     duration: 0.3
   healthDamagedShakeSettings:
+    impulseType: 0
     impulseShape: 4
     intensity: 0.9
     duration: 0.4
   deathShakeSettings:
+    impulseType: 0
     impulseShape: 2
     intensity: 0.5
     duration: 1
@@ -3146,6 +3149,7 @@ MonoBehaviour:
     _updateType: 0
   audioSource: {fileID: 1950743973285740102}
   shipModel: {fileID: 5119365439155976064}
+  engineEffect: {fileID: 984158622118996083}
   dodgeAccumulationSfx: {fileID: 0}
   dodgeAccumulationEffect: {fileID: 4437634252465665199}
   dodgeSfx: {fileID: 11400000, guid: 41d0672bb20c66843bc6a4a21c7d49ca, type: 2}
@@ -7187,11 +7191,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: EngineEffect
       objectReference: {fileID: 0}
+    - target: {fileID: 7868432702808598531, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+--- !u!1 &984158622118996083 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7868432702808598531, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}
+  m_PrefabInstance: {fileID: 6960918882403172464}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5091131167723821911 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2755483914883193639, guid: b9c5a4e9d15f7bc4c90187b3ade1728f, type: 3}

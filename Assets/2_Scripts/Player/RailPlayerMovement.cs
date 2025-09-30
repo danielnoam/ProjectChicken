@@ -37,6 +37,7 @@ public class RailPlayerMovement : MonoBehaviour
     [Header("References")] 
     [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
     [SerializeField] private Transform shipModel;
+    [SerializeField] private GameObject engineEffect;
     [SerializeField] private SOAudioEvent dodgeAccumulationSfx;
     [SerializeField] private ParticleSystem dodgeAccumulationEffect;
     [SerializeField] private SOAudioEvent dodgeSfx;
@@ -139,6 +140,8 @@ public class RailPlayerMovement : MonoBehaviour
         _allowMovement = false;
         _allowDodge = false;
         _autoCenterRoutine = StartCoroutine(ReturnToCenter());
+
+        ToggleEngineEffect(false);
     }
     
     private void OnStageChanged(SOLevelStage stage)
@@ -164,8 +167,15 @@ public class RailPlayerMovement : MonoBehaviour
         if (stage.AllowPlayerMovement && !_allowDynamicShipRotation) _allowDynamicShipRotation = true;
         
         UpdateDodgeParticles();
+        ToggleEngineEffect(stage.WorldSpeed > 0f);
     }
-    
+
+    private void ToggleEngineEffect(bool state)
+    {
+        if (!engineEffect) return;
+
+        engineEffect.SetActive(state);
+    }
     
     private void OnStoreRerolled()
     {

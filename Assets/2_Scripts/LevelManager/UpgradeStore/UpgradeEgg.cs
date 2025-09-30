@@ -28,19 +28,15 @@ public class UpgradeEgg : MonoBehaviour
     [SerializeField, MinMaxRange(0,5)] private RangedFloat bobbingVarianceRange = new RangedFloat(0, 3);
     
     [Header("Info Panel")]
-    [SerializeField] private float infoAnimationDuration = 0.2f;
-    [SerializeField] private Ease infoAnimationEase = Ease.OutBack;
+    [SerializeField] private float outlineAnimationDuration = 0.2f;
     [SerializeField] private Color affordableColor = Color.green;
     [SerializeField] private Color unaffordableColor = Color.red;
-    [SerializeField] private SOAudioEvent showInfoSfx;
-    [SerializeField] private SOAudioEvent hideInfoSfx;
     
     
     [Header("Reference")]
     [SerializeField] private Animator animator;
     [SerializeField] private Button button;
     [SerializeField] private Image buttonIcon;
-    [SerializeField] private CanvasGroup upgradeInfoGroup;
     [SerializeField] private CanvasGroup mainCanvasGroup;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
@@ -51,6 +47,7 @@ public class UpgradeEgg : MonoBehaviour
     [SerializeField] private Transform upgradeGfxHolder;
     [SerializeField] private Outline eggOutline;
     [SerializeField] private AudioSource audioSource;
+    [SerializeField] private InfoDisplay infoDisplay;
 
     private bool _wasBought;
     private SOUpgradeBase _upgrade;
@@ -61,9 +58,7 @@ public class UpgradeEgg : MonoBehaviour
     private float _randomBob;
     private Vector3 _gfxStartPosition;
     private Vector3 _transformStartPosition;
-    private Vector3 _upgradeInfoGroupStartScale;
     private Sequence _animationSequence;
-    private Sequence _upgradeInfoSequence;
     private Sequence _outlineSequence;
     
     public Button Button => button;
@@ -86,8 +81,6 @@ public class UpgradeEgg : MonoBehaviour
         _randomBob = bobbingVarianceRange.RandomValue;
         _transformStartPosition = transform.localPosition;
         _gfxStartPosition = gfx.localPosition;
-        _upgradeInfoGroupStartScale = upgradeInfoGroup.transform.localScale;
-
 
         if (button)
         {
@@ -169,6 +162,7 @@ public class UpgradeEgg : MonoBehaviour
         buttonIcon.sprite = buyIcon;
         costText.color = Color.white;
         
+        
         foreach (Transform child in upgradeGfxHolder)
         {
             Destroy(child.gameObject);
@@ -177,7 +171,6 @@ public class UpgradeEgg : MonoBehaviour
         if (!animate)
         {
             mainCanvasGroup.alpha = 0f;
-            upgradeInfoGroup.alpha = 0f;
             transform.localPosition = new Vector3(transform.localPosition.x, yOffset,transform.localPosition.z);
         }
         else
@@ -254,12 +247,11 @@ public class UpgradeEgg : MonoBehaviour
         
         if (!_wasBought) animator?.SetTrigger(Hover);
         
-        showInfoSfx?.Play(audioSource);
-        if (_upgradeInfoSequence.isAlive) _upgradeInfoSequence.Stop();
-        _upgradeInfoSequence = Sequence.Create()
-            .Group(Tween.Alpha(upgradeInfoGroup, 1f, infoAnimationDuration * 0.7f))
-            .Group(Tween.Scale(upgradeInfoGroup.transform, _upgradeInfoGroupStartScale, infoAnimationDuration, infoAnimationEase))
-            .Group(FadeOutline(infoAnimationDuration, 0, true));
+        infoDisplay.Show();
+        
+        if (_outlineSequence.isAlive) _outlineSequence.Stop();
+        _outlineSequence = Sequence.Create()
+            .Group(FadeOutline(outlineAnimationDuration, 0, true));
         
         OnEggSelected?.Invoke(this);
         
@@ -269,12 +261,11 @@ public class UpgradeEgg : MonoBehaviour
     {
         if (!_upgrade) return;
         
-        hideInfoSfx?.Play(audioSource);
-        if (_upgradeInfoSequence.isAlive) _upgradeInfoSequence.Stop();
-        _upgradeInfoSequence = Sequence.Create()
-            .Group(Tween.Alpha(upgradeInfoGroup, 0f, infoAnimationDuration * 0.5f))
-            .Group(Tween.Scale(upgradeInfoGroup.transform, Vector3.zero, infoAnimationDuration, infoAnimationEase))
-            .Group(FadeOutline(infoAnimationDuration, 0, false));
+        infoDisplay.Hide();
+        
+        if (_outlineSequence.isAlive) _outlineSequence.Stop();
+        _outlineSequence = Sequence.Create()
+            .Group(FadeOutline(outlineAnimationDuration, 0, false));
     }
     
 
@@ -307,9 +298,7 @@ public class UpgradeEgg : MonoBehaviour
         var sequence = Sequence.Create()
                 .ChainDelay(startDelay)
                 .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
-                .Group(Tween.Alpha(upgradeInfoGroup, 0, animationDuration))
-                .Group(Tween.LocalPositionY(transform, yOffset, animationDuration))
-            ;
+                .Group(Tween.LocalPositionY(transform, yOffset, animationDuration));
         
         return sequence;
     }

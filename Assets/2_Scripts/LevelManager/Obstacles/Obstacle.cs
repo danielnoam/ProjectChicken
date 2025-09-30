@@ -68,7 +68,7 @@ public class Obstacle : MonoBehaviour
             chicken.TakeDamage(100);
         }
         
-        if (other.TryGetComponent(out GameObjectCenterer gameObjectCenterer))
+        if (other.TryGetComponent(out PassthroughObstacle gameObjectCenterer))
         {
             TakeDamage(_health);
         }
