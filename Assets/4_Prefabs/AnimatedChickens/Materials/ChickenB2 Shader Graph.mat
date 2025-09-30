@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: FriedChickenLeg Shader Graph
+  m_Name: ChickenB2 Shader Graph
   m_Shader: {fileID: -6465566751694194690, guid: a8ce6e87fc95f9b49be4aa77f2cbd88d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -42,11 +42,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: bd801fe42a80b4b4f9eed723241eeaae, type: 3}
+        m_Texture: {fileID: 2800000, guid: 44151e64d166f4c4cbda1a1d9f235130, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissiveMask:
-        m_Texture: {fileID: 2800000, guid: bd801fe42a80b4b4f9eed723241eeaae, type: 3}
+        m_Texture: {fileID: 2800000, guid: 44151e64d166f4c4cbda1a1d9f235130, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetalicMAp:
@@ -54,7 +54,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RoughnessMap:
-        m_Texture: {fileID: 2800000, guid: e14576e49d5af2242a3967a99b8cbfcf, type: 3}
+        m_Texture: {fileID: 2800000, guid: 95360d1d264c0ce42afa9da3721d58b0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -71,7 +71,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _EmissiveIntensity: 1
+    - _EmissiveIntensity: 0.55
     - _QueueControl: 0
     - _QueueOffset: 0
     m_Colors: []
