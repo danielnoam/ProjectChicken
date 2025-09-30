@@ -13,6 +13,7 @@ public enum ObstacleMovementType
     Spline
 }
 
+[RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(ControllerVibrationSource))]
 [RequireComponent(typeof(CinemachineImpulseSource))]
 public class Obstacle : MonoBehaviour
@@ -26,6 +27,7 @@ public class Obstacle : MonoBehaviour
     [Header("Gfx")]
     [SerializeField, MinMaxRange(1f, 5f)] private RangedFloat spawnAnimationDuration = new RangedFloat(2f,5f);
     [SerializeField, MinMaxRange(1f, 360f)] private RangedFloat rotationSpeedRange = new(30f, 100f);
+    [SerializeField] private SOAudioEvent obstacleFlyBySfx;
     [SerializeField] private SOAudioEvent obstacleDestroyedSfx;
     [SerializeField] private ParticleSystem obstacleDestroyedParticleEffect;
     [SerializeField] private CameraShakeSettings cameraShakeSettings;
@@ -34,6 +36,8 @@ public class Obstacle : MonoBehaviour
     [Header("References")]
     [SerializeField] private ControllerVibrationSource vibrationSource;
     [SerializeField] private CinemachineImpulseSource impulseSource;
+    [SerializeField] private AudioSource audioSource;
+    
     
     private bool _initialized;
     private bool _shakeEffectPlayed;
@@ -127,6 +131,7 @@ public class Obstacle : MonoBehaviour
             if (Vector3.Distance(transform.position, LevelManager.Instance.PlayerPosition) < 50f)
             {
                 _shakeEffectPlayed = true;
+                obstacleFlyBySfx?.Play(audioSource);
                 cameraShakeSettings.GenerateImpulse(impulseSource);
                 vibrationSource.Vibrate(vibrationEffectSettings);
             }
