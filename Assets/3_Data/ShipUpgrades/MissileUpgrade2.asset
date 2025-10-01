@@ -47,6 +47,7 @@ MonoBehaviour:
   overrideProjectileBehaviors: 1
   projectileBehaviors:
   - rid: 4047855709786210387
+  - rid: 736433129126887556
   - rid: 4047855709786210388
   - rid: 4485104011578441738
   - rid: 4485104011578441739
@@ -56,6 +57,10 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: 736433129126887556
+      type: {class: BehaviorDamageOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        damage: 100
     - rid: 4047855709786210387
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
       data:
@@ -91,7 +96,7 @@ MonoBehaviour:
       data:
         minRadius: 7
         maxRadius: 18
-        maxDamage: 100
+        maxDamage: 135
         maxForce: 45
         stunChance: 35
         maxStunTime: 2
@@ -188,6 +193,7 @@ MonoBehaviour:
             m_RotationOrder: 4
         shakeCameraOnFire: 1
         shakeSettings:
+          impulseType: 0
           impulseShape: 2
           intensity: 1
           duration: 0.3
@@ -249,6 +255,7 @@ MonoBehaviour:
             m_RotationOrder: 4
         shakeCameraOnImpact: 1
         shakeSettings:
+          impulseType: 0
           impulseShape: 2
           intensity: 1
           duration: 0.3

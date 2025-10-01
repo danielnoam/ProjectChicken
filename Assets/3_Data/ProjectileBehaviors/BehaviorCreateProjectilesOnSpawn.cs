@@ -15,12 +15,12 @@ public class BehaviorCreateProjectilesOnSpawn : ProjectileBehaviorBase
     [SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors;
 
     
-    private List<ChickenStateController> _targets;
+    private List<ITargetable> _targets;
     private int _spawnedProjectiles;
 
     public override void OnSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
-        _targets = new List<ChickenStateController>();
+        _targets = new List<ITargetable>();
         _spawnedProjectiles = 0;
         _targets = owner.Aiming.GetTargets(maxProjectiles, targetRadius).ToList();
 
@@ -30,7 +30,7 @@ public class BehaviorCreateProjectilesOnSpawn : ProjectileBehaviorBase
             Vector3 spawnPosition = projectile.transform.position;
             
             
-            if (target && target != projectile.Target && _spawnedProjectiles < maxProjectiles)
+            if (target != null && target != projectile.Target && _spawnedProjectiles < maxProjectiles)
             {
                 float angle = (360f / maxProjectiles) * _spawnedProjectiles * Mathf.Deg2Rad;
         
@@ -51,7 +51,7 @@ public class BehaviorCreateProjectilesOnSpawn : ProjectileBehaviorBase
 
     }
 
-    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenStateController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, IDamageable damageable)
     {
 
     }
@@ -62,7 +62,7 @@ public class BehaviorCreateProjectilesOnSpawn : ProjectileBehaviorBase
     }
     
     
-    private void SpawnProjectile(PlayerProjectile projectile, RailPlayer owner, Vector3 spawnPosition, ChickenStateController target)
+    private void SpawnProjectile(PlayerProjectile projectile, RailPlayer owner, Vector3 spawnPosition, ITargetable target)
     {
         GameObject spawnedObj = Object.Instantiate(projectilePrefab.gameObject, spawnPosition, Quaternion.identity);
         PlayerProjectile miniProjectile = spawnedObj.GetComponent<PlayerProjectile>();

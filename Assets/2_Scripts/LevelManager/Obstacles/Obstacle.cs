@@ -7,11 +7,11 @@ using Random = UnityEngine.Random;
 public class Obstacle : BaseObstacle
 {
     [Header("Settings")]
-    [SerializeField, MinMaxRange(1, 15)] private RangedInt healthRange = new(1, 5);
+    [SerializeField, MinMaxRange(1, 1000)] private RangedFloat healthRange = new(50f, 150f);
     [SerializeField] private SOAudioEvent obstacleDestroyedSfx;
     [SerializeField] private ParticleSystem obstacleDestroyedParticleEffect;
     
-    private int _health;
+    private float _health;
     
     
     public override void Initialize(SplineContainer spline)
@@ -28,7 +28,7 @@ public class Obstacle : BaseObstacle
     
     protected override void OnCollisionWithPlayer(RailPlayer player)
     {
-        TakeDamage(1);
+        TakeDamage(_health);
         player.Health.TakeDamage(50f);
         Vector3 moveDirection = (player.transform.position - transform.position).normalized;
         player.Movement.Push(moveDirection, 2f);
@@ -36,31 +36,44 @@ public class Obstacle : BaseObstacle
     
     protected override void OnCollisionWithChicken(ChickenStateController chicken)
     {
-        TakeDamage(1);
+        TakeDamage(_health/2);
         chicken.TakeDamage(100);
     }
-    
-    private void OnTriggerEnter(Collider other)
+
+    protected override void OnCollisionWithPassthroughObstacle(PassthroughObstacle passthroughObstacle)
     {
-        if (!initialized) return;
+        TakeDamage(_health);
+
+    }
+
+    protected override void OnCollisionWithObstacle(Obstacle obstacle)
+    {
+        TakeDamage(_health);
+    }
+
+
+    public override void TakeDamage(float damage)
+    {
+        if (!initialized || _health <= 0) return;
         
-        if (other.TryGetComponent<PlayerProjectile>(out var projectile))
-        {
-            TakeDamage(1);
-        }
+        _health -= damage;
         
-        if (other.TryGetComponent<ChickenStateController>(out var chicken))
+        if (_health <= 0)
         {
-            TakeDamage(1);
-            OnCollisionWithChicken(chicken);
-        }
-        
-        if (other.TryGetComponent(out PassthroughObstacle passthroughObstacle))
-        {
-            TakeDamage(_health);
+            _health = 0f;
+            DestroyObstacle();
         }
     }
-    
+
+    public override void ApplyStun(float duration)
+    {
+
+    }
+
+    public override void ApplyForce(Vector3 direction, float force)
+    {
+
+    }
     
     protected override void DestroyObstacle()
     {
@@ -70,25 +83,5 @@ public class Obstacle : BaseObstacle
         
         base.DestroyObstacle();
     }
-    
 
-
-    public void TakeDamage(int damage)
-    {
-        if (!initialized) return;
-        
-        _health -= damage;
-        
-        if (_health <= 0)
-        {
-            DestroyObstacle();
-        }
-    }
-    
-    public void TakeFullDamage()
-    {
-        if (!initialized) return;
-
-        DestroyObstacle();
-    }
 }

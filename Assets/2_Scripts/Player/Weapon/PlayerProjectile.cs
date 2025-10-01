@@ -26,7 +26,7 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
     public Rigidbody Rigidbody => rigidBody;
     public SOWeaponData WeaponData { get; private set; }
     public WeaponInstance WeaponInstance { get; private set; }
-    public ChickenStateController Target { get; private set;  }
+    public ITargetable Target { get; private set;  }
     public Vector3 CurrentTargetPosition { get; private set; }
     public Vector3 StartDirection { get; private set; }
     public float StartTime { get; private set; }
@@ -63,12 +63,12 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
     {
         if (!_isInitialized) return;
         
-        if (other.TryGetComponent(out ChickenStateController collision))
+        if (other.TryGetComponent(out IDamageable damageable))
         {
             WeaponInstance.PlayImpactEffect(transform.position, Quaternion.identity);
             foreach (var behavior in _projectileBehaviors)
             {
-                behavior.OnCollision(this, _owner, collision);
+                behavior.OnCollision(this, _owner, damageable);
             }
             ReturnObjectToPool();
         }
@@ -135,7 +135,7 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
 
     #region SetUp -------------------------------------------------------------------------
 
-    public void SetUpProjectile(RailPlayer owner, WeaponInstance weaponInstance, ChickenStateController target, Vector3 aimOffset = default)
+    public void SetUpProjectile(RailPlayer owner, WeaponInstance weaponInstance, ITargetable target, Vector3 aimOffset = default)
     {
         if (_isInitialized) return;
         
@@ -171,7 +171,7 @@ public class PlayerProjectile : MonoBehaviour, IPooledObject
     
 
     
-    public void SetUpProjectile(RailPlayer owner, WeaponInstance weaponInstance, ChickenStateController target, List<ProjectileBehaviorBase> projectileBehaviors)
+    public void SetUpProjectile(RailPlayer owner, WeaponInstance weaponInstance, ITargetable target, List<ProjectileBehaviorBase> projectileBehaviors)
     {
         if (_isInitialized) return;
         

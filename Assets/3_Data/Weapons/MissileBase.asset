@@ -37,6 +37,7 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 0}
   projectileBehaviors:
   - rid: 2319611325492494601
+  - rid: 736433129126887554
   - rid: 2319611325492494602
   - rid: 4485104011578441735
   - rid: 4485104011578441734
@@ -48,6 +49,10 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: 736433129126887554
+      type: {class: BehaviorDamageOnImpact, ns: , asm: Assembly-CSharp}
+      data:
+        damage: 100
     - rid: 2319611325492494601
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
       data:
@@ -145,6 +150,7 @@ MonoBehaviour:
             m_RotationOrder: 4
         shakeCameraOnImpact: 1
         shakeSettings:
+          impulseType: 0
           impulseShape: 3
           intensity: 2
           duration: 0.5
@@ -206,6 +212,7 @@ MonoBehaviour:
             m_RotationOrder: 4
         shakeCameraOnFire: 1
         shakeSettings:
+          impulseType: 0
           impulseShape: 2
           intensity: 1
           duration: 0.3

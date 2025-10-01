@@ -38,7 +38,7 @@ public class RailPlayerAiming : MonoBehaviour
     private float _aimLockCooldownTimer;
     private Vector2 _processedLookInput;
     private Vector2 _normalizedAimPosition;
-    private ChickenStateController _currentAimLockTarget;
+    private ITargetable _currentAimLockTarget;
     private Coroutine _aimMovementCoroutine;
     private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundarySize.x : 25f;
     private float CrosshairBoundaryY => player.LevelManager ? player.LevelManager.EnemyBoundarySize.y : 15f;
@@ -51,7 +51,7 @@ public class RailPlayerAiming : MonoBehaviour
     public Transform AimWorldPosition => aimWorldPosition;
     public Vector2 NormalizedAimPosition => _normalizedAimPosition;
     
-    public event Action<bool, ChickenStateController> OnAimLockStateChange;
+    public event Action<bool, ITargetable> OnAimLockStateChange;
     public event Action<bool> OnAllowAimingChanged;
     
     
@@ -113,7 +113,16 @@ public class RailPlayerAiming : MonoBehaviour
     {
         if (!stage) return;
         
-        if (_aimMovementCoroutine != null) StopCoroutine(_aimMovementCoroutine);
+        if (_isAimLocked)
+        {
+            BreakAimLock();
+        }
+    
+        if (_aimMovementCoroutine != null) 
+        {
+            StopCoroutine(_aimMovementCoroutine);
+            _aimMovementCoroutine = null; // Important: clear the reference
+        }
 
         if (AllowAiming != stage.AllowPlayerAiming)
         {
@@ -265,13 +274,13 @@ public class RailPlayerAiming : MonoBehaviour
                 
         if (_isAimLocked)
         {
-            if (!_currentAimLockTarget || !_currentAimLockTarget.gameObject.activeInHierarchy)
+            if (_currentAimLockTarget == null || !_currentAimLockTarget.Transform.gameObject.activeInHierarchy || !_currentAimLockTarget.IsValidTarget)
             {
                 BreakAimLock();
                 return;
             }
         
-            float distanceToTarget = Vector3.Distance(aimWorldPosition.position, _currentAimLockTarget.transform.position);
+            float distanceToTarget = Vector3.Distance(aimWorldPosition.position, _currentAimLockTarget.Transform.position);
             if (distanceToTarget > playerInput.CurrentControlScheme.aimLockRadius * 2.5f)
             {
                 BreakAimLock();
@@ -279,7 +288,7 @@ public class RailPlayerAiming : MonoBehaviour
             }
         
 
-            Vector3 targetWorldPosition = _currentAimLockTarget.transform.position;
+            Vector3 targetWorldPosition = _currentAimLockTarget.Transform.position;
             Vector3 boundaryCenter = GetEnemySplinePosition();
             Vector3 localTargetOffset = targetWorldPosition - boundaryCenter;
         
@@ -306,8 +315,8 @@ public class RailPlayerAiming : MonoBehaviour
     {
         if (_isAimLocked) return;
         
-        ChickenStateController newTarget = GetTarget(playerInput.CurrentControlScheme.aimLockRadius);
-        if (newTarget && _currentAimLockTarget != newTarget)
+        ITargetable newTarget = GetTarget(playerInput.CurrentControlScheme.aimLockRadius);
+        if (newTarget is { IsValidTarget: true } && _currentAimLockTarget != newTarget)
         {
             _currentAimLockTarget = newTarget;
             _isAimLocked = true;
@@ -476,65 +485,62 @@ public class RailPlayerAiming : MonoBehaviour
     }
         
         
-    public ChickenStateController GetTarget(float radius)
+    public ITargetable GetTarget(float radius)
     {
-        
-        Dictionary<ChickenStateController, float> enemyDistances = new Dictionary<ChickenStateController, float>();
         Collider[] hitColliders = Physics.OverlapSphere(aimWorldPosition.position, radius);
-        
+    
+        ITargetable closestTarget = null;
+        float minDistance = float.MaxValue;
+    
         foreach (Collider hitCollider in hitColliders)
         {
-            if (hitCollider.TryGetComponent(out ChickenStateController enemy))
+            if (hitCollider.TryGetComponent(out ITargetable target))
             {
-                float distance = Vector3.Distance(aimWorldPosition.position, enemy.transform.position);
-                enemyDistances[enemy] = distance;
-            }
-        }
-        
-        if (enemyDistances.Count > 0)
-        {
-            ChickenStateController closestEnemy = null;
-            float minDistance = float.MaxValue;
+                // Skip invalid targets
+                if (!target.IsValidTarget) continue;
             
-            foreach (var kvp in enemyDistances)
-            {
-                if (kvp.Value < minDistance)
+                float distance = Vector3.Distance(aimWorldPosition.position, target.Transform.position);
+            
+                if (distance < minDistance)
                 {
-                    minDistance = kvp.Value;
-                    closestEnemy = kvp.Key;
+                    minDistance = distance;
+                    closestTarget = target;
                 }
             }
-            
-            return closestEnemy;
         }
-        
-        return null; 
-    }
     
-    public ChickenStateController[] GetTargets(int maxTargets, float radius)
+        return closestTarget;
+    }
+
+    public ITargetable[] GetTargets(int maxTargets, float radius)
     {
-        Dictionary<ChickenStateController, float> enemyDistances = new Dictionary<ChickenStateController, float>();
+        List<ITargetable> validTargets = new List<ITargetable>();
         Collider[] hitColliders = Physics.OverlapSphere(aimWorldPosition.position, radius);
-        
+    
         foreach (Collider hitCollider in hitColliders)
         {
-            if (hitCollider.TryGetComponent(out ChickenStateController enemy))
+            if (hitCollider.TryGetComponent(out ITargetable target) && target.IsValidTarget)
             {
-                float distance = Vector3.Distance(aimWorldPosition.position, enemy.transform.position);
-                enemyDistances[enemy] = distance;
+                validTargets.Add(target);
             }
         }
-        
-        List<ChickenStateController> sortedEnemies = new List<ChickenStateController>(enemyDistances.Keys);
-        sortedEnemies.Sort((a, b) => enemyDistances[a].CompareTo(enemyDistances[b]));
-        
-        int targetCount = Mathf.Min(maxTargets, sortedEnemies.Count);
-        ChickenStateController[] targets = new ChickenStateController[targetCount];
+    
+        // Sort by distance
+        validTargets.Sort((a, b) => 
+        {
+            float distA = Vector3.Distance(aimWorldPosition.position, a.Transform.position);
+            float distB = Vector3.Distance(aimWorldPosition.position, b.Transform.position);
+            return distA.CompareTo(distB);
+        });
+    
+        // Return up to maxTargets
+        int targetCount = Mathf.Min(maxTargets, validTargets.Count);
+        ITargetable[] targets = new ITargetable[targetCount];
         for (int i = 0; i < targetCount; i++)
         {
-            targets[i] = sortedEnemies[i];
+            targets[i] = validTargets[i];
         }
-        
+    
         return targets;
     }
     

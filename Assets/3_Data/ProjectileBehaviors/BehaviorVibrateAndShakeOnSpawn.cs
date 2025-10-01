@@ -25,7 +25,7 @@ public class BehaviorVibrateAndShakeOnSpawn : ProjectileBehaviorBase
 
     }
 
-    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenStateController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, IDamageable damageable)
     {
 
     }

@@ -97,7 +97,7 @@ public class TargetReticle : MonoBehaviour
         UpdateReticleVisibility();
     }
 
-    private void OnAimLockStateChanged(bool isLocked, ChickenStateController target)
+    private void OnAimLockStateChanged(bool isLocked, ITargetable target)
     {
         if (!_canShoot) return;
 

@@ -32,10 +32,14 @@ public class ChickenHealth : MonoBehaviour
     private bool isInvulnerable = false;
     private float invulnerabilityTimer = 0f;
     
+    
+    public float HealthPercentage => maxHealth > 0f ? currentHealth / maxHealth : 0f;
+    
     // Events - other scripts can subscribe to these
     public Action<float> OnHealthChanged; // Called when health changes
     public Action<float> OnDamageTaken; // Called when damage is taken
     public Action OnDeath; // Called when chicken dies
+
     
     void Start()
     {
@@ -315,38 +319,14 @@ public class ChickenHealth : MonoBehaviour
                      (duration > 0f ? $" for {duration}s" : ""));
     }
     
-    // Public properties
-    public float HealthPercentage => maxHealth > 0f ? currentHealth / maxHealth : 0f;
-    public bool IsDead => isDead;
-    public bool IsInvulnerable => isInvulnerable;
-    public bool IsFullHealth => currentHealth >= maxHealth;
-    public bool IsLowHealth => HealthPercentage <= 0.25f; // Consider 25% or less as "low health"
     
-    // Context menu methods for testing
-    [ContextMenu("Take 25 Damage")]
-    void ContextMenuTakeDamage25() => TakeDamage(25f);
+    public bool IsAlive()
+    {
+        return currentHealth > 0 && !isDead;
+    }
     
-    [ContextMenu("Take 50 Damage")]
-    void ContextMenuTakeDamage50() => TakeDamage(50f);
-    
-    [ContextMenu("Take Fatal Damage")]
-    void ContextMenuTakeFatalDamage() => TakeDamage(currentHealth + 10f);
-    
-    [ContextMenu("Heal 25 HP")]
-    void ContextMenuHeal25() => Heal(25f);
-    
-    [ContextMenu("Heal to Full")]
-    void ContextMenuHealFull() => SetHealth(maxHealth);
-    
-    [ContextMenu("Set Invulnerable (5s)")]
-    void ContextMenuSetInvulnerable() => SetInvulnerable(true, 5f);
-    
-    [ContextMenu("Remove Invulnerability")]
-    void ContextMenuRemoveInvulnerable() => SetInvulnerable(false);
-    
-    [ContextMenu("Force Die")]
-    void ContextMenuForceDie() => Die();
-    
+
+
 
 
 }

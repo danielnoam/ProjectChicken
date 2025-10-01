@@ -22,8 +22,8 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     private Vector3 _targetPhaseStartPosition;
     private bool _hasTarget;
     private int _recheckedTarget;
-    private ChickenStateController _lastTarget;
-    private ChickenStateController _currentTarget;
+    private ITargetable _lastTarget;
+    private ITargetable _currentTarget;
     
     private enum MovementPhase
     {
@@ -64,7 +64,7 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     }
     
 
-    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner , ChickenStateController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner , IDamageable damageable)
     {
 
     }
@@ -83,22 +83,22 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
         _bendPhaseStartPosition = Vector3.zero;
         _targetPhaseStartPosition = Vector3.zero;
         
-        if (_currentTarget)
+        if (_currentTarget is { IsValidTarget: true })
         {
             _hasTarget = true;
             _lastTarget = _currentTarget;
         }
         else
         {
-            _hasTarget = projectile.Target;
+            _hasTarget = projectile.Target != null;
             _lastTarget = projectile.Target;
             _currentTarget = projectile.Target;
         }
 
         
-        if (_hasTarget && _currentTarget)
+        if (_hasTarget && _currentTarget != null)
         {
-            _targetPosition = _currentTarget.transform.position;
+            _targetPosition = _currentTarget.Transform.position;
         }
         
 
@@ -169,10 +169,10 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
             _targetPhaseStartPosition = projectile.transform.position;
         }
         
-        if (_hasTarget && _currentTarget)
+        if (_hasTarget && _currentTarget != null)
         {
             // Update target position in case it moved
-            _targetPosition = _currentTarget.transform.position;
+            _targetPosition = _currentTarget.Transform.position;
             _lastTargetDirection = (_targetPosition - projectile.transform.position).normalized;
             
             float targetProgress = (elapsedTime - straightPhaseDuration - bendPhaseDuration) / targetPhaseDuration;
@@ -190,8 +190,8 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
         else if (recheckTarget && _recheckedTarget < recheckCount)
         {
             // Check for target again if it's not set
-            ChickenStateController newTarget = GetTarget(projectile.transform.position,recheckRadius);
-            if (newTarget)
+            ITargetable newTarget = GetTarget(projectile.transform.position,recheckRadius);
+            if (newTarget != null)
             {
                 _currentTarget = newTarget;
                 _hasTarget = true;
@@ -216,24 +216,24 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
     
     
     
-    private ChickenStateController GetTarget(Vector3 position, float radius)
+    private ITargetable GetTarget(Vector3 position, float radius)
     {
         
-        Dictionary<ChickenStateController, float> enemyDistances = new Dictionary<ChickenStateController, float>();
+        Dictionary<ITargetable, float> enemyDistances = new Dictionary<ITargetable, float>();
         Collider[] hitColliders = Physics.OverlapSphere(position, radius);
         
         foreach (Collider hitCollider in hitColliders)
         {
-            if (hitCollider.TryGetComponent(out ChickenStateController enemy))
+            if (hitCollider.TryGetComponent(out ITargetable targetable))
             {
-                float distance = Vector3.Distance(position, enemy.transform.position);
-                enemyDistances[enemy] = distance;
+                float distance = Vector3.Distance(position, targetable.Transform.position);
+                enemyDistances[targetable] = distance;
             }
         }
         
         if (enemyDistances.Count > 0)
         {
-            ChickenStateController closestEnemy = null;
+            ITargetable closestTarget = null;
             float minDistance = float.MaxValue;
             
             foreach (var kvp in enemyDistances)
@@ -241,11 +241,11 @@ public class BehaviorAimLockMovement : ProjectileBehaviorBase
                 if (kvp.Value < minDistance)
                 {
                     minDistance = kvp.Value;
-                    closestEnemy = kvp.Key;
+                    closestTarget = kvp.Key;
                 }
             }
             
-            return closestEnemy;
+            return closestTarget;
         }
         
         return null; 

@@ -8,7 +8,7 @@ using UnityEngine.Splines;
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(ControllerVibrationSource))]
 [RequireComponent(typeof(CinemachineImpulseSource))]
-public abstract class BaseObstacle : MonoBehaviour
+public abstract class BaseObstacle : MonoBehaviour, IDamageable
 {
     
     [Header("Movement")]
@@ -74,6 +74,31 @@ public abstract class BaseObstacle : MonoBehaviour
         Tween.Scale(transform, startValue: Vector3.zero, endValue: Vector3.one, duration: spawnAnimationDuration.RandomValue, ease: Ease.InOutSine);
     }
     
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!initialized) return;
+        
+        if (other.TryGetComponent<ChickenStateController>(out var chicken))
+        {
+            OnCollisionWithChicken(chicken);
+        }
+        
+        if (other.TryGetComponent<RailPlayer>(out var player))
+        {
+            OnCollisionWithPlayer(player);
+        }
+        
+        if (other.TryGetComponent(out PassthroughObstacle passthroughObstacle))
+        {
+            OnCollisionWithPassthroughObstacle(passthroughObstacle);
+        }
+        
+        if (other.TryGetComponent(out Obstacle obstacle))
+        {
+            OnCollisionWithObstacle(obstacle);
+        }
+    }
+    
     protected virtual void MoveAlongSpline()
     {
         if (!spline) return;
@@ -119,4 +144,11 @@ public abstract class BaseObstacle : MonoBehaviour
     
     protected abstract void OnCollisionWithPlayer(RailPlayer player);
     protected abstract void OnCollisionWithChicken(ChickenStateController chicken);
+    protected abstract void OnCollisionWithPassthroughObstacle(PassthroughObstacle passthroughObstacle);
+    protected abstract void OnCollisionWithObstacle(Obstacle obstacle);
+    public abstract void TakeDamage(float damage);
+
+    public abstract void ApplyStun(float duration);
+
+    public abstract void ApplyForce(Vector3 direction, float force);
 }

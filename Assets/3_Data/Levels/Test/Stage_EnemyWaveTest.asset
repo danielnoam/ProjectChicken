@@ -16,8 +16,7 @@ MonoBehaviour:
   startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 0
-  events:
-  - rid: 15267093203648605
+  events: []
   stageType: 2
   stageDuration: 15
   delayBeforeNextStage: 1
@@ -29,11 +28,19 @@ MonoBehaviour:
   allowToCloseStore: 1
   upgradesPool:
   - {fileID: 0}
+  poolRarityWeights:
+    commonWeight: 100
+    uncommonWeight: 60
+    rareWeight: 30
+  poolRarityCosts:
+    commonCost: 25
+    uncommonCost: 50
+    rareCost: 100
   waveScoreWorth: 1000
   enemyWave:
     serializedKvps:
     - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
-      Value: 1
+      Value: 15
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
@@ -41,7 +48,7 @@ MonoBehaviour:
   formationStageData:
     formationType: 0
     formationCount: 1
-    numberOfSlots: 8
+    numberOfSlots: 15
     spacing: 10
     circleRadius: 20
     useRandomPlacement: 1
@@ -60,12 +67,4 @@ MonoBehaviour:
   allowPlayerHeatSystem: 1
   references:
     version: 2
-    RefIds:
-    - rid: 15267093203648605
-      type: {class: SpawnObstacleEvent, ns: , asm: Assembly-CSharp}
-      data:
-        isActive: 1
-        specificObstaclePrefab: {fileID: 0}
-        useRandomObstacle: 1
-        maxActiveObstacles: 5
-        spawnInterval: 1
+    RefIds: []

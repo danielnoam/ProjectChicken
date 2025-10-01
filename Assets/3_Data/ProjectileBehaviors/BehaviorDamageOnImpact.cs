@@ -17,9 +17,9 @@ public class BehaviorDamageOnImpact : ProjectileBehaviorBase
 
     }
 
-    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenStateController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, IDamageable damageable)
     {
-        collision.TakeDamage(damage);
+        damageable?.TakeDamage(damage);
     }
 
     public override void OnDestroy(PlayerProjectile projectile, RailPlayer owner )

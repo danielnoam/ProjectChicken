@@ -20,15 +20,7 @@ public class PassthroughObstacle : BaseObstacle
             OnCollisionWithChicken(chicken);
         }
     }
-
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.TryGetComponent(out RailPlayer player))
-        {
-            Vector3 moveDirection = (player.transform.position - CenterObjectTransform.position).normalized;
-            player.Movement.Push(-moveDirection, 1f);
-        }
-    }
+    
     
     protected override void MoveAlongSpline()
     {
@@ -75,5 +67,30 @@ public class PassthroughObstacle : BaseObstacle
     protected override void OnCollisionWithChicken(ChickenStateController chicken)
     {
         chicken.TakeDamage(100);
+    }
+
+    protected override void OnCollisionWithPassthroughObstacle(PassthroughObstacle passthroughObstacle)
+    {
+
+    }
+
+    protected override void OnCollisionWithObstacle(Obstacle obstacle)
+    {
+
+    }
+
+    public override void TakeDamage(float damage)
+    {
+   
+    }
+
+    public override void ApplyStun(float duration)
+    {
+      
+    }
+
+    public override void ApplyForce(Vector3 direction, float force)
+    {
+  
     }
 }

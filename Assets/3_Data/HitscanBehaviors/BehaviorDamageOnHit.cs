@@ -8,17 +8,23 @@ public class BehaviorDamageOnHit : HitscanBehaviorBase
 
     
     
-    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner,ChickenStateController target = null)
+    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner, ITargetable target = null)
     {
         
     }
 
-    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController target)
+    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ITargetable target = null)
     {
-        target?.TakeDamage(damage);
+        Debug.Log("Test");
+        if (target is IDamageable damageable)
+        {
+            damageable.TakeDamage(damage);
+
+        }
+
     }
 
-    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner,ChickenStateController target = null)
+    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner,ITargetable target = null)
     {
 
     }

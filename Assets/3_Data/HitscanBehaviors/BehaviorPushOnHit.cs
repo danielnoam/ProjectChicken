@@ -9,11 +9,11 @@ public class BehaviorPushOnHit : HitscanBehaviorBase
     Vector3 _pushDirection = Vector3.zero;
     
 
-    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner,ChickenStateController target = null)
+    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner,ITargetable target = null)
     {
-        if (target)
+        if (target != null)
         {
-            _pushDirection = owner.transform.position - target.transform.position;
+            _pushDirection = owner.transform.position - target.Transform.position;
         }
         else
         {
@@ -22,12 +22,16 @@ public class BehaviorPushOnHit : HitscanBehaviorBase
 
     }
 
-    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController target)
+    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ITargetable target = null)
     {
-        target?.ApplyForce(_pushDirection, pushForce);
+        
+        if (target is IDamageable damageable)
+        {
+            damageable.ApplyForce(_pushDirection, pushForce);
+        }
     }
 
-    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner,ChickenStateController target = null)
+    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner,ITargetable target = null)
     {
 
     }

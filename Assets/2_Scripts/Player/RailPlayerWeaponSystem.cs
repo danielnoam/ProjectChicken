@@ -210,7 +210,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
 
 
     
-    private void OnAimLock(bool state, ChickenStateController target)
+    private void OnAimLock(bool state, ITargetable target)
     {
         if (!AllowShooting) return;
 

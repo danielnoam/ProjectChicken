@@ -1,11 +1,10 @@
 using System;
 using DNExtensions;
-using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(ChickenHealth))]
 [RequireComponent(typeof(EnemyChickenRegistration))]
-public class ChickenStateController : MonoBehaviour, IPooledObject
+public class ChickenStateController : MonoBehaviour, IPooledObject, ITargetable, IDamageable
 {
 
 
@@ -21,15 +20,17 @@ public class ChickenStateController : MonoBehaviour, IPooledObject
     
     [Header("Score Settings")]
     [SerializeField] private int scoreWorth = 50;
-    private bool hasBeenReturnedToPool = false;
+  
 
     
     
-    
+    private bool _hasBeenReturnedToPool;
     private ChickenHealth _chickenHealth;
     private EnemyChickenRegistration _registration;
-    
-    
+
+
+    public Transform Transform => transform;
+    public bool IsValidTarget => _chickenHealth.IsAlive();
     
     public ChickenState CurrentState => currentState;
     public SOLootTable LootTable => lootTable;
@@ -42,6 +43,9 @@ public class ChickenStateController : MonoBehaviour, IPooledObject
     public bool CanAttack => IsFollowingSlot; // Only when following slot
     public bool IsMoving => IsMovingToSlot; // Only MovingToSlot counts as moving now
     public bool IsInFormation => IsFollowingSlot; // Following slot means in formation
+    
+    
+    
     public enum ChickenState
     {
         Idle,            // When there are no available slots or moving to spawn
@@ -59,7 +63,7 @@ public class ChickenStateController : MonoBehaviour, IPooledObject
     }
     void OnEnable() 
     {
-        hasBeenReturnedToPool = false;
+        _hasBeenReturnedToPool = false;
     }
     public bool ChangeState(ChickenState newState)
     {
@@ -126,7 +130,7 @@ public class ChickenStateController : MonoBehaviour, IPooledObject
 
     }
 
-    public void ApplyConcussion(float finalStunTime)
+    public void ApplyStun(float finalStunTime)
     {
 
     }
@@ -146,12 +150,12 @@ public class ChickenStateController : MonoBehaviour, IPooledObject
     public void ReturnToPool()
     {
         // Prevent multiple returns to pool
-        if (hasBeenReturnedToPool)
+        if (_hasBeenReturnedToPool)
         {
             Debug.LogWarning($"ChickenStateController {gameObject.name}: Already returned to pool, skipping");
             return;
         }
-        hasBeenReturnedToPool = true;
+        _hasBeenReturnedToPool = true;
         ObjectPooler.ReturnObjectToPool(gameObject);
     }
 
@@ -175,4 +179,6 @@ public class ChickenStateController : MonoBehaviour, IPooledObject
 
 
     #endregion Pool Object -------------------------------------------------------------------------
+
+
 }

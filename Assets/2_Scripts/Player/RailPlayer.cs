@@ -79,23 +79,13 @@ public class RailPlayer : MonoBehaviour
     }
     
     
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (other.TryGetComponent(out PassthroughObstacle gameObjectCenterer))
         {
-            Health.TakeDamage(100f, 5f);
             Vector3 moveDirection = (transform.position - gameObjectCenterer.CenterObjectTransform.position).normalized;
-            Movement.Push(-moveDirection, 3f);
+            Movement.Push(-moveDirection, 1f);
         }
-        
-        if (other.TryGetComponent<Obstacle>(out var obstacle))
-        {
-            obstacle.TakeFullDamage();
-            Health.TakeDamage(50f);
-            Vector3 moveDirection = (transform.position - obstacle.transform.position).normalized;
-            Movement.Push(moveDirection,3f);
-        }
-        
     }
 
     

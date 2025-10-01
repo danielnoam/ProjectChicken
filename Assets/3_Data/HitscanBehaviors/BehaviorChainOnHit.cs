@@ -29,28 +29,28 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
     [SerializeField, Range(0f,1f)] private float chainFalloff = 0.8f;
 
 
-    private List<ChickenStateController> _targetsToHit;
+    private List<ITargetable> _targetsToHit;
     
-    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController target = null)
+    public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner, ITargetable target = null)
     {
-        _targetsToHit = new List<ChickenStateController>();
+        _targetsToHit = new List<ITargetable>();
     }
 
-    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController target)
+    public override void OnHit(WeaponInstance weaponInstance, RailPlayer owner, ITargetable target = null)
     {
         // Hit the initial target
-        if (target)
+        if (target is IDamageable damageable)
         {
             _targetsToHit.Add(target);
-            target.TakeDamage(baseDamage);
+            damageable.TakeDamage(baseDamage);
             
-            Vector3 forceDirection = target.transform.position - owner.transform.position;
+            Vector3 forceDirection = target.Transform.position - owner.transform.position;
             forceDirection.Normalize();
-            target.ApplyForce(forceDirection, baseForce);
+            damageable.ApplyForce(forceDirection, baseForce);
 
             if (stun && UnityEngine.Random.Range(0f, 100f) > baseStunChance)
             {
-                target.ApplyConcussion(baseStunDuration);
+                damageable.ApplyStun(baseStunDuration);
             }
         }
         
@@ -60,54 +60,51 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
     }
     
 
-    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController target = null)
+    public override void OnEnd(WeaponInstance weaponInstance, RailPlayer owner, ITargetable target = null)
     {
         
     }
     
     
-    private IEnumerator ChainTargets(WeaponInstance weaponInstance, RailPlayer owner, ChickenStateController initialTarget)
+    private IEnumerator ChainTargets(WeaponInstance weaponInstance, RailPlayer owner, ITargetable initialTarget)
     {
-        ChickenStateController currentTarget = initialTarget;
+        ITargetable currentTarget = initialTarget;
         
         for (int chainCount = 1; chainCount < maxTargets; chainCount++)
         {
             yield return new WaitForSeconds(chainDelay);
             
             // Check if the current target is still valid after delay
-            if (!currentTarget)
+            if (currentTarget == null)
             {
                 // Try to find any valid target from our hit list that's still alive
                 currentTarget = FindValidTargetFromHitList();
-                if (!currentTarget) break;
+                if (currentTarget == null) break;
             }
             
-            ChickenStateController nextTarget = FindClosestTarget(currentTarget.transform.position, _targetsToHit);
+            ITargetable nextTarget = FindClosestTarget(currentTarget.Transform.position, _targetsToHit);
             
-            if (!nextTarget) break;
+            if (nextTarget == null) break;
             
             _targetsToHit.Add(nextTarget);
+
+            if (nextTarget is IDamageable damageable)
+            {
+                float currentDamage = baseDamage * Mathf.Pow(chainFalloff, chainCount);
+                float currentForce = baseForce * Mathf.Pow(chainFalloff, chainCount);
+                float currentStunChance = baseStunChance * Mathf.Pow(chainFalloff, chainCount);
+                float currentStunDuration = baseStunDuration * Mathf.Pow(chainFalloff, chainCount);
+                damageable.TakeDamage(currentDamage);
             
-            float currentDamage = baseDamage * Mathf.Pow(chainFalloff, chainCount);
-            float currentForce = baseForce * Mathf.Pow(chainFalloff, chainCount);
-            float currentStunChance = baseStunChance * Mathf.Pow(chainFalloff, chainCount);
-            float currentStunDuration = baseStunDuration * Mathf.Pow(chainFalloff, chainCount);
-            nextTarget.TakeDamage(currentDamage);
-            
-            Vector3 forceDirection = (nextTarget.transform.position - currentTarget.transform.position).normalized;
-            nextTarget.ApplyForce(forceDirection, currentForce);
+                Vector3 forceDirection = (nextTarget.Transform.position - currentTarget.Transform.position).normalized;
+                damageable.ApplyForce(forceDirection, currentForce);
 
 
-            if (stun && UnityEngine.Random.Range(0f, 100f) > currentStunChance)
-            {
-                nextTarget.ApplyConcussion(currentStunDuration);
-            }
-            
-            
-            // Check if current target is still valid before playing effect
-            if (currentTarget)
-            {
-                // weapon.PlayImpactEffect(currentTarget.transform.position, Quaternion.identity);
+                if (stun && UnityEngine.Random.Range(0f, 100f) > currentStunChance)
+                {
+                    damageable.ApplyStun(currentStunDuration);
+                }
+                
             }
             
             currentTarget = nextTarget;
@@ -116,12 +113,12 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
     
     
     
-    private ChickenStateController FindValidTargetFromHitList()
+    private ITargetable FindValidTargetFromHitList()
     {
         // Find the first valid (non-destroyed) target from our hit list
         for (int i = _targetsToHit.Count - 1; i >= 0; i--)
         {
-            if (_targetsToHit[i])
+            if (_targetsToHit[i] != null)
             {
                 return _targetsToHit[i];
             }
@@ -134,11 +131,11 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
         return null;
     }
     
-    private ChickenStateController FindClosestTarget(Vector3 fromPosition, List<ChickenStateController> excludeTargets)
+    private ITargetable FindClosestTarget(Vector3 fromPosition, List<ITargetable> excludeTargets)
     {
         Collider[] hitColliders = Physics.OverlapSphere(fromPosition, targetsRadiusCheck);
         
-        ChickenStateController closestTarget = null;
+        ITargetable closestTarget = null;
         float closestDistance = float.MaxValue;
         
         foreach (Collider hitCollider in hitColliders)
@@ -146,16 +143,16 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
             if (!hitCollider) continue;
             
             
-            if (hitCollider.TryGetComponent(out ChickenStateController chickenEnemy))
+            if (hitCollider.TryGetComponent(out ITargetable targetable))
             {
-                if (!chickenEnemy || excludeTargets.Contains(chickenEnemy)) continue;
+                if (targetable == null || excludeTargets.Contains(targetable)) continue;
             
-                float distance = Vector3.Distance(fromPosition, chickenEnemy.transform.position);
+                float distance = Vector3.Distance(fromPosition, targetable.Transform.position);
             
                 if (distance < closestDistance)
                 {
                     closestDistance = distance;
-                    closestTarget = chickenEnemy;
+                    closestTarget = targetable;
                 }
             }
         }

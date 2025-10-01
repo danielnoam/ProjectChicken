@@ -24,44 +24,48 @@ public class BehaviorExplodeOnImpact : ProjectileBehaviorBase
 
     }
 
-    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, ChickenStateController collision)
+    public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, IDamageable damageable)
     {
-        // Get the collision point position
-        Vector3 explosionCenter = collision.transform.position;
-        
-        // Create a sphere cast to detect all colliders within the explosion radius
-        Collider[] hitColliders = Physics.OverlapSphere(explosionCenter, maxRadius);
-        
-        // Check each collider for ChickenEnemy
-        foreach (Collider hitCollider in hitColliders)
+        if (damageable is ITargetable targetable)
         {
-            // Try to get ChickenEnemy component
-            ChickenStateController chickenEnemy = hitCollider.GetComponent<ChickenStateController>();
-            if (chickenEnemy)
+            // Get the collision point position
+            Vector3 explosionCenter = targetable.Transform.position;
+        
+            // Create a sphere cast to detect all colliders within the explosion radius
+            Collider[] hitColliders = Physics.OverlapSphere(explosionCenter, maxRadius);
+        
+            // Check each collider for ChickenEnemy
+            foreach (Collider hitCollider in hitColliders)
             {
-                // Calculate distance from explosion center to chicken
-                float distance = Vector3.Distance(explosionCenter, hitCollider.transform.position);
-                float distanceMultiplier = CalculateDistanceMultiplier(distance);
-                
-                // Apply damage based on distance
-                float finalDamage = maxDamage * distanceMultiplier;
-                chickenEnemy.TakeDamage(finalDamage);
-                
-                
-                Vector3 forceDirection = (hitCollider.transform.position - explosionCenter).normalized;
-                float finalForce = maxForce * distanceMultiplier;
-                chickenEnemy.ApplyForce(forceDirection, finalForce);
-                
-                // Apply stun effect based on distance and chance
-                if (UnityEngine.Random.Range(0f, 100f) <= stunChance)
+                // Try to get ChickenEnemy component
+                IDamageable chickenEnemy = hitCollider.GetComponent<IDamageable>();
+                if (chickenEnemy != null)
                 {
-                    float finalStunTime = maxStunTime * distanceMultiplier;
-                    chickenEnemy.ApplyConcussion(finalStunTime);
-                    chickenEnemy.ApplyForce(forceDirection, finalForce * 3);
-                }
+                    // Calculate distance from explosion center to chicken
+                    float distance = Vector3.Distance(explosionCenter, hitCollider.transform.position);
+                    float distanceMultiplier = CalculateDistanceMultiplier(distance);
+                
+                    // Apply damage based on distance
+                    float finalDamage = maxDamage * distanceMultiplier;
+                    chickenEnemy.TakeDamage(finalDamage);
+                
+                
+                    Vector3 forceDirection = (hitCollider.transform.position - explosionCenter).normalized;
+                    float finalForce = maxForce * distanceMultiplier;
+                    chickenEnemy.ApplyForce(forceDirection, finalForce);
+                
+                    // Apply stun effect based on distance and chance
+                    if (UnityEngine.Random.Range(0f, 100f) <= stunChance)
+                    {
+                        float finalStunTime = maxStunTime * distanceMultiplier;
+                        chickenEnemy.ApplyStun(finalStunTime);
+                        chickenEnemy.ApplyForce(forceDirection, finalForce * 3);
+                    }
 
+                }
             }
         }
+
     }
 
     public override void OnDestroy(PlayerProjectile projectile, RailPlayer owner )

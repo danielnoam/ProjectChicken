@@ -285,20 +285,20 @@ public class WeaponInstance
         } 
         else
         {
-            ChickenStateController[] enemies = CurrentWeaponData.MaxTargets switch
+            ITargetable[] targetables = CurrentWeaponData.MaxTargets switch
             {
                 0 => owner.Aiming.GetTargets(999, CurrentWeaponData.TargetCheckRadius),
                 > 1 => owner.Aiming.GetTargets(CurrentWeaponData.MaxTargets, CurrentWeaponData.TargetCheckRadius),
-                _ => System.Array.Empty<ChickenStateController>()
+                _ => System.Array.Empty<ITargetable>()
             };
 
-            if (enemies.Length > 0)
+            if (targetables.Length > 0)
             {
-                foreach (ChickenStateController enemy in enemies)
+                foreach (ITargetable target in targetables)
                 {
-                    if (enemy)
+                    if (target is { IsValidTarget: true })
                     {
-                        InstantiateProjectile(owner, position, enemy, aimOffset);
+                        InstantiateProjectile(owner, position, target, aimOffset);
                     }
                 }
             }
@@ -309,7 +309,7 @@ public class WeaponInstance
         }
     }
     
-    private void InstantiateProjectile(RailPlayer owner, Vector3 spawnPosition, ChickenStateController target = null, Vector3 aimOffset = default)
+    private void InstantiateProjectile(RailPlayer owner, Vector3 spawnPosition, ITargetable target = null, Vector3 aimOffset = default)
     {
         GameObject projectileObj = ObjectPooler.GetObjectFromPool(CurrentWeaponData.PlayerProjectilePrefab.gameObject, spawnPosition, Quaternion.identity);
         if (projectileObj && projectileObj.TryGetComponent(out PlayerProjectile projectile))
@@ -335,20 +335,20 @@ public class WeaponInstance
 
         if (CurrentWeaponData.MaxTargets == 1)
         {
-            ChickenStateController enemy = owner.Aiming.GetTarget(CurrentWeaponData.TargetCheckRadius);
-            HitscanHit(owner, enemy, spreadDirection);
+            ITargetable target = owner.Aiming.GetTarget(CurrentWeaponData.TargetCheckRadius);
+            HitscanHit(owner, target, spreadDirection);
         } 
         else
         {
-            ChickenStateController[] enemies = CurrentWeaponData.MaxTargets switch
+            ITargetable[] targetables = CurrentWeaponData.MaxTargets switch
             {
                 0 => owner.Aiming.GetTargets(999, CurrentWeaponData.TargetCheckRadius),
                 > 1 => owner.Aiming.GetTargets(CurrentWeaponData.MaxTargets, CurrentWeaponData.TargetCheckRadius),
-                _ => System.Array.Empty<ChickenStateController>()
+                _ => System.Array.Empty<ITargetable>()
             };
-            foreach (ChickenStateController enemy in enemies)
+            foreach (ITargetable target in targetables)
             {
-                HitscanHit(owner, enemy, spreadDirection);
+                HitscanHit(owner, target, spreadDirection);
             }
         }
         
@@ -358,16 +358,16 @@ public class WeaponInstance
         }
     }
 
-    private void HitscanHit(RailPlayer owner, ChickenStateController enemy, Vector3 spreadDirection = default)
+    private void HitscanHit(RailPlayer owner, ITargetable target, Vector3 spreadDirection = default)
     {
-        if (!enemy) return;
+        if (target is not { IsValidTarget: true }) return;
 
         foreach (var behavior in CurrentWeaponData.HitscanBehaviors)
         {
-            behavior.OnHit(this, owner, enemy);
+            behavior.OnHit(this, owner, target);
         }
         
-        Vector3 impactPosition = enemy.transform.position;
+        Vector3 impactPosition = target.Transform.position;
         if (spreadDirection != Vector3.zero)
         {
             impactPosition += spreadDirection * 0.5f;
