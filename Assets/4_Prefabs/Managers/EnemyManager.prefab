@@ -699,8 +699,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 112.05625, y: 56.28366, z: 125.76749}
-  m_Center: {x: -0.07392502, y: 11.051094, z: 40.256332}
+  m_Size: {x: 163.4, y: 108, z: 166.38}
+  m_Center: {x: 0, y: 0, z: 58.6}
 --- !u!114 &3884875090893653531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -713,15 +713,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cdc26bfe2f24794d820283032f1b59f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recoveryDelay: 1.5
+  recoveryDelay: 0.5
   affectOnlyActiveChickens: 1
   pauseFormationEffects: 1
-  passageBuildingTag: PassageBuilding
   formationEffectManager: {fileID: 964188254427928406}
   showDebugLogs: 0
-  showDisruptionGizmos: 1
-  disruptionColor: {r: 1, g: 0, b: 0, a: 1}
-  recoveryColor: {r: 1, g: 0.6470588, b: 0, a: 1}
+  isDisrupting: 0
+  isInRecoveryDelay: 0
+  recoveryTimeRemaining: 0
 --- !u!1 &8548514679401556076
 GameObject:
   m_ObjectHideFlags: 0

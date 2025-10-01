@@ -48,6 +48,7 @@ public class UpgradeEgg : MonoBehaviour
     [SerializeField] private Outline eggOutline;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private InfoDisplay infoDisplay;
+    [SerializeField] private ParticleSystem boughtFX;
 
     private bool _wasBought;
     private SOUpgradeBase _upgrade;
@@ -201,6 +202,8 @@ public class UpgradeEgg : MonoBehaviour
             return;
         }
         
+        infoDisplay.Hide();
+        boughtFX?.Play();
         boughtUpgradeSfx?.Play(audioSource);
         _wasBought = true;
         animator?.SetTrigger(Open);

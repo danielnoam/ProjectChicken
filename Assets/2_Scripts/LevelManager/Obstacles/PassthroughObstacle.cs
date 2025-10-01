@@ -8,18 +8,6 @@ public class PassthroughObstacle : BaseObstacle
     
     public Transform CenterObjectTransform => centerObject ? centerObject.transform : transform;
     
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.TryGetComponent(out RailPlayer player))
-        {
-            OnCollisionWithPlayer(player);
-        }
-        
-        if (other.TryGetComponent<ChickenStateController>(out var chicken))
-        {
-            OnCollisionWithChicken(chicken);
-        }
-    }
     
     
     protected override void MoveAlongSpline()

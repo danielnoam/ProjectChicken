@@ -17,8 +17,8 @@ MonoBehaviour:
   worldSpeed: 1
   isCheckpoint: 1
   events:
-  - rid: 3229272943916744917
-  stageType: 5
+  - rid: 736433129126887564
+  stageType: 2
   stageDuration: 7
   delayBeforeNextStage: 2
   showOutroMenu: 0
@@ -39,13 +39,18 @@ MonoBehaviour:
     rareCost: 100
   waveScoreWorth: 1000
   enemyWave:
-    serializedKvps: []
+    serializedKvps:
+    - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
+      Value: 25
+      index: 0
+      isKeyRepeated: 0
+      isKeyNull: 0
     dividerPos: 0.33
   formationStageData:
     formationType: 0
     formationCount: 1
-    numberOfSlots: 9
-    spacing: 2
+    numberOfSlots: 10
+    spacing: 9
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 5
@@ -72,14 +77,11 @@ MonoBehaviour:
         isCompleted: 0
         targetAmount: 5
         resourceType: 0
-    - rid: 3229272943916744917
-      type: {class: SpawnObstacleEvent, ns: , asm: Assembly-CSharp}
+    - rid: 736433129126887564
+      type: {class: SpawnPassthroughObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
         isActive: 1
-        obstacleCount:
-          minValue: 1
-          maxValue: 3
         spawnIntervalRange:
           minValue: 1
-          maxValue: 3
-        maxActiveObstacles: 15
+          maxValue: 1
+        maxActiveObstacles: 1
