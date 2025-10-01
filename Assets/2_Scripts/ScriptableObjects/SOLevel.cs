@@ -10,6 +10,7 @@ public class SOLevel : ScriptableObject
     [SerializeField] private string levelName;
     [SerializeField] private LevelDifficulty levelDifficulty;
     [SerializeField] private string levelDescription;
+    [SerializeField] private AudioClip levelTheme;
     [SerializeField] private SOLevelStage[] levelStages = Array.Empty<SOLevelStage>();
     [SerializeField] private SOLevel[] levelsNeededToUnlock = Array.Empty<SOLevel>();
     
@@ -25,6 +26,7 @@ public class SOLevel : ScriptableObject
     public string LevelDescription => levelDescription;
     public GameObject LevelGfxPrefab => levelGfxPrefab;
     public LevelDifficulty LevelDifficulty => levelDifficulty;
+    public AudioClip LevelTheme => levelTheme;
     public SOLevel[] LevelsNeededToUnlock => levelsNeededToUnlock;
     public SOLevelStage[] LevelStages => levelStages;
     public SOVFEffectsSequence IntroVFXSequence => introVFXSequence;
