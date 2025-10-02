@@ -180,6 +180,17 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
             Debug.Log($"PassageBuildingChickenDisruptor: Starting chicken disruption (active while building present)");
         }
         
+        // Freeze slot assignments to prevent ANY chickens from taking slots
+        if (_chickenManager != null)
+        {
+            _chickenManager.SetAutoUpdatesEnabled(false);
+            _chickenManager.FreezeSlotAssignments();
+            if (showDebugLogs)
+            {
+                Debug.Log($"PassageBuildingChickenDisruptor: Disabled auto-updates and froze slot assignments");
+            }
+        }
+        
         // Pause formation effects before disrupting chickens
         if (pauseFormationEffects)
         {
@@ -214,6 +225,7 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         // Note: We keep isDisrupting = true during recovery delay
         // Chickens remain disrupted until recovery completes
         // Formation effects remain paused during recovery
+        // Manager auto-updates remain disabled during recovery
     }
     
     void UpdateRecoveryDelay()
@@ -413,6 +425,17 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         isDisrupting = false;
         isInRecoveryDelay = false;
         recoveryTimeRemaining = 0f;
+        
+        // Unfreeze slot assignments and re-enable auto-updates BEFORE resuming effects
+        if (_chickenManager != null)
+        {
+            _chickenManager.UnfreezeSlotAssignments();
+            _chickenManager.SetAutoUpdatesEnabled(true);
+            if (showDebugLogs)
+            {
+                Debug.Log($"PassageBuildingChickenDisruptor: Unfroze slot assignments and re-enabled auto-updates");
+            }
+        }
         
         // Resume formation effects after chicken restoration
         if (pauseFormationEffects)
