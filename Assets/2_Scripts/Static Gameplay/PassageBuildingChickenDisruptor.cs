@@ -429,11 +429,15 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         // Unfreeze slot assignments and re-enable auto-updates BEFORE resuming effects
         if (_chickenManager != null)
         {
-            _chickenManager.UnfreezeSlotAssignments();
+            _chickenManager.UnfreezeSlotAssignments(); // This will automatically reassign all chickens
             _chickenManager.SetAutoUpdatesEnabled(true);
+            
+            // Force update all chicken states after reassignment
+            _chickenManager.ForceUpdateAllChickenStates();
+            
             if (showDebugLogs)
             {
-                Debug.Log($"PassageBuildingChickenDisruptor: Unfroze slot assignments and re-enabled auto-updates");
+                Debug.Log($"PassageBuildingChickenDisruptor: Unfroze slot assignments, re-enabled auto-updates, and force updated all chicken states");
             }
         }
         

@@ -212,7 +212,7 @@ public class EnemyChickenManager : MonoBehaviour
         }
     }
 
-    void ForceUpdateAllChickenStates()
+    public void ForceUpdateAllChickenStates()
     {
         foreach (GameObject chicken in allRegisteredChickens)
         {
@@ -328,7 +328,7 @@ public class EnemyChickenManager : MonoBehaviour
         Debug.Log("EnemyChickenManager: Slot assignments FROZEN - no chickens can be assigned to formation slots");
     }
 
-    // Unfreeze slot assignments - allows normal operation
+    // Unfreeze slot assignments - allows normal operation and reassigns all chickens
     public void UnfreezeSlotAssignments()
     {
         if (!isSlotAssignmentFrozen)
@@ -336,6 +336,11 @@ public class EnemyChickenManager : MonoBehaviour
             
         isSlotAssignmentFrozen = false;
         Debug.Log("EnemyChickenManager: Slot assignments UNFROZEN - normal operation resumed");
+        
+        // Force complete reassignment to fill any empty slots created during freeze
+        // (e.g., if chickens died while frozen)
+        ReassignAllChickens();
+        Debug.Log($"EnemyChickenManager: Force reassigned all chickens after unfreeze. {slotAssignments.Count} assigned, {waitingChickens.Count} waiting");
     }
 
     public bool RegisterChicken(GameObject chicken)
