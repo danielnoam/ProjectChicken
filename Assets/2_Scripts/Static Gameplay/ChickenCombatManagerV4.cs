@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 public class ChickenCombatManagerV4 : MonoBehaviour
@@ -7,6 +8,14 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     public bool enableCombat = true;
     public float eggSpeed = 20f;
     public float PatternChangeCooldown;
+    
+    [Header("Difficulty Scaling")]
+    [Tooltip("How much to increase egg speed every interval during enemy waves")]
+    public float eggSpeedIncreaseAmount = 10f;
+    [Tooltip("How often (in seconds) to increase egg speed during enemy waves")]
+    public float eggSpeedIncreaseInterval = 30f;
+    [Tooltip("Maximum egg speed that can be reached during difficulty scaling")]
+    public float maxEggSpeed = 80f;
     
     [Header("Attack Configuration")]
     public AttackLootTableSO attackLootTable;
@@ -28,6 +37,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     [SerializeField] private BaseChickenAttackSO currentAttackSO;
     [SerializeField] private int usesBeforePatternChange = 0;
     [SerializeField] private int usesRemaining = 0;
+    [SerializeField] private float currentEggSpeed = 0f;
     
     // Combat state management
     private CombatState currentState = CombatState.WaitingForChickens;
@@ -35,16 +45,21 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     private BaseChickenAttackSO currentAttack = null;
     private int currentAttackUsesInternal = 0;
     private float nextAttackTime = 0f;
-    private bool usingFallbackAttack = false; // Track if we're using the fallback
+    private bool usingFallbackAttack = false;
+    
+    // Difficulty scaling
+    private float originalEggSpeed = 0f;
+    private Coroutine difficultyScalingCoroutine = null;
+    private bool isInEnemyWave = false;
     
     private Transform player;
 
     // Combat states enum
     public enum CombatState
     {
-        WaitingForChickens,    // Waiting for at least 1 chicken to register
-        PatternCooldown,       // Waiting for pattern change cooldown to finish
-        Attacking              // Currently executing attacks
+        WaitingForChickens,
+        PatternCooldown,
+        Attacking
     }
 
     // Public properties
@@ -93,9 +108,28 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             Debug.Log($"ChickenCombatManagerV4: Fallback attack '{fallbackAttack.AttackName}' assigned");
         }
 
+        // Store original egg speed
+        originalEggSpeed = eggSpeed;
+        currentEggSpeed = eggSpeed;
+
         // Initialize combat state
         ResetCombatState();
         UpdateInspectorFields();
+        
+        // Subscribe to level manager stage changes
+        if (LevelManager.Instance != null)
+        {
+            LevelManager.Instance.OnStageChanged += OnStageChanged;
+        }
+    }
+
+    void OnDestroy()
+    {
+        // Unsubscribe from level manager
+        if (LevelManager.Instance != null)
+        {
+            LevelManager.Instance.OnStageChanged -= OnStageChanged;
+        }
     }
 
     void Update()
@@ -135,6 +169,86 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             currentAttackSO = null;
             usesBeforePatternChange = 0;
             usesRemaining = 0;
+        }
+        
+        currentEggSpeed = eggSpeed;
+    }
+
+    private void OnStageChanged(SOLevelStage newStage)
+    {
+        if (newStage == null) return;
+
+        // Check if we're entering or leaving an enemy wave stage
+        bool wasInEnemyWave = isInEnemyWave;
+        isInEnemyWave = newStage.StageType == StageType.EnemyWave;
+
+        if (isInEnemyWave && !wasInEnemyWave)
+        {
+            // Entering enemy wave - start difficulty scaling
+            StartDifficultyScaling();
+        }
+        else if (!isInEnemyWave && wasInEnemyWave)
+        {
+            // Leaving enemy wave - reset difficulty
+            StopDifficultyScaling();
+        }
+    }
+
+    private void StartDifficultyScaling()
+    {
+        // Stop any existing coroutine
+        if (difficultyScalingCoroutine != null)
+        {
+            StopCoroutine(difficultyScalingCoroutine);
+        }
+
+        // Reset to original speed
+        eggSpeed = originalEggSpeed;
+        
+        if (showDebugLogs)
+            Debug.Log($"ChickenCombatManagerV4: Starting difficulty scaling. Egg speed will increase by {eggSpeedIncreaseAmount} every {eggSpeedIncreaseInterval} seconds");
+
+        // Start the scaling coroutine
+        difficultyScalingCoroutine = StartCoroutine(DifficultyScalingCoroutine());
+    }
+
+    private void StopDifficultyScaling()
+    {
+        // Stop the coroutine
+        if (difficultyScalingCoroutine != null)
+        {
+            StopCoroutine(difficultyScalingCoroutine);
+            difficultyScalingCoroutine = null;
+        }
+
+        // Reset to original speed
+        eggSpeed = originalEggSpeed;
+        
+        if (showDebugLogs)
+            Debug.Log($"ChickenCombatManagerV4: Difficulty scaling stopped. Egg speed reset to {originalEggSpeed}");
+    }
+
+    private IEnumerator DifficultyScalingCoroutine()
+    {
+        while (true)
+        {
+            // Wait for the interval
+            yield return new WaitForSeconds(eggSpeedIncreaseInterval);
+
+            // Check if we've reached the max speed
+            if (eggSpeed >= maxEggSpeed)
+            {
+                if (showDebugLogs)
+                    Debug.Log($"ChickenCombatManagerV4: Max egg speed ({maxEggSpeed}) reached. No further increases.");
+                continue;
+            }
+
+            // Increase egg speed, clamped to max
+            float previousSpeed = eggSpeed;
+            eggSpeed = Mathf.Min(eggSpeed + eggSpeedIncreaseAmount, maxEggSpeed);
+
+            if (showDebugLogs)
+                Debug.Log($"ChickenCombatManagerV4: Egg speed increased from {previousSpeed} to {eggSpeed} (max: {maxEggSpeed})");
         }
     }
 
@@ -257,7 +371,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         // Select a random attack that can be executed from loot table
         BaseChickenAttackSO selectedAttack = null;
         int attempts = 0;
-        int maxAttempts = 10; // Prevent infinite loop
+        int maxAttempts = 10;
 
         while (selectedAttack == null && attempts < maxAttempts)
         {
@@ -275,7 +389,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             currentAttack = selectedAttack;
             currentAttackUsesInternal = 0;
             currentState = CombatState.Attacking;
-            nextAttackTime = Time.time; // Attack immediately
+            nextAttackTime = Time.time;
             usingFallbackAttack = false;
             
             if (showDebugLogs)
@@ -318,7 +432,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             currentAttack = fallbackAttack;
             currentAttackUsesInternal = 0;
             currentState = CombatState.Attacking;
-            nextAttackTime = Time.time; // Attack immediately
+            nextAttackTime = Time.time;
             usingFallbackAttack = true;
             
             if (showDebugLogs)
@@ -489,6 +603,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     {
         UnregisterChickenFromCombat(chicken);
     }
+    
     void OnDrawGizmos()
     {
         if (!showAttackGizmos) return;
