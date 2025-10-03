@@ -182,14 +182,15 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         bool wasInEnemyWave = isInEnemyWave;
         isInEnemyWave = newStage.StageType == StageType.EnemyWave;
 
-        if (isInEnemyWave && !wasInEnemyWave)
+        if (isInEnemyWave)
         {
-            // Entering enemy wave - start difficulty scaling
+            // Entering any enemy wave - always reset and start fresh difficulty scaling
+            // This ensures each wave starts from the original egg speed
             StartDifficultyScaling();
         }
-        else if (!isInEnemyWave && wasInEnemyWave)
+        else if (wasInEnemyWave)
         {
-            // Leaving enemy wave - reset difficulty
+            // Leaving enemy wave to non-enemy stage - stop difficulty scaling
             StopDifficultyScaling();
         }
     }

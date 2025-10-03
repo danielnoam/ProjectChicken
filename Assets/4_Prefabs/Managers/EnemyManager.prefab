@@ -47,6 +47,9 @@ MonoBehaviour:
   enableCombat: 1
   eggSpeed: 20
   PatternChangeCooldown: 3
+  eggSpeedIncreaseAmount: 20
+  eggSpeedIncreaseInterval: 20
+  maxEggSpeed: 80
   attackLootTable: {fileID: 11400000, guid: 72746f0027cd99846831e5f0e88b8586, type: 2}
   fallbackAttack: {fileID: 11400000, guid: 9ead985b1c769ac4aa8654564e7ec381, type: 2}
   showDebugLogs: 0
@@ -56,6 +59,7 @@ MonoBehaviour:
   currentAttackSO: {fileID: 0}
   usesBeforePatternChange: 0
   usesRemaining: 0
+  currentEggSpeed: 0
 --- !u!1 &1617479798381126247
 GameObject:
   m_ObjectHideFlags: 0
