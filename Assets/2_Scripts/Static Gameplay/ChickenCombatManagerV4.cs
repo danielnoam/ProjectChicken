@@ -12,10 +12,14 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     [Header("Difficulty Scaling")]
     [Tooltip("How much to increase egg speed every interval during enemy waves")]
     public float eggSpeedIncreaseAmount = 10f;
-    [Tooltip("How often (in seconds) to increase egg speed during enemy waves")]
-    public float eggSpeedIncreaseInterval = 30f;
+    [Tooltip("How much to decrease pattern cooldown every interval during enemy waves")]
+    public float patternCooldownDecreaseAmount = 0.5f;
+    [Tooltip("How often (in seconds) to apply difficulty increases during enemy waves")]
+    public float difficultyIncreaseInterval = 30f;
     [Tooltip("Maximum egg speed that can be reached during difficulty scaling")]
     public float maxEggSpeed = 80f;
+    [Tooltip("Minimum pattern cooldown that can be reached during difficulty scaling")]
+    public float minPatternCooldown = 1.5f;
     
     [Header("Attack Configuration")]
     public AttackLootTableSO attackLootTable;
@@ -49,6 +53,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     
     // Difficulty scaling
     private float originalEggSpeed = 0f;
+    private float originalPatternCooldown = 0f;
     private Coroutine difficultyScalingCoroutine = null;
     private bool isInEnemyWave = false;
     
@@ -111,6 +116,9 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         // Store original egg speed
         originalEggSpeed = eggSpeed;
         currentEggSpeed = eggSpeed;
+        
+        // Store original pattern cooldown
+        originalPatternCooldown = PatternChangeCooldown;
 
         // Initialize combat state
         ResetCombatState();
@@ -203,11 +211,12 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             StopCoroutine(difficultyScalingCoroutine);
         }
 
-        // Reset to original speed
+        // Reset to original values
         eggSpeed = originalEggSpeed;
+        PatternChangeCooldown = originalPatternCooldown;
         
         if (showDebugLogs)
-            Debug.Log($"ChickenCombatManagerV4: Starting difficulty scaling. Egg speed will increase by {eggSpeedIncreaseAmount} every {eggSpeedIncreaseInterval} seconds");
+            Debug.Log($"ChickenCombatManagerV4: Starting difficulty scaling. Egg speed: {eggSpeed} (+{eggSpeedIncreaseAmount} every {difficultyIncreaseInterval}s, max: {maxEggSpeed}). Pattern cooldown: {PatternChangeCooldown} (-{patternCooldownDecreaseAmount} every {difficultyIncreaseInterval}s, min: {minPatternCooldown})");
 
         // Start the scaling coroutine
         difficultyScalingCoroutine = StartCoroutine(DifficultyScalingCoroutine());
@@ -222,11 +231,12 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             difficultyScalingCoroutine = null;
         }
 
-        // Reset to original speed
+        // Reset to original values
         eggSpeed = originalEggSpeed;
+        PatternChangeCooldown = originalPatternCooldown;
         
         if (showDebugLogs)
-            Debug.Log($"ChickenCombatManagerV4: Difficulty scaling stopped. Egg speed reset to {originalEggSpeed}");
+            Debug.Log($"ChickenCombatManagerV4: Difficulty scaling stopped. Egg speed reset to {originalEggSpeed}, Pattern cooldown reset to {originalPatternCooldown}");
     }
 
     private IEnumerator DifficultyScalingCoroutine()
@@ -234,22 +244,51 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         while (true)
         {
             // Wait for the interval
-            yield return new WaitForSeconds(eggSpeedIncreaseInterval);
+            yield return new WaitForSeconds(difficultyIncreaseInterval);
 
-            // Check if we've reached the max speed
-            if (eggSpeed >= maxEggSpeed)
+            bool eggSpeedAtMax = eggSpeed >= maxEggSpeed;
+            bool patternCooldownAtMin = PatternChangeCooldown <= minPatternCooldown;
+
+            // If both are at their limits, just log and continue
+            if (eggSpeedAtMax && patternCooldownAtMin)
             {
                 if (showDebugLogs)
-                    Debug.Log($"ChickenCombatManagerV4: Max egg speed ({maxEggSpeed}) reached. No further increases.");
+                    Debug.Log($"ChickenCombatManagerV4: Both difficulty limits reached. Egg speed: {maxEggSpeed} (max), Pattern cooldown: {minPatternCooldown} (min)");
                 continue;
             }
 
-            // Increase egg speed, clamped to max
-            float previousSpeed = eggSpeed;
-            eggSpeed = Mathf.Min(eggSpeed + eggSpeedIncreaseAmount, maxEggSpeed);
+            // Increase egg speed if not at max
+            float previousEggSpeed = eggSpeed;
+            if (!eggSpeedAtMax)
+            {
+                eggSpeed = Mathf.Min(eggSpeed + eggSpeedIncreaseAmount, maxEggSpeed);
+            }
+
+            // Decrease pattern cooldown if not at min
+            float previousPatternCooldown = PatternChangeCooldown;
+            if (!patternCooldownAtMin)
+            {
+                PatternChangeCooldown = Mathf.Max(PatternChangeCooldown - patternCooldownDecreaseAmount, minPatternCooldown);
+            }
 
             if (showDebugLogs)
-                Debug.Log($"ChickenCombatManagerV4: Egg speed increased from {previousSpeed} to {eggSpeed} (max: {maxEggSpeed})");
+            {
+                string logMsg = "ChickenCombatManagerV4: Difficulty increased - ";
+                
+                if (!eggSpeedAtMax)
+                    logMsg += $"Egg speed: {previousEggSpeed:F1} → {eggSpeed:F1}";
+                else
+                    logMsg += $"Egg speed: {eggSpeed:F1} (max reached)";
+                
+                logMsg += ", ";
+                
+                if (!patternCooldownAtMin)
+                    logMsg += $"Pattern cooldown: {previousPatternCooldown:F1}s → {PatternChangeCooldown:F1}s";
+                else
+                    logMsg += $"Pattern cooldown: {PatternChangeCooldown:F1}s (min reached)";
+                
+                Debug.Log(logMsg);
+            }
         }
     }
 
