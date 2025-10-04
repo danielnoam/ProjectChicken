@@ -69,7 +69,7 @@ public class PauseScreen : NavigatableUIScreen
             mainMenuButton.onClick.AddListener(() =>
             {
                 levelManager?.SetPausedState(false);
-                levelManager?.ReturnToMainMenu(0);
+                levelManager?.GoToMainMenu();
             });
         }
 

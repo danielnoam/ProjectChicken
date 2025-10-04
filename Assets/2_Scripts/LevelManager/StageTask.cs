@@ -7,6 +7,7 @@ public abstract class StageTask
     [SerializeField,Multiline(lines: 2)] protected string description;
     [SerializeField] protected bool isCompleted;
     
+    public bool allowOnlyOne;
     public bool IsCompleted => isCompleted;
     public string Description => description;
     
@@ -27,10 +28,15 @@ public abstract class StageTask
 [Serializable]
 public class CollectResourceTask : StageTask
 {
-    [SerializeField] private int targetAmount;
+    [SerializeField, Min(1)] private int targetAmount;
     [SerializeField] private ResourceType resourceType;
     private int _currentAmount;
     private LevelManager _levelManager;
+    
+    public CollectResourceTask()
+    {
+        allowOnlyOne = false;
+    }
     
     public override void Initialize(LevelManager levelManager)
     {
@@ -65,12 +71,17 @@ public class CollectResourceTask : StageTask
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class AccumulateScoreTask : StageTask
 {
-    [SerializeField] private int targetScore;
+    [SerializeField, Min(1)] private int targetScore;
     private int _accumulatedScore;
     private LevelManager _levelManager;
+    
+    public AccumulateScoreTask()
+    {
+        allowOnlyOne = true;
+    }
     
     public override void Initialize(LevelManager levelManager)
     {
@@ -119,6 +130,12 @@ public class UseSpecificActionTask : StageTask
     private RailPlayerInput _playerInput;
     private RailPlayerWeaponSystem _weaponSystem;
     private RailPlayerMovement _playerMovement;
+    
+    
+    public UseSpecificActionTask()
+    {
+        allowOnlyOne = false;
+    }
     
     public override void Initialize(LevelManager levelManager)
     {
@@ -254,6 +271,95 @@ public class UseSpecificActionTask : StageTask
     {
         _currentCount++;
         if (_currentCount >= timesRequired)
+        {
+            CompleteTask();
+        }
+    }
+}
+
+[Serializable]
+public class PassThroughObstaclesTask : StageTask
+{
+    [SerializeField, Min(1)] private int targetAmount;
+    private int _currentAmount;
+    private LevelManager _levelManager;
+    
+    public int TargetAmount => targetAmount;
+    
+    public PassThroughObstaclesTask()
+    {
+        allowOnlyOne = true;
+    }
+    
+    
+    public override void Initialize(LevelManager levelManager)
+    {
+        _levelManager = levelManager;
+        _currentAmount = 0;
+        isCompleted = false;
+        
+        if (levelManager.ObstacleManager)
+        {
+            levelManager.ObstacleManager.OnPlayerPassedThroughObstacle += PlayerPassedThroughObstacle;
+        }
+    }
+    
+    public override void Cleanup()
+    {
+        if (_levelManager?.ObstacleManager)
+        {
+            _levelManager.ObstacleManager.OnPlayerPassedThroughObstacle -= PlayerPassedThroughObstacle;
+        }
+    }
+    
+    private void PlayerPassedThroughObstacle(PassthroughObstacle obstacle)
+    {
+        _currentAmount++;
+        if (_currentAmount >= targetAmount)
+        {
+            CompleteTask();
+        }
+    }
+}
+
+[Serializable]
+public class BreakObstaclesTask : StageTask
+{
+    [SerializeField, Min(1)] private int targetAmount;
+    private int _currentAmount;
+    private LevelManager _levelManager;
+    
+    public int TargetAmount => targetAmount;
+
+    public BreakObstaclesTask()
+    {
+        allowOnlyOne = true;
+    }
+    
+    public override void Initialize(LevelManager levelManager)
+    {
+        _levelManager = levelManager;
+        _currentAmount = 0;
+        isCompleted = false;
+        
+        if (levelManager.ObstacleManager)
+        {
+            levelManager.ObstacleManager.OnObstacleBroke += OnObstacleBroke;
+        }
+    }
+    
+    public override void Cleanup()
+    {
+        if (_levelManager?.ObstacleManager)
+        {
+            _levelManager.ObstacleManager.OnObstacleBroke -= OnObstacleBroke;
+        }
+    }
+    
+    private void OnObstacleBroke(NormalObstacle obstacle)
+    {
+        _currentAmount++;
+        if (_currentAmount >= targetAmount)
         {
             CompleteTask();
         }

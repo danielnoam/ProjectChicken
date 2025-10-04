@@ -27,8 +27,8 @@ public class SOLevelStage : ScriptableObject
     [EndIf]
     
     [ShowIf("stageType", StageType.Outro)]
-    [SerializeField] private bool showOutroMenu;
-    [SerializeField] private SceneField nextLevel;
+    [SerializeField] private OutroMode outroMode = OutroMode.LoadMainMenu;
+    [SerializeField, ShowIf("ShowNextLevel")] private SceneField nextLevel;
     [EndIf]
     
     [ShowIf("stageType", StageType.Store)]
@@ -66,6 +66,7 @@ public class SOLevelStage : ScriptableObject
     
     public bool IsTimeBasedStage => stageType is StageType.Delay or StageType.Intro or StageType.Outro;
     public bool IsEnemyOrTaskStage => stageType is StageType.EnemyWave or StageType.Task;
+    public bool ShowNextLevel => outroMode is OutroMode.LoadNextLevel or OutroMode.ShowOutroMenu;
     
     
     public StageType StageType => stageType;
@@ -75,7 +76,8 @@ public class SOLevelStage : ScriptableObject
     public SORadioMessage StartRadioMessage => startRadioMessage;
     public StageEvent[] Events => events;
     public bool IsCheckpoint => isCheckpoint;
-    public bool ShowOutroMenu => showOutroMenu;
+    public OutroMode OutroMode => outroMode;
+    public bool ShowOutroMenu => outroMode == OutroMode.ShowOutroMenu;
     public bool AllowToCloseStore => allowToCloseStore;
     public SceneField NextLevel => nextLevel;
     public SerializedDictionary<ChickenStateController, int> EnemyWave => enemyWave;

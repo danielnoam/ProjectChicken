@@ -1,10 +1,11 @@
+using System;
 using DNExtensions;
 using UnityEngine;
 using UnityEngine.Splines;
 using Random = UnityEngine.Random;
 
 
-public class Obstacle : BaseObstacle
+public class NormalObstacle : BaseObstacle
 {
     [Header("Settings")]
     [SerializeField, MinMaxRange(1, 1000)] private RangedFloat healthRange = new(50f, 150f);
@@ -13,6 +14,8 @@ public class Obstacle : BaseObstacle
     
     private float _health;
     
+    
+    public event Action<NormalObstacle> OnObstacleBroke; 
     
     public override void Initialize(SplineContainer spline)
     {
@@ -46,7 +49,7 @@ public class Obstacle : BaseObstacle
 
     }
 
-    protected override void OnCollisionWithObstacle(Obstacle obstacle)
+    protected override void OnCollisionWithObstacle(NormalObstacle normalObstacle)
     {
         TakeDamage(_health);
     }
@@ -60,6 +63,7 @@ public class Obstacle : BaseObstacle
         
         if (_health <= 0)
         {
+            OnObstacleBroke?.Invoke(this);
             _health = 0f;
             DestroyObstacle();
         }

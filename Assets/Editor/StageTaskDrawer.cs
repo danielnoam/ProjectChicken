@@ -56,7 +56,7 @@ namespace Editor
                 
                 // First, explicitly draw base class fields that we know about
                 DrawPropertyIfExists(property, "description", ref contentRect, drawnProperties);
-                // Note: We skip "isCompleted" as it's runtime-only
+                // Note: We skip "isCompleted" and "allowOnlyOne" as they're runtime-only
                 
                 // Now draw all other visible properties
                 var iterator = property.Copy();
@@ -65,8 +65,8 @@ namespace Editor
                 
                 while (iterator.NextVisible(false) && !SerializedProperty.EqualContents(iterator, endProperty))
                 {
-                    // Skip if we've already drawn this property or if it's isCompleted
-                    if (!drawnProperties.Contains(iterator.name) && iterator.name != "isCompleted")
+                    // Skip if we've already drawn this property or if it's isCompleted or allowOnlyOne
+                    if (!drawnProperties.Contains(iterator.name) && iterator.name != "isCompleted" && iterator.name != "allowOnlyOne")
                     {
                         var propHeight = EditorGUI.GetPropertyHeight(iterator, true);
                         var propRect = new Rect(contentRect.x, contentRect.y, contentRect.width, propHeight);
@@ -122,7 +122,7 @@ namespace Editor
             
                     while (iterator.NextVisible(false) && !SerializedProperty.EqualContents(iterator, endProperty))
                     {
-                        if (iterator.name != "isCompleted" && !drawnProperties.Contains(iterator.name))
+                        if (iterator.name != "isCompleted" && iterator.name != "allowOnlyOne" && !drawnProperties.Contains(iterator.name))
                         {
                             height += EditorGUI.GetPropertyHeight(iterator, true) + EditorGUIUtility.standardVerticalSpacing;
                             drawnProperties.Add(iterator.name);
@@ -151,19 +151,62 @@ namespace Editor
             }
             else
             {
+                // Get all existing tasks in the array to check for allowOnlyOne restrictions
+                var existingTaskTypes = GetExistingTaskTypes(property);
+                
                 foreach (var kvp in _typeMap.OrderBy(k => k.Key))
                 {
                     var name = kvp.Key;
                     var type = kvp.Value;
+                    bool isCurrentType = type.FullName == currentTypeName;
                     
-                    menu.AddItem(new GUIContent(name), type.FullName == currentTypeName, () => {
-                        property.managedReferenceValue = Activator.CreateInstance(type);
-                        property.serializedObject.ApplyModifiedProperties();
-                    });
+                    // Create a temporary instance to check allowOnlyOne
+                    var tempInstance = Activator.CreateInstance(type) as StageTask;
+                    bool canAdd = !tempInstance.allowOnlyOne || !existingTaskTypes.Contains(type);
+                    
+                    if (canAdd)
+                    {
+                        menu.AddItem(new GUIContent(name), isCurrentType, () => {
+                            property.managedReferenceValue = Activator.CreateInstance(type);
+                            property.serializedObject.ApplyModifiedProperties();
+                        });
+                    }
+                    else
+                    {
+                        menu.AddDisabledItem(new GUIContent(name + " (already exists)"), isCurrentType);
+                    }
                 }
             }
             
             menu.ShowAsContext();
+        }
+
+        private HashSet<Type> GetExistingTaskTypes(SerializedProperty currentProperty)
+        {
+            var existingTypes = new HashSet<Type>();
+            
+            // Navigate to the parent array
+            var propertyPath = currentProperty.propertyPath;
+            var arrayPath = propertyPath.Substring(0, propertyPath.LastIndexOf(".Array", StringComparison.Ordinal));
+            
+            if (string.IsNullOrEmpty(arrayPath))
+                return existingTypes;
+            
+            var arrayProperty = currentProperty.serializedObject.FindProperty(arrayPath);
+            
+            if (arrayProperty != null && arrayProperty.isArray)
+            {
+                for (int i = 0; i < arrayProperty.arraySize; i++)
+                {
+                    var element = arrayProperty.GetArrayElementAtIndex(i);
+                    if (element.managedReferenceValue != null && element.propertyPath != currentProperty.propertyPath)
+                    {
+                        existingTypes.Add(element.managedReferenceValue.GetType());
+                    }
+                }
+            }
+            
+            return existingTypes;
         }
 
         private static void BuildTypeMap() 

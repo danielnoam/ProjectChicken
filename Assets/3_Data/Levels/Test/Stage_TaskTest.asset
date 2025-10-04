@@ -17,11 +17,11 @@ MonoBehaviour:
   worldSpeed: 1
   isCheckpoint: 1
   events:
-  - rid: 736433129126887564
-  stageType: 2
+  - rid: 736433193358459081
+  stageType: 5
   stageDuration: 7
   delayBeforeNextStage: 2
-  showOutroMenu: 0
+  outroMode: 0
   nextLevel:
     sceneAsset: {fileID: 0}
     sceneName: 
@@ -41,7 +41,7 @@ MonoBehaviour:
   enemyWave:
     serializedKvps:
     - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
-      Value: 25
+      Value: 1
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
@@ -57,7 +57,8 @@ MonoBehaviour:
     maxPlacementAttempts: 100
   requireAllTasks: 1
   tasks:
-  - rid: 15267381628633176
+  - rid: 736433193358459007
+  - rid: 736433193358459014
   showHUD: 1
   showScore: 1
   showStagesProgression: 1
@@ -70,18 +71,26 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 15267381628633176
-      type: {class: CollectResourceTask, ns: , asm: Assembly-CSharp}
+    - rid: 736433193358459007
+      type: {class: BreakObstaclesTask, ns: , asm: Assembly-CSharp}
       data:
         description: 
         isCompleted: 0
+        allowOnlyOne: 1
         targetAmount: 5
-        resourceType: 0
-    - rid: 736433129126887564
+    - rid: 736433193358459014
+      type: {class: PassThroughObstaclesTask, ns: , asm: Assembly-CSharp}
+      data:
+        description: 
+        isCompleted: 1
+        allowOnlyOne: 1
+        targetAmount: 1
+    - rid: 736433193358459081
       type: {class: SpawnPassthroughObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
         isActive: 1
+        initialDelay: 1
+        maxActiveObstacles: 3
         spawnIntervalRange:
-          minValue: 1
-          maxValue: 1
-        maxActiveObstacles: 1
+          minValue: 5
+          maxValue: 5

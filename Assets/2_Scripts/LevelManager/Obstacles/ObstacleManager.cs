@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DNExtensions;
 using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.Splines;
 using VInspector;
+using Random = UnityEngine.Random;
 
 
 public class ObstacleManager : MonoBehaviour
@@ -21,7 +23,7 @@ public class ObstacleManager : MonoBehaviour
     [SerializeField] private float passthroughBoundarySizeMultiplier = 2f;
 
     [Header("Obstacles")]
-    [SerializeField] private ChanceList<Obstacle> obstaclePrefabs;
+    [SerializeField] private ChanceList<NormalObstacle> obstaclePrefabs;
     [SerializeField] private ChanceList<PassthroughObstacle> passthroughObstaclePrefabs;
     
     [Header("References")] 
@@ -30,13 +32,17 @@ public class ObstacleManager : MonoBehaviour
     [SerializeField] private LevelManager levelManager;
     [SerializeField, Scene(Flag.Optional)] private RailPlayer player;
     
-    private readonly List<Obstacle> _normalObstacles = new List<Obstacle>();
+    private readonly List<NormalObstacle> _normalObstacles = new List<NormalObstacle>();
     private readonly List<PassthroughObstacle> _passthroughObstacles = new List<PassthroughObstacle>();
     private readonly List<SplineContainer> _splines = new List<SplineContainer>();
 
     public int ActiveNormalObstacleCount => _normalObstacles.Count;
     public int ActivePassthroughObstacleCount => _passthroughObstacles.Count;
     public int TotalActiveObstacleCount => _normalObstacles.Count + _passthroughObstacles.Count;
+    
+    public event Action<NormalObstacle> OnObstacleBroke;
+    public event Action<PassthroughObstacle> OnPlayerEnteredPassThroughObstacle; 
+    public event Action<PassthroughObstacle> OnPlayerPassedThroughObstacle;
 
     private void OnValidate()
     {
@@ -96,17 +102,39 @@ public class ObstacleManager : MonoBehaviour
     
     private void OnObstacleDestroyed(BaseObstacle obstacle)
     {
+        obstacle.OnObstacleDestroyed -= OnObstacleDestroyed;
+        
         if (obstacle is PassthroughObstacle passthroughObstacle)
         {
+            passthroughObstacle.OnPlayerPassedThrough -= HandleObstaclePassedThrough;
+            passthroughObstacle.OnPlayerEnteredPassthrough -= HandlePlayerEnteredPassThrough;
             _passthroughObstacles.Remove(passthroughObstacle);
         }
-        else if (obstacle is Obstacle normalObstacle)
+        else if (obstacle is NormalObstacle normalObstacle)
         {
+            normalObstacle.OnObstacleBroke -= HandleObstacleBroke;
             _normalObstacles.Remove(normalObstacle);
         }
         
         _splines.RemoveAll(splineContainer => !splineContainer);
     }
+    
+
+    private void HandleObstacleBroke(NormalObstacle normalObstacle)
+    {
+        OnObstacleBroke?.Invoke(normalObstacle);
+    }
+    
+    private void HandlePlayerEnteredPassThrough(PassthroughObstacle passthroughObstacle)
+    {
+        OnPlayerEnteredPassThroughObstacle?.Invoke(passthroughObstacle);
+    }
+    
+    private void HandleObstaclePassedThrough(PassthroughObstacle passthroughObstacle)
+    {
+        OnPlayerPassedThroughObstacle?.Invoke(passthroughObstacle);
+    }
+    
 
     private SplineContainer CreateSplineForObstacle()
     {
@@ -188,21 +216,24 @@ public class ObstacleManager : MonoBehaviour
         return splineContainer;
     }
 
-    private Obstacle SpawnSplineObstacle(Obstacle obstaclePrefab)
+    private NormalObstacle SpawnSplineObstacle(NormalObstacle normalObstaclePrefab)
     {
-        if (!obstaclePrefab) return null;
+        if (!normalObstaclePrefab) return null;
 
         SplineContainer spline = CreateSplineForObstacle();
         
-        Obstacle newObstacle = Instantiate(obstaclePrefab, levelManager.EnemyPosition + spawnPosition, Quaternion.identity, obstacleHolder);
+        NormalObstacle newNormalObstacle = Instantiate(normalObstaclePrefab, levelManager.EnemyPosition + spawnPosition, Quaternion.identity, obstacleHolder);
         
-        _normalObstacles.Add(newObstacle);
-        newObstacle.OnObstacleDestroyed += OnObstacleDestroyed;
+        _normalObstacles.Add(newNormalObstacle);
+        newNormalObstacle.OnObstacleDestroyed += OnObstacleDestroyed;
+        newNormalObstacle.OnObstacleBroke += HandleObstacleBroke;
         
-        newObstacle.Initialize(spline);
+        newNormalObstacle.Initialize(spline);
         
-        return newObstacle;
+        return newNormalObstacle;
     }
+    
+
 
     private PassthroughObstacle SpawnPassthroughObstacle(PassthroughObstacle obstaclePrefab)
     {
@@ -214,19 +245,22 @@ public class ObstacleManager : MonoBehaviour
         
         _passthroughObstacles.Add(newObstacle);
         newObstacle.OnObstacleDestroyed += OnObstacleDestroyed;
+        newObstacle.OnPlayerPassedThrough += HandleObstaclePassedThrough;
+        newObstacle.OnPlayerEnteredPassthrough += HandlePlayerEnteredPassThrough;
         
         newObstacle.Initialize(spline);
         
         return newObstacle;
     }
-    
-    
+
+
+
     private void SpawnRandomObstacle()
     {
         if (obstaclePrefabs == null || obstaclePrefabs.Count == 0) return;
         
-        Obstacle randomObstacle = obstaclePrefabs.GetRandomItem();
-        SpawnSplineObstacle(randomObstacle);
+        NormalObstacle randomNormalObstacle = obstaclePrefabs.GetRandomItem();
+        SpawnSplineObstacle(randomNormalObstacle);
     }
     
     [Button]

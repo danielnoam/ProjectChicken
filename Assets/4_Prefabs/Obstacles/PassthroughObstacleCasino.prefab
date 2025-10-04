@@ -9,6 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5002280484586308091}
+  - component: {fileID: 8878106975780502805}
+  - component: {fileID: 5491962310705527499}
   m_Layer: 0
   m_Name: CenterPivot
   m_TagString: PassageBuilding
@@ -25,12 +27,47 @@ Transform:
   m_GameObject: {fileID: 4462998550661863597}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 37.2, y: -42.5, z: -22.887268}
+  m_LocalPosition: {x: 37.2, y: -42.5, z: -14.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2871421055465837360}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8878106975780502805
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4462998550661863597}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 32.2, y: 22.6, z: 155}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5491962310705527499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4462998550661863597}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2575d98193181b049b60fa0c8c131bb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerPassedThrough: 0
+  playerEnteredTrigger: 0
 --- !u!1001 &3410201375655743503
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -113,7 +150,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2898348619207797621, guid: 25b94a4fe64b1c34f956da773b657d8e, type: 3}
       propertyPath: m_IsTrigger
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3726712001164706762, guid: 25b94a4fe64b1c34f956da773b657d8e, type: 3}
       propertyPath: manualYRotation
@@ -159,9 +196,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 441028123743828838, guid: 25b94a4fe64b1c34f956da773b657d8e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6819082108545706050}
-    - targetCorrespondingSourceObject: {fileID: 441028123743828838, guid: 25b94a4fe64b1c34f956da773b657d8e, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2892936925696587397}
   m_SourcePrefab: {fileID: 100100000, guid: 25b94a4fe64b1c34f956da773b657d8e, type: 3}
 --- !u!4 &2871421055465837360 stripped
 Transform:
@@ -185,7 +219,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f69e98bb62766ee489941931283c1daa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseMoveSpeed: 75
+  scoreWorth: 100
+  baseMoveSpeed: 100
   moveSpeedRange:
     minValue: 0
     maxValue: 50
@@ -195,18 +230,18 @@ MonoBehaviour:
     maxValue: 0
   spawnAnimationDuration:
     minValue: 7
-    maxValue: 7
+    maxValue: 9
   flyByDistance: 100
   flyBySfx: {fileID: 0}
   flyByCameraShakeSettings:
     impulseType: 0
     impulseShape: 4
-    intensity: 4
-    duration: 1
+    intensity: 1
+    duration: 0.5
   flyByVibrationEffectSettings:
     lowFrequency: 0.1
     highFrequency: 0.1
-    duration: 0.3
+    duration: 0.2
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -259,6 +294,7 @@ MonoBehaviour:
   impulseSource: {fileID: 6819082108545706050}
   audioSource: {fileID: 2678216218314760662}
   centerObject: {fileID: 4462998550661863597}
+  passthroughTrigger: {fileID: 5491962310705527499}
 --- !u!65 &654057570532502887
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -274,7 +310,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -295,7 +331,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -316,7 +352,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -337,7 +373,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -505,30 +541,3 @@ MonoBehaviour:
     DissipationDistance: 100
     PropagationSpeed: 343
   DefaultVelocity: {x: 0, y: -1, z: 0}
---- !u!54 &2892936925696587397
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2976211574915033961}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 2
-  m_Constraints: 0
-  m_CollisionDetection: 1

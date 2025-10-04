@@ -651,7 +651,8 @@ public class HUDManager : MonoBehaviour
     private void OnDodgeCountChanged(int dodgesRemining)
     {
         _currentDodgeRemining = dodgesRemining;
-        dodgeCountText.text = $"X{_currentDodgeRemining}";
+
+        dodgeCountText.text = _currentDodgeRemining <= 0 ? $"" : $"X{_currentDodgeRemining}";
         dodgeFillBar.fillAmount = 0f;
         Tween.PunchScale(dodgeCountText.transform, strength: Vector3.one * dodgePunchStrength, duration: dodgePunchDuration);
     }

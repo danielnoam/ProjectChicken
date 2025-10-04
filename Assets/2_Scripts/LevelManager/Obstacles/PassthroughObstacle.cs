@@ -1,14 +1,49 @@
+using System;
 using UnityEngine;
-using UnityEngine.Splines;
 
 public class PassthroughObstacle : BaseObstacle
 {
     [Header("References")]
     [SerializeField] private GameObject centerObject;
-    
+    [SerializeField] private PassthroughTrigger passthroughTrigger;
     public Transform CenterObjectTransform => centerObject ? centerObject.transform : transform;
+
+    public event Action<PassthroughObstacle> OnPlayerEnteredPassthrough;
+    public event Action<PassthroughObstacle> OnPlayerPassedThrough;
+
+
+    private void OnEnable()
+    {
+        if (passthroughTrigger)
+        {
+            passthroughTrigger.OnPlayerEnteredTrigger += HandlePlayerEnteredTrigger;
+            passthroughTrigger.OnPlayerPassedThrough += HandlePlayerPassedThrough;
+        }
+
+    }
+
+    private void OnDisable()
+    {
+        if (passthroughTrigger)
+        {
+            passthroughTrigger.playerEnteredTrigger = false;
+            passthroughTrigger.playerPassedThrough = false;
+            passthroughTrigger.OnPlayerEnteredTrigger -= HandlePlayerEnteredTrigger;
+            passthroughTrigger.OnPlayerPassedThrough -= HandlePlayerPassedThrough;
+        }
+    }
+
+
+    private void HandlePlayerEnteredTrigger()
+    {
+        PlayFlyByEffects();
+        OnPlayerEnteredPassthrough?.Invoke(this);
+    }
     
-    
+    private void HandlePlayerPassedThrough()
+    {
+        OnPlayerPassedThrough?.Invoke(this);
+    }
     
     protected override void MoveAlongSpline()
     {
@@ -62,7 +97,7 @@ public class PassthroughObstacle : BaseObstacle
 
     }
 
-    protected override void OnCollisionWithObstacle(Obstacle obstacle)
+    protected override void OnCollisionWithObstacle(NormalObstacle normalObstacle)
     {
 
     }

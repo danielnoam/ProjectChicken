@@ -29,19 +29,24 @@ public abstract class StageEvent
 public class SpawnEnemyEvent : StageEvent
 {
     [SerializeField] private ChickenStateController enemyPrefab;
-    [SerializeField] private int maxActiveEnemies = 5;
-    [SerializeField] private float spawnInterval = 2f;
+    [SerializeField, Min(0)] private float initialDelay = 1;
+    [SerializeField, Min(1)] private int maxActiveEnemies = 5;
+    [SerializeField, MinMaxRange(1f, 30f)] private RangedFloat spawnIntervalRange = new RangedFloat(2, 2);
     
     private LevelManager _levelManager;
     private EnemySpawner _enemySpawner;
     private float _spawnTimer;
+    private float _spawnInterval;
+    private bool _hasStarted;
     
     public override void Initialize(LevelManager levelManager)
     {
         _levelManager = levelManager;
         _enemySpawner = levelManager.EnemySpawner;
 
-        _spawnTimer = 0f;
+        _spawnTimer = -initialDelay;
+        _spawnInterval = spawnIntervalRange.RandomValue;
+        _hasStarted = initialDelay <= 0f;
         StartEvent();
     }
     
@@ -51,10 +56,21 @@ public class SpawnEnemyEvent : StageEvent
         
         _spawnTimer += deltaTime;
         
-        if (_spawnTimer >= spawnInterval && _enemySpawner.ActiveEnemyCount < maxActiveEnemies)
+        if (!_hasStarted)
+        {
+            if (_spawnTimer >= 0f)
+            {
+                _hasStarted = true;
+                _spawnTimer = 0f;
+            }
+            return;
+        }
+        
+        if (_spawnTimer >= _spawnInterval && _enemySpawner.ActiveEnemyCount < maxActiveEnemies)
         {
             _enemySpawner.SpawnEnemy(enemyPrefab);
             _spawnTimer = 0f;
+            _spawnInterval = spawnIntervalRange.RandomValue;
         }
     }
     
@@ -71,19 +87,24 @@ public class SpawnEnemyEvent : StageEvent
 public class SpawnResourceEvent : StageEvent
 {
     [SerializeField] private Resource resourcePrefab;
-    [SerializeField] private int maxActiveResources = 3;
-    [SerializeField] private float spawnInterval = 5f;
+    [SerializeField, Min(0)] private float initialDelay = 1;
+    [SerializeField, Min(1)] private int maxActiveResources = 3;
+    [SerializeField, MinMaxRange(1f, 30f)] private RangedFloat spawnIntervalRange = new RangedFloat(5, 5);
     
     private LevelManager _levelManager;
     private ResourceManager _resourceManager;
     private float _spawnTimer;
+    private float _spawnInterval;
+    private bool _hasStarted;
     
     public override void Initialize(LevelManager levelManager)
     {
         _levelManager = levelManager;
         _resourceManager = levelManager.ResourceManager;
         
-        _spawnTimer = 0f;
+        _spawnTimer = -initialDelay;
+        _spawnInterval = spawnIntervalRange.RandomValue;
+        _hasStarted = initialDelay <= 0f;
         StartEvent();
     }
     
@@ -93,10 +114,21 @@ public class SpawnResourceEvent : StageEvent
         
         _spawnTimer += deltaTime;
         
-        if (_spawnTimer >= spawnInterval && GetActiveResourceCount() < maxActiveResources)
+        if (!_hasStarted)
+        {
+            if (_spawnTimer >= 0f)
+            {
+                _hasStarted = true;
+                _spawnTimer = 0f;
+            }
+            return;
+        }
+        
+        if (_spawnTimer >= _spawnInterval && GetActiveResourceCount() < maxActiveResources)
         {
             SpawnResource();
             _spawnTimer = 0f;
+            _spawnInterval = spawnIntervalRange.RandomValue;
         }
     }
     
@@ -124,15 +156,10 @@ public class SpawnResourceEvent : StageEvent
 [System.Serializable]
 public class RadioMessageSequenceEvent : StageEvent
 {
-    [Header("Messages")]
+    [SerializeField, Min(0)] private float initialDelay;
+    [SerializeField] private bool shuffle;
+    [SerializeField] private bool loop;
     [SerializeField] private SORadioMessage[] messages;
-    
-    [Header("Timing")]
-    [SerializeField] private float initialDelay = 0f;
-    
-    [Header("Settings")]
-    [SerializeField] private bool shuffle = false;
-    [SerializeField] private bool loop = false;
     
     private LevelManager _levelManager;
     private RadioManager _radioManager;
@@ -246,14 +273,16 @@ public class RadioMessageSequenceEvent : StageEvent
 [System.Serializable]
 public class SpawnObstacleEvent : StageEvent
 {
-    [SerializeField, MinMaxRange(1,10)] private RangedInt obstacleCount = new RangedInt(1, 3);
-    [SerializeField, MinMaxRange(2f, 30f)] private RangedFloat spawnIntervalRange = 4f;
+    [SerializeField, Min(0)] private float initialDelay = 1;
     [SerializeField, Min(1)] private int maxActiveObstacles = 3;
+    [SerializeField, MinMaxRange(1,10)] private RangedInt obstacleCount = new RangedInt(1, 3);
+    [SerializeField, MinMaxRange(2f, 30f)] private RangedFloat spawnIntervalRange = new RangedFloat(2,4);
     
     private LevelManager _levelManager;
     private ObstacleManager _obstacleManager;
     private float _spawnTimer;
     private float _spawnInterval;
+    private bool _hasStarted;
     
     public override void Initialize(LevelManager levelManager)
     {
@@ -261,7 +290,8 @@ public class SpawnObstacleEvent : StageEvent
         _obstacleManager = levelManager.ObstacleManager;
         
         _spawnInterval = spawnIntervalRange.RandomValue;
-        _spawnTimer = 0f;
+        _spawnTimer = -initialDelay;
+        _hasStarted = initialDelay <= 0f;
         StartEvent();
     }
     
@@ -269,8 +299,18 @@ public class SpawnObstacleEvent : StageEvent
     {
         if (!isActive || !_obstacleManager) return;
         
-        
         _spawnTimer += deltaTime;
+        
+        if (!_hasStarted)
+        {
+            if (_spawnTimer >= 0f)
+            {
+                _hasStarted = true;
+                _spawnTimer = 0f;
+                SpawnObstacle();
+            }
+            return;
+        }
         
         if (_spawnTimer >= _spawnInterval && GetActiveObstacleCount() < maxActiveObstacles)
         {
@@ -306,20 +346,24 @@ public class SpawnObstacleEvent : StageEvent
 [System.Serializable]
 public class SpawnPassthroughObstacleEvent : StageEvent
 {
-    [SerializeField, MinMaxRange(5f, 30f)] private RangedFloat spawnIntervalRange = 15f;
+    [SerializeField, Min(0)] private float initialDelay = 1;
     [SerializeField, Min(1)] private int maxActiveObstacles = 1;
+    [SerializeField, MinMaxRange(5f, 30f)] private RangedFloat spawnIntervalRange = new RangedFloat(0, 30);
+
     
     private LevelManager _levelManager;
     private ObstacleManager _obstacleManager;
     private float _spawnTimer;
     private float _spawnInterval;
+    private bool _hasStarted;
     
     public override void Initialize(LevelManager levelManager)
     {
         _levelManager = levelManager;
         _obstacleManager = levelManager.ObstacleManager;
-        _spawnTimer = 0f;
+        _spawnTimer = -initialDelay;
         _spawnInterval = spawnIntervalRange.RandomValue;
+        _hasStarted = initialDelay <= 0f;
         StartEvent();
     }
     
@@ -327,8 +371,18 @@ public class SpawnPassthroughObstacleEvent : StageEvent
     {
         if (!isActive || !_obstacleManager) return;
         
-        
         _spawnTimer += deltaTime;
+        
+        if (!_hasStarted)
+        {
+            if (_spawnTimer >= 0f)
+            {
+                _hasStarted = true;
+                _spawnTimer = 0f;
+                SpawnObstacle();
+            }
+            return;
+        }
         
         if (_spawnTimer >= _spawnInterval && GetActiveObstacleCount() < maxActiveObstacles)
         {

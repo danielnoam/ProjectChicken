@@ -35,7 +35,8 @@ public class RailPlayerHealth : MonoBehaviour
     
     
     [Header("SFX/VFX")]
-    [SerializeField, Child(Flag.Editable)] private AudioSource audioSource;
+    [SerializeField, Child(Flag.Editable)] private AudioSource healthAudioSource;
+    [SerializeField, Child(Flag.Editable)] private AudioSource shieldAudioSource;
     [SerializeField] private SOAudioEvent healthDamageSfx;
     [SerializeField] private ParticleSystem healthDamageParticleEffect;
     [SerializeField] private SOAudioEvent healthHealedSfx;
@@ -57,7 +58,7 @@ public class RailPlayerHealth : MonoBehaviour
     private float _damagedCooldown;
     private Coroutine _regenShieldCoroutine;
     private float _hitFrameTimer;
-    
+    private bool _regenSfxWasPlaying;
 
     public int CurrentHealth { get; private set; }
     public float CurrentShield { get; private set; }
@@ -75,8 +76,45 @@ public class RailPlayerHealth : MonoBehaviour
     {
         this.ValidateRefs();
     }
-    
-    
+
+
+    private void OnEnable()
+    {
+        if (player.LevelManager)
+        {
+            player.LevelManager.OnPause += OnPause;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (player.LevelManager)
+        {
+            player.LevelManager.OnPause -= OnPause;
+        }
+    }
+
+    private void OnPause(bool paused)
+    {
+        if (paused)
+        {
+            if (shieldAudioSource.isPlaying)
+            {
+                _regenSfxWasPlaying = shieldAudioSource.isPlaying;
+                shieldAudioSource.Pause();
+            }
+
+        }
+        else
+        {
+            if (_regenSfxWasPlaying)
+            {
+                shieldAudioSource.UnPause();
+                _regenSfxWasPlaying = false;
+            }
+        }
+    }
+
     private void Update()
     {
         CheckDamageCooldown();
@@ -139,7 +177,7 @@ public class RailPlayerHealth : MonoBehaviour
     private void Die()
     {
         StopHitFrames();
-        deathSfx?.Play(audioSource);
+        deathSfx?.Play(healthAudioSource);
         if (deathParticleEffect) deathParticleEffect.Play();
         controllerVibrationSource.Vibrate(deathVibrationSettings);
         FullScreenHitFXController.Instance?.Punch(deathFsFX);
@@ -197,7 +235,7 @@ public class RailPlayerHealth : MonoBehaviour
             if (healthDamageParticleEffect) healthDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(healthDamagedVibrationSettings);
             FullScreenHitFXController.Instance?.Punch(healthDamageFsFX);
-            healthDamageSfx?.Play(audioSource);
+            healthDamageSfx?.Play(healthAudioSource);
             
 
         }
@@ -216,7 +254,7 @@ public class RailPlayerHealth : MonoBehaviour
         }
         
         if (deathParticleEffect && deathParticleEffect.isPlaying) deathParticleEffect.Stop();
-        healthHealedSfx?.Play(audioSource);
+        healthHealedSfx?.Play(healthAudioSource);
         OnHealthChanged?.Invoke(CurrentHealth);
     }
     
@@ -227,7 +265,7 @@ public class RailPlayerHealth : MonoBehaviour
     
     private IEnumerator RegenShieldRoutine()
     {
-        shieldStartRegenSfx?.Play(audioSource);
+        shieldStartRegenSfx?.Play(shieldAudioSource);
         
         while (CurrentShield < MaxShield)
         {
@@ -235,7 +273,7 @@ public class RailPlayerHealth : MonoBehaviour
             if (CurrentShield >= MaxShield)
             {
                 CurrentShield = MaxShield;
-                shieldRegeneratedSfx?.Play(audioSource);
+                shieldRegeneratedSfx?.Play(shieldAudioSource);
                 yield break;
             }
             
@@ -275,7 +313,7 @@ public class RailPlayerHealth : MonoBehaviour
         if (CurrentShield < 1)
         {
             CurrentShield = 0;
-            shieldDepletedSfx?.Play(audioSource);
+            shieldDepletedSfx?.Play(shieldAudioSource);
             if (shieldDepletedParticleEffect) shieldDepletedParticleEffect.Play();
             FullScreenHitFXController.Instance?.Punch(shieldDamageFsFX);
         }
@@ -283,7 +321,7 @@ public class RailPlayerHealth : MonoBehaviour
         {
             if (shieldDamageParticleEffect) shieldDamageParticleEffect.Play();
             controllerVibrationSource.Vibrate(shieldDamagedVibrationSettings);
-            shieldDamageSfx?.Play(audioSource);
+            shieldDamageSfx?.Play(shieldAudioSource);
         }
         
         
@@ -298,7 +336,7 @@ public class RailPlayerHealth : MonoBehaviour
         if (CurrentShield >= MaxShield)
         {
             CurrentShield = MaxShield;
-            shieldRegeneratedSfx?.Play(audioSource);
+            shieldRegeneratedSfx?.Play(shieldAudioSource);
         }
         else
         {

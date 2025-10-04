@@ -53,7 +53,7 @@ public class OutroScreen : NavigatableUIScreen
             AddSelectable(returnButton);
             returnButton.onClick.AddListener(() =>
             {
-                levelManager.ReturnToMainMenu();
+                levelManager.GoToMainMenu();
                 Hide(true);
             });
         }

@@ -15,12 +15,6 @@ public class StageProgressionBar : MonoBehaviour
     [SerializeField] private float animationDuration = 1f;
     [SerializeField] private Ease animationEase = Ease.OutElastic;
     
-    [Header("Enemy Info")]
-    [SerializeField] private bool showEnemyInfo = true;
-    [SerializeField] private float enemyInfoAnimationDuration = 0.3f;
-    [SerializeField] private float enemyInfoAnimationPunchScale = 0.2f;
-    
-    
     [Header("Sprites")]
     [SerializeField] private Sprite defaultSprite;
     [SerializeField] private Sprite introSprite;
@@ -36,13 +30,11 @@ public class StageProgressionBar : MonoBehaviour
     [SerializeField] private Color storeColor;
 
     [Header("References")]
-    [SerializeField] private CanvasGroup enemiesRemainingCanvasGroup;
-    [SerializeField] private TextMeshProUGUI enemiesRemainingText;
     [SerializeField] private Transform stageIconHolder;
     [SerializeField] private HorizontalLayoutGroup horizontalLayoutGroup;
     [SerializeField] private StageIcon stageIconPrefab;
     [SerializeField,Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
-    [SerializeField,Scene(Flag.EditableAnywhere)] private LevelManager levelManger;
+    [SerializeField,Scene(Flag.EditableAnywhere)] private LevelManager levelManager;
 
     private Vector2 _stageIconFullSize;
     private SOLevel _currentLevel; 
@@ -54,41 +46,10 @@ public class StageProgressionBar : MonoBehaviour
     private void OnValidate()
     {
         if (!enemySpawner) enemySpawner = FindAnyObjectByType<EnemySpawner>();
-        if (!levelManger) levelManger = FindAnyObjectByType<LevelManager>();
+        if (!levelManager) levelManager = FindAnyObjectByType<LevelManager>();
         this.ValidateRefs();
     }
-
-    private void OnEnable()
-    {
-        if (enemySpawner)
-        {
-            enemySpawner.OnEnemyDeath += OnEnemyDeath;
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (enemySpawner)
-        {
-            enemySpawner.OnEnemyDeath -= OnEnemyDeath;
-        }
-    }
     
-
-    private void Update()
-    {
-        if (levelManger && showEnemyInfo)
-        {
-            enemiesRemainingText.text = $"{levelManger.EnemiesLeft}";
-        }
-
-    }
-    
-    private void OnEnemyDeath(ChickenStateController enemy)
-    {
-        Tween.PunchScale(enemiesRemainingText.transform, Vector3.one * enemyInfoAnimationPunchScale, enemyInfoAnimationDuration, 1);
-    }
-
 
     public void Initialize(SOLevel level)
     {
@@ -162,9 +123,7 @@ public class StageProgressionBar : MonoBehaviour
     public void SetCurrentStage(SOLevelStage stage)
     {
         if (!stage || !_currentLevel) return;
-    
-        enemiesRemainingCanvasGroup.alpha = stage.StageType == StageType.EnemyWave && showEnemyInfo ? 1 : 0;
-    
+        
         int stageIndexInLevel = FindStageIndexInLevel(stage);
         if (stageIndexInLevel == -1) return;
     

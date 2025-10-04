@@ -10,6 +10,8 @@ using UnityEngine.Splines;
 [RequireComponent(typeof(CinemachineImpulseSource))]
 public abstract class BaseObstacle : MonoBehaviour, IDamageable
 {
+    [Header("General")]
+    [SerializeField, Min(0)] protected int scoreWorth = 100;
     
     [Header("Movement")]
     [SerializeField, Min(1f)] private float baseMoveSpeed = 75f;
@@ -41,8 +43,16 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
     protected SplineContainer spline;
     protected float splineProgress;
     
-    public event Action<BaseObstacle> OnObstacleDestroyed;
+    public int ScoreWorth => scoreWorth;
     
+    public event Action<BaseObstacle> OnObstacleDestroyed;
+
+
+    private void OnDestroy()
+    {
+        OnObstacleDestroyed?.Invoke(this);
+    }
+
     protected virtual void Update()
     {
         if (isMoving)
@@ -93,7 +103,7 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
             OnCollisionWithPassthroughObstacle(passthroughObstacle);
         }
         
-        if (other.TryGetComponent(out Obstacle obstacle))
+        if (other.TryGetComponent(out NormalObstacle obstacle))
         {
             OnCollisionWithObstacle(obstacle);
         }
@@ -104,7 +114,10 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
         if (!spline) return;
         
         float splineLength = spline.Spline.GetLength();
-        float progressIncrement = (moveSpeed * Time.deltaTime) / splineLength;
+        
+        var moveSpeedToUse = moveSpeed * LevelManager.WorldSpeed;
+        moveSpeedRange.Clamp(moveSpeedToUse);
+        float progressIncrement = (moveSpeedToUse * Time.deltaTime) / splineLength;
         
         splineProgress += progressIncrement;
         
@@ -115,9 +128,11 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
         }
         
         spline.Evaluate(splineProgress, out var position, out var tangent, out var up);
-        
         transform.position = position;
-        transform.Rotate(rotationDirection, rotationSpeed * Time.deltaTime);
+        
+        var rotationSpeedToUse = rotationSpeed * LevelManager.WorldSpeed;
+        rotationSpeedRange.Clamp(rotationSpeedToUse);
+        transform.Rotate(rotationDirection, rotationSpeedToUse * Time.deltaTime);
     }
     
     protected virtual void OnSplineComplete()
@@ -129,8 +144,6 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
     protected virtual void DestroyObstacle()
     {
         if (spline) Destroy(spline.gameObject);
-        
-        OnObstacleDestroyed?.Invoke(this);
         Destroy(gameObject);
     }
     
@@ -145,7 +158,7 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
     protected abstract void OnCollisionWithPlayer(RailPlayer player);
     protected abstract void OnCollisionWithChicken(ChickenStateController chicken);
     protected abstract void OnCollisionWithPassthroughObstacle(PassthroughObstacle passthroughObstacle);
-    protected abstract void OnCollisionWithObstacle(Obstacle obstacle);
+    protected abstract void OnCollisionWithObstacle(NormalObstacle normalObstacle);
     public abstract void TakeDamage(float damage);
 
     public abstract void ApplyStun(float duration);

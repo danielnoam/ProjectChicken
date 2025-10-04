@@ -15,6 +15,9 @@ public class CameraManager : MonoBehaviour
     [Header("FOV Effects")]
     [Tooltip("Additional field of view added to the camera during dodge maneuvers")]
     [SerializeField] private float fovGainOnDodge = 10f;
+    [SerializeField] private float fovGainDurationForDodge = 1f;
+    [SerializeField] private float fovGainOnPassthrough = -15f;
+    [SerializeField] private float fovGainDurationForPassthrough = 0.5f;
     [Header("Offset Influence")]
     [Tooltip("Camera effects based on where the player is aiming")]
     [SerializeField] private CameraSettings reticleInfluenceSettings = new CameraSettings();
@@ -79,12 +82,17 @@ public class CameraManager : MonoBehaviour
     private void OnEnable()
     {
         if (levelManager)
+        {
             levelManager.OnStageChanged += OnStageChanged;
+            levelManager.ObstacleManager.OnPlayerEnteredPassThroughObstacle += OnPlayerEnteredPassThroughObstacle;
+            levelManager.ObstacleManager.OnPlayerPassedThroughObstacle += OnPlayerPassedThroughObstacle;
+        }
+
 
         if (player)
         {
-            player.Movement.OnDodge += Dodge;
-            player.Health.OnDeath += Death;
+            player.Movement.OnDodge += OnPlayerDodge;
+            player.Health.OnDeath += OnPlayerDeath;
             SetupCameraTargets();
         }
     }
@@ -92,16 +100,23 @@ public class CameraManager : MonoBehaviour
     private void OnDisable()
     {
         if (levelManager)
+        {
             levelManager.OnStageChanged -= OnStageChanged;
+            levelManager.ObstacleManager.OnPlayerEnteredPassThroughObstacle -= OnPlayerEnteredPassThroughObstacle;
+            levelManager.ObstacleManager.OnPlayerPassedThroughObstacle -= OnPlayerPassedThroughObstacle;
+        }
+           
         
         if (player)
         {
-            player.Movement.OnDodge -= Dodge;
-            player.Health.OnDeath -= Death;
+            player.Movement.OnDodge -= OnPlayerDodge;
+            player.Health.OnDeath -= OnPlayerDeath;
             ClearCameraTargets();
         }
     }
     
+
+
     private void Update()
     {
         UpdateDynamicCameraPosition();
@@ -182,6 +197,55 @@ public class CameraManager : MonoBehaviour
         }
     }
 
+    
+    private void PunchFOV(float duration, float fovGain)
+    {
+        if (_fovSequence.isAlive) _fovSequence.Stop();
+        
+        float upDuration = duration * 0.3f;
+        float downDuration = duration * 0.7f;
+        
+        _fovSequence = Sequence.Create()
+            .Group(Tween.Custom(
+                startValue: followCamera.Lens.FieldOfView, 
+                endValue: _defaultFov + fovGain, 
+                duration: upDuration, 
+                onValueChange: value => followCamera.Lens.FieldOfView = value, 
+                ease: Ease.InSine))
+            .Chain(Tween.Custom(
+                startValue: _defaultFov + fovGain, 
+                endValue: _defaultFov, 
+                duration: downDuration, 
+                onValueChange: value => followCamera.Lens.FieldOfView = value, 
+                ease: Ease.OutBack));
+    }
+    
+    private void AddToFOV(float duration, float fovGain)
+    {
+        if (_fovSequence.isAlive) _fovSequence.Stop();
+
+        _fovSequence = Sequence.Create()
+            .Group(Tween.Custom(
+                startValue: followCamera.Lens.FieldOfView,
+                endValue: _defaultFov + fovGain,
+                duration: duration,
+                onValueChange: value => followCamera.Lens.FieldOfView = value,
+                ease: Ease.InOutBack));
+    }
+    
+    private void ResetFOV(float duration)
+    {
+        if (_fovSequence.isAlive) _fovSequence.Stop();
+
+        _fovSequence = Sequence.Create()
+            .Group(Tween.Custom(
+                startValue: followCamera.Lens.FieldOfView,
+                endValue: _defaultFov,
+                duration: duration,
+                onValueChange: value => followCamera.Lens.FieldOfView = value,
+                ease: Ease.InOutBack));
+    }
+    
     #endregion
 
     #region Dynamic Camera Effects
@@ -332,10 +396,6 @@ public class CameraManager : MonoBehaviour
 
         switch (stage.StageType)
         {
-            case StageType.Delay:
-            case StageType.EnemyWave:
-                SetActiveCamera(followCamera);
-                break;
             case StageType.Store:
                 SetActiveCamera(storeCamera);
                 break;
@@ -345,43 +405,39 @@ public class CameraManager : MonoBehaviour
             case StageType.Outro:
                 SetActiveCamera(outroCamera);
                 break;
+            case StageType.Delay:
+            case StageType.EnemyWave:
+            case StageType.Task:
             default:
                 SetActiveCamera(followCamera);
                 break;
         }
     }
     
-    private void Dodge()
+    private void OnPlayerEnteredPassThroughObstacle(PassthroughObstacle passthroughObstacle)
     {
-        if (_fovSequence.isAlive) 
-            _fovSequence.Stop();
-
-        const float duration = 1f;
-        float upDuration = duration * 0.3f;
-        float downDuration = duration * 0.7f;
-        
-        _fovSequence = Sequence.Create()
-            .Group(Tween.Custom(
-                startValue: followCamera.Lens.FieldOfView, 
-                endValue: _defaultFov + fovGainOnDodge, 
-                duration: upDuration, 
-                onValueChange: value => followCamera.Lens.FieldOfView = value, 
-                ease: Ease.InSine))
-            .Chain(Tween.Custom(
-                startValue: _defaultFov + fovGainOnDodge, 
-                endValue: _defaultFov, 
-                duration: downDuration, 
-                onValueChange: value => followCamera.Lens.FieldOfView = value, 
-                ease: Ease.OutBack));
+        AddToFOV(fovGainDurationForPassthrough, fovGainOnPassthrough);
     }
     
-    private void Death()
+    private void OnPlayerPassedThroughObstacle(PassthroughObstacle passthroughObstacle)
+    {
+        ResetFOV(fovGainDurationForPassthrough);
+    }
+    
+    private void OnPlayerDodge()
+    {
+        PunchFOV(fovGainDurationForDodge, fovGainOnDodge);
+    }
+    
+
+    private void OnPlayerDeath()
     {
         SetActiveCamera(introCamera);
     }
 
     #endregion
 
+    
     #region Helper Methods
 
     private Vector2 GetNormalizedAimPosition()

@@ -6,6 +6,7 @@ using DNExtensions;
 using DNExtensions.VFXManager;
 using KBCore.Refs;
 using PrimeTween;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -32,16 +33,18 @@ public class LevelManager : MonoBehaviour
     [SerializeField, VInspector.ReadOnly] private SOLevelStage currentStage;
     [SerializeField, VInspector.ReadOnly] private int currentStageIndex;
     [SerializeField, VInspector.ReadOnly] private int enemiesLeft;
+    [SerializeField, VInspector.ReadOnly] private int obstaclesBroke;
+    [SerializeField, VInspector.ReadOnly] private int obstaclesPassedThrough;
     
     [Header("References")]
     [SerializeField] private SceneField mainMenuScene;
+    [SerializeField] private SceneField creditsScene;
     [SerializeField] private SOPlayerStats playerStats;
     [SerializeField, Scene(Flag.EditableAnywhere)] private OutroScreen outroScreen;
     [SerializeField, Scene(Flag.EditableAnywhere)] private UpgradeStore upgradeStore;
     [SerializeField, Scene(Flag.EditableAnywhere)] private ResourceManager resourceManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private ObstacleManager obstacleManager;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RadioManager radioManager;
-    [SerializeField, Scene(Flag.EditableAnywhere)] private TaskVisualizer taskVisualizer;
     [SerializeField, Scene(Flag.EditableAnywhere)] private PauseScreen pauseScreen;
     [SerializeField, Scene(Flag.EditableAnywhere)] private EnemySpawner enemySpawner;
     [SerializeField, Scene(Flag.EditableAnywhere)] private FormationBoundaryManager boundaryManager;
@@ -51,6 +54,7 @@ public class LevelManager : MonoBehaviour
 
 
     private bool _isGamePaused;
+    private float _worldSpeedBeforePause;
     private int _currentScore;
     private SOLevelStage[] _levelStages;
     private StageTask[] _currentStageTasks;
@@ -74,9 +78,10 @@ public class LevelManager : MonoBehaviour
     public ResourceManager ResourceManager => resourceManager;
     public ObstacleManager ObstacleManager => obstacleManager;
     public RadioManager RadioManager => radioManager;
-    public TaskVisualizer TaskVisualizer => taskVisualizer;
     public int CurrentScore => _currentScore;
     public int EnemiesLeft => enemiesLeft;
+    public int ObstaclesBroke => obstaclesBroke;
+    public int ObstaclesPassedThrough => obstaclesPassedThrough;
     public bool IsGamePaused => _isGamePaused;
     public SOLevelStage CurrentStage => currentStage;
 
@@ -135,12 +140,6 @@ public class LevelManager : MonoBehaviour
             obstacleManager = FindFirstObjectByType<ObstacleManager>();
         }
         
-        
-        if (!taskVisualizer)
-        {
-            taskVisualizer = FindFirstObjectByType<TaskVisualizer>();
-        }
-        
 
         this.ValidateRefs();
         
@@ -164,6 +163,12 @@ public class LevelManager : MonoBehaviour
     
     private void OnEnable()
     {
+        if (obstacleManager)
+        {
+            obstacleManager.OnObstacleBroke += OnObstacleBroke;
+            obstacleManager.OnPlayerPassedThroughObstacle += PlayerPassedThroughObstacle;
+        }
+        
         if (enemySpawner)
         {
             enemySpawner.OnEnemyWaveSpawned += OnEnemySpawned;
@@ -188,6 +193,13 @@ public class LevelManager : MonoBehaviour
 
     private void OnDisable()
     {
+        
+        if (obstacleManager)
+        {
+            obstacleManager.OnObstacleBroke -= OnObstacleBroke;
+            obstacleManager.OnPlayerPassedThroughObstacle -= PlayerPassedThroughObstacle;
+        }
+
         if (enemySpawner)
         {
             enemySpawner.OnEnemyWaveSpawned -= OnEnemySpawned;
@@ -208,6 +220,7 @@ public class LevelManager : MonoBehaviour
         
         input.OnPauseActionEvent -= OnPauseAction;
     }
+
 
 
     private void OnDestroy()
@@ -235,6 +248,8 @@ public class LevelManager : MonoBehaviour
     private void OnEnemiesCleared(int scoreWorth)
     {
         if (!currentStage || currentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
+
+        enemiesLeft = 0;
         
         AddScore(scoreWorth);
         
@@ -251,6 +266,19 @@ public class LevelManager : MonoBehaviour
         enemiesLeft = enemySpawner.ActiveEnemyCount;
         AddScore(enemy.ScoreWorth);
     }
+    
+    private void PlayerPassedThroughObstacle(PassthroughObstacle passthroughObstacle)
+    {
+        obstaclesPassedThrough += 1;
+        AddScore(passthroughObstacle.ScoreWorth);
+    }
+
+    private void OnObstacleBroke(NormalObstacle normalObstacle)
+    {
+        obstaclesBroke += 1;
+        AddScore(normalObstacle.ScoreWorth);
+    }
+
     
     private void UpgradeStoreClosed()
     {
@@ -293,7 +321,17 @@ public class LevelManager : MonoBehaviour
     public void SetPausedState(bool paused)
     {
         _isGamePaused = paused;
-        Time.timeScale = _isGamePaused ? 0 : 1;
+        if (_isGamePaused)
+        {
+            _worldSpeedBeforePause = WorldSpeed;
+            WorldSpeed = 0f;
+            Time.timeScale = 0;
+        }
+        else
+        {
+            WorldSpeed = _worldSpeedBeforePause;
+            Time.timeScale = 1;
+        }
         OnPause?.Invoke(_isGamePaused);
     }
 
@@ -390,14 +428,15 @@ public class LevelManager : MonoBehaviour
         
         CleanupCurrentTasks();
         CleanupCurrentEvents();
+        enemiesLeft = 0;
+        obstaclesBroke = 0;
+        obstaclesPassedThrough = 0;
         _settingStageFlag = false;
         currentStageIndex = newStageIndex;
         currentStage = newStage;
         
-        Tween.Custom(startValue: WorldSpeed, endValue: newStage.WorldSpeed, duration: 0.5f, onValueChange:(value) => WorldSpeed = value);
+        Tween.Custom(startValue: WorldSpeed, endValue: newStage.WorldSpeed, duration: 0.5f, ease: Ease.InOutSine, onValueChange:(value) => WorldSpeed = value);
         if (currentStage.IsCheckpoint) SaveLevelProgress();
-        
-
         
         OnStageChanged?.Invoke(currentStage);
         
@@ -408,9 +447,21 @@ public class LevelManager : MonoBehaviour
         {
             if (currentStage.StageType == StageType.Outro)
             {
-                if (!currentStage.ShowOutroMenu)
+                switch (currentStage.OutroMode)
                 {
-                    ReturnToMainMenu(newStage.StageDuration);
+                    case OutroMode.LoadMainMenu:
+                        GoToScene(mainMenuScene, newStage.StageDuration);
+                        break;
+                    case OutroMode.LoadCredits:
+                        GoToScene(creditsScene, newStage.StageDuration);
+                        break;
+                    case OutroMode.LoadNextLevel:
+                        LoadNextLevel();
+                        break;
+                    case OutroMode.ShowOutroMenu:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
             else
@@ -443,54 +494,61 @@ public class LevelManager : MonoBehaviour
     }
 
 
-
-    public void ReturnToMainMenu(float delay = 2)
-    {
-        SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, _currentScore);
-        SaveManager.ResetRunProgressData();
-        if (delay > 0)
-        {
-            StartCoroutine(DelayReturnToMainMenu(delay));
-        }
-        else
-        {
-            if (level.OutroVFXSequence)
-            {
-                FullScreenHitFXController.Instance?.TransitionTo(shipWarping);
-            }
-            TransitionManager.TransitionToScene(mainMenuScene, level.OutroVFXSequence);
-        }
-    }
-
-
     public void LoadNextLevel()
     {
-        if (!level || !currentStage || currentStage.NextLevel == null) return;
+        if (!currentStage || currentStage.NextLevel == null) return;
         
         var runProgress = new RunProgressData(player.Health.CurrentHealth, player.ResourceCollector.CurrentCurrency, player.Upgrades, player.WeaponSystem.ActiveWeaponInstance?.weaponData);
         SaveManager.UpdateRunProgress(runProgress);
-        TransitionManager.TransitionToScene(currentStage.NextLevel, level.OutroVFXSequence);
+
 
         if (level.OutroVFXSequence)
         {
             FullScreenHitFXController.Instance?.TransitionTo(shipWarping);
         }
+        TransitionManager.TransitionToScene(currentStage.NextLevel, level.OutroVFXSequence);
 
     }
     
-    private IEnumerator DelayReturnToMainMenu(float delay)
+    public void GoToMainMenu(float delay = 0)
+    {
+        GoToScene(mainMenuScene, delay);
+    }
+    
+    
+    private void GoToScene(SceneField scene, float delay)
+    {
+        if (delay > 0)
+        {
+            StartCoroutine(DelayReturnToMainMenuRoutine(scene, delay));
+        }
+        else
+        {
+            GoToScene(scene);
+        }
+    }
+    
+    private IEnumerator DelayReturnToMainMenuRoutine(SceneField scene, float delay)
     {
         yield return new WaitForSeconds(delay);
 
-        TransitionManager.TransitionToScene(mainMenuScene, level.OutroVFXSequence);
+
+        GoToScene(scene);
+    }
+    
+    private void GoToScene(SceneField scene)
+    {
+        SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, _currentScore);
+        SaveManager.ResetRunProgressData();
+        
+        
         if (level.OutroVFXSequence)
         {
             FullScreenHitFXController.Instance?.TransitionTo(shipWarping);
         }
+        TransitionManager.TransitionToScene(scene, level.OutroVFXSequence);
     }
     
-    
-
 
     #endregion
 
