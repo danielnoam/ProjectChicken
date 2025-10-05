@@ -591,7 +591,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 661425686345694587}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.102667555, y: 0.000000030343994, z: -0.0000000031318936, w: 0.99471575}
+  m_LocalRotation: {x: 0.10266754, y: 0, z: 0, w: 0.99471575}
   m_LocalPosition: {x: 0, y: 1.596, z: 1.831}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4249,7 +4249,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8052274586211711147}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.10266754, y: 0.000000030343994, z: -0.0000000031318925, w: 0.9947158}
+  m_LocalRotation: {x: 0.10266753, y: -0, z: -0, w: 0.99471575}
   m_LocalPosition: {x: 0, y: 1.596, z: 1.831}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4357,7 +4357,7 @@ MonoBehaviour:
   PivotOffset: {x: 0, y: 0, z: 0}
   AmplitudeGain: 0.5
   FrequencyGain: 0.3
-  m_NoiseOffsets: {x: 0, y: 0, z: 0}
+  m_NoiseOffsets: {x: 878.83777, y: -32.97339, z: 321.3725}
 --- !u!114 &4426349293721321574
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4381,7 +4381,7 @@ MonoBehaviour:
     AmplitudeGain: 1
     FrequencyGain: 1
     Duration: 1
-    m_NoiseOffsets: {x: 0, y: 0, z: 0}
+    m_NoiseOffsets: {x: -775.1643, y: -987.40845, z: -335.30368}
 --- !u!1 &8151336793429862531
 GameObject:
   m_ObjectHideFlags: 0
@@ -8194,9 +8194,8 @@ MonoBehaviour:
   animationDuration: 0.75
   leverPressedRotation: {x: -108.215, y: 0, z: 0}
   animationEase: 30
-  leverPullingSfx: {fileID: 0}
-  leverPressedSfx: {fileID: 0}
   cameraShakeSettings:
+    impulseType: 0
     impulseShape: 4
     intensity: 0.2
     duration: 3
@@ -8253,6 +8252,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   vfxSequenceOnLaunch: {fileID: 11400000, guid: 5a9d38360fa57774fb030d1bdfee0b4a, type: 2}
+  launchSfx: {fileID: 11400000, guid: 59aad1f8cdb6aa948aba1b5319c2ed07, type: 2}
   emissionColorOn: {r: 16, g: 0, b: 0, a: 1}
   emissionColorOff: {r: 0, g: 0, b: 0, a: 1}
   pulseSpeed: 2
@@ -9390,7 +9390,7 @@ PrefabInstance:
       objectReference: {fileID: 6697755078595451396}
     - target: {fileID: 4074885422681968368, guid: f52e4068d6a80294da5eb01539252432, type: 3}
       propertyPath: m_fontSize
-      value: 14
+      value: 13.3
       objectReference: {fileID: 0}
     - target: {fileID: 4552286029397023412, guid: f52e4068d6a80294da5eb01539252432, type: 3}
       propertyPath: m_Pivot.x

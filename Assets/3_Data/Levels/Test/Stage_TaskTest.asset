@@ -17,7 +17,7 @@ MonoBehaviour:
   worldSpeed: 1
   isCheckpoint: 1
   events:
-  - rid: 736433193358459081
+  - rid: 9145653177167118336
   stageType: 5
   stageDuration: 7
   delayBeforeNextStage: 2
@@ -75,22 +75,25 @@ MonoBehaviour:
       type: {class: BreakObstaclesTask, ns: , asm: Assembly-CSharp}
       data:
         description: 
-        isCompleted: 0
+        isCompleted: 1
         allowOnlyOne: 1
         targetAmount: 5
     - rid: 736433193358459014
       type: {class: PassThroughObstaclesTask, ns: , asm: Assembly-CSharp}
       data:
         description: 
-        isCompleted: 1
+        isCompleted: 0
         allowOnlyOne: 1
         targetAmount: 1
-    - rid: 736433193358459081
-      type: {class: SpawnPassthroughObstacleEvent, ns: , asm: Assembly-CSharp}
+    - rid: 9145653177167118336
+      type: {class: SpawnObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
         isActive: 1
         initialDelay: 1
-        maxActiveObstacles: 3
+        maxActiveObstacles: 10
+        obstacleCount:
+          minValue: 1
+          maxValue: 3
         spawnIntervalRange:
-          minValue: 5
-          maxValue: 5
+          minValue: 1
+          maxValue: 3

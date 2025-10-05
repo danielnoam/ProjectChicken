@@ -64,15 +64,15 @@ MonoBehaviour:
     - rid: 4047855709786210387
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
       data:
-        moveSpeed: 75
-        useSpeedStagger: 0
-        speedStaggerTime: 0.5
+        moveSpeed: 85
+        useSpeedStagger: 1
+        speedStaggerTime: 0.2
         staggerSpeedCurve:
           serializedVersion: 2
           m_Curve:
           - serializedVersion: 3
             time: 0
-            value: 1
+            value: 0
             inSlope: 0
             outSlope: 0
             tangentMode: 0
@@ -82,8 +82,8 @@ MonoBehaviour:
           - serializedVersion: 3
             time: 1
             value: 1
-            inSlope: 0
-            outSlope: 0
+            inSlope: 2
+            outSlope: 2
             tangentMode: 0
             weightedMode: 0
             inWeight: 0
@@ -258,4 +258,4 @@ MonoBehaviour:
           impulseType: 0
           impulseShape: 2
           intensity: 1
-          duration: 0.3
+          duration: 0.4

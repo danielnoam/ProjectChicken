@@ -13,14 +13,14 @@ public class MainMenuElementLaunchLever : MainMenuElement
     [SerializeField] private float animationDuration = 0.75f;
     [SerializeField] private Vector3 leverPressedRotation = new Vector3(55f, 0, 0);
     [SerializeField] private Ease animationEase = Ease.OutBounce;
-    [SerializeField] private SOAudioEvent leverPullingSfx;
-    [SerializeField] private SOAudioEvent leverPressedSfx;
+
 
     
     [Header("Effects On Launch")]
     [SerializeField] private CameraShakeSettings cameraShakeSettings;
     [SerializeField] private ControllerVibrationEffectSettings controllerVibrationSettings;
     [SerializeField] private SOVFEffectsSequence vfxSequenceOnLaunch;
+    [SerializeField] private SOAudioEvent launchSfx;
     
     
     [Header("Button Pulse Effect")]
@@ -125,39 +125,16 @@ public class MainMenuElementLaunchLever : MainMenuElement
         _leverPressSequence = Sequence.Create()
                 .ChainCallback(() =>
                 {
-                    if (cinemachineImpulseSource)
-                    {
-                        cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = cameraShakeSettings.impulseShape;
-                        cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = cameraShakeSettings.duration;
-                        cinemachineImpulseSource.DefaultVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
-                        cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
-                        cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
-                    }
-
-                    if (controllerVibrationSource)
-                    {
-                        controllerVibrationSource.Vibrate(controllerVibrationSettings);
-                    }
-                    
-                    if (VFXManager.Instance && vfxSequenceOnLaunch) VFXManager.Instance.PlayVFX(vfxSequenceOnLaunch);
-                    
+                    cameraShakeSettings.GenerateImpulse(cinemachineImpulseSource);
+                    controllerVibrationSource?.Vibrate(controllerVibrationSettings);
+                    VFXManager.Instance?.PlayVFX(vfxSequenceOnLaunch);
                     backgroundObjectsAnimator?.StartAnimation();
-                    
-                    leverPullingSfx?.Play(audioSource);
+                    launchSfx?.Play(audioSource);
                 })
-                .Group(Tween.LocalRotation(leverPivotTransform,startDelay: delayBeforeAnimation, startValue: _leverStartRot,endValue: leverPressedRotation, duration: animationDuration, ease: animationEase))
+                .Chain(Tween.LocalRotation(leverPivotTransform,startDelay: delayBeforeAnimation, startValue: _leverStartRot,endValue: leverPressedRotation, duration: animationDuration, ease: animationEase))
                 .ChainCallback(() =>
                 {
-                    leverPressedSfx?.Play(audioSource);
                     chickenBobbleHead?.AddExternalPunch();
-                    // if (cinemachineImpulseSource)
-                    // {
-                    //     cinemachineImpulseSource.ImpulseDefinition.ImpulseShape = cameraShakeSettings.impulseShape;
-                    //     cinemachineImpulseSource.ImpulseDefinition.ImpulseDuration = cameraShakeSettings.duration;
-                    //     cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
-                    //     cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
-                    //     cinemachineImpulseSource.GenerateImpulseWithForce(cameraShakeSettings.intensity);
-                    // }
                 })
                 .ChainDelay(delayBeforeLaunch)
                 .OnComplete(FinishedInteraction)
