@@ -282,10 +282,9 @@ public class UpgradeEgg : MonoBehaviour
     
     private Sequence AnimateIn(float startDelay)
     {
-        showUpgradeSfx?.Play(audioSource);
-
         var sequence = Sequence.Create()
                 .ChainDelay(startDelay)
+                .ChainCallback(() => { showUpgradeSfx?.Play(audioSource);})
                 .Chain(Tween.LocalPositionY(transform,yOffset,_transformStartPosition.y, animationDuration,animationEase))
                 .Group(Tween.Alpha(mainCanvasGroup, mainCanvasGroup.alpha,1, animationDuration, startDelay: animationDuration/3))
             ;
@@ -296,10 +295,9 @@ public class UpgradeEgg : MonoBehaviour
     
     private Sequence AnimateOut(float startDelay)
     {
-        hideUpgradeSfx?.Play(audioSource);
-        
         var sequence = Sequence.Create()
                 .ChainDelay(startDelay)
+                .ChainCallback(() => { hideUpgradeSfx?.Play(audioSource);})
                 .Group(Tween.Alpha(mainCanvasGroup, 0, animationDuration))
                 .Group(Tween.LocalPositionY(transform, yOffset, animationDuration));
         
