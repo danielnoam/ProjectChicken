@@ -37,6 +37,7 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
     private List<ChickenTargetAssignment> assignments = new List<ChickenTargetAssignment>();
     private float lastShotTime = 0f;
     private FormationCreator.FormationType detectedFormationType;
+    private float cachedModifiedSpeed = 0f; // Cache the modified speed for sequential shots
 
     // Helper class to store chicken-target assignments
     [System.Serializable]
@@ -105,6 +106,9 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
             return;
         }
 
+        // Calculate modified egg speed with multiplier and cache it
+        cachedModifiedSpeed = manager.EggSpeed * eggSpeedMultiplier;
+
         // Clear any existing warnings to prevent duplicates
         if (EggWarningSystem.Instance != null)
         {
@@ -122,7 +126,7 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
         // Debug: Log calculated assignments
         if (showDebugLogs)
         {
-            LogDebug($"{detectedFormationType} formation calculated {assignments.Count} chicken-target assignments:");
+            LogDebug($"{detectedFormationType} formation calculated {assignments.Count} chicken-target assignments (Speed: {cachedModifiedSpeed:F1}, Multiplier: {eggSpeedMultiplier:F2}x):");
             for (int i = 0; i < assignments.Count; i++)
             {
                 var assignment = assignments[i];
@@ -132,11 +136,11 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
 
         if (simultaneousShots)
         {
-            ExecuteSimultaneousShots(manager);
+            ExecuteSimultaneousShots();
         }
         else
         {
-            ExecuteSequentialShots(manager);
+            ExecuteSequentialShots();
         }
     }
 
@@ -585,13 +589,13 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
         return position;
     }
 
-    private void ExecuteSimultaneousShots(ChickenCombatManagerV4 manager)
+    private void ExecuteSimultaneousShots()
     {
         foreach (var assignment in assignments)
         {
             if (assignment.chicken != null && assignment.chicken.CanAttack())
             {
-                ShootChickenAtPosition(assignment.chicken, assignment.targetPosition, manager.EggSpeed);
+                ShootChickenAtPosition(assignment.chicken, assignment.targetPosition, cachedModifiedSpeed);
                 assignment.hasBeenShot = true;
             }
         }
@@ -599,7 +603,7 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
         LogDebug($"Executed simultaneous {detectedFormationType} formation with {assignments.Count} assignments");
     }
 
-    private void ExecuteSequentialShots(ChickenCombatManagerV4 manager)
+    private void ExecuteSequentialShots()
     {
         if (Time.time - lastShotTime < shotDelay)
             return;
@@ -619,7 +623,7 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
 
             if (assignment.chicken != null && assignment.chicken.CanAttack() && !assignment.hasBeenShot)
             {
-                ShootChickenAtPosition(assignment.chicken, assignment.targetPosition, manager.EggSpeed);
+                ShootChickenAtPosition(assignment.chicken, assignment.targetPosition, cachedModifiedSpeed);
                 assignment.hasBeenShot = true;
 
                 currentShotIndex++;

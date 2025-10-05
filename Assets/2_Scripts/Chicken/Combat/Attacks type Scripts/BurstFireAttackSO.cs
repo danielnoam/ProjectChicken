@@ -30,16 +30,19 @@ public class BurstFireAttackSO : BaseChickenAttackSO
 
         LogDebug("EXECUTING!");
 
+        // Calculate modified egg speed with multiplier
+        float modifiedSpeed = manager.EggSpeed * eggSpeedMultiplier;
+
         // Select chickens for burst attack
         List<ChickenCombatBehaviorV2> selectedChickens = SelectChickensForBurst(availableChickens);
 
         // Execute attacks
         foreach (ChickenCombatBehaviorV2 chicken in selectedChickens)
         {
-            ExecuteChickenAttack(chicken, manager);
+            ExecuteChickenAttack(chicken, modifiedSpeed);
         }
 
-        LogDebug($"Completed - {selectedChickens.Count} chickens fired");
+        LogDebug($"Completed - {selectedChickens.Count} chickens fired (Speed: {modifiedSpeed:F1}, Multiplier: {eggSpeedMultiplier:F2}x)");
         foreach (var chicken in selectedChickens)
         {
             LogDebug($"  Burst attacker: {chicken.gameObject.name}");
@@ -70,9 +73,9 @@ public class BurstFireAttackSO : BaseChickenAttackSO
         return selectedChickens;
     }
 
-    void ExecuteChickenAttack(ChickenCombatBehaviorV2 chicken, ChickenCombatManagerV4 manager)
+    void ExecuteChickenAttack(ChickenCombatBehaviorV2 chicken, float eggSpeed)
     {
         LogDebug($"Executing attack on {chicken.gameObject.name}");
-        chicken.ShootEgg(manager.EggSpeed, deactivateWarningCircle);
+        chicken.ShootEgg(eggSpeed, deactivateWarningCircle);
     }
 }
