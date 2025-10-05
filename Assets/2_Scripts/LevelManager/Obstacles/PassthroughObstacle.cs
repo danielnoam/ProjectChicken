@@ -80,24 +80,24 @@ public class PassthroughObstacle : BaseObstacle
         transform.Rotate(rotationDirection, rotationSpeed * Time.deltaTime);
     }
     
-    protected override void OnCollisionWithPlayer(RailPlayer player)
+    protected override void OnCollisionWithPlayer(Collider other, RailPlayer player)
     {
         player.Health.TakeDamage(100f, 5f);
         Vector3 moveDirection = (player.transform.position - CenterObjectTransform.position).normalized;
         player.Movement.Push(-moveDirection, 3f);
     }
     
-    protected override void OnCollisionWithChicken(ChickenStateController chicken)
+    protected override void OnCollisionWithChicken(Collider other, ChickenStateController chicken)
     {
         chicken.TakeDamage(100);
     }
 
-    protected override void OnCollisionWithPassthroughObstacle(PassthroughObstacle passthroughObstacle)
+    protected override void OnCollisionWithPassthroughObstacle(Collider other, PassthroughObstacle passthroughObstacle)
     {
 
     }
 
-    protected override void OnCollisionWithObstacle(NormalObstacle normalObstacle)
+    protected override void OnCollisionWithObstacle(Collider other, NormalObstacle normalObstacle)
     {
 
     }

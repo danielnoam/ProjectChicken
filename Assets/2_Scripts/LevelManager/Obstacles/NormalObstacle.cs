@@ -11,6 +11,11 @@ public class NormalObstacle : BaseObstacle
     [SerializeField, MinMaxRange(1, 1000)] private RangedFloat healthRange = new(50f, 150f);
     [SerializeField] private SOAudioEvent obstacleDestroyedSfx;
     [SerializeField] private ParticleSystem obstacleDestroyedParticleEffect;
+    [SerializeField] private ParticleSystem obstacleImpactParticleEffect;
+    
+    [Header("Collision With Player")]
+    [SerializeField] private CameraShakeSettings hitPlayerCameraShakeSettings;
+    [SerializeField] private ControllerVibrationEffectSettings hitPlayerVibrationEffectSettings;
     
     private float _health;
     
@@ -26,31 +31,40 @@ public class NormalObstacle : BaseObstacle
         
         base.Initialize(spline);
     }
-    
 
     
-    protected override void OnCollisionWithPlayer(RailPlayer player)
+
+    protected override void OnCollisionWithPlayer(Collider other, RailPlayer player)
     {
+        Vector3 contactPoint = other.ClosestPoint(transform.position);
+        PlayImpactEffect(contactPoint);
         TakeDamage(_health);
         player.Health.TakeDamage(50f);
         Vector3 moveDirection = (player.transform.position - transform.position).normalized;
         player.Movement.Push(moveDirection, 2f);
+        hitPlayerCameraShakeSettings.GenerateImpulse(impulseSource);
+        vibrationSource.Vibrate(hitPlayerVibrationEffectSettings);
     }
     
-    protected override void OnCollisionWithChicken(ChickenStateController chicken)
+    protected override void OnCollisionWithChicken(Collider other, ChickenStateController chicken)
     {
+        Vector3 contactPoint = other.ClosestPoint(transform.position);
+        PlayImpactEffect(contactPoint);
         TakeDamage(_health/2);
         chicken.TakeDamage(100);
     }
 
-    protected override void OnCollisionWithPassthroughObstacle(PassthroughObstacle passthroughObstacle)
+    protected override void OnCollisionWithPassthroughObstacle(Collider other, PassthroughObstacle passthroughObstacle)
     {
+        Vector3 contactPoint = other.ClosestPoint(transform.position);
+        PlayImpactEffect(contactPoint);
         TakeDamage(_health);
-
     }
 
-    protected override void OnCollisionWithObstacle(NormalObstacle normalObstacle)
+    protected override void OnCollisionWithObstacle(Collider other, NormalObstacle normalObstacle)
     {
+        Vector3 contactPoint = other.ClosestPoint(transform.position);
+        PlayImpactEffect(contactPoint);
         TakeDamage(_health);
     }
 
@@ -86,6 +100,11 @@ public class NormalObstacle : BaseObstacle
         obstacleDestroyedSfx?.PlayAtPoint(transform.position);
         
         base.DestroyObstacle();
+    }
+    
+    private void PlayImpactEffect(Vector3 position)
+    {
+        if (obstacleImpactParticleEffect) Instantiate(obstacleImpactParticleEffect, position, Quaternion.identity);
     }
 
 }

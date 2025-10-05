@@ -288,10 +288,21 @@ public class RailPlayerMovement : MonoBehaviour
         _targetOffsetFromSpline = Vector3.zero;
     }
     
-    public void Push(Vector2 direction, float force)
+    public void Push(Vector3 direction, float force)
     {
         if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
-        _targetOffsetFromSpline += new Vector3(direction.x, direction.y, 0).normalized * force;
+        
+        Vector2 flatDirection = new Vector2(direction.x, direction.y);
+        if (flatDirection.magnitude > 0)
+        {
+            flatDirection = flatDirection.normalized * direction.magnitude;
+        }
+        else if (direction.z != 0)
+        {
+            flatDirection = new Vector2(1, 1).normalized * Mathf.Abs(direction.z);
+        }
+    
+        _targetOffsetFromSpline += new Vector3(flatDirection.x, flatDirection.y, 0).normalized * force;
         _targetOffsetFromSpline.x = Mathf.Clamp(_targetOffsetFromSpline.x, -MovementBoundaryX, MovementBoundaryX);
         _targetOffsetFromSpline.y = Mathf.Clamp(_targetOffsetFromSpline.y, -MovementBoundaryY, MovementBoundaryY);
         _targetOffsetFromSpline.z = 0;

@@ -236,12 +236,21 @@ MonoBehaviour:
   flyByCameraShakeSettings:
     impulseType: 0
     impulseShape: 4
-    intensity: 1
+    intensity: 0.3
     duration: 0.5
+    xVelocityRange:
+      minValue: -1
+      maxValue: 1
+    yVelocityRange:
+      minValue: -1
+      maxValue: 1
+    zVelocityRange:
+      minValue: -1
+      maxValue: 1
   flyByVibrationEffectSettings:
     lowFrequency: 0.1
     highFrequency: 0.1
-    duration: 0.2
+    duration: 0.5
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:

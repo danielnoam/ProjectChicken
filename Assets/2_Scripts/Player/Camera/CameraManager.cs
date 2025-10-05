@@ -220,7 +220,7 @@ public class CameraManager : MonoBehaviour
                 ease: Ease.OutBack));
     }
     
-    private void AddToFOV(float duration, float fovGain)
+    private void AddToFOV(float duration, float fovGain, Ease ease = Ease.InOutBack)
     {
         if (_fovSequence.isAlive) _fovSequence.Stop();
 
@@ -230,10 +230,10 @@ public class CameraManager : MonoBehaviour
                 endValue: _defaultFov + fovGain,
                 duration: duration,
                 onValueChange: value => followCamera.Lens.FieldOfView = value,
-                ease: Ease.InOutBack));
+                ease));
     }
     
-    private void ResetFOV(float duration)
+    private void ResetFOV(float duration, Ease ease = Ease.InOutBack)
     {
         if (_fovSequence.isAlive) _fovSequence.Stop();
 
@@ -243,11 +243,12 @@ public class CameraManager : MonoBehaviour
                 endValue: _defaultFov,
                 duration: duration,
                 onValueChange: value => followCamera.Lens.FieldOfView = value,
-                ease: Ease.InOutBack));
+                ease));
     }
     
     #endregion
 
+    
     #region Dynamic Camera Effects
     
     private void UpdateDynamicCameraPosition()
@@ -416,12 +417,12 @@ public class CameraManager : MonoBehaviour
     
     private void OnPlayerEnteredPassThroughObstacle(PassthroughObstacle passthroughObstacle)
     {
-        AddToFOV(fovGainDurationForPassthrough, fovGainOnPassthrough);
+        AddToFOV(fovGainDurationForPassthrough, fovGainOnPassthrough, Ease.InBack);
     }
     
     private void OnPlayerPassedThroughObstacle(PassthroughObstacle passthroughObstacle)
     {
-        ResetFOV(fovGainDurationForPassthrough);
+        ResetFOV(fovGainDurationForPassthrough, Ease.OutSine);
     }
     
     private void OnPlayerDodge()
