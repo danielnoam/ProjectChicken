@@ -658,6 +658,7 @@ GameObject:
   - component: {fileID: 3585530205329594923}
   - component: {fileID: 1785148535720474815}
   - component: {fileID: 3884875090893653531}
+  - component: {fileID: 7135002747078336071}
   m_Layer: 2
   m_Name: Enemy Passage Building Checker
   m_TagString: Untagged
@@ -721,6 +722,33 @@ MonoBehaviour:
   isDisrupting: 0
   isInRecoveryDelay: 0
   recoveryTimeRemaining: 0
+--- !u!54 &7135002747078336071
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7182938860939899348}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1 &8548514679401556076
 GameObject:
   m_ObjectHideFlags: 0

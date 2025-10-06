@@ -50,7 +50,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 48.7, y: 22.6, z: 100.86}
   m_Center: {x: 0, y: 0, z: 0}
@@ -297,8 +297,8 @@ MonoBehaviour:
   flyByCameraShakeSettings:
     impulseType: 0
     impulseShape: 4
-    intensity: 0.3
-    duration: 0.5
+    intensity: 0.7
+    duration: 0.4
     xVelocityRange:
       minValue: -1
       maxValue: 1
@@ -363,6 +363,7 @@ MonoBehaviour:
   vibrationSource: {fileID: 9207879256362236330}
   impulseSource: {fileID: 1859351993184862914}
   audioSource: {fileID: 8330530183580687578}
+  passthroughCameraEffect: 0
   centerObject: {fileID: 2472337234000055556}
   passthroughTrigger: {fileID: 3073695652966342536}
 --- !u!65 &7555638686378275220

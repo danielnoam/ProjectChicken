@@ -417,11 +417,15 @@ public class CameraManager : MonoBehaviour
     
     private void OnPlayerEnteredPassThroughObstacle(PassthroughObstacle passthroughObstacle)
     {
+        if (!passthroughObstacle.PassthroughCameraEffect) return;
+        
         AddToFOV(fovGainDurationForPassthrough, fovGainOnPassthrough, Ease.InBack);
     }
     
     private void OnPlayerPassedThroughObstacle(PassthroughObstacle passthroughObstacle)
     {
+        if (!passthroughObstacle.PassthroughCameraEffect) return;
+        
         ResetFOV(fovGainDurationForPassthrough, Ease.OutSine);
     }
     

@@ -61,7 +61,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     ImpulseDuration: 0.2
-    ImpulseType: 0
+    ImpulseType: 1
     DissipationRate: 0.25
     RawSignal: {fileID: 0}
     AmplitudeGain: 1
@@ -278,9 +278,9 @@ MonoBehaviour:
   flyByDistance: 50
   flyBySfx: {fileID: 11400000, guid: cfdab1622082c3d4f8ae8003570503fa, type: 2}
   flyByCameraShakeSettings:
-    impulseType: 0
+    impulseType: 1
     impulseShape: 4
-    intensity: 4
+    intensity: 5
     duration: 0.7
     xVelocityRange:
       minValue: -1
@@ -355,8 +355,8 @@ MonoBehaviour:
   hitPlayerCameraShakeSettings:
     impulseType: 0
     impulseShape: 2
-    intensity: 0.4
-    duration: 1
+    intensity: 3
+    duration: 0.7
     xVelocityRange:
       minValue: -1
       maxValue: 1

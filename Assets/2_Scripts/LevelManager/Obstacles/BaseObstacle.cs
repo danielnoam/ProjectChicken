@@ -43,6 +43,7 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
     protected SplineContainer spline;
     protected float splineProgress;
     protected bool canCollide;
+    protected Sequence scaleSequence;
     
     public int ScoreWorth => scoreWorth;
     
@@ -52,6 +53,7 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
     private void OnDestroy()
     {
         if (spline) Destroy(spline.gameObject);
+        if (scaleSequence.isAlive) scaleSequence.Stop();
         OnObstacleDestroyed?.Invoke(this);
     }
 
@@ -85,8 +87,8 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
         initialized = true;
         canCollide = false;
         
-        
-        var scaleSequence = Sequence.Create();
+        if (scaleSequence.isAlive) scaleSequence.Stop();
+        scaleSequence = Sequence.Create();
         scaleSequence.Group(Tween.Scale(transform, startValue: Vector3.zero, endValue: Vector3.one, duration: spawnAnimationDuration.RandomValue, ease: Ease.InOutSine));
         scaleSequence.OnComplete(() => canCollide = true);
     }

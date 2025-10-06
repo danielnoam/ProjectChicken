@@ -3,10 +3,19 @@ using UnityEngine;
 
 public class PassthroughObstacle : BaseObstacle
 {
+    
+    [Header("Settings")]
+    [SerializeField] private bool passthroughCameraEffect;
+    
+    
     [Header("References")]
     [SerializeField] private GameObject centerObject;
     [SerializeField] private PassthroughTrigger passthroughTrigger;
+    
+    public bool PassthroughCameraEffect => passthroughCameraEffect;
     public Transform CenterObjectTransform => centerObject ? centerObject.transform : transform;
+    
+    
 
     public event Action<PassthroughObstacle> OnPlayerEnteredPassthrough;
     public event Action<PassthroughObstacle> OnPlayerPassedThrough;

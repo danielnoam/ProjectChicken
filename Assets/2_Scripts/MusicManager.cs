@@ -12,8 +12,8 @@ public class MusicManager : MonoBehaviour
     
     
     [Header("Settings")]
-    [SerializeField, Range(0,1)] private float playVolume = 0.5f;
-    [SerializeField, Range(0,1)] private float pausedVolume = 0.25f;
+    [SerializeField, Range(0,1)] private float playVolume = 0.3f;
+    [SerializeField, Range(0,1)] private float pausedVolume = 0.15f;
     [SerializeField] private float fadeDuration = 0.25f;
     [SerializeField] private AudioClip mainMenuTheme;
     [SerializeField] private AudioClip[] testThemes = Array.Empty<AudioClip>();
@@ -27,6 +27,7 @@ public class MusicManager : MonoBehaviour
     
     [Separator]
     [SerializeField, DNExtensions.ReadOnly] private AudioSource currentAudioSource;
+    [SerializeField, DNExtensions.ReadOnly] private AudioClip currentClip;
     [SerializeField, DNExtensions.ReadOnly] private LevelManager levelManager;
     private Sequence _audioSourceSequence;
 
@@ -127,6 +128,7 @@ public class MusicManager : MonoBehaviour
         var audioSourceToUse = currentAudioSource == audioSource ? audioSource2 : audioSource;
     
         audioSourceToUse.clip = clip;
+        currentClip = clip;
         audioSourceToUse.volume = 0;
         audioSourceToUse.Play();
         currentAudioSource = audioSourceToUse;
@@ -157,6 +159,7 @@ public class MusicManager : MonoBehaviour
                 currentAudioSource.Stop();
                 currentAudioSource.clip = null;
                 currentAudioSource = null;
+                currentClip = null;
             });
         }
     }
