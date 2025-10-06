@@ -3,6 +3,7 @@ using DNExtensions;
 using PrimeTween;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VInspector;
 
 public class MusicManager : MonoBehaviour
 {
@@ -11,7 +12,11 @@ public class MusicManager : MonoBehaviour
     
     
     [Header("Settings")]
+    [SerializeField, Range(0,1)] private float playVolume = 0.5f;
+    [SerializeField, Range(0,1)] private float pausedVolume = 0.25f;
     [SerializeField] private float fadeDuration = 0.25f;
+    [SerializeField] private AudioClip mainMenuTheme;
+    [SerializeField] private AudioClip[] testThemes = Array.Empty<AudioClip>();
     
     [Header("References")]
     [SerializeField] private SceneField mainMenuScene;
@@ -21,16 +26,17 @@ public class MusicManager : MonoBehaviour
     [SerializeField] private AudioSource audioSource2;
     
     [Separator]
-    [SerializeField, ReadOnly] private AudioSource currentAudioSource;
-    [SerializeField, ReadOnly] private LevelManager levelManager;
+    [SerializeField, DNExtensions.ReadOnly] private AudioSource currentAudioSource;
+    [SerializeField, DNExtensions.ReadOnly] private LevelManager levelManager;
     private Sequence _audioSourceSequence;
 
     private bool IsPlaying => currentAudioSource && currentAudioSource.isPlaying;
+    private bool IsPaused =>  LevelManager.Instance && LevelManager.Instance.IsGamePaused;
 
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance && Instance != this)
         {
             Destroy(this);
         }
@@ -58,6 +64,7 @@ public class MusicManager : MonoBehaviour
         if (levelManager)
         {
             levelManager.OnLevelSet -= OnLevelSet;
+            levelManager.OnPause -= OnPause;
         }
         
         SceneManager.sceneLoaded -= OnSceneLoaded;
@@ -76,8 +83,11 @@ public class MusicManager : MonoBehaviour
     
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        
-        if (IsSceneNotLevelScene(scene))
+        if (scene.name == mainMenuScene.SceneName)
+        {
+            PlayMusic(mainMenuTheme);
+        }
+        else if (IsSceneNotLevelScene(scene))
         {
             if (IsPlaying) StopMusic();
         }
@@ -90,48 +100,92 @@ public class MusicManager : MonoBehaviour
     private void OnLevelSet(SOLevel level)
     {
         if (!level) return;
-        
         PlayMusic(level.LevelTheme);
     }
     
     
+    private void OnPause(bool paused)
+    {
+        if (!IsPlaying) return;
 
+        if (_audioSourceSequence.isAlive) _audioSourceSequence.Stop();
+        _audioSourceSequence = Sequence.Create(useUnscaledTime: true);
+        _audioSourceSequence.Group(FadeAudioSource(currentAudioSource, paused ? pausedVolume : playVolume));
+    }
+    
+    
 
+    [Button]
     private void PlayMusic(AudioClip clip)
     {
         if (!clip) return;
-        
-        if (_audioSourceSequence.isAlive) _audioSourceSequence.Complete();
-        
-        _audioSourceSequence = Sequence.Create();
-        if (IsPlaying)
-        {
-            _audioSourceSequence.Group(FadeAudioSource(currentAudioSource, 0));
-        }
-        
+    
+        if (_audioSourceSequence.isAlive) _audioSourceSequence.Stop();
+        _audioSourceSequence = Sequence.Create(useUnscaledTime: true);
+    
+        var oldAudioSource = currentAudioSource;
         var audioSourceToUse = currentAudioSource == audioSource ? audioSource2 : audioSource;
+    
         audioSourceToUse.clip = clip;
+        audioSourceToUse.volume = 0;
+        audioSourceToUse.Play();
         currentAudioSource = audioSourceToUse;
-        _audioSourceSequence.Group(FadeAudioSource(audioSourceToUse, 1));
+    
+        _audioSourceSequence.Group(FadeAudioSource(audioSourceToUse,  IsPaused ? pausedVolume : playVolume));
+    
+        if (oldAudioSource && oldAudioSource.isPlaying)
+        {
+            _audioSourceSequence.Group(FadeAudioSource(oldAudioSource, 0));
+            _audioSourceSequence.ChainCallback(() => { 
+                oldAudioSource.Stop();
+                oldAudioSource.clip = null; 
+            });
+        }
     }
     
+    [Button]
     private void StopMusic()
     {
-        if (_audioSourceSequence.isAlive) _audioSourceSequence.Complete();
+        if (_audioSourceSequence.isAlive) _audioSourceSequence.Stop();
 
 
         if (IsPlaying)
         {
-            _audioSourceSequence = Sequence.Create();
+            _audioSourceSequence = Sequence.Create(useUnscaledTime: true);
             _audioSourceSequence.Group(FadeAudioSource(currentAudioSource, 0));
+            _audioSourceSequence.ChainCallback(() => {
+                currentAudioSource.Stop();
+                currentAudioSource.clip = null;
+                currentAudioSource = null;
+            });
         }
-
-        currentAudioSource = null;
+    }
+    
+    [Button]
+    private void PlayTestMusic()
+    {
+        if (testThemes.Length == 0) return;
+    
+        int nextIndex = 0;
+    
+        if (currentAudioSource && currentAudioSource.isPlaying)
+        {
+            for (int i = 0; i < testThemes.Length; i++)
+            {
+                if (currentAudioSource.clip == testThemes[i])
+                {
+                    nextIndex = (i + 1) % testThemes.Length;
+                    break;
+                }
+            }
+        }
+    
+        PlayMusic(testThemes[nextIndex]);
     }
     
     private Sequence FadeAudioSource(AudioSource audioSource, float targetVolume)
     {
-        return Sequence.Create(Tween.AudioVolume(audioSource,targetVolume, fadeDuration, useUnscaledTime: false));
+        return Sequence.Create(Tween.AudioVolume(audioSource,targetVolume, fadeDuration));
     }
 
     private void FindLevelManager()
@@ -140,9 +194,13 @@ public class MusicManager : MonoBehaviour
 
         if (levelManager)
         {
+            levelManager.OnLevelSet -= OnLevelSet;
+            levelManager.OnPause -= OnPause;
             levelManager.OnLevelSet += OnLevelSet;
+            levelManager.OnPause += OnPause;
         }
     }
+    
 
     private bool IsSceneNotLevelScene(Scene scene)
     {

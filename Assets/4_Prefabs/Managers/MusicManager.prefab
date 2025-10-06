@@ -46,7 +46,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 299429e0cf503604993f3ff77ce455e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playVolume: 0.3
+  pausedVolume: 0.15
   fadeDuration: 0.25
+  mainMenuTheme: {fileID: 0}
+  testThemes:
+  - {fileID: 8300000, guid: a6a8f534c880d97489808ddfa2da193b, type: 3}
+  - {fileID: 8300000, guid: dbd99b9f5819f2e479b0de994b6232ea, type: 3}
+  - {fileID: 8300000, guid: 8817a69700b91204bb6d72404df91a8d, type: 3}
+  - {fileID: 8300000, guid: 70738452a135f7b478dfcdee447ccd6f, type: 3}
+  - {fileID: 8300000, guid: 1b208e7a92ab15c41adea83fc8ce15b9, type: 3}
   mainMenuScene:
     sceneAsset: {fileID: 102900000, guid: 81ac6686a6faf384a8be7373c1b1ef15, type: 3}
     sceneName: MainMenu
@@ -75,8 +84,8 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 1016080305894773667, guid: 77db4088ae7ef521a93687acac7e30ed, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
+  m_PlayOnAwake: 0
+  m_Volume: 0
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -172,8 +181,8 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 1016080305894773667, guid: 77db4088ae7ef521a93687acac7e30ed, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
+  m_PlayOnAwake: 0
+  m_Volume: 0
   m_Pitch: 1
   Loop: 0
   Mute: 0
