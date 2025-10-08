@@ -45,7 +45,7 @@ public class PassthroughObstacle : BaseObstacle
 
     private void HandlePlayerEnteredTrigger()
     {
-        PlayFlyByEffects();
+        PlayFlyByEffects(CenterObjectTransform.position);
         OnPlayerEnteredPassthrough?.Invoke(this);
     }
     

@@ -284,7 +284,7 @@ MonoBehaviour:
   baseMoveSpeed: 100
   moveSpeedRange:
     minValue: 0
-    maxValue: 0
+    maxValue: 25
   baseRotationSpeed: 0
   rotationSpeedRange:
     minValue: 0
@@ -292,12 +292,12 @@ MonoBehaviour:
   spawnAnimationDuration:
     minValue: 8
     maxValue: 9
-  flyByDistance: 70
-  flyBySfx: {fileID: 0}
+  flyByDistance: 100
+  flyBySfx: {fileID: 11400000, guid: 7c3595104b607d04d806fb7e49f02ad0, type: 2}
   flyByCameraShakeSettings:
     impulseType: 0
     impulseShape: 4
-    intensity: 0.7
+    intensity: 0.1
     duration: 0.4
     xVelocityRange:
       minValue: -1
@@ -306,8 +306,8 @@ MonoBehaviour:
       minValue: -1
       maxValue: 1
     zVelocityRange:
-      minValue: -1
-      maxValue: 1
+      minValue: 0
+      maxValue: 0
   flyByVibrationEffectSettings:
     lowFrequency: 0.1
     highFrequency: 0.1

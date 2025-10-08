@@ -15,7 +15,7 @@ public class EggWarningCircle : MonoBehaviour, IPooledObject
     [SerializeField] private float fadeOutDuration = 0.5f;
 
     [Header("Lifetime Settings")]
-    [SerializeField] private float maxLifetime = 10f; // Maximum time before forced cleanup
+    [SerializeField] private float maxLifetime = 10f;
 
     [Header("Debug")]
     [SerializeField] private bool showDebugLogs = false;
@@ -34,6 +34,10 @@ public class EggWarningCircle : MonoBehaviour, IPooledObject
 
     // Lifetime variables
     private float lifetimeTimer = 0f;
+
+    // Pass-through detection
+    private Vector3 lastEggPosition;
+    private bool hasTrackedPosition = false;
 
     void Awake()
     {
@@ -70,21 +74,30 @@ public class EggWarningCircle : MonoBehaviour, IPooledObject
         originalSize = size;
         fadeDistance = fadeDistanceValue;
 
-        // Set position
-        transform.position = position;
-
-        // Set size
+        // IMPORTANT: Ensure pivot is centered for proper visual alignment
         if (rectTransform != null)
         {
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransform.sizeDelta = new Vector2(size, size);
         }
-        
+
+        // Set position AFTER setting pivot to ensure correct placement
+        transform.position = position;
+
+        // Store original color
+        if (circleImage != null)
+        {
+            originalColor = circleImage.color;
+        }
 
         // Reset state
         isFadingOut = false;
         fadeTimer = 0f;
         pulseTimer = 0f;
-        lifetimeTimer = 0f; // Reset lifetime timer
+        lifetimeTimer = 0f;
+        hasTrackedPosition = false;
         isInitialized = true;
 
         if (showDebugLogs)
@@ -102,13 +115,60 @@ public class EggWarningCircle : MonoBehaviour, IPooledObject
         if (distanceToTarget <= fadeDistance)
         {
             StartFadeOut();
+            return;
         }
 
-        // Check if egg has passed through the target (simple check)
-        // You might want to make this more sophisticated based on your needs
-        Vector3 eggToTarget = targetPosition - eggPosition;
-        if (eggToTarget.magnitude < 0.5f) // Very close to target
+        // Check if egg has passed the target
+        if (hasTrackedPosition)
         {
+            // Calculate vectors from last position and current position to target
+            Vector3 lastToTarget = targetPosition - lastEggPosition;
+            Vector3 currentToTarget = targetPosition - eggPosition;
+
+            // Calculate egg's movement direction
+            Vector3 eggMovement = eggPosition - lastEggPosition;
+
+            // If the egg has moved and is going away from target, it has passed
+            if (eggMovement.sqrMagnitude > 0.0001f)
+            {
+                // Dot product of movement and direction to target
+                // If negative, egg is moving away from target (has passed it)
+                float dotProduct = Vector3.Dot(eggMovement.normalized, currentToTarget.normalized);
+                
+                if (dotProduct < -0.1f) // Threshold to avoid false positives
+                {
+                    if (showDebugLogs)
+                        Debug.Log($"EggWarningCircle: Egg passed target! Dot: {dotProduct}");
+                    StartFadeOut();
+                    return;
+                }
+            }
+
+            // Alternative check: if egg crossed the target plane
+            // Check if the egg was on one side and now is on the other
+            if (lastToTarget.sqrMagnitude > 0.0001f && currentToTarget.sqrMagnitude > 0.0001f)
+            {
+                // If the direction to target flipped significantly, we passed it
+                float directionDot = Vector3.Dot(lastToTarget.normalized, currentToTarget.normalized);
+                if (directionDot < 0.5f && currentToTarget.sqrMagnitude > lastToTarget.sqrMagnitude)
+                {
+                    if (showDebugLogs)
+                        Debug.Log($"EggWarningCircle: Egg crossed target plane! Direction dot: {directionDot}");
+                    StartFadeOut();
+                    return;
+                }
+            }
+        }
+
+        // Update last position for next frame
+        lastEggPosition = eggPosition;
+        hasTrackedPosition = true;
+
+        // Fallback: Check if egg is very close to target
+        if (distanceToTarget < 0.5f)
+        {
+            if (showDebugLogs)
+                Debug.Log("EggWarningCircle: Egg very close to target");
             StartFadeOut();
         }
     }
@@ -128,7 +188,6 @@ public class EggWarningCircle : MonoBehaviour, IPooledObject
     {
         lifetimeTimer += Time.deltaTime;
 
-        // Start fade out when maximum lifetime is reached
         if (lifetimeTimer >= maxLifetime)
         {
             if (showDebugLogs)
@@ -143,7 +202,7 @@ public class EggWarningCircle : MonoBehaviour, IPooledObject
         if (isFadingOut) return;
 
         pulseTimer += Time.deltaTime * pulseSpeed;
-        float pulseValue = (Mathf.Sin(pulseTimer) + 1f) * 0.5f; // 0 to 1
+        float pulseValue = (Mathf.Sin(pulseTimer) + 1f) * 0.5f;
         float currentScale = Mathf.Lerp(pulseMinScale, pulseMaxScale, pulseValue);
 
         if (rectTransform != null)
@@ -180,25 +239,21 @@ public class EggWarningCircle : MonoBehaviour, IPooledObject
         }
     }
 
-    // Set custom fade distance for dynamic adjustment
     public void SetFadeDistance(float newFadeDistance)
     {
         fadeDistance = newFadeDistance;
     }
 
-    // Set custom lifetime for dynamic adjustment
     public void SetMaxLifetime(float newLifetime)
     {
         maxLifetime = newLifetime;
     }
 
-    // Get remaining lifetime
     public float GetRemainingLifetime()
     {
         return Mathf.Max(0f, maxLifetime - lifetimeTimer);
     }
 
-    // Force immediate cleanup
     public void ForceCleanup()
     {
         if (showDebugLogs)
@@ -221,7 +276,8 @@ public class EggWarningCircle : MonoBehaviour, IPooledObject
         isFadingOut = false;
         fadeTimer = 0f;
         pulseTimer = 0f;
-        lifetimeTimer = 0f; // Reset lifetime timer
+        lifetimeTimer = 0f;
+        hasTrackedPosition = false;
 
         // Reset visual state
         if (circleImage != null)
@@ -244,9 +300,9 @@ public class EggWarningCircle : MonoBehaviour, IPooledObject
         // Clean up when returned to pool
         isInitialized = false;
         isFadingOut = false;
-        lifetimeTimer = 0f; // Reset lifetime timer
+        lifetimeTimer = 0f;
 
-        // Reset transform parent (will be set again when used)
+        // Reset transform parent
         transform.SetParent(null);
     }
 

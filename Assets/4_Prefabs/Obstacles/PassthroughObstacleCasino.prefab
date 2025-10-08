@@ -52,7 +52,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 32.2, y: 22.6, z: 182.12}
+  m_Size: {x: 32.2, y: 22.6, z: 214.8}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5491962310705527499
 MonoBehaviour:
@@ -232,12 +232,12 @@ MonoBehaviour:
     minValue: 7
     maxValue: 9
   flyByDistance: 100
-  flyBySfx: {fileID: 0}
+  flyBySfx: {fileID: 11400000, guid: 7c3595104b607d04d806fb7e49f02ad0, type: 2}
   flyByCameraShakeSettings:
     impulseType: 0
     impulseShape: 4
-    intensity: 1.5
-    duration: 1
+    intensity: 0.1
+    duration: 0.7
     xVelocityRange:
       minValue: -1
       maxValue: 1
@@ -245,8 +245,8 @@ MonoBehaviour:
       minValue: -1
       maxValue: 1
     zVelocityRange:
-      minValue: -1
-      maxValue: 1
+      minValue: 0
+      maxValue: 0
   flyByVibrationEffectSettings:
     lowFrequency: 0.2
     highFrequency: 0.2
