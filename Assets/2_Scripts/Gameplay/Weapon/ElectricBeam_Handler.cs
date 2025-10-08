@@ -6,28 +6,26 @@ public class ElectricBeam_Handler : MonoBehaviour
 {
     public bool testBeam = false;
     [SerializeField] VisualEffect VFXGraph;
-    [SerializeField] ParticleSystem Particles_1;
-    [SerializeField] ParticleSystem Particles_2;
+    [SerializeField] ParticleSystem particles_1;
+    [SerializeField] ParticleSystem particles_2;
 
-   
+   [SerializeField] float preWarm = 0.1f;
     private void OnValidate()
     {
         if (testBeam)
         {
+            particles_1.Simulate(preWarm, true, true, true);
+            particles_2.Simulate(preWarm, true, true, true);
+            
             VFXGraph.Play();
-            Particles_1.Play();
-            Particles_2.Play();
-
-            Particles_1.loop = true;
-            Particles_2.loop = true;
+            particles_1.Play();
+            particles_2.Play();
         }
         else
         {
             VFXGraph.Stop();
-            Particles_1.Stop();
-            Particles_2.Stop();
-            Particles_1.loop = false;
-            Particles_2.loop = false;
+            particles_1.Stop();
+            particles_2.Stop();
         }
     }
 }
