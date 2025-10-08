@@ -1,6 +1,7 @@
 using System;
 using DNExtensions;
 using PrimeTween;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VInspector;
@@ -24,6 +25,7 @@ public class MusicManager : MonoBehaviour
     [SerializeField] private SceneField creditsScene;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioSource audioSource2;
+    [SerializeField] private TextMeshProUGUI musicText;
     
     [Separator]
     [SerializeField, DNExtensions.ReadOnly] private AudioSource currentAudioSource;
@@ -129,6 +131,7 @@ public class MusicManager : MonoBehaviour
     
         audioSourceToUse.clip = clip;
         currentClip = clip;
+        if (musicText) musicText.text = clip.name;
         audioSourceToUse.volume = 0;
         audioSourceToUse.Play();
         currentAudioSource = audioSourceToUse;
@@ -158,6 +161,7 @@ public class MusicManager : MonoBehaviour
             _audioSourceSequence.ChainCallback(() => {
                 currentAudioSource.Stop();
                 currentAudioSource.clip = null;
+                if (musicText) musicText.text = "";
                 currentAudioSource = null;
                 currentClip = null;
             });

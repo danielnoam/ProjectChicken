@@ -20,7 +20,7 @@ public class CinematicManager : MonoBehaviour
     [SerializeField] protected SOVFEffectsSequence endSequence;
     [SerializeField] protected SOVFEffectsSequence targetSceneStartSequence;
     
-    private void Start()
+    protected virtual void Start()
     {
 
         StartCinematic();
@@ -52,8 +52,13 @@ public class CinematicManager : MonoBehaviour
         }
     }
     
+    
+    protected virtual void OnCinematicComplete()
+    {
+        LoadTargetScene();
+    }
 
-    private void OnTimelineStopped(PlayableDirector director)
+    protected virtual void OnTimelineStopped(PlayableDirector director)
     {
         OnCinematicComplete();
     }
@@ -71,45 +76,51 @@ public class CinematicManager : MonoBehaviour
        
     }
     
-    private void OnCinematicComplete()
-    {
-        LoadTargetScene();
-    }
+
     
-    private void LoadTargetScene()
+    protected void LoadTargetScene(bool fullTransition = true)
     {
         if (targetScene == null) return;
-        TransitionManager.TransitionToScene(targetScene, endSequence, targetSceneStartSequence);
+
+        if (fullTransition)
+        {
+            TransitionManager.TransitionToScene(targetScene, endSequence, targetSceneStartSequence);
+        }
+        else
+        {
+            TransitionManager.TransitionToScene(targetScene, null, targetSceneStartSequence);
+        }
+
     }
     
 
     [Button]
-    private void StartCinematic()
+    protected void StartCinematic()
     {
+        if (IsThereCinematic()) VFXManager.Instance?.PlayVFX(awakeSequence);
+        
         if (hideCursor)
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = true;
         }
-
-        if (IsThereCinematic()) VFXManager.Instance?.PlayVFX(awakeSequence);
         
         playableDirector?.Play();
     }
 
     [Button]
-    private void StopCinematic()
+    protected void StopCinematic()
     {
         playableDirector?.Stop();
     }
     
     
-    private bool IsCinematicPlaying()
+    protected bool IsCinematicPlaying()
     {
         return playableDirector && playableDirector.state == PlayState.Playing;
     }
 
-    private bool IsThereCinematic()
+    protected bool IsThereCinematic()
     {
         return playableDirector && playableDirector.playableAsset;
     }
