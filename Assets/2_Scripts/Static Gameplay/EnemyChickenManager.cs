@@ -20,7 +20,7 @@ public class EnemyChickenManager : MonoBehaviour
     [Header("Formation Change Detection")]
     public bool autoReassignOnFormationChange = true;
     public float formationCheckInterval = 0.1f;
-    public float majorPositionChangeThreshold = 3f; // Distance threshold to detect formation repositioning
+    public float majorPositionChangeThreshold = 3f;
     
     [Header("Chicken State Synchronization")]
     public bool autoRefreshChickenStates = true;
@@ -41,6 +41,9 @@ public class EnemyChickenManager : MonoBehaviour
     private float formationCheckTimer = 0f;
     private float stateRefreshTimer = 0f;
     private bool hasInitializedFormation = false;
+    
+    // Freeze system to prevent slot assignments during disruption
+    private bool isSlotAssignmentFrozen = false;
 
 
     private void OnValidate()
@@ -95,6 +98,7 @@ public class EnemyChickenManager : MonoBehaviour
     void OnRestartedFromSavePoint(SavePointData savePointData)
     {
         SetAutoUpdatesEnabled(true);
+        UnfreezeSlotAssignments(); // Ensure slots are unfrozen after restart
     }
     
     void OnPlayerDeath()
@@ -118,9 +122,6 @@ public class EnemyChickenManager : MonoBehaviour
             {
                 chicken.ForceCompleteUnregister();
                 cleanedCount++;
-            
-                // DON'T return to pool here - let EnemySpawner handle it
-                // The EnemySpawner.ClearEnemies() will handle returning objects to pool
             }
         }
 
@@ -165,38 +166,14 @@ public class EnemyChickenManager : MonoBehaviour
         bool slotCountChanged = currentSlotCount != previousSlotCount;
         bool majorPositionChange = false;
         
-        // Check for major position changes (formation repositioning)
         if (hasInitializedFormation)
         {
             float centerDistance = Vector3.Distance(currentFormationCenter, previousFormationCenter);
             majorPositionChange = centerDistance > majorPositionChangeThreshold;
-            
-            if (majorPositionChange)
-            {
-                // Debug.Log($"EnemyChickenManager: Major formation position change detected. Distance: {centerDistance:F2} (threshold: {majorPositionChangeThreshold:F2})");
-            }
         }
         
         if (isInitialSetup || formationTypeChanged || slotCountChanged || majorPositionChange)
         {
-            if (isInitialSetup)
-            {
-                // Debug.Log($"EnemyChickenManager: Initial formation setup detected - {currentFormationType} with {currentSlotCount} slots. Assigning all chickens...");
-            }
-            else if (formationTypeChanged)
-            {
-                // Debug.Log($"EnemyChickenManager: Formation type changed from {previousFormationType} to {currentFormationType}. Reassigning all chickens...");
-            }
-            else if (slotCountChanged)
-            {
-                // Debug.Log($"EnemyChickenManager: Formation slot count changed from {previousSlotCount} to {currentSlotCount}. Reassigning all chickens...");
-            }
-            else if (majorPositionChange)
-            {
-                // Debug.Log($"EnemyChickenManager: Formation repositioned significantly. Reassigning all chickens...");
-            }
-            
-            // For major changes, force chickens back to MovingToSlot state
             if (formationTypeChanged || majorPositionChange)
             {
                 ForceAllChickensToMovingToSlot();
@@ -216,7 +193,6 @@ public class EnemyChickenManager : MonoBehaviour
         }
         else
         {
-            // Update center position for minor changes (like formation resizing)
             previousFormationCenter = currentFormationCenter;
         }
     }
@@ -236,7 +212,7 @@ public class EnemyChickenManager : MonoBehaviour
         }
     }
 
-    void ForceUpdateAllChickenStates()
+    public void ForceUpdateAllChickenStates()
     {
         foreach (GameObject chicken in allRegisteredChickens)
         {
@@ -290,7 +266,6 @@ public class EnemyChickenManager : MonoBehaviour
                     stateController.SetMovingToSlot();
                     forcedCount++;
                     
-                    // Also refresh movement behavior to start proper movement
                     ChickenMovementBehavior movement = chicken.GetComponent<ChickenMovementBehavior>();
                     if (movement != null)
                     {
@@ -306,31 +281,28 @@ public class EnemyChickenManager : MonoBehaviour
         }
     }
 
-    // Forces complete reset of the manager during cleanup operations
-    // Clears all assignments and tracking without state management
     public void ForceCompleteReset()
     {
         Debug.Log("EnemyChickenManager: Force complete reset initiated");
 
-        // Clear all assignments and tracking
         slotAssignments.Clear();
         waitingChickens.Clear();
         allRegisteredChickens.Clear();
         
-        // Reset formation tracking
         previousSlotCount = -1;
-        previousFormationType = FormationCreator.FormationType.Square; // Assuming Line is default
+        previousFormationType = FormationCreator.FormationType.Square;
         previousFormationCenter = Vector3.zero;
         hasInitializedFormation = false;
         
-        // Reset timers
         formationCheckTimer = 0f;
         stateRefreshTimer = 0f;
+        
+        // Reset freeze state
+        isSlotAssignmentFrozen = false;
         
         Debug.Log("EnemyChickenManager: Complete reset finished");
     }
 
-    // Temporarily disables auto-updates during sensitive operations
     public void SetAutoUpdatesEnabled(bool enabled)
     {
         autoReassignOnFormationChange = enabled;
@@ -338,12 +310,37 @@ public class EnemyChickenManager : MonoBehaviour
         
         if (!enabled)
         {
-            Debug.Log("EnemyChickenManager: Auto-updates disabled for cleanup");
+            // Debug.Log("EnemyChickenManager: Auto-updates disabled for cleanup");
         }
         else
         {
-            Debug.Log("EnemyChickenManager: Auto-updates re-enabled");
+            // Debug.Log("EnemyChickenManager: Auto-updates re-enabled");
         }
+    }
+
+    // Freeze slot assignments - prevents ANY chickens from being assigned to slots
+    public void FreezeSlotAssignments()
+    {
+        if (isSlotAssignmentFrozen)
+            return;
+            
+        isSlotAssignmentFrozen = true;
+        // Debug.Log("EnemyChickenManager: Slot assignments FROZEN - no chickens can be assigned to formation slots");
+    }
+
+    // Unfreeze slot assignments - allows normal operation and reassigns all chickens
+    public void UnfreezeSlotAssignments()
+    {
+        if (!isSlotAssignmentFrozen)
+            return;
+            
+        isSlotAssignmentFrozen = false;
+        // Debug.Log("EnemyChickenManager: Slot assignments UNFROZEN - normal operation resumed");
+        
+        // Force complete reassignment to fill any empty slots created during freeze
+        // (e.g., if chickens died while frozen)
+        ReassignAllChickens();
+        Debug.Log($"EnemyChickenManager: Force reassigned all chickens after unfreeze. {slotAssignments.Count} assigned, {waitingChickens.Count} waiting");
     }
 
     public bool RegisterChicken(GameObject chicken)
@@ -354,6 +351,15 @@ public class EnemyChickenManager : MonoBehaviour
         }
 
         allRegisteredChickens.Add(chicken);
+        
+        // Check if slot assignments are frozen
+        if (isSlotAssignmentFrozen)
+        {
+            // If frozen, add to waiting list without attempting assignment
+            waitingChickens.Add(chicken);
+            Debug.Log($"EnemyChickenManager: Chicken '{chicken.name}' registered but added to waiting list (slots frozen)");
+            return true;
+        }
         
         bool assigned = AssignChickenToSlot(chicken);
         
@@ -397,7 +403,12 @@ public class EnemyChickenManager : MonoBehaviour
         if (assignedSlot != -1)
         {
             slotAssignments.Remove(assignedSlot);
-            AssignWaitingChickenToSlot(assignedSlot);
+            
+            // Only try to assign waiting chicken if not frozen
+            if (!isSlotAssignmentFrozen)
+            {
+                AssignWaitingChickenToSlot(assignedSlot);
+            }
         }
 
         return true;
@@ -405,6 +416,10 @@ public class EnemyChickenManager : MonoBehaviour
 
     bool AssignChickenToSlot(GameObject chicken)
     {
+        // Don't assign if frozen
+        if (isSlotAssignmentFrozen)
+            return false;
+            
         if (formationCreator == null)
             return false;
 
@@ -424,6 +439,10 @@ public class EnemyChickenManager : MonoBehaviour
 
     void AssignWaitingChickenToSlot(int slotIndex)
     {
+        // Don't assign if frozen
+        if (isSlotAssignmentFrozen)
+            return;
+            
         if (waitingChickens.Count == 0)
             return;
 
@@ -471,6 +490,13 @@ public class EnemyChickenManager : MonoBehaviour
 
     public void ReassignAllChickens()
     {
+        // Don't reassign if frozen
+        if (isSlotAssignmentFrozen)
+        {
+            Debug.Log("EnemyChickenManager: Cannot reassign chickens - slot assignments are frozen");
+            return;
+        }
+            
         slotAssignments.Clear();
         waitingChickens.Clear();
 
@@ -483,8 +509,6 @@ public class EnemyChickenManager : MonoBehaviour
                 waitingChickens.RemoveAt(i);
             }
         }
-        
-        // Debug.Log($"EnemyChickenManager: Reassignment complete. {slotAssignments.Count} assigned, {waitingChickens.Count} waiting.");
     }
 
     public void ValidateAndFixChickenStates()
@@ -507,7 +531,6 @@ public class EnemyChickenManager : MonoBehaviour
             bool chickenThinksItHasSlot = registration.IsAssignedToSlot();
             var currentState = stateController.CurrentState;
             
-            // Check for desynchronization
             if (hasSlot != chickenThinksItHasSlot)
             {
                 Debug.LogWarning($"Fixing desynchronized chicken {chicken.name}: Manager says hasSlot={hasSlot}, Chicken says hasSlot={chickenThinksItHasSlot}");
@@ -516,7 +539,6 @@ public class EnemyChickenManager : MonoBehaviour
                     movement.RefreshMovementState();
                 fixedCount++;
             }
-            // Check if chicken has slot but is idle
             else if (hasSlot && currentState == ChickenStateController.ChickenState.Idle)
             {
                 Debug.LogWarning($"Fixing stuck chicken {chicken.name}: Has slot but is idle");
@@ -525,7 +547,6 @@ public class EnemyChickenManager : MonoBehaviour
                     movement.RefreshMovementState();
                 fixedCount++;
             }
-            // Check if chicken doesn't have slot but isn't idle (unless concussed)
             else if (!hasSlot && currentState != ChickenStateController.ChickenState.Idle && currentState != ChickenStateController.ChickenState.Concussed)
             {
                 Debug.LogWarning($"Fixing stuck chicken {chicken.name}: No slot but not idle (state: {currentState})");
@@ -534,7 +555,6 @@ public class EnemyChickenManager : MonoBehaviour
                     movement.RefreshMovementState();
                 fixedCount++;
             }
-            // Check if chicken should be moving but movement behavior says it's not
             else if (hasSlot && currentState == ChickenStateController.ChickenState.MovingToSlot)
             {
                 if (movement != null && !movement.IsCurrentlyMoving)
@@ -558,12 +578,8 @@ public class EnemyChickenManager : MonoBehaviour
         Debug.Log("=== CHICKEN MANAGER STATUS ===");
         Debug.Log($"Formation: {(formationCreator != null ? formationCreator.currentFormation.ToString() : "None")}");
         Debug.Log($"Total Slots: {(formationCreator != null ? formationCreator.GetFormationSlots().Count : 0)}");
-        Debug.Log($"Formation Center: {GetFormationCenter()}");
-        Debug.Log($"Major Position Threshold: {majorPositionChangeThreshold:F2}");
+        Debug.Log($"Slot Assignments FROZEN: {isSlotAssignmentFrozen}");
         Debug.Log($"Chickens: {allRegisteredChickens.Count} registered | {slotAssignments.Count} assigned | {waitingChickens.Count} waiting");
-        Debug.Log($"Auto-reassign: {(autoReassignOnFormationChange ? "Enabled" : "Disabled")}");
-        Debug.Log($"Auto-refresh: {(autoRefreshChickenStates ? "Enabled" : "Disabled")}");
-        Debug.Log($"Formation Initialized: {hasInitializedFormation}");
         Debug.Log("");
         
         if (slotAssignments.Count > 0)
@@ -573,7 +589,6 @@ public class EnemyChickenManager : MonoBehaviour
             {
                 string chickenName = kvp.Value != null ? kvp.Value.name : "NULL";
                 string state = "Unknown";
-                bool isMoving = false;
                 
                 if (kvp.Value != null)
                 {
@@ -582,34 +597,10 @@ public class EnemyChickenManager : MonoBehaviour
                     {
                         state = stateController.CurrentState.ToString();
                     }
-                    
-                    var movement = kvp.Value.GetComponent<ChickenMovementBehavior>();
-                    if (movement != null)
-                    {
-                        // Check different types of movement
-                        if (stateController != null && stateController.IsFollowingSlot)
-                        {
-                            if (movement.IsActivelyFollowing)
-                            {
-                                isMoving = true;
-                                state += " [FOLLOWING]"; // Actively moving to catch up
-                            }
-                            else
-                            {
-                                isMoving = false;
-                                state += " [TRACKING]"; // At perfect position, not moving
-                            }
-                        }
-                        else
-                        {
-                            isMoving = movement.IsCurrentlyMoving;
-                        }
-                    }
                 }
                 
-                Debug.Log($"  Slot {kvp.Key}: {chickenName} ({state}) {(isMoving ? "[MOVING]" : "[STATIC]")}");
+                Debug.Log($"  Slot {kvp.Key}: {chickenName} ({state})");
             }
-            Debug.Log("");
         }
         
         if (waitingChickens.Count > 0)
@@ -618,53 +609,19 @@ public class EnemyChickenManager : MonoBehaviour
             for (int i = 0; i < waitingChickens.Count; i++)
             {
                 string chickenName = waitingChickens[i] != null ? waitingChickens[i].name : "NULL";
-                string state = "Unknown";
-                bool isMoving = false;
-                
-                if (waitingChickens[i] != null)
-                {
-                    var stateController = waitingChickens[i].GetComponent<ChickenStateController>();
-                    if (stateController != null)
-                    {
-                        state = stateController.CurrentState.ToString();
-                    }
-                    
-                    var movement = waitingChickens[i].GetComponent<ChickenMovementBehavior>();
-                    if (movement != null)
-                    {
-                        // Check different types of movement
-                        if (stateController != null && stateController.IsFollowingSlot)
-                        {
-                            if (movement.IsActivelyFollowing)
-                            {
-                                isMoving = true;
-                                state += " [FOLLOWING]"; // Actively moving to catch up
-                            }
-                            else
-                            {
-                                isMoving = false;
-                                state += " [TRACKING]"; // At perfect position, not moving
-                            }
-                        }
-                        else
-                        {
-                            isMoving = movement.IsCurrentlyMoving;
-                        }
-                    }
-                }
-                
-                Debug.Log($"  {i + 1}: {chickenName} ({state}) {(isMoving ? "[MOVING]" : "[STATIC]")}");
+                Debug.Log($"  {i + 1}: {chickenName}");
             }
-        }
-        
-        if (slotAssignments.Count == 0 && waitingChickens.Count == 0)
-        {
-            Debug.Log("No chickens registered.");
         }
     }
 
     public void ScrambleAssignedChickens()
     {
+        if (isSlotAssignmentFrozen)
+        {
+            Debug.Log("EnemyChickenManager: Cannot scramble - slot assignments are frozen");
+            return;
+        }
+            
         if (slotAssignments.Count == 0)
         {
             Debug.Log("EnemyChickenManager: No assigned chickens to scramble.");
@@ -684,9 +641,6 @@ public class EnemyChickenManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"EnemyChickenManager: Scrambling {slotAssignments.Count} assigned chickens among {formationSlots.Count} formation slots...");
-
-        // Get all currently assigned chickens
         List<GameObject> assignedChickens = new List<GameObject>();
         foreach (var kvp in slotAssignments)
         {
@@ -696,20 +650,16 @@ public class EnemyChickenManager : MonoBehaviour
             }
         }
 
-        // Clear current slot assignments (but keep waiting chickens as they are)
         slotAssignments.Clear();
 
-        // Get available slot indices that can fit the assigned chickens
         List<int> availableSlotIndices = new List<int>();
         for (int i = 0; i < formationSlots.Count && availableSlotIndices.Count < assignedChickens.Count; i++)
         {
             availableSlotIndices.Add(i);
         }
 
-        // Shuffle the available slot indices
         ShuffleList(availableSlotIndices);
 
-        // Reassign the chickens to random slots
         for (int i = 0; i < assignedChickens.Count; i++)
         {
             if (i < availableSlotIndices.Count)
@@ -719,14 +669,10 @@ public class EnemyChickenManager : MonoBehaviour
             }
             else
             {
-                // If somehow we don't have enough slots, add to waiting list
-                // (This shouldn't happen since we were already assigned before)
                 waitingChickens.Add(assignedChickens[i]);
-                Debug.LogWarning($"EnemyChickenManager: Chicken {assignedChickens[i].name} moved to waiting list due to insufficient slots during scramble.");
             }
         }
 
-        // Force state updates for the scrambled chickens
         if (forceStateUpdateOnReassign)
         {
             ForceUpdateAssignedChickenStates();
@@ -735,8 +681,6 @@ public class EnemyChickenManager : MonoBehaviour
         {
             RefreshAssignedChickenStates();
         }
-
-        Debug.Log($"EnemyChickenManager: Assigned chickens scramble complete! {slotAssignments.Count} chickens reassigned to new formation positions. {waitingChickens.Count} chickens remain idle.");
     }
 
     void ForceUpdateAssignedChickenStates()
@@ -777,7 +721,6 @@ public class EnemyChickenManager : MonoBehaviour
         }
     }
 
-    // Fisher-Yates shuffle algorithm to randomize a list
     private void ShuffleList<T>(List<T> list)
     {
         for (int i = list.Count - 1; i > 0; i--)
@@ -789,84 +732,16 @@ public class EnemyChickenManager : MonoBehaviour
         }
     }
 
-    [ContextMenu("Debug Cleanup State")]
-    public void DebugCleanupState()
+    [ContextMenu("Freeze Slot Assignments")]
+    public void FreezeSlotAssignmentsMenu()
     {
-        Debug.Log($"=== CLEANUP DEBUG ===");
-        Debug.Log($"Auto-reassign enabled: {autoReassignOnFormationChange}");
-        Debug.Log($"Auto-refresh enabled: {autoRefreshChickenStates}");
-        Debug.Log($"Registered chickens: {allRegisteredChickens.Count}");
-        Debug.Log($"Slot assignments: {slotAssignments.Count}");
-        Debug.Log($"Waiting chickens: {waitingChickens.Count}");
-        Debug.Log($"Formation initialized: {hasInitializedFormation}");
+        FreezeSlotAssignments();
     }
 
-    [ContextMenu("Force Reassign All Chickens")]
-    public void ForceReassignAllChickens()
+    [ContextMenu("Unfreeze Slot Assignments")]
+    public void UnfreezeSlotAssignmentsMenu()
     {
-        ReassignAllChickens();
-        if (forceStateUpdateOnReassign)
-        {
-            ForceUpdateAllChickenStates();
-        }
-    }
-
-    [ContextMenu("Validate and Fix All Chicken States")]
-    public void ForceValidateAndFixStates()
-    {
-        ValidateAndFixChickenStates();
-    }
-
-    [ContextMenu("Force Refresh All Chicken States")]
-    public void ForceRefreshAllStates()
-    {
-        RefreshAllChickenStates();
-    }
-
-    [ContextMenu("Force Update All Chicken States")]
-    public void ForceUpdateAllStates()
-    {
-        ForceUpdateAllChickenStates();
-    }
-
-    [ContextMenu("Toggle Auto-Reassign")]
-    public void ToggleAutoReassign()
-    {
-        autoReassignOnFormationChange = !autoReassignOnFormationChange;
-        Debug.Log($"EnemyChickenManager: Auto-reassign on formation change {(autoReassignOnFormationChange ? "enabled" : "disabled")}");
-    }
-
-    [ContextMenu("Toggle Auto-Refresh")]
-    public void ToggleAutoRefresh()
-    {
-        autoRefreshChickenStates = !autoRefreshChickenStates;
-        Debug.Log($"EnemyChickenManager: Auto-refresh chicken states {(autoRefreshChickenStates ? "enabled" : "disabled")}");
-    }
-
-    [ContextMenu("Force Formation Initialization")]
-    public void ForceFormationInitialization()
-    {
-        hasInitializedFormation = false;
-        previousSlotCount = -1;
-        Debug.Log("EnemyChickenManager: Reset formation initialization. Next update will detect formation as new.");
-    }
-
-    [ContextMenu("Test Major Position Change")]
-    public void TestMajorPositionChange()
-    {
-        if (formationCreator != null)
-        {
-            // Simulate a major position change by updating the previous center
-            Vector3 currentCenter = GetFormationCenter();
-            previousFormationCenter = currentCenter + Vector3.right * (majorPositionChangeThreshold + 1f);
-            Debug.Log($"EnemyChickenManager: Simulated major position change. Next formation check will detect it as major change.");
-        }
-    }
-
-    [ContextMenu("Force All Chickens to MovingToSlot")]
-    public void ForceAllChickensToMovingToSlotMenu()
-    {
-        ForceAllChickensToMovingToSlot();
+        UnfreezeSlotAssignments();
     }
 
     void OnDrawGizmos()
@@ -903,34 +778,29 @@ public class EnemyChickenManager : MonoBehaviour
                     
                     if (hasSlot && stateController != null && stateController.IsIdle)
                     {
-                        // Chicken has slot but is idle - potential bug (red)
                         Gizmos.color = Color.red;
                     }
                     else if (!hasSlot && stateController != null && !stateController.IsIdle && !stateController.IsConcussed)
                     {
-                        // Chicken doesn't have slot but isn't idle (and not concussed) - potential bug (orange)
                         Gizmos.color = Color.orange;
                     }
                     else if (hasSlot && stateController != null && stateController.IsMovingToSlot && movement != null && !movement.IsCurrentlyMoving)
                     {
-                        // Should be moving to slot but isn't - potential bug (yellow)
                         Gizmos.color = Color.yellow;
                     }
                     else if (hasSlot && stateController != null && stateController.IsFollowingSlot && movement != null)
                     {
-                        // Following slot - different colors based on following state
                         if (movement.IsActivelyFollowing)
                         {
-                            Gizmos.color = Color.green; // Actively following (moving directly)
+                            Gizmos.color = Color.green;
                         }
                         else
                         {
-                            Gizmos.color = Color.blue; // Following but static (at perfect position)
+                            Gizmos.color = Color.blue;
                         }
                     }
                     else
                     {
-                        // Normal state (cyan)
                         Gizmos.color = subscribedChickenColor;
                     }
                     
@@ -941,10 +811,10 @@ public class EnemyChickenManager : MonoBehaviour
         }
     }
 
-    // Properties for external access
     public int TotalRegisteredChickens => allRegisteredChickens.Count;
     public int AssignedChickensCount => slotAssignments.Count;
     public int WaitingChickensCount => waitingChickens.Count;
     public int AvailableSlots => formationCreator != null ? formationCreator.GetFormationSlots().Count - slotAssignments.Count : 0;
     public bool HasInitializedFormation => hasInitializedFormation;
+    public bool IsSlotAssignmentFrozen => isSlotAssignmentFrozen;
 }

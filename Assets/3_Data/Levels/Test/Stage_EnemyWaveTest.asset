@@ -14,13 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageTitle: 
   startRadioMessage: {fileID: 0}
-  worldSpeed: 0.1
+  worldSpeed: 1
   isCheckpoint: 0
-  events:
-  - rid: 736433193358458992
+  events: []
   stageType: 2
   stageDuration: 15
-  delayBeforeNextStage: 1
+  delayBeforeNextStage: 2
   outroMode: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -41,7 +40,7 @@ MonoBehaviour:
   enemyWave:
     serializedKvps:
     - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
-      Value: 2
+      Value: 25
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
@@ -68,15 +67,4 @@ MonoBehaviour:
   allowPlayerHeatSystem: 1
   references:
     version: 2
-    RefIds:
-    - rid: 736433193358458992
-      type: {class: SpawnObstacleEvent, ns: , asm: Assembly-CSharp}
-      data:
-        isActive: 0
-        obstacleCount:
-          minValue: 1
-          maxValue: 3
-        spawnIntervalRange:
-          minValue: -4
-          maxValue: 4
-        maxActiveObstacles: 3
+    RefIds: []

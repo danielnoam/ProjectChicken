@@ -5,10 +5,12 @@ using UnityEngine;
 public class PassthroughTrigger : MonoBehaviour
 {
     
+    [HideInInspector] public bool playerPassedThrough;
+    [HideInInspector] public bool playerEnteredTrigger;
+
     
-    public bool playerPassedThrough;
-    public bool playerEnteredTrigger;
     public bool PlayerIsPassingThrough => !playerPassedThrough && playerEnteredTrigger;
+    
     
     public event Action OnPlayerPassedThrough;
     public event Action OnPlayerEnteredTrigger;

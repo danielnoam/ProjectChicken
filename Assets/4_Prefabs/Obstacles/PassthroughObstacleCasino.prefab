@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 4462998550661863597}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 37.2, y: -42.5, z: -14.2}
+  m_LocalPosition: {x: 37.2, y: -42.5, z: 2.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -52,7 +52,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 32.2, y: 22.6, z: 155}
+  m_Size: {x: 32.2, y: 22.6, z: 214.8}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5491962310705527499
 MonoBehaviour:
@@ -173,7 +173,7 @@ PrefabInstance:
       addedObject: {fileID: 5002280484586308091}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 441028123743828838, guid: 25b94a4fe64b1c34f956da773b657d8e, type: 3}
-      insertIndex: -1
+      insertIndex: 1
       addedObject: {fileID: 7982674519119543760}
     - targetCorrespondingSourceObject: {fileID: 441028123743828838, guid: 25b94a4fe64b1c34f956da773b657d8e, type: 3}
       insertIndex: -1
@@ -232,36 +232,45 @@ MonoBehaviour:
     minValue: 7
     maxValue: 9
   flyByDistance: 100
-  flyBySfx: {fileID: 0}
+  flyBySfx: {fileID: 11400000, guid: 7c3595104b607d04d806fb7e49f02ad0, type: 2}
   flyByCameraShakeSettings:
     impulseType: 0
     impulseShape: 4
-    intensity: 1
-    duration: 0.5
+    intensity: 0.1
+    duration: 0.7
+    xVelocityRange:
+      minValue: -1
+      maxValue: 1
+    yVelocityRange:
+      minValue: -1
+      maxValue: 1
+    zVelocityRange:
+      minValue: 0
+      maxValue: 0
   flyByVibrationEffectSettings:
-    lowFrequency: 0.1
-    highFrequency: 0.1
-    duration: 0.2
+    lowFrequency: 0.2
+    highFrequency: 0.2
+    duration: 1
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
         value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+        inSlope: -1
+        outSlope: -1
+        tangentMode: 34
         weightedMode: 0
         inWeight: 0
-        outWeight: 0
+        outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+        value: 0
+        inSlope: -1
+        outSlope: -1
+        tangentMode: 34
         weightedMode: 0
-        inWeight: 0
+        inWeight: 0.33333334
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -272,20 +281,20 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0
         value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+        inSlope: -1
+        outSlope: -1
+        tangentMode: 34
         weightedMode: 0
         inWeight: 0
-        outWeight: 0
+        outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+        value: 0
+        inSlope: -1
+        outSlope: -1
+        tangentMode: 34
         weightedMode: 0
-        inWeight: 0
+        inWeight: 0.33333334
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -293,6 +302,7 @@ MonoBehaviour:
   vibrationSource: {fileID: 4350892470350180829}
   impulseSource: {fileID: 6819082108545706050}
   audioSource: {fileID: 2678216218314760662}
+  passthroughCameraEffect: 1
   centerObject: {fileID: 4462998550661863597}
   passthroughTrigger: {fileID: 5491962310705527499}
 --- !u!65 &654057570532502887

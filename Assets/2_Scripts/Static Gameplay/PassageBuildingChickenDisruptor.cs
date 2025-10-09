@@ -180,6 +180,17 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
             Debug.Log($"PassageBuildingChickenDisruptor: Starting chicken disruption (active while building present)");
         }
         
+        // Freeze slot assignments to prevent ANY chickens from taking slots
+        if (_chickenManager != null)
+        {
+            _chickenManager.SetAutoUpdatesEnabled(false);
+            _chickenManager.FreezeSlotAssignments();
+            if (showDebugLogs)
+            {
+                Debug.Log($"PassageBuildingChickenDisruptor: Disabled auto-updates and froze slot assignments");
+            }
+        }
+        
         // Pause formation effects before disrupting chickens
         if (pauseFormationEffects)
         {
@@ -214,6 +225,7 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         // Note: We keep isDisrupting = true during recovery delay
         // Chickens remain disrupted until recovery completes
         // Formation effects remain paused during recovery
+        // Manager auto-updates remain disabled during recovery
     }
     
     void UpdateRecoveryDelay()
@@ -369,63 +381,84 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         }
     }
     
-    void EndDisruption()
+  void EndDisruption()
+{
+    if (showDebugLogs)
     {
-        if (showDebugLogs)
+        Debug.Log($"PassageBuildingChickenDisruptor: Recovery delay complete, restoring {_disruptedChickens.Count} chickens");
+    }
+    
+    int restoredCount = 0;
+    
+    // Restore all disrupted chickens
+    foreach (var disruptionData in _disruptedChickens)
+    {
+        if (!disruptionData.IsValid())
         {
-            Debug.Log($"PassageBuildingChickenDisruptor: Recovery delay complete, restoring {_disruptedChickens.Count} chickens");
+            continue;
         }
         
-        int restoredCount = 0;
+        // IMPORTANT: Reset tracking variables BEFORE re-enabling auto management
+        // This ensures the system treats the slot assignment as "new"
+        var registrationType = disruptionData.registration.GetType();
+        var wasAssignedField = registrationType.GetField("wasAssignedLastFrame", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var lastSlotIndexField = registrationType.GetField("lastKnownSlotIndex", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var lastSlotPosField = registrationType.GetField("lastKnownSlotPosition", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         
-        // Restore all disrupted chickens
-        foreach (var disruptionData in _disruptedChickens)
-        {
-            if (!disruptionData.IsValid())
-            {
-                continue; // Skip invalid chickens (might have been destroyed)
-            }
-            
-            // Re-enable auto state management if it was originally enabled
-            disruptionData.registration.autoManageState = disruptionData.wasAutoManaging;
-            
-            // Force a state update to let the chicken determine its proper state
-            if (disruptionData.wasAutoManaging)
-            {
-                disruptionData.registration.ForceStateUpdate();
-            }
-            else
-            {
-                // If auto management was disabled, restore the original state
-                disruptionData.stateController.ChangeState(disruptionData.originalState);
-            }
-            
-            restoredCount++;
-            
-            if (showDebugLogs)
-            {
-                Debug.Log($"PassageBuildingChickenDisruptor: Restored chicken '{disruptionData.stateController.gameObject.name}' (auto-manage: {disruptionData.wasAutoManaging})");
-            }
-        }
+        if (wasAssignedField != null)
+            wasAssignedField.SetValue(disruptionData.registration, false);
+        if (lastSlotIndexField != null)
+            lastSlotIndexField.SetValue(disruptionData.registration, -1);
+        if (lastSlotPosField != null)
+            lastSlotPosField.SetValue(disruptionData.registration, null);
         
-        // Clean up
-        _disruptedChickens.Clear();
-        isDisrupting = false;
-        isInRecoveryDelay = false;
-        recoveryTimeRemaining = 0f;
+        // Re-enable auto state management if it was originally enabled
+        disruptionData.registration.autoManageState = disruptionData.wasAutoManaging;
         
-        // Resume formation effects after chicken restoration
-        if (pauseFormationEffects)
-        {
-            // Wait a frame to ensure chickens are fully restored before resuming effects
-            StartCoroutine(ResumeFormationEffectsDelayed());
-        }
+        // Set to idle first, then let the system detect the assignment
+        disruptionData.stateController.SetIdle();
+        
+        restoredCount++;
         
         if (showDebugLogs)
         {
-            Debug.Log($"PassageBuildingChickenDisruptor: Disruption ended, restored {restoredCount} chickens");
+            Debug.Log($"PassageBuildingChickenDisruptor: Restored chicken '{disruptionData.stateController.gameObject.name}' (auto-manage: {disruptionData.wasAutoManaging})");
         }
     }
+    
+    // Clean up
+    _disruptedChickens.Clear();
+    isDisrupting = false;
+    isInRecoveryDelay = false;
+    recoveryTimeRemaining = 0f;
+    
+    // Unfreeze slot assignments and re-enable auto-updates
+    if (_chickenManager != null)
+    {
+        _chickenManager.UnfreezeSlotAssignments();
+        _chickenManager.SetAutoUpdatesEnabled(true);
+        
+        if (showDebugLogs)
+        {
+            Debug.Log($"PassageBuildingChickenDisruptor: Unfroze slot assignments and re-enabled auto-updates");
+        }
+    }
+    
+    // Resume formation effects after chicken restoration
+    if (pauseFormationEffects)
+    {
+        // Wait a frame to ensure chickens are fully restored before resuming effects
+        StartCoroutine(ResumeFormationEffectsDelayed());
+    }
+    
+    if (showDebugLogs)
+    {
+        Debug.Log($"PassageBuildingChickenDisruptor: Disruption ended, restored {restoredCount} chickens");
+    }
+}
     
     // Wait one frame before resuming effects to ensure chicken states are stable
     IEnumerator ResumeFormationEffectsDelayed()

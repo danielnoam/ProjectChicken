@@ -20,7 +20,7 @@ public class LaserWeaponGfx : WeaponGfx
         }
     }
     
-    protected override void StopAnimation()
+    public override void StopAnimation()
     {
         base.StopAnimation();
         

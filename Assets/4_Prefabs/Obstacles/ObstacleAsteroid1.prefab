@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2933239691788461853}
   - component: {fileID: 719675502152787001}
   - component: {fileID: 6229465747584892128}
+  - component: {fileID: 2596681545314930055}
   m_Layer: 0
   m_Name: ObstacleAsteroid1
   m_TagString: Untagged
@@ -60,7 +61,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     ImpulseDuration: 0.2
-    ImpulseType: 0
+    ImpulseType: 1
     DissipationRate: 0.25
     RawSignal: {fileID: 0}
     AmplitudeGain: 1
@@ -260,6 +261,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5a225372dee2b344b296c3ef17a48b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scoreWorth: 100
   baseMoveSpeed: 75
   moveSpeedRange:
     minValue: 1
@@ -274,10 +276,19 @@ MonoBehaviour:
   flyByDistance: 50
   flyBySfx: {fileID: 11400000, guid: cfdab1622082c3d4f8ae8003570503fa, type: 2}
   flyByCameraShakeSettings:
-    impulseType: 0
+    impulseType: 1
     impulseShape: 4
-    intensity: 4
+    intensity: 5
     duration: 0.7
+    xVelocityRange:
+      minValue: -1
+      maxValue: 1
+    yVelocityRange:
+      minValue: -1
+      maxValue: 1
+    zVelocityRange:
+      minValue: -1
+      maxValue: 1
   flyByVibrationEffectSettings:
     lowFrequency: 0.1
     highFrequency: 0.1
@@ -336,8 +347,102 @@ MonoBehaviour:
   healthRange:
     minValue: 75
     maxValue: 100
-  obstacleDestroyedSfx: {fileID: 0}
+  obstacleDestroyedSfx: {fileID: 11400000, guid: 9fc773444471e87498a9410b762b2f8e, type: 2}
   obstacleDestroyedParticleEffect: {fileID: 2325566527072732932, guid: 741831db828bb4a49b578852deec9480, type: 3}
+  obstacleImpactParticleEffect: {fileID: 2325566527072732932, guid: 695c82b64b522b940826cb1306effb37, type: 3}
+  hitPlayerCameraShakeSettings:
+    impulseType: 0
+    impulseShape: 2
+    intensity: 3
+    duration: 0.7
+    xVelocityRange:
+      minValue: -1
+      maxValue: 1
+    yVelocityRange:
+      minValue: -1
+      maxValue: 1
+    zVelocityRange:
+      minValue: -1
+      maxValue: 1
+  hitPlayerVibrationEffectSettings:
+    lowFrequency: 0.2
+    highFrequency: 0.2
+    duration: 0.3
+    lowFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    highFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+--- !u!54 &2596681545314930055
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 651960858193725616}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1 &2683695684653739277
 GameObject:
   m_ObjectHideFlags: 0

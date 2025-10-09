@@ -93,6 +93,7 @@ public class Resource : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
         OnDestroyEvent?.Invoke(this);
     }
 

@@ -42,8 +42,8 @@ MonoBehaviour:
   - rid: 4485104011578441731
   fireSound: {fileID: 11400000, guid: 95e63c624a0fccb43a66ea5cd0c84b9f, type: 2}
   fireEffectPrefab: {fileID: 0}
-  impactSound: {fileID: 11400000, guid: ca5580e59bab65b42a64c5ca5924a136, type: 2}
-  impactEffectPrefab: {fileID: 2325566527072732932, guid: 4ab2db92b0c0e1640a0522fa3b7f96d7, type: 3}
+  impactSound: {fileID: 11400000, guid: f1196959e0a3e814da709d1f0fed307c, type: 2}
+  impactEffectPrefab: {fileID: 3447140228737358468, guid: 1dca6a141b6997d4382faded20701f82, type: 3}
   references:
     version: 2
     RefIds:
@@ -110,9 +110,19 @@ MonoBehaviour:
             m_RotationOrder: 4
         shakeCameraOnFire: 0
         shakeSettings:
+          impulseType: 0
           impulseShape: 2
           intensity: 1
           duration: 0.3
+          xVelocityRange:
+            minValue: -1
+            maxValue: 1
+          yVelocityRange:
+            minValue: -1
+            maxValue: 1
+          zVelocityRange:
+            minValue: -1
+            maxValue: 1
     - rid: 4485104329743925334
       type: {class: BehaviorChainOnHit, ns: , asm: Assembly-CSharp}
       data:

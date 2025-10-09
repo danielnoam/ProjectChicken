@@ -31493,7 +31493,7 @@ GameObject:
   - component: {fileID: 8436285693916043431}
   - component: {fileID: 7121042309113064669}
   - component: {fileID: 9212753744226373634}
-  - component: {fileID: 5223964165428160362}
+  - component: {fileID: 3208479709428722187}
   m_Layer: 0
   m_Name: IntroManager
   m_TagString: Untagged
@@ -32071,7 +32071,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputManager: {fileID: 0}
---- !u!114 &5223964165428160362
+--- !u!114 &3208479709428722187
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -32080,7 +32080,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2431085386177325126}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f135d58fe93e4eb49ca052133bcf3da0, type: 3}
+  m_Script: {fileID: 11500000, guid: b84db68eec1f4dfa88b88593eab0ffc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hideCursor: 1
@@ -103300,7 +103300,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e217bf8641b6cee44952f65367eb1fb3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 37648bb6a10a348469771b0f9cc5c00f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -119417,6 +119417,14 @@ PrefabInstance:
     - target: {fileID: 5417259737308327871, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
       propertyPath: m_LocalScale.z
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6096204220972753079, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6096204220972753079, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
+      propertyPath: enemySpawner
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6096204220972753079, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
       propertyPath: levelManager

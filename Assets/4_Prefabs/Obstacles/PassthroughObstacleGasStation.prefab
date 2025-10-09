@@ -284,7 +284,7 @@ MonoBehaviour:
   baseMoveSpeed: 100
   moveSpeedRange:
     minValue: 0
-    maxValue: 0
+    maxValue: 25
   baseRotationSpeed: 0
   rotationSpeedRange:
     minValue: 0
@@ -292,17 +292,26 @@ MonoBehaviour:
   spawnAnimationDuration:
     minValue: 8
     maxValue: 9
-  flyByDistance: 70
-  flyBySfx: {fileID: 0}
+  flyByDistance: 100
+  flyBySfx: {fileID: 11400000, guid: 7c3595104b607d04d806fb7e49f02ad0, type: 2}
   flyByCameraShakeSettings:
     impulseType: 0
     impulseShape: 4
-    intensity: 1
-    duration: 1
+    intensity: 0.1
+    duration: 0.4
+    xVelocityRange:
+      minValue: -1
+      maxValue: 1
+    yVelocityRange:
+      minValue: -1
+      maxValue: 1
+    zVelocityRange:
+      minValue: 0
+      maxValue: 0
   flyByVibrationEffectSettings:
     lowFrequency: 0.1
     highFrequency: 0.1
-    duration: 0.2
+    duration: 0.5
     lowFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -354,6 +363,7 @@ MonoBehaviour:
   vibrationSource: {fileID: 9207879256362236330}
   impulseSource: {fileID: 1859351993184862914}
   audioSource: {fileID: 8330530183580687578}
+  passthroughCameraEffect: 0
   centerObject: {fileID: 2472337234000055556}
   passthroughTrigger: {fileID: 3073695652966342536}
 --- !u!65 &7555638686378275220

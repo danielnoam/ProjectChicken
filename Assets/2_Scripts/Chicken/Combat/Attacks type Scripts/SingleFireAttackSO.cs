@@ -27,13 +27,16 @@ public class SingleFireAttackSO : BaseChickenAttackSO
 
         LogDebug("EXECUTING!");
 
+        // Calculate modified egg speed with multiplier
+        float modifiedSpeed = manager.EggSpeed * eggSpeedMultiplier;
+
         // Always select a random chicken from the available pool
         ChickenCombatBehaviorV2 selectedChicken = SelectRandomChicken(availableChickens);
 
         if (selectedChicken != null)
         {
-            ExecuteChickenAttack(selectedChicken, manager);
-            LogDebug($"{selectedChicken.gameObject.name} fired from {availableChickens.Count} available chickens");
+            ExecuteChickenAttack(selectedChicken, modifiedSpeed);
+            LogDebug($"{selectedChicken.gameObject.name} fired from {availableChickens.Count} available chickens (Speed: {modifiedSpeed:F1}, Multiplier: {eggSpeedMultiplier:F2}x)");
         }
         else
         {
@@ -55,9 +58,9 @@ public class SingleFireAttackSO : BaseChickenAttackSO
         return selectedChicken;
     }
 
-    void ExecuteChickenAttack(ChickenCombatBehaviorV2 chicken, ChickenCombatManagerV4 manager)
+    void ExecuteChickenAttack(ChickenCombatBehaviorV2 chicken, float eggSpeed)
     {
         LogDebug($"Executing attack on {chicken.gameObject.name}");
-        chicken.ShootEgg(manager.EggSpeed, deactivateWarningCircle);
+        chicken.ShootEgg(eggSpeed, deactivateWarningCircle);
     }
 }

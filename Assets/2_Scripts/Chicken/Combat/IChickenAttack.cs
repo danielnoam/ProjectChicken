@@ -8,7 +8,8 @@ public interface IChickenAttack
     string AttackName { get; }
     float AttackInterval { get; }
     int UsesBeforePatternChange { get; }
-    bool DeactivateWarningCircle { get; } // New property for warning circle control
+    bool DeactivateWarningCircle { get; }
+    float EggSpeedMultiplier { get; } // New property for speed multiplier
     bool CanExecute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);
     void Execute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);
 }
@@ -21,7 +22,12 @@ public abstract class BaseChickenAttackSO : ScriptableObject, IChickenAttack
     [Range(1, 20)]
     public int usesBeforePatternChange = 3; // How many times this attack can be used before triggering pattern change Cooldown
     [Range(1, 20)]
-    public int minChickensRequired = 1; //The minimum amount of chickens that needs to be registered to activate this attack
+    public int minChickensRequired = 1; // The minimum amount of chickens that needs to be registered to activate this attack
+
+    [Header("Egg Speed Modifier")]
+    [Tooltip("Multiplier applied to the base egg speed for this attack. 1.0 = normal speed, 1.5 = 50% faster, 0.5 = 50% slower")]
+    [Range(0.1f, 3f)]
+    public float eggSpeedMultiplier = 1f; // Multiplier for egg speed (default 1.0 means no change)
 
     [Header("Warning Settings")]
     public bool deactivateWarningCircle = false; // Controls whether this attack disables warning circles
@@ -33,7 +39,8 @@ public abstract class BaseChickenAttackSO : ScriptableObject, IChickenAttack
     public abstract string AttackName { get; }
     public virtual float AttackInterval => attackInterval;
     public virtual int UsesBeforePatternChange => usesBeforePatternChange;
-    public virtual bool DeactivateWarningCircle => deactivateWarningCircle; // New property implementation
+    public virtual bool DeactivateWarningCircle => deactivateWarningCircle;
+    public virtual float EggSpeedMultiplier => eggSpeedMultiplier; // New property implementation
 
     public abstract bool CanExecute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);
     public abstract void Execute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);

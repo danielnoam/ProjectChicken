@@ -871,7 +871,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2591645915025464599}
-  - component: {fileID: 4814767739234009434}
+  - component: {fileID: 5133020590134879552}
   m_Layer: 6
   m_Name: LightningWeaponGfx
   m_TagString: Untagged
@@ -896,7 +896,7 @@ Transform:
   - {fileID: 188962324070582139}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4814767739234009434
+--- !u!114 &5133020590134879552
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -905,9 +905,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1506644416565149069}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Script: {fileID: 11500000, guid: d2346f797112a5e489bcfbace95dfdcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  preWarm: 0.1
+  vfxGraph: {fileID: 4899564193969556123}
+  particles:
+  - {fileID: 4893793341737993433}
+  - {fileID: 6173558424110252208}
 --- !u!1 &1513579192478133159
 GameObject:
   m_ObjectHideFlags: 0
@@ -1219,6 +1224,7 @@ Transform:
   - {fileID: 3706257840988857788}
   - {fileID: 6499552937103797131}
   - {fileID: 4294348908818086368}
+  - {fileID: 8880191352085336102}
   - {fileID: 8194721121205902898}
   - {fileID: 4465290679582905110}
   m_Father: {fileID: 8474555558549935190}
@@ -2731,16 +2737,43 @@ MonoBehaviour:
     impulseShape: 4
     intensity: 0.4
     duration: 0.3
+    xVelocityRange:
+      minValue: -1
+      maxValue: 1
+    yVelocityRange:
+      minValue: -1
+      maxValue: 1
+    zVelocityRange:
+      minValue: -1
+      maxValue: 1
   healthDamagedShakeSettings:
     impulseType: 0
     impulseShape: 4
     intensity: 0.9
     duration: 0.4
+    xVelocityRange:
+      minValue: -1
+      maxValue: 1
+    yVelocityRange:
+      minValue: -1
+      maxValue: 1
+    zVelocityRange:
+      minValue: -1
+      maxValue: 1
   deathShakeSettings:
     impulseType: 0
     impulseShape: 2
     intensity: 0.5
     duration: 1
+    xVelocityRange:
+      minValue: -1
+      maxValue: 1
+    yVelocityRange:
+      minValue: -1
+      maxValue: 1
+    zVelocityRange:
+      minValue: -1
+      maxValue: 1
   shieldDamagedVibrationSettings:
     lowFrequency: 0.1
     highFrequency: 0.1
@@ -3151,7 +3184,7 @@ MonoBehaviour:
   audioSource: {fileID: 1950743973285740102}
   shipModel: {fileID: 5119365439155976064}
   engineEffect: {fileID: 984158622118996083}
-  dodgeAccumulationSfx: {fileID: 0}
+  dodgeAccumulationSfx: {fileID: 11400000, guid: 779abae7fda7ae54d9f4f383031d06df, type: 2}
   dodgeAccumulationEffect: {fileID: 4437634252465665199}
   dodgeSfx: {fileID: 11400000, guid: 41d0672bb20c66843bc6a4a21c7d49ca, type: 2}
   dodgeAvailableEffects:
@@ -3232,17 +3265,17 @@ MonoBehaviour:
       upgradeBarrels:
       - {fileID: 7275149474422493339}
   - weaponData: {fileID: 11400000, guid: 63f108325cacff2608f7d6b7edc7cc44, type: 2}
-    weaponGfx: {fileID: 4814767739234009434}
+    weaponGfx: {fileID: 5133020590134879552}
     weaponReticle: {fileID: 7452997770777450716}
     weaponBarrels:
     - {fileID: 188962324070582139}
     upgradeAssets:
     - upgrade: {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
-      upgradeGfx: {fileID: 1024818665771638710}
+      upgradeGfx: {fileID: 3614040228363289978}
       upgradeBarrels:
       - {fileID: 234878593337753374}
     - upgrade: {fileID: 11400000, guid: edf5b49190bc5f14cb523dda726bc824, type: 2}
-      upgradeGfx: {fileID: 6771078599112636905}
+      upgradeGfx: {fileID: 2968663325014049939}
       upgradeBarrels:
       - {fileID: 386664422728198157}
   - weaponData: {fileID: 11400000, guid: 0b9da28535a5fb944b9dfa31864911a7, type: 2}
@@ -4132,7 +4165,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2436690946287421014}
-  - component: {fileID: 1024818665771638710}
+  - component: {fileID: 3614040228363289978}
   m_Layer: 6
   m_Name: LightningWeaponUpgrade1Gfx
   m_TagString: Untagged
@@ -4157,7 +4190,7 @@ Transform:
   - {fileID: 234878593337753374}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1024818665771638710
+--- !u!114 &3614040228363289978
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4166,9 +4199,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 6232713312622443426}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Script: {fileID: 11500000, guid: d2346f797112a5e489bcfbace95dfdcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  preWarm: 0.1
+  vfxGraph: {fileID: 4899564193969556123}
+  particles:
+  - {fileID: 4893793341737993433}
+  - {fileID: 6173558424110252208}
 --- !u!1 &6271107796300875885
 GameObject:
   m_ObjectHideFlags: 0
@@ -5529,7 +5567,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8735831726041448600}
-  - component: {fileID: 6771078599112636905}
+  - component: {fileID: 2968663325014049939}
   m_Layer: 6
   m_Name: LightningWeaponUpgrade2Gfx
   m_TagString: Untagged
@@ -5554,7 +5592,7 @@ Transform:
   - {fileID: 386664422728198157}
   m_Father: {fileID: 8194721121205902898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6771078599112636905
+--- !u!114 &2968663325014049939
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5563,9 +5601,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 8387778059644159578}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07c8ba629d5f43e795824e3bade22a6c, type: 3}
+  m_Script: {fileID: 11500000, guid: d2346f797112a5e489bcfbace95dfdcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  preWarm: 0.1
+  vfxGraph: {fileID: 4899564193969556123}
+  particles:
+  - {fileID: 4893793341737993433}
+  - {fileID: 6173558424110252208}
 --- !u!1 &8399613674000869028
 GameObject:
   m_ObjectHideFlags: 0
@@ -7402,6 +7445,83 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 2660564915259583024, guid: 3d9cf6f954dd09342934404727921e4c, type: 3}
   m_PrefabInstance: {fileID: 6997829969787945820}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &7490115780355048877
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5119365439155976064}
+    m_Modifications:
+    - target: {fileID: 268524888257432247, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+      propertyPath: m_Name
+      value: ElectroShot
+      objectReference: {fileID: 0}
+    - target: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 6.61
+      objectReference: {fileID: 0}
+    - target: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+--- !u!198 &4893793341737993433 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 2600832648212070772, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+  m_PrefabInstance: {fileID: 7490115780355048877}
+  m_PrefabAsset: {fileID: 0}
+--- !u!2083052967 &4899564193969556123 stripped
+VisualEffect:
+  m_CorrespondingSourceObject: {fileID: 2597595339235725110, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+  m_PrefabInstance: {fileID: 7490115780355048877}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &6173558424110252208 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 3629582663211943197, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+  m_PrefabInstance: {fileID: 7490115780355048877}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8880191352085336102 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+  m_PrefabInstance: {fileID: 7490115780355048877}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7862602763869477160
 PrefabInstance:

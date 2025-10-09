@@ -45,8 +45,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableCombat: 1
-  eggSpeed: 20
+  eggSpeed: 40
   PatternChangeCooldown: 3
+  eggSpeedIncreaseAmount: 20
+  patternCooldownDecreaseAmount: 0.5
+  difficultyIncreaseInterval: 30
+  maxEggSpeed: 80
+  minPatternCooldown: 1.5
   attackLootTable: {fileID: 11400000, guid: 72746f0027cd99846831e5f0e88b8586, type: 2}
   fallbackAttack: {fileID: 11400000, guid: 9ead985b1c769ac4aa8654564e7ec381, type: 2}
   showDebugLogs: 0
@@ -56,6 +61,7 @@ MonoBehaviour:
   currentAttackSO: {fileID: 0}
   usesBeforePatternChange: 0
   usesRemaining: 0
+  currentEggSpeed: 0
 --- !u!1 &1617479798381126247
 GameObject:
   m_ObjectHideFlags: 0
@@ -658,6 +664,7 @@ GameObject:
   - component: {fileID: 3585530205329594923}
   - component: {fileID: 1785148535720474815}
   - component: {fileID: 3884875090893653531}
+  - component: {fileID: 7135002747078336071}
   m_Layer: 2
   m_Name: Enemy Passage Building Checker
   m_TagString: Untagged
@@ -699,8 +706,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 163.4, y: 108, z: 166.38}
-  m_Center: {x: 0, y: 0, z: 58.6}
+  m_Size: {x: 185.1, y: 131.1, z: 306.49}
+  m_Center: {x: 0, y: 0, z: 109.1}
 --- !u!114 &3884875090893653531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -721,6 +728,33 @@ MonoBehaviour:
   isDisrupting: 0
   isInRecoveryDelay: 0
   recoveryTimeRemaining: 0
+--- !u!54 &7135002747078336071
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7182938860939899348}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1 &8548514679401556076
 GameObject:
   m_ObjectHideFlags: 0

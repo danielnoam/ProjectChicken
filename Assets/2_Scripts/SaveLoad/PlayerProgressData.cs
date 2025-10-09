@@ -7,6 +7,7 @@ using System.Collections.Generic;
 [Serializable]
 public class PlayerProgressData
 {
+    public bool watchedIntro;
     public List<LevelProgress> levelProgresses = new();
 }
 

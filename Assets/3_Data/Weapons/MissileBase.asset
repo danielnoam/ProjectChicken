@@ -44,7 +44,7 @@ MonoBehaviour:
   hitscanBehaviors: []
   fireSound: {fileID: 11400000, guid: 65200ec152ef8d74fb474ec1f37a6549, type: 2}
   fireEffectPrefab: {fileID: 0}
-  impactSound: {fileID: 11400000, guid: ca5580e59bab65b42a64c5ca5924a136, type: 2}
+  impactSound: {fileID: 11400000, guid: 777e4ab44befb7544a34fe79a8e6edd2, type: 2}
   impactEffectPrefab: {fileID: 2325566527072732932, guid: 3b42988f3e4b67b479ef8753565217b1, type: 3}
   references:
     version: 2
@@ -56,9 +56,9 @@ MonoBehaviour:
     - rid: 2319611325492494601
       type: {class: BehaviorNormalMovement, ns: , asm: Assembly-CSharp}
       data:
-        moveSpeed: 75
+        moveSpeed: 85
         useSpeedStagger: 1
-        speedStaggerTime: 0.2
+        speedStaggerTime: 0.3
         staggerSpeedCurve:
           serializedVersion: 2
           m_Curve:
@@ -152,8 +152,8 @@ MonoBehaviour:
         shakeSettings:
           impulseType: 0
           impulseShape: 3
-          intensity: 2
-          duration: 0.5
+          intensity: 1
+          duration: 0.4
     - rid: 4485104011578441735
       type: {class: BehaviorVibrateAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
       data:

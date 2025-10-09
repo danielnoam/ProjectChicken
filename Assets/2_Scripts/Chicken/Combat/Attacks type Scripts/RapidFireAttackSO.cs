@@ -33,17 +33,20 @@ public class RapidFireAttackSO : BaseChickenAttackSO
 
         LogDebug("EXECUTING!");
 
+        // Calculate modified egg speed with multiplier
+        float modifiedSpeed = manager.EggSpeed * eggSpeedMultiplier;
+
         // Select chickens for rapid fire
         List<ChickenCombatBehaviorV2> selectedChickens = SelectChickensForRapidFire(availableChickens);
 
         // Since ScriptableObjects can't use StartCoroutine directly, we ask the manager to run it
         if (useSequentialShots)
         {
-            manager.StartCoroutine(ExecuteSequentialRapidFire(selectedChickens, manager));
+            manager.StartCoroutine(ExecuteSequentialRapidFire(selectedChickens, modifiedSpeed));
         }
         else
         {
-            manager.StartCoroutine(ExecuteSimultaneousRapidFire(selectedChickens, manager));
+            manager.StartCoroutine(ExecuteSimultaneousRapidFire(selectedChickens, modifiedSpeed));
         }
     }
 
@@ -73,19 +76,19 @@ public class RapidFireAttackSO : BaseChickenAttackSO
         return selectedChickens;
     }
 
-    System.Collections.IEnumerator ExecuteSequentialRapidFire(List<ChickenCombatBehaviorV2> selectedChickens, ChickenCombatManagerV4 manager)
+    System.Collections.IEnumerator ExecuteSequentialRapidFire(List<ChickenCombatBehaviorV2> selectedChickens, float eggSpeed)
     {
         foreach (var chicken in selectedChickens)
         {
             if (chicken == null) continue;
 
-            LogDebug($"Starting rapid fire sequence on {chicken.gameObject.name}");
+            LogDebug($"Starting rapid fire sequence on {chicken.gameObject.name} (Speed: {eggSpeed:F1}, Multiplier: {eggSpeedMultiplier:F2}x)");
 
             for (int shot = 0; shot < shotsPerChicken; shot++)
             {
                 if (chicken != null && chicken.IsReadyToAttack)
                 {
-                    chicken.ShootEgg(manager.EggSpeed, deactivateWarningCircle);
+                    chicken.ShootEgg(eggSpeed, deactivateWarningCircle);
                     LogDebug($"{chicken.gameObject.name} fired shot {shot + 1}/{shotsPerChicken}");
                 }
 
@@ -105,8 +108,10 @@ public class RapidFireAttackSO : BaseChickenAttackSO
         LogDebug("Sequential rapid fire complete!");
     }
 
-    System.Collections.IEnumerator ExecuteSimultaneousRapidFire(List<ChickenCombatBehaviorV2> selectedChickens, ChickenCombatManagerV4 manager)
+    System.Collections.IEnumerator ExecuteSimultaneousRapidFire(List<ChickenCombatBehaviorV2> selectedChickens, float eggSpeed)
     {
+        LogDebug($"Starting simultaneous rapid fire (Speed: {eggSpeed:F1}, Multiplier: {eggSpeedMultiplier:F2}x)");
+
         for (int shot = 0; shot < shotsPerChicken; shot++)
         {
             // All selected chickens fire simultaneously
@@ -114,7 +119,7 @@ public class RapidFireAttackSO : BaseChickenAttackSO
             {
                 if (chicken != null && chicken.IsReadyToAttack)
                 {
-                    chicken.ShootEgg(manager.EggSpeed, deactivateWarningCircle);
+                    chicken.ShootEgg(eggSpeed, deactivateWarningCircle);
                     LogDebug($"{chicken.gameObject.name} fired simultaneous shot {shot + 1}/{shotsPerChicken}");
                 }
             }

@@ -45,6 +45,8 @@ public class ChickenAnimationController : MonoBehaviour
         
         // Initialize animation state
         lastState = stateController.CurrentState;
+        animator.speed = Random.Range(0.9f, 1.1f); // ±10% speed difference
+  
         UpdateAnimationState();
         
         if (showDebugLogs)
@@ -158,6 +160,9 @@ public class ChickenAnimationController : MonoBehaviour
     {
         if (animator == null) return;
         
+        // Pick a random point in the current state
+        AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(0);
+        animator.Play(state.fullPathHash, -1, Random.Range(0f, 1f));
         animator.SetBool(isIdleParam, true);
         animator.SetBool(isMovingParam, false);
         isPlayingAttackAnimation = false;

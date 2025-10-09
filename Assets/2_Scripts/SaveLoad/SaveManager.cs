@@ -428,6 +428,13 @@ public class SaveManager : MonoBehaviour
         SaveSettingsDataToFile();
     }
     
+    public static void UpdateWatchedIntro(bool watched)
+    {
+        EnsureInitialized();
+        _playerProgressData.watchedIntro = watched;
+        SavePlayerProgressDataToFile();
+    }
+    
     #endregion Public Update Methods ----------------------------------------------------------------------------------------------------------------------
     
     
@@ -480,6 +487,12 @@ public class SaveManager : MonoBehaviour
     {
         EnsureInitialized();
         return _settingsData.volumeSettings;
+    }
+
+    public static bool WatchedIntro()
+    {
+        EnsureInitialized();
+        return _playerProgressData.watchedIntro;
     }
     
     #endregion Progress Getters ----------------------------------------------------------------------------------------------------------------------
