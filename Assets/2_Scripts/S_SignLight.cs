@@ -30,6 +30,7 @@ public class S_SignLight : MonoBehaviour
     {
         timer -= Time.deltaTime;
         transform.position = sLightLocations[currentLocationIndex].position + offset;
+        transform.rotation = sLightLocations[currentLocationIndex].rotation;
         if (timer<=0f)
         {
             currentLocationIndex = (currentLocationIndex + 1) % sLightLocations.Count;
