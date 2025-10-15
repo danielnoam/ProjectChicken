@@ -6,7 +6,6 @@ using DNExtensions;
 using DNExtensions.VFXManager;
 using KBCore.Refs;
 using PrimeTween;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -188,6 +187,7 @@ public class LevelManager : MonoBehaviour
         }
         
         input.OnPauseActionEvent += OnPauseAction;
+        input.OnSkipActionEvent += OnSkipAction;
     }
     
 
@@ -219,6 +219,7 @@ public class LevelManager : MonoBehaviour
         
         
         input.OnPauseActionEvent -= OnPauseAction;
+        input.OnSkipActionEvent -= OnSkipAction;
     }
 
 
@@ -491,6 +492,34 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         SetStage(newStateIndex);
+    }
+    
+    private void OnSkipAction(InputAction.CallbackContext context)
+    {
+        if (_isGamePaused || !currentStage || !currentStage.AllowSkip) return;
+
+        if (context.performed)
+        {
+            SkipStageDelay();
+        }
+    }
+
+    private void SkipStageDelay()
+    {
+        if (_stageChangeCoroutine == null) return;
+    
+        int nextStageIndex = currentStageIndex + 1;
+        
+        if (nextStageIndex >= _levelStages.Length)
+        {
+            if (debugLog) Debug.Log("Cannot skip - already at last stage");
+            return;
+        }
+    
+        StopCoroutine(_stageChangeCoroutine);
+        _stageChangeCoroutine = null;
+        _settingStageFlag = true;
+        SetStage(nextStageIndex);
     }
 
 

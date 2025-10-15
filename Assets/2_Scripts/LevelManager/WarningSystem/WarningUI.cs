@@ -22,7 +22,7 @@ public class WarningUI : MonoBehaviour
     private Sequence _hideSequence;
     private bool _isVisible;
     
-    // Original states captured in Awake
+
     private Vector3 _originalScale;
     
     public event Action OnWarningHidden;
@@ -38,10 +38,7 @@ public class WarningUI : MonoBehaviour
             if (!canvasGroup) canvasGroup = gameObject.AddComponent<CanvasGroup>();
         }
         
-        // Capture original states
         _originalScale = _rectTransform.localScale;
-        
-        // Start hidden (alpha 0)
         canvasGroup.alpha = 0f;
     }
 
@@ -97,15 +94,16 @@ public class WarningUI : MonoBehaviour
     private void SetupWarningContent(SOWarning warning)
     {
         // Set icon
-        if (iconImage && warning.Icon)
+        if (iconImage)
         {
-            iconImage.sprite = warning.Icon;
+            if (warning.Icon) iconImage.sprite = warning.Icon;
+            iconImage.color = warning.IconColor;
         }
         
         // Set background color
         if (backgroundImage)
         {
-            backgroundImage.color = warning.Color;
+            backgroundImage.color = warning.BackgroundColor;
         }
         
         // Set message text

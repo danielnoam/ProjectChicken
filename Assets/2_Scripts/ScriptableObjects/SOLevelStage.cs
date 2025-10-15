@@ -9,9 +9,11 @@ public class SOLevelStage : ScriptableObject
 {
     [Header("Stage Settings")]
     [SerializeField] private string stageTitle = "";
-    [SerializeField, CreateEditableAsset] private SORadioMessage startRadioMessage;
     [SerializeField, Range(0f,2f)] private float worldSpeed = 1f;
     [SerializeField] private bool isCheckpoint;
+    [SerializeField] private bool allowSkip;
+    [SerializeField, CreateEditableAsset] private SORadioMessage startRadioMessage;
+    [SerializeField, CreateEditableAsset] private SOWarning startWarning;
     [SerializeReference] private StageEvent[] events = Array.Empty<StageEvent>();
     
     
@@ -74,6 +76,7 @@ public class SOLevelStage : ScriptableObject
     public float StageDuration => stageDuration;
     public string StageTitle => stageTitle;
     public SORadioMessage StartRadioMessage => startRadioMessage;
+    public SOWarning StartWarning => startWarning;
     public StageEvent[] Events => events;
     public bool IsCheckpoint => isCheckpoint;
     public OutroMode OutroMode => outroMode;
@@ -101,4 +104,5 @@ public class SOLevelStage : ScriptableObject
     public bool AllowPlayerDodge => allowPlayerDodge;
     public bool AllowPlayerShooting => allowPlayerShooting;
     public bool AllowPlayerHeatSystem => allowPlayerHeatSystem;
+    public bool AllowSkip => allowSkip;
 }

@@ -913,6 +913,7 @@ MonoBehaviour:
   particles:
   - {fileID: 4893793341737993433}
   - {fileID: 6173558424110252208}
+  ballEffect: {fileID: 3571243529723569427}
 --- !u!1 &1513579192478133159
 GameObject:
   m_ObjectHideFlags: 0
@@ -4207,6 +4208,7 @@ MonoBehaviour:
   particles:
   - {fileID: 4893793341737993433}
   - {fileID: 6173558424110252208}
+  ballEffect: {fileID: 0}
 --- !u!1 &6271107796300875885
 GameObject:
   m_ObjectHideFlags: 0
@@ -5609,6 +5611,7 @@ MonoBehaviour:
   particles:
   - {fileID: 4893793341737993433}
   - {fileID: 6173558424110252208}
+  ballEffect: {fileID: 0}
 --- !u!1 &8399613674000869028
 GameObject:
   m_ObjectHideFlags: 0
@@ -7456,7 +7459,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 268524888257432247, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
       propertyPath: m_Name
-      value: ElectroShot
+      value: LightningWeaponFireFX
       objectReference: {fileID: 0}
     - target: {fileID: 2075871778824426891, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7503,6 +7506,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+--- !u!4 &3571243529723569427 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6232321694204797118, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}
+  m_PrefabInstance: {fileID: 7490115780355048877}
+  m_PrefabAsset: {fileID: 0}
 --- !u!198 &4893793341737993433 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 2600832648212070772, guid: 6a8fb8b5a1efb5b4aa872b3cdf6ab732, type: 3}

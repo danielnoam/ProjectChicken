@@ -16,12 +16,13 @@ MonoBehaviour:
   startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 1
+  allowSkip: 1
   events:
   - rid: 15267180005818577
   stageType: 3
   stageDuration: 5
   delayBeforeNextStage: 1
-  showOutroMenu: 0
+  outroMode: 0
   nextLevel:
     sceneAsset: {fileID: 0}
     sceneName: 
@@ -29,6 +30,14 @@ MonoBehaviour:
   allowToCloseStore: 1
   upgradesPool:
   - {fileID: 0}
+  poolRarityWeights:
+    commonWeight: 100
+    uncommonWeight: 60
+    rareWeight: 30
+  poolRarityCosts:
+    commonCost: 25
+    uncommonCost: 50
+    rareCost: 100
   waveScoreWorth: 1000
   enemyWave:
     serializedKvps: []
@@ -60,9 +69,9 @@ MonoBehaviour:
       type: {class: RadioMessageSequenceEvent, ns: , asm: Assembly-CSharp}
       data:
         isActive: 0
-        messages:
-        - {fileID: 11400000, guid: 9995b31ac902d6c4299c964f0262933d, type: 2}
-        - {fileID: 11400000, guid: fcc17a1afcec7d94bb7c881fe080ca50, type: 2}
         initialDelay: 0
         shuffle: 0
         loop: 0
+        messages:
+        - {fileID: 11400000, guid: 9995b31ac902d6c4299c964f0262933d, type: 2}
+        - {fileID: 11400000, guid: fcc17a1afcec7d94bb7c881fe080ca50, type: 2}

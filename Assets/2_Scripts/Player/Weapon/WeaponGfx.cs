@@ -1,11 +1,19 @@
-﻿using PrimeTween;
+﻿using System;
+using PrimeTween;
 using UnityEngine;
 
 public class WeaponGfx : MonoBehaviour
 {
-        
+
+    protected RailPlayer player;
     private Sequence _gfxSequence;
-    
+
+
+    private void Awake()
+    {
+        player = GetComponentInParent<RailPlayer>();
+    }
+
     public void Show(bool animate = true)
     {
         if (transform.localScale == Vector3.one) return;

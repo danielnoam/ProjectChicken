@@ -16,6 +16,7 @@ public class LevelManagerInput: InputReaderBase
     private InputAction _submitAction;
     private InputAction _cancelAction;
     private InputAction _navigateAction;
+    private InputAction _skipAction;
     private float _pauseTimer;
     private bool _pauseInputHeld;
     
@@ -23,6 +24,7 @@ public class LevelManagerInput: InputReaderBase
     public event Action<InputAction.CallbackContext> OnSubmitActionEvent;
     public event Action<InputAction.CallbackContext> OnCancelActionEvent;
     public event Action<InputAction.CallbackContext> OnNavigateActionEvent;
+    public event Action<InputAction.CallbackContext> OnSkipActionEvent;
 
 
 
@@ -50,6 +52,7 @@ public class LevelManagerInput: InputReaderBase
         _submitAction = _uiActionMap.FindAction("Submit");
         _cancelAction = _uiActionMap.FindAction("Cancel");
         _navigateAction = _uiActionMap.FindAction("Navigate");
+        _skipAction = _playerActionMap.FindAction("Skip");
     }
 
 
@@ -61,6 +64,7 @@ public class LevelManagerInput: InputReaderBase
         SubscribeToAction(_submitAction, OnSubmitAction);
         SubscribeToAction(_cancelAction, OnCancelAction);
         SubscribeToAction(_navigateAction, OnNavigateAction);
+        SubscribeToAction(_skipAction, OnSkipAction);
         
         if (levelManager)
         {
@@ -77,6 +81,7 @@ public class LevelManagerInput: InputReaderBase
         UnsubscribeFromAction(_submitAction, OnSubmitAction);
         UnsubscribeFromAction(_cancelAction, OnCancelAction);
         UnsubscribeFromAction(_navigateAction, OnNavigateAction);
+        UnsubscribeFromAction(_skipAction, OnSkipAction);
         
         if (levelManager)
         {
@@ -84,8 +89,13 @@ public class LevelManagerInput: InputReaderBase
             levelManager.OnPause -= OnPause;
         }
     }
-    
-    
+
+    private void OnSkipAction(InputAction.CallbackContext context)
+    {
+        OnSkipActionEvent?.Invoke(context);
+    }
+
+
     private void OnPauseAction(InputAction.CallbackContext context)
     {
         OnPauseActionEvent?.Invoke(context);

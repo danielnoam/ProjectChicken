@@ -108,6 +108,8 @@ public class WarningSystemManager : MonoBehaviour
         {
             ClearWarnings();
         }
+        
+        AddWarning(stage.StartWarning);
     }
     
     public void AddWarning(SOWarning warning)

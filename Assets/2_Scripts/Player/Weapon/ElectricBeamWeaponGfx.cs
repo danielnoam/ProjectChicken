@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.VFX;
@@ -7,9 +8,17 @@ public class ElectricBeamWeaponGfx : WeaponGfx
     [SerializeField] private float preWarm = 0.1f;
     [SerializeField] private VisualEffect vfxGraph;
     [SerializeField] private ParticleSystem[] particles;
-    
-    
-    
+    [SerializeField] private Transform ballEffect;
+
+
+    private void Start()
+    {
+        if (player && ballEffect)
+        {
+            ballEffect.parent = player.Aiming.AimWorldPosition;
+        }
+    }
+
     public override void AnimateUsage()
     {
         base.AnimateUsage();
@@ -31,10 +40,10 @@ public class ElectricBeamWeaponGfx : WeaponGfx
             
             foreach (var particle in particles)
             {
-                if (!particle || !particle.gameObject.activeSelf) continue;
+                if (!particle || !particle.gameObject.activeSelf || particle.IsAlive()) continue;
             
                 particle.Simulate(preWarm, true, true, true);
-                particle.Play();
+                particle.Play(true);
             }
         }
         else
@@ -43,7 +52,8 @@ public class ElectricBeamWeaponGfx : WeaponGfx
             foreach (var particle in particles)
             {
                 if (!particle || !particle.gameObject.activeSelf) continue;
-                particle.Stop();
+                particle.Clear();
+                particle.Stop(true);
             }
         }
 	
