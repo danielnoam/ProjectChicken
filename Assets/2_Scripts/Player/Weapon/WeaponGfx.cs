@@ -45,7 +45,7 @@ public class WeaponGfx : MonoBehaviour
         
     }
 
-    protected virtual void StopAnimation()
+    public virtual void StopAnimation()
     {
         
     }

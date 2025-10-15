@@ -16,8 +16,7 @@ MonoBehaviour:
   startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 0
-  events:
-  - rid: 736433245394829417
+  events: []
   stageType: 2
   stageDuration: 15
   delayBeforeNextStage: 2
@@ -68,13 +67,4 @@ MonoBehaviour:
   allowPlayerHeatSystem: 1
   references:
     version: 2
-    RefIds:
-    - rid: 736433245394829417
-      type: {class: SpawnPassthroughObstacleEvent, ns: , asm: Assembly-CSharp}
-      data:
-        isActive: 0
-        initialDelay: 1
-        maxActiveObstacles: 1
-        spawnIntervalRange:
-          minValue: 1
-          maxValue: 1
+    RefIds: []
