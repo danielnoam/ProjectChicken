@@ -65,6 +65,9 @@ public class FormationEffectManager : MonoBehaviour
     [SerializeField] private int registeredChickens = 0;
     [SerializeField] private int expectedChickens = 0;
     [SerializeField] private float registrationProgress = 0f;
+    
+    // Add flag to track if we're in a forced update scenario
+    private bool isInForcedUpdate = false;
 
     void Awake()
     {
@@ -230,7 +233,7 @@ public class FormationEffectManager : MonoBehaviour
 
     private void UpdateStageBasedActivation()
     {
-        if (!isTrackingStageRegistration || hasRolledForCurrentStage) return;
+        if (!isTrackingStageRegistration || (hasRolledForCurrentStage && !isInForcedUpdate)) return;
         if (combatManager == null) return;
 
         // Check if we've reached the threshold
@@ -622,6 +625,59 @@ public class FormationEffectManager : MonoBehaviour
         hasRolledForCurrentStage = false;
         RollForEffectActivation();
         hasRolledForCurrentStage = true;
+    }
+    
+    // Force update chicken count - used by disruptor when chickens are restored
+    public void ForceUpdateChickenCount()
+    {
+        if (!useStageBasedActivation)
+        {
+            if (showStageDebugLogs)
+                Debug.Log("FormationEffectManager: Force update only works in stage-based activation mode");
+            return;
+        }
+
+        if (showStageDebugLogs)
+            Debug.Log($"FormationEffectManager: Force updating chicken count (current: {combatManager?.TotalCombatChickens ?? 0})");
+
+        isInForcedUpdate = true;
+
+        // Update the expected chickens based on current formation
+        if (formationCreator != null)
+        {
+            expectedChickensForStage = formationCreator.formationCount * 
+                                      (formationCreator.FormationSlots?.Count ?? 0) / 
+                                      (formationCreator.formationCount > 0 ? formationCreator.formationCount : 1);
+        }
+
+        // If we haven't rolled yet and we meet the threshold, roll now
+        if (!hasRolledForCurrentStage && isTrackingStageRegistration)
+        {
+            UpdateStageBasedActivation();
+        }
+        // If effects are already active but all chickens are gone, disable effects
+        else if (stageEffectsActive && combatManager != null && combatManager.TotalCombatChickens == 0)
+        {
+            if (showStageDebugLogs)
+                Debug.Log("FormationEffectManager: No chickens remaining after update, disabling effects");
+            
+            SetEffectsEnabled(false, false);
+            stageEffectsActive = false;
+            effectActivationTime = 0f;
+        }
+        // If effects were disabled but we have chickens again, consider re-rolling
+        else if (!stageEffectsActive && combatManager != null && combatManager.TotalCombatChickens > 0)
+        {
+            if (showStageDebugLogs)
+                Debug.Log($"FormationEffectManager: Chickens restored ({combatManager.TotalCombatChickens}), considering re-activation");
+            
+            // Reset and allow a new roll
+            hasRolledForCurrentStage = false;
+            isTrackingStageRegistration = true;
+            UpdateStageBasedActivation();
+        }
+
+        isInForcedUpdate = false;
     }
 
     [ContextMenu("Reset All Effects")]
