@@ -72,14 +72,8 @@ public class EnemyChickenRegistration : MonoBehaviour
 
     private void OnDisable()
     {
-        
-        if (isRegistered)
-            UnregisterFromManager();
-
-        // Also unregister from combat
-        if (isRegisteredForCombat)
-            UnregisterFromCombat();
-        
+        UnregisterFromManager(); 
+        UnregisterFromCombat();
     }
 
 

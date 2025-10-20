@@ -274,6 +274,7 @@ MonoBehaviour:
   isIdleParam: IsIdle
   isMovingParam: IsMoving
   attackTriggerParam: Attack
+  isFailsafeParam: IsFailsafe
 --- !u!114 &6441098358043672622
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -327,8 +328,9 @@ MonoBehaviour:
   followingSpeed: 50
   followingDistanceThreshold: 0.1
   maxMovementResets: 2
-  maxMovementTime: 100
+  maxMovementTime: 4
   enableMovementFailsafe: 1
+  failsafeMovementSpeed: 30
   moveToSpawnWhenIdle: 1
   spawnAreaArrivalDistance: 0.5
   spawnCheckDelay: 0.2
@@ -337,6 +339,7 @@ MonoBehaviour:
   showDebugLogs: 0
   showMovementGizmos: 1
   movementLineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  failsafeMovementColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &8069820876864793074
 MonoBehaviour:
   m_ObjectHideFlags: 0

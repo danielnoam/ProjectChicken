@@ -18,6 +18,7 @@ public class ChickenMovementBehavior : MonoBehaviour
     public int maxMovementResets = 5;
     public float maxMovementTime = 10f;
     public bool enableMovementFailsafe = true;
+    public float failsafeMovementSpeed = 12f; // NEW: Speed multiplier for failsafe movement
     
     [Header("Spawn Area Settings")]
     public bool moveToSpawnWhenIdle = true;
@@ -30,6 +31,7 @@ public class ChickenMovementBehavior : MonoBehaviour
     public bool showDebugLogs = false;
     public bool showMovementGizmos = true;
     public Color movementLineColor = Color.yellow;
+    public Color failsafeMovementColor = Color.red; // NEW: Color for failsafe movement
 
     private ChickenStateController stateController;
     private EnemyChickenRegistration registration;
@@ -126,7 +128,6 @@ public class ChickenMovementBehavior : MonoBehaviour
 
         if (!currentlyInSpawnArea)
         {
-            // Check if EnemySpawner exists and has spawn areas configured
             if (EnemySpawner.Instance == null)
             {
                 if (showDebugLogs)
@@ -160,13 +161,18 @@ public class ChickenMovementBehavior : MonoBehaviour
         {
             StartMovingToSlot();
         }
+        // Handle failsafe movement state - NEW
+        else if (stateController.IsFailsafeMovement && !isMoving)
+        {
+            StartFailsafeMovement();
+        }
         // Handle continuous following when in FollowingSlot state
         else if (stateController.IsFollowingSlot)
         {
             HandleSlotFollowing();
         }
         // Stop movement if state changed to something that shouldn't be moving
-        else if (!stateController.IsMovingToSlot && !stateController.IsIdle && isMoving)
+        else if (!stateController.IsMovingToSlot && !stateController.IsFailsafeMovement && !stateController.IsIdle && isMoving)
         {
             StopMovement();
         }
@@ -177,12 +183,16 @@ public class ChickenMovementBehavior : MonoBehaviour
             CheckMovementFailsafe();
         }
         
-        // Update current movement (only for MovingToSlot and Idle states)
+        // Update current movement
         if (isMoving)
         {
             if (stateController.IsMovingToSlot)
             {
                 UpdateMovementToSlot();
+            }
+            else if (stateController.IsFailsafeMovement) // NEW
+            {
+                UpdateFailsafeMovement();
             }
             else if (stateController.IsIdle)
             {
@@ -249,18 +259,118 @@ public class ChickenMovementBehavior : MonoBehaviour
                     $"too many movement resets ({movementResetCount}/{maxMovementResets})" :
                     $"too much time in MovingToSlot state ({timeInMovingState:F2}s/{maxMovementTime:F2}s)";
                     
-                Debug.LogWarning($"Chicken {gameObject.name}: Movement failsafe triggered due to {reason}. Forcing to FollowingSlot state.");
+                Debug.LogWarning($"Chicken {gameObject.name}: Movement failsafe triggered due to {reason}. Entering FailsafeMovement state.");
             }
             
-            // Force transition to FollowingSlot state
-            stateController.SetFollowingSlot();
+            // Force transition to FailsafeMovement state instead of FollowingSlot - CHANGED
+            stateController.SetFailsafeMovement();
             
-            // Stop discrete movement
+            // Stop discrete movement - failsafe movement will be handled differently
             StopMovement();
-            
-            // Reset failsafe tracking for future use
-            ResetFailsafeTracking();
         }
+    }
+    
+    // NEW: Start failsafe movement
+    void StartFailsafeMovement()
+    {
+        Vector3? slotPosition = registration.GetAssignedSlotPosition();
+        
+        if (slotPosition.HasValue)
+        {
+            startPosition = transform.position;
+            targetPosition = slotPosition.Value;
+            
+            // Use shorter duration for failsafe movement
+            actualMovementDuration = movementDuration / failsafeMovementSpeed;
+            
+            movementTimer = 0f;
+            slotCheckTimer = 0f;
+            isMoving = true;
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"Chicken {gameObject.name}: Started FAILSAFE movement to slot at {targetPosition} (duration: {actualMovementDuration:F2}s)");
+            }
+        }
+        else
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"Chicken {gameObject.name}: No assigned slot position found during failsafe movement!");
+            
+            // If no slot, just go to following state anyway
+            stateController.SetFollowingSlot();
+        }
+    }
+    
+    // NEW: Update failsafe movement
+    void UpdateFailsafeMovement()
+    {
+        movementTimer += Time.deltaTime;
+        
+        // Still check for slot changes during failsafe movement
+        slotCheckTimer += Time.deltaTime;
+        if (slotCheckTimer >= slotChangeDetectionInterval)
+        {
+            CheckForSlotChangesDuringFailsafe();
+            slotCheckTimer = 0f;
+        }
+        
+        float normalizedTime = movementTimer / actualMovementDuration;
+
+        if (normalizedTime >= 1f)
+        {
+            ArrivedAtSlotFromFailsafe();
+            return;
+        }
+
+        // Use a more direct movement for failsafe (linear instead of curved)
+        Vector3 newPosition = Vector3.Lerp(startPosition, targetPosition, normalizedTime);
+        transform.position = newPosition;
+    }
+    
+    // NEW: Check for slot changes during failsafe movement
+    void CheckForSlotChangesDuringFailsafe()
+    {
+        Vector3? currentSlotPosition = registration.GetAssignedSlotPosition();
+        
+        if (currentSlotPosition.HasValue)
+        {
+            Vector3 newTarget = currentSlotPosition.Value;
+            
+            if (Vector3.Distance(targetPosition, newTarget) > 0.1f)
+            {
+                if (showDebugLogs)
+                    Debug.Log($"Chicken {gameObject.name}: Slot changed during failsafe movement. Updating target.");
+                
+                // Update target without resetting failsafe
+                startPosition = transform.position;
+                targetPosition = newTarget;
+                
+                // Recalculate duration based on remaining distance
+                float remainingDistance = Vector3.Distance(startPosition, targetPosition);
+                actualMovementDuration = remainingDistance / (failsafeMovementSpeed * 2f);
+                movementTimer = 0f;
+            }
+        }
+    }
+    
+    // NEW: Handle arrival from failsafe movement
+    void ArrivedAtSlotFromFailsafe()
+    {
+        transform.position = targetPosition;
+        
+        // Transition to FollowingSlot state after failsafe movement
+        stateController.SetFollowingSlot();
+        
+        isMoving = false;
+        movementTimer = 0f;
+        slotCheckTimer = 0f;
+        
+        // Reset failsafe tracking for future use
+        ResetFailsafeTracking();
+        
+        if (showDebugLogs)
+            Debug.Log($"Chicken {gameObject.name}: Arrived at slot via FAILSAFE movement, now following slot");
     }
     
     void StartMovingToSlot()
@@ -281,7 +391,7 @@ public class ChickenMovementBehavior : MonoBehaviour
             idleStateTimer = 0f;
             
             // Initialize failsafe tracking when starting MovingToSlot
-            if (!hasTriggeredFailsafe) // Only reset if we haven't already triggered failsafe
+            if (!hasTriggeredFailsafe)
             {
                 movingToSlotStartTime = Time.time;
                 movementResetCount = 0;
@@ -445,7 +555,6 @@ public class ChickenMovementBehavior : MonoBehaviour
                 if (showDebugLogs)
                     Debug.Log($"Chicken {gameObject.name}: Arrived at slot, now following slot");
             }
-            // If we were already following slot, just stay in that state
         }
 
         isMoving = false;
@@ -473,14 +582,10 @@ public class ChickenMovementBehavior : MonoBehaviour
         slotCheckTimer = 0f;
         idleStateTimer = 0f;
         
-        // Reset failsafe tracking when stopping movement
-        ResetFailsafeTracking();
-        
         if (showDebugLogs)
             Debug.Log($"Chicken {gameObject.name}: Stopped movement");
     }
 
-    // Use EnemySpawner's area-based system
     bool IsInSpawnArea()
     {
         if (EnemySpawner.Instance == null)
@@ -498,7 +603,6 @@ public class ChickenMovementBehavior : MonoBehaviour
         return inSpawnArea;
     }
 
-    // Check if a position is within the valid spawn area (inside big, outside blocker)
     bool IsPositionInValidSpawnArea(Vector3 position)
     {
         if (EnemySpawner.Instance == null)
@@ -507,7 +611,6 @@ public class ChickenMovementBehavior : MonoBehaviour
         return EnemySpawner.Instance.IsPositionInValidSpawnArea(position);
     }
 
-    // Get a valid spawn position using EnemySpawner's logic
     Vector3? GetValidSpawnPosition()
     {
         if (EnemySpawner.Instance == null)
@@ -535,7 +638,7 @@ public class ChickenMovementBehavior : MonoBehaviour
         if (stateController == null || registration == null)
             return;
             
-        StopMovement(); // This will reset failsafe tracking
+        StopMovement(); // This will NOT reset failsafe tracking anymore
         idleStateTimer = 0f;
         
         if (stateController.IsMovingToSlot)
@@ -544,11 +647,16 @@ public class ChickenMovementBehavior : MonoBehaviour
             if (showDebugLogs)
                 Debug.Log($"Chicken {gameObject.name}: RefreshMovementState - Starting slot movement");
         }
+        else if (stateController.IsFailsafeMovement) // NEW
+        {
+            StartFailsafeMovement();
+            if (showDebugLogs)
+                Debug.Log($"Chicken {gameObject.name}: RefreshMovementState - Starting failsafe movement");
+        }
         else if (stateController.IsFollowingSlot)
         {
-            // For FollowingSlot, no special setup needed - HandleSlotFollowing will handle direct movement
             if (showDebugLogs)
-                Debug.Log($"Chicken {gameObject.name}: RefreshMovementState - Now following slot directly (child-like behavior)");
+                Debug.Log($"Chicken {gameObject.name}: RefreshMovementState - Now following slot directly");
         }
         else if (stateController.IsIdle)
         {
@@ -597,6 +705,7 @@ public class ChickenMovementBehavior : MonoBehaviour
     public bool WasInSpawnArea => wasInSpawnArea;
     public float IdleTime => idleStateTimer;
     public bool IsFollowingSlot => stateController != null && stateController.IsFollowingSlot;
+    public bool IsInFailsafeMovement => stateController != null && stateController.IsFailsafeMovement; // NEW
     
     // Failsafe properties
     public int MovementResetCount => movementResetCount;
@@ -644,7 +753,7 @@ public class ChickenMovementBehavior : MonoBehaviour
         if (stateController != null)
         {
             stateController.SetIdle();
-            idleStateTimer = spawnCheckDelay; // Force immediate check
+            idleStateTimer = spawnCheckDelay;
             CheckAndStartSpawnMovement();
         }
     }
@@ -677,6 +786,16 @@ public class ChickenMovementBehavior : MonoBehaviour
             stateController.SetFollowingSlot();
         }
     }
+    
+    [ContextMenu("Force Start Failsafe Movement")] // NEW
+    void ContextMenuForceFailsafeMovement()
+    {
+        if (stateController != null)
+        {
+            hasTriggeredFailsafe = true;
+            stateController.SetFailsafeMovement();
+        }
+    }
 
     [ContextMenu("Force Stop Moving")]
     void ContextMenuForceStopMoving()
@@ -688,31 +807,64 @@ public class ChickenMovementBehavior : MonoBehaviour
         }
     }
     
+    [ContextMenu("Test Failsafe Trigger")] // NEW
+    void ContextMenuTestFailsafe()
+    {
+        if (stateController != null && stateController.IsMovingToSlot)
+        {
+            // Force trigger the failsafe conditions
+            movementResetCount = maxMovementResets + 1;
+            CheckMovementFailsafe();
+        }
+        else
+        {
+            Debug.Log($"Chicken {gameObject.name}: Must be in MovingToSlot state to test failsafe");
+        }
+    }
+    
     void OnDrawGizmos()
     {
         if (!showMovementGizmos)
             return;
 
-        // Show discrete movement (MovingToSlot or moving to spawn)
+        // Show discrete movement
         if (isMoving)
         {
-            if (stateController != null && stateController.IsMovingToSlot)
+            if (stateController != null)
             {
-                Gizmos.color = movementLineColor;
-                Gizmos.DrawLine(transform.position, targetPosition);
-                Gizmos.DrawWireSphere(targetPosition, 0.2f);
-                
-                // Show movement progress
-                float progress = movementTimer / actualMovementDuration;
-                Vector3 progressPos = Vector3.Lerp(startPosition, targetPosition, progress);
-                Gizmos.color = Color.green;
-                Gizmos.DrawSphere(progressPos + Vector3.up * 0.3f, 0.05f);
-            }
-            else if (stateController != null && stateController.IsIdle)
-            {
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawLine(transform.position, targetPosition);
-                Gizmos.DrawWireSphere(targetPosition, spawnAreaArrivalDistance);
+                if (stateController.IsMovingToSlot)
+                {
+                    Gizmos.color = movementLineColor;
+                    Gizmos.DrawLine(transform.position, targetPosition);
+                    Gizmos.DrawWireSphere(targetPosition, 0.2f);
+                    
+                    // Show movement progress
+                    float progress = movementTimer / actualMovementDuration;
+                    Vector3 progressPos = Vector3.Lerp(startPosition, targetPosition, progress);
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawSphere(progressPos + Vector3.up * 0.3f, 0.05f);
+                }
+                else if (stateController.IsFailsafeMovement) // NEW
+                {
+                    Gizmos.color = failsafeMovementColor;
+                    Gizmos.DrawLine(transform.position, targetPosition);
+                    Gizmos.DrawWireSphere(targetPosition, 0.25f);
+                    
+                    // Show failsafe movement progress
+                    float progress = movementTimer / actualMovementDuration;
+                    Vector3 progressPos = Vector3.Lerp(startPosition, targetPosition, progress);
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawSphere(progressPos + Vector3.up * 0.4f, 0.08f);
+                    
+                    // Draw "FAILSAFE" indicator
+                    Gizmos.DrawWireCube(transform.position + Vector3.up, Vector3.one * 0.3f);
+                }
+                else if (stateController.IsIdle)
+                {
+                    Gizmos.color = Color.cyan;
+                    Gizmos.DrawLine(transform.position, targetPosition);
+                    Gizmos.DrawWireSphere(targetPosition, spawnAreaArrivalDistance);
+                }
             }
         }
         // Show direct following (FollowingSlot)
@@ -723,20 +875,18 @@ public class ChickenMovementBehavior : MonoBehaviour
             {
                 float distance = Vector3.Distance(transform.position, slotPosition.Value);
                 
-                // Change color based on whether we're actively following
                 if (distance <= followingDistanceThreshold)
                 {
-                    Gizmos.color = Color.green; // Perfect position - not moving
+                    Gizmos.color = Color.green;
                 }
                 else
                 {
-                    Gizmos.color = Color.yellow; // Actively following - moving directly
+                    Gizmos.color = Color.yellow;
                 }
                 
                 Gizmos.DrawLine(transform.position, slotPosition.Value);
                 Gizmos.DrawWireSphere(slotPosition.Value, followingDistanceThreshold);
                 
-                // Show follow direction with an arrow-like indicator
                 if (distance > followingDistanceThreshold)
                 {
                     Vector3 direction = (slotPosition.Value - transform.position).normalized;
