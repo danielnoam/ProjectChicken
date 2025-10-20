@@ -55,15 +55,17 @@ public class RailPlayerHealth : MonoBehaviour
     [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
     [SerializeField, Self, HideInInspector] private CinemachineImpulseSource cinemachineImpulseSource;
     
-    private float _damagedCooldown;
+    [Separator]
+    [SerializeField, VInspector.ReadOnly] private float damagedCooldown;
+    [SerializeField, VInspector.ReadOnly] private float hitFrameTimer;
+    [SerializeField, VInspector.ReadOnly] private bool regenSfxWasPlaying;
     private Coroutine _regenShieldCoroutine;
-    private float _hitFrameTimer;
-    private bool _regenSfxWasPlaying;
+
 
     public int CurrentHealth { get; private set; }
     public float CurrentShield { get; private set; }
     public float MaxShield { get; private set; }
-    public bool InHitFrames => _hitFrameTimer > 0;
+    public bool InHitFrames => hitFrameTimer > 0;
     
 
     public event Action OnDeath;
@@ -100,17 +102,17 @@ public class RailPlayerHealth : MonoBehaviour
         {
             if (shieldAudioSource.isPlaying)
             {
-                _regenSfxWasPlaying = shieldAudioSource.isPlaying;
+                regenSfxWasPlaying = shieldAudioSource.isPlaying;
                 shieldAudioSource.Pause();
             }
 
         }
         else
         {
-            if (_regenSfxWasPlaying)
+            if (regenSfxWasPlaying)
             {
                 shieldAudioSource.UnPause();
-                _regenSfxWasPlaying = false;
+                regenSfxWasPlaying = false;
             }
         }
     }
@@ -135,7 +137,7 @@ public class RailPlayerHealth : MonoBehaviour
         
         if (deathParticleEffect && deathParticleEffect.isPlaying) deathParticleEffect.Stop();
         
-        _hitFrameTimer = 0;
+        hitFrameTimer = 0;
     }
     
     
@@ -152,23 +154,25 @@ public class RailPlayerHealth : MonoBehaviour
         
         if (ShieldActive())
         {
-            DamageShield(damage);
-            return;
+            DamageShield(damage, iframeMultiplier);
+        }
+        else
+        {
+            DamageHealth(iframeMultiplier);
         }
         
-        DamageHealth(iframeMultiplier);
     }
     
     private void CheckDamageCooldown()
     {
         if (!IsAlive()) return;
         
-        if (_damagedCooldown > 0)
+        if (damagedCooldown > 0)
         {
-            _damagedCooldown -= Time.deltaTime;
+            damagedCooldown -= Time.deltaTime;
         }
         
-        if (_damagedCooldown <= 0 && _regenShieldCoroutine == null && CurrentShield < MaxShield)
+        if (damagedCooldown <= 0 && _regenShieldCoroutine == null && CurrentShield < MaxShield)
         {
             StartShieldRegen();
         }
@@ -188,16 +192,16 @@ public class RailPlayerHealth : MonoBehaviour
     
     private void StartHitFrames(float iframeMultiplier = 1f)
     {
-        _hitFrameTimer = hitFrameDuration * iframeMultiplier;
+        hitFrameTimer = hitFrameDuration * iframeMultiplier;
     }
     
     private void UpdateHitFrames()
     {
-        if (_hitFrameTimer > 0)
+        if (hitFrameTimer > 0)
         {
-            _hitFrameTimer -= Time.deltaTime;
+            hitFrameTimer -= Time.deltaTime;
             
-            if (_hitFrameTimer <= 0)
+            if (hitFrameTimer <= 0)
             {
                 StopHitFrames();
             }
@@ -206,7 +210,7 @@ public class RailPlayerHealth : MonoBehaviour
     
     private void StopHitFrames()
     {
-        _hitFrameTimer = 0;
+        hitFrameTimer = 0;
     }
 
     
@@ -291,22 +295,23 @@ public class RailPlayerHealth : MonoBehaviour
             _regenShieldCoroutine = null;
         }
         
-        _damagedCooldown = shieldRegenCooldown;
+        damagedCooldown = shieldRegenCooldown;
     }
     
     private void StartShieldRegen()
     {
         _regenShieldCoroutine = StartCoroutine(RegenShieldRoutine());
-        _damagedCooldown = 0;
+        damagedCooldown = 0;
     }
     
     [Button]
-    private void DamageShield(float damage)
+    private void DamageShield(float damage, float iframeMultiplier = 1f)
     {
         if (damage <= 0 || !ShieldActive()) return;
         
         StopShieldRegen();
         CurrentShield -= damage;
+        StartHitFrames(iframeMultiplier);
         
         shieldDamagedShakeSettings.GenerateImpulse(cinemachineImpulseSource);
         

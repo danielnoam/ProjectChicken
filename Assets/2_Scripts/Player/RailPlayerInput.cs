@@ -29,6 +29,8 @@ public class RailPlayerInput : InputReaderBase
     public event Action<Vector2> OnProcessedLookEvent;
 
 
+    public readonly float maxReasonableInput = 100f;
+
     protected override void Awake()
     {
         base.Awake();
@@ -123,15 +125,28 @@ public class RailPlayerInput : InputReaderBase
     private void OnLook(InputAction.CallbackContext context)
     {
         if (_isPaused) return;
-        
-        
+
         Vector2 lookDelta = context.ReadValue<Vector2>();
-        
+    
+        // Validate input before processing
+        if (float.IsNaN(lookDelta.x) || float.IsNaN(lookDelta.y) || 
+            float.IsInfinity(lookDelta.x) || float.IsInfinity(lookDelta.y))
+        {
+            Debug.LogWarning($"[INPUT] Corrupted input from Input System: {lookDelta}, device: {context.control?.device?.name}");
+            return;
+        }
+
+        // Clamp extremely large values that indicate corruption
+        if (lookDelta.magnitude > maxReasonableInput)
+        {
+            lookDelta = Vector2.ClampMagnitude(lookDelta, maxReasonableInput);
+        }
+
         Vector2 processedLookDelta = new Vector2(
             CurrentControlScheme.invertX ? -lookDelta.x : lookDelta.x,
             CurrentControlScheme.invertY ? -lookDelta.y : lookDelta.y
         );
-        
+
         OnLookEvent?.Invoke(context);                    
         OnProcessedLookEvent?.Invoke(processedLookDelta); 
     }

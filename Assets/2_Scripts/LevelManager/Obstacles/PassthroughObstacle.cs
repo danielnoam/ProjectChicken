@@ -13,6 +13,7 @@ public class PassthroughObstacle : BaseObstacle
     [SerializeField] private PassthroughTrigger passthroughTrigger;
     
     public bool PassthroughCameraEffect => passthroughCameraEffect;
+    public bool PlayerIsPassingThrough => passthroughTrigger.PlayerIsPassingThrough;
     public Transform CenterObjectTransform => centerObject ? centerObject.transform : transform;
     
     
@@ -91,9 +92,21 @@ public class PassthroughObstacle : BaseObstacle
     
     protected override void OnCollisionWithPlayer(Collider other, RailPlayer player)
     {
-        player.Health.TakeDamage(100f, 5f);
-        Vector3 moveDirection = (player.transform.position - CenterObjectTransform.position).normalized;
-        player.Movement.Push(-moveDirection, 3f);
+        player.Health.TakeDamage(100f, 2f);
+
+        Vector3 moveDirection;
+        if (passthroughTrigger.PlayerIsPassingThrough)
+        { 
+            moveDirection = (CenterObjectTransform.position - player.transform.position).normalized;
+            player.Movement.Push(moveDirection, 5f);
+        }
+        else
+        {
+            moveDirection = (player.transform.position - CenterObjectTransform.position).normalized;
+            player.Movement.Push(moveDirection, 13f);
+        }
+
+
     }
     
     protected override void OnCollisionWithChicken(Collider other, ChickenStateController chicken)

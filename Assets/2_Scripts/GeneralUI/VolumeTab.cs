@@ -6,9 +6,9 @@ using UnityEngine.UI;
 public class VolumeTab : MonoBehaviour
 {
     [Header("Settings")]
-    [SerializeField, Min(-90f)] private float minDB = -60f;
-    [Tooltip("Using 0 instead of 20 because 20 is above the default range")]
-    [SerializeField, Min(20)] private float maxDB; // using 0 instead of 20 because 20 is above the default range
+    [SerializeField, Min(-90f)] private float minDB = -80f;
+    [SerializeField] private float maxDB; // 0 dB is standard max
+    
     [Header("References")]
     [SerializeField] private AudioMixer audioMixer;
     [SerializeField] private Slider masterVolume;
@@ -20,14 +20,12 @@ public class VolumeTab : MonoBehaviour
 
     private VolumeSettings _currentVolumeSettings;
 
-
     private void Start()
     {
         _currentVolumeSettings = SaveManager.GetVolumeSettings();
         audioMixer.SetFloat("MasterVolume", ConvertToDecibelRange(_currentVolumeSettings.masterVolume));
         audioMixer.SetFloat("SFXVolume", ConvertToDecibelRange(_currentVolumeSettings.sfxVolume));
         audioMixer.SetFloat("MusicVolume", ConvertToDecibelRange(_currentVolumeSettings.musicVolume));
-
 
         if (masterVolume)
         {
@@ -51,7 +49,6 @@ public class VolumeTab : MonoBehaviour
         }
     }
     
-    
     private void SetMasterVolume(float volume)
     {
         audioMixer.SetFloat("MasterVolume", ConvertToDecibelRange(volume));
@@ -59,7 +56,6 @@ public class VolumeTab : MonoBehaviour
         masterVolumeText.text = $"{volume * 100f:0}%";
         SaveManager.UpdateVolumeSettings(_currentVolumeSettings);
     }
-    
     
     private void SetSfxVolume(float volume)
     {
@@ -69,7 +65,6 @@ public class VolumeTab : MonoBehaviour
         SaveManager.UpdateVolumeSettings(_currentVolumeSettings);
     }
     
-    
     private void SetMusicVolume(float volume)
     {
         audioMixer.SetFloat("MusicVolume", ConvertToDecibelRange(volume));
@@ -78,11 +73,15 @@ public class VolumeTab : MonoBehaviour
         SaveManager.UpdateVolumeSettings(_currentVolumeSettings);
     }
     
-    
+    // Convert linear slider (0-1) to logarithmic decibel scale
     private float ConvertToDecibelRange(float normalizedValue)
     {
-        return minDB + (normalizedValue * (maxDB - minDB));
+        // Handle the zero case (mute)
+        if (normalizedValue <= 0.0001f)
+            return minDB;
+        
+        // Logarithmic conversion: 20 * log10(value)
+        // This maps 0.0001-1.0 to minDB-maxDB in a logarithmic way
+        return maxDB + 20f * Mathf.Log10(normalizedValue);
     }
-    
-    
 }

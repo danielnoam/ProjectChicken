@@ -19,7 +19,6 @@ MonoBehaviour:
   startRadioMessage: {fileID: 0}
   startWarning: {fileID: 11400000, guid: 573a8159d776e284e876d94e4b93f7f2, type: 2}
   events:
-  - rid: 9145653177167118336
   - rid: 9145653179962621952
   stageType: 5
   stageDuration: 7
@@ -85,27 +84,15 @@ MonoBehaviour:
       type: {class: PassThroughObstaclesTask, ns: , asm: Assembly-CSharp}
       data:
         description: 
-        isCompleted: 0
+        isCompleted: 1
         allowOnlyOne: 1
-        targetAmount: 1
-    - rid: 9145653177167118336
-      type: {class: SpawnObstacleEvent, ns: , asm: Assembly-CSharp}
-      data:
-        isActive: 1
-        initialDelay: 1
-        maxActiveObstacles: 10
-        obstacleCount:
-          minValue: 1
-          maxValue: 3
-        spawnIntervalRange:
-          minValue: 1
-          maxValue: 3
+        targetAmount: 25
     - rid: 9145653179962621952
       type: {class: SpawnPassthroughObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
         isActive: 1
         initialDelay: 1
-        maxActiveObstacles: 1
+        maxActiveObstacles: 5
         spawnIntervalRange:
-          minValue: 0
-          maxValue: 1
+          minValue: 3
+          maxValue: 4

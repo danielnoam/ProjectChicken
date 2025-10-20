@@ -8,7 +8,7 @@ public class ControlSchemeSettings
     [Header("Aiming")]
     public bool invertY;
     public bool invertX;
-    [Min(0.1f), Tooltip("Speed multiplier for crosshair movement")] public float aimSensitivity;
+    [Range(0.1f, 10f), Tooltip("Speed multiplier for crosshair movement")] public float aimSensitivity;
     [Range(0f, 0.3f), Tooltip("Input below this threshold is ignored to prevent drift")] public float deadZone;
     [Tooltip("Controls how input magnitude maps to sensitivity")] public AnimationCurve magnitudeToSensitivityCurve = AnimationCurve.Linear(0, 0, 1, 1);
     

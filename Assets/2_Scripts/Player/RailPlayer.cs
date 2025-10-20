@@ -83,8 +83,11 @@ public class RailPlayer : MonoBehaviour
     {
         if (other.TryGetComponent(out PassthroughObstacle gameObjectCenterer))
         {
-            Vector3 moveDirection = (transform.position - gameObjectCenterer.CenterObjectTransform.position).normalized;
-            Movement.Push(-moveDirection, 1f);
+            if (!gameObjectCenterer.PlayerIsPassingThrough)
+            {
+                Vector3 moveDirection = (transform.position - gameObjectCenterer.CenterObjectTransform.position).normalized;
+                Movement.Push(moveDirection, 1f);
+            }
         }
     }
 

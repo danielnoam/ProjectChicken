@@ -7,7 +7,6 @@ public class PassthroughTrigger : MonoBehaviour
     
     [HideInInspector] public bool playerPassedThrough;
     [HideInInspector] public bool playerEnteredTrigger;
-
     
     public bool PlayerIsPassingThrough => !playerPassedThrough && playerEnteredTrigger;
     

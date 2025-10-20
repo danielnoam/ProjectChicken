@@ -121,7 +121,7 @@ public class RailPlayerAiming : MonoBehaviour
         if (_aimMovementCoroutine != null) 
         {
             StopCoroutine(_aimMovementCoroutine);
-            _aimMovementCoroutine = null; // Important: clear the reference
+            _aimMovementCoroutine = null; 
         }
 
         if (AllowAiming != stage.AllowPlayerAiming)
@@ -357,21 +357,20 @@ public class RailPlayerAiming : MonoBehaviour
     private void OnProcessedLook(Vector2 processedLookInput)
     {
         if (!AllowAiming || !player.Health.IsAlive()) return;
-    
-        // Validate input at the source - only check for NaN/Infinity, not magnitude
+
+        // Validate input
         if (!IsValidVector2(processedLookInput))
         {
-            Debug.LogWarning($"Detected corrupted input in OnProcessedLook: {processedLookInput}, ignoring");
-            return; // Don't update _processedLookInput with corrupted data
+            Debug.LogWarning($"[AIMING] Corrupted input detected: {processedLookInput}");
+            return;
         }
-    
-        // Only clamp truly extreme values that indicate corruption (not fast mouse movement)
-        if (processedLookInput.magnitude > 10000f)
+
+        // Safety clamp
+        if (processedLookInput.magnitude > playerInput.maxReasonableInput)
         {
-            Debug.LogWarning($"Detected extremely large input magnitude in OnProcessedLook: {processedLookInput.magnitude}, clamping");
-            processedLookInput = processedLookInput.normalized * 1000f; // Keep direction but limit magnitude
+            processedLookInput = Vector2.ClampMagnitude(processedLookInput, playerInput.maxReasonableInput);
         }
-    
+
         _processedLookInput = processedLookInput;
         _noInputTimer = 0f;
     }
@@ -393,7 +392,7 @@ public class RailPlayerAiming : MonoBehaviour
         Vector2 inputDelta = _processedLookInput;
         Vector2 positionChange;
         
-        // Safety check (should be clean now, but keeping as backup)
+        // Safety check
         if (!IsValidVector2(inputDelta))
         {
             Debug.LogError($"Corrupted input made it past OnProcessedLook validation: {inputDelta}");
@@ -425,7 +424,6 @@ public class RailPlayerAiming : MonoBehaviour
             {
                 float scaledMagnitude = (inputDelta.magnitude - deadZone) / (1f - deadZone);
                 
-                // Only catch truly problematic values - normal mouse movement can be large
                 if (!float.IsFinite(scaledMagnitude))
                 {
                     Debug.LogError($"Non-finite scaled magnitude detected: {scaledMagnitude} from input: {inputDelta}");
@@ -469,10 +467,9 @@ public class RailPlayerAiming : MonoBehaviour
         _normalizedAimPosition += positionChange;
         _normalizedAimPosition.x = Mathf.Clamp(_normalizedAimPosition.x, -1f, 1f);
         _normalizedAimPosition.y = Mathf.Clamp(_normalizedAimPosition.y, -1f, 1f);
-        _processedLookInput = inputDelta;
     }
 
-
+    
     #endregion Input Processing --------------------------------------------------------------------------------------------------------
 
     

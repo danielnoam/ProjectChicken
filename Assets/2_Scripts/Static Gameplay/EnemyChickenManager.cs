@@ -283,7 +283,7 @@ public class EnemyChickenManager : MonoBehaviour
 
     public void ForceCompleteReset()
     {
-        Debug.Log("EnemyChickenManager: Force complete reset initiated");
+        // Debug.Log("EnemyChickenManager: Force complete reset initiated");
 
         slotAssignments.Clear();
         waitingChickens.Clear();
@@ -300,7 +300,7 @@ public class EnemyChickenManager : MonoBehaviour
         // Reset freeze state
         isSlotAssignmentFrozen = false;
         
-        Debug.Log("EnemyChickenManager: Complete reset finished");
+        // Debug.Log("EnemyChickenManager: Complete reset finished");
     }
 
     public void SetAutoUpdatesEnabled(bool enabled)
@@ -340,7 +340,7 @@ public class EnemyChickenManager : MonoBehaviour
         // Force complete reassignment to fill any empty slots created during freeze
         // (e.g., if chickens died while frozen)
         ReassignAllChickens();
-        Debug.Log($"EnemyChickenManager: Force reassigned all chickens after unfreeze. {slotAssignments.Count} assigned, {waitingChickens.Count} waiting");
+        // Debug.Log($"EnemyChickenManager: Force reassigned all chickens after unfreeze. {slotAssignments.Count} assigned, {waitingChickens.Count} waiting");
     }
 
     public bool RegisterChicken(GameObject chicken)
