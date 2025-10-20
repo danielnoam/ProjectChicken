@@ -274,29 +274,31 @@ public class ChickenMovementBehavior : MonoBehaviour
     void StartFailsafeMovement()
     {
         Vector3? slotPosition = registration.GetAssignedSlotPosition();
-        
+    
         if (slotPosition.HasValue)
         {
             startPosition = transform.position;
             targetPosition = slotPosition.Value;
-            
-            // Use shorter duration for failsafe movement
-            actualMovementDuration = movementDuration / failsafeMovementSpeed;
-            
+        
+            // Don't calculate duration - we'll use constant speed instead
+            // actualMovementDuration is not needed for failsafe movement
+        
             movementTimer = 0f;
             slotCheckTimer = 0f;
             isMoving = true;
-            
+        
             if (showDebugLogs)
             {
-                Debug.Log($"Chicken {gameObject.name}: Started FAILSAFE movement to slot at {targetPosition} (duration: {actualMovementDuration:F2}s)");
+                float distance = Vector3.Distance(startPosition, targetPosition);
+                float estimatedTime = distance / failsafeMovementSpeed;
+                Debug.Log($"Chicken {gameObject.name}: Started FAILSAFE movement to slot at {targetPosition} (distance: {distance:F2}, estimated time: {estimatedTime:F2}s at speed {failsafeMovementSpeed})");
             }
         }
         else
         {
             if (showDebugLogs)
                 Debug.LogWarning($"Chicken {gameObject.name}: No assigned slot position found during failsafe movement!");
-            
+        
             // If no slot, just go to following state anyway
             stateController.SetFollowingSlot();
         }
@@ -305,8 +307,8 @@ public class ChickenMovementBehavior : MonoBehaviour
     // NEW: Update failsafe movement
     void UpdateFailsafeMovement()
     {
-        movementTimer += Time.deltaTime;
-        
+        movementTimer += Time.deltaTime; // Still track time for debug purposes
+    
         // Still check for slot changes during failsafe movement
         slotCheckTimer += Time.deltaTime;
         if (slotCheckTimer >= slotChangeDetectionInterval)
@@ -314,42 +316,52 @@ public class ChickenMovementBehavior : MonoBehaviour
             CheckForSlotChangesDuringFailsafe();
             slotCheckTimer = 0f;
         }
-        
-        float normalizedTime = movementTimer / actualMovementDuration;
-
-        if (normalizedTime >= 1f)
+    
+        // Calculate distance to target
+        float distanceToTarget = Vector3.Distance(transform.position, targetPosition);
+    
+        // Check if we've arrived (within a small threshold)
+        if (distanceToTarget <= 0.1f)
         {
             ArrivedAtSlotFromFailsafe();
             return;
         }
-
-        // Use a more direct movement for failsafe (linear instead of curved)
-        Vector3 newPosition = Vector3.Lerp(startPosition, targetPosition, normalizedTime);
-        transform.position = newPosition;
+    
+        // Move at constant speed
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        float moveDistance = failsafeMovementSpeed * Time.deltaTime;
+    
+        // Make sure we don't overshoot the target
+        if (moveDistance >= distanceToTarget)
+        {
+            transform.position = targetPosition;
+            ArrivedAtSlotFromFailsafe();
+        }
+        else
+        {
+            transform.position += direction * moveDistance;
+        }
     }
     
     // NEW: Check for slot changes during failsafe movement
     void CheckForSlotChangesDuringFailsafe()
     {
         Vector3? currentSlotPosition = registration.GetAssignedSlotPosition();
-        
+    
         if (currentSlotPosition.HasValue)
         {
             Vector3 newTarget = currentSlotPosition.Value;
-            
+        
             if (Vector3.Distance(targetPosition, newTarget) > 0.1f)
             {
                 if (showDebugLogs)
                     Debug.Log($"Chicken {gameObject.name}: Slot changed during failsafe movement. Updating target.");
-                
-                // Update target without resetting failsafe
-                startPosition = transform.position;
+            
+                // Just update the target position - no need to recalculate anything else
                 targetPosition = newTarget;
-                
-                // Recalculate duration based on remaining distance
-                float remainingDistance = Vector3.Distance(startPosition, targetPosition);
-                actualMovementDuration = remainingDistance / (failsafeMovementSpeed * 2f);
-                movementTimer = 0f;
+            
+                // Optional: Update start position to current position for smoother direction change
+                startPosition = transform.position;
             }
         }
     }
