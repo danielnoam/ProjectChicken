@@ -45,11 +45,11 @@ GameObject:
   - component: {fileID: 3700986783957688275}
   - component: {fileID: 2099359427101454486}
   - component: {fileID: 8824006632455104043}
-  - component: {fileID: 3630582121873738456}
   - component: {fileID: 6441098358043672622}
   - component: {fileID: 8069820876864793074}
   - component: {fileID: 2733919210489267741}
   - component: {fileID: 1084284691073448971}
+  - component: {fileID: 3630582121873738456}
   - component: {fileID: 8748988958935106450}
   m_Layer: 9
   m_Name: EnemyChicken01A
@@ -257,24 +257,6 @@ MonoBehaviour:
   showDebugLogs: 0
   lootTable: {fileID: 11400000, guid: 5b9315d82c63681c6a44897478ec311f, type: 2}
   scoreWorth: 50
---- !u!114 &3630582121873738456
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4673152547086385400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fd5a04216e499748841e7e5e2c58e6b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  showDebugLogs: 0
-  attackAnimationDuration: 1
-  isIdleParam: IsIdle
-  isMovingParam: IsMoving
-  attackTriggerParam: Attack
-  isFailsafeParam: IsFailsafe
 --- !u!114 &6441098358043672622
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,6 +374,26 @@ MonoBehaviour:
   showDamageNumbers: 0
   damageSfx: {fileID: 11400000, guid: 39342ebf1d4ddb14a94552600160c6ee, type: 2}
   showDebugLogs: 0
+--- !u!114 &3630582121873738456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4673152547086385400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fd5a04216e499748841e7e5e2c58e6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showDebugLogs: 0
+  attackAnimationDuration: 1
+  minAttackSpeedMultiplier: 1
+  maxAttackSpeedMultiplier: 2
+  isIdleParam: IsIdle
+  isMovingParam: IsMoving
+  attackTriggerParam: Attack
+  isFailsafeParam: IsFailsafe
 --- !u!95 &8748988958935106450
 Animator:
   serializedVersion: 7

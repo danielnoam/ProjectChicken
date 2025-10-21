@@ -9,10 +9,17 @@ public class ChickenAnimationController : MonoBehaviour
     public bool showDebugLogs = false;
     public float attackAnimationDuration = 1f; // How long the attack animation should play
     
+    [Header("Attack Animation Speed")]
+    [Range(1f, 2f)]
+    public float minAttackSpeedMultiplier = 1f; // Minimum speed multiplier for attacks
+    [Range(1f, 2f)]
+    public float maxAttackSpeedMultiplier = 1.5f; // Maximum speed multiplier for attacks
+    
     [Header("Animation Parameter Names")]
     public string isIdleParam = "IsIdle";
     public string isMovingParam = "IsMoving";
     public string attackTriggerParam = "Attack";
+    public string attackSpeedParam = "AttackSpeed"; // NEW: Parameter to control attack animation speed
     public string isFailsafeParam = "IsFailsafe"; // NEW: Optional parameter for failsafe-specific animations
     
     private Animator animator;
@@ -23,6 +30,10 @@ public class ChickenAnimationController : MonoBehaviour
     private bool isPlayingAttackAnimation = false;
     private float attackAnimationTimer = 0f;
     private ChickenStateController.ChickenState lastState;
+    
+    // Speed tracking for attack animations
+    private float baseAnimatorSpeed = 1f;
+    private float currentAttackSpeedMultiplier = 1f;
     
     void Start()
     {
@@ -48,7 +59,13 @@ public class ChickenAnimationController : MonoBehaviour
         
         // Initialize animation state
         lastState = stateController.CurrentState;
-        animator.speed = Random.Range(0.9f, 1.1f); // ±10% speed difference
+        animator.speed = Random.Range(0.9f, 1.1f); // ±10% speed difference for variety
+        
+        // Set default attack speed if parameter exists
+        if (HasAnimatorParameter(attackSpeedParam))
+        {
+            animator.SetFloat(attackSpeedParam, 1f);
+        }
   
         UpdateAnimationState();
         
@@ -67,6 +84,7 @@ public class ChickenAnimationController : MonoBehaviour
             if (attackAnimationTimer <= 0f)
             {
                 isPlayingAttackAnimation = false;
+                
                 UpdateAnimationState(); // Return to normal state animation
                 
                 if (showDebugLogs)
@@ -181,23 +199,36 @@ public class ChickenAnimationController : MonoBehaviour
             return;
         }
         
+        // Generate random speed multiplier for this attack
+        currentAttackSpeedMultiplier = Random.Range(minAttackSpeedMultiplier, maxAttackSpeedMultiplier);
+        
+        // Set the attack speed parameter in the animator
+        if (HasAnimatorParameter(attackSpeedParam))
+        {
+            animator.SetFloat(attackSpeedParam, currentAttackSpeedMultiplier);
+        }
+        else
+        {
+            Debug.LogWarning($"ChickenAnimationController on {gameObject.name}: Attack speed parameter '{attackSpeedParam}' not found in Animator!");
+        }
+        
         // Trigger attack animation
         animator.SetTrigger(attackTriggerParam);
         
         // Start attack animation timer
         isPlayingAttackAnimation = true;
-        attackAnimationTimer = attackAnimationDuration;
+        attackAnimationTimer = attackAnimationDuration / currentAttackSpeedMultiplier; // Adjust timer for animation speed
         
         if (showDebugLogs)
         {
-            Debug.Log($"ChickenAnimationController on {gameObject.name}: Playing attack animation (duration: {attackAnimationDuration}s)");
+            Debug.Log($"ChickenAnimationController on {gameObject.name}: Playing attack animation (duration: {attackAnimationTimer:F2}s, speed multiplier: {currentAttackSpeedMultiplier:F2})");
         }
     }
 
     private void OnEnable()
     {
         // Reset animator completely when enabled from pool
-        ResetAnimatorCompletely();
+        ForceIdleAnimation();
     }
 
     private void OnDisable()
@@ -226,6 +257,10 @@ public class ChickenAnimationController : MonoBehaviour
         // Reset all tracking variables
         isPlayingAttackAnimation = false;
         attackAnimationTimer = 0f;
+        currentAttackSpeedMultiplier = 1f;
+        
+        // Restore base animator speed
+        animator.speed = baseAnimatorSpeed;
         
         if (showDebugLogs)
             Debug.Log($"ChickenAnimationController on {gameObject.name}: Animator completely reset");
@@ -258,6 +293,9 @@ public class ChickenAnimationController : MonoBehaviour
         
         isPlayingAttackAnimation = false;
         attackAnimationTimer = 0f;
+        
+        // Restore base speed
+        animator.speed = baseAnimatorSpeed;
         
         if (showDebugLogs)
         {
@@ -312,11 +350,15 @@ public class ChickenAnimationController : MonoBehaviour
     {
         isPlayingAttackAnimation = false;
         attackAnimationTimer = 0f;
+        
+        // Restore base animator speed
+        animator.speed = baseAnimatorSpeed;
+        
         UpdateAnimationState();
         
         if (showDebugLogs)
         {
-            Debug.Log($"ChickenAnimationController on {gameObject.name}: Stopped attack animation");
+            Debug.Log($"ChickenAnimationController on {gameObject.name}: Stopped attack animation, restored base speed {baseAnimatorSpeed:F2}");
         }
     }
     
@@ -336,6 +378,7 @@ public class ChickenAnimationController : MonoBehaviour
     public float AttackAnimationTimeRemaining => isPlayingAttackAnimation ? attackAnimationTimer : 0f;
     public Animator Animator => animator;
     public bool IsInFailsafeAnimation => stateController != null && stateController.IsFailsafeMovement; // NEW
+    public float CurrentAttackSpeedMultiplier => currentAttackSpeedMultiplier; // NEW: Expose current attack speed
     
     // Context menu methods for testing
     [ContextMenu("Test Attack Animation")]
@@ -379,6 +422,9 @@ public class ChickenAnimationController : MonoBehaviour
         Debug.Log($"Is Playing Attack: {isPlayingAttackAnimation}");
         Debug.Log($"Attack Time Remaining: {attackAnimationTimer:F2}s");
         Debug.Log($"Is In Failsafe: {IsInFailsafeAnimation}"); // NEW
+        Debug.Log($"Base Animator Speed: {baseAnimatorSpeed:F2}");
+        Debug.Log($"Current Animator Speed: {animator.speed:F2}");
+        Debug.Log($"Current Attack Speed Multiplier: {currentAttackSpeedMultiplier:F2}");
         
         // Try to get current animator state info
         if (animator.runtimeAnimatorController != null)
