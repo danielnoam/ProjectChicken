@@ -117,6 +117,16 @@ MonoBehaviour:
     poolSize: 0
     activePoolCount: 0
     inactivePoolCount: 0
+  - poolName: EnemyChicken01AOnlyResources
+    maxPoolSize: 50
+    prefab: {fileID: 3530658036455566040, guid: 6342e840a045a8a4d9207954c274bb0a, type: 3}
+    dontDestroyOnLoad: 0
+    recycleActiveObjects: 1
+    preWarmPool: 0
+    preWarmPoolSize: 0
+    poolSize: 0
+    activePoolCount: 0
+    inactivePoolCount: 0
   - poolName: EnemyChicken01B
     maxPoolSize: 50
     prefab: {fileID: 4673152547086385400, guid: d746d791b76e6fb48ada7b0db075148a, type: 3}
@@ -160,6 +170,16 @@ MonoBehaviour:
   - poolName: EnemyChicken02C
     maxPoolSize: 50
     prefab: {fileID: 4673152547086385400, guid: b6abd8751aeaeeb419a62e6bedeb6be4, type: 3}
+    dontDestroyOnLoad: 0
+    recycleActiveObjects: 1
+    preWarmPool: 0
+    preWarmPoolSize: 0
+    poolSize: 0
+    activePoolCount: 0
+    inactivePoolCount: 0
+  - poolName: EnemyChicken02CNoCombat
+    maxPoolSize: 50
+    prefab: {fileID: 7814531037729381617, guid: 1bff7ebe729f78b45b96de40a872ef62, type: 3}
     dontDestroyOnLoad: 0
     recycleActiveObjects: 1
     preWarmPool: 0

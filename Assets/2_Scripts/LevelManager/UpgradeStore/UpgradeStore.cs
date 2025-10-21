@@ -4,6 +4,7 @@ using System.Linq;
 using DNExtensions.MenuSystem;
 using KBCore.Refs;
 using PrimeTween;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VInspector;
@@ -89,6 +90,9 @@ public class UpgradeStore : NavigatableUIScreen
     [SerializeField] private CaptainCock captain;
     [SerializeField] private Button closeStoreButton;
     [SerializeField] private Button rerollButton;
+    [SerializeField] private GameObject rerollButtonCostGfx;
+    [SerializeField] private GameObject rerollButtonNoCostGfx;
+    [SerializeField] private TextMeshProUGUI rerollCostText;
     [SerializeField] private PlayerUpgradesDisplay playerUpgradesDisplay;
     [SerializeField] private UpgradeEgg upgradeEggPrefab;
     [SerializeField] private GameObject chickenLegPrefab;
@@ -99,6 +103,7 @@ public class UpgradeStore : NavigatableUIScreen
     [SerializeField] private Vector3 offsetBetweenUpgrades = new Vector3(25,0,0);
     [SerializeField] private bool allowRerollAfterPurchase;
     [SerializeField, Min(0)] private int rerollCostAfterPurchase = 25;
+    [SerializeField] private Color notEnoughCurrencyColor = Color.red;
     
     [Header("Animations")]
     [SerializeField] private float uiAnimationDuration = 1f;
@@ -118,6 +123,7 @@ public class UpgradeStore : NavigatableUIScreen
     private Sequence _paySequence;
     private bool _hasRerolled;
     private bool _hasPurchasedItem;
+    private Color _baseRerollButtonColor;
     
     public RailPlayer Player => player;
     public LevelManager LevelManager => levelManager;
@@ -225,6 +231,8 @@ public class UpgradeStore : NavigatableUIScreen
         {
             AddSelectable(rerollButton);
             rerollButton.onClick.AddListener(RerollEggs);
+            rerollCostText.text = $"Reroll {rerollCostAfterPurchase}";
+            _baseRerollButtonColor = rerollButton.GetComponent<Image>().color;
         }
     }
     
@@ -364,16 +372,17 @@ public class UpgradeStore : NavigatableUIScreen
     {
         bool canReroll = !_hasRerolled && (!_hasPurchasedItem || allowRerollAfterPurchase);
         
-        if (canReroll && _hasPurchasedItem && allowRerollAfterPurchase && rerollCostAfterPurchase > 0)
+        rerollButtonNoCostGfx.SetActive(true);
+        rerollButtonCostGfx.SetActive(false);
+        var image = rerollButton.GetComponent<Image>();
+        image.color = _baseRerollButtonColor;
+        
+        if (canReroll && _hasPurchasedItem && allowRerollAfterPurchase)
         {
-            if (player.ResourceCollector.CurrentCurrency >= rerollCostAfterPurchase)
-            {
-                canReroll = true;
-            }
-            else
-            {
-                canReroll = false;
-            }
+            rerollButtonCostGfx.SetActive(true);
+            rerollButtonNoCostGfx.SetActive(false);
+            
+            image.color = player.ResourceCollector.CurrentCurrency >= rerollCostAfterPurchase ? _baseRerollButtonColor : notEnoughCurrencyColor;
         }
     
         rerollButton.interactable = canReroll;

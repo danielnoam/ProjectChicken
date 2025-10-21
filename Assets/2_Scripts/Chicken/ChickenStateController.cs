@@ -23,7 +23,7 @@ public class ChickenStateController : MonoBehaviour, IPooledObject, ITargetable,
     private ChickenHealth _chickenHealth;
     private EnemyChickenRegistration _registration;
 
-    public Transform Transform => transform;
+    public Transform Transform =>  transform;
     public bool IsValidTarget => _chickenHealth.IsAlive();
     
     public ChickenState CurrentState => currentState;
