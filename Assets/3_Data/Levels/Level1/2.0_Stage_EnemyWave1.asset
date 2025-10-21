@@ -39,9 +39,18 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyAmount: 4
+  enemyAmount: 8
   enemyTypes:
-    internalItems: []
+    internalItems:
+    - item: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
+      chance: 70
+      isLocked: 0
+    - item: {fileID: 8824006632455104043, guid: d746d791b76e6fb48ada7b0db075148a, type: 3}
+      chance: 15
+      isLocked: 0
+    - item: {fileID: 8824006632455104043, guid: 6146c5a6d4c964c4cb58f78c861d889c, type: 3}
+      chance: 15
+      isLocked: 0
   formationStageData:
     formationType: 0
     formationCount: 1
