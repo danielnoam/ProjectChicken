@@ -32,12 +32,13 @@ public class RailPlayerAiming : MonoBehaviour
     [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
 
 
+    [Separator]
+    [SerializeField, VInspector.ReadOnly] private Vector2 processedLookInput;
+    [SerializeField, VInspector.ReadOnly] private Vector2 normalizedAimPosition;
+    [SerializeField, VInspector.ReadOnly] private float noInputTimer;
+    [SerializeField, VInspector.ReadOnly] private float aimLockCooldownTimer;
+    [SerializeField, VInspector.ReadOnly] private bool isAimLocked;
 
-    private bool _isAimLocked;
-    private float _noInputTimer;
-    private float _aimLockCooldownTimer;
-    private Vector2 _processedLookInput;
-    private Vector2 _normalizedAimPosition;
     private ITargetable _currentAimLockTarget;
     private Coroutine _aimMovementCoroutine;
     private float CrosshairBoundaryX => player.LevelManager ? player.LevelManager.EnemyBoundarySize.x : 25f;
@@ -49,7 +50,7 @@ public class RailPlayerAiming : MonoBehaviour
 
 
     public Transform AimWorldPosition => aimWorldPosition;
-    public Vector2 NormalizedAimPosition => _normalizedAimPosition;
+    public Vector2 NormalizedAimPosition => normalizedAimPosition;
     
     public event Action<bool, ITargetable> OnAimLockStateChange;
     public event Action<bool> OnAllowAimingChanged;
@@ -113,7 +114,7 @@ public class RailPlayerAiming : MonoBehaviour
     {
         if (!stage) return;
         
-        if (_isAimLocked)
+        if (isAimLocked)
         {
             BreakAimLock();
         }
@@ -155,8 +156,8 @@ public class RailPlayerAiming : MonoBehaviour
         Vector3 boundaryCenter = GetEnemySplinePosition();
         
         Vector3 localOffset = new Vector3(
-            _normalizedAimPosition.x * CrosshairBoundaryX,
-            _normalizedAimPosition.y * CrosshairBoundaryY,
+            normalizedAimPosition.x * CrosshairBoundaryX,
+            normalizedAimPosition.y * CrosshairBoundaryY,
             0
         );
 
@@ -172,28 +173,35 @@ public class RailPlayerAiming : MonoBehaviour
             Debug.Log($"NaN detected in target position: {targetPosition}");
             aimWorldPosition.position = boundaryCenter + transform.forward * 10f;
             AimDirection = transform.forward;
-            _normalizedAimPosition = Vector2.zero;
+            normalizedAimPosition = Vector2.zero;
         }
     }
     
     private void HandleAutoCenter()
     {
+        if (!AllowAiming || !autoCenter || isAimLocked || IsAimMovementActive) return;
 
-        if (!AllowAiming || !autoCenter || _isAimLocked || IsAimMovementActive) return;
-
-        bool hasInput = _processedLookInput.magnitude > 0.01f;
+        bool hasInput = processedLookInput.magnitude > 0.01f;
 
         if (!hasInput)
         {
-            _noInputTimer += Time.deltaTime;
+            noInputTimer += Time.deltaTime;
     
-            if (_noInputTimer >= autoCenterDelay)
+            if (noInputTimer >= autoCenterDelay)
             {
-                _normalizedAimPosition = Vector2.Lerp(
-                    _normalizedAimPosition, 
-                    Vector2.zero, 
-                    autoCenterSpeed * Time.deltaTime
-                );
+                if (Vector2.Distance(normalizedAimPosition, Vector2.zero) > 0.01f)
+                {
+                    normalizedAimPosition = Vector2.Lerp(
+                        normalizedAimPosition, 
+                        Vector2.zero, 
+                        autoCenterSpeed * Time.deltaTime
+                    );
+                }
+                else
+                {
+                    normalizedAimPosition = Vector2.zero;
+                }
+                
             }
         }
     }
@@ -221,6 +229,7 @@ public class RailPlayerAiming : MonoBehaviour
     private IEnumerator AimAt(Vector3? worldPosition, float speed)
     {
         Vector2 targetNormalizedPosition;
+        processedLookInput = Vector2.zero;
     
         if (worldPosition.HasValue)
         {
@@ -236,17 +245,17 @@ public class RailPlayerAiming : MonoBehaviour
             targetNormalizedPosition = Vector2.zero;
         }
     
-        while (Vector2.Distance(_normalizedAimPosition, targetNormalizedPosition) > 0.01f)
+        while (Vector2.Distance(normalizedAimPosition, targetNormalizedPosition) > 0.01f)
         {
-            _normalizedAimPosition = Vector2.Lerp(
-                _normalizedAimPosition, 
+            normalizedAimPosition = Vector2.Lerp(
+                normalizedAimPosition, 
                 targetNormalizedPosition, 
                 speed * Time.deltaTime
             );
             yield return null;
         }
     
-        _normalizedAimPosition = targetNormalizedPosition;
+        normalizedAimPosition = targetNormalizedPosition;
     }
 
     #endregion Aiming --------------------------------------------------------------------------------------------------------
@@ -258,7 +267,7 @@ public class RailPlayerAiming : MonoBehaviour
     {
         if (!playerInput.CurrentControlScheme.aimLock || !AllowAiming || !player.Health.IsAlive())
         {
-            if (_isAimLocked)
+            if (isAimLocked)
             {
                 BreakAimLock();
             }
@@ -266,13 +275,13 @@ public class RailPlayerAiming : MonoBehaviour
         }
         
 
-        if (_aimLockCooldownTimer > 0)
+        if (aimLockCooldownTimer > 0)
         {
-            _aimLockCooldownTimer -= Time.deltaTime;
+            aimLockCooldownTimer -= Time.deltaTime;
         }
         
                 
-        if (_isAimLocked)
+        if (isAimLocked)
         {
             if (_currentAimLockTarget == null || !_currentAimLockTarget.Transform.gameObject.activeInHierarchy || !_currentAimLockTarget.IsValidTarget)
             {
@@ -297,15 +306,15 @@ public class RailPlayerAiming : MonoBehaviour
                 Mathf.Clamp(localTargetOffset.y / CrosshairBoundaryY, -1f, 1f)
             );
         
-            _normalizedAimPosition = Vector2.Lerp(
-                _normalizedAimPosition,
+            normalizedAimPosition = Vector2.Lerp(
+                normalizedAimPosition,
                 targetNormalizedPosition,
                 playerInput.CurrentControlScheme.aimLockSpeed * Time.deltaTime
             );
         }
         
         
-        if (!_isAimLocked && _aimLockCooldownTimer <= 0 && _noInputTimer > 0.1f)
+        if (!isAimLocked && aimLockCooldownTimer <= 0 && noInputTimer > 0.1f)
         {
             TryAimLock();
         }
@@ -313,24 +322,24 @@ public class RailPlayerAiming : MonoBehaviour
     
     private void TryAimLock()
     {
-        if (_isAimLocked) return;
+        if (isAimLocked) return;
         
         ITargetable newTarget = GetTarget(playerInput.CurrentControlScheme.aimLockRadius);
         if (newTarget is { IsValidTarget: true } && _currentAimLockTarget != newTarget)
         {
             _currentAimLockTarget = newTarget;
-            _isAimLocked = true;
+            isAimLocked = true;
             OnAimLockStateChange?.Invoke(true, newTarget);
         }
     }
     
     private void BreakAimLock(bool playerBrokeAimLock = false)
     {
-        if (!_isAimLocked) return;
+        if (!isAimLocked) return;
         
-        _isAimLocked = false;
+        isAimLocked = false;
         _currentAimLockTarget = null;
-        _aimLockCooldownTimer = !playerBrokeAimLock ? playerInput.CurrentControlScheme.aimLockCooldown : playerInput.CurrentControlScheme.aimLockCooldown*2;
+        aimLockCooldownTimer = !playerBrokeAimLock ? playerInput.CurrentControlScheme.aimLockCooldown : playerInput.CurrentControlScheme.aimLockCooldown*2;
         OnAimLockStateChange?.Invoke(false, null);
     }
     
@@ -345,12 +354,12 @@ public class RailPlayerAiming : MonoBehaviour
     
     private void OnAttack2(InputAction.CallbackContext context)
     {
-        _noInputTimer = 0f;
+        noInputTimer = 0f;
     }
 
     private void OnAttack(InputAction.CallbackContext context)
     {
-        _noInputTimer = 0f;
+        noInputTimer = 0f;
     }
     
     
@@ -371,32 +380,32 @@ public class RailPlayerAiming : MonoBehaviour
             processedLookInput = Vector2.ClampMagnitude(processedLookInput, playerInput.maxReasonableInput);
         }
 
-        _processedLookInput = processedLookInput;
-        _noInputTimer = 0f;
+        this.processedLookInput = processedLookInput;
+        noInputTimer = 0f;
     }
     
         
     private void ProcessAimingInput()
     {
-        if (_isAimLocked && _processedLookInput.magnitude <= playerInput.CurrentControlScheme.aimLockStrength)
+        if (isAimLocked && processedLookInput.magnitude <= playerInput.CurrentControlScheme.aimLockStrength)
         {
-            _processedLookInput = Vector2.zero;
+            processedLookInput = Vector2.zero;
             return;
         }
         
-        if (_isAimLocked && _processedLookInput.magnitude > playerInput.CurrentControlScheme.aimLockStrength)
+        if (isAimLocked && processedLookInput.magnitude > playerInput.CurrentControlScheme.aimLockStrength)
         {
             BreakAimLock(playerBrokeAimLock: true);
         }
 
-        Vector2 inputDelta = _processedLookInput;
+        Vector2 inputDelta = processedLookInput;
         Vector2 positionChange;
         
         // Safety check
         if (!IsValidVector2(inputDelta))
         {
             Debug.LogError($"Corrupted input made it past OnProcessedLook validation: {inputDelta}");
-            _processedLookInput = Vector2.zero;
+            processedLookInput = Vector2.zero;
             return;
         }
         
@@ -454,8 +463,8 @@ public class RailPlayerAiming : MonoBehaviour
         }
         
         Vector2 edgeDistance = new Vector2(
-            1f - Mathf.Abs(_normalizedAimPosition.x),
-            1f - Mathf.Abs(_normalizedAimPosition.y)
+            1f - Mathf.Abs(normalizedAimPosition.x),
+            1f - Mathf.Abs(normalizedAimPosition.y)
         );
         Vector2 edgeMultiplier = new Vector2(
             Mathf.Lerp(edgeSlowdown, 1f, edgeDistance.x),
@@ -464,9 +473,9 @@ public class RailPlayerAiming : MonoBehaviour
         positionChange.x *= edgeMultiplier.x;
         positionChange.y *= edgeMultiplier.y;
         
-        _normalizedAimPosition += positionChange;
-        _normalizedAimPosition.x = Mathf.Clamp(_normalizedAimPosition.x, -1f, 1f);
-        _normalizedAimPosition.y = Mathf.Clamp(_normalizedAimPosition.y, -1f, 1f);
+        normalizedAimPosition += positionChange;
+        normalizedAimPosition.x = Mathf.Clamp(normalizedAimPosition.x, -1f, 1f);
+        normalizedAimPosition.y = Mathf.Clamp(normalizedAimPosition.y, -1f, 1f);
     }
 
     

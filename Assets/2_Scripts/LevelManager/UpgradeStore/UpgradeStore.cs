@@ -94,10 +94,11 @@ public class UpgradeStore : NavigatableUIScreen
     [SerializeField] private GameObject chickenLegPrefab;
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     
-    [Header("Settings")]
+    [Header("Store Settings")]
     [SerializeField] private bool closeStoreOnPurchase;
-    [SerializeField, Min(1)] private int availableUpgrades = 3;
     [SerializeField] private Vector3 offsetBetweenUpgrades = new Vector3(25,0,0);
+    [SerializeField] private bool allowRerollAfterPurchase;
+    [SerializeField, Min(0)] private int rerollCostAfterPurchase = 25;
     
     [Header("Animations")]
     [SerializeField] private float uiAnimationDuration = 1f;
@@ -106,6 +107,8 @@ public class UpgradeStore : NavigatableUIScreen
     [SerializeField] private Ease payAnimationScaleEase = Ease.OutBounce;
     [SerializeField] private Vector3 captainOffset;
     
+    
+    private const int availableUpgrades = 3;
     
     private readonly List<SOUpgradeBase> _storeUpgradesPool = new List<SOUpgradeBase>();
     private readonly RarityWeights _storeRarityWeights = new RarityWeights();
@@ -324,8 +327,19 @@ public class UpgradeStore : NavigatableUIScreen
 
     private void RerollEggs()
     {
-        if (_hasRerolled || _hasPurchasedItem) return;
+        if (_hasRerolled) return;
+        if (_hasPurchasedItem && !allowRerollAfterPurchase) return;
         
+        if (_hasPurchasedItem && allowRerollAfterPurchase && rerollCostAfterPurchase > 0)
+        {
+            if (player.ResourceCollector.CurrentCurrency < rerollCostAfterPurchase)
+            {
+                // Add feedback that player can't afford reroll
+                return;
+            }
+            player.ResourceCollector.SpendCurrency(rerollCostAfterPurchase);
+        }
+
         _hasRerolled = true;
         UpdateRerollButtonState();
         
@@ -348,7 +362,21 @@ public class UpgradeStore : NavigatableUIScreen
     
     private void UpdateRerollButtonState()
     {
-        rerollButton.interactable = !_hasRerolled && !_hasPurchasedItem;
+        bool canReroll = !_hasRerolled && (!_hasPurchasedItem || allowRerollAfterPurchase);
+        
+        if (canReroll && _hasPurchasedItem && allowRerollAfterPurchase && rerollCostAfterPurchase > 0)
+        {
+            if (player.ResourceCollector.CurrentCurrency >= rerollCostAfterPurchase)
+            {
+                canReroll = true;
+            }
+            else
+            {
+                canReroll = false;
+            }
+        }
+    
+        rerollButton.interactable = canReroll;
         if (!rerollButton.interactable) 
         {
             rerollButton.GetComponentInChildren<SelectableAnimator>().Deselect();

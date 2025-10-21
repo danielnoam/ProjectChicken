@@ -3098,7 +3098,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 045f8597f1094332b113468e32e86b96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  specialWeaponMagnetRadius: 15
   player: {fileID: 2233603387570671912}
+  currentMagnetRadius: 0
+  currentCurrency: 0
 --- !u!114 &7233717465822237952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3225,6 +3228,11 @@ MonoBehaviour:
   playerMovement: {fileID: 7233717465822237952}
   playerWeapon: {fileID: 3423310960035294283}
   controllerVibrationSource: {fileID: 284695675551663708}
+  processedLookInput: {x: 0, y: 0}
+  normalizedAimPosition: {x: 0, y: 0}
+  noInputTimer: 0
+  aimLockCooldownTimer: 0
+  isAimLocked: 0
 --- !u!114 &3423310960035294283
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -13,14 +13,16 @@ MonoBehaviour:
   m_Name: 4.2_Stage_EnemyWave21
   m_EditorClassIdentifier: 
   stageTitle: 
-  startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 0
+  allowSkip: 0
+  startRadioMessage: {fileID: 0}
+  startWarning: {fileID: 0}
   events: []
   stageType: 2
   stageDuration: 15
   delayBeforeNextStage: 3
-  showOutroMenu: 0
+  outroMode: 0
   nextLevel:
     sceneAsset: {fileID: 0}
     sceneName: 
@@ -28,15 +30,21 @@ MonoBehaviour:
   allowToCloseStore: 1
   upgradesPool:
   - {fileID: 0}
+  poolRarityWeights:
+    commonWeight: 100
+    uncommonWeight: 60
+    rareWeight: 30
+  poolRarityCosts:
+    commonCost: 25
+    uncommonCost: 50
+    rareCost: 100
   waveScoreWorth: 1000
-  enemyWave:
-    serializedKvps:
-    - Key: {fileID: 743128004572040203, guid: 6342e840a045a8a4d9207954c274bb0a, type: 3}
-      Value: 9
-      index: 0
-      isKeyRepeated: 0
-      isKeyNull: 0
-    dividerPos: 0.33
+  enemyAmount: 20
+  enemyTypes:
+    internalItems:
+    - item: {fileID: 743128004572040203, guid: 6342e840a045a8a4d9207954c274bb0a, type: 3}
+      chance: 100
+      isLocked: 0
   formationStageData:
     formationType: 2
     formationCount: 2

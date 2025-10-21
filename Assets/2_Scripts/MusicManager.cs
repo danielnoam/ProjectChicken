@@ -13,10 +13,11 @@ public class MusicManager : MonoBehaviour
     
     
     [Header("Settings")]
-    [SerializeField, Range(0,1)] private float playVolume = 0.3f;
-    [SerializeField, Range(0,1)] private float pausedVolume = 0.15f;
-    [SerializeField] private float fadeDuration = 0.25f;
+    [SerializeField, Range(0,1)] private float playVolume = 0.2f;
+    [SerializeField, Range(0,1)] private float pausedVolume = 0.2f;
+    [SerializeField] private float fadeDuration = 1f;
     [SerializeField] private AudioClip mainMenuTheme;
+    [SerializeField] private AudioClip outroTheme;
     [SerializeField] private AudioClip[] testThemes = Array.Empty<AudioClip>();
     
     [Header("References")]
@@ -68,12 +69,14 @@ public class MusicManager : MonoBehaviour
         {
             levelManager.OnLevelSet -= OnLevelSet;
             levelManager.OnPause -= OnPause;
+            levelManager.OnStageChanged -= OnStageChanged;
         }
         
         SceneManager.sceneLoaded -= OnSceneLoaded;
         SceneManager.sceneUnloaded -= OnSceneUnloaded;
         
     }
+    
 
 
     private void OnSceneUnloaded(Scene scene)
@@ -106,6 +109,17 @@ public class MusicManager : MonoBehaviour
         PlayMusic(level.LevelTheme);
     }
     
+    
+    private void OnStageChanged(SOLevelStage stage)
+    {
+        if (!stage) return;
+
+        if (stage.StageType == StageType.Outro)
+        {
+            PlayMusic(outroTheme);
+        }
+        
+    }
     
     private void OnPause(bool paused)
     {
@@ -203,8 +217,10 @@ public class MusicManager : MonoBehaviour
         {
             levelManager.OnLevelSet -= OnLevelSet;
             levelManager.OnPause -= OnPause;
+            levelManager.OnStageChanged -= OnStageChanged;
             levelManager.OnLevelSet += OnLevelSet;
             levelManager.OnPause += OnPause;
+            levelManager.OnStageChanged += OnStageChanged;
         }
     }
     

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DNExtensions;
 using KBCore.Refs;
 using UnityEngine;
 using VInspector;
@@ -7,13 +8,19 @@ using VInspector;
 public class RailPlayerResourceCollector : MonoBehaviour
 {
 
+    [Header("Settings")]
+    [SerializeField] private float specialWeaponMagnetRadius = 10f;
     [SerializeField, Self, HideInInspector] private RailPlayer player;
+
+    
+    [Separator]
+    [SerializeField, VInspector.ReadOnly] private float currentMagnetRadius;
+    [SerializeField, VInspector.ReadOnly] private int currentCurrency ;
+    
     private readonly List<Resource> _resourcesInRange = new List<Resource>();
     private readonly Dictionary<ResourceType, Action<Resource>> _collectionActions = new Dictionary<ResourceType, Action<Resource>>();
-    private float _currentMagnetRadius;
     
-    public int CurrentCurrency { get; private set; }
-    
+    public int CurrentCurrency => currentCurrency;
     public event Action<Resource> OnResourceCollected;
     public event Action<int> OnCurrencyChanged;
 
@@ -49,9 +56,9 @@ public class RailPlayerResourceCollector : MonoBehaviour
         _collectionActions.Add(ResourceType.ShieldPack, (resource) => player.Health.HealShield(resource.ShieldWorth));
         _collectionActions.Add(ResourceType.SpecialWeapon, (resource) => player.WeaponSystem.SetActiveWeapon(resource.WeaponData));
 
-        _currentMagnetRadius = player.PlayerStats.BaseMagnetRadius;
-        CurrentCurrency = currency;
-        OnCurrencyChanged?.Invoke(CurrentCurrency);
+        currentMagnetRadius = player.PlayerStats.BaseMagnetRadius;
+        currentCurrency = currency;
+        OnCurrencyChanged?.Invoke(currentCurrency);
     }
 
     
@@ -59,29 +66,46 @@ public class RailPlayerResourceCollector : MonoBehaviour
     {
         if (!player.Health.IsAlive()) return;
         
-        Collider[] colliders = Physics.OverlapSphere(transform.position, _currentMagnetRadius);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, currentMagnetRadius);
         foreach (var col in colliders)
         {
             if (col.TryGetComponent(out Resource resource))
             {
                 if (!resource || _resourcesInRange.Contains(resource)) continue;
-                _resourcesInRange.Add(resource);
-                resource.SetMagnetized(transform);
+                
+                float effectiveMagnetRadius = resource.ResourceType == ResourceType.SpecialWeapon 
+                    ? specialWeaponMagnetRadius
+                    : currentMagnetRadius;
+                
+                
+                float distance = Vector3.Distance(transform.position, resource.transform.position);
+                
+            
+
+                if (distance <= effectiveMagnetRadius)
+                {
+                    _resourcesInRange.Add(resource);
+                    resource.SetMagnetized(transform);
+                }
             }
         }
         
         for (int i = _resourcesInRange.Count - 1; i >= 0; i--)
         {
             var resource = _resourcesInRange[i];
-            
+    
             if (!resource)
             {
                 _resourcesInRange.RemoveAt(i);
                 continue;
             }
-    
+            
+            float effectiveRadius = resource.ResourceType == ResourceType.SpecialWeapon 
+                ? specialWeaponMagnetRadius
+                : currentMagnetRadius;
+
             var distance = Vector3.Distance(transform.position, resource.transform.position);
-            if (distance > _currentMagnetRadius)
+            if (distance > effectiveRadius)
             {
                 resource.ReleaseFromMagnetization();
                 _resourcesInRange.RemoveAt(i);
@@ -106,10 +130,10 @@ public class RailPlayerResourceCollector : MonoBehaviour
 
     public void UpgradeMagnetSizeBy(float amount)
     {
-        _currentMagnetRadius += amount;
-        if (_currentMagnetRadius > player.PlayerStats.MaxMagnetSize)
+        currentMagnetRadius += amount;
+        if (currentMagnetRadius > player.PlayerStats.MaxMagnetSize)
         {
-            _currentMagnetRadius = player.PlayerStats.MaxMagnetSize;
+            currentMagnetRadius = player.PlayerStats.MaxMagnetSize;
         }
     }
     
@@ -117,24 +141,28 @@ public class RailPlayerResourceCollector : MonoBehaviour
     [Button]
     public void AddCurrency(int amount)
     {
-        CurrentCurrency += amount;
-        OnCurrencyChanged?.Invoke(CurrentCurrency);
+        currentCurrency += amount;
+        OnCurrencyChanged?.Invoke(currentCurrency);
     }
     
     public void SpendCurrency(int amount)
     {
-        if (CurrentCurrency < amount) return;
+        if (currentCurrency < amount) return;
         
-        CurrentCurrency -= amount;
-        OnCurrencyChanged?.Invoke(CurrentCurrency);
+        currentCurrency -= amount;
+        OnCurrencyChanged?.Invoke(currentCurrency);
     }
     
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.purple;
-        Gizmos.DrawWireSphere(transform.position, _currentMagnetRadius);
-        UnityEditor.Handles.Label(transform.position + (Vector3.up * _currentMagnetRadius), "Magnet Radius");
+        Gizmos.DrawWireSphere(transform.position, currentMagnetRadius);
+        UnityEditor.Handles.Label(transform.position + (Vector3.up * currentMagnetRadius), "Magnet Radius");
+        
+        Gizmos.color = Color.purple;
+        Gizmos.DrawWireSphere(transform.position, specialWeaponMagnetRadius);
+        UnityEditor.Handles.Label(transform.position + (Vector3.up * specialWeaponMagnetRadius), "Special Weapon Magnet Radius");
     }
 #endif
 
