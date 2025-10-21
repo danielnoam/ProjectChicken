@@ -50,9 +50,6 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
     private readonly List<ChickenDisruptionData> _disruptedChickens = new List<ChickenDisruptionData>();
     private readonly HashSet<Collider> _buildingsInZone = new HashSet<Collider>(); 
     private BoxCollider _boxCollider;
-    private bool _wasBreathingActiveBeforeDisruption;
-    private bool _wasRotationActiveBeforeDisruption;
-    private bool _hadPendingActivationBeforeDisruption;
     private EnemyChickenManager _chickenManager;
     
 
@@ -191,10 +188,14 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
             }
         }
         
-        // Pause formation effects before disrupting chickens
-        if (pauseFormationEffects)
+        // Stop formation effects during disruption
+        if (pauseFormationEffects && formationEffectManager != null)
         {
-            PauseFormationEffects();
+            formationEffectManager.ForceStopAllEffects();
+            if (showDebugLogs)
+            {
+                Debug.Log($"PassageBuildingChickenDisruptor: Stopped all formation effects");
+            }
         }
         
         isDisrupting = true;
@@ -224,7 +225,7 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         
         // Note: We keep isDisrupting = true during recovery delay
         // Chickens remain disrupted until recovery completes
-        // Formation effects remain paused during recovery
+        // Formation effects remain stopped during recovery
         // Manager auto-updates remain disabled during recovery
     }
     
@@ -236,77 +237,6 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         {
             EndDisruption();
         }
-    }
-    
-    void PauseFormationEffects()
-    {
-        if (!formationEffectManager) return;
-        
-        // Store current effect states
-        _wasBreathingActiveBeforeDisruption = formationEffectManager.IsBreathingActive;
-        _wasRotationActiveBeforeDisruption = formationEffectManager.IsRotationActive;
-        
-        // Check if there was a pending activation
-        var pendingField = formationEffectManager.GetType().GetField("isWaitingForEffectActivation", 
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        _hadPendingActivationBeforeDisruption = pendingField?.GetValue(formationEffectManager) is bool pending && pending;
-        
-        if (showDebugLogs)
-        {
-            string stateMsg = "Formation effects paused: ";
-            stateMsg += $"Breathing={_wasBreathingActiveBeforeDisruption}, Rotation={_wasRotationActiveBeforeDisruption}";
-            if (_hadPendingActivationBeforeDisruption)
-            {
-                stateMsg += ", PendingActivation=true";
-            }
-            Debug.Log($"PassageBuildingChickenDisruptor: {stateMsg}");
-        }
-        
-        // Force stop all effects (this will also cancel any pending activations)
-        formationEffectManager.ForceStopAllEffects();
-    }
-    
-    void ResumeFormationEffects()
-    {
-        if (!formationEffectManager || !pauseFormationEffects) return;
-        
-        if (showDebugLogs)
-        {
-            string resumeMsg = "Resuming formation effects: ";
-            resumeMsg += $"Breathing={_wasBreathingActiveBeforeDisruption}, Rotation={_wasRotationActiveBeforeDisruption}";
-            if (_hadPendingActivationBeforeDisruption)
-            {
-                resumeMsg += ", RestartPending=true";
-            }
-            Debug.Log($"PassageBuildingChickenDisruptor: {resumeMsg}");
-        }
-        
-        // If effects were active or pending before disruption, restart them
-        if (_wasBreathingActiveBeforeDisruption || _wasRotationActiveBeforeDisruption || _hadPendingActivationBeforeDisruption)
-        {
-            if (formationEffectManager.UseStageBasedActivation)
-            {
-                // In stage-based mode, force a new roll for effects
-                // This will restart the delay timer and potentially activate effects again
-                formationEffectManager.ForceRollForEffects();
-            }
-            else
-            {
-                // In manual mode, restore the previous states
-                if (_wasBreathingActiveBeforeDisruption)
-                    formationEffectManager.StartBreathing();
-                if (_wasRotationActiveBeforeDisruption)
-                    formationEffectManager.StartRotation();
-                
-                if (_wasBreathingActiveBeforeDisruption || _wasRotationActiveBeforeDisruption)
-                    formationEffectManager.StartEffects();
-            }
-        }
-        
-        // Clear stored states
-        _wasBreathingActiveBeforeDisruption = false;
-        _wasRotationActiveBeforeDisruption = false;
-        _hadPendingActivationBeforeDisruption = false;
     }
     
     void DisruptAllChickens()
@@ -381,90 +311,100 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         }
     }
     
-  void EndDisruption()
-{
-    if (showDebugLogs)
+    void EndDisruption()
     {
-        Debug.Log($"PassageBuildingChickenDisruptor: Recovery delay complete, restoring {_disruptedChickens.Count} chickens");
-    }
-    
-    int restoredCount = 0;
-    
-    // Restore all disrupted chickens
-    foreach (var disruptionData in _disruptedChickens)
-    {
-        if (!disruptionData.IsValid())
+        if (showDebugLogs)
         {
-            continue;
+            Debug.Log($"PassageBuildingChickenDisruptor: Recovery delay complete, restoring {_disruptedChickens.Count} chickens");
         }
         
-        // IMPORTANT: Reset tracking variables BEFORE re-enabling auto management
-        // This ensures the system treats the slot assignment as "new"
-        var registrationType = disruptionData.registration.GetType();
-        var wasAssignedField = registrationType.GetField("wasAssignedLastFrame", 
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var lastSlotIndexField = registrationType.GetField("lastKnownSlotIndex", 
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var lastSlotPosField = registrationType.GetField("lastKnownSlotPosition", 
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        int restoredCount = 0;
         
-        if (wasAssignedField != null)
-            wasAssignedField.SetValue(disruptionData.registration, false);
-        if (lastSlotIndexField != null)
-            lastSlotIndexField.SetValue(disruptionData.registration, -1);
-        if (lastSlotPosField != null)
-            lastSlotPosField.SetValue(disruptionData.registration, null);
+        // Restore all disrupted chickens
+        foreach (var disruptionData in _disruptedChickens)
+        {
+            if (!disruptionData.IsValid())
+            {
+                continue;
+            }
+            
+            // IMPORTANT: Reset tracking variables BEFORE re-enabling auto management
+            // This ensures the system treats the slot assignment as "new"
+            var registrationType = disruptionData.registration.GetType();
+            var wasAssignedField = registrationType.GetField("wasAssignedLastFrame", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var lastSlotIndexField = registrationType.GetField("lastKnownSlotIndex", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var lastSlotPosField = registrationType.GetField("lastKnownSlotPosition", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (wasAssignedField != null)
+                wasAssignedField.SetValue(disruptionData.registration, false);
+            if (lastSlotIndexField != null)
+                lastSlotIndexField.SetValue(disruptionData.registration, -1);
+            if (lastSlotPosField != null)
+                lastSlotPosField.SetValue(disruptionData.registration, null);
+            
+            // Re-enable auto state management if it was originally enabled
+            disruptionData.registration.autoManageState = disruptionData.wasAutoManaging;
+            
+            // Set to idle first, then let the system detect the assignment
+            disruptionData.stateController.SetIdle();
+            
+            restoredCount++;
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"PassageBuildingChickenDisruptor: Restored chicken '{disruptionData.stateController.gameObject.name}' (auto-manage: {disruptionData.wasAutoManaging})");
+            }
+        }
         
-        // Re-enable auto state management if it was originally enabled
-        disruptionData.registration.autoManageState = disruptionData.wasAutoManaging;
+        // Clean up
+        _disruptedChickens.Clear();
+        isDisrupting = false;
+        isInRecoveryDelay = false;
+        recoveryTimeRemaining = 0f;
         
-        // Set to idle first, then let the system detect the assignment
-        disruptionData.stateController.SetIdle();
+        // Unfreeze slot assignments and re-enable auto-updates
+        if (_chickenManager != null)
+        {
+            _chickenManager.UnfreezeSlotAssignments();
+            _chickenManager.SetAutoUpdatesEnabled(true);
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"PassageBuildingChickenDisruptor: Unfroze slot assignments and re-enabled auto-updates");
+            }
+        }
         
-        restoredCount++;
+        // Update formation effects to current chicken count
+        if (pauseFormationEffects && formationEffectManager != null)
+        {
+            // Wait a frame to ensure chickens are fully restored before updating formation effects
+            StartCoroutine(UpdateFormationEffectsDelayed());
+        }
         
         if (showDebugLogs)
         {
-            Debug.Log($"PassageBuildingChickenDisruptor: Restored chicken '{disruptionData.stateController.gameObject.name}' (auto-manage: {disruptionData.wasAutoManaging})");
+            Debug.Log($"PassageBuildingChickenDisruptor: Disruption ended, restored {restoredCount} chickens");
         }
     }
     
-    // Clean up
-    _disruptedChickens.Clear();
-    isDisrupting = false;
-    isInRecoveryDelay = false;
-    recoveryTimeRemaining = 0f;
-    
-    // Unfreeze slot assignments and re-enable auto-updates
-    if (_chickenManager != null)
-    {
-        _chickenManager.UnfreezeSlotAssignments();
-        _chickenManager.SetAutoUpdatesEnabled(true);
-        
-        if (showDebugLogs)
-        {
-            Debug.Log($"PassageBuildingChickenDisruptor: Unfroze slot assignments and re-enabled auto-updates");
-        }
-    }
-    
-    // Resume formation effects after chicken restoration
-    if (pauseFormationEffects)
-    {
-        // Wait a frame to ensure chickens are fully restored before resuming effects
-        StartCoroutine(ResumeFormationEffectsDelayed());
-    }
-    
-    if (showDebugLogs)
-    {
-        Debug.Log($"PassageBuildingChickenDisruptor: Disruption ended, restored {restoredCount} chickens");
-    }
-}
-    
-    // Wait one frame before resuming effects to ensure chicken states are stable
-    IEnumerator ResumeFormationEffectsDelayed()
+    // Wait one frame before updating effects to ensure chicken states are stable
+    IEnumerator UpdateFormationEffectsDelayed()
     {
         yield return null; // Wait one frame
-        ResumeFormationEffects();
+        
+        if (formationEffectManager != null && formationEffectManager.UseStageBasedActivation)
+        {
+            // Force a re-evaluation of effects based on current chicken count
+            formationEffectManager.ForceUpdateChickenCount();
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"PassageBuildingChickenDisruptor: Forced formation effect manager to update chicken count");
+            }
+        }
     }
     
     // Force end disruption (useful for testing or special cases)

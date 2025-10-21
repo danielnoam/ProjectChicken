@@ -15,10 +15,10 @@ public class FormationStageData
     [SerializeField, Min(1)] private int numberOfSlots;
     
     [Tooltip("Spacing between slots in Square, Triangle, and VShape formations")]
-    [SerializeField, Min(0.1f), HideIf("formationType", FormationCreator.FormationType.Circle)] private float spacing;
+    [SerializeField, Min(0.1f), HideIf("formationType", FormationCreator.FormationType.Circle)] private float spacing;[EndIf]
     
     [Tooltip("Radius of the circle formation")]
-    [SerializeField, Min(0.1f), ShowIf("formationType", FormationCreator.FormationType.Circle)] private float circleRadius;
+    [SerializeField, Min(0.1f), ShowIf("formationType", FormationCreator.FormationType.Circle)] private float circleRadius;[EndIf]
     
     [Header("Placement Settings")]
     [Tooltip("Use random placement instead of side-by-side positioning")]
@@ -28,7 +28,7 @@ public class FormationStageData
     [SerializeField, Min(0.1f)] private float formationSpacing;
     
     [Tooltip("Maximum attempts to place formations without overlap")]
-    [SerializeField, Range(10, 1000), ShowIf("useRandomPlacement")] private int maxPlacementAttempts;
+    [SerializeField, Range(10, 1000), ShowIf("useRandomPlacement")] private int maxPlacementAttempts;[EndIf]
     
     // Public properties to access the settings
     public FormationCreator.FormationType FormationType => formationType;

@@ -42,7 +42,8 @@ public class SOLevelStage : ScriptableObject
     
     [ShowIf("stageType", StageType.EnemyWave)]
     [SerializeField, Min(0)] private int waveScoreWorth = 1000;
-    [SerializeField] private SerializedDictionary<ChickenStateController,int> enemyWave = new SerializedDictionary<ChickenStateController, int>();
+    [SerializeField, Range(0, 50)] private int enemyAmount = 4;
+    [SerializeField] private ChanceList<ChickenStateController> enemyTypes = new ChanceList<ChickenStateController>();
     [SerializeField] private FormationStageData formationStageData = new FormationStageData();
     [EndIf]
     
@@ -83,7 +84,8 @@ public class SOLevelStage : ScriptableObject
     public bool ShowOutroMenu => outroMode == OutroMode.ShowOutroMenu;
     public bool AllowToCloseStore => allowToCloseStore;
     public SceneField NextLevel => nextLevel;
-    public SerializedDictionary<ChickenStateController, int> EnemyWave => enemyWave;
+    public int EnemyAmount => enemyAmount;
+    public ChanceList<ChickenStateController> EnemyTypes => enemyTypes;
     public float DelayBeforeNextStage => delayBeforeNextStage;
     public int WaveScoreWorth =>  waveScoreWorth;
     public FormationStageData FormationStageData => formationStageData;

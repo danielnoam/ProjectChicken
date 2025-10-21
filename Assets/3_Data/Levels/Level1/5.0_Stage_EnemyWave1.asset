@@ -20,7 +20,7 @@ MonoBehaviour:
   stageType: 2
   stageDuration: 15
   delayBeforeNextStage: 1
-  showOutroMenu: 0
+  outroMode: 0
   nextLevel:
     sceneAsset: {fileID: 0}
     sceneName: 
@@ -28,11 +28,19 @@ MonoBehaviour:
   allowToCloseStore: 1
   upgradesPool:
   - {fileID: 0}
+  poolRarityWeights:
+    commonWeight: 100
+    uncommonWeight: 60
+    rareWeight: 30
+  poolRarityCosts:
+    commonCost: 25
+    uncommonCost: 50
+    rareCost: 100
   waveScoreWorth: 1000
   enemyWave:
     serializedKvps:
     - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
-      Value: 14
+      Value: 35
       index: 0
       isKeyRepeated: 0
       isKeyNull: 0
@@ -40,9 +48,9 @@ MonoBehaviour:
   formationStageData:
     formationType: 1
     formationCount: 1
-    numberOfSlots: 6
+    numberOfSlots: 10
     spacing: 8
-    circleRadius: 12
+    circleRadius: 16
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100

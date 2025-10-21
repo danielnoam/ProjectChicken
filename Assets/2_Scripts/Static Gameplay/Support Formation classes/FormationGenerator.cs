@@ -54,13 +54,12 @@ public class FormationGenerator : MonoBehaviour
     void GenerateCircleFormation(List<Vector3> formation)
     {
         float effectiveRadius = creator.BoundaryManager.EffectiveRadius;
-        int totalSlots = Mathf.RoundToInt(creator.ActualSlotCount * 1.5f);
 
         formation.Add(Vector3.zero);
         // Distribute slots evenly around the circle
-        for (int i = 0; i < totalSlots; i++)
+        for (int i = 0; i < creator.ActualSlotCount; i++)
         {
-            float angle = (i * 2 * Mathf.PI) / totalSlots;
+            float angle = (i * 2 * Mathf.PI) / creator.ActualSlotCount;
             float x = Mathf.Cos(angle) * effectiveRadius;
             float y = Mathf.Sin(angle) * effectiveRadius;
             formation.Add(new Vector3(x, y, 0));

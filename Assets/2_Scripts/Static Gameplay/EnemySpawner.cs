@@ -147,19 +147,22 @@ public class EnemySpawner : MonoBehaviour
 
     private void SpawnEnemyWave(SOLevelStage stage)
     {
-        if (stage.EnemyWave.Count == 0) return;
+        if (stage.EnemyAmount == 0 || stage.EnemyTypes == null || stage.EnemyTypes.Count == 0)
+        {
+            Debug.LogWarning("No enemies to spawn");
+            return;
+        }
         
         ClearEnemies();
         
-        foreach (var enemyType in stage.EnemyWave)
+        for (int i = 0; i < stage.EnemyAmount; i++)
         {
-            for (int i = 0; i < enemyType.Value; i++)
-            {
-                if (!enemyType.Key || enemyType.Value <= 0) continue;
+            var enemyType = stage.EnemyTypes.GetRandomItem();
+            if (!enemyType) continue;
                 
-                SpawnEnemy(enemyType.Key);
-            }
+            SpawnEnemy(enemyType);
         }
+        
         
         OnEnemyWaveSpawned?.Invoke();
     }

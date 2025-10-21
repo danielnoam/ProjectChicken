@@ -6,8 +6,6 @@ using UnityEngine;
 [RequireComponent(typeof(EnemyChickenRegistration))]
 public class ChickenStateController : MonoBehaviour, IPooledObject, ITargetable, IDamageable
 {
-
-
     [Header("Current State")]
     [SerializeField] private ChickenState currentState = ChickenState.Idle;
     
@@ -20,14 +18,10 @@ public class ChickenStateController : MonoBehaviour, IPooledObject, ITargetable,
     
     [Header("Score Settings")]
     [SerializeField] private int scoreWorth = 50;
-  
-
-    
     
     private bool _hasBeenReturnedToPool;
     private ChickenHealth _chickenHealth;
     private EnemyChickenRegistration _registration;
-
 
     public Transform Transform => transform;
     public bool IsValidTarget => _chickenHealth.IsAlive();
@@ -40,18 +34,18 @@ public class ChickenStateController : MonoBehaviour, IPooledObject, ITargetable,
     public bool IsMovingToSlot => currentState == ChickenState.MovingToSlot;
     public bool IsFollowingSlot => currentState == ChickenState.FollowingSlot;
     public bool IsConcussed => currentState == ChickenState.Concussed;
+    public bool IsFailsafeMovement => currentState == ChickenState.FailsafeMovement; // NEW
     public bool CanAttack => IsFollowingSlot; // Only when following slot
-    public bool IsMoving => IsMovingToSlot; // Only MovingToSlot counts as moving now
+    public bool IsMoving => IsMovingToSlot || IsFailsafeMovement; // Both states count as moving
     public bool IsInFormation => IsFollowingSlot; // Following slot means in formation
-    
-    
     
     public enum ChickenState
     {
-        Idle,            // When there are no available slots or moving to spawn
-        MovingToSlot,    // When the chicken is moving to its assigned slot for the first time
-        FollowingSlot,   // When the chicken is at its slot and following/tracking slot changes (can attack in this state)
-        Concussed        // When they are hit with the player weapon, the chicken can't attack in this state
+        Idle,               // When there are no available slots or moving to spawn
+        MovingToSlot,       // When the chicken is moving to its assigned slot for the first time
+        FollowingSlot,      // When the chicken is at its slot and following/tracking slot changes (can attack in this state)
+        Concussed,          // When they are hit with the player weapon, the chicken can't attack in this state
+        FailsafeMovement    // NEW: When failsafe triggers, chicken moves directly to slot before entering FollowingSlot
     }
     
     private void Awake()
@@ -61,10 +55,12 @@ public class ChickenStateController : MonoBehaviour, IPooledObject, ITargetable,
         
         _registration = GetComponent<EnemyChickenRegistration>();
     }
+    
     void OnEnable() 
     {
         _hasBeenReturnedToPool = false;
     }
+    
     public bool ChangeState(ChickenState newState)
     {
         if (!allowStateTransitions)
@@ -90,18 +86,18 @@ public class ChickenStateController : MonoBehaviour, IPooledObject, ITargetable,
         return true;
     }
 
-
     public bool SetIdle() => ChangeState(ChickenState.Idle);
     public bool SetMovingToSlot() => ChangeState(ChickenState.MovingToSlot);
     public bool SetFollowingSlot() => ChangeState(ChickenState.FollowingSlot);
     public bool SetConcussed() => ChangeState(ChickenState.Concussed);
+    public bool SetFailsafeMovement() => ChangeState(ChickenState.FailsafeMovement); // NEW
+    
     public void ForceSetState(ChickenState newState)
     {
         currentState = newState;
         if (showDebugLogs)
             Debug.Log($"Chicken {gameObject.name}: State force-set to {newState}");
     }
-
 
     public bool IsValidTransition(ChickenState fromState, ChickenState toState)
     {
@@ -124,17 +120,15 @@ public class ChickenStateController : MonoBehaviour, IPooledObject, ITargetable,
         _chickenHealth.TakeDamage(amount);
     }
 
-
     public void ApplyForce(Vector3 pushDirection, float pushForce)
     {
-
+        // Implementation here
     }
 
     public void ApplyStun(float finalStunTime)
     {
-
+        // Implementation here
     }
-    
 
     private void ReleaseFromSlot()
     {
@@ -144,7 +138,6 @@ public class ChickenStateController : MonoBehaviour, IPooledObject, ITargetable,
         if (showDebugLogs) Debug.Log($"ChickenHealth on {gameObject.name}: Released from slot assignment");
     }
 
-    
     #region Pool Object -------------------------------------------------------------------------
 
     public void ReturnToPool()
@@ -159,26 +152,24 @@ public class ChickenStateController : MonoBehaviour, IPooledObject, ITargetable,
         ObjectPooler.ReturnObjectToPool(gameObject);
     }
 
-
     public void OnPoolGet()
     {
         _chickenHealth.Revive();
         _registration.RegisterWithManager();
+        
     }
 
     public void OnPoolReturn()
     {
         ReleaseFromSlot();
+        
+
     }
 
     public void OnPoolRecycle()
     {
         ReleaseFromSlot();
     }
-    
-
 
     #endregion Pool Object -------------------------------------------------------------------------
-
-
 }

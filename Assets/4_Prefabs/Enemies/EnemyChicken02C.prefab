@@ -235,7 +235,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoRegisterOnStart: 1
-  autoUnregisterOnDestroy: 1
   autoCombatRegistration: 1
   autoManageState: 1
   showDebugLogs: 0
@@ -272,9 +271,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showDebugLogs: 0
   attackAnimationDuration: 1
+  minAttackSpeedMultiplier: 1
+  maxAttackSpeedMultiplier: 1.5
   isIdleParam: IsIdle
   isMovingParam: IsMoving
   attackTriggerParam: Attack
+  attackSpeedParam: AttackSpeed
+  isFailsafeParam: IsFailsafe
 --- !u!114 &6441098358043672622
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -330,6 +333,7 @@ MonoBehaviour:
   maxMovementResets: 2
   maxMovementTime: 100
   enableMovementFailsafe: 1
+  failsafeMovementSpeed: 80
   moveToSpawnWhenIdle: 1
   spawnAreaArrivalDistance: 0.5
   spawnCheckDelay: 0.2
@@ -338,6 +342,7 @@ MonoBehaviour:
   showDebugLogs: 0
   showMovementGizmos: 1
   movementLineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  failsafeMovementColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &8069820876864793074
 MonoBehaviour:
   m_ObjectHideFlags: 0
