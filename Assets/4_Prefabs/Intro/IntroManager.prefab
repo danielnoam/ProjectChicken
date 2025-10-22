@@ -31661,13 +31661,13 @@ PlayableDirector:
     value: {fileID: 4315547464885273775}
   - key: {fileID: 1279190393487295394, guid: 49462409ea58bfa4f8859176d7d10edb, type: 2}
     value: {fileID: 4605893584386842510}
-  - key: {fileID: 5159677609391844558, guid: 49462409ea58bfa4f8859176d7d10edb, type: 2}
-    value: {fileID: 8436285693916043431}
-  - key: {fileID: 2852736364316382821, guid: 49462409ea58bfa4f8859176d7d10edb, type: 2}
-    value: {fileID: 8436285693916043431}
   - key: {fileID: 2772239271091840933, guid: 49462409ea58bfa4f8859176d7d10edb, type: 2}
     value: {fileID: 8436285693916043431}
   - key: {fileID: -2826248556084400186, guid: 49462409ea58bfa4f8859176d7d10edb, type: 2}
+    value: {fileID: 8436285693916043431}
+  - key: {fileID: 5159677609391844558, guid: 49462409ea58bfa4f8859176d7d10edb, type: 2}
+    value: {fileID: 8436285693916043431}
+  - key: {fileID: 2852736364316382821, guid: 49462409ea58bfa4f8859176d7d10edb, type: 2}
     value: {fileID: 8436285693916043431}
   - key: {fileID: -7774030224443483863, guid: 49462409ea58bfa4f8859176d7d10edb, type: 2}
     value: {fileID: 8436285693916043431}
@@ -32090,9 +32090,9 @@ MonoBehaviour:
     scenePath: Assets/1_Scenes/GameScenes/MainMenu.unity
   cinematicInput: {fileID: 9212753744226373634}
   playableDirector: {fileID: 9105034729538847168}
-  awakeSequence: {fileID: 11400000, guid: 32042a48f58d49242911f563ad290165, type: 2}
-  endSequence: {fileID: 11400000, guid: a3840d12030e1044ca948989a2f450a5, type: 2}
-  targetSceneStartSequence: {fileID: 11400000, guid: bc3a10726f7148748be98f7ad5be385a, type: 2}
+  awakeSequence: {fileID: 11400000, guid: b85d3facf8eb12443b573b30b967a105, type: 2}
+  endSequence: {fileID: 11400000, guid: 426dc9fd0f3e07d419cfd7d041231336, type: 2}
+  targetSceneStartSequence: {fileID: 11400000, guid: 96c1f60dae6732444924e3f53ac13663, type: 2}
 --- !u!1 &2434009542704161496
 GameObject:
   m_ObjectHideFlags: 0
@@ -56493,7 +56493,7 @@ Transform:
   m_GameObject: {fileID: 4447013118621615465}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 4000, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
