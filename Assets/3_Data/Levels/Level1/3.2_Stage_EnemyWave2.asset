@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: 3.2_Stage_EnemyWave2
   m_EditorClassIdentifier: 
   stageTitle: 
-  startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 0
+  allowSkip: 0
+  startRadioMessage: {fileID: 0}
+  startWarning: {fileID: 0}
   events: []
   stageType: 2
   stageDuration: 15
@@ -37,14 +39,21 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyWave:
-    serializedKvps:
-    - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
-      Value: 16
-      index: 0
-      isKeyRepeated: 0
-      isKeyNull: 0
-    dividerPos: 0.33
+  enemyAmount: 18
+  enemyTypes:
+    internalItems:
+    - item: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
+      chance: 70
+      isLocked: 0
+    - item: {fileID: 8824006632455104043, guid: abc4421fb28077c4a91b61a70fd7b2cd, type: 3}
+      chance: 10
+      isLocked: 0
+    - item: {fileID: 8824006632455104043, guid: d746d791b76e6fb48ada7b0db075148a, type: 3}
+      chance: 10
+      isLocked: 0
+    - item: {fileID: 8824006632455104043, guid: 6146c5a6d4c964c4cb58f78c861d889c, type: 3}
+      chance: 10
+      isLocked: 0
   formationStageData:
     formationType: 3
     formationCount: 2

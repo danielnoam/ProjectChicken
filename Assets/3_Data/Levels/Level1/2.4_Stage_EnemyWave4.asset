@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: 2.1_Stage_EnemyWave2
+  m_Name: 2.4_Stage_EnemyWave4
   m_EditorClassIdentifier: 
   stageTitle: 
   worldSpeed: 1
@@ -39,7 +39,7 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyAmount: 7
+  enemyAmount: 9
   enemyTypes:
     internalItems:
     - item: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
@@ -55,13 +55,13 @@ MonoBehaviour:
       chance: 10
       isLocked: 0
   formationStageData:
-    formationType: 1
+    formationType: 3
     formationCount: 1
-    numberOfSlots: 6
+    numberOfSlots: 8
     spacing: 8
     circleRadius: 12
     useRandomPlacement: 0
-    formationSpacing: 5
+    formationSpacing: 3
     maxPlacementAttempts: 100
   requireAllTasks: 1
   tasks: []

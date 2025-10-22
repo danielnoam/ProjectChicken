@@ -18,7 +18,8 @@ MonoBehaviour:
   allowSkip: 0
   startRadioMessage: {fileID: 0}
   startWarning: {fileID: 0}
-  events: []
+  events:
+  - rid: -2
   stageType: 2
   stageDuration: 15
   delayBeforeNextStage: 3
@@ -45,11 +46,14 @@ MonoBehaviour:
     - item: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
       chance: 70
       isLocked: 0
+    - item: {fileID: 8824006632455104043, guid: abc4421fb28077c4a91b61a70fd7b2cd, type: 3}
+      chance: 10
+      isLocked: 0
     - item: {fileID: 8824006632455104043, guid: d746d791b76e6fb48ada7b0db075148a, type: 3}
-      chance: 15
+      chance: 10
       isLocked: 0
     - item: {fileID: 8824006632455104043, guid: 6146c5a6d4c964c4cb58f78c861d889c, type: 3}
-      chance: 15
+      chance: 10
       isLocked: 0
   formationStageData:
     formationType: 0
@@ -57,7 +61,7 @@ MonoBehaviour:
     numberOfSlots: 4
     spacing: 10
     circleRadius: 3
-    useRandomPlacement: 1
+    useRandomPlacement: 0
     formationSpacing: 5
     maxPlacementAttempts: 100
   requireAllTasks: 1
@@ -73,4 +77,6 @@ MonoBehaviour:
   allowPlayerHeatSystem: 1
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
