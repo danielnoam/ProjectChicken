@@ -52,7 +52,7 @@ public class LevelManagerInput: InputReaderBase
         _submitAction = _uiActionMap.FindAction("Submit");
         _cancelAction = _uiActionMap.FindAction("Cancel");
         _navigateAction = _uiActionMap.FindAction("Navigate");
-        _skipAction = _playerActionMap.FindAction("Skip");
+        _skipAction = _playerActionMap.FindAction("SkipStage");
     }
 
 
