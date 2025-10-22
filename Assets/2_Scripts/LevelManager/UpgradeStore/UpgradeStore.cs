@@ -123,7 +123,7 @@ public class UpgradeStore : NavigatableUIScreen
     private Sequence _paySequence;
     private bool _hasRerolled;
     private bool _hasPurchasedItem;
-    private Color _baseRerollButtonColor;
+    private Color _baseRerollButtonTextColor;
     
     public RailPlayer Player => player;
     public LevelManager LevelManager => levelManager;
@@ -231,8 +231,8 @@ public class UpgradeStore : NavigatableUIScreen
         {
             AddSelectable(rerollButton);
             rerollButton.onClick.AddListener(RerollEggs);
-            rerollCostText.text = $"Reroll {rerollCostAfterPurchase}";
-            _baseRerollButtonColor = rerollButton.GetComponent<Image>().color;
+            rerollCostText.text = $"{rerollCostAfterPurchase}";
+            _baseRerollButtonTextColor = rerollButton.GetComponentInChildren<TextMeshProUGUI>().color;
         }
     }
     
@@ -374,15 +374,14 @@ public class UpgradeStore : NavigatableUIScreen
         
         rerollButtonNoCostGfx.SetActive(true);
         rerollButtonCostGfx.SetActive(false);
-        var image = rerollButton.GetComponent<Image>();
-        image.color = _baseRerollButtonColor;
+        rerollCostText.color = _baseRerollButtonTextColor;
         
         if (canReroll && _hasPurchasedItem && allowRerollAfterPurchase)
         {
             rerollButtonCostGfx.SetActive(true);
             rerollButtonNoCostGfx.SetActive(false);
             
-            image.color = player.ResourceCollector.CurrentCurrency >= rerollCostAfterPurchase ? _baseRerollButtonColor : notEnoughCurrencyColor;
+            rerollCostText.color = player.ResourceCollector.CurrentCurrency >= rerollCostAfterPurchase ? _baseRerollButtonTextColor : notEnoughCurrencyColor;
         }
     
         rerollButton.interactable = canReroll;
