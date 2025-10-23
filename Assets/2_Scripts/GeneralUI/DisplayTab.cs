@@ -14,23 +14,23 @@ public class DisplayTab : MonoBehaviour
 
     private void Start()
     {
-        _availableResolutions = Screen.resolutions;
-        _currentDisplaySettings = SaveManager.GetDisplaySettings();
-        
-        SetupResolutionDropdown();
-        SetupFullScreenModeDropdown();
-        SetupVSyncDropdown();
-        
-        ApplyDisplaySettings(_currentDisplaySettings);
-        
-        if (resolutionDropdown)
-            resolutionDropdown.onValueChanged.AddListener(SetResolution);
-        
-        if (fullScreenModeDropdown)
-            fullScreenModeDropdown.onValueChanged.AddListener(SetFullScreenMode);
-        
-        if (vSyncDropdown)
-            vSyncDropdown.onValueChanged.AddListener(SetVSync);
+        // _availableResolutions = Screen.resolutions;
+        // _currentDisplaySettings = SaveManager.GetDisplaySettings();
+        //
+        // SetupResolutionDropdown();
+        // SetupFullScreenModeDropdown();
+        // SetupVSyncDropdown();
+        //
+        // ApplyDisplaySettings(_currentDisplaySettings);
+        //
+        // if (resolutionDropdown)
+        //     resolutionDropdown.onValueChanged.AddListener(SetResolution);
+        //
+        // if (fullScreenModeDropdown)
+        //     fullScreenModeDropdown.onValueChanged.AddListener(SetFullScreenMode);
+        //
+        // if (vSyncDropdown)
+        //     vSyncDropdown.onValueChanged.AddListener(SetVSync);
     }
 
     private void SetupResolutionDropdown()
