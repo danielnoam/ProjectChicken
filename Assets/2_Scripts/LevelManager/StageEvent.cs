@@ -412,3 +412,56 @@ public class SpawnPassthroughObstacleEvent : StageEvent
         return _obstacleManager ? _obstacleManager.ActivePassthroughObstacleCount : 0;
     }
 }
+
+
+
+[System.Serializable]
+public class SetPlayerWeapon : StageEvent
+{
+    [SerializeField] private SOWeaponData weapon;
+    [SerializeField, Min(0)] private float initialDelay = 1;
+    
+    private RailPlayer _player;
+    private float _spawnTimer;
+    private float _spawnInterval;
+    private bool _gaveWeapon;
+    
+    public override void Initialize(LevelManager levelManager)
+    {
+        _player = levelManager.Player;
+        
+        _spawnTimer = -initialDelay;
+        _gaveWeapon = false;
+        StartEvent();
+    }
+    
+    public override void Update(float deltaTime)
+    {
+        if (!isActive || !weapon || !_player || _gaveWeapon) return;
+        
+        _spawnTimer += deltaTime;
+        
+        if (_spawnTimer >= 0f)
+        {
+            GiveWeapon();
+            _spawnTimer = 0f;
+        }
+        
+    }
+    
+    public override void Cleanup()
+    {
+        _player = null;
+        StopEvent();
+    }
+    
+    private void GiveWeapon()
+    {
+        if (!_player || !weapon) return;
+        
+        _player.WeaponSystem.SetActiveWeapon(weapon);
+        _gaveWeapon = true;
+    }
+    
+    
+}

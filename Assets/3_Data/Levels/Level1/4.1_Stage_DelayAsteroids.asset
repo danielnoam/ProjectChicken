@@ -20,6 +20,7 @@ MonoBehaviour:
   startWarning: {fileID: 11400000, guid: 573a8159d776e284e876d94e4b93f7f2, type: 2}
   events:
   - rid: 5417711935219564634
+  - rid: 9145653592216305752
   stageType: 0
   stageDuration: 6
   delayBeforeNextStage: 3
@@ -75,3 +76,9 @@ MonoBehaviour:
         loop: 0
         messages:
         - {fileID: 11400000, guid: 06a98021cc6c5ce4586173e71801c98f, type: 2}
+    - rid: 9145653592216305752
+      type: {class: SetPlayerWeapon, ns: , asm: Assembly-CSharp}
+      data:
+        isActive: 0
+        weapon: {fileID: 11400000, guid: 12e35f7076a4f434cb9e0531bbf68e0e, type: 2}
+        initialDelay: 1
