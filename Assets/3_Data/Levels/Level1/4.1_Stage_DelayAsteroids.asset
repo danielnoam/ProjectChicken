@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: 5.2_Stage_EnemyWave3
+  m_Name: 4.1_Stage_DelayAsteroids
   m_EditorClassIdentifier: 
   stageTitle: 
   worldSpeed: 1
   isCheckpoint: 0
-  allowSkip: 0
+  allowSkip: 1
   startRadioMessage: {fileID: 0}
-  startWarning: {fileID: 0}
-  events: []
-  stageType: 2
-  stageDuration: 15
-  delayBeforeNextStage: 1
+  startWarning: {fileID: 11400000, guid: 573a8159d776e284e876d94e4b93f7f2, type: 2}
+  events:
+  - rid: 5417711935219564634
+  stageType: 0
+  stageDuration: 6
+  delayBeforeNextStage: 3
   outroMode: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -39,25 +40,13 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyAmount: 45
+  enemyAmount: 4
   enemyTypes:
-    internalItems:
-    - item: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
-      chance: 70
-      isLocked: 0
-    - item: {fileID: 8824006632455104043, guid: abc4421fb28077c4a91b61a70fd7b2cd, type: 3}
-      chance: 10
-      isLocked: 0
-    - item: {fileID: 8824006632455104043, guid: d746d791b76e6fb48ada7b0db075148a, type: 3}
-      chance: 10
-      isLocked: 0
-    - item: {fileID: 8824006632455104043, guid: 6146c5a6d4c964c4cb58f78c861d889c, type: 3}
-      chance: 10
-      isLocked: 0
+    internalItems: []
   formationStageData:
     formationType: 0
-    formationCount: 7
-    numberOfSlots: 6
+    formationCount: 1
+    numberOfSlots: 9
     spacing: 8
     circleRadius: 3
     useRandomPlacement: 1
@@ -76,4 +65,13 @@ MonoBehaviour:
   allowPlayerHeatSystem: 1
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5417711935219564634
+      type: {class: RadioMessageSequenceEvent, ns: , asm: Assembly-CSharp}
+      data:
+        isActive: 0
+        initialDelay: 1
+        shuffle: 0
+        loop: 0
+        messages:
+        - {fileID: 11400000, guid: 06a98021cc6c5ce4586173e71801c98f, type: 2}

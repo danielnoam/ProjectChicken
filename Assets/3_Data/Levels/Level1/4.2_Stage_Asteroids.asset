@@ -10,19 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: 2.5_Stage_DelayStoreIntro
+  m_Name: 4.2_Stage_Asteroids
   m_EditorClassIdentifier: 
   stageTitle: 
   worldSpeed: 1
   isCheckpoint: 0
-  allowSkip: 1
-  startRadioMessage: {fileID: 0}
+  allowSkip: 0
+  startRadioMessage: {fileID: 11400000, guid: 6d92c1f956d3cc34f978723490dcb363, type: 2}
   startWarning: {fileID: 0}
   events:
-  - rid: 5417711935219564634
+  - rid: 736433193358458985
+  - rid: 9145653584679927905
   stageType: 0
-  stageDuration: 8
-  delayBeforeNextStage: 3
+  stageDuration: 40
+  delayBeforeNextStage: 1
   outroMode: 0
   nextLevel:
     sceneAsset: {fileID: 0}
@@ -45,15 +46,16 @@ MonoBehaviour:
     internalItems: []
   formationStageData:
     formationType: 0
-    formationCount: 1
-    numberOfSlots: 9
-    spacing: 8
+    formationCount: 3
+    numberOfSlots: 6
+    spacing: 12
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
   requireAllTasks: 1
-  tasks: []
+  tasks:
+  - rid: -2
   showHUD: 1
   showScore: 1
   showStagesProgression: 1
@@ -66,13 +68,29 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 5417711935219564634
-      type: {class: RadioMessageSequenceEvent, ns: , asm: Assembly-CSharp}
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 736433193358458985
+      type: {class: SpawnObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
-        isActive: 0
+        isActive: 1
         initialDelay: 0
-        shuffle: 0
-        loop: 0
-        messages:
-        - {fileID: 11400000, guid: e103ddc98d8813d49892da1cbeb78fed, type: 2}
-        - {fileID: 11400000, guid: 5b1808f56f5111144b0814a1de548b40, type: 2}
+        maxActiveObstacles: 100
+        obstacleCount:
+          minValue: 1
+          maxValue: 3
+        spawnIntervalRange:
+          minValue: 1
+          maxValue: 2
+    - rid: 9145653584679927905
+      type: {class: SpawnObstacleEvent, ns: , asm: Assembly-CSharp}
+      data:
+        isActive: 1
+        initialDelay: 2
+        maxActiveObstacles: 100
+        obstacleCount:
+          minValue: 1
+          maxValue: 1
+        spawnIntervalRange:
+          minValue: 3
+          maxValue: 3

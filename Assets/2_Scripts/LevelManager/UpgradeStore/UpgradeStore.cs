@@ -351,7 +351,15 @@ public class UpgradeStore : NavigatableUIScreen
         _hasRerolled = true;
         UpdateRerollButtonState();
         
-        var tempPool = new List<SOUpgradeBase>(_storeUpgradesPool);
+        var tempPool = new List<SOUpgradeBase>();
+        foreach (var upgrade in _storeUpgradesPool)
+        {
+            if (upgrade && upgrade.CanBeOfferedToPlayer(player))
+            {
+                tempPool.Add(upgrade);
+            }
+        }
+        
         var validEggCount = Mathf.Min(_upgradeEggs.Count, tempPool.Count);
 
         for (var index = 0; index < validEggCount; index++)

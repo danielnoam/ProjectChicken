@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66e3be97920749a2a7321794be5634ec, type: 3}
+  m_Name: Asteroids
+  m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 8f1fb55c2c0d1dc409b27b6094e34a69, type: 3}
+  audioClip: {fileID: 0}
+  iconColor: {r: 1, g: 0.8980392, b: 0.003921569, a: 1}
+  backgroundColor: {r: 0.972549, g: 1, b: 0.23137255, a: 0.039215688}
+  message: Warning! Asteroids inbound! Warning!
+  duration: 5
+  animateShowShake: 1
+  showShakeStrength: {x: 10, y: 10, z: 0}
+  showShakeFrequency: 10
+  showShakeDuration: 1
+  showShakeEase: 0
+  animateShowScale: 1
+  showScaleOffset: {x: 0.1, y: 0.1, z: 0.1}
+  showScaleDuration: 1
+  showScaleEase: 27
+  animateHideShake: 1
+  hideShakeStrength: {x: 5, y: 5, z: 0}
+  hideShakeFrequency: 10
+  hideShakeDuration: 0.5
+  hideShakeEase: 0
+  animateHideScale: 1
+  hideScaleOffset: {x: 0, y: 0, z: 0}
+  hideScaleDuration: 0.3
+  hideScaleEase: 26
