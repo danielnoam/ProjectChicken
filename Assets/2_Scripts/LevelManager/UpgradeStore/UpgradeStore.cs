@@ -288,9 +288,8 @@ public class UpgradeStore : NavigatableUIScreen
 
     private void PlayPayAnimation(int upgradeCost)
     {
-        if (!chickenLegPrefab) return;
+        if (!chickenLegPrefab || _paySequence.isAlive) return;
         
-        if (_paySequence.isAlive) _paySequence.Complete();
         _paySequence = Sequence.Create();
         List<GameObject> chickenLegs = new List<GameObject>();
         
@@ -342,7 +341,6 @@ public class UpgradeStore : NavigatableUIScreen
         {
             if (player.ResourceCollector.CurrentCurrency < rerollCostAfterPurchase)
             {
-                // Add feedback that player can't afford reroll
                 return;
             }
             player.ResourceCollector.SpendCurrency(rerollCostAfterPurchase);

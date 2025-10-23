@@ -21,7 +21,7 @@ MonoBehaviour:
   events:
   - rid: 5417711935219564634
   stageType: 0
-  stageDuration: 8
+  stageDuration: 3
   delayBeforeNextStage: 3
   outroMode: 0
   nextLevel:
@@ -70,7 +70,7 @@ MonoBehaviour:
       type: {class: RadioMessageSequenceEvent, ns: , asm: Assembly-CSharp}
       data:
         isActive: 0
-        initialDelay: 0
+        initialDelay: 1
         shuffle: 0
         loop: 0
         messages:
