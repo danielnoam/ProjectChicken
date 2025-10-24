@@ -374,6 +374,7 @@ MonoBehaviour:
   eggPrefab: {fileID: 2910271167061673307, guid: 6c123908f2916c449a315c79c13f0ce0, type: 3}
   eggSpawnPoint: {fileID: 7706267904213187422}
   showDebugLogs: 0
+  attackSFX: {fileID: 11400000, guid: 87b7f2c3f1904ee4d966ce19ae3e9f98, type: 2}
 --- !u!114 &1084284691073448971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -457,6 +458,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4557714108731689064}
     m_Modifications:
+    - target: {fileID: 854038339414764260, guid: e625a0d967ab77f469b938972208bcc9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 5aeac73c944c27e47a4e048ddcd490f5, type: 2}
+    - target: {fileID: 2595728056956071437, guid: e625a0d967ab77f469b938972208bcc9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 5aeac73c944c27e47a4e048ddcd490f5, type: 2}
+    - target: {fileID: 3449744870371250963, guid: e625a0d967ab77f469b938972208bcc9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: bd2541331213728459d510a8381a1683, type: 2}
+    - target: {fileID: 3680380213732096475, guid: e625a0d967ab77f469b938972208bcc9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: bd2541331213728459d510a8381a1683, type: 2}
+    - target: {fileID: 6271869693400723394, guid: e625a0d967ab77f469b938972208bcc9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 5aeac73c944c27e47a4e048ddcd490f5, type: 2}
+    - target: {fileID: 7210906099423278656, guid: e625a0d967ab77f469b938972208bcc9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: bd2541331213728459d510a8381a1683, type: 2}
     - target: {fileID: 7463881993187364532, guid: e625a0d967ab77f469b938972208bcc9, type: 3}
       propertyPath: m_Name
       value: ChickenA1_AnimRoot

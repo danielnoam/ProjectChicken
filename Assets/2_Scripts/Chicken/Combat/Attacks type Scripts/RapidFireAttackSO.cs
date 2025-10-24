@@ -90,6 +90,10 @@ public class RapidFireAttackSO : BaseChickenAttackSO
                 {
                     chicken.ShootEgg(eggSpeed, deactivateWarningCircle);
                     LogDebug($"{chicken.gameObject.name} fired shot {shot + 1}/{shotsPerChicken}");
+                    if (audioEvent != null)
+                    {
+                        audioEvent.PlayAtPoint(chicken.transform.position);
+                    }
                 }
 
                 if (shot < shotsPerChicken - 1) // Don't wait after the last shot
@@ -120,6 +124,8 @@ public class RapidFireAttackSO : BaseChickenAttackSO
                 if (chicken != null && chicken.IsReadyToAttack)
                 {
                     chicken.ShootEgg(eggSpeed, deactivateWarningCircle);
+                    // Play the attack SFX at the chicken's position
+                   
                     LogDebug($"{chicken.gameObject.name} fired simultaneous shot {shot + 1}/{shotsPerChicken}");
                 }
             }

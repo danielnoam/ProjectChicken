@@ -11,6 +11,8 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
     [Header("Debug")]
     public bool showDebugLogs = true; // Enable by default to help troubleshoot
 
+    public SOAudioEvent attackSFX;
+    
     private ChickenStateController stateController;
     private ChickenAnimationController animationController; // NEW: Animation controller reference
     private Transform player;
@@ -124,7 +126,7 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
 
         // Spawn egg
         GameObject egg = ObjectPooler.GetObjectFromPool(eggPrefab, eggSpawnPoint.position, Quaternion.LookRotation(shootDirection));
-
+        attackSFX?.PlayAtPoint(transform.position);
         if (egg == null)
         {
             Debug.LogError($"ChickenCombatBehaviorV2 on {gameObject.name}: Failed to instantiate egg!");
@@ -212,7 +214,8 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
 
         // Spawn egg
         GameObject egg = ObjectPooler.GetObjectFromPool(eggPrefab, eggSpawnPoint.position, Quaternion.LookRotation(shootDirection));
-
+        // Play death SFX
+        //attackSFX?.PlayAtPoint(transform.position);
         if (egg == null)
         {
             Debug.LogError($"ChickenCombatBehaviorV2 on {gameObject.name}: Failed to instantiate egg!");
