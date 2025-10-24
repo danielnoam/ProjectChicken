@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using DNExtensions;
 
 // Interface that all attack types must implement
 public interface IChickenAttack
@@ -10,6 +11,7 @@ public interface IChickenAttack
     int UsesBeforePatternChange { get; }
     bool DeactivateWarningCircle { get; }
     float EggSpeedMultiplier { get; } // New property for speed multiplier
+    SOAudioEvent AudioEvent { get; }
     bool CanExecute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);
     void Execute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);
 }
@@ -32,6 +34,9 @@ public abstract class BaseChickenAttackSO : ScriptableObject, IChickenAttack
     [Header("Warning Settings")]
     public bool deactivateWarningCircle = false; // Controls whether this attack disables warning circles
 
+    [Header("Audio")]
+    public SOAudioEvent audioEvent;
+    
     [Header("Debug")]
     public bool showDebugLogs = true;
 
@@ -40,7 +45,8 @@ public abstract class BaseChickenAttackSO : ScriptableObject, IChickenAttack
     public virtual float AttackInterval => attackInterval;
     public virtual int UsesBeforePatternChange => usesBeforePatternChange;
     public virtual bool DeactivateWarningCircle => deactivateWarningCircle;
-    public virtual float EggSpeedMultiplier => eggSpeedMultiplier; // New property implementation
+    public virtual float EggSpeedMultiplier => eggSpeedMultiplier;
+    public virtual SOAudioEvent AudioEvent => audioEvent;
 
     public abstract bool CanExecute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);
     public abstract void Execute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager);
