@@ -77,5 +77,10 @@ public class BurstFireAttackSO : BaseChickenAttackSO
     {
         LogDebug($"Executing attack on {chicken.gameObject.name}");
         chicken.ShootEgg(eggSpeed, deactivateWarningCircle);
+        // Play the attack SFX at the chicken's position
+        if (audioEvent != null)
+        {
+            audioEvent.PlayAtPoint(chicken.transform.position);
+        }
     }
 }

@@ -29,6 +29,7 @@ public class SaveManager : MonoBehaviour
     [SerializeField] private SOPlayerStats playerStats;
     
     [Header("Default Settings")]
+    [SerializeField] private DisplaySettings defaultDisplaySettings = new (FullScreenMode.FullScreenWindow, VSyncType.Off);
     [SerializeField] private VolumeSettings defaultVolumeSettings = new (1,1,1);
     [SerializeField] private ControlSchemeSettings defaultKeyboardMouseScheme = new (
         false, 
@@ -256,7 +257,8 @@ public class SaveManager : MonoBehaviour
                 _settingsData = new SettingsData(
                     Instance.defaultKeyboardMouseScheme, 
                     Instance.defaultGamepadScheme,
-                    Instance.defaultVolumeSettings
+                    Instance.defaultVolumeSettings,
+                    Instance.defaultDisplaySettings
                 );
                 // Debug.Log("No settings file found. Created new settings data.");
             }
@@ -267,7 +269,8 @@ public class SaveManager : MonoBehaviour
             _settingsData = new SettingsData(
                 Instance.defaultKeyboardMouseScheme, 
                 Instance.defaultGamepadScheme,
-                Instance.defaultVolumeSettings
+                Instance.defaultVolumeSettings,
+                Instance.defaultDisplaySettings
             );
         }
         
@@ -288,7 +291,8 @@ public class SaveManager : MonoBehaviour
                 _settingsData = new SettingsData(
                     Instance.defaultKeyboardMouseScheme, 
                     Instance.defaultGamepadScheme,
-                    Instance.defaultVolumeSettings
+                    Instance.defaultVolumeSettings,
+                    Instance.defaultDisplaySettings
                 );
                 Debug.Log("Settings file deleted and reset to default.");
             }
@@ -428,6 +432,14 @@ public class SaveManager : MonoBehaviour
         SaveSettingsDataToFile();
     }
     
+    
+    public static void UpdateDisplaySettings(DisplaySettings displaySettings)
+    {
+        EnsureInitialized();
+        _settingsData.displaySettings = displaySettings;
+        SaveSettingsDataToFile();
+    }
+    
     public static void UpdateWatchedIntro(bool watched)
     {
         EnsureInitialized();
@@ -487,6 +499,12 @@ public class SaveManager : MonoBehaviour
     {
         EnsureInitialized();
         return _settingsData.volumeSettings;
+    }
+    
+    public static DisplaySettings GetDisplaySettings()
+    {
+        EnsureInitialized();
+        return _settingsData.displaySettings;
     }
 
     public static bool WatchedIntro()

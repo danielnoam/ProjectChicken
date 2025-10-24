@@ -145,11 +145,6 @@ public class UpgradeStore : NavigatableUIScreen
         }
         
         this.ValidateRefs();
-
-        if (levelManager && transform.transform.position != levelManager.EnemyPosition)
-        {
-            transform.transform.position = levelManager.EnemyPosition;
-        }
     }
 
     private void Awake()
@@ -288,9 +283,8 @@ public class UpgradeStore : NavigatableUIScreen
 
     private void PlayPayAnimation(int upgradeCost)
     {
-        if (!chickenLegPrefab) return;
+        if (!chickenLegPrefab || _paySequence.isAlive) return;
         
-        if (_paySequence.isAlive) _paySequence.Complete();
         _paySequence = Sequence.Create();
         List<GameObject> chickenLegs = new List<GameObject>();
         
@@ -342,7 +336,6 @@ public class UpgradeStore : NavigatableUIScreen
         {
             if (player.ResourceCollector.CurrentCurrency < rerollCostAfterPurchase)
             {
-                // Add feedback that player can't afford reroll
                 return;
             }
             player.ResourceCollector.SpendCurrency(rerollCostAfterPurchase);
@@ -351,7 +344,15 @@ public class UpgradeStore : NavigatableUIScreen
         _hasRerolled = true;
         UpdateRerollButtonState();
         
-        var tempPool = new List<SOUpgradeBase>(_storeUpgradesPool);
+        var tempPool = new List<SOUpgradeBase>();
+        foreach (var upgrade in _storeUpgradesPool)
+        {
+            if (upgrade && upgrade.CanBeOfferedToPlayer(player))
+            {
+                tempPool.Add(upgrade);
+            }
+        }
+        
         var validEggCount = Mathf.Min(_upgradeEggs.Count, tempPool.Count);
 
         for (var index = 0; index < validEggCount; index++)
@@ -398,8 +399,7 @@ public class UpgradeStore : NavigatableUIScreen
         
         _hasRerolled = false;
         _hasPurchasedItem = false;
-
-        transform.transform.position = levelManager.EnemyPosition;
+        
         storeGfx.gameObject.SetActive(true);
         UpdateRerollButtonState();
         captain.OnStoreOpen();

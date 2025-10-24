@@ -16,7 +16,8 @@ public static class InputManagerBindingFormatter
         {"ACTION_DODGERIGHT", "DodgeRight"},
         {"ACTION_DODGEFREEFORM", "DodgeFreeform"},
         {"ACTION_PAUSE", "Pause"},
-        {"ACTION_SKIP", "Skip"},
+        {"ACTION_SKIPCINEMATIC", "Skip"},
+        {"ACTION_SKIPSTAGE", "SkipStage"},
     };
 
     public static string ReplaceActionBindings(string text, bool useSprites, PlayerInput playerInput, TMP_SpriteAsset spriteAsset = null)

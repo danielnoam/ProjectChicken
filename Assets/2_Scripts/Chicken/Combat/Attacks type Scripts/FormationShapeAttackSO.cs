@@ -647,6 +647,11 @@ public class FormationShapeAttackSO : BaseChickenAttackSO
         }
 
         chicken.ShootEggAtPosition(targetPosition, speed, deactivateWarningCircle);
+        // Play the attack SFX at the chicken's position
+        if (audioEvent != null)
+        {
+            audioEvent.PlayAtPoint(chicken.transform.position);
+        }
         LogDebug($"Chicken {chicken.gameObject.name} shooting towards {detectedFormationType} position {targetPosition}");
     }
 

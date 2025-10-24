@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
+  m_Name: 4.3_Stage_Asteroids2
+  m_EditorClassIdentifier: 
+  stageTitle: 
+  worldSpeed: 1.5
+  isCheckpoint: 0
+  allowSkip: 0
+  startRadioMessage: {fileID: 0}
+  startWarning: {fileID: 0}
+  events:
+  - rid: 736433193358458985
+  stageType: 0
+  stageDuration: 30
+  delayBeforeNextStage: 1
+  outroMode: 0
+  nextLevel:
+    sceneAsset: {fileID: 0}
+    sceneName: 
+    scenePath: 
+  allowToCloseStore: 1
+  upgradesPool:
+  - {fileID: 0}
+  poolRarityWeights:
+    commonWeight: 100
+    uncommonWeight: 60
+    rareWeight: 30
+  poolRarityCosts:
+    commonCost: 25
+    uncommonCost: 50
+    rareCost: 100
+  waveScoreWorth: 1000
+  enemyAmount: 4
+  enemyTypes:
+    internalItems: []
+  formationStageData:
+    formationType: 0
+    formationCount: 3
+    numberOfSlots: 6
+    spacing: 12
+    circleRadius: 3
+    useRandomPlacement: 1
+    formationSpacing: 5
+    maxPlacementAttempts: 100
+  requireAllTasks: 1
+  tasks:
+  - rid: -2
+  showHUD: 1
+  showScore: 1
+  showStagesProgression: 1
+  showStatsBar: 1
+  allowPlayerMovement: 1
+  allowPlayerDodge: 1
+  allowPlayerAiming: 1
+  allowPlayerShooting: 1
+  allowPlayerHeatSystem: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 736433193358458985
+      type: {class: SpawnObstacleEvent, ns: , asm: Assembly-CSharp}
+      data:
+        isActive: 0
+        initialDelay: 0
+        maxActiveObstacles: 100
+        obstacleCount:
+          minValue: 3
+          maxValue: 5
+        spawnIntervalRange:
+          minValue: 1
+          maxValue: 2
