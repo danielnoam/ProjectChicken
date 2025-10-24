@@ -613,11 +613,13 @@ public class HUDManager : MonoBehaviour
     
     private void OnPlayerCurrencyChanged(int newCurrency)
     {
+        if (_playerCurrencySequence.isAlive) _playerCurrencySequence.Stop();
+        currencyIcon.transform.localScale = Vector3.one;
+        
         int currencyDifferance = newCurrency - _previousPlayerCurrency;
         float animationDuration = _previousPlayerCurrency > newCurrency ? currencyAnimationDuration : currencyAnimationDuration * 3f;
         if (currencyDifferance >= bigCurrencyDifference)
         {
-            if (_playerCurrencySequence.isAlive) _playerCurrencySequence.Stop();
             _playerCurrencySequence = Sequence.Create()
                     .Group(Tween.Custom(startValue: _previousPlayerCurrency, endValue: newCurrency, duration: animationDuration, onValueChange: value => _playerCurrency = Mathf.RoundToInt(value)))
                     .Chain(Tween.PunchScale(currencyIcon.transform, strength: Vector3.one * currencyPunchStrength, duration: currencyPunchDuration))
@@ -626,7 +628,7 @@ public class HUDManager : MonoBehaviour
         }
         else
         {
-            if (_playerCurrencySequence.isAlive) _playerCurrencySequence.Stop();
+
             _playerCurrencySequence = Sequence.Create()
                     .Group(Tween.Custom(startValue: _previousPlayerCurrency, endValue: newCurrency, duration: animationDuration, onValueChange: value => _playerCurrency = Mathf.RoundToInt(value)))
                     .OnComplete(() => _previousPlayerCurrency = newCurrency)

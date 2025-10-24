@@ -145,11 +145,6 @@ public class UpgradeStore : NavigatableUIScreen
         }
         
         this.ValidateRefs();
-
-        if (levelManager && transform.transform.position != levelManager.EnemyPosition)
-        {
-            transform.transform.position = levelManager.EnemyPosition;
-        }
     }
 
     private void Awake()
@@ -404,8 +399,7 @@ public class UpgradeStore : NavigatableUIScreen
         
         _hasRerolled = false;
         _hasPurchasedItem = false;
-
-        transform.transform.position = levelManager.EnemyPosition;
+        
         storeGfx.gameObject.SetActive(true);
         UpdateRerollButtonState();
         captain.OnStoreOpen();
