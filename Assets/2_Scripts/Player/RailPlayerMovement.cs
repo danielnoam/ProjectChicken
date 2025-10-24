@@ -580,6 +580,8 @@ public class RailPlayerMovement : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        if (!player.LevelManager) return;
+        
         // Draw player position
         Gizmos.color = Color.green;
         Gizmos.DrawSphere(player.LevelManager.PlayerPosition, 0.5f);
