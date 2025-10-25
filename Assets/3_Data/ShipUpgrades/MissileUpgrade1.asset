@@ -160,6 +160,15 @@ MonoBehaviour:
           impulseShape: 2
           intensity: 1
           duration: 0.3
+          xVelocityRange:
+            minValue: -1
+            maxValue: 1
+          yVelocityRange:
+            minValue: -1
+            maxValue: 1
+          zVelocityRange:
+            minValue: -1
+            maxValue: 1
     - rid: 4485104011578441737
       type: {class: BehaviorVibrateAndShakeOnImpact, ns: , asm: Assembly-CSharp}
       data:
@@ -222,3 +231,12 @@ MonoBehaviour:
           impulseShape: 2
           intensity: 1
           duration: 0.4
+          xVelocityRange:
+            minValue: -1
+            maxValue: 1
+          yVelocityRange:
+            minValue: -1
+            maxValue: 1
+          zVelocityRange:
+            minValue: -1
+            maxValue: 1
