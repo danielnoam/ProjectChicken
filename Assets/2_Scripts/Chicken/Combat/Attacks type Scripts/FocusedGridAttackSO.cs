@@ -6,6 +6,10 @@ using System.Collections;
 [CreateAssetMenu(fileName = "FocusedGridAttack", menuName = "Chicken Combat/Attacks/Focused Grid Attack")]
 public class FocusedGridAttackSO : BaseChickenAttackSO
 {
+    // Note: This attack requires at least 4 available chickens to execute (for the 2x2 grid)
+    // The minChickensRequired field (from base class) checks total registered chickens
+    // All 4 chickens in each grid fire simultaneously
+    
     [Header("Focused Grid Attack Settings")]
     [Tooltip("The spacing between each egg in the 2x2 grid")]
     [SerializeField] private float gridSpacing = 0.5f; // Distance between grid points
@@ -14,12 +18,7 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
     [Tooltip("Number of grid groups to fire (first always targets player, rest are random)")]
     [SerializeField] private int numberOfGridGroups = 4; // Total number of 2x2 grids to fire
     [Tooltip("Time delay between firing each grid group")]
-    [SerializeField] private float delayBetweenGroups = 0.5f; // Delay between each group of 4 shots
-    
-    [Header("Attack Pattern")]
-    [SerializeField] private bool simultaneousShots = true; // If true, all 4 shots in a group happen at once
-    [SerializeField] private float shotDelay = 0.1f; // Delay between shots when not simultaneous (within a group)
-    [SerializeField] private bool randomizeOrder = false; // If true, randomize the shot order within a group
+    [SerializeField, Range(0.05f, 2f)] private float delayBetweenGroups = 0.1f; // Delay between each group of 4 shots
     
     [Header("Offset Settings")]
     [Tooltip("Random offset applied to the grid center to make it less predictable")]
@@ -62,10 +61,25 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
     
     public override bool CanExecute(List<ChickenCombatBehaviorV2> availableChickens, ChickenCombatManagerV4 manager)
     {
-        // Need at least 4 chickens for the 2x2 grid
+        // Check if manager exists
+        if (manager == null)
+        {
+            LogWarning("No combat manager found!");
+            return false;
+        }
+        
+        // Check total registered chickens against minimum required
+        int totalRegisteredChickens = manager.TotalCombatChickens;
+        if (totalRegisteredChickens < minChickensRequired)
+        {
+            LogDebug($"Not enough registered chickens. Required: {minChickensRequired}, Registered: {totalRegisteredChickens}");
+            return false;
+        }
+        
+        // Need at least 4 available chickens that can currently attack for the 2x2 grid
         if (availableChickens == null || availableChickens.Count < 4)
         {
-            LogDebug($"Not enough chickens available. Required: 4, Available: {(availableChickens?.Count ?? 0)}");
+            LogDebug($"Not enough available chickens for attack. Need 4 for grid, Available: {(availableChickens?.Count ?? 0)}");
             return false;
         }
         
@@ -105,7 +119,7 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
         
         if (selectedChickens.Count < 4)
         {
-            LogWarning($"Only {selectedChickens.Count} chickens can attack, need 4 for full grid");
+            LogWarning($"Only {selectedChickens.Count} chickens can attack, need 4 for full grid (Total registered: {manager.TotalCombatChickens})");
         }
         
         // Calculate all grid group positions
@@ -114,7 +128,7 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
         // Start the attack sequence using coroutine
         manager.StartCoroutine(ExecuteGridGroupSequence(selectedChickens, manager));
         
-        LogDebug($"Started attack sequence with {gridGroups.Count} grid groups and {selectedChickens.Count} chickens");
+        LogDebug($"Started attack sequence with {gridGroups.Count} grid groups and {selectedChickens.Count} chickens (Total registered: {manager.TotalCombatChickens})");
     }
     
     private void CalculateAllGridGroups(Vector3 playerPosition)
@@ -218,18 +232,6 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
             // Bottom-right
             group.gridPositions.Add(new Vector3(groupCenter.x + halfSpacing, groupCenter.y - halfSpacing, groupCenter.z));
             
-            // Randomize order within group if enabled
-            if (randomizeOrder && !simultaneousShots)
-            {
-                for (int i = 0; i < group.gridPositions.Count; i++)
-                {
-                    Vector3 temp = group.gridPositions[i];
-                    int randomIndex = Random.Range(i, group.gridPositions.Count);
-                    group.gridPositions[i] = group.gridPositions[randomIndex];
-                    group.gridPositions[randomIndex] = temp;
-                }
-            }
-            
             gridGroups.Add(group);
         }
         
@@ -248,19 +250,10 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
         {
             GridGroup currentGroup = gridGroups[groupIndex];
             
-            LogDebug($"Firing grid group {groupIndex + 1}/{gridGroups.Count} at {currentGroup.centerPosition}");
+            LogDebug($"Firing grid group {groupIndex + 1}/{gridGroups.Count} simultaneously at {currentGroup.centerPosition}");
             
-            if (simultaneousShots)
-            {
-                // Fire all 4 shots in this group at once
-                ExecuteSimultaneousGroupShots(currentGroup, selectedChickens);
-            }
-            else
-            {
-                // Execute sequential shots for this group
-                yield return ExecuteSequentialGroupShots(currentGroup, selectedChickens);
-            }
-            
+            // Fire all 4 shots in this group at once
+            ExecuteGroupShots(currentGroup, selectedChickens);
             currentGroup.hasBeenFired = true;
             
             // Wait before firing next group (except after the last group)
@@ -274,8 +267,9 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
         ResetAttackState();
     }
     
-    private void ExecuteSimultaneousGroupShots(GridGroup group, List<ChickenCombatBehaviorV2> selectedChickens)
+    private void ExecuteGroupShots(GridGroup group, List<ChickenCombatBehaviorV2> selectedChickens)
     {
+        // All 4 chickens fire simultaneously at their assigned grid positions
         for (int i = 0; i < Mathf.Min(selectedChickens.Count, group.gridPositions.Count); i++)
         {
             var chicken = selectedChickens[i];
@@ -287,26 +281,7 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
             }
         }
     }
-    
-    private IEnumerator ExecuteSequentialGroupShots(GridGroup group, List<ChickenCombatBehaviorV2> selectedChickens)
-    {
-        for (int i = 0; i < Mathf.Min(selectedChickens.Count, group.gridPositions.Count); i++)
-        {
-            var chicken = selectedChickens[i];
-            var targetPos = group.gridPositions[i];
-            
-            if (chicken != null && chicken.CanAttack())
-            {
-                ShootChickenAtPosition(chicken, targetPos, cachedModifiedSpeed);
-                
-                // Wait before next shot (except after the last shot)
-                if (i < group.gridPositions.Count - 1)
-                {
-                    yield return new WaitForSeconds(shotDelay);
-                }
-            }
-        }
-    }
+
     
     private Vector3 GetRandomPositionInBounds(Vector2 canvasBounds, Vector3 playerPosition)
     {
@@ -497,7 +472,7 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
                     Gizmos.DrawWireSphere(group.centerPosition, 0.25f);
                     
                     // Draw minimum distance circle (debug visualization)
-                    if (showDebugLogs && groupIndex > 0)
+                    if (showBoundaryGizmo)
                     {
                         Gizmos.color = new Color(1f, 1f, 0f, 0.2f); // Transparent yellow
                         DrawWireCircle(group.centerPosition, minDistanceBetweenGroups, 16);
