@@ -40,7 +40,7 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyAmount: 35
+  enemyAmount: 45
   enemyTypes:
     internalItems:
     - item: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
@@ -81,7 +81,7 @@ MonoBehaviour:
     - rid: 736433674589306880
       type: {class: SpawnPassthroughObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
-        isActive: 1
+        isActive: 0
         initialDelay: 3
         maxActiveObstacles: 2
         spawnIntervalRange:
