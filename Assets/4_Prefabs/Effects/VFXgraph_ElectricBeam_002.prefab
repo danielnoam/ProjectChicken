@@ -51,11 +51,23 @@ VisualEffect:
   m_PropertySheet:
     m_Float:
       m_Array:
-      - m_Value: 8
+      - m_Value: 14
         m_Name: Main Body Scale
         m_Overridden: 1
+      - m_Value: 5.13
+        m_Name: Rotate 2
+        m_Overridden: 1
+      - m_Value: -5.02
+        m_Name: Rotate 3
+        m_Overridden: 1
     m_Vector2f:
-      m_Array: []
+      m_Array:
+      - m_Value: {x: 1.31, y: 2}
+        m_Name: Mask Tiling
+        m_Overridden: 1
+      - m_Value: {x: 0, y: -0.5}
+        m_Name: Mask Offset
+        m_Overridden: 1
     m_Vector3f:
       m_Array: []
     m_Vector4f:
@@ -68,6 +80,15 @@ VisualEffect:
         m_Overridden: 1
       - m_Value: {x: 2.670157, y: 2.670157, z: 2.670157, w: 1}
         m_Name: Main Color 3
+        m_Overridden: 1
+      - m_Value: {x: 0, y: 1, z: 0.96591043, w: 1}
+        m_Name: Appened Color 1
+        m_Overridden: 1
+      - m_Value: {x: 1, y: 1, z: 1, w: 1}
+        m_Name: Appened Color 2
+        m_Overridden: 1
+      - m_Value: {x: 0.78616345, y: 0.78616345, z: 0.78616345, w: 1}
+        m_Name: Appened Color 3
         m_Overridden: 1
     m_Uint:
       m_Array: []
@@ -91,7 +112,7 @@ VisualEffect:
             outWeight: 0
           - serializedVersion: 3
             time: 0.08
-            value: 1.1517707
+            value: 1.6066439
             inSlope: 1.1697576
             outSlope: 1.1697576
             tangentMode: 1
@@ -100,7 +121,7 @@ VisualEffect:
             outWeight: 0
           - serializedVersion: 3
             time: 0.96
-            value: 1.1524583
+            value: 1.6073315
             inSlope: -0.057508077
             outSlope: -0.057508077
             tangentMode: 1
@@ -109,7 +130,7 @@ VisualEffect:
             outWeight: 0
           - serializedVersion: 3
             time: 0.97999996
-            value: 1.1517707
+            value: 1.6066439
             inSlope: -0.029138451
             outSlope: -0.029138451
             tangentMode: 1
