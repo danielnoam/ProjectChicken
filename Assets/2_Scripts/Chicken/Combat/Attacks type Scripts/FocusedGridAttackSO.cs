@@ -32,6 +32,8 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
     [SerializeField, Range(0.5f, 3f)] private float boundarySizeScaler = 2f;
     [Tooltip("Show the calculated boundary area in scene view")]
     [SerializeField] private bool showBoundaryGizmo = true;
+    [Tooltip("Minimum distance between grid groups to prevent overlap")]
+    [SerializeField, Range(1f, 8f)] private float minDistanceBetweenGroups = 3f;
     
     public override AttackType AttackType => AttackType.FormationShape; // Using FormationShape type, but could add a new type
     public override string AttackName => "Focused Grid Attack";
@@ -139,6 +141,9 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
             boundaryCenter = Vector3.zero;
         }
         
+        // Keep track of all group centers to ensure spacing
+        List<Vector3> existingGroupCenters = new List<Vector3>();
+        
         for (int groupIndex = 0; groupIndex < numberOfGridGroups; groupIndex++)
         {
             Vector3 groupCenter;
@@ -166,9 +171,38 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
             }
             else
             {
-                // Subsequent groups target random positions within boundaries
-                groupCenter = GetRandomPositionInBounds(playerBounds, playerPosition);
+                // Subsequent groups need to maintain minimum distance from existing groups
+                bool validPosition = false;
+                int attempts = 0;
+                int maxAttempts = 50; // Prevent infinite loops
+                
+                do
+                {
+                    groupCenter = GetRandomPositionInBounds(playerBounds, playerPosition);
+                    validPosition = true;
+                    
+                    // Check distance from all existing group centers
+                    foreach (Vector3 existingCenter in existingGroupCenters)
+                    {
+                        float distance = Vector3.Distance(groupCenter, existingCenter);
+                        if (distance < minDistanceBetweenGroups)
+                        {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                    
+                    attempts++;
+                    if (attempts >= maxAttempts)
+                    {
+                        LogWarning($"Could not find valid position for group {groupIndex} after {maxAttempts} attempts. Using last position.");
+                        break;
+                    }
+                } while (!validPosition);
             }
+            
+            // Add this center to the list of existing centers
+            existingGroupCenters.Add(groupCenter);
             
             GridGroup group = new GridGroup(groupCenter);
             
@@ -203,6 +237,7 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
         if (showDebugLogs && levelManager != null)
         {
             LogDebug($"Player bounds: {playerBounds} (scaler: {boundarySizeScaler}), Boundary center: {boundaryCenter}");
+            LogDebug($"Min distance between groups: {minDistanceBetweenGroups}");
         }
     }
     
@@ -347,6 +382,21 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
         gridGroups.Clear();
     }
     
+    // Helper method to draw a wire circle in the XY plane
+    private void DrawWireCircle(Vector3 center, float radius, int segments)
+    {
+        float angleStep = 360f / segments;
+        Vector3 previousPoint = center + new Vector3(radius, 0, 0);
+        
+        for (int i = 1; i <= segments; i++)
+        {
+            float angle = i * angleStep * Mathf.Deg2Rad;
+            Vector3 currentPoint = center + new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0);
+            Gizmos.DrawLine(previousPoint, currentPoint);
+            previousPoint = currentPoint;
+        }
+    }
+    
     // Gizmo drawing for debugging
     private void OnDrawGizmosSelected()
     {
@@ -445,6 +495,13 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
                     // Draw group center
                     Gizmos.color = new Color(Gizmos.color.r, Gizmos.color.g, Gizmos.color.b, 0.5f);
                     Gizmos.DrawWireSphere(group.centerPosition, 0.25f);
+                    
+                    // Draw minimum distance circle (debug visualization)
+                    if (showDebugLogs && groupIndex > 0)
+                    {
+                        Gizmos.color = new Color(1f, 1f, 0f, 0.2f); // Transparent yellow
+                        DrawWireCircle(group.centerPosition, minDistanceBetweenGroups, 16);
+                    }
                 }
             }
         }
