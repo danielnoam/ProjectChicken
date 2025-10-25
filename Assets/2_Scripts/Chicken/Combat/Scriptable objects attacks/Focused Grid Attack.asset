@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b2fbe80a1e297e438deae0a5d619b05, type: 3}
+  m_Name: Focused Grid Attack
+  m_EditorClassIdentifier: 
+  attackInterval: 3
+  usesBeforePatternChange: 3
+  minChickensRequired: 4
+  eggSpeedMultiplier: 1
+  deactivateWarningCircle: 0
+  audioEvent: {fileID: 11400000, guid: 87b7f2c3f1904ee4d966ce19ae3e9f98, type: 2}
+  showDebugLogs: 1
+  gridSpacing: 4
+  numberOfGridGroups: 6
+  delayBetweenGroups: 0.1
+  simultaneousShots: 1
+  shotDelay: 1
+  randomizeOrder: 0
+  maxRandomOffset: 0.3
+  boundaryPadding: 1
+  boundarySizeScaler: 2
+  showBoundaryGizmo: 0
+  lastKnownPlayerBounds: {x: 100, y: 50}
+  lastKnownBoundaryCenter: {x: 0, y: 0, z: -29}
