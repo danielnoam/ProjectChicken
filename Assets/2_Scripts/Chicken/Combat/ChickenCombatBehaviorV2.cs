@@ -215,7 +215,6 @@ public class ChickenCombatBehaviorV2 : MonoBehaviour
         // Spawn egg
         GameObject egg = ObjectPooler.GetObjectFromPool(eggPrefab, eggSpawnPoint.position, Quaternion.LookRotation(shootDirection));
         // Play death SFX
-        //attackSFX?.PlayAtPoint(transform.position);
         if (egg == null)
         {
             Debug.LogError($"ChickenCombatBehaviorV2 on {gameObject.name}: Failed to instantiate egg!");

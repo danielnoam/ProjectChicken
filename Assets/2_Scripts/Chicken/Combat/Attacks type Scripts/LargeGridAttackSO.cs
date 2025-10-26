@@ -3,19 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 
-[CreateAssetMenu(fileName = "LargeGridAttack", menuName = "Chicken Combat/Attacks/Large Grid Attack")]
+[CreateAssetMenu(fileName = "Large Grid Attack", menuName = "Chicken Combat/Attacks/Large Grid Attack")]
 public class LargeGridAttackSO : BaseChickenAttackSO
 {
     // This attack creates a large square grid around the player with optional side grids
     // Default configuration: 4x4 main grid (16 shots) + 2x 3x3 side grids (18 shots) = 34 total shots
     // All chickens fire simultaneously at their assigned grid positions
+    // 
+    // Chicken Requirements:
+    // - minChickensRequired: Total registered chickens needed (checked against manager.TotalCombatChickens)
+    // - Available chickens: Only needs at least 1 chicken that can attack to execute
+    // - useAllAvailableChickens = true: All chickens share the shots equally
+    // - useAllAvailableChickens = false: Uses fewer chickens, each fires once
     
     [Header("Large Grid Attack Settings")]
     [Tooltip("Size of the grid (e.g., 4 means 4x4 = 16 shots)")]
     [SerializeField, Range(2, 6)] private int gridSize = 4; // NxN grid
     
     [Tooltip("The spacing between each egg in the grid")]
-    [SerializeField, Range(0.3f, 8)] private float gridSpacing = 0.8f; // Distance between grid points
+    [SerializeField, Range(0.3f, 2f)] private float gridSpacing = 0.8f; // Distance between grid points
     
     [Header("Targeting Settings")]
     [Tooltip("Offset the entire grid from the player position")]
@@ -27,7 +33,7 @@ public class LargeGridAttackSO : BaseChickenAttackSO
     [Tooltip("If true, grid will rotate randomly around the player")]
     [SerializeField] private bool randomRotation = true;
     
-    [Tooltip("If false, uses a subset of chickens equal to gridSize x gridSize")]
+    [Tooltip("If true, all available chickens fire multiple shots to cover all grid positions. If false, each chicken fires once (fewer total shots if chickens < grid positions)")]
     [SerializeField] private bool useAllAvailableChickens = false;
     
     [Header("Side Grids Settings")]
@@ -38,14 +44,14 @@ public class LargeGridAttackSO : BaseChickenAttackSO
     [SerializeField, Range(2, 4)] private int sideGridSize = 3;
     
     [Tooltip("Distance between main grid and side grids")]
-    [SerializeField, Range(0.5f, 8f)] private float sideGridDistance = 1.5f;
+    [SerializeField, Range(0.5f, 3f)] private float sideGridDistance = 1.5f;
     
     [Tooltip("Vertical offset for side grids (positive = up, negative = down)")]
     [SerializeField, Range(-2f, 2f)] private float sideGridVerticalOffset = 0f;
     
     [Header("Boundary Settings")]
     [Tooltip("Multiplier for the player boundary size (1.0 = exact size, 2.0 = double size)")]
-    [SerializeField, Range(0.5f, 3f)] private float boundarySizeScaler = 2f;
+    [SerializeField, Range(0.5f, 3f)] private float boundarySizeScaler = 2.5f;
     
     [Tooltip("Minimum distance from boundaries when placing the grid")]
     [SerializeField] private float boundaryPadding = 1f;
@@ -53,7 +59,7 @@ public class LargeGridAttackSO : BaseChickenAttackSO
     [Tooltip("Show the grid area in scene view")]
     [SerializeField] private bool showGridGizmo = true;
     
-    public override AttackType AttackType => AttackType.FormationShape;
+    public override AttackType AttackType => AttackType.LargeGrid;
     public override string AttackName => "Large Grid Attack";
     
     // Grid data
@@ -88,12 +94,15 @@ public class LargeGridAttackSO : BaseChickenAttackSO
         int mainGridShots = gridSize * gridSize;
         int sideGridShots = enableSideGrids ? (sideGridSize * sideGridSize * 2) : 0; // 2 side grids
         int totalShots = mainGridShots + sideGridShots;
-        int chickensNeeded = useAllAvailableChickens ? 1 : totalShots;
         
-        // Need enough available chickens for all grids
+        // We need at least 1 available chicken to execute the attack
+        // The chickens can fire multiple shots
+        int chickensNeeded = 1;
+        
+        // Need enough available chickens to execute
         if (availableChickens == null || availableChickens.Count < chickensNeeded)
         {
-            LogDebug($"Not enough available chickens for attack. Need {chickensNeeded} for {gridSize}x{gridSize} main + {(enableSideGrids ? "2x " + sideGridSize + "x" + sideGridSize + " side grids" : "no side grids")}, Available: {(availableChickens?.Count ?? 0)}");
+            LogDebug($"Not enough available chickens for attack. Need at least {chickensNeeded} to execute (Total shots planned: {totalShots}), Available: {(availableChickens?.Count ?? 0)}");
             return false;
         }
         
@@ -129,19 +138,21 @@ public class LargeGridAttackSO : BaseChickenAttackSO
         CalculateGridPositions(manager.Player.position);
         
         // Select chickens for the attack
-        int chickensToUse = useAllAvailableChickens ? availableChickens.Count : Mathf.Min(allGridPositions.Count, availableChickens.Count);
         List<ChickenCombatBehaviorV2> selectedChickens = availableChickens
             .Where(chicken => chicken != null && chicken.CanAttack())
-            .Take(chickensToUse)
             .ToList();
         
         // Start the attack using coroutine
         manager.StartCoroutine(ExecuteGridAttack(selectedChickens, manager));
         
         int totalPositions = allGridPositions.Count;
+        string executionMode = useAllAvailableChickens ? 
+            $"All {selectedChickens.Count} chickens will share {totalPositions} shots" : 
+            $"Using {Mathf.Min(selectedChickens.Count, totalPositions)} chickens for {Mathf.Min(selectedChickens.Count, totalPositions)} shots";
+        
         LogDebug($"Started large grid attack: Main {gridSize}x{gridSize}" + 
             (enableSideGrids ? $" + 2x{sideGridSize}x{sideGridSize} side grids" : "") +
-            $" = {totalPositions} positions, using {selectedChickens.Count} chickens (Total registered: {manager.TotalCombatChickens})");
+            $" = {totalPositions} total positions. {executionMode} (Total registered: {manager.TotalCombatChickens})");
     }
     
     private void CalculateGridPositions(Vector3 playerPosition)

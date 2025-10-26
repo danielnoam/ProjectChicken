@@ -40,7 +40,7 @@ public class BigSquareAttackSO : BaseChickenAttackSO
     
 
     
-    public override AttackType AttackType => AttackType.FormationShape;
+    public override AttackType AttackType => AttackType.BigSquare;
     public override string AttackName => "Large Grid Attack";
     
     // Grid data
