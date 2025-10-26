@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 712304522
   itemName: Lightning Beam Upgrade 2
   itemDescription: Cook more chickens with each beam!
-  itemIcon: {fileID: 21300000, guid: fafadd4b85305094da86f4e6f1129ca1, type: 3}
+  itemIcon: {fileID: 21300000, guid: 762c30b665a7b1c4fb1022ab90479f71, type: 3}
   itemGfx: {fileID: 682982969330921429, guid: 9a613ff7fb78f9e44ac869ca2a357781, type: 3}
   itemRarity: 2
   isStackable: 0
@@ -123,6 +123,16 @@ MonoBehaviour:
             m_RotationOrder: 4
         shakeCameraOnFire: 0
         shakeSettings:
+          impulseType: 0
           impulseShape: 2
           intensity: 1
           duration: 0.3
+          xVelocityRange:
+            minValue: -1
+            maxValue: 1
+          yVelocityRange:
+            minValue: -1
+            maxValue: 1
+          zVelocityRange:
+            minValue: -1
+            maxValue: 1

@@ -32,6 +32,8 @@ public class RadioManager : MonoBehaviour
     private bool _messagePlaying;
     private int _playerHealth = 100;
     private SOCharacter _currentSender;
+    private SOLevelStage _currentStage;
+    private bool CanPlayRandomMessage => _currentStage && _currentStage.PlayRandomMessages;
     
     public event Action<SORadioMessage> OnMessageFinished;
     public event Action<SORadioMessage> OnMessageStarted;
@@ -124,7 +126,7 @@ public class RadioManager : MonoBehaviour
     
     private void OnResourceCollected(Resource resource)
     {
-        if (currencyPickUpMessages.Length <= 0 || !resource || resource.ResourceType != ResourceType.Currency) return;
+        if (!CanPlayRandomMessage || currencyPickUpMessages.Length <= 0 || !resource || resource.ResourceType != ResourceType.Currency) return;
 
         if (Random.value > currencyPickUpMessageChance) return;
         
@@ -134,7 +136,8 @@ public class RadioManager : MonoBehaviour
     
     private void OnPlayerHealthChanged(int health)
     {
-        if (playerDamagedMessages.Length <= 0) return;
+        if (!CanPlayRandomMessage || playerDamagedMessages.Length <= 0) return;
+
 
         if (health < _playerHealth && health > 0)
         {
@@ -147,7 +150,7 @@ public class RadioManager : MonoBehaviour
 
     private void OnPlayerDeath()
     {
-        if (playerDeathMessages.Length <= 0) return;
+        if (!CanPlayRandomMessage || playerDeathMessages.Length <= 0) return;
         
         var message = playerDeathMessages[Random.Range(0, playerDeathMessages.Length)];
         AddMessage(message);
@@ -157,7 +160,9 @@ public class RadioManager : MonoBehaviour
     {
         if (!stage) return;
         
-        if (stage.StageType == StageType.Intro)
+        _currentStage = stage;
+        
+        if (stage.StageType is StageType.Intro)
         {
             ClearMessages();
         }
@@ -167,7 +172,7 @@ public class RadioManager : MonoBehaviour
     
     private void OnEnemyDeath(ChickenStateController enemy)
     {
-        if (!enemy || enemyDeathMessages.Length <= 0) return;
+        if (!CanPlayRandomMessage || !enemy || enemyDeathMessages.Length <= 0) return;
         
         if (Random.value > enemyDeathMessageChance) return;
         var message = enemyDeathMessages[Random.Range(0, enemyDeathMessages.Length)];

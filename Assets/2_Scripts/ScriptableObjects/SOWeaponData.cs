@@ -215,6 +215,7 @@ public class SOWeaponData : ScriptableObject
 
     public void ApplyUpgradeData(SOWeaponUpgrade upgrade)
     {
+        if (upgrade.ItemIcon) weaponWeaponIcon = upgrade.ItemIcon;
         fireRate = upgrade.FireRate;
         maxTargets = upgrade.MaxTargets;
         targetCheckRadius = upgrade.TargetCheckRadius;

@@ -12,6 +12,7 @@ public class SOLevelStage : ScriptableObject
     [SerializeField, Range(0f,2f)] private float worldSpeed = 1f;
     [SerializeField] private bool isCheckpoint;
     [SerializeField] private bool allowSkip;
+    [SerializeField] private bool playRandomMessages;
     [SerializeField, CreateEditableAsset] private SORadioMessage startRadioMessage;
     [SerializeField, CreateEditableAsset] private SOWarning startWarning;
     [SerializeReference] private StageEvent[] events = Array.Empty<StageEvent>();
@@ -80,6 +81,7 @@ public class SOLevelStage : ScriptableObject
     public SOWarning StartWarning => startWarning;
     public StageEvent[] Events => events;
     public bool IsCheckpoint => isCheckpoint;
+    public bool PlayRandomMessages => playRandomMessages;
     public OutroMode OutroMode => outroMode;
     public bool ShowOutroMenu => outroMode == OutroMode.ShowOutroMenu;
     public bool AllowToCloseStore => allowToCloseStore;

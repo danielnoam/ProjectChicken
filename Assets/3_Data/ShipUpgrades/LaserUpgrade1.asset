@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: -1161306231
   itemName: Laser Upgrade 1
   itemDescription: Now shoots two lasers!
-  itemIcon: {fileID: 21300000, guid: 0bcbef67846ca1a44bd8aad5a5652446, type: 3}
+  itemIcon: {fileID: 21300000, guid: e93a2dde014c643418aebbc72f55ff07, type: 3}
   itemGfx: {fileID: 682982969330921429, guid: fbb1936e353c58e4b8304b363705a752, type: 3}
   itemRarity: 1
   isStackable: 0
@@ -157,6 +157,16 @@ MonoBehaviour:
             m_RotationOrder: 4
         shakeCameraOnFire: 0
         shakeSettings:
+          impulseType: 0
           impulseShape: 2
           intensity: 1
           duration: 0.3
+          xVelocityRange:
+            minValue: -1
+            maxValue: 1
+          yVelocityRange:
+            minValue: -1
+            maxValue: 1
+          zVelocityRange:
+            minValue: -1
+            maxValue: 1
