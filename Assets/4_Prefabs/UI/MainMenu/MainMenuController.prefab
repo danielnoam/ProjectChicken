@@ -577,7 +577,7 @@ MonoBehaviour:
     DefaultMode: 2
   DefaultBlend:
     Style: 1
-    Time: 1
+    Time: 0.8
     CustomCurve:
       serializedVersion: 2
       m_Curve: []
@@ -1203,7 +1203,6 @@ MonoBehaviour:
       m_RotationOrder: 4
   defaultCameraPosition: {fileID: 5172834498693952965}
   defaultCameraLookAtPoint: {fileID: 9070086906605018609}
-  menuLoopSfx: {fileID: 11400000, guid: 11e44b5f06843c34b9b1da35c3ae32f5, type: 2}
   audioSource: {fileID: 6743258808873065027}
   mainMenuInput: {fileID: 7507684410612964729}
   controllerVibrationSource: {fileID: 2768291501500951051}
@@ -1960,7 +1959,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4829b5fa57fb074fb0d2ad85b1e4ffb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lookAtDuration: 0.5
+  lookAtDuration: 0.3
   lookAtEase: 7
   cameraLookAtTarget: {fileID: 807510620099077905}
   mainMenuController: {fileID: 6647482680884833962}
@@ -3786,7 +3785,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 0.5067858, g: 1, b: 0.27843142, a: 1}
-  cameraLootAtOffset: {x: 1.8, y: 0.4, z: 0}
+  cameraLootAtOffset: {x: 1.9, y: 0.5, z: 0}
   upElement: {fileID: 0}
   downElement: {fileID: 8456258857923429392}
   leftElement: {fileID: 1295085056171194752}
@@ -4251,7 +4250,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 0.43072125, g: 0.27843142, b: 1, a: 1}
-  cameraLootAtOffset: {x: 0, y: 0.26, z: 0}
+  cameraLootAtOffset: {x: 0, y: 0.2, z: 0}
   upElement: {fileID: 0}
   downElement: {fileID: 8456258857923429392}
   leftElement: {fileID: 6162335458551397129}
@@ -7222,7 +7221,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 0.9618515, g: 1, b: 0.27843142, a: 1}
-  cameraLootAtOffset: {x: -1.8, y: 0.4, z: 0}
+  cameraLootAtOffset: {x: -1.9, y: 0.5, z: 0}
   upElement: {fileID: 0}
   downElement: {fileID: 8456258857923429392}
   leftElement: {fileID: 3606786417390792711}
@@ -7670,7 +7669,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canSelect: 1
   elementColor: {r: 1, g: 0.42460844, b: 0.27843142, a: 1}
-  cameraLootAtOffset: {x: 0.75, y: 0.55, z: 0}
+  cameraLootAtOffset: {x: 0.85, y: 0.65, z: 0}
   upElement: {fileID: 3606786417390792711}
   downElement: {fileID: 0}
   leftElement: {fileID: 6162335458551397129}
@@ -12224,6 +12223,34 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4909145150560173249}
     m_Modifications:
+    - target: {fileID: 718749845504697416, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2794704503742757817, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4947736435438119115, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6044479017331709031, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7061710125882981582, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7400025501964893993, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8374489215646108783, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1689101288103878628, guid: 7330f94e3ab45c04598db35a99ecd092, type: 3}
       propertyPath: m_LocalPosition.x
       value: 144.4
@@ -12267,34 +12294,6 @@ PrefabInstance:
     - target: {fileID: 2034276833467712862, guid: 7330f94e3ab45c04598db35a99ecd092, type: 3}
       propertyPath: m_Name
       value: Prefab_GasStation
-      objectReference: {fileID: 0}
-    - target: {fileID: 718749845504697416, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
-      propertyPath: looping
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2794704503742757817, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
-      propertyPath: looping
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4947736435438119115, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
-      propertyPath: looping
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6044479017331709031, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
-      propertyPath: looping
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7061710125882981582, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
-      propertyPath: looping
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7400025501964893993, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8374489215646108783, guid: bdd45c9b2c7902641a1c37e346bd2505, type: 3}
-      propertyPath: looping
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

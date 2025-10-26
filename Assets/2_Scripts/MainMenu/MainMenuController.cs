@@ -23,7 +23,6 @@ public class MainMenuController : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform defaultCameraPosition;
     [SerializeField] private Transform defaultCameraLookAtPoint;
-    [SerializeField] private SOAudioEvent menuLoopSfx;
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     [SerializeField, Self, HideInInspector] public MainMenuInput mainMenuInput;
     [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
@@ -51,7 +50,6 @@ public class MainMenuController : MonoBehaviour
     {
         FullScreenCAController.Instance?.ToggleOff();
         FullScreenHitFXController.Instance?.ToggleOff();
-        menuLoopSfx?.Play(audioSource);
     }
 
     private void OnEnable()
