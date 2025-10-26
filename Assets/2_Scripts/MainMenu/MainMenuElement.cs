@@ -135,12 +135,12 @@ public abstract class MainMenuElement : MonoBehaviour
         currentVisualState = state;
         float targetAlpha;
         float targetOutlineWidth;
-        Color targetColor;
+        Color targetLabelColor;
         
         if (!canSelect)
         {
             targetAlpha = 0f;
-            targetColor = Color.white;
+            targetLabelColor = Color.white;
             targetOutlineWidth = 0f;
         }
         else
@@ -149,28 +149,28 @@ public abstract class MainMenuElement : MonoBehaviour
             {
                 case ElementState.Deselected:
                     targetAlpha = labelAlphaWhenDeselected;
-                    targetColor = elementColor;
                     targetOutlineWidth = 0f;
+                    targetLabelColor = Color.white;;
                     break;
                 case ElementState.Selected:
                     targetAlpha = 1f;
-                    targetColor = elementColor;
                     targetOutlineWidth = outlineWidthWhenSelected;
+                    targetLabelColor = elementColor;
                     break;
                 case ElementState.Interacting:
                     targetAlpha = labelAlphaWhenInteracting;
-                    targetColor = elementColor;
                     targetOutlineWidth = 0;
+                    targetLabelColor = elementColor;
                     break;
                 case ElementState.Disabled:
                     targetAlpha = 0f;
-                    targetColor = elementColor;
                     targetOutlineWidth = 0f;
+                    targetLabelColor = elementColor;
                     break;
                 default:
                     targetAlpha = labelAlphaWhenDeselected;
-                    targetColor = elementColor;
                     targetOutlineWidth = 0f;
+                    targetLabelColor = elementColor;
                     break;
             }
         }
@@ -179,14 +179,14 @@ public abstract class MainMenuElement : MonoBehaviour
         if (instant)
         {
             labelCanvasGroup.alpha = targetAlpha;
-            label.color = targetColor;
+            label.color = targetLabelColor;
             outline.OutlineWidth = targetOutlineWidth;
         }
         else
         {
             _visualElementsSequence = Sequence.Create();
             _visualElementsSequence.Group(Tween.Alpha(labelCanvasGroup, targetAlpha, visualElementsTweenDuration));
-            _visualElementsSequence.Group(Tween.Color(label, targetColor, visualElementsTweenDuration));
+            _visualElementsSequence.Group(Tween.Color(label, targetLabelColor, visualElementsTweenDuration));
             _visualElementsSequence.Group(Tween.Custom(
                 startValue: outline.OutlineWidth,
                 endValue: targetOutlineWidth,
