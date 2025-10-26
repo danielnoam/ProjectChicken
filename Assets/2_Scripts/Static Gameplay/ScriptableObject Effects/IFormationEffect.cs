@@ -11,6 +11,7 @@ public interface IFormationEffect
     void UpdateEffect(float deltaTime, float elapsedTime);
     void ApplyToFormation(List<Vector3> formationSlots, int formationIndex, List<Vector3> baseFormation, Vector3 centerPosition);
     void Reset();
+    void ResetToDefaults(); // Reset effect values to ScriptableObject defaults
 
     // Optional methods for effects that need them
     void OnFormationChanged(int newFormationCount) { }

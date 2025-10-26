@@ -150,4 +150,32 @@ public class BreathingEffect : IFormationEffect
     }
 
     public BreathingEffectConfig Config => config;
+
+    public void ResetToDefaults()
+    {
+        // Reset to default configuration values
+        float currentTime = Time.time;
+        for (int i = 0; i < formationData.Count; i++)
+        {
+            var data = formationData[i];
+            
+            // Reset to base config values
+            data.breathingCycleTime = config.cycleTime;
+            data.breathingPhaseOffset = 0f;
+            data.currentBreathingScale = 1f;
+            data.startTime = currentTime;
+            
+            // Reapply variations as per config
+            if (config.enableCycleVariation)
+            {
+                float variation = Random.Range(-config.cycleVariation, config.cycleVariation);
+                data.breathingCycleTime = Mathf.Max(0.5f, config.cycleTime + variation);
+            }
+            
+            if (config.useRandomPhase)
+            {
+                data.breathingPhaseOffset = Random.Range(0f, 2f * Mathf.PI);
+            }
+        }
+    }
 }

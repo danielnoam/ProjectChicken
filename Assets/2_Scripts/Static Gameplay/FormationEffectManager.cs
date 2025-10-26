@@ -190,6 +190,7 @@ public class FormationEffectManager : MonoBehaviour
         
         
         StopAllEffects();
+        ResetAllEffectsToDefaults(); // Reset effects to default configuration values
         
         
         if (!useStageBasedActivation) return;
@@ -686,6 +687,15 @@ public class FormationEffectManager : MonoBehaviour
         foreach (var effect in effects)
         {
             effect.Reset();
+        }
+        effectStartTime = Time.time;
+    }
+
+    public void ResetAllEffectsToDefaults()
+    {
+        foreach (var effect in effects)
+        {
+            effect.ResetToDefaults();
         }
         effectStartTime = Time.time;
     }
