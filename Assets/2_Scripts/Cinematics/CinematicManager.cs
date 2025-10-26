@@ -20,9 +20,11 @@ public class CinematicManager : MonoBehaviour
     [SerializeField] protected SOVFEffectsSequence endSequence;
     [SerializeField] protected SOVFEffectsSequence targetSceneStartSequence;
     
+    
+    private bool _skippingCinematic;
+    
     protected virtual void Start()
     {
-
         StartCinematic();
     }
 
@@ -65,6 +67,8 @@ public class CinematicManager : MonoBehaviour
 
     private void OnSkipAction(InputAction.CallbackContext callbackContext)
     {
+        if (_skippingCinematic) return;
+        _skippingCinematic = true;
         if (IsCinematicPlaying())
         {
             StopCinematic();

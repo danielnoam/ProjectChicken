@@ -13,6 +13,7 @@ public class WarningUI : MonoBehaviour
     [Header("References")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private Image iconImage;
+    [SerializeField] private Image warningIconImage;
     [SerializeField] private Image backgroundImage;
     [SerializeField] private TextMeshProUGUI warningText;
     [SerializeField] private CanvasGroup canvasGroup;
@@ -83,11 +84,15 @@ public class WarningUI : MonoBehaviour
         // Always fade out and move to hide position at the end
         _hideSequence.Group(Tween.Alpha(canvasGroup, 0f, showHideDuration));
         
+        // Fade out sfx
+        _hideSequence.Group(Tween.AudioVolume(audioSource, 0, showHideDuration));
+        
         // Chain completion callback
         _hideSequence.OnComplete(() =>
         {
             _isVisible = false;
             OnWarningHidden?.Invoke();
+            audioSource.clip = null;
         });
     }
 
@@ -113,16 +118,10 @@ public class WarningUI : MonoBehaviour
         }
         
         // Play audio
-        if (audioSource && warning.AudioClip)
-        {
-            audioSource.PlayOneShot(warning.AudioClip);
-        }
+        warning.WarningSfx?.Play(audioSource);
         
         // Set initial states for show animation (start from offset)
-        if (warning.AnimateShowScale)
-        {
-            _rectTransform.localScale = _originalScale + warning.ShowScaleOffset;
-        }
+        _rectTransform.localScale = _originalScale + warning.ShowScaleOffset;
         
         // Always start with alpha 0 and fade in
         canvasGroup.alpha = 0f;
@@ -130,30 +129,37 @@ public class WarningUI : MonoBehaviour
 
     private void BuildShowAnimation(SOWarning warning, ref Sequence sequence)
     {
-        // Shake Animation
-        if (warning.AnimateShowShake)
-        {
-            sequence.Group(Tween.ShakeLocalPosition(
-                transform,
-                warning.ShowShakeStrength,
-                warning.ShowShakeDuration,
-                warning.ShowShakeFrequency,
-                easeBetweenShakes: warning.ShowShakeEase
-            ));
-        }
+        sequence.Group(Tween.ShakeLocalPosition(
+            transform,
+            warning.ShowShakeStrength,
+            warning.ShowShakeDuration,
+            warning.ShowShakeFrequency,
+            easeBetweenShakes: warning.ShowShakeEase
+        ));
+        sequence.Group(Tween.ShakeLocalPosition(
+            iconImage.transform,
+            warning.ShowShakeStrength,
+            warning.Duration,
+            warning.ShowShakeFrequency,
+            easeBetweenShakes: warning.ShowShakeEase, 
+            startDelay: 0.1f
+        ));
+        sequence.Group(Tween.ShakeLocalPosition(
+            warningIconImage.transform,
+            warning.ShowShakeStrength,
+            warning.Duration,
+            warning.ShowShakeFrequency,
+            easeBetweenShakes: warning.ShowShakeEase, 
+            startDelay: 0.2f
+        ));
         
-        // Scale Animation - animate FROM offset TO original
-        if (warning.AnimateShowScale)
-        {
-            sequence.Group(Tween.Scale(
-                transform,
-                _originalScale,
-                warning.ShowScaleDuration,
-                warning.ShowScaleEase
-            ));
-        }
-        
-        // Alpha Animation - always fade in to 1
+
+        sequence.Group(Tween.Scale(
+            transform,
+            _originalScale,
+            warning.ShowScaleDuration,
+            warning.ShowScaleEase
+        ));
         sequence.Group(Tween.Alpha(
             canvasGroup,
             1f,
@@ -163,27 +169,18 @@ public class WarningUI : MonoBehaviour
 
     private void BuildHideAnimation(SOWarning warning, ref Sequence sequence)
     {
-        // Shake Animation
-        if (warning.AnimateHideShake)
-        {
-            sequence.Group(Tween.ShakeLocalPosition(
-                transform,
-                warning.HideShakeStrength,
-                warning.HideShakeDuration,
-                warning.HideShakeFrequency,
-                easeBetweenShakes: warning.HideShakeEase
-            ));
-        }
-        
-        // Scale Animation - animate FROM original TO offset
-        if (warning.AnimateHideScale)
-        {
-            sequence.Group(Tween.Scale(
-                transform,
-                _originalScale + warning.HideScaleOffset,
-                warning.HideScaleDuration,
-                warning.HideScaleEase
-            ));
-        }
+        sequence.Group(Tween.ShakeLocalPosition(
+            transform,
+            warning.HideShakeStrength,
+            warning.HideShakeDuration,
+            warning.HideShakeFrequency,
+            easeBetweenShakes: warning.HideShakeEase
+        ));
+        sequence.Group(Tween.Scale(
+            transform,
+            _originalScale + warning.HideScaleOffset,
+            warning.HideScaleDuration,
+            warning.HideScaleEase
+        ));
     }
 }
