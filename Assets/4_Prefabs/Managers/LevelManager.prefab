@@ -1758,10 +1758,13 @@ MonoBehaviour:
   passthroughObstaclePrefabs:
     internalItems:
     - item: {fileID: 4195746654617595884, guid: a7823e9699d7cb64ebd54ea61b4bd6a2, type: 3}
-      chance: 50
+      chance: 34
       isLocked: 0
     - item: {fileID: 7982674519119543760, guid: b20a3d75a9af8cb4c9c6dd0071d95695, type: 3}
-      chance: 50
+      chance: 33
+      isLocked: 0
+    - item: {fileID: 4195746654617595884, guid: d70c7bb3e1e3b2242a1d589ee39a5ed9, type: 3}
+      chance: 33
       isLocked: 0
   obstacleHolder: {fileID: 439969365969103054}
   splineHolder: {fileID: 6626348813966583457}
@@ -3333,7 +3336,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 5610219870644795921}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9999998
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3453,14 +3456,6 @@ PrefabInstance:
     - target: {fileID: 5417259737308327871, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 60
-      objectReference: {fileID: 0}
-    - target: {fileID: 6096204220972753079, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
-      propertyPath: player
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 6096204220972753079, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
-      propertyPath: enemySpawner
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6096204220972753079, guid: 88977555f14d395498b79cae8e2c57d0, type: 3}
       propertyPath: levelManager
