@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45e783ad6b9cd3642a1a086aea919b93, type: 3}
-  m_Name: Large Grid Attack
+  m_Name: Large Grid Attack With Rotation
   m_EditorClassIdentifier: 
   attackInterval: 2.5
   usesBeforePatternChange: 1
-  minChickensRequired: 4
+  minChickensRequired: 12
   eggSpeedMultiplier: 0.8
   deactivateWarningCircle: 0
   audioEvent: {fileID: 11400000, guid: 87b7f2c3f1904ee4d966ce19ae3e9f98, type: 2}
@@ -23,11 +23,12 @@ MonoBehaviour:
   gridSpacing: 6
   gridOffset: {x: 0, y: 0, z: 0}
   maxRandomOffset: 0.3
-  randomRotation: 0
-  useAllAvailableChickens: 0
+  randomRotation: 1
+  useAllAvailableChickens: 1
+  maxChickensWhenLimited: 8
   enableSideGrids: 1
-  sideGridSize: 3
-  sideGridDistance: 6
+  sideGridSize: 4
+  sideGridDistance: 9
   sideGridVerticalOffset: 0
   boundarySizeScaler: 2.5
   boundaryPadding: 1
