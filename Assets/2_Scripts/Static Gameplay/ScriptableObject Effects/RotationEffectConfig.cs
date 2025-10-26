@@ -278,4 +278,52 @@ public class RotationEffect : IFormationEffect
     }
 
     public RotationEffectConfig Config => config;
+
+    public void ResetToDefaults()
+    {
+        // Reset to default configuration values
+        float currentTime = Time.time;
+        for (int i = 0; i < formationData.Count; i++)
+        {
+            var data = formationData[i];
+            
+            // Reset to base config values
+            data.rotationSpeed = config.rotationSpeed;
+            data.startingRotationAngle = 0f;
+            data.currentRotationAngle = 0f;
+            data.rotationDirection = 1;
+            data.startTime = currentTime;
+            
+            // Reset spin burst data
+            data.spinBurstTimer = 0f;
+            data.spinBurstTimeLeft = 0f;
+            data.isInSpinBurst = false;
+            data.nextBurstInterval = 0f;
+            
+            // Reapply variations as per config
+            if (config.enableSpeedVariation)
+            {
+                float variation = Random.Range(-config.speedVariation, config.speedVariation);
+                data.rotationSpeed = config.rotationSpeed + variation;
+            }
+            
+            if (config.useRandomStartingAngle)
+            {
+                data.startingRotationAngle = Random.Range(0f, 360f);
+                data.currentRotationAngle = data.startingRotationAngle;
+            }
+            
+            if (config.allowRandomDirection && Random.value > 0.5f)
+            {
+                data.rotationDirection = -1;
+            }
+            
+            // Spin burst setup
+            if (config.enableSpinBurst)
+            {
+                data.nextBurstInterval = Random.Range(config.spinBurstMinInterval, config.spinBurstMaxInterval);
+                data.spinBurstTimer = data.nextBurstInterval;
+            }
+        }
+    }
 }

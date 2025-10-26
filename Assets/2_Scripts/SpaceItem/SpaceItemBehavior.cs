@@ -17,7 +17,6 @@ public class SpaceItemBehavior : MonoBehaviour
     [HideInInspector] public float scaleDuration = 2f; // Set by spawner
     
     [Header("Lifecycle Settings")]
-    public bool enableFading = false; // FADING DISABLED
     public float fadeOutDuration = 1f;
     public float destroyDelay = 2f;
     
@@ -69,12 +68,7 @@ public class SpaceItemBehavior : MonoBehaviour
         MoveItem();
         RotateItem();
         ScaleItem();
-        
-        // Only handle fading if enabled
-        if (enableFading)
-        {
-            HandleFading();
-        }
+        HandleFading();
     }
     
     void MoveItem()
@@ -140,13 +134,6 @@ public class SpaceItemBehavior : MonoBehaviour
     // Called externally to start fade out (only called by ItemDestroyer now)
     public void StartFadeOut()
     {
-        // If fading is disabled, return to pool immediately
-        if (!enableFading)
-        {
-            ReturnToPoolOrDestroy();
-            return;
-        }
-        
         if (!isFadingOut)
         {
             isFadingOut = true;
