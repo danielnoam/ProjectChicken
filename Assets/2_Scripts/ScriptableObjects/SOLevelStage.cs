@@ -2,6 +2,7 @@ using System;
 using Core.Attributes;
 using DNExtensions;
 using UnityEngine;
+using UnityEngine.Events;
 using VInspector;
 
 [CreateAssetMenu(fileName = "New Level Stage", menuName = "Scriptable Objects/New Level Stage")]
@@ -66,11 +67,12 @@ public class SOLevelStage : ScriptableObject
     [SerializeField] private bool allowPlayerAiming = true;
     [SerializeField] private bool allowPlayerShooting = true;
     [SerializeField] private bool allowPlayerHeatSystem = true;
-
+    
     
     public bool IsTimeBasedStage => stageType is StageType.Delay or StageType.Intro or StageType.Outro;
     public bool IsEnemyOrTaskStage => stageType is StageType.EnemyWave or StageType.Task;
     public bool ShowNextLevel => outroMode is OutroMode.LoadNextLevel or OutroMode.ShowOutroMenu;
+    
     
     
     public StageType StageType => stageType;
@@ -109,4 +111,20 @@ public class SOLevelStage : ScriptableObject
     public bool AllowPlayerShooting => allowPlayerShooting;
     public bool AllowPlayerHeatSystem => allowPlayerHeatSystem;
     public bool AllowSkip => allowSkip;
+    
+    
+    public event Action OnStageStarted;
+    public event Action OnStageEnded;
+    
+    
+    public void StartStage()
+    {
+        OnStageStarted?.Invoke();
+    }
+    
+    public void EndStage()
+    {
+        OnStageEnded?.Invoke();
+    }
+    
 }

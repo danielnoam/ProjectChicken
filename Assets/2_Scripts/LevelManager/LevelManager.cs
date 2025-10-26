@@ -249,7 +249,16 @@ public class LevelManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F12))
         {
-            SetNextStage();
+            if (currentStageIndex < _levelStages.Length - 1)
+            {
+                if (_stageChangeCoroutine != null)
+                {
+                    StopCoroutine(_stageChangeCoroutine);
+                    _stageChangeCoroutine = null;
+                }
+        
+                SetStage(currentStageIndex + 1);
+            }
         }
     }
     
@@ -426,7 +435,8 @@ public class LevelManager : MonoBehaviour
     {
         if (newStageIndex < 0 || newStageIndex >= _levelStages.Length) return;
         
-
+        if (currentStage) currentStage.EndStage();
+        
         SOLevelStage newStage = _levelStages[newStageIndex];
 
         if (!newStage)
@@ -455,6 +465,7 @@ public class LevelManager : MonoBehaviour
         OnCanSkipStage?.Invoke(CanSkipStage());
         
         
+        currentStage.StartStage();
         InitializeStageEvents();
         if (currentStage.AllowSkip) StartSkipStageCooldown();
 
@@ -733,15 +744,15 @@ public class LevelManager : MonoBehaviour
     
         if (_currentSavePoint == null)
         {
-            StartLevel();
             OnRestartedFromSavePoint?.Invoke(_startSavePoint);
+            StartLevel();
         }
         else
         {
-            SetStage(_currentSavePoint.StageIndex);
             currentScore = _currentSavePoint.Score;
             OnScoreChanged?.Invoke(currentScore);
             OnRestartedFromSavePoint?.Invoke(_currentSavePoint);
+            SetStage(_currentSavePoint.StageIndex);
         }
     }
 

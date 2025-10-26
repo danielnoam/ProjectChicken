@@ -16,12 +16,13 @@ MonoBehaviour:
   worldSpeed: 1
   isCheckpoint: 0
   allowSkip: 0
+  playRandomMessages: 0
   startRadioMessage: {fileID: 0}
   startWarning: {fileID: 0}
   events:
   - rid: 5417711935219564634
   stageType: 0
-  stageDuration: 5
+  stageDuration: 8
   delayBeforeNextStage: 3
   outroMode: 0
   nextLevel:
@@ -59,10 +60,10 @@ MonoBehaviour:
   showStagesProgression: 1
   showStatsBar: 1
   allowPlayerMovement: 1
-  allowPlayerDodge: 1
+  allowPlayerDodge: 0
   allowPlayerAiming: 1
-  allowPlayerShooting: 1
-  allowPlayerHeatSystem: 1
+  allowPlayerShooting: 0
+  allowPlayerHeatSystem: 0
   references:
     version: 2
     RefIds:
@@ -70,7 +71,7 @@ MonoBehaviour:
       type: {class: RadioMessageSequenceEvent, ns: , asm: Assembly-CSharp}
       data:
         isActive: 0
-        initialDelay: 0
+        initialDelay: 1
         shuffle: 0
         loop: 0
         messages:

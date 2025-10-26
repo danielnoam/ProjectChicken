@@ -11,8 +11,8 @@ public class CameraShakeSettings
 {
     public CinemachineImpulseDefinition.ImpulseTypes impulseType = CinemachineImpulseDefinition.ImpulseTypes.Uniform;
     public CinemachineImpulseDefinition.ImpulseShapes impulseShape = CinemachineImpulseDefinition.ImpulseShapes.Bump;
-    [Min(0.1f)] public float intensity = 1f;
-    [Min(0.1f)] public float duration = 0.3f;
+    [Min(0.01f)] public float intensity = 1f;
+    [Min(0.01f)] public float duration = 0.3f;
     public RangedFloat xVelocityRange = new RangedFloat(-1f, 1f);
     public RangedFloat yVelocityRange = new RangedFloat(-1f, 1f);
     public RangedFloat zVelocityRange = new RangedFloat(-1f, 1f);
