@@ -185,8 +185,9 @@ public class UpgradeEgg : MonoBehaviour
     {
         if (_animationSequence.isAlive) _animationSequence.Stop();
         _animationSequence = Sequence.Create()
-            .Group(AnimateOut(startDelay))
             .ChainCallback(() => {ResetUpgrade(false); })
+            .Group(AnimateOut(startDelay))
+
             .ChainCallback(() => {SetUpgrade(false, upgrade, cost); })
             .Group(AnimateIn(startDelay));
     }

@@ -113,6 +113,7 @@ public class TabbedMenuScreen : MonoBehaviour
     {
         if (tabIndex < 0 || tabIndex >= tabPanels.Length) return;
         
+        
         _currentTabIndex = tabIndex; 
         
         for (int i = 0; i < tabPanels.Length; i++)

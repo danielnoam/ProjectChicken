@@ -13,12 +13,14 @@ MonoBehaviour:
   m_Name: 6.1_Stage_Outro
   m_EditorClassIdentifier: 
   stageTitle: 
-  startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 0
+  allowSkip: 0
+  startRadioMessage: {fileID: 0}
+  startWarning: {fileID: 0}
   events: []
   stageType: 4
-  stageDuration: 7
+  stageDuration: 10
   delayBeforeNextStage: 1
   outroMode: 1
   nextLevel:
@@ -37,9 +39,9 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyWave:
-    serializedKvps: []
-    dividerPos: 0.33
+  enemyAmount: 4
+  enemyTypes:
+    internalItems: []
   formationStageData:
     formationType: 0
     formationCount: 1

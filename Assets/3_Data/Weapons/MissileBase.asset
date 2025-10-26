@@ -20,7 +20,7 @@ MonoBehaviour:
   heatPerShot: 17.5
   timeLimit: 10
   ammoLimit: 5
-  fireRate: 1
+  fireRate: 0.8
   maxTargets: 1
   targetCheckRadius: 5
   weaponUpgrades:
@@ -87,8 +87,8 @@ MonoBehaviour:
       type: {class: BehaviorExplodeOnImpact, ns: , asm: Assembly-CSharp}
       data:
         minRadius: 4
-        maxRadius: 17
-        maxDamage: 100
+        maxRadius: 15
+        maxDamage: 50
         maxForce: 45
         stunChance: 35
         maxStunTime: 2
@@ -154,6 +154,15 @@ MonoBehaviour:
           impulseShape: 3
           intensity: 1
           duration: 0.4
+          xVelocityRange:
+            minValue: -1
+            maxValue: 1
+          yVelocityRange:
+            minValue: -1
+            maxValue: 1
+          zVelocityRange:
+            minValue: -1
+            maxValue: 1
     - rid: 4485104011578441735
       type: {class: BehaviorVibrateAndShakeOnSpawn, ns: , asm: Assembly-CSharp}
       data:
@@ -216,3 +225,12 @@ MonoBehaviour:
           impulseShape: 2
           intensity: 1
           duration: 0.3
+          xVelocityRange:
+            minValue: -1
+            maxValue: 1
+          yVelocityRange:
+            minValue: -1
+            maxValue: 1
+          zVelocityRange:
+            minValue: -1
+            maxValue: 1

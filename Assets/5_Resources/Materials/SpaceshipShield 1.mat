@@ -1,0 +1,126 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6535748209237989707
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 9
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SpaceshipShield 1
+  m_Shader: {fileID: -6465566751694194690, guid: b967843a5c4051448ba5a0d8febd7c46, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _SampleTexture2D_00b489e9b2d646f8929ed8dc4bcb4b77_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 52fe663f36e950d4c81ff0b6e3929d93, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_30e66f44c9bd4d3cb31ffe0f3f1ce672_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: fb9bf63f47e8cf34b889f5e4f3caf83c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_456e9c466661424085c868b4f7d58ae0_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: fb9bf63f47e8cf34b889f5e4f3caf83c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_6b5bd852d4784ad09bb185b6968d247c_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 2f604a351944f464188e822b6106c169, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_a8674e02558b46399c77e50cb5af4a26_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 2f604a351944f464188e822b6106c169, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_b3fb4542ed624c9d85505e69fa636fdd_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 14bbe4756d2bd6e48be9d452bd89f868, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _1ST_Mask_Amp: 0.1
+    - _1ST_Mask_Amp_1: 0.5
+    - _1ST_Mask_Amp_3: 1
+    - _1St_Mask_Amp: 0.1
+    - _2ND_Mask_Amp: 1
+    - _2ND_Mask_Amp_1: 0.5
+    - _2ND_Mask_Amp_3: 0.1
+    - _Alpha: 0.3
+    - _Bottom_Peak: 0
+    - _DisplacementStrength: 1
+    - _Duty_Cycle: 1
+    - _Duty_Cycle_1: 50
+    - _Float: 0.2
+    - _Hardness: 1.08
+    - _Inner_Power: 39.6
+    - _Inner_Powweer: 4.82
+    - _Noise_Amount: 0
+    - _Out_Contrast: 2.53
+    - _Out_Power: 12.84
+    - _Peak_Sharpness: 50
+    - _Peak_Sharpness_1: 50
+    - _Peak_Sharpness_3: 100
+    - _Poweer: 1
+    - _Power: 0.1
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _Radius: 0.52
+    - _Speed: 0.01
+    - _Speed_1: 0.01
+    - _Speed_3: 0
+    - _Top_Peak: 0
+    - _Wave_Height: 0
+    - _Wave_Height_1: 0
+    - _Wave_Height_3: 0
+    - _Wave_Lenghth: 2
+    - _Wave_Lenghth_1: 1
+    - _Wave_Lenghth_3: 1
+    m_Colors:
+    - _Color: {r: 0, g: 0.4957454, b: 0.6320754, a: 0}
+    - _Color_1: {r: 1, g: 1, b: 1, a: 0}
+    - _HitColor: {r: 0.4622641, g: 1, b: 0.9225276, a: 0}
+    - _HitPos: {r: 0, g: 0, b: 0, a: 0}
+    - _Noise: {r: 0.50551796, g: 0.6698113, b: 0.3412246, a: 0}
+    - _Noise_Color: {r: 0, g: 0.97506547, b: 1, a: 0}
+    - _Vert_Direction: {r: 1, g: 0, b: 0, a: 0}
+    - _Vert_Direction_1: {r: 0, g: 1, b: 0, a: 0}
+    - _Vert_Direction_3: {r: 0, g: 0, b: 1, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

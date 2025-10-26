@@ -12,15 +12,16 @@ public class ObstacleManager : MonoBehaviour
 {
     [Header("Normal Obstacle Spline Settings")]
     [SerializeField] private Vector3 spawnPosition = new Vector3(0,0,400f);
-    [SerializeField] private float enemyBoundarySizeMultiplier = 2f;
-    [SerializeField] private float playerBoundarySizeMultiplier = 2f;
+    [SerializeField] private float enemyBoundarySizeMultiplier = 1f;
+    [SerializeField] private float playerBoundarySizeMultiplier = 1.3f;
     [SerializeField] private Vector3 enemyBoundaryOffset = Vector3.zero;
     [SerializeField] private Vector3 playerBoundaryOffset = Vector3.zero;
+    [SerializeField, Range(0f,100f)] private float chanceToAimAtPlayer = 20f;
     
     [Header("Passthrough Obstacle Settings")]
-    [SerializeField] private float passthroughStartDistance = 400f;
-    [SerializeField] private float passthroughEndDistance = -150f;
-    [SerializeField] private float passthroughBoundarySizeMultiplier = 2f;
+    [SerializeField] private float passthroughStartDistance = 1500f;
+    [SerializeField] private float passthroughEndDistance = -200f;
+    [SerializeField] private float passthroughBoundarySizeMultiplier = 1.3f;
 
     [Header("Obstacles")]
     [SerializeField] private ChanceList<NormalObstacle> obstaclePrefabs;
@@ -157,13 +158,26 @@ public class ObstacleManager : MonoBehaviour
             0f
         );
     
-        // Point 3: Random position in player boundary
-        Vector2 playerSize = levelManager.PlayerBoundarySize;
-        Vector3 point3 = levelManager.PlayerPosition + playerBoundaryOffset + new Vector3(
-            Random.Range(-playerSize.x / playerBoundarySizeMultiplier, playerSize.x / playerBoundarySizeMultiplier),
-            Random.Range(-playerSize.y / playerBoundarySizeMultiplier, playerSize.y / playerBoundarySizeMultiplier),
-            0f
-        );
+        
+        
+        Vector3 point3;
+        if (Random.Range(0f, 100f) <= chanceToAimAtPlayer)
+        {
+            // Point 3: Aim at player
+            point3 = levelManager.Player.transform.position;
+        }
+        else
+        {
+            // Point 3: Random position in player boundary
+            Vector2 playerSize = levelManager.PlayerBoundarySize;
+             point3 = levelManager.PlayerPosition + playerBoundaryOffset + new Vector3(
+                Random.Range(-playerSize.x / playerBoundarySizeMultiplier, playerSize.x / playerBoundarySizeMultiplier),
+                Random.Range(-playerSize.y / playerBoundarySizeMultiplier, playerSize.y / playerBoundarySizeMultiplier),
+                0f
+            );
+        }
+
+
     
         // Point 4: Extended point from player boundary
         Vector3 directionAtPoint3 = (point3 - point2).normalized;

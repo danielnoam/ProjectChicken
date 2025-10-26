@@ -23,8 +23,6 @@ public class CreditsText : MonoBehaviour
     [Header("Third Party Assets")]
     [Min(0)] public int spaceLinesAfterThirdParty = 15;
     
-    [Header("Thanks")]
-    [Min(0)] public int spaceLinesAfterThanks = 35;
     
     [Header("Major Headers")]
     [Min(0)] public int majorHeaderSize = 32;
@@ -183,9 +181,7 @@ public class CreditsText : MonoBehaviour
         {GetSpacing(spaceLinesAfterThirdParty)}
         <size={majorHeaderSize}>{majorFormat}Special Thanks{majorClose}</size>
         Israel Animation College
-        for their support and guidance throughout this project
-        {GetSpacing(spaceLinesAfterThanks)}
-        Thanks for playing!";
+        for their support and guidance throughout this project";
     }
 
 }

@@ -2,6 +2,7 @@ using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.VFX;
+using Random = UnityEngine.Random;
 
 public class ElectricBeamWeaponGfx : WeaponGfx
 {
@@ -37,6 +38,9 @@ public class ElectricBeamWeaponGfx : WeaponGfx
         if (state)
         {
             vfxGraph.Play();
+            vfxGraph.SetFloat("Rotate", Random.Range(0f,180f));
+            vfxGraph.SetFloat("Rotate 2", Random.Range(0f,180f));
+            vfxGraph.SetFloat("Rotate 3", Random.Range(0f,180f));
             
             foreach (var particle in particles)
             {

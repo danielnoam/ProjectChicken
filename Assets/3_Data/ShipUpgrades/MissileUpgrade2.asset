@@ -96,7 +96,7 @@ MonoBehaviour:
       data:
         minRadius: 7
         maxRadius: 18
-        maxDamage: 135
+        maxDamage: 100
         maxForce: 45
         stunChance: 35
         maxStunTime: 2
@@ -197,6 +197,15 @@ MonoBehaviour:
           impulseShape: 2
           intensity: 1
           duration: 0.3
+          xVelocityRange:
+            minValue: -1
+            maxValue: 1
+          yVelocityRange:
+            minValue: -1
+            maxValue: 1
+          zVelocityRange:
+            minValue: -1
+            maxValue: 1
     - rid: 4485104011578441739
       type: {class: BehaviorVibrateAndShakeOnImpact, ns: , asm: Assembly-CSharp}
       data:
@@ -259,3 +268,12 @@ MonoBehaviour:
           impulseShape: 2
           intensity: 1
           duration: 0.4
+          xVelocityRange:
+            minValue: -1
+            maxValue: 1
+          yVelocityRange:
+            minValue: -1
+            maxValue: 1
+          zVelocityRange:
+            minValue: -1
+            maxValue: 1

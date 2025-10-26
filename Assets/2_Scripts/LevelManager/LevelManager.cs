@@ -50,20 +50,25 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Scene(Flag.EditableAnywhere)] private RailPlayer player;
     [SerializeField,Self,HideInInspector] private LevelManagerInput input;
     
+    
+    [Separator]
+    [SerializeField, VInspector.ReadOnly] private bool isSettingStage;
+    [SerializeField, VInspector.ReadOnly] private bool canSkipCooldownFinished;
+    [SerializeField, VInspector.ReadOnly] private bool isGamePaused;
+    [SerializeField, VInspector.ReadOnly] private int currentScore;
+    [SerializeField, VInspector.ReadOnly] private int completedTaskCount;
+    [SerializeField, VInspector.ReadOnly] private float currentPathSpeed;
+    [SerializeField, VInspector.ReadOnly] private float worldSpeedBeforePause;
 
 
-    private bool _isGamePaused;
-    private float _worldSpeedBeforePause;
-    private int _currentScore;
+    
     private SOLevelStage[] _levelStages;
     private StageTask[] _currentStageTasks;
     private StageEvent[] _currentStageEvents;
-    private int _completedTaskCount;
-    private float _currentPathSpeed;
-    private bool _settingStageFlag;
     private SavePointData _currentSavePoint;
     private SavePointData _startSavePoint;
     private Coroutine _stageChangeCoroutine;
+    private Coroutine _stageSkipCooldownCoroutine;
 
 
     public LevelManagerInput LevelManagerInput => input;
@@ -77,12 +82,14 @@ public class LevelManager : MonoBehaviour
     public ResourceManager ResourceManager => resourceManager;
     public ObstacleManager ObstacleManager => obstacleManager;
     public RadioManager RadioManager => radioManager;
-    public int CurrentScore => _currentScore;
+    public int CurrentScore => currentScore;
     public int EnemiesLeft => enemiesLeft;
     public int ObstaclesBroke => obstaclesBroke;
     public int ObstaclesPassedThrough => obstaclesPassedThrough;
-    public bool IsGamePaused => _isGamePaused;
+    public bool IsGamePaused => isGamePaused;
     public SOLevelStage CurrentStage => currentStage;
+    public int TotalStageCount => _levelStages?.Length ?? 1;
+
 
 
     public event Action<SOLevel> OnLevelSet; 
@@ -91,6 +98,7 @@ public class LevelManager : MonoBehaviour
     public event Action<SavePointData> OnRestartedFromSavePoint;
     public event Action<RunProgressData> OnRunProgressLoaded;
     public event Action<bool> OnPause;
+    public event Action<bool>  OnCanSkipStage;
     
     
     public static float WorldSpeed = 1f;
@@ -248,7 +256,8 @@ public class LevelManager : MonoBehaviour
 
     private void OnEnemiesCleared(int scoreWorth)
     {
-        if (!currentStage || currentStage.StageType != StageType.EnemyWave || _settingStageFlag) return;
+        if (!currentStage || currentStage.StageType != StageType.EnemyWave || isSettingStage) return;
+        
 
         enemiesLeft = 0;
         
@@ -304,13 +313,15 @@ public class LevelManager : MonoBehaviour
 
     private void OnPauseAction(InputAction.CallbackContext context)
     {
+        if (!currentStage || currentStage.StageType == StageType.Outro) return;
+        
         if (context.performed)
         {
-            if (!_isGamePaused)
+            if (!isGamePaused)
             {
                 SetPausedState(true);
             }
-            else if (_isGamePaused && pauseScreen.IsAtPauseScreen)
+            else if (isGamePaused && pauseScreen.IsAtPauseScreen)
             {
                 SetPausedState(false);
             }
@@ -321,19 +332,19 @@ public class LevelManager : MonoBehaviour
     
     public void SetPausedState(bool paused)
     {
-        _isGamePaused = paused;
-        if (_isGamePaused)
+        isGamePaused = paused;
+        if (isGamePaused)
         {
-            _worldSpeedBeforePause = WorldSpeed;
+            worldSpeedBeforePause = WorldSpeed;
             WorldSpeed = 0f;
             Time.timeScale = 0;
         }
         else
         {
-            WorldSpeed = _worldSpeedBeforePause;
+            WorldSpeed = worldSpeedBeforePause;
             Time.timeScale = 1;
         }
-        OnPause?.Invoke(_isGamePaused);
+        OnPause?.Invoke(isGamePaused);
     }
 
     
@@ -349,7 +360,7 @@ public class LevelManager : MonoBehaviour
         }
         
         _levelStages = level.LevelStages;
-        _isGamePaused = false;
+        isGamePaused = false;
         WorldSpeed = 1f;
         
         if (_levelStages == null || _levelStages.Length == 0)
@@ -375,7 +386,7 @@ public class LevelManager : MonoBehaviour
     [Button]
     private void SetNextStage(float delay = 0)
     {
-        if (_settingStageFlag) return;
+        if (isSettingStage) return;
         
         
         if (_stageChangeCoroutine != null)
@@ -388,7 +399,7 @@ public class LevelManager : MonoBehaviour
         if (nextStageIndex < _levelStages.Length)
         {
             
-            _settingStageFlag = true;
+            isSettingStage = true;
             
             if (delay <= 0)
             {
@@ -432,7 +443,8 @@ public class LevelManager : MonoBehaviour
         enemiesLeft = 0;
         obstaclesBroke = 0;
         obstaclesPassedThrough = 0;
-        _settingStageFlag = false;
+        isSettingStage = false;
+        canSkipCooldownFinished = false;
         currentStageIndex = newStageIndex;
         currentStage = newStage;
         
@@ -440,8 +452,11 @@ public class LevelManager : MonoBehaviour
         if (currentStage.IsCheckpoint) SaveLevelProgress();
         
         OnStageChanged?.Invoke(currentStage);
+        OnCanSkipStage?.Invoke(CanSkipStage());
+        
         
         InitializeStageEvents();
+        if (currentStage.AllowSkip) StartSkipStageCooldown();
 
 
         if (currentStage.IsTimeBasedStage)
@@ -496,32 +511,14 @@ public class LevelManager : MonoBehaviour
     
     private void OnSkipAction(InputAction.CallbackContext context)
     {
-        if (_isGamePaused || !currentStage || !currentStage.AllowSkip) return;
+        if (!CanSkipStage() && !isGamePaused) return;
 
         if (context.performed)
         {
-            SkipStageDelay();
+            SkipStage();
         }
     }
-
-    private void SkipStageDelay()
-    {
-        if (_stageChangeCoroutine == null) return;
     
-        int nextStageIndex = currentStageIndex + 1;
-        
-        if (nextStageIndex >= _levelStages.Length)
-        {
-            if (debugLog) Debug.Log("Cannot skip - already at last stage");
-            return;
-        }
-    
-        StopCoroutine(_stageChangeCoroutine);
-        _stageChangeCoroutine = null;
-        _settingStageFlag = true;
-        SetStage(nextStageIndex);
-    }
-
 
     public void LoadNextLevel()
     {
@@ -567,7 +564,7 @@ public class LevelManager : MonoBehaviour
     
     private void GoToScene(SceneField scene)
     {
-        SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, _currentScore);
+        SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, currentScore);
         SaveManager.ResetRunProgressData();
         
         
@@ -582,6 +579,53 @@ public class LevelManager : MonoBehaviour
     #endregion
 
 
+    #region Stage Skipping
+
+
+    private void StartSkipStageCooldown()
+    {
+        OnCanSkipStage?.Invoke(CanSkipStage());
+        if (_stageSkipCooldownCoroutine != null)
+        {
+            StopCoroutine(_stageSkipCooldownCoroutine);
+        }
+        
+        _stageSkipCooldownCoroutine = StartCoroutine(SkipStageCooldownRoutine());
+    }
+
+    private IEnumerator SkipStageCooldownRoutine()
+    {
+        yield return new WaitForSeconds(1.5f);
+        canSkipCooldownFinished = true;
+        OnCanSkipStage?.Invoke(CanSkipStage());
+    }
+    
+    private bool CanSkipStage()
+    {
+        return currentStage && currentStage.AllowSkip && canSkipCooldownFinished && currentStageIndex < _levelStages.Length - 1 && _currentStageEvents.Length != 0;
+    }
+    
+    
+    private void SkipStage()
+    {
+        if (_stageChangeCoroutine == null) return;
+    
+        int nextStageIndex = currentStageIndex + 1;
+        
+        if (nextStageIndex >= _levelStages.Length)
+        {
+            if (debugLog) Debug.Log("Cannot skip - already at last stage");
+            return;
+        }
+    
+        StopCoroutine(_stageChangeCoroutine);
+        _stageChangeCoroutine = null;
+        isSettingStage = true;
+        SetStage(nextStageIndex);
+    }
+    
+    #endregion Stage Skipping
+
     #region Tasks
 
     
@@ -595,7 +639,7 @@ public class LevelManager : MonoBehaviour
         }
     
         _currentStageTasks = currentStage.Tasks;
-        _completedTaskCount = 0;
+        completedTaskCount = 0;
     
         foreach (var task in _currentStageTasks)
         {
@@ -608,12 +652,12 @@ public class LevelManager : MonoBehaviour
 
     private void OnTaskCompleted(StageTask completedTask)
     {
-        _completedTaskCount++;
+        completedTaskCount++;
     
-        if (debugLog) Debug.Log($"Task completed: ({_completedTaskCount}/{_currentStageTasks.Length})");
+        if (debugLog) Debug.Log($"Task completed: ({completedTaskCount}/{_currentStageTasks.Length})");
         
         
-        bool shouldAdvance = currentStage.RequireAllTasks ? _completedTaskCount >= _currentStageTasks.Length : true;
+        bool shouldAdvance = currentStage.RequireAllTasks ? completedTaskCount >= _currentStageTasks.Length : true;
     
         if (shouldAdvance)
         {
@@ -695,8 +739,8 @@ public class LevelManager : MonoBehaviour
         else
         {
             SetStage(_currentSavePoint.StageIndex);
-            _currentScore = _currentSavePoint.Score;
-            OnScoreChanged?.Invoke(_currentScore);
+            currentScore = _currentSavePoint.Score;
+            OnScoreChanged?.Invoke(currentScore);
             OnRestartedFromSavePoint?.Invoke(_currentSavePoint);
         }
     }
@@ -707,7 +751,7 @@ public class LevelManager : MonoBehaviour
         
         var newSavePoint = new SavePointData(
             currentStageIndex,
-            _currentScore, 
+            currentScore, 
             player.Health.CurrentHealth,
             player.ResourceCollector.CurrentCurrency, 
             player.Upgrades,
@@ -724,14 +768,14 @@ public class LevelManager : MonoBehaviour
 
     private void AddScore(int score)
     {
-        _currentScore += score;
-        OnScoreChanged?.Invoke(_currentScore);
+        currentScore += score;
+        OnScoreChanged?.Invoke(currentScore);
     }
 
     private void ResetScore()
     {
-        _currentScore = 0;
-        OnScoreChanged?.Invoke(_currentScore);
+        currentScore = 0;
+        OnScoreChanged?.Invoke(currentScore);
     }
     
 
