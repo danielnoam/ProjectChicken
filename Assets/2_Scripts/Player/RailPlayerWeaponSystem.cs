@@ -227,6 +227,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     private void OnDeath()
     {
         AllowShooting = false;
+        OnAllowShootingChangedEvent?.Invoke(AllowShooting);
         ActiveWeaponInstance?.OnWeaponDeselected(false);
     }
     
