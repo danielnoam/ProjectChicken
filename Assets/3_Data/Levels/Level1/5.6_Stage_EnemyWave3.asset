@@ -10,16 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: 5.4_Stage_EnemyWave2WithPassthrough
+  m_Name: 5.6_Stage_EnemyWave3
   m_EditorClassIdentifier: 
   stageTitle: 
-  worldSpeed: 1.25
+  worldSpeed: 1
   isCheckpoint: 0
   allowSkip: 0
   startRadioMessage: {fileID: 0}
   startWarning: {fileID: 0}
-  events:
-  - rid: 736433674589306880
+  events: []
   stageType: 2
   stageDuration: 15
   delayBeforeNextStage: 1
@@ -40,7 +39,7 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyAmount: 45
+  enemyAmount: 50
   enemyTypes:
     internalItems:
     - item: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
@@ -56,13 +55,13 @@ MonoBehaviour:
       chance: 10
       isLocked: 0
   formationStageData:
-    formationType: 3
-    formationCount: 3
-    numberOfSlots: 7
-    spacing: 9
+    formationType: 0
+    formationCount: 10
+    numberOfSlots: 9
+    spacing: 8
     circleRadius: 3
     useRandomPlacement: 1
-    formationSpacing: 5
+    formationSpacing: 9
     maxPlacementAttempts: 100
   requireAllTasks: 1
   tasks: []
@@ -77,13 +76,4 @@ MonoBehaviour:
   allowPlayerHeatSystem: 1
   references:
     version: 2
-    RefIds:
-    - rid: 736433674589306880
-      type: {class: SpawnPassthroughObstacleEvent, ns: , asm: Assembly-CSharp}
-      data:
-        isActive: 0
-        initialDelay: 3
-        maxActiveObstacles: 2
-        spawnIntervalRange:
-          minValue: 20
-          maxValue: 30
+    RefIds: []

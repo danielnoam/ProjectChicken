@@ -16,6 +16,7 @@ MonoBehaviour:
   worldSpeed: 1
   isCheckpoint: 0
   allowSkip: 0
+  playRandomMessages: 1
   startRadioMessage: {fileID: 0}
   startWarning: {fileID: 0}
   events: []
@@ -39,7 +40,7 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyAmount: 6
+  enemyAmount: 10
   enemyTypes:
     internalItems:
     - item: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}

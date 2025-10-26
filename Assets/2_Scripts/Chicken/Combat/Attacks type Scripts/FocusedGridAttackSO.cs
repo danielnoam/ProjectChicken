@@ -77,7 +77,7 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
         }
         
         // Need at least 4 available chickens that can currently attack for the 2x2 grid
-        if (availableChickens == null || availableChickens.Count < 4)
+        if (availableChickens == null || availableChickens.Count < minChickensRequired)
         {
             LogDebug($"Not enough available chickens for attack. Need 4 for grid, Available: {(availableChickens?.Count ?? 0)}");
             return false;
@@ -114,10 +114,10 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
         // Select the 4 chickens that will fire all groups
         List<ChickenCombatBehaviorV2> selectedChickens = availableChickens
             .Where(chicken => chicken != null && chicken.CanAttack())
-            .Take(4)
+            .Take(minChickensRequired)
             .ToList();
         
-        if (selectedChickens.Count < 4)
+        if (selectedChickens.Count < minChickensRequired)
         {
             LogWarning($"Only {selectedChickens.Count} chickens can attack, need 4 for full grid (Total registered: {manager.TotalCombatChickens})");
         }

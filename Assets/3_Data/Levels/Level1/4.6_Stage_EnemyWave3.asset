@@ -16,6 +16,7 @@ MonoBehaviour:
   worldSpeed: 1
   isCheckpoint: 0
   allowSkip: 0
+  playRandomMessages: 1
   startRadioMessage: {fileID: 0}
   startWarning: {fileID: 0}
   events: []
@@ -61,7 +62,7 @@ MonoBehaviour:
     spacing: 12
     circleRadius: 3
     useRandomPlacement: 1
-    formationSpacing: 5
+    formationSpacing: 8
     maxPlacementAttempts: 100
   requireAllTasks: 1
   tasks: []
