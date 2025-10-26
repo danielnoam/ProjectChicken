@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 
-[CreateAssetMenu(fileName = "FocusedGridAttack", menuName = "Chicken Combat/Attacks/Focused Grid Attack")]
+[CreateAssetMenu(fileName = "Focused Grid Attack", menuName = "Chicken Combat/Attacks/Focused Grid Attack")]
 public class FocusedGridAttackSO : BaseChickenAttackSO
 {
     // Note: This attack requires at least 4 available chickens to execute (for the 2x2 grid)
@@ -34,7 +34,7 @@ public class FocusedGridAttackSO : BaseChickenAttackSO
     [Tooltip("Minimum distance between grid groups to prevent overlap")]
     [SerializeField, Range(1f, 8f)] private float minDistanceBetweenGroups = 3f;
     
-    public override AttackType AttackType => AttackType.FormationShape; // Using FormationShape type, but could add a new type
+    public override AttackType AttackType => AttackType.FocusedGrid;
     public override string AttackName => "Focused Grid Attack";
     
     // Grid group tracking

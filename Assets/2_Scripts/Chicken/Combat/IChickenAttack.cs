@@ -76,5 +76,8 @@ public enum AttackType
     CircleFormation,
     DiamondFormation,
     FormationShape,
+    LargeGrid,
+    FocusedGrid,
+    BigSquare,
     // Add more attack types as needed
 }
