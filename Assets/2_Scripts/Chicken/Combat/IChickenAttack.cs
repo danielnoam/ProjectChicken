@@ -53,14 +53,14 @@ public abstract class BaseChickenAttackSO : ScriptableObject, IChickenAttack
 
     protected virtual void LogDebug(string message)
     {
-        if (showDebugLogs)
-            Debug.Log($"{AttackName}: {message}");
+        /*if (showDebugLogs)
+            Debug.Log($"{AttackName}: {message}");*/
     }
 
     protected virtual void LogWarning(string message)
     {
-        if (showDebugLogs)
-            Debug.LogWarning($"{AttackName}: {message}");
+        /*if (showDebugLogs)
+            Debug.LogWarning($"{AttackName}: {message}");*/
     }
 }
 

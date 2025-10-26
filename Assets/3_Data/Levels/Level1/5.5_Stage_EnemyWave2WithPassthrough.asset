@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: 5.4_Stage_EnemyWave2WithPassthrough
+  m_Name: 5.5_Stage_EnemyWave2WithPassthrough
   m_EditorClassIdentifier: 
   stageTitle: 
   worldSpeed: 1.25
@@ -58,8 +58,8 @@ MonoBehaviour:
   formationStageData:
     formationType: 3
     formationCount: 4
-    numberOfSlots: 7
-    spacing: 10
+    numberOfSlots: 6
+    spacing: 7
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 8
@@ -81,7 +81,7 @@ MonoBehaviour:
     - rid: 736433674589306880
       type: {class: SpawnPassthroughObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
-        isActive: 0
+        isActive: 1
         initialDelay: 3
         maxActiveObstacles: 2
         spawnIntervalRange:
