@@ -92,13 +92,13 @@ public class SpaceItemDestroyer : MonoBehaviour
         {
             if (useObjectPool && itemPool != null)
             {
-                // Return to pool instead of destroying
+                // Return to pool
                 ReturnToPool(spaceItem, itemObject);
             }
             else
             {
-                // Traditional destruction with fade out
-                spaceItem.StartFadeOut();
+                // Traditional destruction
+                Destroy(itemObject);
             }
         }
         
@@ -122,22 +122,13 @@ public class SpaceItemDestroyer : MonoBehaviour
         
         if (poolToUse != null)
         {
-            // Check if the item should fade out or return immediately
-            if (spaceItem.fadeOutDuration > 0f)
-            {
-                // Start fade out, which will automatically return to pool when complete
-                spaceItem.StartFadeOut();
-            }
-            else
-            {
-                // Return to pool immediately
-                poolToUse.ReturnToPool(itemObject);
-            }
+            // Return to pool immediately
+            poolToUse.ReturnToPool(itemObject);
         }
         else
         {
             // No suitable pool found, use traditional destruction
-            spaceItem.StartFadeOut();
+            Destroy(itemObject);
         }
     }
     
@@ -174,7 +165,7 @@ public class SpaceItemDestroyer : MonoBehaviour
             }
             else
             {
-                spaceItem.StartFadeOut();
+                Destroy(itemObject);
             }
             
             // Remove from tracking set after a short delay
@@ -192,7 +183,7 @@ public class SpaceItemDestroyer : MonoBehaviour
         }
     }
     
-    // Method to force return an item to pool without fade (emergency cleanup)
+    // Method to force return an item to pool (emergency cleanup)
     public void ForceReturnToPool(GameObject itemObject)
     {
         if (useObjectPool && itemPool != null && itemObject != null)
@@ -200,7 +191,7 @@ public class SpaceItemDestroyer : MonoBehaviour
             // Remove from tracking
             itemsBeingDestroyed.Remove(itemObject);
             
-            // Stop any fade coroutines
+            // Return to pool immediately
             SpaceItemBehavior spaceItem = itemObject.GetComponent<SpaceItemBehavior>();
             if (spaceItem != null)
             {
@@ -226,7 +217,4 @@ public class SpaceItemDestroyer : MonoBehaviour
         CleanupTrackingSet();
         return itemsBeingDestroyed.Count;
     }
-    
-
-
 }

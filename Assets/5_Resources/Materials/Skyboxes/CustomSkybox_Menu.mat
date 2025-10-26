@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7278885707254007672
+--- !u!114 &-4529702312589441750
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CustomeMaterialSkybox_MainMenu
-  m_Shader: {fileID: -6465566751694194690, guid: c2d091cbe5e10d946ad0fe6df8f3f274, type: 3}
+  m_Name: CustomSkybox_Menu
+  m_Shader: {fileID: -6465566751694194690, guid: dbc276aa9bfe3194e81818409c046bba, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -46,15 +46,19 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DarkCloudsTexture:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 8900000, guid: 8de2f207e038565468cf5a27e974ea85, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _StarsTexture:
-        m_Texture: {fileID: 8900000, guid: c0b1d239b97881d43bef6d993db51d40, type: 3}
+        m_Texture: {fileID: 8900000, guid: a44341bfa0121d7448aa3a89f6c2033c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _StarsTexture_1:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 8900000, guid: 39a681cee714bae4a827582c94451331, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _StarsTexture_2:
+        m_Texture: {fileID: 8900000, guid: 4e435a98b64b84147af5fc75b8e9eb9d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -73,8 +77,11 @@ Material:
     m_Floats:
     - Vector1_01254a41763b429cb33b364bf1814cf9: 0
     - Vector1_e797322cc6194612ab007424c6b53a3b: 0
-    - _Add_Stars_Opacity: 0.2
-    - _Add_Stars_Rotation_Speed: 1
+    - _Add_Stars_2_Opacity_1: 1
+    - _Add_Stars_2_Rotation_Speed_1: -0.07
+    - _Add_Stars_3_Rotation_Speed: 0.01
+    - _Add_Stars_Opacity: 0.027
+    - _Add_Stars_Rotation_Speed: 0.05
     - _CloudsEmissionPower: 1
     - _CloudsOpacityExp: 1.03
     - _CloudsOpacityPower: 0.16
@@ -83,38 +90,41 @@ Material:
     - _CloudsRotationSpeed: 0.01
     - _DARKCLOUDSENABLED: 0
     - _DARKCLOUDSENABLED_ON_1: 0
-    - _DarkCloudsEdgesGlowClamp: 2
-    - _DarkCloudsEdgesGlowExp: 1
     - _DarkCloudsEdgesGlowPower: 50
-    - _DarkCloudsEdgesGlowStyle: 0
     - _DarkCloudsLighten: 1
-    - _DarkCloudsRotationSpeed: 0.01
+    - _DarkCloudsRotationSpeed: 2.6
     - _DarkCloudsThicker: 1
     - _FinalPower: 0.12
-    - _Posterize_Amount: 9
     - _QueueControl: 0
     - _QueueOffset: 0
     - _RIMENABLED: 0
     - _RIMNOISECAENABLED: 0
     - _RotationClouds: 0
+    - _RotationClouds_1: 0
     - _RotationDarkClouds: 0
     - _RotationStars: 0
     - _Rotation_Add_Stars: 0
+    - _Rotation_Add_Stars_2: 0
     - _StarsEmissionPower: 1.77
-    - _StarsEmissionPower_1: 4
+    - _StarsEmissionPower_1: 39.23
+    - _StarsEmissionPower_2: 39.23
     - _StarsExp: 1
     - _StarsExpNegate: 1
-    - _StarsExpNegate_1: 1
-    - _StarsExp_1: 1.23
+    - _StarsExpNegate_1: 0.4
+    - _StarsExpNegate_2: 1
+    - _StarsExp_1: 1
+    - _StarsExp_2: 1
     - _StarsRotationSpeed: 0.02
     m_Colors:
+    - _Add_Stars_3_Color_Tint: {r: 1, g: 1, b: 1, a: 0}
     - _CloudsRampColorTint: {r: 1, g: 1, b: 1, a: 1}
     - _RotationAxis: {r: 0.79, g: -2.93, b: 0, a: 0}
     - _Sky_Color: {r: 1, g: 0, b: 0, a: 0}
-    - _Sky_Color_2: {r: 0, g: 1, b: 0.95833325, a: 0}
-    - _Sky_Color_3: {r: 1, g: 0, b: 0.9916668, a: 0}
+    - _Sky_Color_2: {r: 0, g: 1, b: 0.9559735, a: 0}
+    - _Sky_Color_3: {r: 1, g: 0, b: 0.9911022, a: 0}
     - _Sky_Color_4: {r: 0, g: 0, b: 0, a: 0}
     - _StarsColorTint: {r: 1, g: 1, b: 1, a: 1}
     - _StarsColorTint_1: {r: 1, g: 1, b: 1, a: 1}
+    - _StarsColorTint_2: {r: 1, g: 0.98237264, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

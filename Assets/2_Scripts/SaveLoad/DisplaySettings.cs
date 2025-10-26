@@ -32,15 +32,18 @@ public class DisplaySettings
     
     public DisplaySettings(FullScreenMode fullScreenMode, VSyncType vSyncType)
     {
-        if (Application.isEditor)
-        {
-            resolutionIndex = 0;
-        }
-        else
-        {
-            Resolution[] resolutions = Screen.resolutions;
-            resolutionIndex = resolutions.Length - 1;
-        }
+        resolutionIndex = 0;
+        
+        
+        // if (Application.isEditor)
+        // {
+        //     resolutionIndex = 0;
+        // }
+        // else
+        // {
+        //     Resolution[] resolutions = Screen.resolutions;
+        //     resolutionIndex = resolutions.Length - 1;
+        // }
 
         this.fullScreenMode = fullScreenMode;
         this.vSyncType = vSyncType;
