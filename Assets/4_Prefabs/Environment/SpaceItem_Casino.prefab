@@ -48,11 +48,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   enableRotation: 1
-  rotationSpeed: {x: 0, y: 3, z: 0}
+  rotationSpeed: {x: 0, y: 5, z: 0}
   minSize: 1
   maxSize: 1
   scaleDuration: 2
-  enableFading: 0
   fadeOutDuration: 1
   destroyDelay: 2
 --- !u!65 &6772142760939525950
@@ -114,23 +113,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2294097459755188572, guid: bfde4d56eeb83774da090bad5eae96e0, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.70710677
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 2294097459755188572, guid: bfde4d56eeb83774da090bad5eae96e0, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.70710677
+      value: -0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 2294097459755188572, guid: bfde4d56eeb83774da090bad5eae96e0, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2294097459755188572, guid: bfde4d56eeb83774da090bad5eae96e0, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2294097459755188572, guid: bfde4d56eeb83774da090bad5eae96e0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 2294097459755188572, guid: bfde4d56eeb83774da090bad5eae96e0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
