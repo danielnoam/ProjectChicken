@@ -36,7 +36,10 @@ public class ObstacleManager : MonoBehaviour
     private readonly List<NormalObstacle> _normalObstacles = new List<NormalObstacle>();
     private readonly List<PassthroughObstacle> _passthroughObstacles = new List<PassthroughObstacle>();
     private readonly List<SplineContainer> _splines = new List<SplineContainer>();
-
+    private PassthroughObstacle _lastPassthroughObstacle;
+    
+    
+    
     public int ActiveNormalObstacleCount => _normalObstacles.Count;
     public int ActivePassthroughObstacleCount => _passthroughObstacles.Count;
     public int TotalActiveObstacleCount => _normalObstacles.Count + _passthroughObstacles.Count;
@@ -264,6 +267,7 @@ public class ObstacleManager : MonoBehaviour
         
         newObstacle.Initialize(spline);
         
+        _lastPassthroughObstacle = newObstacle;
         return newObstacle;
     }
 
@@ -281,8 +285,23 @@ public class ObstacleManager : MonoBehaviour
     public void SpawnRandomPassthroughObstacle()
     {
         if (passthroughObstaclePrefabs == null || passthroughObstaclePrefabs.Count == 0) return;
-        
-        PassthroughObstacle randomObstacle = passthroughObstaclePrefabs.GetRandomItem();
+
+        PassthroughObstacle randomObstacle;
+    
+        if (!_lastPassthroughObstacle || passthroughObstaclePrefabs.Count == 1)
+        {
+            randomObstacle = passthroughObstaclePrefabs.GetRandomItem();
+        }
+        else
+        {
+            // Keep trying until we get a different obstacle
+            do
+            {
+                randomObstacle = passthroughObstaclePrefabs.GetRandomItem();
+            }
+            while (randomObstacle == _lastPassthroughObstacle);
+        }
+    
         SpawnPassthroughObstacle(randomObstacle);
     }
     
