@@ -19,7 +19,6 @@ public class BackgroundObjectsAnimator : MonoBehaviour
     [SerializeField] private bool useSineWave;
     [SerializeField] private float sineWaveStrength = 0.2f;
     [SerializeField] private float sineWaveSpeed = 1f;
-    [SerializeField] private float randomnessStrength = 0.5f;
     [SerializeField] private float randomnessSpeed = 0.5f;
     [SerializeField] private List<Transform> objectsToSineWave = new List<Transform>();
     
