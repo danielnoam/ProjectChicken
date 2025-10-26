@@ -269,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d17657332306a6b4a91f3127dfb48d1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementDuration: 2
+  movementDuration: 1.5
   durationVariationRange: 1.5
   movementCurve:
     serializedVersion: 2
@@ -312,7 +312,7 @@ MonoBehaviour:
   maxMovementResets: 2
   maxMovementTime: 100
   enableMovementFailsafe: 1
-  failsafeMovementSpeed: 80
+  failsafeMovementSpeed: 140
   moveToSpawnWhenIdle: 1
   spawnAreaArrivalDistance: 0.5
   spawnCheckDelay: 0.2

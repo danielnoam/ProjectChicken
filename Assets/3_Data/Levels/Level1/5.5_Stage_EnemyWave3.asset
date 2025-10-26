@@ -39,7 +39,7 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyAmount: 45
+  enemyAmount: 50
   enemyTypes:
     internalItems:
     - item: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
@@ -56,12 +56,12 @@ MonoBehaviour:
       isLocked: 0
   formationStageData:
     formationType: 0
-    formationCount: 7
-    numberOfSlots: 6
+    formationCount: 10
+    numberOfSlots: 9
     spacing: 8
     circleRadius: 3
     useRandomPlacement: 1
-    formationSpacing: 5
+    formationSpacing: 9
     maxPlacementAttempts: 100
   requireAllTasks: 1
   tasks: []
