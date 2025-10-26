@@ -88,6 +88,7 @@ public class LevelManager : MonoBehaviour
     public int ObstaclesPassedThrough => obstaclesPassedThrough;
     public bool IsGamePaused => isGamePaused;
     public SOLevelStage CurrentStage => currentStage;
+    public int TotalStageCount => _levelStages?.Length ?? 1;
 
 
 

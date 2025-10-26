@@ -13,15 +13,17 @@ MonoBehaviour:
   m_Name: 6.0_Stage_DelayEnd
   m_EditorClassIdentifier: 
   stageTitle: 
-  startRadioMessage: {fileID: 0}
   worldSpeed: 1
   isCheckpoint: 0
+  allowSkip: 0
+  startRadioMessage: {fileID: 0}
+  startWarning: {fileID: 0}
   events:
   - rid: 5417711935219564634
   stageType: 0
-  stageDuration: 4
+  stageDuration: 5
   delayBeforeNextStage: 3
-  showOutroMenu: 0
+  outroMode: 0
   nextLevel:
     sceneAsset: {fileID: 0}
     sceneName: 
@@ -29,15 +31,18 @@ MonoBehaviour:
   allowToCloseStore: 1
   upgradesPool:
   - {fileID: 0}
+  poolRarityWeights:
+    commonWeight: 100
+    uncommonWeight: 60
+    rareWeight: 30
+  poolRarityCosts:
+    commonCost: 25
+    uncommonCost: 50
+    rareCost: 100
   waveScoreWorth: 1000
-  enemyWave:
-    serializedKvps:
-    - Key: {fileID: 8824006632455104043, guid: e9175333ec93321429a2330b4982f1e8, type: 3}
-      Value: 11
-      index: 0
-      isKeyRepeated: 0
-      isKeyNull: 0
-    dividerPos: 0.33
+  enemyAmount: 4
+  enemyTypes:
+    internalItems: []
   formationStageData:
     formationType: 0
     formationCount: 1
@@ -50,8 +55,9 @@ MonoBehaviour:
   requireAllTasks: 1
   tasks: []
   showHUD: 1
-  showStatsBar: 1
   showScore: 1
+  showStagesProgression: 1
+  showStatsBar: 1
   allowPlayerMovement: 1
   allowPlayerDodge: 1
   allowPlayerAiming: 1
@@ -64,9 +70,9 @@ MonoBehaviour:
       type: {class: RadioMessageSequenceEvent, ns: , asm: Assembly-CSharp}
       data:
         isActive: 0
-        messages:
-        - {fileID: 11400000, guid: 60e3be1aa009aaf499696b4ac2efd130, type: 2}
-        - {fileID: 11400000, guid: 91b2553185cb1014e9c5291f0174877c, type: 2}
         initialDelay: 0
         shuffle: 0
         loop: 0
+        messages:
+        - {fileID: 11400000, guid: 60e3be1aa009aaf499696b4ac2efd130, type: 2}
+        - {fileID: 11400000, guid: 91b2553185cb1014e9c5291f0174877c, type: 2}
