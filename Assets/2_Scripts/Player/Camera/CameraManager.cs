@@ -321,6 +321,7 @@ public class CameraManager : MonoBehaviour
     
     #endregion
 
+    
     #region Offset Calculations
     
     private Vector3 CalculateDynamicPositionOffset(Vector2 normalizedPosition, CameraSettings settings)
@@ -328,6 +329,18 @@ public class CameraManager : MonoBehaviour
         // Apply minimum range thresholds for X/Y
         float xInput = ApplyMinRange(normalizedPosition.x, settings.positionThreshold.x);
         float yInput = ApplyMinRange(normalizedPosition.y, settings.positionThreshold.y);
+
+        // Check if we should only affect when positive (separately for X and Y)
+        if (settings.affectOnlyWhenPositive)
+        {
+            // Zero out X if normalized position X is not positive
+            if (normalizedPosition.x <= 0)
+                xInput = 0f;
+        
+            // Zero out Y if normalized position Y is not positive
+            if (normalizedPosition.y <= 0)
+                yInput = 0f;
+        }
     
         // Convert processed input to position offset
         float xOffset = xInput * settings.positionRange.x;

@@ -27,6 +27,9 @@ public class CameraSettings
     [Tooltip("Enable camera position influence")]
     public bool enablePosition = true;
     
+    [Tooltip("Affect camera position only when the target position is positive")]
+    public bool affectOnlyWhenPositive;
+    
     [Tooltip("Maximum offset distance the camera can move (X=horizontal, Y=vertical)")]
     public Vector2 positionRange = new Vector2(10f, 5f);
     

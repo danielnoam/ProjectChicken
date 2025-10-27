@@ -614,6 +614,7 @@ MonoBehaviour:
   fovGainDurationForPassthrough: 1
   reticleInfluenceSettings:
     enablePosition: 1
+    affectOnlyWhenPositive: 0
     positionRange: {x: 20, y: 10}
     positionThreshold: {x: 0, y: 0}
     positionSmoothness: 2
@@ -626,16 +627,17 @@ MonoBehaviour:
     invertRotationX: 0
     invertRotationY: 0
     depthSettings:
-      range: 30
+      range: 35
       threshold: 0.7
       invert: 1
   playerInfluenceSettings:
-    enablePosition: 0
-    positionRange: {x: 0, y: 0}
+    enablePosition: 1
+    affectOnlyWhenPositive: 1
+    positionRange: {x: 5, y: 10}
     positionThreshold: {x: 0, y: 0}
-    positionSmoothness: 2
-    invertPositionX: 0
-    invertPositionY: 0
+    positionSmoothness: 1
+    invertPositionX: 1
+    invertPositionY: 1
     enableRotation: 1
     rotationRange: {x: 15, y: 10}
     rotationThreshold: {x: 0, y: 0}
