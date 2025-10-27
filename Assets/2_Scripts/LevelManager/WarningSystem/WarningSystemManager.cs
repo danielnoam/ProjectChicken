@@ -104,7 +104,7 @@ public class WarningSystemManager : MonoBehaviour
     {
         if (!stage) return;
         
-        if (stage.StageType == StageType.Intro)
+        if (stage.StageType is StageType.Intro or StageType.Store)
         {
             ClearWarnings();
         }
