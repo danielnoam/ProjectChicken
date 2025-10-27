@@ -59,11 +59,11 @@ MonoBehaviour:
   formationStageData:
     formationType: 3
     formationCount: 4
-    numberOfSlots: 6
+    numberOfSlots: 7
     spacing: 7
     circleRadius: 3
     useRandomPlacement: 1
-    formationSpacing: 8
+    formationSpacing: 7
     maxPlacementAttempts: 100
   waveAttackTable: {fileID: 11400000, guid: 72746f0027cd99846831e5f0e88b8586, type: 2}
   requireAllTasks: 1
@@ -83,7 +83,7 @@ MonoBehaviour:
     - rid: 736433674589306880
       type: {class: SpawnPassthroughObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
-        isActive: 1
+        isActive: 0
         initialDelay: 3
         maxActiveObstacles: 2
         spawnIntervalRange:
