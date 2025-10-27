@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 854e601f6bc6c29448a98b337fc73e08, type: 3}
+  m_Name: 0.2Easy Attack Table
+  m_EditorClassIdentifier: 
+  attackEntries:
+    internalItems:
+    - item: {fileID: 11400000, guid: 9ead985b1c769ac4aa8654564e7ec381, type: 2}
+      chance: 16
+      isLocked: 1
+    - item: {fileID: 11400000, guid: dcebe41714641db4eaeaebab24bf889d, type: 2}
+      chance: 30
+      isLocked: 1
+    - item: {fileID: 11400000, guid: b02217bdccdde0742b997dd8b1f3a0bf, type: 2}
+      chance: 30
+      isLocked: 1
+    - item: {fileID: 11400000, guid: bbf985df069c85c4dbf9868013879496, type: 2}
+      chance: 8
+      isLocked: 1
+    - item: {fileID: 11400000, guid: c8dc7d5d9547bd54da1e61f0a16b05d3, type: 2}
+      chance: 16
+      isLocked: 1
+  showDebugLogs: 0

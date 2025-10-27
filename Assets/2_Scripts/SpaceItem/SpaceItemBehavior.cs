@@ -5,21 +5,21 @@ public class SpaceItemBehavior : MonoBehaviour
 {
     [Header("Movement Settings")]
     [HideInInspector] public float moveSpeed = 5f; // Set by spawner
-    
+
     [Header("Rotation Settings")]
     public bool enableRotation = true; // Toggle rotation on/off
     public Vector3 rotationSpeed = new Vector3(43f, 67f, 91f); // Degrees per second for X, Y, Z axes (non-repeating pattern)
-    
+
     [Header("Scaling Settings")]
 
     public float minSize = 0.8f;
     public float maxSize = 1.5f;
     [HideInInspector] public float scaleDuration = 2f; // Set by spawner
-    
+
     [Header("Lifecycle Settings")]
     public float fadeOutDuration = 1f;
     public float destroyDelay = 2f;
-    
+
     private float initialScale = 0f;
     private Vector3 initialPosition;
     private float currentScale;
@@ -32,28 +32,34 @@ public class SpaceItemBehavior : MonoBehaviour
     private Color originalColor;
     private Vector3 movementDirection; // World space movement direction
     private bool isPooled = false; // Track if this object is from pool
+    private Vector3 originalRotationSpeed; // Store the original rotation speed
+    private Vector3 currentRotationSpeed; // Current rotation speed (can be flipped)
 
 
 
     void Start()
     {
+        // Store the original rotation speed from inspector
+        originalRotationSpeed = rotationSpeed;
+        currentRotationSpeed = rotationSpeed;
+
         InitializeItem();
     }
-    
+
     void InitializeItem()
     {
         // Store initial position and setup
         initialPosition = transform.position;
         currentScale = initialScale;
-        
+
         // Set movement direction in world space (toward player/camera)
         movementDirection = Vector3.back; // Always move toward positive Z (toward camera)
-        
+
         // Set random target scale within the specified range
         targetScale = Random.Range(minSize, maxSize);
-        
+
         transform.localScale = Vector3.one * currentScale;
-        
+
         // Get renderer and material for fading
         starRenderer = GetComponent<Renderer>();
         if (starRenderer != null)
@@ -62,7 +68,7 @@ public class SpaceItemBehavior : MonoBehaviour
             originalColor = starMaterial.color;
         }
     }
-    
+
     void Update()
     {
         MoveItem();
@@ -70,51 +76,51 @@ public class SpaceItemBehavior : MonoBehaviour
         ScaleItem();
         HandleFading();
     }
-    
+
     void MoveItem()
     {
         // Move the item in world space (always toward positive Z regardless of rotation)
         transform.position += movementDirection * (moveSpeed * LevelManager.WorldSpeed * Time.deltaTime);
     }
-    
+
     void RotateItem()
     {
         // Only rotate if rotation is enabled
         if (enableRotation)
         {
-            // Rotate the item around all axes using the rotation speed
-            Vector3 rotation = rotationSpeed * Time.deltaTime;
+            // Rotate the item around all axes using the current rotation speed (which may be flipped)
+            Vector3 rotation = currentRotationSpeed * LevelManager.WorldSpeed * Time.deltaTime;
             transform.Rotate(rotation, Space.Self);
         }
     }
-    
+
     void ScaleItem()
     {
         if (!isFadingOut && currentScale < targetScale)
         {
             // Update scale timer
             scaleTimer += Time.deltaTime;
-            
+
             // Calculate progress (0 to 1) based on duration
             float progress = scaleTimer / scaleDuration;
             progress = Mathf.Clamp01(progress); // Ensure it doesn't go over 1
-            
+
             // Interpolate between initial and target scale
             currentScale = Mathf.Lerp(initialScale, targetScale, progress);
             transform.localScale = Vector3.one * currentScale;
         }
     }
-    
+
     void HandleFading()
     {
         if (isFadingOut)
         {
             fadeTimer += Time.deltaTime;
-            
+
             // Calculate fade alpha
             float fadeProgress = fadeTimer / fadeOutDuration;
             float alpha = Mathf.Lerp(originalColor.a, 0f, fadeProgress);
-            
+
             // Apply fade to material
             if (starMaterial != null)
             {
@@ -122,7 +128,7 @@ public class SpaceItemBehavior : MonoBehaviour
                 newColor.a = alpha;
                 starMaterial.color = newColor;
             }
-            
+
             // Return to pool or destroy after fade is complete
             if (fadeTimer >= fadeOutDuration)
             {
@@ -130,7 +136,7 @@ public class SpaceItemBehavior : MonoBehaviour
             }
         }
     }
-    
+
     // Called externally to start fade out (only called by ItemDestroyer now)
     public void StartFadeOut()
     {
@@ -138,27 +144,27 @@ public class SpaceItemBehavior : MonoBehaviour
         {
             isFadingOut = true;
             fadeTimer = 0f;
-            
+
             // Start destruction timer as backup
             Invoke(nameof(ReturnToPoolOrDestroy), destroyDelay);
         }
     }
-    
+
     // Alternative method to return to pool immediately if needed
     public void ReturnToPoolOrDestroyImmediately()
     {
         CancelInvoke(); // Cancel any pending destruction
         ReturnToPoolOrDestroy();
     }
-    
+
     void ReturnToPoolOrDestroy()
     {
         // Try to find the appropriate pool for this object
         SpaceItemPool targetPool = null;
-        
+
         // First, try to find a pool that contains this prefab type
         targetPool = SpaceItemPool.FindPoolWithPrefab(FindOriginalPrefab());
-        
+
         if (targetPool != null)
         {
             targetPool.ReturnToPool(gameObject);
@@ -169,12 +175,12 @@ public class SpaceItemBehavior : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    
+
     GameObject FindOriginalPrefab()
     {
         // Simple approach to find original prefab based on name
         string itemName = gameObject.name.Replace("(Clone)", "").Trim();
-        
+
         // Search through all pools to find matching prefab
         SpaceItemPool[] allPools = FindObjectsByType<SpaceItemPool>(FindObjectsSortMode.None);
         foreach (SpaceItemPool pool in allPools)
@@ -187,28 +193,48 @@ public class SpaceItemBehavior : MonoBehaviour
                 }
             }
         }
-        
+
         return null;
     }
-    
+
+    // Randomize rotation direction (50% chance to flip)
+    void RandomizeRotationDirection()
+    {
+        // Store original rotation speed if not already stored
+        if (originalRotationSpeed == Vector3.zero)
+        {
+            originalRotationSpeed = rotationSpeed;
+        }
+
+        // 50% chance to flip the rotation direction
+        if (Random.value > 0.5f)
+        {
+            currentRotationSpeed = originalRotationSpeed * -1f;
+        }
+        else
+        {
+            currentRotationSpeed = originalRotationSpeed;
+        }
+    }
+
     // Reset method for object pooling
     public void ResetForPool()
     {
         // Cancel any pending invokes
         CancelInvoke();
-        
+
         // Reset all state variables
         scaleTimer = 0f;
         isFadingOut = false;
         fadeTimer = 0f;
         currentScale = initialScale;
-        
+
         // Reset target scale to a new random value
         targetScale = Random.Range(minSize, maxSize);
-        
+
         // Reset transform scale
         transform.localScale = Vector3.one * currentScale;
-        
+
         // Reset material color if available
         if (starMaterial != null && originalColor != Color.clear)
         {
@@ -223,16 +249,19 @@ public class SpaceItemBehavior : MonoBehaviour
                 originalColor = starMaterial.color;
             }
         }
-        
+
         // Set initial position to current position (will be updated by spawner)
         initialPosition = transform.position;
-        
+
         // Movement direction stays the same
         movementDirection = Vector3.back;
-        
+
+        // Randomize the rotation direction for variety
+        RandomizeRotationDirection();
+
         isPooled = true;
     }
-    
+
     void OnEnable()
     {
         // If this object was just enabled from pool, initialize it
@@ -249,6 +278,9 @@ public class SpaceItemBehavior : MonoBehaviour
                     originalColor = starMaterial.color;
                 }
             }
+
+            // Randomize rotation direction each time object is enabled from pool
+            RandomizeRotationDirection();
         }
     }
 
@@ -256,5 +288,5 @@ public class SpaceItemBehavior : MonoBehaviour
     {
         CancelInvoke();
     }
-    
+
 }
