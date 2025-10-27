@@ -17,12 +17,11 @@ MonoBehaviour:
   isCheckpoint: 1
   allowSkip: 0
   playRandomMessages: 0
-  startRadioMessage: {fileID: 0}
+  startRadioMessage: {fileID: 11400000, guid: 29a6bdf04f6d20148bfb01c53aa47177, type: 2}
   startWarning: {fileID: 0}
-  events:
-  - rid: 736433701207408749
+  events: []
   stageType: 0
-  stageDuration: 7
+  stageDuration: 5
   delayBeforeNextStage: 1
   outroMode: 0
   nextLevel:
@@ -53,6 +52,7 @@ MonoBehaviour:
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
+  waveAttackTable: {fileID: 0}
   requireAllTasks: 1
   tasks: []
   showHUD: 0
@@ -66,13 +66,4 @@ MonoBehaviour:
   allowPlayerHeatSystem: 0
   references:
     version: 2
-    RefIds:
-    - rid: 736433701207408749
-      type: {class: RadioMessageSequenceEvent, ns: , asm: Assembly-CSharp}
-      data:
-        isActive: 0
-        initialDelay: 1
-        shuffle: 0
-        loop: 0
-        messages:
-        - {fileID: 11400000, guid: 29a6bdf04f6d20148bfb01c53aa47177, type: 2}
+    RefIds: []

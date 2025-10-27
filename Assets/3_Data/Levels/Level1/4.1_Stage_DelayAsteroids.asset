@@ -15,7 +15,8 @@ MonoBehaviour:
   stageTitle: 
   worldSpeed: 1
   isCheckpoint: 0
-  allowSkip: 1
+  allowSkip: 0
+  playRandomMessages: 0
   startRadioMessage: {fileID: 0}
   startWarning: {fileID: 11400000, guid: 573a8159d776e284e876d94e4b93f7f2, type: 2}
   events:
@@ -53,6 +54,7 @@ MonoBehaviour:
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
+  waveAttackTable: {fileID: 0}
   requireAllTasks: 1
   tasks: []
   showHUD: 1
