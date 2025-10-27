@@ -185,9 +185,10 @@ MonoBehaviour:
   maxMaskLevel: 1
   maxColor: {r: 0, g: 0.3541391, b: 1, a: 1}
   boundaryThreshold:
-    minValue: 0.9
+    minValue: 0.93
     maxValue: 1
   transitionSmoothing: 0.1
+  includeVerticalBoundaries: 0
   leftPlayerLimitsMaterial: {fileID: 2100000, guid: d3c63313bc9ce594b9bb9732abc44dc6, type: 2}
   rightPlayerLimitsMaterial: {fileID: 2100000, guid: 3042cc0555a4fcc49801492946f1e085, type: 2}
 --- !u!1 &7620994784586449836

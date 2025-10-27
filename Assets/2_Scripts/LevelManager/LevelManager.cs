@@ -102,6 +102,7 @@ public class LevelManager : MonoBehaviour
     
     
     public static float WorldSpeed = 1f;
+    public const float WorldSpeedChangeDuration = 1f;
 
 
     private void OnValidate()
@@ -458,7 +459,7 @@ public class LevelManager : MonoBehaviour
         currentStageIndex = newStageIndex;
         currentStage = newStage;
         
-        Tween.Custom(startValue: WorldSpeed, endValue: newStage.WorldSpeed, duration: 0.5f, ease: Ease.InOutSine, onValueChange:(value) => WorldSpeed = value);
+        Tween.Custom(startValue: WorldSpeed, endValue: newStage.WorldSpeed, duration: WorldSpeedChangeDuration, ease: Ease.InOutSine, onValueChange:(value) => WorldSpeed = value);
         if (currentStage.IsCheckpoint) SaveLevelProgress();
         
         OnStageChanged?.Invoke(currentStage);

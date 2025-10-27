@@ -10,14 +10,14 @@ public class FullScreenPLController : MonoBehaviour
     public static FullScreenPLController Instance { get; private set; }
 
     [Header("Settings")]
-    [SerializeField, Range(0, 1)] private float maxMaskLevel = 0.5f;
+    [SerializeField, Range(0, 1)] private float maxMaskLevel = 1f;
     [SerializeField, ColorUsage(true, true)] private Color maxColor = UnityEngine.Color.white;
     [SerializeField, MinMaxRange(0f, 1f)] private RangedFloat boundaryThreshold = new RangedFloat(0.6f, 0.8f);
-    [SerializeField, Range(0, 1)] private float transitionSmoothing = 0.3f;
+    [SerializeField, Range(0, 1)] private float transitionSmoothing = 0.1f;
+    [SerializeField] private bool includeVerticalBoundaries = true;
 
-    [Header("Material References")] [SerializeField]
-    private Material leftPlayerLimitsMaterial;
-
+    [Header("Material References")] 
+    [SerializeField] private Material leftPlayerLimitsMaterial;
     [SerializeField] private Material rightPlayerLimitsMaterial;
 
     private LevelManager _levelManager;
@@ -129,8 +129,8 @@ public class FullScreenPLController : MonoBehaviour
             _targetRightIntensity = rightIntensity;
         }
 
-        // Check vertical boundaries and apply to nearest horizontal side
-        if (normalizedPos.y > boundaryThreshold.minValue || normalizedPos.y < -boundaryThreshold.minValue)
+        // Check vertical boundaries and apply to nearest horizontal side (only if enabled)
+        if (includeVerticalBoundaries && (normalizedPos.y > boundaryThreshold.minValue || normalizedPos.y < -boundaryThreshold.minValue))
         {
             float verticalIntensity = Mathf.Max(topIntensity, bottomIntensity);
 
@@ -203,4 +203,3 @@ public class FullScreenPLController : MonoBehaviour
     }
 
 }
-    

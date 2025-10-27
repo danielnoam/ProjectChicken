@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: 1.0_Stage_Intro
   m_EditorClassIdentifier: 
   stageTitle: 
-  startRadioMessage: {fileID: 0}
-  worldSpeed: 1
+  worldSpeed: 0.5
   isCheckpoint: 1
   allowSkip: 1
+  playRandomMessages: 0
+  startRadioMessage: {fileID: 0}
+  startWarning: {fileID: 0}
   events:
   - rid: 5417711935219564633
   stageType: 3
@@ -39,9 +41,9 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyWave:
-    serializedKvps: []
-    dividerPos: 0.33
+  enemyAmount: 4
+  enemyTypes:
+    internalItems: []
   formationStageData:
     formationType: 0
     formationCount: 1
