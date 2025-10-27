@@ -18,8 +18,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: a1feadeb57005804fa73674725a6310d, type: 3}
   mixerGroup: {fileID: -8308305412286519963, guid: 77db4088ae7ef521a93687acac7e30ed, type: 2}
   volume:
-    minValue: 0.5
-    maxValue: 0.5
+    minValue: 0.8
+    maxValue: 0.8
   pitch:
     minValue: 0.8
     maxValue: 1.2
@@ -35,7 +35,7 @@ MonoBehaviour:
   dopplerLevel: 0
   spread: 0
   rolloffMode: 0
-  minDistance: 1
+  minDistance: 50
   maxDistance: 500
   useObjectPooler: 1
   oneShotPrefab: {fileID: 4881883869627230524, guid: 7538ce3299d5f864780acaafb8fcf87d, type: 3}

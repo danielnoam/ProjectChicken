@@ -9,7 +9,6 @@ public class SOWarning : ScriptableObject
     [Header("Warning Data")]
     [SerializeField] private Sprite icon;
     [SerializeField] private SOAudioEvent warningSfx;
-    [SerializeField] private Color iconColor = Color.white;
     [SerializeField] private Color backgroundColor = Color.white;
     [SerializeField, TextArea(1, 3)] private string message;
     [SerializeField, Min(0.5f)] private float duration = 3f;
@@ -43,7 +42,6 @@ public class SOWarning : ScriptableObject
     public Sprite Icon => icon;
     public SOAudioEvent WarningSfx => warningSfx;
     public Color BackgroundColor => backgroundColor;
-    public Color IconColor => iconColor;
     public string Message => message;
     public float Duration => duration;
 

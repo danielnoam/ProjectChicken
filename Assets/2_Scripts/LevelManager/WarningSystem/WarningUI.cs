@@ -22,6 +22,8 @@ public class WarningUI : MonoBehaviour
     private Sequence _showSequence;
     private Sequence _hideSequence;
     private bool _isVisible;
+    private bool _wasPlayingBeforePause;
+    private LevelManager _levelManager;
     
 
     private Vector3 _originalScale;
@@ -41,6 +43,47 @@ public class WarningUI : MonoBehaviour
         
         _originalScale = _rectTransform.localScale;
         canvasGroup.alpha = 0f;
+    }
+
+    private void Start()
+    {
+        if (!_levelManager)
+        {
+            _levelManager = LevelManager.Instance;
+            _levelManager.OnPause += OnPause;
+        }
+
+    }
+
+    private void OnEnable()
+    {
+        if (_levelManager)
+        {
+            _levelManager.OnPause += OnPause;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (_levelManager)
+        {
+            _levelManager.OnPause -= OnPause;
+        }
+    }
+
+    private void OnPause(bool paused)
+    {
+        if (paused && audioSource.isPlaying)
+        {
+            _wasPlayingBeforePause = true;
+            audioSource.Pause();
+        }
+        else if (!paused && !audioSource.isPlaying && _wasPlayingBeforePause)
+        {
+            _wasPlayingBeforePause = false;
+            audioSource.Play();
+        }
+        
     }
 
     public void ShowWarning(SOWarning warning)
@@ -101,8 +144,7 @@ public class WarningUI : MonoBehaviour
         // Set icon
         if (iconImage)
         {
-            if (warning.Icon) iconImage.sprite = warning.Icon;
-            iconImage.color = warning.IconColor;
+            iconImage.sprite = warning.Icon;
         }
         
         // Set background color

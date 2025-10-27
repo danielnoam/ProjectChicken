@@ -139,8 +139,7 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
         spline.Evaluate(splineProgress, out var position, out var tangent, out var up);
         transform.position = position;
         
-        var rotationSpeedToUse = rotationSpeed * LevelManager.WorldSpeed;
-        rotationSpeedRange.Clamp(rotationSpeedToUse);
+        var rotationSpeedToUse = rotationSpeedRange.Clamp(rotationSpeed * LevelManager.WorldSpeed);
         transform.Rotate(rotationDirection, rotationSpeedToUse * Time.deltaTime);
     }
     
