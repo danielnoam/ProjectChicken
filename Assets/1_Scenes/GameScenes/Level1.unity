@@ -4059,10 +4059,50 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4538400418045216961, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: itemPrefabs.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4538400418045216961, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: 'itemPrefabs.Array.data[0]'
+      value: 
+      objectReference: {fileID: 5771890810292038773, guid: 8ecf9c9ab609c1f409b01e986dd2af22, type: 3}
+    - target: {fileID: 4538400418045216961, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: 'itemPrefabs.Array.data[1]'
+      value: 
+      objectReference: {fileID: 5771890810292038773, guid: 1a04fb477bf88284b93d13060197f173, type: 3}
+    - target: {fileID: 4538400418045216961, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: 'itemPrefabs.Array.data[2]'
+      value: 
+      objectReference: {fileID: 5771890810292038773, guid: 79959e6f00d9302449dcf45cbe662315, type: 3}
+    - target: {fileID: 4538400418045216961, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: 'itemPrefabs.Array.data[3]'
+      value: 
+      objectReference: {fileID: 5771890810292038773, guid: 5f9b0dc5c3d6cbb4a834d8996e38e8f9, type: 3}
+    - target: {fileID: 4538400418045216961, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: 'itemPrefabs.Array.data[4]'
+      value: 
+      objectReference: {fileID: 5771890810292038773, guid: 55e0b66d7ec378c4fb7018b4154e89d7, type: 3}
     - target: {fileID: 5011403307923265554, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
       propertyPath: m_Name
       value: BackgroundSpawner
       objectReference: {fileID: 0}
+    - target: {fileID: 8965328307442366994, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: spawnZones.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8965328307442366994, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: 'spawnZones.Array.data[3]'
+      value: 
+      objectReference: {fileID: 1410491655}
+    - target: {fileID: 8965328307442366994, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: spaceItemPrefabs.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8965328307442366994, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+      propertyPath: 'spaceItemPrefabs.Array.data[4]'
+      value: 
+      objectReference: {fileID: 5771890810292038773, guid: 55e0b66d7ec378c4fb7018b4154e89d7, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5853,6 +5893,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1398474068}
   m_Mesh: {fileID: 7265744515449303197, guid: 0925e7c67d9bc6f46ad544614bcff535, type: 3}
+--- !u!65 &1410491655 stripped
+BoxCollider:
+  m_CorrespondingSourceObject: {fileID: 1370532945782025267, guid: 0cb82e5fdd938104da103aa88378abfa, type: 3}
+  m_PrefabInstance: {fileID: 683668546}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1487484072
 GameObject:
   m_ObjectHideFlags: 0

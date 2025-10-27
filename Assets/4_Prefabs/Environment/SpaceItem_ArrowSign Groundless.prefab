@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2158200210638988043}
   - component: {fileID: 4070688687719724883}
   m_Layer: 0
-  m_Name: SpaceItem_ArrowSign
+  m_Name: SpaceItem_ArrowSign Groundless
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   enableRotation: 1
-  rotationSpeed: {x: 0, y: 4, z: 0}
+  rotationSpeed: {x: -10, y: 4, z: -8}
   minSize: 1
   maxSize: 1
   scaleDuration: 2
@@ -85,7 +85,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 975187813950786717, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5022367696469198615, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
       propertyPath: m_Name
@@ -135,12 +135,25 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6509067438184550706, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7959605622006473636, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 847851332474413095, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
+    - {fileID: 2903046551273501, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
+    - {fileID: 8381416400637607229, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
+    - {fileID: 3895318410173260602, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
+    - {fileID: 376760713804439621, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
+    - {fileID: 7959605622006473636, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
+    - {fileID: 975187813950786717, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
+    - {fileID: 5746630139661094161, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
+    - {fileID: 1912566596551949930, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9feb1df02ae60c94c95b5b78c326a611, type: 3}
