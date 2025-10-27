@@ -9,22 +9,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 680bcfb2895c51c4ca5df4595534b81c, type: 3}
-  m_Name: Big Square Attack
+  m_Script: {fileID: 11500000, guid: 0b2fbe80a1e297e438deae0a5d619b05, type: 3}
+  m_Name: 2.1Focused Grid Attack
   m_EditorClassIdentifier: 
   attackInterval: 1.5
-  usesBeforePatternChange: 1
-  minChickensRequired: 10
+  usesBeforePatternChange: 2
+  minChickensRequired: 8
   eggSpeedMultiplier: 0.8
   deactivateWarningCircle: 0
   audioEvent: {fileID: 11400000, guid: 87b7f2c3f1904ee4d966ce19ae3e9f98, type: 2}
-  showDebugLogs: 1
-  gridSize: 5
-  gridSpacing: 6
-  gridOffset: {x: 0, y: 0, z: 0}
+  showDebugLogs: 0
+  gridSpacing: 4
+  numberOfGridGroups: 12
+  delayBetweenGroups: 0.05
   maxRandomOffset: 0
-  randomRotation: 0
-  useAllAvailableChickens: 1
-  boundarySizeScaler: 2.5
-  boundaryPadding: 0
-  showGridGizmo: 1
+  boundaryPadding: 1
+  boundarySizeScaler: 2
+  showBoundaryGizmo: 0
+  minDistanceBetweenGroups: 8
+  lastKnownPlayerBounds: {x: 100, y: 50}
+  lastKnownBoundaryCenter: {x: 0, y: 0, z: -29}
