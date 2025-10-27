@@ -1,6 +1,7 @@
 ﻿using System;
 using DNExtensions;
 using DNExtensions.VFXManager;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Playables;
@@ -8,21 +9,35 @@ using VInspector;
 
 public class CinematicManager : MonoBehaviour
 {
-    [Header("Cursor Settings")]
-    [SerializeField] protected bool hideCursor = true;
     
+    [Header("Settings")]
+    [SerializeField] protected float audioSourceVolumeTweenDuration = 3f;
+    [SerializeField] protected bool hideCursor = true;
     
     [Header("References")]
     [SerializeField] protected SceneField targetScene;
     [SerializeField] protected CinematicInput cinematicInput;
     [SerializeField] protected PlayableDirector playableDirector;
+    [SerializeField] protected AudioSource audioSource;
     [SerializeField] protected SOVFEffectsSequence awakeSequence;
     [SerializeField] protected SOVFEffectsSequence endSequence;
     [SerializeField] protected SOVFEffectsSequence targetSceneStartSequence;
     
     
-    private bool _skippingCinematic;
-    
+    protected Tween audioSourceVolumeTween;
+    protected bool skippingCinematic;
+    protected float audioSourceVolume;
+
+    protected void Awake()
+    {
+
+        if (audioSource)
+        {
+            audioSourceVolume = audioSource.volume;
+            audioSource.volume = 0;
+        }
+    }
+
     protected virtual void Start()
     {
         StartCinematic();
@@ -67,8 +82,8 @@ public class CinematicManager : MonoBehaviour
 
     private void OnSkipAction(InputAction.CallbackContext callbackContext)
     {
-        if (_skippingCinematic) return;
-        _skippingCinematic = true;
+        if (skippingCinematic) return;
+        skippingCinematic = true;
         if (IsCinematicPlaying())
         {
             StopCinematic();
@@ -109,13 +124,25 @@ public class CinematicManager : MonoBehaviour
             Cursor.visible = true;
         }
         
-        playableDirector?.Play();
+        playableDirector.Play();
+        
+        if (audioSource)
+        {
+            audioSourceVolumeTween = Tween.AudioVolume(audioSource, audioSourceVolume, audioSourceVolumeTweenDuration);
+        }
+        
     }
 
     [Button]
     protected void StopCinematic()
     {
         playableDirector?.Stop();
+        
+        if (audioSource)
+        {
+            audioSourceVolumeTween = Tween.AudioVolume(audioSource, 0, audioSourceVolumeTweenDuration);
+        }
+        
     }
     
     
