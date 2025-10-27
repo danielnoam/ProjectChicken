@@ -57,7 +57,7 @@ namespace DNExtensions
 
             if (clips.Length == 0)
             {
-                Debug.Log("No clips found");
+                // Debug.Log("No clips found");
                 return;
             }
 
@@ -74,7 +74,7 @@ namespace DNExtensions
 
             if (clips.Length == 0)
             {
-                Debug.Log("No clips found");
+                // Debug.Log("No clips found");
                 return;
             }
 
@@ -87,7 +87,7 @@ namespace DNExtensions
         {
             if (clips.Length == 0)
             {
-                Debug.Log("No clips found");
+                // Debug.Log("No clips found");
                 return;
             }
 
