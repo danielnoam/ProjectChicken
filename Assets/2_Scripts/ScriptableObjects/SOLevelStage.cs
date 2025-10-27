@@ -47,6 +47,7 @@ public class SOLevelStage : ScriptableObject
     [SerializeField, Range(0, 50)] private int enemyAmount = 4;
     [SerializeField] private ChanceList<ChickenStateController> enemyTypes = new ChanceList<ChickenStateController>();
     [SerializeField] private FormationStageData formationStageData = new FormationStageData();
+    [SerializeField] private AttackLootTableSO waveAttackTable;
     [EndIf]
     
     [ShowIf("stageType", StageType.Task)]
@@ -90,6 +91,7 @@ public class SOLevelStage : ScriptableObject
     public SceneField NextLevel => nextLevel;
     public int EnemyAmount => enemyAmount;
     public ChanceList<ChickenStateController> EnemyTypes => enemyTypes;
+    public AttackLootTableSO WaveAttackTable => waveAttackTable;
     public float DelayBeforeNextStage => delayBeforeNextStage;
     public int WaveScoreWorth =>  waveScoreWorth;
     public FormationStageData FormationStageData => formationStageData;
