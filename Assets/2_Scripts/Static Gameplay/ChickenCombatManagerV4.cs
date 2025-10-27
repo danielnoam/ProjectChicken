@@ -8,7 +8,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     public bool enableCombat = true;
     public float eggSpeed = 20f;
     public float PatternChangeCooldown;
-    
+
     [Header("Difficulty Scaling")]
     [Tooltip("How much to increase egg speed every interval during enemy waves")]
     public float eggSpeedIncreaseAmount = 10f;
@@ -20,14 +20,18 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     public float maxEggSpeed = 80f;
     [Tooltip("Minimum pattern cooldown that can be reached during difficulty scaling")]
     public float minPatternCooldown = 1.5f;
-    
+
     [Header("Attack Configuration")]
+    [Tooltip("Default attack loot table used when stage doesn't have one assigned")]
+    [SerializeField] private AttackLootTableSO defaultAttackLootTable;
+
+    [Tooltip("Current active attack loot table (can be from stage or default)")]
     public AttackLootTableSO attackLootTable;
-    
+
     [Header("Fallback Attack")]
     [Tooltip("This attack will be used when no other attacks from the loot table can be executed")]
     public BaseChickenAttackSO fallbackAttack;
-    
+
     [Header("Debug")]
     public bool showDebugLogs = true;
     public bool showAttackGizmos = false;
@@ -42,7 +46,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     [SerializeField] private int usesBeforePatternChange = 0;
     [SerializeField] private int usesRemaining = 0;
     [SerializeField] private float currentEggSpeed = 0f;
-    
+
     // Combat state management
     private CombatState currentState = CombatState.WaitingForChickens;
     private float stateTimer = 0f;
@@ -50,13 +54,13 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     private int currentAttackUsesInternal = 0;
     private float nextAttackTime = 0f;
     private bool usingFallbackAttack = false;
-    
+
     // Difficulty scaling
     private float originalEggSpeed = 0f;
     private float originalPatternCooldown = 0f;
     private Coroutine difficultyScalingCoroutine = null;
     private bool isInEnemyWave = false;
-    
+
     private Transform player;
 
     // Combat states enum
@@ -93,10 +97,18 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             Debug.LogWarning("ChickenCombatManagerV4: No player found with 'Player' tag!");
         }
 
+        // Initialize with default attack loot table if current is null
+        if (attackLootTable == null)
+        {
+            attackLootTable = defaultAttackLootTable;
+            if (showDebugLogs)
+                Debug.Log($"ChickenCombatManagerV4: Initialized with default attack loot table");
+        }
+
         // Validate attack loot table
         if (attackLootTable == null)
         {
-            Debug.LogWarning("ChickenCombatManagerV4: No attack loot table assigned!");
+            Debug.LogWarning("ChickenCombatManagerV4: No attack loot table assigned and no default available!");
         }
         else if (showDebugLogs)
         {
@@ -116,14 +128,14 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         // Store original egg speed
         originalEggSpeed = eggSpeed;
         currentEggSpeed = eggSpeed;
-        
+
         // Store original pattern cooldown
         originalPatternCooldown = PatternChangeCooldown;
 
         // Initialize combat state
         ResetCombatState();
         UpdateInspectorFields();
-        
+
         // Subscribe to level manager stage changes
         if (LevelManager.Instance != null)
         {
@@ -158,7 +170,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
 
         // Update combat state machine
         UpdateCombatStateMachine();
-        
+
         // Update inspector fields for real-time feedback
         UpdateInspectorFields();
     }
@@ -178,13 +190,16 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             usesBeforePatternChange = 0;
             usesRemaining = 0;
         }
-        
+
         currentEggSpeed = eggSpeed;
     }
 
     private void OnStageChanged(SOLevelStage newStage)
     {
         if (newStage == null) return;
+
+        // Update attack loot table based on stage
+        UpdateAttackLootTableForStage(newStage);
 
         // Check if we're entering or leaving an enemy wave stage
         bool wasInEnemyWave = isInEnemyWave;
@@ -203,6 +218,53 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         }
     }
 
+    private void UpdateAttackLootTableForStage(SOLevelStage stage)
+    {
+        if (stage == null) return;
+
+        AttackLootTableSO newLootTable = null;
+
+        // Check if stage has a wave attack table assigned
+        if (stage.WaveAttackTable != null)
+        {
+            newLootTable = stage.WaveAttackTable;
+            if (showDebugLogs)
+                Debug.Log($"ChickenCombatManagerV4: Using stage-specific attack loot table '{newLootTable.name}'");
+        }
+        else
+        {
+            // Use default loot table as fallback
+            newLootTable = defaultAttackLootTable;
+            if (showDebugLogs)
+                Debug.Log($"ChickenCombatManagerV4: Stage has no attack loot table, using default '{(newLootTable != null ? newLootTable.name : "NONE")}'");
+        }
+
+        // Only update if the table is different
+        if (newLootTable != attackLootTable)
+        {
+            attackLootTable = newLootTable;
+
+            // Reset combat state when changing loot tables to avoid using attacks from previous table
+            if (currentState != CombatState.WaitingForChickens)
+            {
+                if (showDebugLogs)
+                    Debug.Log("ChickenCombatManagerV4: Attack loot table changed, resetting combat state");
+
+                ResetCombatState();
+            }
+
+            // Validate the new loot table
+            if (attackLootTable == null)
+            {
+                Debug.LogWarning($"ChickenCombatManagerV4: No attack loot table available for stage '{stage.StageTitle}'!");
+            }
+            else if (showDebugLogs)
+            {
+                Debug.Log($"ChickenCombatManagerV4: Updated to attack loot table '{attackLootTable.name}' with {attackLootTable.GetValidAttacks().Count} valid attacks");
+            }
+        }
+    }
+
     private void StartDifficultyScaling()
     {
         // Stop any existing coroutine
@@ -214,7 +276,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         // Reset to original values
         eggSpeed = originalEggSpeed;
         PatternChangeCooldown = originalPatternCooldown;
-        
+
         if (showDebugLogs)
             Debug.Log($"ChickenCombatManagerV4: Starting difficulty scaling. Egg speed: {eggSpeed} (+{eggSpeedIncreaseAmount} every {difficultyIncreaseInterval}s, max: {maxEggSpeed}). Pattern cooldown: {PatternChangeCooldown} (-{patternCooldownDecreaseAmount} every {difficultyIncreaseInterval}s, min: {minPatternCooldown})");
 
@@ -234,9 +296,9 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         // Reset to original values
         eggSpeed = originalEggSpeed;
         PatternChangeCooldown = originalPatternCooldown;
-        
+
         if (showDebugLogs)
-            Debug.Log($"ChickenCombatManagerV4: Difficulty scaling stopped. Egg speed reset to {originalEggSpeed}, Pattern cooldown reset to {originalPatternCooldown}");
+            Debug.Log($"ChickenCombatManagerV4: Stopped difficulty scaling and reset to original values. Egg speed: {eggSpeed}, Pattern cooldown: {PatternChangeCooldown}");
     }
 
     private IEnumerator DifficultyScalingCoroutine()
@@ -246,48 +308,37 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             // Wait for the interval
             yield return new WaitForSeconds(difficultyIncreaseInterval);
 
-            bool eggSpeedAtMax = eggSpeed >= maxEggSpeed;
-            bool patternCooldownAtMin = PatternChangeCooldown <= minPatternCooldown;
-
-            // If both are at their limits, just log and continue
-            if (eggSpeedAtMax && patternCooldownAtMin)
-            {
-                if (showDebugLogs)
-                    Debug.Log($"ChickenCombatManagerV4: Both difficulty limits reached. Egg speed: {maxEggSpeed} (max), Pattern cooldown: {minPatternCooldown} (min)");
-                continue;
-            }
-
-            // Increase egg speed if not at max
+            // Increase egg speed
             float previousEggSpeed = eggSpeed;
-            if (!eggSpeedAtMax)
-            {
-                eggSpeed = Mathf.Min(eggSpeed + eggSpeedIncreaseAmount, maxEggSpeed);
-            }
+            eggSpeed = Mathf.Min(eggSpeed + eggSpeedIncreaseAmount, maxEggSpeed);
 
-            // Decrease pattern cooldown if not at min
+            // Decrease pattern cooldown
             float previousPatternCooldown = PatternChangeCooldown;
-            if (!patternCooldownAtMin)
-            {
-                PatternChangeCooldown = Mathf.Max(PatternChangeCooldown - patternCooldownDecreaseAmount, minPatternCooldown);
-            }
+            PatternChangeCooldown = Mathf.Max(PatternChangeCooldown - patternCooldownDecreaseAmount, minPatternCooldown);
 
             if (showDebugLogs)
             {
-                string logMsg = "ChickenCombatManagerV4: Difficulty increased - ";
-                
-                if (!eggSpeedAtMax)
-                    logMsg += $"Egg speed: {previousEggSpeed:F1} → {eggSpeed:F1}";
+                bool eggSpeedChanged = !Mathf.Approximately(previousEggSpeed, eggSpeed);
+                bool cooldownChanged = !Mathf.Approximately(previousPatternCooldown, PatternChangeCooldown);
+
+                if (eggSpeedChanged || cooldownChanged)
+                {
+                    Debug.Log($"ChickenCombatManagerV4: Difficulty increased! " +
+                             $"Egg speed: {previousEggSpeed:F1} → {eggSpeed:F1} (max: {maxEggSpeed}), " +
+                             $"Pattern cooldown: {previousPatternCooldown:F1}s → {PatternChangeCooldown:F1}s (min: {minPatternCooldown}s)");
+                }
                 else
-                    logMsg += $"Egg speed: {eggSpeed:F1} (max reached)";
-                
-                logMsg += ", ";
-                
-                if (!patternCooldownAtMin)
-                    logMsg += $"Pattern cooldown: {previousPatternCooldown:F1}s → {PatternChangeCooldown:F1}s";
-                else
-                    logMsg += $"Pattern cooldown: {PatternChangeCooldown:F1}s (min reached)";
-                
-                Debug.Log(logMsg);
+                {
+                    Debug.Log("ChickenCombatManagerV4: Difficulty at maximum values");
+                }
+            }
+
+            // Stop if we've reached both maximums
+            if (eggSpeed >= maxEggSpeed && PatternChangeCooldown <= minPatternCooldown)
+            {
+                if (showDebugLogs)
+                    Debug.Log("ChickenCombatManagerV4: Maximum difficulty reached, stopping scaling");
+                yield break;
             }
         }
     }
@@ -297,171 +348,156 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         switch (currentState)
         {
             case CombatState.WaitingForChickens:
-                UpdateWaitingForChickens();
+                HandleWaitingForChickens();
                 break;
-                
+
             case CombatState.PatternCooldown:
-                UpdatePatternCooldown();
+                HandlePatternCooldown();
                 break;
-                
+
             case CombatState.Attacking:
-                UpdateAttacking();
+                HandleAttacking();
                 break;
         }
     }
 
-    private void UpdateWaitingForChickens()
+    private void HandleWaitingForChickens()
     {
-        // Check if we have at least one chicken registered
         if (TotalCombatChickens > 0)
         {
-            if (showDebugLogs)
-                Debug.Log($"ChickenCombatManagerV4: First chicken registered! Starting pattern cooldown ({PatternChangeCooldown}s)");
-            
+            // Chickens are registered, start pattern cooldown
             StartPatternCooldown();
-        }
-    }
-
-    private void UpdatePatternCooldown()
-    {
-        stateTimer -= Time.deltaTime;
-        
-        if (stateTimer <= 0f)
-        {
-            // Cooldown finished, select new attack
-            SelectNewAttack();
-        }
-    }
-
-    private void UpdateAttacking()
-    {
-        // Check if we still have chickens
-        if (TotalCombatChickens == 0)
-        {
-            if (showDebugLogs)
-                Debug.Log("ChickenCombatManagerV4: No chickens left, returning to waiting state");
-            
-            ResetCombatState();
-            return;
-        }
-
-        // Check if current attack is still valid
-        if (currentAttack == null)
-        {
-            if (showDebugLogs)
-                Debug.Log("ChickenCombatManagerV4: Current attack is null, starting cooldown");
-            
-            StartPatternCooldown();
-            return;
-        }
-
-        // Check if we've used up this attack pattern
-        if (currentAttackUsesInternal >= currentAttack.UsesBeforePatternChange)
-        {
-            if (showDebugLogs)
-            {
-                string attackSource = usingFallbackAttack ? " (fallback)" : "";
-                Debug.Log($"ChickenCombatManagerV4: Attack '{currentAttack.AttackName}'{attackSource} used {currentAttackUsesInternal} times, starting pattern change cooldown");
-            }
-            
-            currentAttack = null;
-            currentAttackUsesInternal = 0;
-            usingFallbackAttack = false;
-            StartPatternCooldown();
-            return;
-        }
-
-        // Execute attack if it's time
-        if (Time.time >= nextAttackTime)
-        {
-            ExecuteCurrentAttack();
         }
     }
 
     private void StartPatternCooldown()
     {
         currentState = CombatState.PatternCooldown;
+        currentAttack = null;
+        currentAttackUsesInternal = 0;
         stateTimer = PatternChangeCooldown;
         usingFallbackAttack = false;
-        
+
         if (showDebugLogs)
-            Debug.Log($"ChickenCombatManagerV4: Starting pattern cooldown for {PatternChangeCooldown} seconds");
+            Debug.Log($"ChickenCombatManagerV4: Starting pattern cooldown ({PatternChangeCooldown}s)");
     }
 
-    private void SelectNewAttack()
+    private void HandlePatternCooldown()
     {
-        if (attackLootTable == null)
-        {
-            Debug.LogWarning("ChickenCombatManagerV4: No attack loot table assigned, trying fallback attack");
-            TryUseFallbackAttack();
-            return;
-        }
+        stateTimer -= Time.deltaTime;
 
-        // Get available attackers
-        var availableChickens = GetAvailableAttackersInternal();
-        if (availableChickens.Count == 0)
+        if (stateTimer <= 0f)
+        {
+            // Cooldown complete, select new attack
+            SelectNewAttack();
+        }
+    }
+
+    private void HandleAttacking()
+    {
+        if (currentAttack == null)
         {
             if (showDebugLogs)
-                Debug.Log("ChickenCombatManagerV4: No available attackers, starting cooldown");
-            
+                Debug.LogWarning("ChickenCombatManagerV4: In attacking state but no attack selected");
             StartPatternCooldown();
             return;
         }
 
-        // Select a random attack that can be executed from loot table
-        BaseChickenAttackSO selectedAttack = null;
-        int attempts = 0;
-        int maxAttempts = 10;
-
-        while (selectedAttack == null && attempts < maxAttempts)
+        // Check if we need to wait before next attack
+        if (Time.time < nextAttackTime)
         {
-            var potentialAttack = attackLootTable.SelectRandomAttack();
-            if (potentialAttack != null && potentialAttack.CanExecute(availableChickens, this))
-            {
-                selectedAttack = potentialAttack;
-            }
-            attempts++;
+            return;
         }
 
-        if (selectedAttack != null)
+        // Check if we've reached the use limit
+        if (currentAttackUsesInternal >= currentAttack.UsesBeforePatternChange)
         {
-            // Successfully found an attack from loot table
+            string attackSource = usingFallbackAttack ? " (fallback)" : "";
+            if (showDebugLogs)
+                Debug.Log($"ChickenCombatManagerV4: Attack '{currentAttack.AttackName}'{attackSource} reached use limit ({currentAttackUsesInternal}/{currentAttack.UsesBeforePatternChange})");
+
+            StartPatternCooldown();
+            return;
+        }
+
+        // Execute attack
+        ExecuteCurrentAttack();
+    }
+
+    private void SelectNewAttack()
+    {
+        var availableChickens = GetAvailableAttackersInternal();
+        if (availableChickens.Count == 0)
+        {
+            if (showDebugLogs)
+                Debug.Log("ChickenCombatManagerV4: No available attackers, waiting...");
+
+            currentState = CombatState.WaitingForChickens;
+            return;
+        }
+
+        // Try to select a random attack from the loot table
+        BaseChickenAttackSO selectedAttack = SelectRandomAttack();
+
+        if (selectedAttack == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("ChickenCombatManagerV4: Failed to select attack from loot table, trying fallback");
+
+            UseFallbackAttack(availableChickens);
+            return;
+        }
+
+        // Check if the selected attack can be executed
+        if (selectedAttack.CanExecute(availableChickens, this))
+        {
             currentAttack = selectedAttack;
             currentAttackUsesInternal = 0;
             currentState = CombatState.Attacking;
             nextAttackTime = Time.time;
             usingFallbackAttack = false;
-            
+
             if (showDebugLogs)
-                Debug.Log($"ChickenCombatManagerV4: Selected attack '{currentAttack.AttackName}' (Type: {currentAttack.AttackType})");
+                Debug.Log($"ChickenCombatManagerV4: Selected attack '{currentAttack.AttackName}' (Type: {currentAttack.AttackType}, Uses: {currentAttack.UsesBeforePatternChange})");
         }
         else
         {
-            // No attack found from loot table, try fallback
+            // Selected attack can't be executed, try selecting another
             if (showDebugLogs)
-                Debug.LogWarning($"ChickenCombatManagerV4: Could not find executable attack after {maxAttempts} attempts, trying fallback attack");
-            
-            TryUseFallbackAttack();
+                Debug.Log($"ChickenCombatManagerV4: Selected attack '{selectedAttack.AttackName}' cannot be executed, trying another");
+
+            // Try to get a different attack type
+            BaseChickenAttackSO alternativeAttack = SelectRandomAttackExcluding(selectedAttack.AttackType);
+
+            if (alternativeAttack != null && alternativeAttack.CanExecute(availableChickens, this))
+            {
+                currentAttack = alternativeAttack;
+                currentAttackUsesInternal = 0;
+                currentState = CombatState.Attacking;
+                nextAttackTime = Time.time;
+                usingFallbackAttack = false;
+
+                if (showDebugLogs)
+                    Debug.Log($"ChickenCombatManagerV4: Selected alternative attack '{currentAttack.AttackName}' (Type: {currentAttack.AttackType})");
+            }
+            else
+            {
+                // No viable attacks from loot table, use fallback
+                if (showDebugLogs)
+                    Debug.Log("ChickenCombatManagerV4: No viable attacks from loot table, using fallback");
+
+                UseFallbackAttack(availableChickens);
+            }
         }
     }
 
-    private void TryUseFallbackAttack()
+    private void UseFallbackAttack(List<ChickenCombatBehaviorV2> availableChickens)
     {
         if (fallbackAttack == null)
         {
             if (showDebugLogs)
-                Debug.LogWarning("ChickenCombatManagerV4: No fallback attack assigned, starting cooldown");
-            
-            StartPatternCooldown();
-            return;
-        }
+                Debug.LogWarning("ChickenCombatManagerV4: No fallback attack available, starting cooldown");
 
-        var availableChickens = GetAvailableAttackersInternal();
-        if (availableChickens.Count == 0)
-        {
-            if (showDebugLogs)
-                Debug.Log("ChickenCombatManagerV4: No available attackers for fallback attack, starting cooldown");
-            
             StartPatternCooldown();
             return;
         }
@@ -474,7 +510,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             currentState = CombatState.Attacking;
             nextAttackTime = Time.time;
             usingFallbackAttack = true;
-            
+
             if (showDebugLogs)
                 Debug.Log($"ChickenCombatManagerV4: Using fallback attack '{currentAttack.AttackName}' (Type: {currentAttack.AttackType})");
         }
@@ -482,7 +518,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         {
             if (showDebugLogs)
                 Debug.LogWarning("ChickenCombatManagerV4: Even fallback attack cannot be executed, starting cooldown");
-            
+
             StartPatternCooldown();
         }
     }
@@ -505,7 +541,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
             string attackSource = usingFallbackAttack ? " (fallback)" : "";
             if (showDebugLogs)
                 Debug.Log($"ChickenCombatManagerV4: Attack '{currentAttack.AttackName}'{attackSource} can no longer be executed");
-            
+
             StartPatternCooldown();
             return;
         }
@@ -513,10 +549,10 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         // Execute the attack
         currentAttack.Execute(availableChickens, this);
         currentAttackUsesInternal++;
-        
+
         // Set next attack time
         nextAttackTime = Time.time + currentAttack.AttackInterval;
-        
+
         if (showDebugLogs)
         {
             string attackSource = usingFallbackAttack ? " (fallback)" : "";
@@ -532,7 +568,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         stateTimer = 0f;
         nextAttackTime = 0f;
         usingFallbackAttack = false;
-        
+
         if (showDebugLogs)
             Debug.Log("ChickenCombatManagerV4: Combat state reset to WaitingForChickens");
     }
@@ -623,7 +659,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         {
             if (showDebugLogs)
                 Debug.Log("ChickenCombatManagerV4: No chickens left, resetting combat state");
-            
+
             ResetCombatState();
         }
 
@@ -643,7 +679,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
     {
         UnregisterChickenFromCombat(chicken);
     }
-    
+
     void OnDrawGizmos()
     {
         if (!showAttackGizmos) return;
@@ -653,7 +689,7 @@ public class ChickenCombatManagerV4 : MonoBehaviour
         if (transform.position != Vector3.zero)
         {
             Gizmos.DrawWireCube(transform.position + Vector3.up * 3f, Vector3.one * 0.5f);
-            
+
             // Show fallback indicator if using fallback attack
             if (usingFallbackAttack && currentState == CombatState.Attacking)
             {
