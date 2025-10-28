@@ -17,6 +17,8 @@ GameObject:
   - component: {fileID: 5154057218994777319}
   - component: {fileID: 358721112883117677}
   - component: {fileID: 6926393142938224116}
+  - component: {fileID: 1024195333946909516}
+  - component: {fileID: 8057466123225318993}
   m_Layer: 0
   m_Name: PassthroughObstacleCasino
   m_TagString: PassageBuilding
@@ -362,8 +364,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 31.198456, y: 60.58909, z: 103.4}
-  m_Center: {x: 68.6, y: -25.29454, z: 12.439484}
+  m_Size: {x: 31.198456, y: 83.15788, z: 103.399994}
+  m_Center: {x: 68.6, y: -14.010138, z: 12.439484}
 --- !u!65 &6926393142938224116
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -385,6 +387,48 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 37.029037, y: 4.309845, z: 125.46918}
   m_Center: {x: 37.595345, y: -55.2, z: 0.20223999}
+--- !u!65 &1024195333946909516
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2976211574915033961}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 96.30757, y: 11.092957, z: 78.62036}
+  m_Center: {x: 37.32582, y: -58.57287, z: 9.618043}
+--- !u!65 &8057466123225318993
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2976211574915033961}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 57.82077, y: 30.591236, z: 47.948887}
+  m_Center: {x: -72.16174, y: 0.09781647, z: 9.323126}
 --- !u!1 &4462998550661863597
 GameObject:
   m_ObjectHideFlags: 0
@@ -516,6 +560,10 @@ PrefabInstance:
     - target: {fileID: 2294097459755188572, guid: bfde4d56eeb83774da090bad5eae96e0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3924262427431845772, guid: bfde4d56eeb83774da090bad5eae96e0, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

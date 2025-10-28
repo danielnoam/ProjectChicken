@@ -328,6 +328,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7515358271343329891}
   - component: {fileID: 5170202138966820100}
+  - component: {fileID: 1027747127385730958}
   - component: {fileID: 1410457196109467012}
   - component: {fileID: 5885621498339977978}
   m_Layer: 0
@@ -395,6 +396,25 @@ MonoBehaviour:
       BarrelClipping: 0.25
       Anamorphism: 0
   BlendHint: 0
+--- !u!114 &1027747127385730958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3786705891516202745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b617507da6d07e749b7efdb34e1173e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TrackerSettings:
+    BindingMode: 4
+    PositionDamping: {x: 0, y: 0, z: 0}
+    AngularDampingMode: 0
+    RotationDamping: {x: 1, y: 1, z: 1}
+    QuaternionDamping: 1
+  FollowOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &1410457196109467012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -617,7 +637,7 @@ MonoBehaviour:
     affectOnlyWhenPositive: 0
     positionRange: {x: 20, y: 10}
     positionThreshold: {x: 0, y: 0}
-    positionSmoothness: 2
+    positionSmoothness: 1
     invertPositionX: 0
     invertPositionY: 0
     enableRotation: 0
@@ -648,7 +668,8 @@ MonoBehaviour:
       range: 0
       threshold: 0.2
       invert: 0
-  changePositions: 1
+  changePositionsInIntro: 1
+  changePositionsInOutro: 1
   changePositionEvery: 1.5
   followCamera: {fileID: 5184551184866118152}
   introCamera: {fileID: 2581970083502225265}

@@ -16,6 +16,7 @@ MonoBehaviour:
   worldSpeed: 1
   isCheckpoint: 1
   allowSkip: 0
+  playRandomMessages: 0
   startRadioMessage: {fileID: 0}
   startWarning: {fileID: 11400000, guid: 573a8159d776e284e876d94e4b93f7f2, type: 2}
   events:
@@ -40,14 +41,9 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyWave:
-    serializedKvps:
-    - Key: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
-      Value: 1
-      index: 0
-      isKeyRepeated: 0
-      isKeyNull: 0
-    dividerPos: 0.33
+  enemyAmount: 4
+  enemyTypes:
+    internalItems: []
   formationStageData:
     formationType: 0
     formationCount: 1
@@ -57,9 +53,9 @@ MonoBehaviour:
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
+  waveAttackTable: {fileID: 0}
   requireAllTasks: 1
   tasks:
-  - rid: 736433193358459007
   - rid: 736433193358459014
   showHUD: 1
   showScore: 1
@@ -70,21 +66,15 @@ MonoBehaviour:
   allowPlayerAiming: 1
   allowPlayerShooting: 1
   allowPlayerHeatSystem: 1
+  followCameraOffset: {x: 0, y: 0, z: 0}
   references:
     version: 2
     RefIds:
-    - rid: 736433193358459007
-      type: {class: BreakObstaclesTask, ns: , asm: Assembly-CSharp}
-      data:
-        description: 
-        isCompleted: 0
-        allowOnlyOne: 1
-        targetAmount: 5
     - rid: 736433193358459014
       type: {class: PassThroughObstaclesTask, ns: , asm: Assembly-CSharp}
       data:
         description: 
-        isCompleted: 1
+        isCompleted: 0
         allowOnlyOne: 1
         targetAmount: 25
     - rid: 9145653179962621952

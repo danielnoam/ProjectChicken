@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: 6.1_Stage_Outro
   m_EditorClassIdentifier: 
   stageTitle: 
-  worldSpeed: 1
+  worldSpeed: 2
   isCheckpoint: 0
   allowSkip: 0
+  playRandomMessages: 0
   startRadioMessage: {fileID: 0}
   startWarning: {fileID: 0}
   events: []
@@ -24,7 +25,7 @@ MonoBehaviour:
   delayBeforeNextStage: 1
   outroMode: 1
   nextLevel:
-    sceneAsset: {fileID: 102900000, guid: b67ed62faf14ba945924d4f3421beea0, type: 3}
+    sceneAsset: {fileID: 0}
     sceneName: Level2
     scenePath: Assets/1_Scenes/GameScenes/Level2.unity
   allowToCloseStore: 1
@@ -51,6 +52,7 @@ MonoBehaviour:
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
+  waveAttackTable: {fileID: 0}
   requireAllTasks: 1
   tasks: []
   showHUD: 0
@@ -62,6 +64,7 @@ MonoBehaviour:
   allowPlayerAiming: 0
   allowPlayerShooting: 0
   allowPlayerHeatSystem: 0
+  followCameraOffset: {x: 0, y: 0, z: 0}
   references:
     version: 2
     RefIds: []

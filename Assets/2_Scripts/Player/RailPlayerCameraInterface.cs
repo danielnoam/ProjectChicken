@@ -15,6 +15,7 @@ public class RailPlayerCameraInterface : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform cameraPositions;
     [SerializeField] private Transform followCameraTarget;
+    [SerializeField] private Transform outroCameraTarget;
     [SerializeField] private Transform storeCameraTarget;
     [SerializeField] private Transform storeCameraLookAtTarget;
     [SerializeField, Self, HideInInspector] private RailPlayer player;
@@ -83,6 +84,11 @@ public class RailPlayerCameraInterface : MonoBehaviour
     public Transform GetFollowCameraTarget()
     {
         return followCameraTarget ? followCameraTarget : transform;
+    }
+    
+    public Transform GetOutroCameraTarget()
+    {
+        return outroCameraTarget ? outroCameraTarget : transform;
     }
     
     public Transform GetStoreCameraTarget()

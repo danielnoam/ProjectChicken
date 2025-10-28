@@ -20,16 +20,6 @@ public class OutroScreen : NavigatableUIScreen
     public event Action OnScreenClosed;
     
     
-    protected override void OnValidate()
-    {
-        base.OnValidate();
-
-        if (levelManager)
-        {
-            transform.position = levelManager.PlayerPosition;
-        }
-    }
-
     private void Awake()
     {
         Hide(false);

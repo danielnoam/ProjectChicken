@@ -25,12 +25,18 @@ public class CameraManager : MonoBehaviour
     [SerializeField] private CameraSettings playerInfluenceSettings = new CameraSettings();
     [EndFoldout]
     
-    [Foldout("Intro Camera Settings")]
+    [Foldout("Intro or Outro Camera Settings")]
     [Tooltip("Should the intro camera automatically change positions during intro sequences?")]
-    [SerializeField] private bool changePositions = true;
+    [SerializeField] private bool changePositionsInIntro = true;
+    [Tooltip("Should the outro camera automatically change positions during outro sequences?")]
+    [SerializeField] private bool changePositionsInOutro = true;
     [Tooltip("Time in seconds between position changes during intro sequences")]
     [SerializeField, Min(1f)] private float changePositionEvery = 1.5f;
     [EndFoldout]
+    
+
+
+
 
     [Header("References")]
     [SerializeField, Child(Flag.Editable)] private CinemachineCamera followCamera;
@@ -132,6 +138,7 @@ public class CameraManager : MonoBehaviour
         storeCamera.Target.LookAtTarget = player.CameraInterface.GetStoreCameraLookAtTarget();
         introCamera.Target.TrackingTarget = player.CameraInterface.GetRandomCameraPosition(); 
         introCamera.Target.LookAtTarget = player.transform;
+        outroCamera.Target.TrackingTarget = player.CameraInterface.GetOutroCameraTarget();
         outroCamera.Target.LookAtTarget = player.transform;
     }
 
@@ -159,8 +166,7 @@ public class CameraManager : MonoBehaviour
             _currentRotationOffset = Vector2.zero;
         }
 
-        if (_changePositionCoroutine != null) 
-            StopCoroutine(_changePositionCoroutine);
+        if (_changePositionCoroutine != null) StopCoroutine(_changePositionCoroutine);
         
         // Reset all camera priorities
         followCamera.Priority = 0;
@@ -171,9 +177,14 @@ public class CameraManager : MonoBehaviour
         // Set active camera priority
         _activeCamera.Priority = 10;
 
-        if (_activeCamera == introCamera && changePositions)
+        if (changePositionsInIntro && _activeCamera == introCamera)
         {
             _changePositionCoroutine = StartCoroutine(ChangeCameraPosition(introCamera));
+        }
+        
+        if (changePositionsInOutro && _activeCamera == outroCamera)
+        {
+            _changePositionCoroutine = StartCoroutine(ChangeCameraPosition(outroCamera));
         }
     }
     
@@ -185,7 +196,7 @@ public class CameraManager : MonoBehaviour
         
         while (true)
         {
-            if (!cam.IsLive || !changePositions) yield break;
+            if (!cam.IsLive || !changePositionsInIntro) yield break;
 
             var newTarget = player.CameraInterface.GetRandomCameraPosition();
             if (newTarget == cam.Target.TrackingTarget) 
