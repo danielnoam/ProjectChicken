@@ -727,23 +727,22 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.F3))
         {
-            if (weapons.Count > 3)
-            {
-                var weapon = weapons[3];
-                if (weapon.CurrentWeaponData)
-                {
-                    SetActiveWeapon(weapon);
-                }
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.F4))
-        {
-            // Switch back to start weapon (weapons[0])
             if (weapons.Count > 0)
             {
                 SetActiveWeapon(weapons[0]);
             }
         }
+        // else if (Input.GetKeyDown(KeyCode.F4))
+        // {
+        //     if (weapons.Count > 3)
+        //     {
+        //         var weapon = weapons[3];
+        //         if (weapon.CurrentWeaponData)
+        //         {
+        //             SetActiveWeapon(weapon);
+        //         }
+        //     }
+        // }
         else if (Input.GetKeyDown(KeyCode.F5))
         {
             UpgradeCurrentWeapon();

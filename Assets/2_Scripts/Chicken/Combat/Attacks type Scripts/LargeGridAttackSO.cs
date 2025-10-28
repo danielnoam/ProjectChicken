@@ -21,7 +21,7 @@ public class LargeGridAttackSO : BaseChickenAttackSO
     [SerializeField, Range(2, 6)] private int gridSize = 4; // NxN grid
     
     [Tooltip("The spacing between each egg in the grid")]
-    [SerializeField, Range(0.3f, 2f)] private float gridSpacing = 0.8f; // Distance between grid points
+    [SerializeField, Range(0.3f, 6f)] private float gridSpacing = 0.8f; // Distance between grid points
     
     [Header("Targeting Settings")]
     [Tooltip("Offset the entire grid from the player position")]

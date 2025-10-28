@@ -232,6 +232,7 @@ public class RadioManager : MonoBehaviour
         OnMessageStarted?.Invoke(message);
     }
     
+    [Button]
     private void ClearMessages()
     {
         _messages.Clear();

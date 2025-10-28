@@ -59,7 +59,7 @@ MonoBehaviour:
     formationType: 0
     formationCount: 3
     numberOfSlots: 9
-    spacing: 10
+    spacing: 7
     circleRadius: 3
     useRandomPlacement: 1
     formationSpacing: 8
@@ -76,6 +76,7 @@ MonoBehaviour:
   allowPlayerAiming: 1
   allowPlayerShooting: 1
   allowPlayerHeatSystem: 1
+  followCameraOffset: {x: 0, y: 0, z: 0}
   references:
     version: 2
     RefIds: []

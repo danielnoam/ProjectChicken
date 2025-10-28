@@ -40,7 +40,7 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyAmount: 9
+  enemyAmount: 8
   enemyTypes:
     internalItems:
     - item: {fileID: 743128004572040203, guid: 6342e840a045a8a4d9207954c274bb0a, type: 3}
@@ -55,7 +55,7 @@ MonoBehaviour:
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
-  waveAttackTable: {fileID: 11400000, guid: 72746f0027cd99846831e5f0e88b8586, type: 2}
+  waveAttackTable: {fileID: 11400000, guid: f1fd04328581fc241ad8bf2725999ff1, type: 2}
   requireAllTasks: 1
   tasks: []
   showHUD: 1
@@ -67,6 +67,7 @@ MonoBehaviour:
   allowPlayerAiming: 1
   allowPlayerShooting: 1
   allowPlayerHeatSystem: 1
+  followCameraOffset: {x: 0, y: 0, z: 0}
   references:
     version: 2
     RefIds: []

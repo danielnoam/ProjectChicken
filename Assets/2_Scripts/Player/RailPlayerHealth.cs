@@ -146,7 +146,7 @@ public class RailPlayerHealth : MonoBehaviour
     
     public void TakeDamage(float damage, float iframeMultiplier = 1f)
     {
-        if (damage <= 0 || !IsAlive() || player.Movement.IsDodging) return;
+        if (damage <= 0 || !IsAlive()) return;
         
         StopShieldRegen();
         

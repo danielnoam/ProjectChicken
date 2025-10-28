@@ -22,6 +22,7 @@ public class InputTab : MonoBehaviour
     [SerializeField] private TextMeshProUGUI aimSensitivityText;
     [SerializeField] private Toggle invertY;
     [SerializeField] private Toggle invertX;
+    [SerializeField] private Toggle doubleTapDodge;
 
     private ControlSchemeSettings _controlSchemeSettings;
 
@@ -61,6 +62,13 @@ public class InputTab : MonoBehaviour
         {
             invertX.isOn = _controlSchemeSettings.invertX;
         }
+
+        if (doubleTapDodge)
+        {
+            
+            doubleTapDodge.isOn = _controlSchemeSettings.doubleTapToDodge;
+        }
+        
     }
 
     private void SetupEventListeners()
@@ -79,6 +87,13 @@ public class InputTab : MonoBehaviour
         {
             invertX.onValueChanged.AddListener(SetInvertX);
         }
+        
+        
+        if (doubleTapDodge)
+        {
+            doubleTapDodge.onValueChanged.AddListener(SetDoubleTapDodge);
+        }
+        
     }
     
     private void SetAimSensitivity(float value)
@@ -97,6 +112,13 @@ public class InputTab : MonoBehaviour
     private void SetInvertX(bool value)
     {
         _controlSchemeSettings.invertX = value;
+        UpdateControlScheme();
+    }
+    
+    
+    private void SetDoubleTapDodge(bool value)
+    {
+        _controlSchemeSettings.doubleTapToDodge = value;
         UpdateControlScheme();
     }
 

@@ -4644,7 +4644,7 @@ Animator:
   m_GameObject: {fileID: 430819445}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5d20c75ec6490874bab6f8ecebc8d3ef, type: 2}
+  m_Controller: {fileID: 9100000, guid: f2594be0267faa741813d0d543723979, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -8524,7 +8524,7 @@ Animator:
   m_GameObject: {fileID: 997873988}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5d20c75ec6490874bab6f8ecebc8d3ef, type: 2}
+  m_Controller: {fileID: 9100000, guid: f2594be0267faa741813d0d543723979, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -8579,7 +8579,7 @@ Animator:
   m_GameObject: {fileID: 1007053968}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5d20c75ec6490874bab6f8ecebc8d3ef, type: 2}
+  m_Controller: {fileID: 9100000, guid: d1dcda13721c7004baeac5251b0130d1, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -9951,10 +9951,10 @@ MonoBehaviour:
     baseSpeed: {x: 0, y: 0.49}
     maxSpeed: {x: 0, y: 1}
     currentSpeed: {x: 0, y: 0}
-  speedUpTweenDuration: 5
-  speedUpEase: 4
-  slowDownTweenDuration: 0.1
-  slowDownEase: 18
+  speedUpTweenDuration: 3
+  speedUpEase: 2
+  slowDownTweenDuration: 1
+  slowDownEase: 15
 --- !u!114 &1154851576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10668,7 +10668,7 @@ Animator:
   m_GameObject: {fileID: 1221722896}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5d20c75ec6490874bab6f8ecebc8d3ef, type: 2}
+  m_Controller: {fileID: 9100000, guid: b115c0380450a1f4da28546b4a76329b, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -11194,7 +11194,7 @@ Animator:
   m_GameObject: {fileID: 1256752037}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5d20c75ec6490874bab6f8ecebc8d3ef, type: 2}
+  m_Controller: {fileID: 9100000, guid: b115c0380450a1f4da28546b4a76329b, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -15779,7 +15779,7 @@ Animator:
   m_GameObject: {fileID: 1674677591}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5d20c75ec6490874bab6f8ecebc8d3ef, type: 2}
+  m_Controller: {fileID: 9100000, guid: d1dcda13721c7004baeac5251b0130d1, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -16979,7 +16979,7 @@ Animator:
   m_GameObject: {fileID: 1848553269}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5d20c75ec6490874bab6f8ecebc8d3ef, type: 2}
+  m_Controller: {fileID: 9100000, guid: d1dcda13721c7004baeac5251b0130d1, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -18624,7 +18624,7 @@ Animator:
   m_GameObject: {fileID: 2009449407}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5d20c75ec6490874bab6f8ecebc8d3ef, type: 2}
+  m_Controller: {fileID: 9100000, guid: b115c0380450a1f4da28546b4a76329b, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -18851,7 +18851,7 @@ Animator:
   m_GameObject: {fileID: 2080878361}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5d20c75ec6490874bab6f8ecebc8d3ef, type: 2}
+  m_Controller: {fileID: 9100000, guid: f2594be0267faa741813d0d543723979, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -19670,6 +19670,22 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4794900820736829913, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4794900820736829913, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4794900820736829913, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4794900820736829913, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4842860290201402508, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -20052,7 +20068,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6841323728093894573, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.0005493164
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6902833370573813447, guid: afe469e1c1f616540bf7f8207a4bcaf4, type: 3}
       propertyPath: m_AnchorMax.y

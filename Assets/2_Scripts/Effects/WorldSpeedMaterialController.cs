@@ -35,6 +35,7 @@ public class WorldSpeedMaterialController : MonoBehaviour
     private static readonly int Speed = Shader.PropertyToID("_Speed");
     private Tween _speedTween;
     private float _lastWorldSpeed = 1f;
+    private float _worldSpeedMultiplier = 1f;
 
     private void Awake()
     {
@@ -85,53 +86,44 @@ public class WorldSpeedMaterialController : MonoBehaviour
     private void TweenMaterialSpeeds(SOLevelStage stage)
     {
         _speedTween.Stop();
-        
+    
         float targetWorldSpeed = stage.WorldSpeed;
         bool isSlowingDown = targetWorldSpeed < _lastWorldSpeed;
+    
+        float duration = isSlowingDown ? slowDownTweenDuration : speedUpTweenDuration;
+        Ease ease = isSlowingDown ? slowDownEase : speedUpEase;
+        float delay = isSlowingDown ? 0f : LevelManager.WorldSpeedChangeDuration;
+    
+        _speedTween = Tween.Custom(_worldSpeedMultiplier, targetWorldSpeed, duration, 
+            ease: ease,
+            startDelay: delay,
+            onValueChange: value => {
+                _worldSpeedMultiplier = value;
+                UpdateMaterialSpeeds(value);
+            });
+    
         _lastWorldSpeed = targetWorldSpeed;
-        
-        // Store starting speeds
-        foreach (var settings in materialSettings)
-        {
-            if (settings.material)
-            {
-                settings.currentSpeed = settings.material.GetVector(Speed);
-            }
-        }
-        
-        if (isSlowingDown)
-        {
-            _speedTween = Tween.Custom(0f, 1f, slowDownTweenDuration, ease: slowDownEase, onValueChange: t => UpdateMaterialSpeedsLerped(t, targetWorldSpeed));
-        }
-        else
-        {
-            _speedTween = Tween.Custom(0f, 1f, speedUpTweenDuration, ease: speedUpEase, startDelay: LevelManager.WorldSpeedChangeDuration, onValueChange: t => UpdateMaterialSpeedsLerped(t, targetWorldSpeed));
-        }
     }
 
-    private void UpdateMaterialSpeedsLerped(float t, float targetWorldSpeed)
+    private void UpdateMaterialSpeeds(float worldSpeedMultiplier)
     {
         foreach (var settings in materialSettings)
         {
             if (settings.material)
             {
-                Vector2 targetSpeed = settings.baseSpeed * targetWorldSpeed;
+                Vector2 targetSpeed = settings.baseSpeed * worldSpeedMultiplier;
             
-                // Clamp target X
-                if (settings.baseSpeed.x < 0)
-                    targetSpeed.x = Mathf.Clamp(targetSpeed.x, settings.maxSpeed.x, 0f);
-                else
-                    targetSpeed.x = Mathf.Clamp(targetSpeed.x, 0f, settings.maxSpeed.x);
+                // Apply clamping
+                targetSpeed.x = settings.baseSpeed.x < 0 
+                    ? Mathf.Clamp(targetSpeed.x, settings.maxSpeed.x, 0f)
+                    : Mathf.Clamp(targetSpeed.x, 0f, settings.maxSpeed.x);
             
-                // Clamp target Y
-                if (settings.baseSpeed.y < 0)
-                    targetSpeed.y = Mathf.Clamp(targetSpeed.y, settings.maxSpeed.y, 0f);
-                else
-                    targetSpeed.y = Mathf.Clamp(targetSpeed.y, 0f, settings.maxSpeed.y);
-                
-    
-                Vector2 lerpedSpeed = Vector2.Lerp(settings.currentSpeed, targetSpeed, t);
-                settings.material.SetVector(Speed, lerpedSpeed);
+                targetSpeed.y = settings.baseSpeed.y < 0 
+                    ? Mathf.Clamp(targetSpeed.y, settings.maxSpeed.y, 0f)
+                    : Mathf.Clamp(targetSpeed.y, 0f, settings.maxSpeed.y);
+            
+                settings.material.SetVector(Speed, targetSpeed);
+                settings.currentSpeed = targetSpeed;
             }
         }
     }

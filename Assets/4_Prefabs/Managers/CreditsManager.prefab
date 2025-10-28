@@ -1223,7 +1223,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.4
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1809,6 +1809,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f135d58fe93e4eb49ca052133bcf3da0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioSourceVolumeTweenDuration: 3
   hideCursor: 1
   targetScene:
     sceneAsset: {fileID: 102900000, guid: 81ac6686a6faf384a8be7373c1b1ef15, type: 3}

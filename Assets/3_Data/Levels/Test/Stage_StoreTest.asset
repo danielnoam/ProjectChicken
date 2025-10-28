@@ -30,21 +30,7 @@ MonoBehaviour:
     scenePath: 
   allowToCloseStore: 1
   upgradesPool:
-  - {fileID: 11400000, guid: afdb479ba8d405b4d9f3b4f351e6f278, type: 2}
-  - {fileID: 11400000, guid: 3b6370a96f1e8d04fae2fe1fdcc5614e, type: 2}
-  - {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
-  - {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
-  - {fileID: 11400000, guid: 12cc92c87d933784fa7101edef57d18c, type: 2}
-  - {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
-  - {fileID: 11400000, guid: edf5b49190bc5f14cb523dda726bc824, type: 2}
   - {fileID: 11400000, guid: 259517cbb337a8243a3e713a312b7abd, type: 2}
-  - {fileID: 11400000, guid: 51ca2963f2cea7943a3a350a00b0dee5, type: 2}
-  - {fileID: 11400000, guid: 2c87496b851da1c4588f2b1c6b034814, type: 2}
-  - {fileID: 11400000, guid: e1d77b5c74f521645983a6bca8641d0b, type: 2}
-  - {fileID: 11400000, guid: caa3ae67362bd314399b4bd2ba6e4eef, type: 2}
-  - {fileID: 11400000, guid: ab973da60211b7147bb6d445426db471, type: 2}
-  - {fileID: 11400000, guid: 85cde709a65e11a4285e307636799abb, type: 2}
-  - {fileID: 11400000, guid: 5fd2ebb25c87fa547bc5c087a3dfb75d, type: 2}
   poolRarityWeights:
     commonWeight: 100
     uncommonWeight: 100
@@ -78,6 +64,7 @@ MonoBehaviour:
   allowPlayerAiming: 0
   allowPlayerShooting: 0
   allowPlayerHeatSystem: 0
+  followCameraOffset: {x: 0, y: 0, z: 0}
   references:
     version: 2
     RefIds: []
