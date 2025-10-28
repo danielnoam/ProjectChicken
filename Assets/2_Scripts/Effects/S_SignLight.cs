@@ -45,7 +45,5 @@ public class S_SignLight : MonoBehaviour
                 arrowLights[i].Play();
             }
         }
-        // Debug.Log("Count:"+sLightLocations.Count);
-        // Debug.Log("Index:" + currentLocationIndex);
     }
 }
