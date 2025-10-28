@@ -70,8 +70,15 @@ public class SOLevelStage : ScriptableObject
     [SerializeField] private bool allowPlayerHeatSystem = true;
     
     
+    [ShowIf("IsGameplayStage")]
+    [Header("Camera")]
+    [SerializeField] private Vector3 followCameraOffset = Vector3.zero;
+    [EndIf]
+    
+    
     public bool IsTimeBasedStage => stageType is StageType.Delay or StageType.Intro or StageType.Outro;
     public bool IsEnemyOrTaskStage => stageType is StageType.EnemyWave or StageType.Task;
+    public bool IsGameplayStage => stageType is StageType.EnemyWave or StageType.Task or StageType.Delay;
     public bool ShowNextLevel => outroMode is OutroMode.LoadNextLevel or OutroMode.ShowOutroMenu;
     
     
@@ -80,6 +87,7 @@ public class SOLevelStage : ScriptableObject
     public float WorldSpeed => worldSpeed;
     public float StageDuration => stageDuration;
     public string StageTitle => stageTitle;
+    public bool AllowSkip => allowSkip;
     public SORadioMessage StartRadioMessage => startRadioMessage;
     public SOWarning StartWarning => startWarning;
     public StageEvent[] Events => events;
@@ -112,7 +120,9 @@ public class SOLevelStage : ScriptableObject
     public bool AllowPlayerDodge => allowPlayerDodge;
     public bool AllowPlayerShooting => allowPlayerShooting;
     public bool AllowPlayerHeatSystem => allowPlayerHeatSystem;
-    public bool AllowSkip => allowSkip;
+ 
+    
+    public Vector3 FollowCameraOffset => IsGameplayStage ? followCameraOffset : Vector3.zero;
     
     
     public event Action OnStageStarted;

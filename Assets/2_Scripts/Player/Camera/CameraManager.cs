@@ -127,10 +127,10 @@ public class CameraManager : MonoBehaviour
     
     private void SetupCameraTargets()
     {
-        followCamera.Target.TrackingTarget = player.GetFollowCameraTarget();
-        storeCamera.Target.TrackingTarget = player.GetStoreCameraTarget();
-        storeCamera.Target.LookAtTarget = player.GetStoreCameraLookAtTarget();
-        introCamera.Target.TrackingTarget = player.GetRandomCameraPosition(); 
+        followCamera.Target.TrackingTarget = player.CameraInterface.GetFollowCameraTarget();
+        storeCamera.Target.TrackingTarget = player.CameraInterface.GetStoreCameraTarget();
+        storeCamera.Target.LookAtTarget = player.CameraInterface.GetStoreCameraLookAtTarget();
+        introCamera.Target.TrackingTarget = player.CameraInterface.GetRandomCameraPosition(); 
         introCamera.Target.LookAtTarget = player.transform;
         outroCamera.Target.LookAtTarget = player.transform;
     }
@@ -187,9 +187,9 @@ public class CameraManager : MonoBehaviour
         {
             if (!cam.IsLive || !changePositions) yield break;
 
-            var newTarget = player.GetRandomCameraPosition();
+            var newTarget = player.CameraInterface.GetRandomCameraPosition();
             if (newTarget == cam.Target.TrackingTarget) 
-                newTarget = player.GetRandomCameraPosition();
+                newTarget = player.CameraInterface.GetRandomCameraPosition();
             
             cam.Target.TrackingTarget = newTarget;
             

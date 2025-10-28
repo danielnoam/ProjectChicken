@@ -17,7 +17,8 @@ namespace DNExtensions
         [SerializeField] private List<ObjectPool> pools = new List<ObjectPool>();
 
         private bool _isFirstScene;
-
+        private Transform _destroyOnLoadParent;
+        private Transform _dontDestroyOnLoadParent;
 
         private void OnValidate()
         {
@@ -38,6 +39,7 @@ namespace DNExtensions
             else
             {
                 Destroy(gameObject);
+                return;
             }
             
 
@@ -88,10 +90,20 @@ namespace DNExtensions
                     poolsToReinitialize.Add(pool);
                 }
             }
+    
 
+            if (Instance._destroyOnLoadParent)
+            {
+                Destroy(Instance._destroyOnLoadParent.gameObject);
+                Instance._destroyOnLoadParent = null;
+            }
+
+            Instance._destroyOnLoadParent = new GameObject("ObjectPools (Destroy On Load)").transform;
+            
             foreach (var pool in poolsToReinitialize)
             {
                 var poolHolder = new GameObject() { name = $"{pool.poolName} Holder" };
+                poolHolder.transform.SetParent(Instance._destroyOnLoadParent);
                 pool.SetUpPool(poolHolder.transform);
             }
         }
@@ -99,10 +111,34 @@ namespace DNExtensions
 
         private void SetUpPools()
         {
+            
+            // Create DontDestroyOnLoad parent
+            if (!Instance._dontDestroyOnLoadParent)
+            {
+                Instance._dontDestroyOnLoadParent = new GameObject("ObjectPools (DontDestroyOnLoad)").transform;
+                DontDestroyOnLoad(Instance._dontDestroyOnLoadParent.gameObject);
+            }
+            
+            // Create DestroyOnLoad parent
+            if (!Instance._destroyOnLoadParent)
+            {
+                Instance._destroyOnLoadParent = new GameObject("ObjectPools (Destroy On Load)").transform;
+            }
+            
             foreach (var pool in pools)
             {
                 var poolHolder = new GameObject() { name = $"{pool.poolName} Holder" };
-                if (pool.dontDestroyOnLoad) poolHolder.transform.SetParent(transform);
+                
+                // Parent based on pool settings
+                if (pool.dontDestroyOnLoad)
+                {
+                    poolHolder.transform.SetParent(_dontDestroyOnLoadParent);
+                }
+                else
+                {
+                    poolHolder.transform.SetParent(_destroyOnLoadParent);
+                }
+                
                 pool.SetUpPool(poolHolder.transform);
             }
         }

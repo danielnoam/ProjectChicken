@@ -914,6 +914,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 6173558424110252208}
   ballEffect: {fileID: 3571243529723569427}
+  beamScaleRange:
+    minValue: 7
+    maxValue: 20
 --- !u!1 &1513579192478133159
 GameObject:
   m_ObjectHideFlags: 0
@@ -2512,6 +2515,7 @@ GameObject:
   - component: {fileID: 7233717465822237952}
   - component: {fileID: 890854243081262160}
   - component: {fileID: 3423310960035294283}
+  - component: {fileID: 1220825094101395966}
   m_Layer: 6
   m_Name: RailPlayer
   m_TagString: Player
@@ -2691,19 +2695,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47818a8b6ad449f448a1ebb60dee421a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraPositions: {fileID: 578094112693646351}
-  followCameraTarget: {fileID: 7239159908269156373}
-  storeCameraTarget: {fileID: 8469364165154082126}
-  storeCameraLookAtTarget: {fileID: 5369474610807630919}
-  textFollowPosition: {fileID: 0}
   playerStats: {fileID: 11400000, guid: 3d2d762be9ed8b34792ed50ffa71ff2d, type: 2}
   levelManager: {fileID: 0}
+  textFollowPosition: {fileID: 0}
   input: {fileID: 8438971806570489096}
   aiming: {fileID: 890854243081262160}
   movement: {fileID: 7233717465822237952}
   weaponSystem: {fileID: 3423310960035294283}
   resourceCollector: {fileID: 4566949368712534308}
   health: {fileID: 5634933364791774554}
+  cameraInterface: {fileID: 1220825094101395966}
 --- !u!114 &8438971806570489096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3372,6 +3373,25 @@ MonoBehaviour:
   playerMovement: {fileID: 7233717465822237952}
   controllerVibrationSource: {fileID: 284695675551663708}
   impulseSource: {fileID: 3917683547680578920}
+--- !u!114 &1220825094101395966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042140183398147502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88b1d870e78144ad9835cbc3334d48e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offsetChangeDuration: 1
+  offsetChangeEase: 4
+  cameraPositions: {fileID: 578094112693646351}
+  followCameraTarget: {fileID: 7239159908269156373}
+  storeCameraTarget: {fileID: 8469364165154082126}
+  storeCameraLookAtTarget: {fileID: 5369474610807630919}
+  player: {fileID: 2233603387570671912}
 --- !u!1 &5067537054520940825
 GameObject:
   m_ObjectHideFlags: 0
@@ -4189,6 +4209,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 6173558424110252208}
   ballEffect: {fileID: 0}
+  beamScaleRange:
+    minValue: 7
+    maxValue: 20
 --- !u!1 &6271107796300875885
 GameObject:
   m_ObjectHideFlags: 0
@@ -5592,6 +5615,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 6173558424110252208}
   ballEffect: {fileID: 0}
+  beamScaleRange:
+    minValue: 7
+    maxValue: 20
 --- !u!1 &8399613674000869028
 GameObject:
   m_ObjectHideFlags: 0

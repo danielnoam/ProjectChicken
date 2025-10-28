@@ -6,6 +6,7 @@ public class WeaponGfx : MonoBehaviour
 {
 
     protected RailPlayer player;
+    protected bool isShowing;
     private Sequence _gfxSequence;
 
 
@@ -18,6 +19,8 @@ public class WeaponGfx : MonoBehaviour
     {
         if (transform.localScale == Vector3.one) return;
         if (_gfxSequence.isAlive) _gfxSequence.Stop();
+
+        isShowing = true;
         
         if (!animate)
         {
@@ -27,6 +30,8 @@ public class WeaponGfx : MonoBehaviour
         
         _gfxSequence = Sequence.Create()
             .Group(Tween.Scale(transform, Vector3.zero ,Vector3.one, 0.2f));
+        
+        
     }
     
     
@@ -34,6 +39,8 @@ public class WeaponGfx : MonoBehaviour
     {
         if (transform.localScale == Vector3.zero) return;
         if (_gfxSequence.isAlive) _gfxSequence.Stop();
+
+        isShowing = false;
         
         StopAnimation();
         

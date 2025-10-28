@@ -11,25 +11,20 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(RailPlayerWeaponSystem))]
 [RequireComponent(typeof(RailPlayerResourceCollector))]
 [RequireComponent(typeof(RailPlayerHealth))]
+[RequireComponent(typeof(RailPlayerCameraInterface))]
 public class RailPlayer : MonoBehaviour
 {
-
-    [Header("Positions")]
-    [SerializeField] private Transform cameraPositions;
-    [SerializeField] private Transform followCameraTarget;
-    [SerializeField] private Transform storeCameraTarget;
-    [SerializeField] private Transform storeCameraLookAtTarget;
-    [SerializeField] private Transform textFollowPosition;
-    
     [Header("References")]
     [SerializeField] private SOPlayerStats playerStats;
     [SerializeField] private LevelManager levelManager;
+    [SerializeField] private Transform textFollowPosition;
     [SerializeField, Self, HideInInspector] private RailPlayerInput input;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming aiming;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement movement;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem weaponSystem;
     [SerializeField, Self, HideInInspector] private RailPlayerResourceCollector resourceCollector;
     [SerializeField, Self, HideInInspector] private RailPlayerHealth health;
+    [SerializeField, Self, HideInInspector] private RailPlayerCameraInterface cameraInterface;
 
 
     
@@ -40,10 +35,11 @@ public class RailPlayer : MonoBehaviour
     public RailPlayerMovement Movement => movement;
     public RailPlayerResourceCollector ResourceCollector => resourceCollector;
     public RailPlayerHealth Health => health;
+    public RailPlayerCameraInterface CameraInterface => cameraInterface;
     public LevelManager LevelManager => levelManager;
     public SOPlayerStats PlayerStats => playerStats;
     
-    
+
     
     
     private void OnValidate()
@@ -147,6 +143,10 @@ public class RailPlayer : MonoBehaviour
     }
     
 
+    public Transform GetTextFollowPosition()
+    {
+        return textFollowPosition ? textFollowPosition : transform;
+    }
     
     
     #region Upgrades ---------------------------------------------------------------------------------
@@ -221,37 +221,4 @@ public class RailPlayer : MonoBehaviour
     
     #endregion Upgrades ---------------------------------------------------------------------------------
     
-    
-
-    #region  Helpers ---------------------------------------------------------------------------------
-    
-    public Transform GetFollowCameraTarget()
-    {
-        return followCameraTarget ? followCameraTarget : transform;
-    }
-    
-    public Transform GetStoreCameraTarget()
-    {
-        return storeCameraTarget ? storeCameraTarget : transform;
-    }
-    
-    public Transform GetStoreCameraLookAtTarget()
-    {
-        return storeCameraLookAtTarget ? storeCameraLookAtTarget : transform;
-    }
-
-    public Transform GetTextFollowPosition()
-    {
-        return textFollowPosition ? textFollowPosition : transform;
-    }
-    
-    public Transform GetRandomCameraPosition()
-    {
-        if (!cameraPositions) return transform;
-        
-        int randomIndex = UnityEngine.Random.Range(0, cameraPositions.childCount);
-        return cameraPositions.GetChild(randomIndex);
-    }
-    
-    #endregion Helpers ---------------------------------------------------------------------------------
 }

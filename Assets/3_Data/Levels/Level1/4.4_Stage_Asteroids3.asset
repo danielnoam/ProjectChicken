@@ -16,6 +16,7 @@ MonoBehaviour:
   worldSpeed: 1
   isCheckpoint: 0
   allowSkip: 0
+  playRandomMessages: 0
   startRadioMessage: {fileID: 0}
   startWarning: {fileID: 0}
   events:
@@ -53,6 +54,7 @@ MonoBehaviour:
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
+  waveAttackTable: {fileID: 0}
   requireAllTasks: 1
   tasks:
   - rid: -2
@@ -65,6 +67,7 @@ MonoBehaviour:
   allowPlayerAiming: 1
   allowPlayerShooting: 1
   allowPlayerHeatSystem: 1
+  followCameraOffset: {x: 0, y: 0, z: -15}
   references:
     version: 2
     RefIds:

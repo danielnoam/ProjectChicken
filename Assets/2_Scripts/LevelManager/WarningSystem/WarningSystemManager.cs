@@ -37,6 +37,7 @@ public class WarningSystemManager : MonoBehaviour
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
         else
         {
@@ -140,13 +141,16 @@ public class WarningSystemManager : MonoBehaviour
     private void ClearWarnings()
     {
         _warnings.Clear();
-        _currentWarning = null;
-        _warningPlaying = false;
         
         if (_currentWarning)
         {
             warningUI.HideWarning(_currentWarning);
         }
+        
+        _currentWarning = null;
+        _warningPlaying = false;
+        
+
     }
     
     [Button]

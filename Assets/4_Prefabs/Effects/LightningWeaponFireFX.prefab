@@ -61,6 +61,15 @@ VisualEffect:
       - m_Value: 1
         m_Name: Rotate
         m_Overridden: 1
+      - m_Value: 0
+        m_Name: Rotate 3
+        m_Overridden: 1
+      - m_Value: 0
+        m_Name: Rotate 2
+        m_Overridden: 1
+      - m_Value: 18
+        m_Name: Main Body Scale
+        m_Overridden: 1
     m_Vector2f:
       m_Array: []
     m_Vector3f:
@@ -420,7 +429,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 3.86
+      scalar: 5
       minScalar: 1
       maxCurve:
         serializedVersion: 2

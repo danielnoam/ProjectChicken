@@ -163,6 +163,7 @@ public class LevelManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
         
         PrimeTweenConfig.warnTweenOnDisabledTarget = false;
