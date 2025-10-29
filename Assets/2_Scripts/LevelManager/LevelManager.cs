@@ -639,6 +639,7 @@ public class LevelManager : MonoBehaviour
     
     #endregion Stage Skipping
 
+    
     #region Tasks
 
     
@@ -746,15 +747,15 @@ public class LevelManager : MonoBehaviour
     
         if (_currentSavePoint == null)
         {
-            OnRestartedFromSavePoint?.Invoke(_startSavePoint);
             StartLevel();
+            OnRestartedFromSavePoint?.Invoke(_startSavePoint);
         }
         else
         {
+            SetStage(_currentSavePoint.StageIndex);
             currentScore = _currentSavePoint.Score;
             OnScoreChanged?.Invoke(currentScore);
             OnRestartedFromSavePoint?.Invoke(_currentSavePoint);
-            SetStage(_currentSavePoint.StageIndex);
         }
     }
 

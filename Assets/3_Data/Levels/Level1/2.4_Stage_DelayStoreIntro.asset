@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
-  m_Name: 2.5_Stage_DelayStoreIntro
+  m_Name: 2.4_Stage_DelayStoreIntro
   m_EditorClassIdentifier: 
   stageTitle: 
   worldSpeed: 0.5
-  isCheckpoint: 0
+  isCheckpoint: 1
   allowSkip: 0
   playRandomMessages: 0
   startRadioMessage: {fileID: 0}
@@ -53,6 +53,7 @@ MonoBehaviour:
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
+  waveAttackTable: {fileID: 0}
   requireAllTasks: 1
   tasks: []
   showHUD: 1
@@ -64,6 +65,7 @@ MonoBehaviour:
   allowPlayerAiming: 1
   allowPlayerShooting: 1
   allowPlayerHeatSystem: 1
+  followCameraOffset: {x: 0, y: 0, z: 0}
   references:
     version: 2
     RefIds:

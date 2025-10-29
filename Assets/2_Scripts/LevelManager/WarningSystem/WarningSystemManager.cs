@@ -57,6 +57,11 @@ public class WarningSystemManager : MonoBehaviour
         {
             levelManager.OnStageChanged += OnStageChanged;
         }
+
+        if (player)
+        {
+            player.Health.OnDeath += OnPlayerDeath;
+        }
         
     }
     
@@ -73,9 +78,15 @@ public class WarningSystemManager : MonoBehaviour
             levelManager.OnStageChanged -= OnStageChanged;
         }
 
+        if (player)
+        {
+            player.Health.OnDeath -= OnPlayerDeath;
+        }
         
     }
-    
+
+
+
     private void Update()
     {
         if (_warningPlaying || _warnings.Count == 0) return;
@@ -99,6 +110,10 @@ public class WarningSystemManager : MonoBehaviour
         }
     }
     
+    private void OnPlayerDeath()
+    {
+        ClearWarnings();
+    }
    
     
     private void OnStageChanged(SOLevelStage stage)

@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageTitle: 
   worldSpeed: 1
-  isCheckpoint: 0
+  isCheckpoint: 1
   allowSkip: 0
+  playRandomMessages: 0
   startRadioMessage: {fileID: 0}
   startWarning: {fileID: 11400000, guid: dac2351d2a401634198b1b9369b61894, type: 2}
   events:
@@ -52,6 +53,7 @@ MonoBehaviour:
     useRandomPlacement: 1
     formationSpacing: 5
     maxPlacementAttempts: 100
+  waveAttackTable: {fileID: 0}
   requireAllTasks: 1
   tasks: []
   showHUD: 1
@@ -63,6 +65,7 @@ MonoBehaviour:
   allowPlayerAiming: 1
   allowPlayerShooting: 1
   allowPlayerHeatSystem: 1
+  followCameraOffset: {x: 0, y: 0, z: 0}
   references:
     version: 2
     RefIds:

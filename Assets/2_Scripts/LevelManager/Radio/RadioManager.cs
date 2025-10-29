@@ -150,6 +150,8 @@ public class RadioManager : MonoBehaviour
 
     private void OnPlayerDeath()
     {
+        
+        ClearMessages();
         if (!CanPlayRandomMessage || playerDeathMessages.Length <= 0) return;
         
         var message = playerDeathMessages[Random.Range(0, playerDeathMessages.Length)];
@@ -240,17 +242,5 @@ public class RadioManager : MonoBehaviour
         _currentSender = null;
         _messagePlaying = false;
         radioMessageUI.HideMessage();
-    }
-    
-    [Button]
-    private void AddTestMessage()
-    {
-        AddMessage(testMessage);
-    }
-    
-    [Button]
-    private void PlayTestMessage()
-    {
-        PlayMessage(testMessage);
     }
 }

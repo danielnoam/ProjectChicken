@@ -14,7 +14,7 @@ public class BackgroundObjectMover : MonoBehaviour
     [SerializeField] private Ease transitionEase = Ease.InOutSine;
     
     [Header("Stage Settings")]
-    [SerializeField] private int startFromStage = 1;
+    [SerializeField] private int startFromStage = 2;
     
     [Separator]
     [SerializeField, VInspector.ReadOnly] private bool isInitialized;
@@ -23,6 +23,21 @@ public class BackgroundObjectMover : MonoBehaviour
     
     private LevelManager _levelManager;
     private Tween _currentTween;
+
+    
+    private void OnValidate()
+    {
+        totalStages = Mathf.Max(1, totalStages);
+        transitionDuration = Mathf.Max(0.01f, transitionDuration);
+        startFromStage = Mathf.Max(0, startFromStage);
+        
+        if (Application.isPlaying) return;
+        
+        if (startFromStage >= totalStages)
+        {
+            Debug.LogWarning($"[{gameObject.name}] Start From Stage ({startFromStage}) is >= Total Stages ({totalStages}). Object will never move!");
+        }
+    }
 
 
     private void Awake()
@@ -223,19 +238,6 @@ public class BackgroundObjectMover : MonoBehaviour
 
 
 
-    private void OnValidate()
-    {
-        // Ensure minimum values
-        totalStages = Mathf.Max(1, totalStages);
-        transitionDuration = Mathf.Max(0.01f, transitionDuration);
-        startFromStage = Mathf.Max(0, startFromStage);
-        
-        // Warn if start stage is too high
-        if (startFromStage >= totalStages)
-        {
-            Debug.LogWarning($"[{gameObject.name}] Start From Stage ({startFromStage}) is >= Total Stages ({totalStages}). Object will never move!");
-        }
-    }
 
 
 
