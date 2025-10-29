@@ -49,6 +49,7 @@ public abstract class MainMenuElement : MonoBehaviour
     protected enum ElementState { Deselected, Selected, Interacting, Disabled }
     protected ElementState currentVisualState;
     private Sequence _visualElementsSequence;
+    private float _baseLabelFontSize;
     
     
     public bool CanSelect => canSelect;
@@ -124,6 +125,7 @@ public abstract class MainMenuElement : MonoBehaviour
     private void SetUp()
     {
         outline.OutlineColor = elementColor;
+        _baseLabelFontSize = label.fontSize;
         if (interactionCamera) interactionCamera.Priority = 0;
         SetState(ElementState.Deselected, instant: true);
     }
@@ -135,6 +137,7 @@ public abstract class MainMenuElement : MonoBehaviour
         currentVisualState = state;
         float targetAlpha;
         float targetOutlineWidth;
+        float targetLabelFontSize;
         Color targetLabelColor;
         
         if (!canSelect)
@@ -142,6 +145,7 @@ public abstract class MainMenuElement : MonoBehaviour
             targetAlpha = 0f;
             targetLabelColor = Color.white;
             targetOutlineWidth = 0f;
+            targetLabelFontSize = _baseLabelFontSize;
         }
         else
         {
@@ -150,27 +154,32 @@ public abstract class MainMenuElement : MonoBehaviour
                 case ElementState.Deselected:
                     targetAlpha = labelAlphaWhenDeselected;
                     targetOutlineWidth = 0f;
-                    targetLabelColor = Color.white;;
+                    targetLabelColor = Color.white;
+                    targetLabelFontSize = _baseLabelFontSize;
                     break;
                 case ElementState.Selected:
                     targetAlpha = 1f;
                     targetOutlineWidth = outlineWidthWhenSelected;
-                    targetLabelColor = elementColor;
+                    targetLabelColor = Color.white;
+                    targetLabelFontSize = _baseLabelFontSize * 1.1f;
                     break;
                 case ElementState.Interacting:
                     targetAlpha = labelAlphaWhenInteracting;
                     targetOutlineWidth = 0;
-                    targetLabelColor = elementColor;
+                    targetLabelColor = Color.white;
+                    targetLabelFontSize = _baseLabelFontSize;
                     break;
                 case ElementState.Disabled:
                     targetAlpha = 0f;
                     targetOutlineWidth = 0f;
-                    targetLabelColor = elementColor;
+                    targetLabelColor = Color.white;
+                    targetLabelFontSize = _baseLabelFontSize;
                     break;
                 default:
                     targetAlpha = labelAlphaWhenDeselected;
                     targetOutlineWidth = 0f;
-                    targetLabelColor = elementColor;
+                    targetLabelColor = Color.white;
+                    targetLabelFontSize = _baseLabelFontSize;
                     break;
             }
         }
@@ -187,6 +196,7 @@ public abstract class MainMenuElement : MonoBehaviour
             _visualElementsSequence = Sequence.Create();
             _visualElementsSequence.Group(Tween.Alpha(labelCanvasGroup, targetAlpha, visualElementsTweenDuration));
             _visualElementsSequence.Group(Tween.Color(label, targetLabelColor, visualElementsTweenDuration));
+            _visualElementsSequence.Group(Tween.TextFontSize(label, targetLabelFontSize, visualElementsTweenDuration));
             _visualElementsSequence.Group(Tween.Custom(
                 startValue: outline.OutlineWidth,
                 endValue: targetOutlineWidth,

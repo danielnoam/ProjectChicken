@@ -379,7 +379,7 @@ public class MainMenuElementLevelSelection : MainMenuElement
     {
         button.onClick.AddListener(() => SelectLevel(levelUIData));
         button.gameObject.name = $"Button{levelUIData.soLevel.LevelName}";
-        button.GetComponentInChildren<TextMeshProUGUI>().text = levelUIData.soLevel.LevelName;
+        button.GetComponentInChildren<TextMeshProUGUI>().text = levelUIData.soLevel.ButtonLabel;
     
         var eventTrigger = button.GetComponent<EventTrigger>() ?? button.gameObject.AddComponent<EventTrigger>();
         AddEventTriggerEntry(eventTrigger, EventTriggerType.Select, (eventData) => OnSelectableSelected(eventData, levelUIData));

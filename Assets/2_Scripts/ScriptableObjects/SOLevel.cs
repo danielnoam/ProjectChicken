@@ -8,6 +8,7 @@ public class SOLevel : ScriptableObject
 {
     [Header("Settings")]
     [SerializeField] private string levelName;
+    [SerializeField] private string buttonLabel;
     [SerializeField] private LevelDifficulty levelDifficulty;
     [SerializeField] private string levelDescription;
     [SerializeField] private AudioClip levelTheme;
@@ -23,6 +24,7 @@ public class SOLevel : ScriptableObject
 
     
     public string LevelName => levelName;
+    public string ButtonLabel => buttonLabel;
     public string LevelDescription => levelDescription;
     public GameObject LevelGfxPrefab => levelGfxPrefab;
     public LevelDifficulty LevelDifficulty => levelDifficulty;
