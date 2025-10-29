@@ -41,7 +41,7 @@ MonoBehaviour:
     uncommonCost: 50
     rareCost: 100
   waveScoreWorth: 1000
-  enemyAmount: 45
+  enemyAmount: 50
   enemyTypes:
     internalItems:
     - item: {fileID: 8824006632455104043, guid: 34f6ff0860f2f434fbc83d1094eadaca, type: 3}
@@ -57,13 +57,13 @@ MonoBehaviour:
       chance: 10
       isLocked: 0
   formationStageData:
-    formationType: 3
+    formationType: 0
     formationCount: 4
-    numberOfSlots: 7
-    spacing: 7
+    numberOfSlots: 5
+    spacing: 9
     circleRadius: 3
     useRandomPlacement: 1
-    formationSpacing: 7
+    formationSpacing: 10
     maxPlacementAttempts: 100
   waveAttackTable: {fileID: 11400000, guid: 72746f0027cd99846831e5f0e88b8586, type: 2}
   requireAllTasks: 1
@@ -77,13 +77,14 @@ MonoBehaviour:
   allowPlayerAiming: 1
   allowPlayerShooting: 1
   allowPlayerHeatSystem: 1
+  followCameraOffset: {x: 0, y: 0, z: 0}
   references:
     version: 2
     RefIds:
     - rid: 736433674589306880
       type: {class: SpawnPassthroughObstacleEvent, ns: , asm: Assembly-CSharp}
       data:
-        isActive: 0
+        isActive: 1
         initialDelay: 3
         maxActiveObstacles: 2
         spawnIntervalRange:
