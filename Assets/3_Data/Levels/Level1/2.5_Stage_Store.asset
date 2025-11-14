@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaf4702b7dc07527d81c4b3b5588df3a, type: 3}
+  m_Name: 2.5_Stage_Store
+  m_EditorClassIdentifier: 
+  stageTitle: 
+  startRadioMessage: {fileID: 11400000, guid: bdccbcf4b691fb941aef0cb3bf61ce3d, type: 2}
+  worldSpeed: 0
+  isCheckpoint: 0
+  events: []
+  stageType: 1
+  stageDuration: 5
+  delayBeforeNextStage: 1
+  showOutroMenu: 0
+  nextLevel:
+    sceneAsset: {fileID: 0}
+    sceneName: 
+    scenePath: 
+  allowToCloseStore: 1
+  upgradesPool:
+  - {fileID: 11400000, guid: 5673b9e8440d4e346a754e43a607d27f, type: 2}
+  - {fileID: 11400000, guid: 4d90a475221f9bc4cb58aea71e2343fa, type: 2}
+  - {fileID: 11400000, guid: 2f9bc53f3fdc13646b427ea8fb71a637, type: 2}
+  - {fileID: 11400000, guid: caa3ae67362bd314399b4bd2ba6e4eef, type: 2}
+  - {fileID: 11400000, guid: afdb479ba8d405b4d9f3b4f351e6f278, type: 2}
+  waveScoreWorth: 1000
+  enemyWave:
+    serializedKvps: []
+    dividerPos: 0.33
+  formationStageData:
+    formationType: 0
+    formationCount: 1
+    numberOfSlots: 9
+    spacing: 2
+    circleRadius: 3
+    useRandomPlacement: 1
+    formationSpacing: 5
+    maxPlacementAttempts: 100
+  requireAllTasks: 1
+  tasks: []
+  showHUD: 1
+  showScore: 1
+  showStagesProgression: 1
+  showStatsBar: 1
+  allowPlayerMovement: 0
+  allowPlayerDodge: 0
+  allowPlayerAiming: 0
+  allowPlayerShooting: 0
+  allowPlayerHeatSystem: 0
+  references:
+    version: 2
+    RefIds: []
