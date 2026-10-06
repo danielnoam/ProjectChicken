@@ -43,7 +43,10 @@ public class MusicManager : MonoBehaviour
     {
         if (Instance && Instance != this)
         {
+            // Disabled first so the duplicate never subscribes to scene events before it is destroyed
+            enabled = false;
             Destroy(gameObject);
+            return;
         }
         else
         {
@@ -126,7 +129,8 @@ public class MusicManager : MonoBehaviour
     {
         if (!IsPlaying) return;
 
-        if (_audioSourceSequence.isAlive) _audioSourceSequence.Stop();
+        // Complete instead of Stop, so a running crossfade still stops the previous track
+        if (_audioSourceSequence.isAlive) _audioSourceSequence.Complete();
         _audioSourceSequence = Sequence.Create(useUnscaledTime: true);
         _audioSourceSequence.Group(FadeAudioSource(currentAudioSource, paused ? pausedVolume : playVolume));
     }
@@ -166,7 +170,7 @@ public class MusicManager : MonoBehaviour
     [Button]
     private void StopMusic()
     {
-        if (_audioSourceSequence.isAlive) _audioSourceSequence.Stop();
+        if (_audioSourceSequence.isAlive) _audioSourceSequence.Complete();
 
 
         if (IsPlaying)

@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using PrimeTween;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using DNExtensions.Utilities;
@@ -181,7 +183,7 @@ public class SaveManager : MonoBehaviour
             if (File.Exists(_playerProgressDataPath))
             {
                 string jsonData = File.ReadAllText(_playerProgressDataPath);
-                _playerProgressData = JsonUtility.FromJson<PlayerProgressData>(jsonData);
+                _playerProgressData = JsonUtility.FromJson<PlayerProgressData>(jsonData) ?? new PlayerProgressData();
                 // Debug.Log("Game loaded successfully!");
             }
             else
@@ -251,6 +253,7 @@ public class SaveManager : MonoBehaviour
             {
                 string jsonData = File.ReadAllText(_settingsDataPath);
                 _settingsData = JsonUtility.FromJson<SettingsData>(jsonData);
+                if (_settingsData == null) throw new Exception("Settings file is empty");
             }
             else
             {
@@ -308,62 +311,42 @@ public class SaveManager : MonoBehaviour
     
     
     
-    private static void SaveRunProgressDataToFile()
+    // Run progress only lives for one session. RunProgressData is not JSON-serializable (readonly fields,
+    // a Dictionary and asset references), so a file left behind by a crash loaded back as health 0 and no upgrades.
+    private static void LoadRunProgressDataFromFile()
     {
-        if (!_initialized) return;
+        _runProgressData = CreateDefaultRunProgress();
 
         try
         {
-            string jsonData = JsonUtility.ToJson(_runProgressData, true);
-            File.WriteAllText(_runProgressDataPath, jsonData);
-            Debug.Log("Run progress saved successfully!");
+            if (File.Exists(_runProgressDataPath)) File.Delete(_runProgressDataPath);
         }
         catch (Exception e)
         {
-            Debug.LogError($"Failed to save run progress: {e.Message}");
+            Debug.LogError($"Failed to delete stale run progress: {e.Message}");
         }
     }
-    
-    private static void LoadRunProgressDataFromFile()
+
+    private static RunProgressData CreateDefaultRunProgress()
     {
-        try
-        {
-            if (File.Exists(_runProgressDataPath))
-            {
-                string jsonData = File.ReadAllText(_runProgressDataPath);
-                _runProgressData = JsonUtility.FromJson<RunProgressData>(jsonData);
-            }
-            else
-            {
-                _runProgressData = new RunProgressData(Instance.playerStats.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
-                // Debug.Log("No run progress file found. Created new run progress data.");
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Failed to load run progress: {e.Message}");
-            _runProgressData = new RunProgressData(Instance.playerStats.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
-        }
+        int baseHealth = Instance && Instance.playerStats ? Instance.playerStats.BaseHealth : 0;
+        return new RunProgressData(baseHealth, 0, new Dictionary<SOUpgradeBase, int>(), null);
     }
     
     public static void ResetRunProgressData()
     {
         if (!_initialized) return;
 
+        _runProgressData = CreateDefaultRunProgress();
+
         try
         {
-            if (File.Exists(_runProgressDataPath))
-            {
-                File.Delete(_runProgressDataPath);
-                _runProgressData = new RunProgressData(Instance.playerStats.BaseHealth,0, new Dictionary<SOUpgradeBase, int>(), null);
-                Debug.Log("Run progress file deleted and reset to default.");
-            }
+            if (File.Exists(_runProgressDataPath)) File.Delete(_runProgressDataPath);
         }
         catch (Exception e)
         {
             Debug.LogError($"Failed to delete run progress file: {e.Message}");
         }
-        
     }
     
     
@@ -408,7 +391,6 @@ public class SaveManager : MonoBehaviour
     {
         EnsureInitialized();
         _runProgressData = newRunProgress;
-        SaveRunProgressDataToFile();
     }
     
     

@@ -179,16 +179,16 @@ public class CameraManager : MonoBehaviour
 
         if (changePositionsInIntro && _activeCamera == introCamera)
         {
-            _changePositionCoroutine = StartCoroutine(ChangeCameraPosition(introCamera));
+            _changePositionCoroutine = StartCoroutine(ChangeCameraPosition(introCamera, changePositionsInIntro));
         }
         
         if (changePositionsInOutro && _activeCamera == outroCamera)
         {
-            _changePositionCoroutine = StartCoroutine(ChangeCameraPosition(outroCamera));
+            _changePositionCoroutine = StartCoroutine(ChangeCameraPosition(outroCamera, changePositionsInOutro));
         }
     }
     
-    private IEnumerator ChangeCameraPosition(CinemachineCamera cam)
+    private IEnumerator ChangeCameraPosition(CinemachineCamera cam, bool enabledForThisCamera)
     {
         if (!cam || !cam.isActiveAndEnabled) yield break;
         
@@ -196,7 +196,7 @@ public class CameraManager : MonoBehaviour
         
         while (true)
         {
-            if (!cam.IsLive || !changePositionsInIntro) yield break;
+            if (!cam.IsLive || !enabledForThisCamera) yield break;
 
             var newTarget = player.CameraInterface.GetRandomCameraPosition();
             if (newTarget == cam.Target.TrackingTarget) 

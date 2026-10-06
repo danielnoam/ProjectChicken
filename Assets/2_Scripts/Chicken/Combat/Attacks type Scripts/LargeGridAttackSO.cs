@@ -62,7 +62,7 @@ public class LargeGridAttackSO : BaseChickenAttackSO
     [Tooltip("Show the grid area in scene view")]
     [SerializeField] private bool showGridGizmo = true;
     
-    public override AttackType AttackType => AttackType.FormationShape;
+    public override AttackType AttackType => AttackType.LargeGrid;
     public override string AttackName => "Large Grid Attack";
     
     // Grid data
@@ -323,15 +323,24 @@ public class LargeGridAttackSO : BaseChickenAttackSO
             
             // If any positions remain (due to rounding), assign them to chickens that can still attack
             int chickenIndex = 0;
-            while (positionIndex < allGridPositions.Count)
+            int shotsThisPass = 0;
+            while (positionIndex < allGridPositions.Count && selectedChickens.Count > 0)
             {
                 var chicken = selectedChickens[chickenIndex % selectedChickens.Count];
                 if (chicken != null && chicken.CanAttack())
                 {
                     ShootChickenAtPosition(chicken, allGridPositions[positionIndex], cachedModifiedSpeed);
                     positionIndex++;
+                    shotsThisPass++;
                 }
                 chickenIndex++;
+                
+                // A full pass where no chicken could shoot would loop forever
+                if (chickenIndex % selectedChickens.Count == 0)
+                {
+                    if (shotsThisPass == 0) break;
+                    shotsThisPass = 0;
+                }
             }
         }
         

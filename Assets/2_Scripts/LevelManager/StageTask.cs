@@ -75,7 +75,7 @@ public class CollectResourceTask : StageTask
 public class AccumulateScoreTask : StageTask
 {
     [SerializeField, Min(1)] private int targetScore;
-    private int _accumulatedScore;
+    private int _startScore;
     private LevelManager _levelManager;
     
     public AccumulateScoreTask()
@@ -86,7 +86,7 @@ public class AccumulateScoreTask : StageTask
     public override void Initialize(LevelManager levelManager)
     {
         _levelManager = levelManager;
-        _accumulatedScore = levelManager.CurrentScore;
+        _startScore = levelManager.CurrentScore;
         isCompleted = false;
         
         levelManager.OnScoreChanged += OnScoreChanged;
@@ -102,8 +102,8 @@ public class AccumulateScoreTask : StageTask
     
     private void OnScoreChanged(int newScore)
     {
-        _accumulatedScore += newScore;
-        if (_accumulatedScore >= targetScore)
+        // OnScoreChanged passes the level's total score, so progress is measured from the score at stage start
+        if (newScore - _startScore >= targetScore)
         {
             CompleteTask();
         }

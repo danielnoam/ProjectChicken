@@ -108,7 +108,7 @@ namespace MenuSystem
 
         private void OnDisable()
         {
-            if (positionEffectType == PositionEffectType.Offset) selectable.transform.position = _originalPosition;
+            if (positionEffectType == PositionEffectType.Offset) rectTransform.anchoredPosition3D = _originalPosition;
             if (animateScale) selectable.transform.localScale = _originalScale;
             if (animateRotation) selectable.transform.localRotation = Quaternion.Euler(_originalRotation);
             if (animateAlpha)

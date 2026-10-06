@@ -99,20 +99,7 @@ public class RailPlayer : MonoBehaviour
         movement.SetUp();
         aiming.SetUp();
         
-        if (runProgress.PlayerUpgrades != null)
-        {
-            Upgrades = runProgress.PlayerUpgrades;
-            
-            var upgradesCopy = new Dictionary<SOUpgradeBase, int>(runProgress.PlayerUpgrades);
-            foreach (var upgrade in upgradesCopy)
-            {
-                upgrade.Key.ApplyUpgrade(this);
-            }
-        }
-        else
-        {
-            Upgrades = new Dictionary<SOUpgradeBase, int>();
-        }
+        RestoreUpgrades(runProgress.PlayerUpgrades);
     }
     
     private void RestartedFromSavePoint(SavePointData savePoint)
@@ -126,20 +113,7 @@ public class RailPlayer : MonoBehaviour
         movement.SetUp();
         aiming.SetUp();
         
-        if (savePoint.PlayerUpgrades != null)
-        {
-            Upgrades = savePoint.PlayerUpgrades;
-            
-            var upgradesCopy = new Dictionary<SOUpgradeBase, int>(savePoint.PlayerUpgrades);
-            foreach (var upgrade in upgradesCopy)
-            {
-                upgrade.Key.ApplyUpgrade(this);
-            }
-        }
-        else
-        {
-            Upgrades = new Dictionary<SOUpgradeBase, int>();
-        }
+        RestoreUpgrades(savePoint.PlayerUpgrades);
     }
     
 
@@ -150,6 +124,23 @@ public class RailPlayer : MonoBehaviour
     
     
     #region Upgrades ---------------------------------------------------------------------------------
+    
+    // Rebuilds the upgrade stacks from saved counts. Each upgrade adds itself back to Upgrades as it is
+    // applied, so applying it once per saved stack restores both the count and the effect.
+    private void RestoreUpgrades(Dictionary<SOUpgradeBase, int> savedUpgrades)
+    {
+        Upgrades = new Dictionary<SOUpgradeBase, int>();
+        if (savedUpgrades == null) return;
+
+        foreach (var upgrade in savedUpgrades)
+        {
+            if (!upgrade.Key) continue;
+            for (int i = 0; i < upgrade.Value; i++)
+            {
+                upgrade.Key.ApplyUpgrade(this);
+            }
+        }
+    }
     
     public void AddHealthUpgrade(SOUpgradeBase upgrade, int amount)
     {

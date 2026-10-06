@@ -29,6 +29,7 @@ public class PassthroughTrigger : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         if (playerPassedThrough || !playerEnteredTrigger) return;
+        if (!other.TryGetComponent(out RailPlayer _)) return;
 
         playerPassedThrough = true;
         OnPlayerPassedThrough?.Invoke();

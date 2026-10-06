@@ -103,8 +103,7 @@ public class ActionKeyPrompt : MonoBehaviour
 
     private void OnActionCanceled(InputAction.CallbackContext context)
     {
-        if (LevelManager.Instance && LevelManager.Instance.IsGamePaused && !enableWhenGamePaused) return;
-        
+        // Always release, otherwise a key pressed right before pausing (e.g. the pause key) stays drawn as pressed
         ResetFontColor();
         ResetScale();
         _isPressed = false;

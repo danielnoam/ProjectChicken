@@ -121,7 +121,7 @@ public class HeatBar : MonoBehaviour
         float fillAmount = heat / weaponSystem.MaxWeaponHeat;
         SetEmissionStrength(fillAmount);
         Color textFillColor = Color.Lerp(Color.white, Color.red, fillAmount);
-        float textAlpha = fillAmount < heatToShowTextThreshold ? 0f : Mathf.Lerp(0f, 1f, (fillAmount - heatToShowTextThreshold) / 1 - heatToShowTextThreshold);
+        float textAlpha = fillAmount < heatToShowTextThreshold ? 0f : Mathf.Lerp(0f, 1f, (fillAmount - heatToShowTextThreshold) / (1 - heatToShowTextThreshold));
         
         if (_heatBarSequence.isAlive) _heatBarSequence.Stop();
         _heatBarSequence = Sequence.Create()

@@ -17,7 +17,7 @@ public class SavePointData
         Score = score;
         PlayerHealth = health;
         PlayerCurrency = currency;
-        PlayerUpgrades = upgrades;
+        PlayerUpgrades = upgrades != null ? new Dictionary<SOUpgradeBase, int>(upgrades) : null;
         PlayerActiveWeapon = activeWeapon;
     }
 }

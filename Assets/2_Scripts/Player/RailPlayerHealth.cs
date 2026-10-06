@@ -279,7 +279,9 @@ public class RailPlayerHealth : MonoBehaviour
             if (CurrentShield >= MaxShield)
             {
                 CurrentShield = MaxShield;
+                OnShieldChanged?.Invoke(CurrentShield);
                 shieldRegeneratedSfx?.Play(shieldAudioSource);
+                _regenShieldCoroutine = null;
                 yield break;
             }
             
@@ -302,6 +304,7 @@ public class RailPlayerHealth : MonoBehaviour
     
     private void StartShieldRegen()
     {
+        if (_regenShieldCoroutine != null) StopCoroutine(_regenShieldCoroutine);
         _regenShieldCoroutine = StartCoroutine(RegenShieldRoutine());
         damagedCooldown = 0;
     }

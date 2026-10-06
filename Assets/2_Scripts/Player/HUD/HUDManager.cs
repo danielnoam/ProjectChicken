@@ -531,7 +531,7 @@ public class HUDManager : MonoBehaviour
         _playerHealthSequence = Sequence.Create()
             .Group(Tween.PunchScale(healthIcon.transform, strength: Vector3.one * healthPunchStrength, duration: healthPunchDuration));
         
-        if (_playerHealth < currentHealth)
+        if (currentHealth < _playerHealth)
         {
             PunchHUDHealthColor();
             

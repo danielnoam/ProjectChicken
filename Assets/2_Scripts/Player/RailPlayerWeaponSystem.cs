@@ -624,8 +624,13 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         {
             if (weaponInstance.weaponData == weaponUpgrade.BaseWeapon)
             {
+                // Upgrading the equipped weapon swaps its gfx, and SetActiveWeapon skips reselecting the same
+                // weapon, so hide the old model first and show the new one after
+                bool wasActive = ActiveWeaponInstance == weaponInstance;
+                if (wasActive) weaponInstance.OnWeaponDeselected();
                 weaponInstance.ApplyWeaponUpgrade(player);
                 SetActiveWeapon(weaponInstance);
+                if (wasActive) weaponInstance.OnWeaponSelected(AllowShooting);
             }
         }
     }

@@ -83,6 +83,8 @@ public class FormationCreator : MonoBehaviour
         }
     }
 
+    private Coroutine _initializeFormationCoroutine;
+
     // Event handler for when the level stage changes
     private void OnStageChanged(SOLevelStage newStage)
     {
@@ -99,8 +101,11 @@ public class FormationCreator : MonoBehaviour
             useRandomPlacement = formation.UseRandomPlacement;
             formationSpacing = formation.FormationSpacing;
             maxPlacementAttempts = formation.MaxPlacementAttempts;
+            // The stage sets the type itself, so Update must not also treat it as a type change
+            previousFormationType = currentFormation;
             CalculateFormationParameters();
-            StartCoroutine(InitializeFormationWithDelay());
+            if (_initializeFormationCoroutine != null) StopCoroutine(_initializeFormationCoroutine);
+            _initializeFormationCoroutine = StartCoroutine(InitializeFormationWithDelay());
         }
     }
 
@@ -175,11 +180,16 @@ public class FormationCreator : MonoBehaviour
     void InitializeComponents()
     {
         // Get or add required components
-        generator = GetComponent<FormationGenerator>() ?? gameObject.AddComponent<FormationGenerator>();
-        placer = GetComponent<FormationPlacer>() ?? gameObject.AddComponent<FormationPlacer>();
-        validator = GetComponent<FormationValidator>() ?? gameObject.AddComponent<FormationValidator>();
-        boundaryManager = GetComponent<FormationBoundaryManager>() ?? gameObject.AddComponent<FormationBoundaryManager>();
-        visualizer = GetComponent<FormationVisualizer>() ?? gameObject.AddComponent<FormationVisualizer>();
+        generator = GetComponent<FormationGenerator>();
+        if (!generator) generator = gameObject.AddComponent<FormationGenerator>();
+        placer = GetComponent<FormationPlacer>();
+        if (!placer) placer = gameObject.AddComponent<FormationPlacer>();
+        validator = GetComponent<FormationValidator>();
+        if (!validator) validator = gameObject.AddComponent<FormationValidator>();
+        boundaryManager = GetComponent<FormationBoundaryManager>();
+        if (!boundaryManager) boundaryManager = gameObject.AddComponent<FormationBoundaryManager>();
+        visualizer = GetComponent<FormationVisualizer>();
+        if (!visualizer) visualizer = gameObject.AddComponent<FormationVisualizer>();
 
         // Initialize components with references
         generator.Initialize(this);

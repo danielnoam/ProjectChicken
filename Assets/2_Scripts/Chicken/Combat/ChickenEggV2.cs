@@ -129,6 +129,7 @@ public class ChickenEggV2 : MonoBehaviour, IPoolable
     {
         _spawnTime = Time.time;
         _warningCreated = false;
+        trailVRenderer.Clear();
         trailVRenderer.emitting = true;
     }
 

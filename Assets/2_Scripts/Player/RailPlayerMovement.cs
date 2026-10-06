@@ -149,8 +149,16 @@ public class RailPlayerMovement : MonoBehaviour
     {
         if (!stage) return;
         
-        if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
-        if (_shipLookAtCoroutine != null) StopCoroutine(_shipLookAtCoroutine);
+        if (_autoCenterRoutine != null)
+        {
+            StopCoroutine(_autoCenterRoutine);
+            _autoCenterRoutine = null;
+        }
+        if (_shipLookAtCoroutine != null)
+        {
+            StopCoroutine(_shipLookAtCoroutine);
+            _shipLookAtCoroutine = null;
+        }
 
         
         _allowDodge = stage.AllowPlayerDodge;
@@ -291,7 +299,11 @@ public class RailPlayerMovement : MonoBehaviour
     
     public void Push(Vector3 direction, float force)
     {
-        if (_autoCenterRoutine != null) StopCoroutine(_autoCenterRoutine);
+        if (_autoCenterRoutine != null)
+        {
+            StopCoroutine(_autoCenterRoutine);
+            _autoCenterRoutine = null;
+        }
         
         Vector2 flatDirection = new Vector2(direction.x, direction.y);
         if (flatDirection.magnitude > 0)

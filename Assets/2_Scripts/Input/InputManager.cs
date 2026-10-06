@@ -123,7 +123,8 @@ public class InputManager : MonoBehaviour
     
     private void SetActiveControlScheme(PlayerInput input)
     {
-        if (input.currentControlScheme == "Gamepad")
+        // Generic HID controllers use the Joystick scheme
+        if (input.currentControlScheme is "Gamepad" or "Joystick")
         {
             _isCurrentDeviceGamepad = true;
             CurrentControlScheme = GamepadScheme;

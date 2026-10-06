@@ -242,11 +242,13 @@ public class ChickenHealth : MonoBehaviour
         }
     }
     
+    // Also called for chickens that went back to the pool alive (wave cleared, player death),
+    // so it resets health and invulnerability whether or not the chicken died
     public void Revive()
     {
-        if (!isDead) return;
-        
         isDead = false;
+        isInvulnerable = false;
+        invulnerabilityTimer = 0f;
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth);
         

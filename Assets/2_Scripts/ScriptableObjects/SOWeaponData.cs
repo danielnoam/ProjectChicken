@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using DNExtensions.Utilities;
 using DNExtensions.Utilities.Button;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using DNExtensions.Systems.Scriptables;
 

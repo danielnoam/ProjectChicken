@@ -98,9 +98,13 @@ public class CinematicManager : MonoBehaviour
     
 
     
+    private bool _isLoadingTargetScene;
+
     protected void LoadTargetScene(bool fullTransition = true)
     {
-        if (targetScene == null) return;
+        // Skip pressed during the end fade would otherwise restart the transition
+        if (targetScene == null || _isLoadingTargetScene) return;
+        _isLoadingTargetScene = true;
 
         if (fullTransition)
         {

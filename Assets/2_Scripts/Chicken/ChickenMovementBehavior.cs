@@ -587,6 +587,13 @@ public class ChickenMovementBehavior : MonoBehaviour
             Debug.Log($"Chicken {gameObject.name}: Arrived at spawn area");
     }
 
+    // Clears the previous life's flight path when the chicken is reused from the pool
+    public void ResetForReuse()
+    {
+        StopMovement();
+        ResetFailsafeTracking();
+    }
+
     void StopMovement()
     {
         isMoving = false;

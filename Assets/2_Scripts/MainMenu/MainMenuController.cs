@@ -30,7 +30,7 @@ public class MainMenuController : MonoBehaviour
     
     private bool _isInteracting;
     private int _previousMenuElementIndex;
-    private int _currentMenuElementIndex;
+    private int _currentMenuElementIndex = -1;
     private MainMenuElement _currentMainMenuElement;
     
     public Transform DefaultCameraLookAtPoint => defaultCameraLookAtPoint ? defaultCameraLookAtPoint : transform;
@@ -87,13 +87,13 @@ public class MainMenuController : MonoBehaviour
 
     private void SelectMenuElement(int index)
     {
-        if (_isInteracting || !menuElements[index].CanSelect) return;
-        
         if (index < 0 || index >= menuElements.Length)
         {
             Debug.LogError("Invalid menu item index");
             return;
         }
+        
+        if (_isInteracting || !menuElements[index].CanSelect) return;
 
         DisableSelection();
         controllerVibrationSource.Rumble(vibrationOnSelect);

@@ -44,6 +44,7 @@ public class Resource : MonoBehaviour
 
     
     private ResourceState _currentState;
+    private bool _isDespawning;
     private Transform _playerTransform;
     private float _currentLifetime;
     private float _movementBoundaryX;
@@ -125,7 +126,7 @@ public class Resource : MonoBehaviour
 
     public void SetMagnetized(Transform playerTransform)
     {
-        if (_currentState == ResourceState.Collected) return;
+        if (_currentState == ResourceState.Collected || _isDespawning) return;
         
         _currentState = ResourceState.Magnetized;
         _playerTransform = playerTransform;
@@ -163,6 +164,7 @@ public class Resource : MonoBehaviour
     public void ForceDespawn()
     {
         if (_currentState is ResourceState.Collected or ResourceState.Magnetized) return;
+        _isDespawning = true;
         if (_scaleAnimation.isAlive) _scaleAnimation.Stop();
         _scaleAnimation = Sequence.Create()
             .Group(Tween.PunchScale(resourceGfx, strength: Vector3.one * magnetizedPunchStrength/2, frequency: 2, duration: despawnAnimationDuration/2, easeBetweenShakes: Ease.InOutBounce))

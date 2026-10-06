@@ -387,7 +387,11 @@ public class LevelManager : MonoBehaviour
         var runProgress = SaveManager.GetRunProgressData();
         OnRunProgressLoaded?.Invoke(runProgress);
         
-        _startSavePoint = new SavePointData(currentStageIndex, 0, playerStats.BaseHealth, 0,new Dictionary<SOUpgradeBase, int>(), player.WeaponSystem.ActiveWeaponInstance?.weaponData);
+        // Built once per level from what the player carried in, so dying before the first checkpoint
+        // restores the previous level's health, currency and upgrades instead of a fresh ship
+        _startSavePoint ??= runProgress != null
+            ? new SavePointData(0, 0, runProgress.PlayerHealth, runProgress.PlayerCurrency, runProgress.PlayerUpgrades, runProgress.PlayerActiveWeapon)
+            : new SavePointData(0, 0, playerStats.BaseHealth, 0, new Dictionary<SOUpgradeBase, int>(), player.WeaponSystem.ActiveWeaponInstance?.weaponData);
         _currentSavePoint = null;
 
         
@@ -445,7 +449,8 @@ public class LevelManager : MonoBehaviour
         if (!newStage)
         {
             if (debugLog) Debug.LogError("No stage found at index: " + newStageIndex);
-            SetNextStage();
+            isSettingStage = false;
+            SetStage(newStageIndex + 1);
             return;
         }
         
@@ -477,6 +482,8 @@ public class LevelManager : MonoBehaviour
         {
             if (currentStage.StageType == StageType.Outro)
             {
+                SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, currentScore);
+                
                 switch (currentStage.OutroMode)
                 {
                     case OutroMode.LoadMainMenu:
@@ -525,7 +532,7 @@ public class LevelManager : MonoBehaviour
     
     private void OnSkipAction(InputAction.CallbackContext context)
     {
-        if (!CanSkipStage() && !isGamePaused) return;
+        if (isGamePaused || !CanSkipStage()) return;
 
         if (context.performed)
         {
@@ -578,7 +585,6 @@ public class LevelManager : MonoBehaviour
     
     private void GoToScene(SceneField scene)
     {
-        SaveManager.UpdateLevelProgress(SceneManager.GetActiveScene().path, currentScore);
         SaveManager.ResetRunProgressData();
         
         
@@ -616,7 +622,7 @@ public class LevelManager : MonoBehaviour
     
     private bool CanSkipStage()
     {
-        return currentStage && currentStage.AllowSkip && canSkipCooldownFinished && currentStageIndex < _levelStages.Length - 1 && _currentStageEvents.Length != 0;
+        return currentStage && currentStage.AllowSkip && canSkipCooldownFinished && currentStageIndex < _levelStages.Length - 1 && _currentStageEvents is { Length: > 0 };
     }
     
     
@@ -744,6 +750,18 @@ public class LevelManager : MonoBehaviour
 
     private IEnumerator RestartFromSavePointRoutine()
     {
+        // A pending stage change would otherwise fire during the death wait or right after the restore
+        if (_stageChangeCoroutine != null)
+        {
+            StopCoroutine(_stageChangeCoroutine);
+            _stageChangeCoroutine = null;
+        }
+        if (_stageSkipCooldownCoroutine != null)
+        {
+            StopCoroutine(_stageSkipCooldownCoroutine);
+            _stageSkipCooldownCoroutine = null;
+        }
+        
         yield return new WaitForSeconds(5f);
     
         if (_currentSavePoint == null)

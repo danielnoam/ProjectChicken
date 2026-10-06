@@ -41,7 +41,7 @@ public class CinematicInput : InputReaderBase
     protected override void OnEnable()
     {
         base.OnEnable();
-        _cinematicActionMap.Enable();
+        _cinematicActionMap?.Enable();
 
         SubscribeToAction(_skipAction, OnSkipAction);
         
@@ -50,7 +50,7 @@ public class CinematicInput : InputReaderBase
     protected override void OnDisable()
     {
         base.OnDisable();
-        _cinematicActionMap.Disable();
+        _cinematicActionMap?.Disable();
         
         UnsubscribeFromAction(_skipAction, OnSkipAction);
 

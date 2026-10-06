@@ -48,7 +48,7 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
             forceDirection.Normalize();
             damageable.ApplyForce(forceDirection, baseForce);
 
-            if (stun && UnityEngine.Random.Range(0f, 100f) > baseStunChance)
+            if (stun && UnityEngine.Random.value < baseStunChance)
             {
                 damageable.ApplyStun(baseStunDuration);
             }
@@ -100,7 +100,7 @@ public class BehaviorChainOnHit : HitscanBehaviorBase
                 damageable.ApplyForce(forceDirection, currentForce);
 
 
-                if (stun && UnityEngine.Random.Range(0f, 100f) > currentStunChance)
+                if (stun && UnityEngine.Random.value < currentStunChance)
                 {
                     damageable.ApplyStun(currentStunDuration);
                 }

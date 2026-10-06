@@ -96,7 +96,8 @@ public class RailPlayerInput : InputReaderBase
     
     private void OnMove(InputAction.CallbackContext context)
     {
-        if (_isPaused) return;
+        // Releases still go through while paused, so held fire or movement does not stick after resuming
+        if (_isPaused && !context.canceled) return;
         
         OnMoveEvent?.Invoke(context);
         
@@ -124,7 +125,8 @@ public class RailPlayerInput : InputReaderBase
     
     private void OnLook(InputAction.CallbackContext context)
     {
-        if (_isPaused) return;
+        // Releases still go through while paused, so held fire or movement does not stick after resuming
+        if (_isPaused && !context.canceled) return;
 
         Vector2 lookDelta = context.ReadValue<Vector2>();
     
@@ -153,14 +155,16 @@ public class RailPlayerInput : InputReaderBase
     
     private void OnAttack(InputAction.CallbackContext context)
     {
-        if (_isPaused) return;
+        // Releases still go through while paused, so held fire or movement does not stick after resuming
+        if (_isPaused && !context.canceled) return;
         
         OnAttackEvent?.Invoke(context);
     }
     
     private void OnAttack2(InputAction.CallbackContext context)
     {
-        if (_isPaused) return;
+        // Releases still go through while paused, so held fire or movement does not stick after resuming
+        if (_isPaused && !context.canceled) return;
         
         OnAttack2Event?.Invoke(context);
     }

@@ -155,6 +155,7 @@ public class ChickenStateController : MonoBehaviour, IPoolable, ITargetable, IDa
 
     public void OnPoolGet()
     {
+        if (TryGetComponent(out ChickenMovementBehavior movement)) movement.ResetForReuse();
         _chickenHealth.Revive();
         _registration.RegisterWithManager();
         

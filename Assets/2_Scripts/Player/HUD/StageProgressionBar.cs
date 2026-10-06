@@ -61,12 +61,10 @@ public class StageProgressionBar : MonoBehaviour
         _stageIconFullSize = stageIconPrefab.GetComponent<RectTransform>().sizeDelta;
         
         _stageIcons.Clear();
-        foreach (Transform child in stageIconHolder)
+        // Backwards, since destroying while iterating forward skips every other child
+        for (int i = stageIconHolder.childCount - 1; i >= 0; i--)
         {
-            if (child != stageIconHolder)
-            {
-                DestroyImmediate(child.gameObject);
-            }
+            DestroyImmediate(stageIconHolder.GetChild(i).gameObject);
         }
         
         // Count visual stages
@@ -154,7 +152,9 @@ public class StageProgressionBar : MonoBehaviour
             if (_currentLevel.LevelStages[i] == targetStage)
                 return i;
         }
-        return -1;
+        
+        // Restarting from a checkpoint goes back to an earlier stage
+        return System.Array.IndexOf(_currentLevel.LevelStages, targetStage);
     }
     
     private int FindVisualIndexForLogicalStage(int logicalIndex)

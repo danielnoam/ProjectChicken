@@ -172,21 +172,11 @@ public class UpgradeStore : NavigatableUIScreen
     protected override void OnEnable()
     {
         base.OnEnable();
-        
-        if (levelManager)
-        {
-            levelManager.OnStageChanged += OnStageChanged;
-        }
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
-        
-        if (levelManager)
-        {
-            levelManager.OnStageChanged -= OnStageChanged;
-        }
     }
     
     private void SetupUpgradeEggs()
@@ -240,10 +230,10 @@ public class UpgradeStore : NavigatableUIScreen
             // Store is already open
             return;
         }
-        if (stage.StageType != StageType.Store && isVisible)
+        if (stage.StageType != StageType.Store)
         {
             // Store should not be open
-            CloseStore();
+            if (isVisible) CloseStore();
             return;
         } 
 

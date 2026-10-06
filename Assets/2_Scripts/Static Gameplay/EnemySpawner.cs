@@ -128,17 +128,19 @@ public class EnemySpawner : MonoBehaviour
 
     private void UpdateEnemyCount(ChickenStateController enemy)
     {
-        if (_currentStage && _currentStage.IsTimeBasedStage) return;
-        
+        // Always untrack and unsubscribe, also for chickens spawned by stage events during time-based stages.
+        // Otherwise the active count never drops and a reused pooled chicken gets subscribed twice.
         _activeEnemies.Remove(enemy);
+        enemy.OnDeathEvent -= UpdateEnemyCount;
+        
+        if (!_currentStage || _currentStage.IsTimeBasedStage) return;
+        
         OnEnemyDeath?.Invoke(enemy);
         
         if (_activeEnemies.Count <= 0)
         {
             OnEnemyWaveCleared?.Invoke(_currentStage.WaveScoreWorth);
         }
-        
-        enemy.OnDeathEvent -= UpdateEnemyCount;
     }
     
     private void Death()
