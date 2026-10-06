@@ -1,4 +1,4 @@
-﻿using DNExtensions;
+﻿using DNExtensions.Utilities;
 using PrimeTween;
 using TMPro;
 using UnityEngine;

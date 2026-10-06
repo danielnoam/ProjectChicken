@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DNExtensions;
-using VInspector;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using UnityEditor;
 using UnityEngine;
+using DNExtensions.Systems.Scriptables;
 
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Scriptable Objects/New Weapon")]
 public class SOWeaponData : ScriptableObject

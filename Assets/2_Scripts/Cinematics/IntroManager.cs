@@ -1,4 +1,4 @@
-﻿using DNExtensions.VFXManager;
+﻿using DNExtensions.Systems.VFXManager;
 
 public class IntroManager : CinematicManager
 {

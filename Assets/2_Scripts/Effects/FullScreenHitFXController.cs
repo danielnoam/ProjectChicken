@@ -1,7 +1,8 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 
 [Serializable]
 public class HitFXSettings

@@ -1,4 +1,4 @@
-using DNExtensions;
+using DNExtensions.Utilities;
 using UnityEngine;
 
 
@@ -14,7 +14,7 @@ public class DistanceBasedOutline : MonoBehaviour
     [SerializeField] private Outline outline;
     
     [Header("Debug")]
-    [SerializeField, VInspector.ReadOnly] private float distance;
+    [SerializeField, ReadOnly] private float distance;
     
     
     private RailPlayer _player;
@@ -22,7 +22,7 @@ public class DistanceBasedOutline : MonoBehaviour
     
     private void OnEnable()
     {
-        if (!_player) _player = FindFirstObjectByType<RailPlayer>();
+        if (!_player) _player = FindAnyObjectByType<RailPlayer>();
     }
     
 

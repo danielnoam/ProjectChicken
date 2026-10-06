@@ -1,12 +1,13 @@
 using System;
-using DNExtensions;
+using DNExtensions.Utilities;
 using UnityEngine;
+using DNExtensions.Systems.ControllerRumble;
 
 
 public class BehaviorVibrateAndShakeOnSpawn : ProjectileBehaviorBase
 {
     [SerializeField] private bool vibrateControllerOnFire = true;
-    [SerializeField] private ControllerVibrationEffectSettings vibrationSettings;
+    [SerializeField] private ControllerRumbleEffectSettings vibrationSettings;
     
     [Space(10)]
     
@@ -16,7 +17,7 @@ public class BehaviorVibrateAndShakeOnSpawn : ProjectileBehaviorBase
 
     public override void OnSpawn(PlayerProjectile projectile, RailPlayer owner)
     {
-        if (vibrateControllerOnFire) projectile.WeaponInstance.ControllerVibrationSource.Vibrate(vibrationSettings);
+        if (vibrateControllerOnFire) projectile.WeaponInstance.ControllerRumbleSource.Rumble(vibrationSettings);
         if (shakeCameraOnFire) shakeSettings.GenerateImpulse(projectile.WeaponInstance.CinemachineImpulseSource);
     }
 

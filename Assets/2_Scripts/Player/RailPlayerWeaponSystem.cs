@@ -1,17 +1,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using DNExtensions;
+using DNExtensions.Utilities;
 using KBCore.Refs;
 using Unity.Cinemachine;
+using DNExtensions.Systems.ControllerRumble;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using VInspector;
+using DNExtensions.Systems.Scriptables;
 
 
 [RequireComponent(typeof(RailPlayer))]
 [RequireComponent(typeof(CinemachineImpulseSource))]
-[RequireComponent(typeof(ControllerVibrationSource))]
+[RequireComponent(typeof(ControllerRumbleSource))]
 public class RailPlayerWeaponSystem : MonoBehaviour
 {
     [SerializeField] private List<WeaponInstance> weapons = new List<WeaponInstance>();
@@ -22,7 +23,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Min(0f)] private float heatReleasedOnDodge = 25f;
     [Header("Overheat")]
     [SerializeField, Min(0.1f)] private float overHeatCooldown = 3f;
-    [SerializeField] private ControllerVibrationEffectSettings vibrationOnOverheatSettings = new ControllerVibrationEffectSettings();
+    [SerializeField] private ControllerRumbleEffectSettings vibrationOnOverheatSettings = new ControllerRumbleEffectSettings();
     [SerializeField] private bool overHeatMiniGame = true;
     [ShowIf("overHeatMiniGame")]
     [SerializeField] private bool overHeatResetsGame;
@@ -51,7 +52,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
-    [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerVibrationSource;
     [SerializeField, Self, HideInInspector] private CinemachineImpulseSource impulseSource;
 
 
@@ -402,7 +403,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         if (overHeatResetsGame) _miniGameAttempted = false;
         weaponOverheatSfx?.Play(audioSource);
         ActiveWeaponInstance?.OnWeaponOverheat();
-        controllerVibrationSource.Vibrate(vibrationOnOverheatSettings);
+        controllerVibrationSource.Rumble(vibrationOnOverheatSettings);
         
         OnWeaponOverheatedEvent?.Invoke();
     }
@@ -703,7 +704,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
             FireActiveWeapon();
         }
         
-        if (Input.GetKeyDown(KeyCode.F1))
+        if (DebugKeyPressed(Key.F1))
         {
             if (weapons.Count > 1)
             {
@@ -714,7 +715,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 }
             }
         }
-        else if (Input.GetKeyDown(KeyCode.F2))
+        else if (DebugKeyPressed(Key.F2))
         {
             if (weapons.Count > 2)
             {
@@ -725,7 +726,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
                 }
             }
         }
-        else if (Input.GetKeyDown(KeyCode.F3))
+        else if (DebugKeyPressed(Key.F3))
         {
             if (weapons.Count > 0)
             {
@@ -743,7 +744,7 @@ public class RailPlayerWeaponSystem : MonoBehaviour
         //         }
         //     }
         // }
-        else if (Input.GetKeyDown(KeyCode.F5))
+        else if (DebugKeyPressed(Key.F5))
         {
             UpgradeCurrentWeapon();
             ResetHeat();
@@ -751,4 +752,14 @@ public class RailPlayerWeaponSystem : MonoBehaviour
     }
 
     #endregion Input Handling --------------------------------------------------------------------------------------
+
+    // Debug shortcuts only work in the editor and development builds
+    private static bool DebugKeyPressed(Key key)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        return Keyboard.current != null && Keyboard.current[key].wasPressedThisFrame;
+#else
+        return false;
+#endif
+    }
 }

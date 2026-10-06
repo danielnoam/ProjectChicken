@@ -1,13 +1,15 @@
 using System;
 using System.Collections;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using KBCore.Refs;
 using Unity.Cinemachine;
+using DNExtensions.Systems.ControllerRumble;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Systems.Scriptables;
 
 [RequireComponent(typeof(RailPlayer))]
-[RequireComponent(typeof(ControllerVibrationSource))]
+[RequireComponent(typeof(ControllerRumbleSource))]
 [RequireComponent(typeof(CinemachineImpulseSource))]
 public class RailPlayerHealth : MonoBehaviour
 {
@@ -24,9 +26,9 @@ public class RailPlayerHealth : MonoBehaviour
     [SerializeField] private CameraShakeSettings deathShakeSettings;
     
     [Header("Controller Rumble")]
-    [SerializeField] private ControllerVibrationEffectSettings shieldDamagedVibrationSettings;
-    [SerializeField] private ControllerVibrationEffectSettings healthDamagedVibrationSettings;
-    [SerializeField] private ControllerVibrationEffectSettings deathVibrationSettings;
+    [SerializeField] private ControllerRumbleEffectSettings shieldDamagedVibrationSettings;
+    [SerializeField] private ControllerRumbleEffectSettings healthDamagedVibrationSettings;
+    [SerializeField] private ControllerRumbleEffectSettings deathVibrationSettings;
     
     [Header("Fullscreen FX")]
     [SerializeField] private PunchSettings healthDamageFsFX = new PunchSettings();
@@ -52,13 +54,13 @@ public class RailPlayerHealth : MonoBehaviour
     
     [Header("References")]
     [SerializeField, Self, HideInInspector] private RailPlayer player;
-    [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerVibrationSource;
     [SerializeField, Self, HideInInspector] private CinemachineImpulseSource cinemachineImpulseSource;
     
     [Separator]
-    [SerializeField, VInspector.ReadOnly] private float damagedCooldown;
-    [SerializeField, VInspector.ReadOnly] private float hitFrameTimer;
-    [SerializeField, VInspector.ReadOnly] private bool regenSfxWasPlaying;
+    [SerializeField, ReadOnly] private float damagedCooldown;
+    [SerializeField, ReadOnly] private float hitFrameTimer;
+    [SerializeField, ReadOnly] private bool regenSfxWasPlaying;
     private Coroutine _regenShieldCoroutine;
 
 
@@ -183,7 +185,7 @@ public class RailPlayerHealth : MonoBehaviour
         StopHitFrames();
         deathSfx?.Play(healthAudioSource);
         if (deathParticleEffect) deathParticleEffect.Play();
-        controllerVibrationSource.Vibrate(deathVibrationSettings);
+        controllerVibrationSource.Rumble(deathVibrationSettings);
         FullScreenHitFXController.Instance?.Punch(deathFsFX);
         deathShakeSettings.GenerateImpulse(cinemachineImpulseSource);
         
@@ -237,7 +239,7 @@ public class RailPlayerHealth : MonoBehaviour
         {
             healthDamagedShakeSettings.GenerateImpulse(cinemachineImpulseSource);
             if (healthDamageParticleEffect) healthDamageParticleEffect.Play();
-            controllerVibrationSource.Vibrate(healthDamagedVibrationSettings);
+            controllerVibrationSource.Rumble(healthDamagedVibrationSettings);
             FullScreenHitFXController.Instance?.Punch(healthDamageFsFX);
             healthDamageSfx?.Play(healthAudioSource);
             
@@ -325,7 +327,7 @@ public class RailPlayerHealth : MonoBehaviour
         else
         {
             if (shieldDamageParticleEffect) shieldDamageParticleEffect.Play();
-            controllerVibrationSource.Vibrate(shieldDamagedVibrationSettings);
+            controllerVibrationSource.Rumble(shieldDamagedVibrationSettings);
             shieldDamageSfx?.Play(shieldAudioSource);
         }
         

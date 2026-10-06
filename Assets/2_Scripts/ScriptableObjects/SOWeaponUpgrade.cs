@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
-using AYellowpaper;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using UnityEngine;
-using VInspector;
 using UnityEditor;
 
 
 
 public class SOWeaponUpgrade : SOUpgradeBase
 {
-    [SerializeField, VInspector.ReadOnly] private SOWeaponData baseWeapon;
+    [SerializeField, ReadOnly] private SOWeaponData baseWeapon;
     
     [Header("Override Weapon Settings")]
     [SerializeField] private bool overrideWeaponGfx;
@@ -60,7 +59,7 @@ public class SOWeaponUpgrade : SOUpgradeBase
     [ShowIf("ShowProjectileBehaviors"),SerializeReference] private List<ProjectileBehaviorBase> projectileBehaviors = new List<ProjectileBehaviorBase>(); [EndIf]
     
     [ShowIf("WeaponType", WeaponType.Hitscan),SerializeField] private bool overrideHitscanBehaviors;[EndIf]
-    [ShowIf("ShowHitscanBehaviors"), SerializeReference] private List<HitscanBehaviorBase> hitscanBehaviors = new List<HitscanBehaviorBase>(); [EndIf]
+    [ShowIf("ShowHitscanBehaviors"), SerializeReference] private List<HitscanBehaviorBase> hitscanBehaviors = new List<HitscanBehaviorBase>();
     
     
     

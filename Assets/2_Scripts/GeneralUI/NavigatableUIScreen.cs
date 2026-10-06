@@ -1,7 +1,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using DNExtensions;
+using DNExtensions.Utilities;
 using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.Events;
@@ -26,7 +26,7 @@ public abstract class NavigatableUIScreen : MonoBehaviour
         
         if (!levelManager)
         {
-            levelManager = FindFirstObjectByType<LevelManager>();
+            levelManager = FindAnyObjectByType<LevelManager>();
         }
         
         if (!canvasGroup)

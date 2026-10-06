@@ -48,7 +48,7 @@ public class RailPlayer : MonoBehaviour
         
         if (!levelManager)
         {
-            levelManager = FindFirstObjectByType<LevelManager>();
+            levelManager = FindAnyObjectByType<LevelManager>();
         }
     }
 

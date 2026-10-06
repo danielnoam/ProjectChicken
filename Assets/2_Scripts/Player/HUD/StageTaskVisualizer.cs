@@ -47,12 +47,12 @@ public class StageTaskVisualizer : MonoBehaviour
         
         if (!levelManager)
         {
-            levelManager = FindFirstObjectByType<LevelManager>();
+            levelManager = FindAnyObjectByType<LevelManager>();
         }
         
         if (!player)
         {
-            player = FindFirstObjectByType<RailPlayer>();
+            player = FindAnyObjectByType<RailPlayer>();
         }
 
         this.ValidateRefs();

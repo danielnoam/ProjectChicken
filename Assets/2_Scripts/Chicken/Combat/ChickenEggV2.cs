@@ -1,8 +1,9 @@
 using System;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Systems.ObjectPooling;
 using UnityEngine;
 
-public class ChickenEggV2 : MonoBehaviour, IPooledObject
+public class ChickenEggV2 : MonoBehaviour, IPoolable
 {
     [Header("Egg Settings")]
     public float lifetime = 5f;

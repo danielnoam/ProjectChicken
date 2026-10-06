@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using KBCore.Refs;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 
 public class ResourceManager : MonoBehaviour
 {
@@ -28,18 +29,18 @@ public class ResourceManager : MonoBehaviour
     {
         if (!enemySpawner)
         {
-            enemySpawner = FindFirstObjectByType<EnemySpawner>();
+            enemySpawner = FindAnyObjectByType<EnemySpawner>();
         }
         
         if (!levelManager)
         {
-            levelManager = FindFirstObjectByType<LevelManager>();
+            levelManager = FindAnyObjectByType<LevelManager>();
         }
         
         
         if (!player)
         {
-            player = FindFirstObjectByType<RailPlayer>();
+            player = FindAnyObjectByType<RailPlayer>();
         }
         
         this.ValidateRefs();

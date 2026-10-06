@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using PrimeTween;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 
 public class BackgroundObjectsAnimator : MonoBehaviour
 {

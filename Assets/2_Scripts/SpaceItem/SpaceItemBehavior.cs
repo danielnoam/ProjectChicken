@@ -182,7 +182,7 @@ public class SpaceItemBehavior : MonoBehaviour
         string itemName = gameObject.name.Replace("(Clone)", "").Trim();
 
         // Search through all pools to find matching prefab
-        SpaceItemPool[] allPools = FindObjectsByType<SpaceItemPool>(FindObjectsSortMode.None);
+        SpaceItemPool[] allPools = FindObjectsByType<SpaceItemPool>();
         foreach (SpaceItemPool pool in allPools)
         {
             foreach (GameObject prefab in pool.itemPrefabs)

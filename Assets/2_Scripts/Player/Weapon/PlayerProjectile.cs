@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DNExtensions;
+using DNExtensions.Utilities;
 using KBCore.Refs;
+using DNExtensions.Systems.ObjectPooling;
 using UnityEngine;
 
 
@@ -10,7 +11,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerProjectile : MonoBehaviour, IPooledObject
+public class PlayerProjectile : MonoBehaviour, IPoolable
 {
     
     [Header("References")]

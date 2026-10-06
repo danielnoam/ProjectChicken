@@ -27,7 +27,7 @@ public class FormationBoundaryManager : MonoBehaviour
 
     private void OnValidate()
     {
-        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>();
+        if (!levelManager) levelManager = FindAnyObjectByType<LevelManager>();
         
         UpdateBoundary();
         

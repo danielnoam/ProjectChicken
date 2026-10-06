@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using DNExtensions;
+using DNExtensions.Utilities;
 using KBCore.Refs;
 using PrimeTween;
 using TMPro;

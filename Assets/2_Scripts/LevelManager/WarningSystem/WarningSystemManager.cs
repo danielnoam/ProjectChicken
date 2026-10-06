@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using KBCore.Refs;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 
 public class WarningSystemManager : MonoBehaviour
 {
@@ -26,9 +27,9 @@ public class WarningSystemManager : MonoBehaviour
     
     private void OnValidate()
     {
-        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>();
-        if (!player) player = FindFirstObjectByType<RailPlayer>();
-        if (!enemySpawner) enemySpawner = FindFirstObjectByType<EnemySpawner>();
+        if (!levelManager) levelManager = FindAnyObjectByType<LevelManager>();
+        if (!player) player = FindAnyObjectByType<RailPlayer>();
+        if (!enemySpawner) enemySpawner = FindAnyObjectByType<EnemySpawner>();
         this.ValidateRefs();
     }
     

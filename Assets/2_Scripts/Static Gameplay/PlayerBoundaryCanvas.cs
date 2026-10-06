@@ -34,7 +34,7 @@ public class PlayerBoundaryCanvas : MonoBehaviour
             canvasRectTransform = targetCanvas.GetComponent<RectTransform>();
         }
 
-        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>();
+        if (!levelManager) levelManager = FindAnyObjectByType<LevelManager>();
 
         this.ValidateRefs();
     }

@@ -7,7 +7,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using PrimeTween;
-using VInspector;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 
 
 
@@ -143,13 +144,13 @@ public class HUDManager : MonoBehaviour
     {
         if (!levelManager)
         {
-            levelManager = FindFirstObjectByType<LevelManager>();
+            levelManager = FindAnyObjectByType<LevelManager>();
         }
         
         
         if (!player)
         {
-            player = FindFirstObjectByType<RailPlayer>();
+            player = FindAnyObjectByType<RailPlayer>();
         }
     }
 

@@ -215,7 +215,7 @@ public class EnemyChickenRegistration : MonoBehaviour
     {
         if (combatManager == null)
         {
-            combatManager = FindFirstObjectByType<ChickenCombatManagerV4>();
+            combatManager = FindAnyObjectByType<ChickenCombatManagerV4>();
 
             if (combatManager == null && showCombatRegistrationLogs)
             {
@@ -265,7 +265,7 @@ public class EnemyChickenRegistration : MonoBehaviour
 
         if (manager == null)
         {
-            manager = FindFirstObjectByType<EnemyChickenManager>();
+            manager = FindAnyObjectByType<EnemyChickenManager>();
         }
 
         if (manager == null)

@@ -2,8 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using DNExtensions;
-using DNExtensions.MenuSystem;
+using DNExtensions.Utilities;
+using MenuSystem;
 using PrimeTween;
 using TMPEffects.Components;
 using TMPro;
@@ -12,7 +12,6 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using VInspector;
 using Sequence = PrimeTween.Sequence;
 
 public class MainMenuElementLevelSelection : MainMenuElement
@@ -38,7 +37,7 @@ public class MainMenuElementLevelSelection : MainMenuElement
     [EndFoldout]
 
     [Separator]
-    [SerializeField,DNExtensions.ReadOnly] private Selectable currentSelectable;
+    [SerializeField,ReadOnly] private Selectable currentSelectable;
     private readonly List<LevelUIData> _levelUIData = new List<LevelUIData>();
     private Coroutine _writerDelayRoutine;
     private LevelUIData _currentlyShownLevel;

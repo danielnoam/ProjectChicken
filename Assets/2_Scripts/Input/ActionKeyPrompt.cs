@@ -4,7 +4,8 @@ using KBCore.Refs;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using VInspector;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 
 public class ActionKeyPrompt : MonoBehaviour
 {
@@ -36,7 +37,7 @@ public class ActionKeyPrompt : MonoBehaviour
 
     private void Awake()
     {
-        if (!inputManager) inputManager = FindFirstObjectByType<InputManager>();
+        if (!inputManager) inputManager = FindAnyObjectByType<InputManager>();
     }
 
     private void Start()

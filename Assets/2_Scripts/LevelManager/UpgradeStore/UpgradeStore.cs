@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DNExtensions.MenuSystem;
+using MenuSystem;
 using KBCore.Refs;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using VInspector;
+using DNExtensions.Utilities;
 using Random = UnityEngine.Random;
 
 
@@ -141,7 +141,7 @@ public class UpgradeStore : NavigatableUIScreen
         
         if (!player)
         {
-            player = FindFirstObjectByType<RailPlayer>();
+            player = FindAnyObjectByType<RailPlayer>();
         }
         
         this.ValidateRefs();

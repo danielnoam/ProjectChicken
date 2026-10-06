@@ -1,8 +1,9 @@
+using DNExtensions.Systems.ObjectPooling;
 using UnityEngine;
 using UnityEngine.UI;
-using DNExtensions;
+using DNExtensions.Utilities;
 
-public class EggWarningCircle : MonoBehaviour, IPooledObject
+public class EggWarningCircle : MonoBehaviour, IPoolable
 {
     [Header("Visual Components")]
     [SerializeField] private Image circleImage;

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using KBCore.Refs;
 using UnityEngine;
 using UnityEngine.Splines;
-using VInspector;
 using Random = UnityEngine.Random;
 
 
@@ -52,12 +52,12 @@ public class ObstacleManager : MonoBehaviour
     {
         if (!levelManager)
         {
-            levelManager = FindFirstObjectByType<LevelManager>();
+            levelManager = FindAnyObjectByType<LevelManager>();
         }
         
         if (!player)
         {
-            player = FindFirstObjectByType<RailPlayer>();
+            player = FindAnyObjectByType<RailPlayer>();
         }
         
         this.ValidateRefs();

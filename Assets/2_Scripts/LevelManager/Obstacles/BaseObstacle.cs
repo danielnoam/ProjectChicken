@@ -1,12 +1,14 @@
 ﻿using System;
-using DNExtensions;
+using DNExtensions.Utilities;
 using PrimeTween;
 using Unity.Cinemachine;
+using DNExtensions.Systems.ControllerRumble;
 using UnityEngine;
 using UnityEngine.Splines;
+using DNExtensions.Systems.Scriptables;
 
 [RequireComponent(typeof(AudioSource))]
-[RequireComponent(typeof(ControllerVibrationSource))]
+[RequireComponent(typeof(ControllerRumbleSource))]
 [RequireComponent(typeof(CinemachineImpulseSource))]
 public abstract class BaseObstacle : MonoBehaviour, IDamageable
 {
@@ -26,10 +28,10 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
     [SerializeField] protected float flyByDistance = 50f;
     [SerializeField] protected SOAudioEvent flyBySfx;
     [SerializeField] protected CameraShakeSettings flyByCameraShakeSettings;
-    [SerializeField] protected ControllerVibrationEffectSettings flyByVibrationEffectSettings;
+    [SerializeField] protected ControllerRumbleEffectSettings flyByVibrationEffectSettings;
     
     [Header("References")]
-    [SerializeField] protected ControllerVibrationSource vibrationSource;
+    [SerializeField] protected ControllerRumbleSource vibrationSource;
     [SerializeField] protected CinemachineImpulseSource impulseSource;
     [SerializeField] protected AudioSource audioSource;
     
@@ -159,7 +161,7 @@ public abstract class BaseObstacle : MonoBehaviour, IDamageable
 
         flyByEffectsPlayed = true;
         flyBySfx?.Play(audioSource);
-        vibrationSource.Vibrate(flyByVibrationEffectSettings);
+        vibrationSource.Rumble(flyByVibrationEffectSettings);
         if (flyByPosition == default)
         {
             flyByCameraShakeSettings.GenerateImpulse(impulseSource);

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using PrimeTween;
 using UnityEngine;
-using VInspector;
 
 public class ReticleVisualsController : MonoBehaviour
 {

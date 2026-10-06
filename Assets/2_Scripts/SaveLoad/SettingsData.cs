@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Utilities;
 
 [Serializable]
 public class SettingsData

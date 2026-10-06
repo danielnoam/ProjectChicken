@@ -1,9 +1,8 @@
 using System;
 using System.Collections;
-using DNExtensions;
+using DNExtensions.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VInspector;
 
 public class FullScreenPLController : MonoBehaviour
 {
@@ -65,7 +64,7 @@ public class FullScreenPLController : MonoBehaviour
 
     private void Start()
     {
-        _levelManager = FindFirstObjectByType<LevelManager>();
+        _levelManager = FindAnyObjectByType<LevelManager>();
 
         _currentLeftIntensity = 0f;
         _currentRightIntensity = 0f;
@@ -94,7 +93,7 @@ public class FullScreenPLController : MonoBehaviour
 
     private void OnSceneChange(Scene scene, LoadSceneMode loadSceneMode)
     {
-        _levelManager = FindFirstObjectByType<LevelManager>();
+        _levelManager = FindAnyObjectByType<LevelManager>();
 
         _currentLeftIntensity = 0f;
         _currentRightIntensity = 0f;

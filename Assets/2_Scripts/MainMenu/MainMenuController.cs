@@ -1,15 +1,15 @@
 using System;
-using DNExtensions;
+using DNExtensions.Utilities;
 using KBCore.Refs;
+using DNExtensions.Systems.ControllerRumble;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using VInspector;
 
 
 [SelectionBase]
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(MainMenuInput))]
-[RequireComponent(typeof(ControllerVibrationSource))]
+[RequireComponent(typeof(ControllerRumbleSource))]
 public class MainMenuController : MonoBehaviour
 {
 
@@ -17,15 +17,15 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private MainMenuElement[] menuElements;
     
     [Header("Controller Rumble")]
-    [SerializeField] private ControllerVibrationEffectSettings vibrationOnInteract = new ControllerVibrationEffectSettings(0.03f, 0f, 0.3f);
-    [SerializeField] private ControllerVibrationEffectSettings vibrationOnSelect = new ControllerVibrationEffectSettings(0.03f, 0f, 0.3f);
+    [SerializeField] private ControllerRumbleEffectSettings vibrationOnInteract = new ControllerRumbleEffectSettings(0.03f, 0f, 0.3f);
+    [SerializeField] private ControllerRumbleEffectSettings vibrationOnSelect = new ControllerRumbleEffectSettings(0.03f, 0f, 0.3f);
     
     [Header("References")]
     [SerializeField] private Transform defaultCameraPosition;
     [SerializeField] private Transform defaultCameraLookAtPoint;
     [SerializeField, Self, HideInInspector] private AudioSource audioSource;
     [SerializeField, Self, HideInInspector] public MainMenuInput mainMenuInput;
-    [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerVibrationSource;
     
     
     private bool _isInteracting;
@@ -96,7 +96,7 @@ public class MainMenuController : MonoBehaviour
         }
 
         DisableSelection();
-        controllerVibrationSource.Vibrate(vibrationOnSelect);
+        controllerVibrationSource.Rumble(vibrationOnSelect);
 
         _currentMenuElementIndex = index;
         _currentMainMenuElement = menuElements[index];
@@ -192,7 +192,7 @@ public class MainMenuController : MonoBehaviour
     {
         if (_isInteracting || !element.CanSelect) return;
         
-        controllerVibrationSource.Vibrate(vibrationOnInteract);
+        controllerVibrationSource.Rumble(vibrationOnInteract);
         _isInteracting = true;
         element?.Interact();
         onElementInteracted?.Invoke(element);
@@ -200,7 +200,7 @@ public class MainMenuController : MonoBehaviour
     
     private void StopInteraction(MainMenuElement element)
     {
-        controllerVibrationSource.Vibrate(vibrationOnInteract);
+        controllerVibrationSource.Rumble(vibrationOnInteract);
         _isInteracting = false;
         element?.StopInteraction();
         onElementFinishedInteraction?.Invoke(element);

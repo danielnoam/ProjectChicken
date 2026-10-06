@@ -1,7 +1,7 @@
-using DNExtensions;
+using DNExtensions.Utilities;
 using PrimeTween;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Systems.Scriptables;
 
 public class MainMenuElementEjectButton : MainMenuElement
 {

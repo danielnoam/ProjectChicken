@@ -1,7 +1,8 @@
-﻿using DNExtensions;
+﻿using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using PrimeTween;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Systems.Scriptables;
 
 [CreateAssetMenu(fileName = "New Warning", menuName = "Scriptable Objects/New Warning")]
 public class SOWarning : ScriptableObject

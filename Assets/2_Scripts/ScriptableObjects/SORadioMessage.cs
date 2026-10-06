@@ -1,14 +1,15 @@
-using Core.Attributes;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Systems.Scriptables;
+using DNExtensions.Utilities.Inline;
 
 [CreateAssetMenu(fileName = "New Radio Message", menuName = "Scriptable Objects/New Radio Message")]
 public class SORadioMessage : ScriptableObject
 {
 
     [Header("Message Info")]
-    [SerializeField, CreateEditableAsset] private SOCharacter sender;
+    [SerializeField, Inline] private SOCharacter sender;
     [SerializeField] private SOAudioEvent audioEvent;
     [Tooltip("If true, this message will skip to the start of the radios message queue")]
     [SerializeField] private bool isImportant;

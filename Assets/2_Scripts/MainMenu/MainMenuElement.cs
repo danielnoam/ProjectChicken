@@ -1,16 +1,17 @@
-using DNExtensions;
+using DNExtensions.Utilities;
 using KBCore.Refs;
 using TMPro;
+using DNExtensions.Systems.ControllerRumble;
 using UnityEngine;
 using PrimeTween;
 using Unity.Cinemachine;
 using UnityEngine.InputSystem;
-using VInspector;
 using Sequence = PrimeTween.Sequence;
+using DNExtensions.Systems.Scriptables;
 
 [SelectionBase]
 [RequireComponent(typeof(CinemachineImpulseSource))]
-[RequireComponent(typeof(ControllerVibrationSource))]
+[RequireComponent(typeof(ControllerRumbleSource))]
 public abstract class MainMenuElement : MonoBehaviour
 {
     
@@ -34,7 +35,7 @@ public abstract class MainMenuElement : MonoBehaviour
     [SerializeField] private SOAudioEvent interactSfx;
     [SerializeField, Parent, HideInInspector] protected MainMenuController mainMenuController;
     [SerializeField, Parent, HideInInspector] protected AudioSource audioSource;
-    [SerializeField, Self, HideInInspector] protected ControllerVibrationSource controllerVibrationSource;
+    [SerializeField, Self, HideInInspector] protected ControllerRumbleSource controllerVibrationSource;
     [SerializeField, Self, HideInInspector] protected CinemachineImpulseSource cinemachineImpulseSource;
     [SerializeField, Child(Flag.Optional), HideInInspector] private CinemachineCamera interactionCamera;
     [EndFoldout]

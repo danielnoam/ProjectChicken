@@ -1,10 +1,11 @@
 using System;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VInspector;
+using DNExtensions.Utilities.CustomFields;
 
 public class MusicManager : MonoBehaviour
 {
@@ -29,9 +30,9 @@ public class MusicManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI musicText;
     
     [Separator]
-    [SerializeField, DNExtensions.ReadOnly] private AudioSource currentAudioSource;
-    [SerializeField, DNExtensions.ReadOnly] private AudioClip currentClip;
-    [SerializeField, DNExtensions.ReadOnly] private LevelManager levelManager;
+    [SerializeField, ReadOnly] private AudioSource currentAudioSource;
+    [SerializeField, ReadOnly] private AudioClip currentClip;
+    [SerializeField, ReadOnly] private LevelManager levelManager;
     private Sequence _audioSourceSequence;
 
     private bool IsPlaying => currentAudioSource && currentAudioSource.isPlaying;
@@ -211,7 +212,7 @@ public class MusicManager : MonoBehaviour
 
     private void FindLevelManager()
     {
-        levelManager = FindFirstObjectByType<LevelManager>();
+        levelManager = FindAnyObjectByType<LevelManager>();
 
         if (levelManager)
         {

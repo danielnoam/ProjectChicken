@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;
-using VInspector;
 using Random = UnityEngine.Random;
 
 public class IntroChickensAnimator : MonoBehaviour

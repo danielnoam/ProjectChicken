@@ -1,7 +1,8 @@
 using System;
-using DNExtensions;
-using DNExtensions.VFXManager;
+using DNExtensions.Utilities;
+using DNExtensions.Systems.VFXManager;
 using UnityEngine;
+using DNExtensions.Utilities.CustomFields;
 
 [CreateAssetMenu(fileName = "New Level", menuName = "Scriptable Objects/New Level")]
 public class SOLevel : ScriptableObject
@@ -18,9 +19,9 @@ public class SOLevel : ScriptableObject
     [Header("References")]
     [SerializeField] private SceneField levelScene;
     [SerializeField] private GameObject levelGfxPrefab;
-    [SerializeField] private SOVFEffectsSequence loadVFXSequence;
-    [SerializeField] private SOVFEffectsSequence introVFXSequence;
-    [SerializeField] private SOVFEffectsSequence outroVFXSequence;
+    [SerializeField] private EffectSequence loadVFXSequence;
+    [SerializeField] private EffectSequence introVFXSequence;
+    [SerializeField] private EffectSequence outroVFXSequence;
 
     
     public string LevelName => levelName;
@@ -31,8 +32,8 @@ public class SOLevel : ScriptableObject
     public AudioClip LevelTheme => levelTheme;
     public SOLevel[] LevelsNeededToUnlock => levelsNeededToUnlock;
     public SOLevelStage[] LevelStages => levelStages;
-    public SOVFEffectsSequence IntroVFXSequence => introVFXSequence;
-    public SOVFEffectsSequence OutroVFXSequence => outroVFXSequence;
+    public EffectSequence IntroVFXSequence => introVFXSequence;
+    public EffectSequence OutroVFXSequence => outroVFXSequence;
     
     
     public void LoadLevel()

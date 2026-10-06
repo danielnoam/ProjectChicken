@@ -1,15 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Core.Attributes;
-using DNExtensions;
-using DNExtensions.VFXManager;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
+using DNExtensions.Systems.VFXManager;
 using KBCore.Refs;
 using PrimeTween;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using VInspector;
+using DNExtensions.Utilities.CustomFields;
+using DNExtensions.Utilities.Inline;
 
 
 
@@ -28,12 +29,12 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private bool debugLog;
     
     [Header("Current Level")]
-    [SerializeField, CreateEditableAsset] private SOLevel level;
-    [SerializeField, VInspector.ReadOnly] private SOLevelStage currentStage;
-    [SerializeField, VInspector.ReadOnly] private int currentStageIndex;
-    [SerializeField, VInspector.ReadOnly] private int enemiesLeft;
-    [SerializeField, VInspector.ReadOnly] private int obstaclesBroke;
-    [SerializeField, VInspector.ReadOnly] private int obstaclesPassedThrough;
+    [SerializeField, Inline] private SOLevel level;
+    [SerializeField, ReadOnly] private SOLevelStage currentStage;
+    [SerializeField, ReadOnly] private int currentStageIndex;
+    [SerializeField, ReadOnly] private int enemiesLeft;
+    [SerializeField, ReadOnly] private int obstaclesBroke;
+    [SerializeField, ReadOnly] private int obstaclesPassedThrough;
     
     [Header("References")]
     [SerializeField] private SceneField mainMenuScene;
@@ -52,13 +53,13 @@ public class LevelManager : MonoBehaviour
     
     
     [Separator]
-    [SerializeField, VInspector.ReadOnly] private bool isSettingStage;
-    [SerializeField, VInspector.ReadOnly] private bool canSkipCooldownFinished;
-    [SerializeField, VInspector.ReadOnly] private bool isGamePaused;
-    [SerializeField, VInspector.ReadOnly] private int currentScore;
-    [SerializeField, VInspector.ReadOnly] private int completedTaskCount;
-    [SerializeField, VInspector.ReadOnly] private float currentPathSpeed;
-    [SerializeField, VInspector.ReadOnly] private float worldSpeedBeforePause;
+    [SerializeField, ReadOnly] private bool isSettingStage;
+    [SerializeField, ReadOnly] private bool canSkipCooldownFinished;
+    [SerializeField, ReadOnly] private bool isGamePaused;
+    [SerializeField, ReadOnly] private int currentScore;
+    [SerializeField, ReadOnly] private int completedTaskCount;
+    [SerializeField, ReadOnly] private float currentPathSpeed;
+    [SerializeField, ReadOnly] private float worldSpeedBeforePause;
 
 
     
@@ -110,42 +111,42 @@ public class LevelManager : MonoBehaviour
         
         if (!player)
         {
-            player = FindFirstObjectByType<RailPlayer>();
+            player = FindAnyObjectByType<RailPlayer>();
         }
         
         if (!enemySpawner)
         {
-            enemySpawner = FindFirstObjectByType<EnemySpawner>();
+            enemySpawner = FindAnyObjectByType<EnemySpawner>();
         }
         
         if (!upgradeStore)
         {
-            upgradeStore = FindFirstObjectByType<UpgradeStore>();
+            upgradeStore = FindAnyObjectByType<UpgradeStore>();
         }
         
         if (!outroScreen)
         {
-            outroScreen = FindFirstObjectByType<OutroScreen>();
+            outroScreen = FindAnyObjectByType<OutroScreen>();
         }
         
         if (!boundaryManager)
         {
-            boundaryManager = FindFirstObjectByType<FormationBoundaryManager>();
+            boundaryManager = FindAnyObjectByType<FormationBoundaryManager>();
         }
         
         if (!resourceManager)
         {
-            resourceManager = FindFirstObjectByType<ResourceManager>();
+            resourceManager = FindAnyObjectByType<ResourceManager>();
         }
 
         if (!radioManager)
         {
-            radioManager = FindFirstObjectByType<RadioManager>();
+            radioManager = FindAnyObjectByType<RadioManager>();
         }
         
         if (!obstacleManager)
         {
-            obstacleManager = FindFirstObjectByType<ObstacleManager>();
+            obstacleManager = FindAnyObjectByType<ObstacleManager>();
         }
         
 
@@ -249,7 +250,7 @@ public class LevelManager : MonoBehaviour
     {
         UpdateStageEvents();
 
-        if (Input.GetKeyDown(KeyCode.F12))
+        if (DebugKeyPressed(Key.F12))
         {
             if (currentStageIndex < _levelStages.Length - 1)
             {
@@ -497,7 +498,7 @@ public class LevelManager : MonoBehaviour
             {
                 if (currentStage.StageType == StageType.Intro)
                 {
-                    VFXManager.Instance?.PlayVFX(level.IntroVFXSequence);
+                    VFXManager.Instance?.PlaySequence(level.IntroVFXSequence);
                     FullScreenHitFXController.Instance?.TransitionFrom(shipWarping, currentStage.StageDuration/2f);
                 }
                 SetNextStage(currentStage.StageDuration);
@@ -794,4 +795,14 @@ public class LevelManager : MonoBehaviour
     
 
     #endregion
+
+    // Debug shortcuts only work in the editor and development builds
+    private static bool DebugKeyPressed(Key key)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        return Keyboard.current != null && Keyboard.current[key].wasPressedThisFrame;
+#else
+        return false;
+#endif
+    }
 }

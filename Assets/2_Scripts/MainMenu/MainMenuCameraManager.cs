@@ -31,7 +31,7 @@ public class MainMenuCameraManager : MonoBehaviour
     {
         if (!mainMenuController)
         {
-            mainMenuController = FindFirstObjectByType<MainMenuController>();
+            mainMenuController = FindAnyObjectByType<MainMenuController>();
         }
         else
         {

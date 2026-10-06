@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using VInspector;
+using DNExtensions.Utilities;
 
 public enum UpgradeRarity
 {

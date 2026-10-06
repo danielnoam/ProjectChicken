@@ -1,12 +1,13 @@
 using System;
-using DNExtensions;
+using DNExtensions.Utilities;
 using UnityEngine;
+using DNExtensions.Systems.ControllerRumble;
 
 
 public class BehaviorVibrateAndShakeOnStart : HitscanBehaviorBase
 {
     [SerializeField] private bool vibrateControllerOnFire = true;
-    [SerializeField] private ControllerVibrationEffectSettings vibrationSettings;
+    [SerializeField] private ControllerRumbleEffectSettings vibrationSettings;
     
     [Space(10)]
     
@@ -17,7 +18,7 @@ public class BehaviorVibrateAndShakeOnStart : HitscanBehaviorBase
     
     public override void OnStart(WeaponInstance weaponInstance, RailPlayer owner,ITargetable target = null)
     {
-        if (vibrateControllerOnFire) weaponInstance.ControllerVibrationSource.Vibrate(vibrationSettings);
+        if (vibrateControllerOnFire) weaponInstance.ControllerRumbleSource.Rumble(vibrationSettings);
         if (shakeCameraOnFire) shakeSettings.GenerateImpulse(weaponInstance.CinemachineImpulseSource);
     }
 

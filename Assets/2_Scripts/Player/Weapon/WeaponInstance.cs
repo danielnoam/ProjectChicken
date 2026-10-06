@@ -1,5 +1,7 @@
-﻿using DNExtensions;
+﻿using DNExtensions.Utilities;
 using Unity.Cinemachine;
+using DNExtensions.Systems.ObjectPooling;
+using DNExtensions.Systems.ControllerRumble;
 using UnityEngine;
 
 [System.Serializable]
@@ -32,7 +34,7 @@ public class WeaponInstance
     public SOWeaponData CurrentWeaponData { get; private set; }
     public WeaponGfx CurrentWeaponGfx { get; private set; }
     public Transform[] CurrentWeaponBarrels { get; private set; }
-    public ControllerVibrationSource  ControllerVibrationSource { get; private set; }
+    public ControllerRumbleSource  ControllerRumbleSource { get; private set; }
     public CinemachineImpulseSource CinemachineImpulseSource {  get; private set; }
     
     
@@ -41,9 +43,9 @@ public class WeaponInstance
     private float NormalizedSpread => CurrentWeaponData ? Mathf.InverseLerp(CurrentWeaponData.SpreadRange.minValue, CurrentWeaponData.SpreadRange.maxValue, _currentSpread) : 0f;
 
     
-    public void SetUpWeaponInstance(RailPlayer player, ControllerVibrationSource controllerVibrationSource, CinemachineImpulseSource cinemachineImpulseSource)
+    public void SetUpWeaponInstance(RailPlayer player, ControllerRumbleSource controllerVibrationSource, CinemachineImpulseSource cinemachineImpulseSource)
     {
-        ControllerVibrationSource = controllerVibrationSource;
+        ControllerRumbleSource = controllerVibrationSource;
         CinemachineImpulseSource = cinemachineImpulseSource;
         
         weaponGfx?.gameObject.SetActive(true);

@@ -1,8 +1,8 @@
 ﻿using System;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using UnityEngine;
 using PrimeTween;
-using VInspector;
 
 
 public class BackgroundObjectMover : MonoBehaviour
@@ -17,9 +17,9 @@ public class BackgroundObjectMover : MonoBehaviour
     [SerializeField] private int startFromStage = 2;
     
     [Separator]
-    [SerializeField, VInspector.ReadOnly] private bool isInitialized;
-    [SerializeField, VInspector.ReadOnly] private int currentStageIndex;
-    [SerializeField, VInspector.ReadOnly] private int totalStages;
+    [SerializeField, ReadOnly] private bool isInitialized;
+    [SerializeField, ReadOnly] private int currentStageIndex;
+    [SerializeField, ReadOnly] private int totalStages;
     
     private LevelManager _levelManager;
     private Tween _currentTween;
@@ -81,7 +81,7 @@ public class BackgroundObjectMover : MonoBehaviour
     {
         if (!_levelManager)
         {
-            _levelManager = FindFirstObjectByType<LevelManager>();
+            _levelManager = FindAnyObjectByType<LevelManager>();
         }
     }
 

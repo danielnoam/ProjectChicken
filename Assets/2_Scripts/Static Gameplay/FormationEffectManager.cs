@@ -825,9 +825,9 @@ public class FormationEffectManager : MonoBehaviour
     void OnValidate()
     {
         // Find references if not assigned
-        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>(FindObjectsInactive.Include);
-        if (!player) player = FindFirstObjectByType<RailPlayer>(FindObjectsInactive.Include);
-        if (!combatManager) combatManager = FindFirstObjectByType<ChickenCombatManagerV4>(FindObjectsInactive.Include);
+        if (!levelManager) levelManager = FindAnyObjectByType<LevelManager>(FindObjectsInactive.Include);
+        if (!player) player = FindAnyObjectByType<RailPlayer>(FindObjectsInactive.Include);
+        if (!combatManager) combatManager = FindAnyObjectByType<ChickenCombatManagerV4>(FindObjectsInactive.Include);
 
         this.ValidateRefs();
 

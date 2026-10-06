@@ -1,10 +1,11 @@
 ﻿using System;
-using DNExtensions;
+using DNExtensions.Utilities;
 using PrimeTween;
 using TMPEffects.Components;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using DNExtensions.Systems.Scriptables;
 
 [RequireComponent(typeof(AudioSource))]
 public class RadioMessageUI : MonoBehaviour

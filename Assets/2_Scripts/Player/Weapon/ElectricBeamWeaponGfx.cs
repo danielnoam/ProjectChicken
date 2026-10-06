@@ -1,5 +1,5 @@
 using System;
-using DNExtensions;
+using DNExtensions.Utilities;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.VFX;

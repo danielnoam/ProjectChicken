@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
-using DNExtensions;
+using DNExtensions.Utilities;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DNExtensions.Systems.Scriptables;
 
 public class UpgradeEgg : MonoBehaviour
 {

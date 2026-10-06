@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using DNExtensions;
+using DNExtensions.Utilities;
 using KBCore.Refs;
+using DNExtensions.Systems.ControllerRumble;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using VInspector;
 
 [RequireComponent(typeof(RailPlayer))]
 public class RailPlayerAiming : MonoBehaviour
@@ -29,15 +29,15 @@ public class RailPlayerAiming : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private RailPlayerMovement playerMovement;
     [SerializeField, Self, HideInInspector] private RailPlayerWeaponSystem playerWeapon;
-    [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerVibrationSource;
 
 
     [Separator]
-    [SerializeField, VInspector.ReadOnly] private Vector2 processedLookInput;
-    [SerializeField, VInspector.ReadOnly] private Vector2 normalizedAimPosition;
-    [SerializeField, VInspector.ReadOnly] private float noInputTimer;
-    [SerializeField, VInspector.ReadOnly] private float aimLockCooldownTimer;
-    [SerializeField, VInspector.ReadOnly] private bool isAimLocked;
+    [SerializeField, ReadOnly] private Vector2 processedLookInput;
+    [SerializeField, ReadOnly] private Vector2 normalizedAimPosition;
+    [SerializeField, ReadOnly] private float noInputTimer;
+    [SerializeField, ReadOnly] private float aimLockCooldownTimer;
+    [SerializeField, ReadOnly] private bool isAimLocked;
 
     private ITargetable _currentAimLockTarget;
     private Coroutine _aimMovementCoroutine;

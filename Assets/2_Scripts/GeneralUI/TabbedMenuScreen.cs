@@ -1,6 +1,6 @@
 using System;
-using DNExtensions;
-using DNExtensions.MenuSystem;
+using DNExtensions.Utilities;
+using MenuSystem;
 using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;

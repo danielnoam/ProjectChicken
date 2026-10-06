@@ -14,7 +14,7 @@ public class InputReaderBase : MonoBehaviour
 
     protected virtual void OnValidate()
     {
-        if (!inputManager) inputManager = FindFirstObjectByType<InputManager>();
+        if (!inputManager) inputManager = FindAnyObjectByType<InputManager>();
         this.ValidateRefs();
     }
 

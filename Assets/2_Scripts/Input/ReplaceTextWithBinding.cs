@@ -2,7 +2,8 @@ using System;
 using UnityEngine;
 using TMPro;
 using UnityEngine.InputSystem;
-using VInspector;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 
 public class ReplaceTextWithBinding : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class ReplaceTextWithBinding : MonoBehaviour
     private void Awake()
     {
 
-        if (!inputManager) inputManager = FindFirstObjectByType<InputManager>();
+        if (!inputManager) inputManager = FindAnyObjectByType<InputManager>();
         
         if (textComponent)
         {

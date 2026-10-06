@@ -1,6 +1,7 @@
+using DNExtensions.Systems.ObjectPooling;
 using UnityEngine;
 using System.Collections.Generic;
-using DNExtensions;
+using DNExtensions.Utilities;
 
 public class EggWarningSystem : MonoBehaviour
 {
@@ -63,7 +64,7 @@ public class EggWarningSystem : MonoBehaviour
         // Auto-find canvas if enabled
         if (autoFindCanvas && targetCanvasTransform == null)
         {
-            PlayerBoundaryCanvas boundaryCanvas = FindFirstObjectByType<PlayerBoundaryCanvas>();
+            PlayerBoundaryCanvas boundaryCanvas = FindAnyObjectByType<PlayerBoundaryCanvas>();
             if (boundaryCanvas != null)
             {
                 targetCanvasTransform = boundaryCanvas.transform;

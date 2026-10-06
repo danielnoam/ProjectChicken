@@ -1,9 +1,10 @@
 using System;
-using DNExtensions;
-using DNExtensions.VFXManager;
+using DNExtensions.Utilities;
+using DNExtensions.Systems.VFXManager;
 using PrimeTween;
+using DNExtensions.Systems.ControllerRumble;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Systems.Scriptables;
 
 public class MainMenuElementLaunchLever : MainMenuElement
 {
@@ -18,8 +19,8 @@ public class MainMenuElementLaunchLever : MainMenuElement
     
     [Header("Effects On Launch")]
     [SerializeField] private CameraShakeSettings cameraShakeSettings;
-    [SerializeField] private ControllerVibrationEffectSettings controllerVibrationSettings;
-    [SerializeField] private SOVFEffectsSequence vfxSequenceOnLaunch;
+    [SerializeField] private ControllerRumbleEffectSettings controllerVibrationSettings;
+    [SerializeField] private EffectSequence vfxSequenceOnLaunch;
     [SerializeField] private SOAudioEvent launchSfx;
     
     
@@ -126,8 +127,8 @@ public class MainMenuElementLaunchLever : MainMenuElement
                 .ChainCallback(() =>
                 {
                     cameraShakeSettings.GenerateImpulse(cinemachineImpulseSource);
-                    controllerVibrationSource?.Vibrate(controllerVibrationSettings);
-                    VFXManager.Instance?.PlayVFX(vfxSequenceOnLaunch);
+                    controllerVibrationSource?.Rumble(controllerVibrationSettings);
+                    VFXManager.Instance?.PlaySequence(vfxSequenceOnLaunch);
                     backgroundObjectsAnimator?.StartAnimation();
                     launchSfx?.Play(audioSource);
                 })

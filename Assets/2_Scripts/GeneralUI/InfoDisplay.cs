@@ -1,7 +1,8 @@
 using System;
-using DNExtensions;
+using DNExtensions.Utilities;
 using PrimeTween;
 using UnityEngine;
+using DNExtensions.Systems.Scriptables;
 
 [RequireComponent(typeof(AudioSource))]
 public class InfoDisplay : MonoBehaviour

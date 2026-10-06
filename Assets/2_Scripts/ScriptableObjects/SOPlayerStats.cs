@@ -1,5 +1,5 @@
 
-using DNExtensions;
+using DNExtensions.Utilities;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "PlayerStats", menuName = "Scriptable Objects/New Player Stats")]

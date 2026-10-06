@@ -1,10 +1,11 @@
 using System;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Systems.ObjectPooling;
 using UnityEngine;
 
 [RequireComponent(typeof(ChickenHealth))]
 [RequireComponent(typeof(EnemyChickenRegistration))]
-public class ChickenStateController : MonoBehaviour, IPooledObject, ITargetable, IDamageable
+public class ChickenStateController : MonoBehaviour, IPoolable, ITargetable, IDamageable
 {
     [Header("Current State")]
     [SerializeField] private ChickenState currentState = ChickenState.Idle;

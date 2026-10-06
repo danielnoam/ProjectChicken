@@ -1,9 +1,9 @@
 ﻿using System;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using KBCore.Refs;
 using PrimeTween;
 using UnityEngine;
-using VInspector;
 
 public class ShieldEffectManager : MonoBehaviour
 {

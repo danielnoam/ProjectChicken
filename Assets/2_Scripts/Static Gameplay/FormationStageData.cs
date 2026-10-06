@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Utilities;
 
 [Serializable]
 public class FormationStageData
@@ -28,7 +28,7 @@ public class FormationStageData
     [SerializeField, Min(0.1f)] private float formationSpacing;
     
     [Tooltip("Maximum attempts to place formations without overlap")]
-    [SerializeField, Range(10, 1000), ShowIf("useRandomPlacement")] private int maxPlacementAttempts;[EndIf]
+    [SerializeField, Range(10, 1000), ShowIf("useRandomPlacement")] private int maxPlacementAttempts;
     
     // Public properties to access the settings
     public FormationCreator.FormationType FormationType => formationType;

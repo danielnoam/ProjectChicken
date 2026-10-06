@@ -39,7 +39,7 @@ public class WorldSpeedMaterialController : MonoBehaviour
 
     private void Awake()
     {
-        _levelManager = FindFirstObjectByType<LevelManager>();
+        _levelManager = FindAnyObjectByType<LevelManager>();
         
         ResetMaterialSpeeds();
     }

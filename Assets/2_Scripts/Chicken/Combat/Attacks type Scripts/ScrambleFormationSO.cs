@@ -87,7 +87,7 @@ public class ScrambleFormationSO : BaseChickenAttackSO
         }
 
         // Otherwise search by component type
-        return FindFirstObjectByType<EnemyChickenManager>();
+        return FindAnyObjectByType<EnemyChickenManager>();
     }
 
     // Optional: Add visual/audio feedback for scramble

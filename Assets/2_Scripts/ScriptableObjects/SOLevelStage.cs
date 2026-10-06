@@ -1,9 +1,9 @@
 using System;
-using Core.Attributes;
-using DNExtensions;
+using DNExtensions.Utilities;
 using UnityEngine;
 using UnityEngine.Events;
-using VInspector;
+using DNExtensions.Utilities.CustomFields;
+using DNExtensions.Utilities.Inline;
 
 [CreateAssetMenu(fileName = "New Level Stage", menuName = "Scriptable Objects/New Level Stage")]
 public class SOLevelStage : ScriptableObject
@@ -14,8 +14,8 @@ public class SOLevelStage : ScriptableObject
     [SerializeField] private bool isCheckpoint;
     [SerializeField] private bool allowSkip;
     [SerializeField] private bool playRandomMessages;
-    [SerializeField, CreateEditableAsset] private SORadioMessage startRadioMessage;
-    [SerializeField, CreateEditableAsset] private SOWarning startWarning;
+    [SerializeField, Inline] private SORadioMessage startRadioMessage;
+    [SerializeField, Inline] private SOWarning startWarning;
     [SerializeReference] private StageEvent[] events = Array.Empty<StageEvent>();
     
     
@@ -73,13 +73,12 @@ public class SOLevelStage : ScriptableObject
     [ShowIf("IsGameplayStage")]
     [Header("Camera")]
     [SerializeField] private Vector3 followCameraOffset = Vector3.zero;
-    [EndIf]
     
     
     public bool IsTimeBasedStage => stageType is StageType.Delay or StageType.Intro or StageType.Outro;
     public bool IsEnemyOrTaskStage => stageType is StageType.EnemyWave or StageType.Task;
     public bool IsGameplayStage => stageType is StageType.EnemyWave or StageType.Task or StageType.Delay;
-    public bool ShowNextLevel => outroMode is OutroMode.LoadNextLevel or OutroMode.ShowOutroMenu;
+    public bool ShowNextLevel => stageType == StageType.Outro && outroMode is OutroMode.LoadNextLevel or OutroMode.ShowOutroMenu;
     
     
     

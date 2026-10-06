@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using KBCore.Refs;
 using UnityEngine;
-using VInspector;
 
 public class RailPlayerResourceCollector : MonoBehaviour
 {
@@ -14,8 +14,8 @@ public class RailPlayerResourceCollector : MonoBehaviour
 
     
     [Separator]
-    [SerializeField, VInspector.ReadOnly] private float currentMagnetRadius;
-    [SerializeField, VInspector.ReadOnly] private int currentCurrency ;
+    [SerializeField, ReadOnly] private float currentMagnetRadius;
+    [SerializeField, ReadOnly] private int currentCurrency ;
     
     private readonly List<Resource> _resourcesInRange = new List<Resource>();
     private readonly Dictionary<ResourceType, Action<Resource>> _collectionActions = new Dictionary<ResourceType, Action<Resource>>();

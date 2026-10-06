@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Systems.ObjectPooling;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -32,12 +33,12 @@ public class EnemySpawner : MonoBehaviour
     {
         if (!levelManager)
         {
-            levelManager = FindFirstObjectByType<LevelManager>();
+            levelManager = FindAnyObjectByType<LevelManager>();
         }
         
         if (!player)
         {
-            player = FindFirstObjectByType<RailPlayer>();
+            player = FindAnyObjectByType<RailPlayer>();
         }
 
         // Auto-find box colliders if not assigned

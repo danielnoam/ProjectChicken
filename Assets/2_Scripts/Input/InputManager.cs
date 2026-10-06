@@ -4,7 +4,8 @@ using KBCore.Refs;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using VInspector;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 
 public class InputManager : MonoBehaviour
 {

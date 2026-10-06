@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using DNExtensions;
+using DNExtensions.Utilities;
 using UnityEngine.UI;
 
 public class UIElementAlphaEffector : MonoBehaviour

@@ -1,12 +1,13 @@
 
 using System;
 using System.Collections;
-using DNExtensions;
+using DNExtensions.Utilities;
 using KBCore.Refs;
+using DNExtensions.Systems.ControllerRumble;
 using UnityEngine;
 using PrimeTween;
 using UnityEngine.InputSystem;
-using VInspector;
+using DNExtensions.Systems.Scriptables;
 
 [RequireComponent(typeof(RailPlayer))]
 [RequireComponent(typeof(Rigidbody))]
@@ -46,7 +47,7 @@ public class RailPlayerMovement : MonoBehaviour
     [SerializeField, Self, HideInInspector] private RailPlayerAiming playerAiming;
     [SerializeField, Self, HideInInspector] private RailPlayerInput playerInput;
     [SerializeField, Self, HideInInspector] private Rigidbody playerRigidbody;
-    [SerializeField, Self, HideInInspector] private ControllerVibrationSource controllerVibrationSource;
+    [SerializeField, Self, HideInInspector] private ControllerRumbleSource controllerVibrationSource;
 
 
 
@@ -455,7 +456,7 @@ public class RailPlayerMovement : MonoBehaviour
         
         
         dodgeSfx?.Play(audioSource);
-        controllerVibrationSource.VibrateFadeIn(0.05f, 0f, dodgeTweenSettings.duration/2);
+        controllerVibrationSource.RumbleFadeIn(0.05f, 0f, dodgeTweenSettings.duration/2);
         
         if (_dodgeTween.isAlive) _dodgeTween.Stop();
         float startRoll = 0;

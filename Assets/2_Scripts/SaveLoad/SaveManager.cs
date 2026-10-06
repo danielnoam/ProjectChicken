@@ -5,7 +5,8 @@ using PrimeTween;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VInspector;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 
 [DefaultExecutionOrder(-1)]
 [SelectionBase]

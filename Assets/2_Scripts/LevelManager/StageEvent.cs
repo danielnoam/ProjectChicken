@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using DNExtensions;
+using DNExtensions.Utilities;
 using UnityEngine;
 
 [System.Serializable]

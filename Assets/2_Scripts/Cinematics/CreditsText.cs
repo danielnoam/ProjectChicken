@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 
 public class CreditsText : MonoBehaviour
 {

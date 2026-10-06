@@ -1,10 +1,11 @@
 using System;
-using DNExtensions;
+using DNExtensions.Utilities;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DNExtensions.Systems.Scriptables;
 
 [RequireComponent(typeof(AudioSource))]
 public class UpgradeInfoDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler

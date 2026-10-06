@@ -1,5 +1,6 @@
-using DNExtensions;
+using DNExtensions.Utilities;
 using UnityEngine;
+using DNExtensions.Systems.Scriptables;
 
 [RequireComponent(typeof(Collider))]
 [DisallowMultipleComponent]

@@ -1,11 +1,12 @@
 ﻿using System;
-using DNExtensions;
-using DNExtensions.VFXManager;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
+using DNExtensions.Systems.VFXManager;
 using PrimeTween;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Playables;
-using VInspector;
+using DNExtensions.Utilities.CustomFields;
 
 public class CinematicManager : MonoBehaviour
 {
@@ -19,9 +20,9 @@ public class CinematicManager : MonoBehaviour
     [SerializeField] protected CinematicInput cinematicInput;
     [SerializeField] protected PlayableDirector playableDirector;
     [SerializeField] protected AudioSource audioSource;
-    [SerializeField] protected SOVFEffectsSequence awakeSequence;
-    [SerializeField] protected SOVFEffectsSequence endSequence;
-    [SerializeField] protected SOVFEffectsSequence targetSceneStartSequence;
+    [SerializeField] protected EffectSequence awakeSequence;
+    [SerializeField] protected EffectSequence endSequence;
+    [SerializeField] protected EffectSequence targetSceneStartSequence;
     
     
     protected Tween audioSourceVolumeTween;
@@ -116,7 +117,7 @@ public class CinematicManager : MonoBehaviour
     [Button]
     protected void StartCinematic()
     {
-        if (IsThereCinematic()) VFXManager.Instance?.PlayVFX(awakeSequence);
+        if (IsThereCinematic()) VFXManager.Instance?.PlaySequence(awakeSequence);
         
         if (hideCursor)
         {

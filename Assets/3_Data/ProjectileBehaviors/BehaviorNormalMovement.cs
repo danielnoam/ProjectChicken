@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Utilities;
 
 public class BehaviorNormalMovement : ProjectileBehaviorBase
 {

@@ -11,10 +11,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de20f28ea40c22c43978f33a09f060b4, type: 3}
   m_Name: VFX Sequence Level Launch
-  m_EditorClassIdentifier: 
-  sequenceDuration: 4
+  m_EditorClassIdentifier: DNExtensions.Systems::DNExtensions.Systems.VFXManager.EffectSequence
+  duration: 4
+  isAdditive: 1
   resetEffectsOnComplete: 1
-  effectIsAdditive: 1
   effects:
   - rid: 6887788976916136024
   - rid: 6887788976916136025
@@ -22,42 +22,62 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 6887788976916136024
-      type: {class: SetLensDistortion, ns: DNExtensions.VFXManager, asm: Assembly-CSharp-firstpass}
+      type: {class: SetLensDistortion, ns: DNExtensions.Systems.VFXManager, asm: DNExtensions.Systems}
       data:
         duration:
           minValue: 0
           maxValue: 0.85037404
-        useDefaultIntensity: 0
-        startIntensity: 0
-        endIntensity: 0.7
-        intensityEase: 24
-        animateXMultiplier: 1
-        useDefaultXMultiplier: 0
-        startXMultiplier: 0
-        endXMultiplier: 1
-        xMultiplierEase: 1
-        animateYMultiplier: 1
-        useDefaultYMultiplier: 0
-        startYMultiplier: 0
-        endYMultiplier: 1
-        yMultiplierEase: 1
-        animateCenter: 0
-        useDefaultCenter: 0
-        startCenter: {x: 0.5, y: 0.5}
-        endCenter: {x: 0.5, y: 0.5}
-        centerEase: 1
-        animateScale: 0
-        useDefaultScale: 0
-        startScale: 1
-        endScale: 1
-        scaleEase: 1
+        intensity:
+          animate: 1
+          startValue:
+            isSet: 1
+            hideWhenUnchecked: 0
+            value: 0
+          endValue: 0.7
+          ease: 24
+        xMultiplier:
+          animate: 1
+          startValue:
+            isSet: 1
+            hideWhenUnchecked: 0
+            value: 0
+          endValue: 1
+          ease: 1
+        yMultiplier:
+          animate: 1
+          startValue:
+            isSet: 1
+            hideWhenUnchecked: 0
+            value: 0
+          endValue: 1
+          ease: 1
+        center:
+          animate: 0
+          startValue:
+            isSet: 1
+            hideWhenUnchecked: 0
+            value: {x: 0.5, y: 0.5}
+          endValue: {x: 0.5, y: 0.5}
+          ease: 1
+        scale:
+          animate: 0
+          startValue:
+            isSet: 1
+            hideWhenUnchecked: 0
+            value: 1
+          endValue: 1
+          ease: 1
     - rid: 6887788976916136025
-      type: {class: SetChromaticAberration, ns: DNExtensions.VFXManager, asm: Assembly-CSharp-firstpass}
+      type: {class: SetChromaticAberration, ns: DNExtensions.Systems.VFXManager, asm: DNExtensions.Systems}
       data:
         duration:
           minValue: 0.40157142
           maxValue: 0.86905277
-        useDefaultIntensity: 0
-        startIntensity: 0
-        endIntensity: 0.5
-        ease: 1
+        intensity:
+          animate: 1
+          startValue:
+            isSet: 1
+            hideWhenUnchecked: 0
+            value: 0
+          endValue: 0.5
+          ease: 1

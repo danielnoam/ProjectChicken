@@ -1,10 +1,10 @@
 using System.Collections;
-using DNExtensions;
+using DNExtensions.Utilities;
 using KBCore.Refs;
 using PrimeTween;
 using Unity.Cinemachine;
 using UnityEngine;
-using VInspector;
+using DNExtensions.Utilities.CinemachineExtensions;
 
 [SelectionBase]
 public class CameraManager : MonoBehaviour
@@ -45,7 +45,7 @@ public class CameraManager : MonoBehaviour
     [SerializeField, Child(Flag.Editable)] private CinemachineCamera storeCamera;
     [SerializeField, Child(Flag.Editable)] private CinemachineFollow followCameraFollow;
     [SerializeField, Child(Flag.Editable)] private CinemachineRotateWithFollowTarget followCameraRotate;
-    [SerializeField, Child(Flag.Editable)] private CinemachineRotationOffsetExtension followCameraRotateExtenstion;
+    [SerializeField, Child(Flag.Editable)] private CinemachineRotationOffset followCameraRotateExtenstion;
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private RailPlayer player;
     
@@ -60,10 +60,10 @@ public class CameraManager : MonoBehaviour
     private void OnValidate()
     {
         if (!levelManager)
-            levelManager = FindFirstObjectByType<LevelManager>();
+            levelManager = FindAnyObjectByType<LevelManager>();
         
         if (!player)
-            player = FindFirstObjectByType<RailPlayer>();
+            player = FindAnyObjectByType<RailPlayer>();
         
         // Validate all settings
         reticleInfluenceSettings.Validate();

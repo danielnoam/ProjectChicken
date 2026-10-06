@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using DNExtensions;
+using DNExtensions.Utilities;
 using Random = UnityEngine.Random;
 
 public class SpaceItemSpawner : MonoBehaviour

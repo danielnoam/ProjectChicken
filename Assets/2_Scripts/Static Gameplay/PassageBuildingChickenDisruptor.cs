@@ -1,9 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Utilities.Button;
 using KBCore.Refs;
-using VInspector;
 
 
 [System.Serializable]
@@ -42,9 +42,9 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
     
     [Header("Debug")]
     [SerializeField] private bool showDebugLogs = true;
-    [SerializeField, VInspector.ReadOnly] private bool isDisrupting;
-    [SerializeField, VInspector.ReadOnly] private bool isInRecoveryDelay;
-    [SerializeField, VInspector.ReadOnly] private float recoveryTimeRemaining;
+    [SerializeField, ReadOnly] private bool isDisrupting;
+    [SerializeField, ReadOnly] private bool isInRecoveryDelay;
+    [SerializeField, ReadOnly] private float recoveryTimeRemaining;
     
     
     private readonly List<ChickenDisruptionData> _disruptedChickens = new List<ChickenDisruptionData>();
@@ -71,7 +71,7 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
     void Start()
     {
         // Find the chicken manager
-        _chickenManager = FindFirstObjectByType<EnemyChickenManager>();
+        _chickenManager = FindAnyObjectByType<EnemyChickenManager>();
         if (_chickenManager == null && showDebugLogs)
         {
             Debug.LogWarning($"PassageBuildingChickenDisruptor on {gameObject.name}: No EnemyChickenManager found in scene!");
@@ -80,7 +80,7 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         // Find formation effect manager if not assigned
         if (!formationEffectManager)
         {
-            formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
+            formationEffectManager = FindAnyObjectByType<FormationEffectManager>();
         }
         
         if (showDebugLogs)
@@ -253,7 +253,7 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         List<GameObject> allChickens = new List<GameObject>();
         
         // Get chickens from all registrations
-        EnemyChickenRegistration[] allRegistrations = FindObjectsByType<EnemyChickenRegistration>(FindObjectsSortMode.None);
+        EnemyChickenRegistration[] allRegistrations = FindObjectsByType<EnemyChickenRegistration>();
         
         foreach (var registration in allRegistrations)
         {
@@ -458,7 +458,7 @@ public class PassageBuildingChickenDisruptor : MonoBehaviour
         // Find formation effect manager if not assigned
         if (!formationEffectManager)
         {
-            formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
+            formationEffectManager = FindAnyObjectByType<FormationEffectManager>();
         }
         
         this.ValidateRefs();

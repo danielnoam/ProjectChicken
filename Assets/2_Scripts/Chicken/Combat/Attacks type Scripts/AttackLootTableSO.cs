@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using DNExtensions;
+using DNExtensions.Utilities;
 
 [CreateAssetMenu(fileName = "New Attack Loot Table", menuName = "Chicken Combat/Attack Loot Table")]
 public class AttackLootTableSO : ScriptableObject
@@ -72,8 +72,8 @@ public class AttackLootTableSO : ScriptableObject
             return 0f;
         }
         
-        var index = attackEntries.GetIndex(attackAsset);
-        return attackEntries.GetChance(index);
+        var index = attackEntries.IndexOf(attackAsset);
+        return index < 0 ? 0f : attackEntries.GetChance(index);
     }
     
 

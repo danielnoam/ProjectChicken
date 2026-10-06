@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Systems.Scriptables;
 
 // Interface that all attack types must implement
 public interface IChickenAttack

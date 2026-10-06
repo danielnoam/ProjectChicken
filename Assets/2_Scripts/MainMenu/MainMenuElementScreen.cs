@@ -1,11 +1,12 @@
 using System;
 using System.Linq;
-using DNExtensions;
+using DNExtensions.Utilities;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using DNExtensions.Utilities.Button;
 
 public class MainMenuElementScreen : MainMenuElement
 {
@@ -167,7 +168,7 @@ public class MainMenuElementScreen : MainMenuElement
     }
 
 
-    [VInspector.Button]
+    [Button]
     private void FindAllSelectables()
     {
         selectables = Array.Empty<Selectable>();

@@ -1,8 +1,10 @@
 using System;
-using DNExtensions;
+using DNExtensions.Utilities;
+using DNExtensions.Systems.ControllerRumble;
 using UnityEngine;
 using UnityEngine.Splines;
 using Random = UnityEngine.Random;
+using DNExtensions.Systems.Scriptables;
 
 
 public class NormalObstacle : BaseObstacle
@@ -15,7 +17,7 @@ public class NormalObstacle : BaseObstacle
     
     [Header("Collision With Player")]
     [SerializeField] private CameraShakeSettings hitPlayerCameraShakeSettings;
-    [SerializeField] private ControllerVibrationEffectSettings hitPlayerVibrationEffectSettings;
+    [SerializeField] private ControllerRumbleEffectSettings hitPlayerVibrationEffectSettings;
     
     private float _health;
     
@@ -43,7 +45,7 @@ public class NormalObstacle : BaseObstacle
         Vector3 moveDirection = (player.transform.position - transform.position).normalized;
         player.Movement.Push(moveDirection, 2f);
         hitPlayerCameraShakeSettings.GenerateImpulse(impulseSource);
-        vibrationSource.Vibrate(hitPlayerVibrationEffectSettings);
+        vibrationSource.Rumble(hitPlayerVibrationEffectSettings);
     }
     
     protected override void OnCollisionWithChicken(Collider other, ChickenStateController chicken)

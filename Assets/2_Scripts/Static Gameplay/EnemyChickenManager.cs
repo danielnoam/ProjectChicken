@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using KBCore.Refs;
-using VInspector;
+using DNExtensions.Utilities;
 using Random = UnityEngine.Random;
 
 public class EnemyChickenManager : MonoBehaviour
@@ -48,8 +48,8 @@ public class EnemyChickenManager : MonoBehaviour
 
     private void OnValidate()
     {
-        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>(FindObjectsInactive.Include);
-        if (!player) player = FindFirstObjectByType<RailPlayer>(FindObjectsInactive.Include);
+        if (!levelManager) levelManager = FindAnyObjectByType<LevelManager>(FindObjectsInactive.Include);
+        if (!player) player = FindAnyObjectByType<RailPlayer>(FindObjectsInactive.Include);
         
         this.ValidateRefs();
     }
@@ -106,14 +106,14 @@ public class EnemyChickenManager : MonoBehaviour
         SetAutoUpdatesEnabled(false);
         
         // Immediately stop any active formation effects
-        var formationEffectManager = FindFirstObjectByType<FormationEffectManager>();
+        var formationEffectManager = FindAnyObjectByType<FormationEffectManager>();
         if (formationEffectManager)
         {
             formationEffectManager.StopAllEffects();
         }
         
         // Find all active chickens and force them to cleanup
-        var allChickens = FindObjectsByType<EnemyChickenRegistration>(FindObjectsSortMode.None);
+        var allChickens = FindObjectsByType<EnemyChickenRegistration>();
 
         int cleanedCount = 0;
         foreach (var chicken in allChickens)

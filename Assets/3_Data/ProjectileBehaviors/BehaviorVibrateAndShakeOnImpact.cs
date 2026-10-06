@@ -1,13 +1,14 @@
 using System;
-using DNExtensions;
+using DNExtensions.Utilities;
 using UnityEngine;
+using DNExtensions.Systems.ControllerRumble;
 
 
 public class BehaviorVibrateAndShakeOnImpact : ProjectileBehaviorBase
 {
     
     [SerializeField] private bool vibrateControllerOnImpact = true;
-    [SerializeField] private ControllerVibrationEffectSettings vibrationSettings;
+    [SerializeField] private ControllerRumbleEffectSettings vibrationSettings;
     
     [Space(10)]
     
@@ -29,7 +30,7 @@ public class BehaviorVibrateAndShakeOnImpact : ProjectileBehaviorBase
 
     public override void OnCollision(PlayerProjectile projectile, RailPlayer owner, IDamageable damageable)
     {
-        if (vibrateControllerOnImpact) projectile.WeaponInstance.ControllerVibrationSource.Vibrate(vibrationSettings);
+        if (vibrateControllerOnImpact) projectile.WeaponInstance.ControllerRumbleSource.Rumble(vibrationSettings);
         if (shakeCameraOnImpact) shakeSettings.GenerateImpulse(projectile.WeaponInstance.CinemachineImpulseSource);
     }
 

@@ -348,7 +348,7 @@ public class FormationCreator : MonoBehaviour
             GenerateFormation();
         }
 
-        if (!levelManager) levelManager = FindFirstObjectByType<LevelManager>(FindObjectsInactive.Include);
+        if (!levelManager) levelManager = FindAnyObjectByType<LevelManager>(FindObjectsInactive.Include);
         
         this.ValidateRefs();
     }
